@@ -1,5 +1,11 @@
 import { Dayjs } from 'dayjs';
 
+export interface FormValidation {
+  fiscalYearName: string;
+  fiscalYearStartDate: Dayjs | null;
+  fiscalYearEndDate: Dayjs | null;
+}
+
 export interface DrawerState {
   isFiscalYearOpen: boolean;
   workingHour: string | number;
@@ -25,17 +31,13 @@ export interface DrawerState {
   setDeleteMode: (isDeleteMode: boolean) => void;
   toggleFiscalYearDrawer: () => void;
   closeFiscalYearDrawer: () => void;
-  openDrawer: () => void;
-  openfiscalYearDrawer: boolean;
-
-  isOpenfiscalYearDrawer: boolean;
-  setIsOpenFiscalYearDrawer: (isOpenfiscalYearDrawer: boolean) => void;
-
-  setOpenFiscalYearDrawer: (openfiscalYearDrawer: boolean) => void;
+  openFiscalYearDrawer: () => void;
   setWorkingHour: (hours: string | number) => void;
   setSelectedFiscalYear: (fiscalYear: any) => void;
-  setEditMode: (isEdit: boolean) => void; // Toggle edit mode
-  setCurrent: (current: number) => void; // Update the current fiscal year
+  setEditMode: (isEdit: boolean) => void;
+  setCurrent: (current: number) => void;
+  openfiscalYearDrawer: boolean;
+  setOpenFiscalYearDrawer: (isOpen: boolean) => void;
 
   sessionData: any[];
   setSessionData: (data: any) => void;
@@ -48,4 +50,13 @@ export interface DrawerState {
 
   monthRangeValues: any;
   setMonthRangeFormValues: (newData: any) => void;
+
+  formValidation: FormValidation;
+  setFormValidation: (newData: Partial<FormValidation>) => void;
+  isFormValid: boolean;
+  setIsFormValid: (isValid: boolean) => void;
+  resetFormState: () => void;
+
+  openDrawer: () => void;
+  setIsOpenFiscalYearDrawer: (isOpen: boolean) => void;
 }

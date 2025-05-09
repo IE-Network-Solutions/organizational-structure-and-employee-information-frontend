@@ -1,4 +1,14 @@
-import { Input, Form, DatePicker, Button, Row, Col, Select } from 'antd';
+import {
+  Input,
+  Form,
+  DatePicker,
+  Button,
+  Row,
+  Col,
+  Select,
+  Tooltip,
+  message,
+} from 'antd';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import dayjs from 'dayjs';
@@ -17,6 +27,14 @@ const FiscalYearForm: React.FC = () => {
     setFiscalYearFormValues,
     selectedFiscalYear,
     isEditMode,
+    formValidation,
+    setFormValidation,
+    isFormValid,
+    setIsFormValid,
+    fiscalYearFormValues,
+    resetFormState,
+    calendarType,
+    setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
 
   const { data: activeCalendar } = useGetActiveFiscalYears();
@@ -73,56 +91,141 @@ const FiscalYearForm: React.FC = () => {
   };
 
   const handleClose = () => {
-    setSelectedFiscalYear(null);
-    setCalendarType('');
-  };
-
-  const handleValuesChange = (val: string) => setCalendarType(val);
-  const handleStartDateChange = (val: any) => setFiscalYearStart(val);
-  const handleEndDateChange = (val: any) => setFiscalYearEnd(val);
-
-  const handleNext = () => {
-    const currentValues = form.getFieldsValue();
-    setFiscalYearFormValues(currentValues);
-    setCurrent(1);
-  };
-
-  useEffect(() => {
-    if (isEditMode && selectedFiscalYear) {
-      const sessionCount = selectedFiscalYear?.sessions?.length;
-      let calendarType = '';
-      if (sessionCount === 4) {
-        calendarType = 'Quarter';
-      } else if (sessionCount === 2) {
-        calendarType = 'Semester';
-      } else if (sessionCount === 1) {
-        calendarType = 'Year';
-      }
-
-      setCalendarType(calendarType);
-
-      form.setFieldsValue({
-        fiscalYearName: selectedFiscalYear?.name,
-        fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
-        fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
-        fiscalYearCalenderId: `${calendarType}`,
-        fiscalYearDescription: dayjs(selectedFiscalYear?.description),
-      });
+    try {
+      setSelectedFiscalYear(null);
+      setOpenFiscalYearDrawer(false);
+      setCalendarType('');
+      resetFormState();
+    } catch (error) {
+      message.error('Failed to close the form. Please try again.');
     }
-  }, [selectedFiscalYear, isEditMode, form]);
+  };
+
+  const handleValuesChange = (val: string) => {
+    try {
+      setCalendarType(val);
+    } catch (error) {
+      message.error('Failed to update calendar type. Please try again.');
+    }
+  };
+
+  const handleStartDateChange = (val: any) => {
+    try {
+      setFiscalYearStart(val);
+    } catch (error) {
+      message.error('Failed to update start date. Please try again.');
+    }
+  };
+
+  const handleEndDateChange = (val: any) => {
+    try {
+      setFiscalYearEnd(val);
+    } catch (error) {
+      message.error('Failed to update end date. Please try again.');
+    }
+  };
+
+  const handleNext = async () => {
+    try {
+      const currentValues = form.getFieldsValue();
+      setFiscalYearFormValues(currentValues);
+      setCurrent(1);
+    } catch (error) {
+      message.error('Failed to proceed to next step. Please try again.');
+    }
+  };
+
+  // Initialize form with stored values when component mounts or when returning from next step
+  useEffect(() => {
+    try {
+      if (isEditMode && selectedFiscalYear) {
+        const sessionCount = selectedFiscalYear?.sessions?.length;
+        let newCalendarType = '';
+        if (sessionCount === 4) {
+          newCalendarType = 'Quarter';
+        } else if (sessionCount === 2) {
+          newCalendarType = 'Semester';
+        } else if (sessionCount === 1) {
+          newCalendarType = 'Year';
+        }
+
+        setCalendarType(newCalendarType);
+
+        form.setFieldsValue({
+          fiscalYearName: selectedFiscalYear?.name,
+          fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
+          fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
+          fiscalYearCalenderId: newCalendarType,
+          fiscalYearDescription: dayjs(selectedFiscalYear?.description),
+        });
+      } else if (Object.keys(fiscalYearFormValues).length > 0) {
+        // If we have stored form values (returning from next step), restore them
+        form.setFieldsValue(fiscalYearFormValues);
+        setFormValidation({
+          fiscalYearName: fiscalYearFormValues.fiscalYearName,
+          fiscalYearStartDate: fiscalYearFormValues.fiscalYearStartDate,
+          fiscalYearEndDate: fiscalYearFormValues.fiscalYearEndDate,
+        });
+      }
+    } catch (error) {
+      message.error('Failed to initialize form. Please refresh the page.');
+    }
+  }, [
+    selectedFiscalYear,
+    isEditMode,
+    form,
+    fiscalYearFormValues,
+    setCalendarType,
+    setFormValidation,
+  ]);
+
+  // Update form validation state when form values change
+  useEffect(() => {
+    try {
+      const checkFormValidity = () => {
+        const isValid = Boolean(
+          formValidation.fiscalYearName &&
+            formValidation.fiscalYearStartDate &&
+            formValidation.fiscalYearEndDate &&
+            calendarType,
+        );
+        setIsFormValid(isValid);
+      };
+
+      checkFormValidity();
+    } catch (error) {
+      message.error('Failed to validate form. Please refresh the page.');
+    }
+  }, [formValidation, setIsFormValid, calendarType]);
 
   return (
-    <Form form={form} layout="vertical">
+    <Form
+      form={form}
+      layout="vertical"
+      onValuesChange={(nonused, allValues) => {
+        try {
+          setFormValidation({
+            fiscalYearName: allValues.fiscalYearName,
+            fiscalYearStartDate: allValues.fiscalYearStartDate,
+            fiscalYearEndDate: allValues.fiscalYearEndDate,
+          });
+        } catch (error) {
+          message.error('Failed to update form values. Please try again.');
+        }
+      }}
+    >
       <Form.Item
         id="fiscalNameId"
         name="fiscalYearName"
         label={<span className="font-medium">Fiscal Year Name</span>}
-        rules={[{ required: true, message: 'Please input the session name!' }]}
+        rules={[
+          { required: true, message: 'Please input the fiscal year name!' },
+        ]}
       >
         <Input
           size="large"
           className="h-12 mt-2 w-full font-normal text-sm"
-          placeholder="Enter session name"
+          placeholder="Enter fiscal year name"
         />
       </Form.Item>
 
@@ -131,8 +234,11 @@ const FiscalYearForm: React.FC = () => {
           <Form.Item
             id="fiscalYearStartDateId"
             name="fiscalYearStartDate"
-            label={<span className="font-medium"> Start Date</span>}
-            rules={[{ validator: validateStartDate }]}
+            label={<span className="font-medium">Start Date</span>}
+            rules={[
+              { required: true, message: 'Please select a start date!' },
+              { validator: validateStartDate },
+            ]}
           >
             <DatePicker
               onChange={(value: any) => handleStartDateChange(value)}
@@ -157,7 +263,10 @@ const FiscalYearForm: React.FC = () => {
             id="fiscalYearEndDateId"
             name="fiscalYearEndDate"
             label={<span className="font-medium"> End Date</span>}
-            rules={[{ validator: validateEndDate }]}
+            rules={[
+              { required: true, message: 'Please select an end date!' },
+              { validator: validateEndDate },
+            ]}
           >
             <DatePicker
               onChange={(value: any) => handleEndDateChange(value)}
@@ -170,11 +279,14 @@ const FiscalYearForm: React.FC = () => {
         id="fiscalYearCalenderId"
         name="fiscalYearCalenderId"
         label={<span className="font-medium">Fiscal Year Calendar</span>}
+        initialValue={calendarType}
+        rules={[{ required: true, message: 'Please select a calendar type!' }]}
       >
         <Select
           placeholder="Select Calendar"
           className="h-12 w-full font-normal text-xl mt-2"
           onChange={(value) => handleValuesChange(value)}
+          value={calendarType}
         >
           <Select.Option value="Quarter">Quarter</Select.Option>
           <Select.Option value="Semester">Semester</Select.Option>
@@ -187,17 +299,27 @@ const FiscalYearForm: React.FC = () => {
           {departments?.length > 0 && (
             <Button
               onClick={handleClose}
-              className="text-sm font-medium bg-white border-gray-300"
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
             >
               Cancel
             </Button>
           )}
-          <Button
-            onClick={handleNext}
-            className="text-sm font-medium text-white bg-primary border-none"
+          <Tooltip
+            title={
+              !isFormValid
+                ? 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
+                : ''
+            }
+            placement="top"
           >
-            Next
-          </Button>
+            <Button
+              onClick={handleNext}
+              disabled={!isFormValid}
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+            >
+              Next
+            </Button>
+          </Tooltip>
         </div>
       </Form.Item>
     </Form>
