@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
 import axios from 'axios';
 import { useMutation, useQuery } from 'react-query';
 import { sendPasswordResetEmail } from 'firebase/auth';
@@ -63,6 +63,23 @@ const getTenantId = async () => {
  * query object containing the post data, and it keeps the previous data
  * while the new data is being fetched.
  */
+
+const getTenantByDomainName = async (domain: string) => {
+  try {
+    const response = await axios.get(
+      `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`, // Fixed: wrapped in backticks
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useGetTenantByDomain = (domain: string) =>
+  useQuery<any>(['domain', domain], () => getTenantByDomainName(domain), {
+    keepPreviousData: true,
+    enabled: false,
+  });
 export const useGetTenantId = () =>
   useQuery<any>(['tenantId'], () => getTenantId(), {
     keepPreviousData: true,

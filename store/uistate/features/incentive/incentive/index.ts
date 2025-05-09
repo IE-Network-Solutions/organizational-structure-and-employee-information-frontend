@@ -160,6 +160,15 @@ export type CertificateDetails = {
   details: string;
   title: string;
 };
+export type IncentiveExportFilter = {
+  parentRecognitionTypeId?: string;
+
+  sessionId: string[];
+  generateAll: boolean;
+  userId?: string;
+
+  monthId?: string;
+};
 
 export interface Criteria {
   id: string;
@@ -269,6 +278,7 @@ type IncentiveState = {
   generateAll: boolean;
   filteredSessions: any[];
   selectedFiscalYear: string | null;
+  selectedRowKeys: string[];
   showMobileFilter: boolean;
   selectedYear: string | null;
 };
@@ -304,6 +314,10 @@ type IncentiveActions = {
   setGenerateAll: (value: boolean) => void;
   setFilteredSessions: (sessions: any[]) => void;
   setSelectedFiscalYear: (year: string | null) => void;
+  setSelectedRowKeys: (selectedRowKeys: string[]) => void;
+  confirmationModal: boolean;
+  setConfirmationModal: (value: boolean) => void;
+
   setShowMobileFilter: (value: boolean) => void;
   setSelectedYear: (value: string | null) => void;
 };
@@ -413,9 +427,12 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   selectedFiscalYear: null,
   setSelectedFiscalYear: (year) => set({ selectedFiscalYear: year }),
 
+  selectedRowKeys: [],
+  setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
+  confirmationModal: false,
+  setConfirmationModal: (value) => set({ confirmationModal: value }),
   showMobileFilter: false,
   setShowMobileFilter: (value) => set({ showMobileFilter: value }),
-
   selectedYear: null,
   setSelectedYear: (value) => set({ selectedYear: value }),
 });

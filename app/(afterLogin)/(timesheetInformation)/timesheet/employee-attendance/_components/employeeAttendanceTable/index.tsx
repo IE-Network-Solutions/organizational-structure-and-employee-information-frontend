@@ -57,8 +57,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
   } = useEmployeeAttendanceStore();
-  const [filter, setFilter] =
-    useState<Partial<AttendanceRequestBody['filter']>>();
+  const { filter, setFilter } = useEmployeeAttendanceStore();
   const { data, isFetching, refetch } = useGetAttendances(
     { page, limit, orderBy, orderDirection },
     { filter },
