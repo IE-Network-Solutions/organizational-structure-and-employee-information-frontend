@@ -30,7 +30,6 @@ export const TransferForm = () => {
     label: item.name,
   }));
 
-
   const departmentCache: Record<string, any> = {};
 
   const findDepartmentWithChildren = (tree: any, id: string): any => {
