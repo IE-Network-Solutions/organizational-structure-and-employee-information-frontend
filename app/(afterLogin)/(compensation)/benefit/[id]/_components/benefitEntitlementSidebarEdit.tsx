@@ -19,7 +19,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 dayjs.extend(isBetween);
 
 const { Option } = Select;
-
+const { TextArea } = Input;
 type BenefitEntitlementProps = {
   title: string;
 };
@@ -65,7 +65,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       });
     } else {
       updateBenefitEntitlement(
-        { payments: formValues?.payments, id: employeeEntitlementData?.id },
+        { payments: formValues.payments, id: employeeEntitlementData?.id },
         {
           onSuccess: () => {
             form.resetFields();
@@ -103,6 +103,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
         payPeriodId: entry.payPeriodId || null,
         isPaid: entry.isPaid,
         id: entry.id,
+        reason: entry?.reason,
       }),
     );
     const totalAmount = (
@@ -164,7 +165,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             disabled={record?.isPaid}
             placeholder="Pay Period"
             allowClear
-            className="w-60"
+            className="w-full"
           >
             {payPeriods?.map((period: any) => (
               <Option key={period.id} value={period.id}>
@@ -173,6 +174,19 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
               </Option>
             ))}
           </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      dataIndex: 'reason',
+      key: 'reason',
+      render: (notused: any, record: any, index: number) => (
+        <Form.Item
+          label="Reason"
+          name={['payments', index, 'reason']}
+          className="mb-0"
+        >
+          <TextArea placeholder="reason" autoSize />
         </Form.Item>
       ),
     },
