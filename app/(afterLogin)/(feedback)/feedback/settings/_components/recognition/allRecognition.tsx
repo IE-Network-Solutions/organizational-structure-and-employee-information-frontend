@@ -4,8 +4,6 @@ import { FaPlus } from 'react-icons/fa';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
 import { useDeleteRecognitionCriteria } from '@/store/server/features/CFR/recognitionCriteria/mutation';
-import RecognitionForm from './createRecognition';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { Edit2, Trash2 } from 'lucide-react';
@@ -20,7 +18,6 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     setSelectedRecognitionType,
     setParentRecognitionTypeId,
     // setEditingRowKeys,
-    selectedRecognitionType,
   } = ConversationStore();
   const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
   // const {mutate:deleteRecognitionCriteria}=useDeleteRecognitionCriteria()
@@ -97,11 +94,6 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
   const handleDeleteRecognitionType = (id: string) => {
     deleteRecognitionType(id);
   };
-  const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {selectedRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
-    </div>
-  );
 
   const recognitionShow = (item: any) => {
     return (
@@ -188,17 +180,6 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
               ))}
         </React.Fragment>
       ))}
-
-      <div>
-        <CustomDrawerLayout
-          open={selectedRecognitionType !== ''}
-          onClose={() => setSelectedRecognitionType('')}
-          modalHeader={modalHeader}
-          width="50%"
-        >
-          <RecognitionForm />
-        </CustomDrawerLayout>
-      </div>
     </div>
   );
 };
