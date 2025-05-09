@@ -19,7 +19,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 dayjs.extend(isBetween);
 
 const { Option } = Select;
-
+const { TextArea } = Input;
 type BenefitEntitlementProps = {
   title: string;
 };
@@ -65,7 +65,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       });
     } else {
       updateBenefitEntitlement(
-        { payments: formValues?.payments, id: employeeEntitlementData?.id },
+        { payments: formValues.payments, id: employeeEntitlementData?.id },
         {
           onSuccess: () => {
             form.resetFields();
@@ -103,6 +103,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
         payPeriodId: entry.payPeriodId || null,
         isPaid: entry.isPaid,
         id: entry.id,
+        reason: entry?.reason,
       }),
     );
     const totalAmount = (
@@ -164,26 +165,28 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             disabled={record?.isPaid}
             placeholder="Pay Period"
             allowClear
-            className="w-60"
+            className="w-full"
           >
-            {payPeriods
-              ?.filter((period: any) => {
-                const start = dayjs(period.startDate);
-                const end = dayjs(period.endDate);
-                return (
-                  start.isSame(dayjs(), 'month') ||
-                  end.isSame(dayjs(), 'month') ||
-                  start.isSame(dayjs().add(1, 'month'), 'month') ||
-                  end.isSame(dayjs().add(1, 'month'), 'month')
-                );
-              })
-              .map((period: any) => (
-                <Option key={period.id} value={period.id}>
-                  {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
-                  {dayjs(period.endDate).format('MMM DD, YYYY')}
-                </Option>
-              ))}
+            {payPeriods?.map((period: any) => (
+              <Option key={period.id} value={period.id}>
+                {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
+                {dayjs(period.endDate).format('MMM DD, YYYY')}
+              </Option>
+            ))}
           </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      dataIndex: 'reason',
+      key: 'reason',
+      render: (notused: any, record: any, index: number) => (
+        <Form.Item
+          label="Reason"
+          name={['payments', index, 'reason']}
+          className="mb-0"
+        >
+          <TextArea placeholder="reason" autoSize />
         </Form.Item>
       ),
     },
