@@ -34,6 +34,7 @@ const Page = () => {
               id="createNewRuleMainButtonId"
               type="primary"
               icon={<FaPlus />}
+              className="h-10 w-10 sm:w-auto"
               disabled={!attendanceNotificationType.length}
               onClick={() => setIsShowCreateRuleSidebar(true)}
             >

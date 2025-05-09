@@ -1,7 +1,7 @@
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
-import { IoMdSwitch } from 'react-icons/io';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { VscSettings } from 'react-icons/vsc';
 
 interface CriteriaFiltersProps {
   onSearch: (value: string) => void;
@@ -28,8 +28,8 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
   return (
     <div className="mb-6">
       {isMobile ? (
-        <Row gutter={16}>
-          <Col xs={16} sm={16} md={18}>
+        <Row>
+          <Col xs={20} sm={20} md={18}>
             <Input
               placeholder="Search by Name"
               onChange={handleSearch}
@@ -38,7 +38,7 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
             />
           </Col>
 
-          <Col xs={8} sm={8} md={6} lg={6}>
+          <Col xs={4} sm={4} md={6} lg={6}>
             <Select
               placeholder=""
               onChange={handleTypeChange}
@@ -48,7 +48,7 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
               dropdownStyle={{ left: '50%', transform: 'translateX(-50%)' }}
               suffixIcon={
                 <div className="flex items-center justify-center w-full h-full text-black">
-                  <IoMdSwitch size={20} />
+                  <VscSettings size={20} />
                 </div>
               }
             >

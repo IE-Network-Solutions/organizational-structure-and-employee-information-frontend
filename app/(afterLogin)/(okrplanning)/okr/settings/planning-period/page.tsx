@@ -137,25 +137,28 @@ const PlanningPeriod = () => {
                     checked={planningPeriod?.isActive}
                     disabled={isLoading}
                     onChange={() => updateStatus(planningPeriod.id)}
-                    className="mr-4"
+                    className="mr-3"
                     checkedChildren={<CheckOutlined />}
                   />
                 </AccessGuard>
                 <Dropdown overlay={menu(planningPeriod)} trigger={['click']}>
-                  <MoreOutlined className="cursor-pointer" />
+                  <MoreOutlined
+                    className="cursor-pointer "
+                    style={{ fontSize: '22px', color: '#000000' }}
+                  />
                 </Dropdown>
               </div>
             }
             className="mb-4"
             bodyStyle={{ padding: '0.5rem 1rem' }}
           >
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-500">Action on Failure</p>
+            <div className="grid grid-cols-1 gap-4 pb-5">
+              <div className="flex justify-between px-2">
+                <p className="text-gray-400 text-sm">Action on Failure</p>
                 <p>{planningPeriod?.actionOnFailure}</p>
               </div>
-              <div>
-                <p className="text-gray-500">Interval</p>
+              <div className="flex justify-between px-2">
+                <p className="text-gray-400 text-sm">Interval</p>
                 <p>{planningPeriod?.intervalType}</p>
               </div>
             </div>

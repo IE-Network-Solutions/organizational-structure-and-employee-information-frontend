@@ -296,7 +296,6 @@ const Payroll = () => {
             ?.basicSalary || 0;
         const deductions = item.breakdown?.totalDeductionWithPension || [];
         const totalIncentive = item.breakdown?.incentives?.amount || 0;
-
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
         const transportAllowance = allowances

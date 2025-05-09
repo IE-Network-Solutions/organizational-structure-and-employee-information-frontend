@@ -107,7 +107,12 @@ const TaxRules = () => {
     <div className="p-5 rounded-2xl bg-white">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg text-bold">Tax Rule</h1>
-        <Button type="primary" icon={<FaPlus />} onClick={handleAddRule}>
+        <Button
+          type="primary"
+          className="h-10 w-10 sm:w-auto bg-[#3636f0]"
+          icon={<FaPlus />}
+          onClick={handleAddRule}
+        >
           <span className="hidden sm:inline">Add Tax Rule</span>
         </Button>
       </div>
@@ -117,7 +122,7 @@ const TaxRules = () => {
             dataSource={data}
             columns={columns}
             pagination={false}
-            bordered
+            bordered={false}
             loading={isLoading}
           />
         </div>

@@ -166,23 +166,12 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             allowClear
             className="w-60"
           >
-            {payPeriods
-              ?.filter((period: any) => {
-                const start = dayjs(period.startDate);
-                const end = dayjs(period.endDate);
-                return (
-                  start.isSame(dayjs(), 'month') ||
-                  end.isSame(dayjs(), 'month') ||
-                  start.isSame(dayjs().add(1, 'month'), 'month') ||
-                  end.isSame(dayjs().add(1, 'month'), 'month')
-                );
-              })
-              .map((period: any) => (
-                <Option key={period.id} value={period.id}>
-                  {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
-                  {dayjs(period.endDate).format('MMM DD, YYYY')}
-                </Option>
-              ))}
+            {payPeriods?.map((period: any) => (
+              <Option key={period.id} value={period.id}>
+                {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
+                {dayjs(period.endDate).format('MMM DD, YYYY')}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
       ),
