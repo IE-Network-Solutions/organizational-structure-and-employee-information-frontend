@@ -49,7 +49,7 @@ const Page = () => {
   ];
 
   return (
-    <div>
+    <div className="p-5 rounded-2xl bg-white h-full">
       <Spin spinning={isLoading}>
         <div className="flex md:flex-row flex-col-reverse justify-between">
           <Tabs

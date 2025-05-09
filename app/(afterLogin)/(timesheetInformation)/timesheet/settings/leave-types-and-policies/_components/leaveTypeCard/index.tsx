@@ -73,19 +73,19 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex text-sm text-gray-900 gap-4 even:justify-end">
+          <div className="flex text-xs text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Entitled Date-</span>
             <span>{item.entitledDaysPerYear}</span>
           </div>
-          <div className="flex text-sm text-gray-900 gap-4 even:justify-end">
+          <div className="flex text-xs text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Minimum Notification Period-</span>
             <span>{item.minimumNotifyingDays}</span>
           </div>
-          <div className="flex text-sm text-gray-900 gap-4 even:justify-end">
+          <div className="flex text-xs text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Maximum Allowed Days-</span>
             <span>{item.maximumAllowedConsecutiveDays}</span>
           </div>
-          <div className="flex text-sm text-gray-900 gap-4 even:justify-end">
+          <div className="flex text-xs text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Accrual Rule-</span>
             <span>
               {item.accrualRule &&
@@ -93,7 +93,7 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
                 item.accrualRule.title}
             </span>
           </div>
-          <div className="flex text-sm text-gray-900 gap-4 col-span-2">
+          <div className="flex text-xs text-gray-900 gap-4 col-span-2">
             <span className="font-bold">Description</span>
             <span>{item.description}</span>
           </div>

@@ -55,15 +55,15 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center text-sm text-gray-900 gap-4 even:justify-end">
+          <div className="flex items-center text-xs text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Carry-over Limit</span>
             <span>{item.limit}</span>
           </div>
-          <div className="flex items-center text-sm text-gray-900 gap-4 even:justify-end">
+          <div className="flex items-center text-xs text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Carry-overUOM</span>
             <span>{item.expirationPeriod}</span>
           </div>
-          <div className="flex items-center text-sm text-gray-900 gap-4 even:justify-end">
+          <div className="flex items-center text-xs text-gray-900 gap-4 even:justify-end">
             <span className="font-bold">Carry-Over Expiration-</span>
             <span>{item.expiration}</span>
           </div>
