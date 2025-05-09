@@ -1,3 +1,8 @@
 {
-  "cSpell.words": ["APPROVALTYPES", "BRANCHREQUEST", "Offboard"]
+  "cSpell.words": [
+    "APPROVALTYPES",
+    "BRANCHREQUEST",
+    "Offboard"
+  ],
+  "reactSnippets.settings.prettierEnabled": true
 }

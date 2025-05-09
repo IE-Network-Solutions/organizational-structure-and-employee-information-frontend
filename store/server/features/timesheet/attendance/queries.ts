@@ -17,17 +17,21 @@ const getAttendances = async (
   query: RequestCommonQueryData,
   data: Partial<AttendanceRequestBody>,
 ) => {
+  const requestData = {
+    ...data,
+  };
+
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
     method: 'POST',
     headers: requestHeader(),
-    data,
+    data: requestData,
     params: query,
   });
 };
 const getSingleAttendances = async (id: string) => {
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/{id}?id=${id}`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
     method: 'GET',
     headers: requestHeader(),
   });
@@ -57,7 +61,7 @@ const getAttendanceImportLogs = async (
 
 export const useGetAttendances = (
   query: RequestCommonQueryData,
-  data: Partial<AttendanceRequestBody>,
+  data: Partial<AttendanceRequestBody> = {},
   isKeepData: boolean = true,
   isEnabled: boolean = true,
 ) => {
@@ -67,6 +71,10 @@ export const useGetAttendances = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
+      select: (data) => {
+        // You can transform the data here if needed
+        return data;
+      },
     },
   );
 };

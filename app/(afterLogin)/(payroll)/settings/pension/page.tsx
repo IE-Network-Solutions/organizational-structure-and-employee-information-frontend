@@ -1,11 +1,11 @@
 'use client';
-import { Table, Button, Typography, Input } from 'antd';
+import { Table, Button, Input } from 'antd';
 import { EditOutlined, SaveOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import { useGetAllPensionRule } from '@/store/server/features/payroll/payroll/queries';
 import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
 import { FaPlus } from 'react-icons/fa';
-const { Title } = Typography;
+
 type PensionRule = {
   id: string;
   createdAt: string; // ISO date string
@@ -17,6 +17,14 @@ type PensionRule = {
   employee: string; // Employee identifier
   tenantId: string; // Tenant identifier
 };
+
+interface ColumnType {
+  title: string;
+  dataIndex: string;
+  key: string;
+  sorter?: (a: PensionRule, b: PensionRule) => number;
+  render?: (notused: any, record: PensionRule) => React.ReactNode;
+}
 
 const Pension = () => {
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
@@ -46,11 +54,14 @@ const Pension = () => {
   const handleInputChange = (field: string, value: any) => {
     setEditedData((prev) => ({ ...prev, [field]: value }));
   };
-  const columns = [
+
+  const columns: ColumnType[] = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
@@ -66,6 +77,7 @@ const Pension = () => {
       title: 'Employee Contribution',
       dataIndex: 'employee',
       key: 'employee',
+      sorter: (a, b) => Number(a.employee) - Number(b.employee),
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
@@ -84,6 +96,8 @@ const Pension = () => {
       title: 'Employer Contribution',
       dataIndex: 'employer',
       key: 'employer',
+      sorter: (a, b) => Number(a.employer) - Number(b.employer),
+
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
@@ -125,24 +139,22 @@ const Pension = () => {
   ];
 
   return (
-    <div className="p-10 rounded-2xl bg-white">
-      <div className="flex justify-between items-center">
-        <Title level={3}>Pension</Title>
-        <Button
-          type="primary"
-          icon={<FaPlus />}
-          style={{ marginBottom: '20px' }}
-        >
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-lg text-bold">Pension</h1>
+        <Button type="primary" icon={<FaPlus />}>
           <span className="hidden lg:inline"> Pension Rule</span>
         </Button>
       </div>
       <div className="flex overflow-x-auto scrollbar-none w-full">
-        <Table
-          dataSource={pensionRule ?? []}
-          columns={columns}
-          pagination={false}
-          loading={isLoading}
-        />
+        <div className="w-full">
+          <Table
+            dataSource={pensionRule ?? []}
+            columns={columns}
+            pagination={false}
+            loading={isLoading}
+          />
+        </div>
       </div>
     </div>
   );

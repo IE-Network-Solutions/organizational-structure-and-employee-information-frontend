@@ -21,6 +21,7 @@ import { UserOutlined } from '@ant-design/icons';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
+import dayjs from 'dayjs';
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } =
@@ -93,6 +94,9 @@ const ApprovalTable = () => {
   const allFilterData = data?.items?.map((item: any, index: number) => {
     return {
       key: index,
+      createdAt: item?.createdAt
+        ? dayjs(item?.createdAt).format('YYYY-MM-DD')
+        : '-',
       userId: item?.userId,
       startAt: item?.startAt,
       endAt: item?.endAt,
@@ -199,6 +203,10 @@ const ApprovalTable = () => {
       dataIndex: 'userId',
       key: 'createdBy',
       render: (text: string) => <EmpRender userId={text} />,
+    },
+    {
+      title: 'Requested At',
+      dataIndex: 'createdAt',
     },
     {
       title: 'From',

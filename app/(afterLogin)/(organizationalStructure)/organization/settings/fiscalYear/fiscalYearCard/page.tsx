@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Card, Dropdown, Pagination } from 'antd';
+import { Button, Card, Dropdown, Pagination, Skeleton } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import {
@@ -12,11 +12,11 @@ import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import dayjs from 'dayjs';
-
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdKeyboardArrowUp } from 'react-icons/md';
 import CustomWorFiscalYearDrawer from '../../_components/fiscalYear/customDrawer';
 import { FaPlus } from 'react-icons/fa';
+import CustomDeleteFiscalYears from '../deleteModal';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -55,21 +55,18 @@ const FiscalYearListCard: React.FC = () => {
   const { data: fiscalYears, isLoading: fiscalYearsFetchLoading } =
     useGetAllFiscalYears(pageSize, currentPage);
 
-  const { openDrawer } = useFiscalYearDrawerStore();
-
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
     if (key === 'edit') {
       setSelectedFiscalYear(fYear);
       setEditMode(true);
-      openDrawer();
+      setOpenFiscalYearDrawer(true);
     } else if (key === 'delete') {
       setSelectedFiscalYear(fYear);
       setDeleteMode(true);
     }
   };
-
   if (fiscalYearsFetchLoading) {
-    return <p>Loading...</p>;
+    return <Skeleton active paragraph={{ rows: 4 }} />;
   }
 
   const handelDrawerOpen = () => {
@@ -77,7 +74,7 @@ const FiscalYearListCard: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto p-4">
+    <div className="p-5 rounded-2xl bg-white">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
@@ -235,6 +232,7 @@ const FiscalYearListCard: React.FC = () => {
         }}
       />
       <CustomWorFiscalYearDrawer />
+      <CustomDeleteFiscalYears />
     </div>
   );
 };

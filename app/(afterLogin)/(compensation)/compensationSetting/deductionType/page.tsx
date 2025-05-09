@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -14,13 +13,15 @@ const DeductionTypePage = () => {
   const { setIsDeductionOpen } = useCompensationSettingStore();
 
   return (
-    <>
-      <PageHeader title="Deduction Types" size="small">
+    <div className="p-5 rounded-2xl bg-white ">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-lg font-bold">Deduction Types</h1>
         <AccessGuard permissions={[Permissions.CreateBenefitType]}>
           <Button
             type="primary"
             id="createNewClosedHolidayFieldId"
             icon={<FaPlus />}
+            className="h-10"
             onClick={() => {
               setIsDeductionOpen(true);
             }}
@@ -28,12 +29,12 @@ const DeductionTypePage = () => {
             <span className="hidden lg:inline"> New Deduction Type</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
+      </div>
       <div className="flex overflow-x-auto scrollbar-none w-full ">
         <DeductionTypeTable />
       </div>
       <DeductiontypeSideBar />
-    </>
+    </div>
   );
 };
 

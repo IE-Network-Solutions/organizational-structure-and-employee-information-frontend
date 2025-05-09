@@ -119,38 +119,15 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
   // };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="p-4 md:p-6 lg:p-8 w-full h-auto">
+    <div className="min-h-screen bg-[#fafafa] p-3">
+      <div className="w-full h-auto">
         <PageHeader
           title="Settings"
           description="Payroll Settings"
         ></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
-          {/* <ConfigProvider
-            theme={{
-              components: {
-                Menu: {
-                  itemHeight: 56,
-                  itemPaddingInline: 0,
-                  itemMarginInline: 0,
-                  itemMarginBlock: 16,
-                  itemActiveBg: '#F8F8F8',
-                  itemHoverBg: 'rgba(248,248,248,0.92)',
-                },
-              },
-            }}
-          >
-            <Menu
-              className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
-              items={menuItems.onlyItems}
-              mode="inline"
-              selectedKeys={[currentItem]}
-              onClick={onMenuClick}
-            />
-          </ConfigProvider> */}
+        <div className="flex  flex-col lg:flex-row gap-6 mt-3">
           <SidebarMenu menuItems={menuItems} />
-
-          <div className="w-full border border-gray-300 rounded-2xl">
+          <div className="w-full  rounded-2xl overflow-x-auto bg-[#fafafa]">
             {children}
           </div>
         </div>

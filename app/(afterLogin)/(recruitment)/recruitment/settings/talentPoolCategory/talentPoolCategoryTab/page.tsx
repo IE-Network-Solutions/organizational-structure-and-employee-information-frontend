@@ -31,18 +31,11 @@ function TalentPoolCategoryTab() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-5 rounded-2xl bg-white h-full">
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
         <Title level={5}>Talent Pool Category</Title>
         <AccessGuard permissions={[Permissions.CreateTalentPool]}>
-          {/* <CustomButton
-            title=" New Talent Pool Category"
-            id="createTalentPoolButton"
-            icon={<FaPlus size={13} className="mr-2" />}
-            onClick={openDrawer}
-            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          /> */}
           <Button
             type="primary"
             id="createTalentPoolButton"

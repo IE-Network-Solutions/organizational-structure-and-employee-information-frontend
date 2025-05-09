@@ -132,6 +132,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       render: (text: string) => <div>{text}</div>,
     },
     {
+      title: 'Requested At',
+      dataIndex: 'createdAt',
+    },
+    {
       title: 'Attachment',
       dataIndex: 'attachment',
       key: 'attachment',
@@ -201,6 +205,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           startAt: item.startAt,
           endAt: item.endAt,
           days: item.days,
+          createdAt: item?.createdAt
+            ? dayjs(item?.createdAt)?.format('YYYY-MM-DD')
+            : '-',
+
           leaveType: item.leaveType
             ? typeof item.leaveType === 'string'
               ? ''
@@ -248,6 +256,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       <div className="flex  overflow-x-auto scrollbar-none  w-full">
         <Table
           className="mt-6 w-full"
+          rowClassName={() => 'h-[60px]'}
+          scroll={{ x: 'max-content' }}
           columns={columns}
           dataSource={tableData}
           loading={isFetching}
