@@ -71,7 +71,10 @@ const IncentiveCards: React.FC = () => {
             Incentive Amount
           </h3>
           <p className="text-3xl font-bold text-gray-900 mb-4">
-            {String(incentiveData?.data?.totalAmount || 0).padStart(3, '0')}
+            {(incentiveData?.data?.totalAmount || 0)
+              .toString()
+              .padStart(3, '0')
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           </p>
         </Card>
       </Col>
