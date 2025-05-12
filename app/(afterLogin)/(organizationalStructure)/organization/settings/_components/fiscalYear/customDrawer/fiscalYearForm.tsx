@@ -82,9 +82,23 @@ const FiscalYearForm: React.FC = () => {
   const handleEndDateChange = (val: any) => setFiscalYearEnd(val);
 
   const handleNext = () => {
-    const currentValues = form.getFieldsValue();
-    setFiscalYearFormValues(currentValues);
-    setCurrent(1);
+    if (isEditMode) {
+      // In edit mode, skip validation and proceed
+      const currentValues = form.getFieldsValue();
+      setFiscalYearFormValues(currentValues);
+      setCurrent(1);
+    } else {
+      // Not in edit mode, validate fields before proceeding
+      form
+        .validateFields()
+        .then((currentValues) => {
+          setFiscalYearFormValues(currentValues);
+          setCurrent(1);
+        })
+        .catch(() => {
+          // Validation failed, do nothing or show error
+        });
+    }
   };
 
   useEffect(() => {
@@ -170,6 +184,7 @@ const FiscalYearForm: React.FC = () => {
         id="fiscalYearCalenderId"
         name="fiscalYearCalenderId"
         label={<span className="font-medium">Fiscal Year Calendar</span>}
+        rules={[{ required: true, message: 'Please select a calendar type!' }]}
       >
         <Select
           placeholder="Select Calendar"
