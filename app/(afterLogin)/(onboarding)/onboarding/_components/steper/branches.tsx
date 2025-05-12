@@ -22,7 +22,6 @@ const Branches = () => {
   const { mutate: deleteBranch, isLoading: deleteLoading } = useDeleteBranch();
   const [form] = Form.useForm();
   const {
-    formOpen,
     editingBranch,
     deleteModalVisible,
     branchToDelete,
