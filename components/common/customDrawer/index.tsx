@@ -89,11 +89,16 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: paddingBottom }}
+        style={{ paddingBottom: isMobile ? 0 : paddingBottom }}
         footer={footer}
         styles={{
           header: { borderBottom: 'none' },
-          footer: { borderTop: 'none' },
+          footer: {
+            borderTop: 'none',
+            paddingBlock: isMobile ? 0 : 8,
+            paddingInline: isMobile ? 0 : 16,
+            boxShadow: isMobile ? '0px 10px 50px 0px #00000033' : 'none',
+          },
           body: { padding: isMobile ? '0 12px' : '0 36px' },
         }}
         height={isMobile ? 600 : 400}

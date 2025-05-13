@@ -48,7 +48,7 @@ const UserSidebar = (props: any) => {
   }, [isSuccess]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-0 sm:py-6">
       Add New Employee
     </div>
   );
@@ -77,21 +77,28 @@ const UserSidebar = (props: any) => {
     }
   };
 
-  const customDot = (step: number) => (
-    <div
-      className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${
-        current >= step
-          ? 'bg-indigo-700 text-white'
-          : 'bg-white border-gray-300 text-gray-500'
-      }`}
-    >
-      {current >= step ? (
-        <IoCheckmarkSharp className="text-xs font-bold" />
-      ) : (
-        <span className="text-2xl leading-none pb-1">•</span>
-      )}
-    </div>
-  );
+  const customDot = (step: number) => {
+    if (current > step) {
+      // Completed step: blue circle with checkmark
+      return (
+        <div className="border-2 border-indigo-700 bg-indigo-700 rounded-full h-6 w-6 flex items-center justify-center">
+          <IoCheckmarkSharp className="text-white text-[12px] font-bold" />
+        </div>
+      );
+    } else if (current === step) {
+      // Current step: blue dot in blue-outlined circle
+      return (
+        <div className="border-2 border-indigo-700 rounded-full h-6 w-6 flex items-center justify-center">
+          <span className="bg-indigo-700 rounded-full h-2.5 w-2.5 block"></span>
+        </div>
+      );
+    } else {
+      // Upcoming step: empty gray-outlined circle
+      return (
+        <div className="border-2 border-gray-300 rounded-full h-6 w-6 flex items-center justify-center"></div>
+      );
+    }
+  };
   function handleCancel() {
     props?.onClose();
     form.resetFields();
@@ -110,11 +117,11 @@ const UserSidebar = (props: any) => {
           size="small"
           responsive={false}
           // onChange={onChange}
-          className="  sm:my-10"
+          className="flex justify-center items-center my-0 sm:my-4 max-w-[200px] mx-auto scale-90"
         >
+          <Step icon={customDot(0)} />
           <Step icon={customDot(1)} />
           <Step icon={customDot(2)} />
-          <Step icon={customDot(3)} />
         </Steps>
         <Form
           form={form}
@@ -131,7 +138,11 @@ const UserSidebar = (props: any) => {
           }
         >
           {current === 0 && (
-            <Card className="p-4 sm:p-6">
+            <Card
+              bordered={false}
+              bodyStyle={{ padding: 0 }}
+              className="p-2 sm:p-6 mt-2"
+            >
               <BasicInformationForm form={form} />
               <EmployeeAddressForm />
               <EmergencyContactForm />
@@ -143,7 +154,7 @@ const UserSidebar = (props: any) => {
             </Card>
           )}
           {current === 1 && (
-            <Card className="p-4 sm:p-6">
+            <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
               <JobTimeLineForm />
               <RolePermissionForm form={form} />
               <WorkScheduleForm />
@@ -154,7 +165,7 @@ const UserSidebar = (props: any) => {
             </Card>
           )}
           {current === 2 && (
-            <Card className="p-4 sm:p-6">
+            <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
               <AdditionalInformationForm />
               <DocumentUploadForm />
               <ButtonContinue

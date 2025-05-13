@@ -79,7 +79,7 @@ const ViewAttendanceSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => onClose(),
     },
@@ -141,10 +141,12 @@ const ViewAttendanceSidebar = () => {
           </CustomDrawerHeader>
         }
         footer={
-          <CustomDrawerFooterButton
-            className="w-1/2 mx-auto"
-            buttons={footerModalItems}
-          />
+          <div className="p-6 sm:p-0">
+            <CustomDrawerFooterButton
+              className="w-1/2 mx-auto"
+              buttons={footerModalItems}
+            />
+          </div>
         }
         width="40%"
       >

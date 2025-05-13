@@ -147,6 +147,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
           mode="multiple"
           placeholder="Select the teams to transfer from"
           style={{ width: '100%' }}
+          className="h-10"
           value={childDepartment.map((child) => child.id)}
           onChange={handleChildDepartmentsChange}
           options={OPTIONS?.filter(
@@ -173,6 +174,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
           style={{ width: '100%' }}
           placeholder="Select the team to transfer to"
           optionFilterProp="label"
+          className="h-10"
           value={rootDepartment?.id}
           onChange={handleRootDepartmentChange}
           options={OPTIONS?.filter(
@@ -296,7 +298,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         ]}
       >
         <Input
-          className="h-12"
+          className="h-10"
           placeholder="Enter merged department name"
           value={mergedDeptName}
           onChange={(e) => setMergedDeptName(e.target.value)}
@@ -310,7 +312,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         ]}
       >
         <Select
-          className="h-12"
+          className="h-10"
           placeholder="Select the team to merge from"
           style={{ width: '100%' }}
           options={OPTIONS?.filter(
@@ -337,7 +339,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
       >
         <Select
           disabled={!childDeptId}
-          className="h-12"
+          className="h-10"
           placeholder="Select the team to merge into"
           style={{ width: '100%' }}
           options={OPTIONS?.filter(
@@ -362,7 +364,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         rules={[{ required: true, message: 'Please select a team leader' }]}
       >
         <Select
-          className="h-12"
+          className="h-10"
           placeholder="Select a team leader"
           style={{ width: '100%' }}
           options={teamLeaderOptions}

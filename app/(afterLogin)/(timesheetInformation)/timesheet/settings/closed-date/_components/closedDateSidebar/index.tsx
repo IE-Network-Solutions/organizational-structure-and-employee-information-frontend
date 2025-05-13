@@ -42,7 +42,7 @@ const ClosedDateSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => {
         setIsShow(false), form.resetFields();
@@ -51,7 +51,7 @@ const ClosedDateSidebar = () => {
     {
       label: selectedClosedDate ? 'Edit' : 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -60,7 +60,7 @@ const ClosedDateSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
   const onAddClosedDate = (values: any) => {
     const fiscalYearId = fiscalActiveYear?.id;
@@ -153,7 +153,11 @@ const ClosedDateSidebar = () => {
         open={isShow}
         onClose={() => setIsShow(false)}
         modalHeader={<CustomDrawerHeader>Closed Date</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-6 sm:p-0">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Form
@@ -164,7 +168,7 @@ const ClosedDateSidebar = () => {
           className={itemClass}
           onFinish={onFinish}
         >
-          <Space direction="vertical" className="w-full" size={24}>
+          <Space.Compact direction="vertical" className="w-full px-3 sm:px-0 ">
             <Form.Item
               id="closedDateNameFieldId"
               label="Closed Date Name"
@@ -247,7 +251,7 @@ const ClosedDateSidebar = () => {
                 </Form.Item>
               </Col>
             </Row>
-          </Space>
+          </Space.Compact>
         </Form>
       </CustomDrawerLayout>
     )

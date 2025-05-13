@@ -61,7 +61,11 @@ const JobTimeLineForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={'effectiveStartDate'}
-            label="Effective Start Date"
+            label={
+              <span className="mb-1 font-semibold text-xs">
+                Effective Start Date
+              </span>
+            }
             id="joinedDate"
             rules={[
               { required: true, message: 'Please select the joined date' },
@@ -99,7 +103,7 @@ const JobTimeLineForm = () => {
             id="jobTitle"
             label={
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span>Position</span>{' '}
+                <span className="mb-1 font-semibold text-xs">Position</span>{' '}
                 <Button
                   type="text"
                   size="small"
@@ -135,7 +139,6 @@ const JobTimeLineForm = () => {
                     }}
                   >
                     <Space>
-                      {' '}
                       <Form.Item name="name" rules={[{ required: true }]}>
                         <Input placeholder="Position" />
                       </Form.Item>
@@ -163,7 +166,9 @@ const JobTimeLineForm = () => {
             id="employementTypeId"
             label={
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span>Employment Type</span>
+                <span className="mb-1 font-semibold text-xs">
+                  Employment Type
+                </span>
                 <Button
                   type="text"
                   size="small"
@@ -199,7 +204,7 @@ const JobTimeLineForm = () => {
             id="departmentId"
             label={
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span>Team</span>
+                <span className="mb-1 font-semibold text-xs">Team</span>
                 <Button
                   type="text"
                   size="small"
@@ -231,7 +236,9 @@ const JobTimeLineForm = () => {
             id="branchId"
             label={
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span>Branch Office</span>
+                <span className="mb-1 font-semibold text-xs">
+                  Branch Office
+                </span>
                 <Button
                   type="text"
                   size="small"
@@ -265,7 +272,7 @@ const JobTimeLineForm = () => {
             className="w-full font-semibold text-xs"
             name="jobAction"
             id="jobAction"
-            label="Status"
+            label={<span className="mb-1 font-semibold text-xs">Status</span>}
             rules={[{ required: true, message: 'Please select Status' }]}
           >
             <Select

@@ -53,14 +53,14 @@ const CheckOutSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => setIsShowCheckOutSidebar(false),
     },
     {
       label: 'Check-out',
       key: 'checkOut',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       onClick: () => form.submit(),
@@ -68,7 +68,7 @@ const CheckOutSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
   const selectLabel: LabelRender = (props) => {
     const { value } = props;
@@ -121,7 +121,11 @@ const CheckOutSidebar = () => {
         open={isShowCheckOutSidebar}
         onClose={() => setIsShowCheckOutSidebar(false)}
         modalHeader={<CustomDrawerHeader>Check-out</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-6 sm:p-0">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Form

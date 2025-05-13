@@ -139,7 +139,7 @@ const LeaveRequestSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoadingRequest || isLoading,
       onClick: () => onClose(),
@@ -152,7 +152,7 @@ const LeaveRequestSidebar = () => {
             ? 'Update'
             : 'Create',
       key: 'create',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest || isLoading,
@@ -191,7 +191,7 @@ const LeaveRequestSidebar = () => {
   const typeOptions = () => formatToOptions(leaveTypes ?? [], 'title', 'id');
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
   const onChangeIsHalfDay = (isHalf: any) => {
     form.setFieldValue('isHalfDay', !!isHalf);
   };
@@ -221,7 +221,11 @@ const LeaveRequestSidebar = () => {
             {leaveRequest ? 'Update' : 'Add New'} Leave Request
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-6 sm:p-0">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Spin spinning={isLoading || isLoadingRequest}>
@@ -232,7 +236,10 @@ const LeaveRequestSidebar = () => {
             autoComplete="off"
             onFinish={onFinish}
           >
-            <Space className="w-full" direction="vertical" size={12}>
+            <Space.Compact
+              direction="vertical"
+              className="w-full px-3 sm:px-0 "
+            >
               <Form.Item
                 name="type"
                 label="Leave Type"
@@ -321,7 +328,7 @@ const LeaveRequestSidebar = () => {
                 }}
               >
                 <CustomUpload
-                  className="w-full"
+                  className="w-full "
                   accept=".pdf,.docx,.png,.jpeg,.jpg"
                   name="attachment"
                   listType="text"
@@ -360,7 +367,7 @@ const LeaveRequestSidebar = () => {
                   }))}
                 />
               </Form.Item>
-            </Space>
+            </Space.Compact>
           </Form>
         </Spin>
       </CustomDrawerLayout>

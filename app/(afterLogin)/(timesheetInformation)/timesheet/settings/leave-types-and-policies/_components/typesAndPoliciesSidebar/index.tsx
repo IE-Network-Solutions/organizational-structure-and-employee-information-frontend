@@ -54,7 +54,7 @@ const TypesAndPoliciesSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -62,7 +62,7 @@ const TypesAndPoliciesSidebar = () => {
     {
       label: 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -73,7 +73,7 @@ const TypesAndPoliciesSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
   const inputNumberClass = 'w-full py-[11px] mt-2.5';
 
   const carryOverRuleOptions = () =>
@@ -127,7 +127,11 @@ const TypesAndPoliciesSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Leave Type</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-6 sm:p-0">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Form
@@ -140,7 +144,7 @@ const TypesAndPoliciesSidebar = () => {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
-          <Space direction="vertical" className="w-full" size={12}>
+          <Space.Compact direction="vertical" className="w-full px-3 sm:px-0 ">
             <Form.Item
               id={`TypesAndPoliciesTitleFieldId`}
               label="Type Name"
@@ -155,7 +159,7 @@ const TypesAndPoliciesSidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               name="plan"
             >
-              <Radio.Group className="w-full mt-2.5">
+              <Radio.Group className={controlClass}>
                 <Row gutter={16}>
                   <Col span={12}>
                     <CustomRadio
@@ -178,15 +182,15 @@ const TypesAndPoliciesSidebar = () => {
               label="Entitled Days/year"
               id={`TypesAndPoliciesEntitledDaysYearFieldId`}
               rules={[{ required: true, message: 'Required' }]}
+              className="mt-2"
               name="entitled"
             >
               <InputNumber
                 min={1}
-                className={inputNumberClass}
+                className={controlClass}
                 placeholder="Input entitled days"
               />
             </Form.Item>
-
             <div className="flex justify-between gap-2">
               <div className="h-[54px] w-full flex items-center gap-1">
                 <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
@@ -356,7 +360,7 @@ const TypesAndPoliciesSidebar = () => {
                 rows={6}
               />
             </Form.Item>
-          </Space>
+          </Space.Compact>
         </Form>
       </CustomDrawerLayout>
     )

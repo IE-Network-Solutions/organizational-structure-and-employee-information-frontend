@@ -49,25 +49,22 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       }
       width={width}
       footer={
-        <div className="w-full absolute  flex justify-center space-x-5">
-          <Button type="default" onClick={onClose}>
+        <div className="w-full flex justify-center space-x-5  p-6 sm:p-0">
+          <Button
+            className="h-[40px] sm:h-[56px] text-base"
+            type="default"
+            onClick={onClose}
+          >
             Cancel
           </Button>
-          <Button type="primary" onClick={onSubmit} loading={loading}>
-            {footerButtonText}
-          </Button>
-          {/* <CustomButton
-            type="default"
-            title="Cancel"
-            onClick={onClose}
-            style={{ marginRight: 8 }}
-          />
-          <CustomButton
-            title={footerButtonText}
+          <Button
+            className="h-[40px] sm:h-[56px] text-base"
             type="primary"
             onClick={onSubmit}
             loading={loading}
-          /> */}
+          >
+            {footerButtonText}
+          </Button>
         </div>
       }
     >

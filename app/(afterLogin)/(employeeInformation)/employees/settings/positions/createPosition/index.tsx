@@ -38,11 +38,19 @@ const CreatePosition: React.FC = () => {
         modalHeader={addPositionDrawerHeader}
         width="40%"
         footer={
-          <div className="flex justify-center w-full bg-[#fff] px-6 space-x-5 mt-4 ">
-            <Button type="default" onClick={handleCloseDrawer}>
+          <div className="flex justify-center w-full bg-[#fff] px-6 space-x-5   p-6 sm:p-0 ">
+            <Button
+              className="h-[40px] sm:h-[56px] text-base"
+              type="default"
+              onClick={handleCloseDrawer}
+            >
               Cancel
             </Button>
-            <Button type="primary" onClick={() => form.submit()}>
+            <Button
+              className="h-[40px] sm:h-[56px] text-base"
+              type="primary"
+              onClick={() => form.submit()}
+            >
               Submit
             </Button>
           </div>

@@ -137,7 +137,7 @@ function WorkScheduleTab() {
     <>
       <div className="p-5 bg-white rounded-2xl h-full">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-lg text-bold">Work Schedule</h1>
+          <h1 className="text-base text-bold">Work Schedule</h1>
           <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
             <Space>
               <Button
@@ -197,7 +197,7 @@ function WorkScheduleTab() {
                     <InfoLine
                       title="Standard working hours/day"
                       value={
-                        <div>
+                        <div className="text-xs">
                           {scheduleItem.detail
                             ?.filter((i) => Number(i.hours ?? i.duration) !== 0)
                             .reduce(
@@ -214,12 +214,16 @@ function WorkScheduleTab() {
                     />
                     <InfoLine
                       title="Total working hours/week"
-                      value={getTotalWorkingHours(scheduleItem?.detail || [])}
+                      value={
+                        <div className="text-xs">
+                          {getTotalWorkingHours(scheduleItem?.detail || [])}
+                        </div>
+                      }
                     />
                     <InfoLine
                       title="Daily working hours"
                       value={
-                        <div className="flex gap-6">
+                        <div className="flex gap-6 text-xs">
                           {/* Day Names */}
                           <div className="flex flex-col space-y-4 text-xs font-bold text-gray-700">
                             {workingHours?.map((item) => (

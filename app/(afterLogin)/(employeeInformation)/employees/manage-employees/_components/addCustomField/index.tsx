@@ -153,7 +153,7 @@ const AddCustomField: React.FC<any> = ({
   );
 
   return (
-    <Card>
+    <Card bordered={false} bodyStyle={{ padding: 0, border: 'none' }}>
       <Row gutter={16}>
         <Col xs={24} sm={24} className="flex justify-center items-center">
           <Form.Item className="font-semibold text-xs">

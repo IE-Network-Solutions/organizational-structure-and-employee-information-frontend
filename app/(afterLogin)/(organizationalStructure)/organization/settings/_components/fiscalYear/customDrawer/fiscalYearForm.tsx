@@ -17,6 +17,7 @@ const FiscalYearForm: React.FC = () => {
     setFiscalYearFormValues,
     selectedFiscalYear,
     isEditMode,
+    setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
 
   const { data: activeCalendar } = useGetActiveFiscalYears();
@@ -75,6 +76,7 @@ const FiscalYearForm: React.FC = () => {
   const handleClose = () => {
     setSelectedFiscalYear(null);
     setCalendarType('');
+    setOpenFiscalYearDrawer(false);
   };
 
   const handleValuesChange = (val: string) => setCalendarType(val);
@@ -183,18 +185,20 @@ const FiscalYearForm: React.FC = () => {
       </Form.Item>
 
       <Form.Item className="mb-5">
-        <div className="flex justify-center w-full mt-40 space-x-5">
+        <div className="flex justify-center w-full space-x-5 p-6 sm:p-0 ">
           {departments?.length > 0 && (
             <Button
+              type="default"
               onClick={handleClose}
-              className="text-sm font-medium bg-white border-gray-300"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               Cancel
             </Button>
           )}
           <Button
             onClick={handleNext}
-            className="text-sm font-medium text-white bg-primary border-none"
+            className="h-[40px] sm:h-[56px] text-base"
+            type="primary"
           >
             Next
           </Button>

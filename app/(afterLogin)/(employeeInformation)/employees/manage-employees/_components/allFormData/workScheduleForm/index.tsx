@@ -89,7 +89,11 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
             className="font-semibold text-xs"
             name="workScheduleId"
             id="workScheduleId"
-            label="Work Schedule Category"
+            label={
+              <span className="mb-1 font-semibold text-xs">
+                Work Schedule Category
+              </span>
+            }
             rules={[
               { required: true, message: 'Please select a work schedule!' },
             ]}

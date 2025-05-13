@@ -62,7 +62,7 @@ const AddTypesSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -70,7 +70,7 @@ const AddTypesSidebar = () => {
     {
       label: attendanceTypeId ? 'Edit' : 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -79,7 +79,7 @@ const AddTypesSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
   const unitOptions = [
     {
@@ -137,7 +137,11 @@ const AddTypesSidebar = () => {
             {attendanceTypeId ? 'Edit' : 'Add'} Type
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-6 sm:p-0">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Spin spinning={isFetching || isLoading}>
@@ -151,7 +155,10 @@ const AddTypesSidebar = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
           >
-            <Space direction="vertical" className="w-full" size={24}>
+            <Space.Compact
+              direction="vertical"
+              className="w-full px-3 sm:px-0 "
+            >
               <Form.Item
                 id="createAddTypeNameFieldId"
                 label="Type Name"
@@ -166,7 +173,7 @@ const AddTypesSidebar = () => {
                 rules={[{ required: true, message: 'Required' }]}
                 name="unit"
               >
-                <Radio.Group className="w-full mt-2.5">
+                <Radio.Group className={controlClass}>
                   <Space direction="vertical" size={12} className="w-full">
                     {unitOptions.map((option) => (
                       <CustomRadio
@@ -179,7 +186,7 @@ const AddTypesSidebar = () => {
                   </Space>
                 </Radio.Group>
               </Form.Item>
-            </Space>
+            </Space.Compact>
           </Form>
         </Spin>
       </CustomDrawerLayout>

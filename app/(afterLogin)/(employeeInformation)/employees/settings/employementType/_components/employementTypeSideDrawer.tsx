@@ -46,11 +46,19 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
         }
         width="30%"
         footer={
-          <div className=" w-full bg-[#fff]  flex justify-center space-x-5">
-            <Button type="default" onClick={handleCloseDrawer}>
+          <div className=" w-full bg-[#fff]  flex justify-center space-x-5  p-6 sm:p-0">
+            <Button
+              className="h-[40px] sm:h-[56px] text-base"
+              type="default"
+              onClick={handleCloseDrawer}
+            >
               Cancel
             </Button>
-            <Button type="primary" onClick={handleSubmit}>
+            <Button
+              className="h-[40px] sm:h-[56px] text-base"
+              type="primary"
+              onClick={handleSubmit}
+            >
               Submit
             </Button>
           </div>

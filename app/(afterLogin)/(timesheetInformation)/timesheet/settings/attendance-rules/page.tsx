@@ -44,6 +44,7 @@ const Page = () => {
           <AccessGuard permissions={[Permissions.CreateAttendanceRuleType]}>
             <Button
               id="createNewTypeMainButtonId"
+              className="h-10 w-10 sm:w-auto"
               icon={<FaPlus />}
               onClick={() => setIsShowRulesAddTypeSidebar(true)}
               type="primary"
