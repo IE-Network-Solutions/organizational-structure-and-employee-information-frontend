@@ -62,7 +62,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   return (
     <div>
       <>
-        {' '}
         {open && !hideButton && (
           <Button
             id="closeSidebarButton"
@@ -101,7 +100,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           },
           body: { padding: isMobile ? '0 12px' : '0 36px' },
         }}
-        height={isMobile ? 600 : 400}
+        height={isMobile ? '65vh' : 400}
         placement={placement}
       >
         {children}

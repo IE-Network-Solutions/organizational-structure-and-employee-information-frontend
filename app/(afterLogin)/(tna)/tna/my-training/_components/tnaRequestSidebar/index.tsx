@@ -102,10 +102,7 @@ const TnaRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
-          ? 'You lack an assigned approver.'
-          : 'Request',
+      label: 'Request',
       key: 'request',
       className: 'h-14',
       type: 'primary',
@@ -114,6 +111,10 @@ const TnaRequestSidebar = () => {
       onClick: () => form.submit(),
       disabled:
         approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
+      title:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
+          ? 'You lack an assigned approver.'
+          : undefined,
     },
   ];
 

@@ -48,7 +48,7 @@ const CourseCategorySidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
@@ -56,7 +56,7 @@ const CourseCategorySidebar = () => {
     {
       label: courseCategoryId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
@@ -96,7 +96,12 @@ const CourseCategorySidebar = () => {
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="400px"
       >
         <Spin spinning={isLoading || isFetching}>
@@ -112,7 +117,7 @@ const CourseCategorySidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
             >
-              <Input className="control" />
+              <Input className="control h-10" />
             </Form.Item>
             <Form.Item
               name="description"

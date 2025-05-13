@@ -48,7 +48,7 @@ const TnaCategorySidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
@@ -56,7 +56,7 @@ const TnaCategorySidebar = () => {
     {
       label: tnaCategoryId ? <span>Edit</span> : <span> Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
@@ -96,7 +96,12 @@ const TnaCategorySidebar = () => {
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="400px"
       >
         <Spin spinning={isLoading || isFetching}>
@@ -104,6 +109,7 @@ const TnaCategorySidebar = () => {
             layout="vertical"
             form={form}
             onFinish={onFinish}
+            className="p-2"
             requiredMark={CustomLabel}
           >
             <Form.Item
@@ -112,7 +118,7 @@ const TnaCategorySidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
             >
-              <Input id="tnaCategoryNameFieldId" className="control" />
+              <Input id="tnaCategoryNameFieldId" className="control h-10" />
             </Form.Item>
             <Form.Item
               name="description"

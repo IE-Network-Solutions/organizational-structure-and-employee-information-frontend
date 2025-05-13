@@ -90,7 +90,7 @@ const CourseCategorySidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
@@ -98,7 +98,7 @@ const CourseCategorySidebar = () => {
     {
       label: courseId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
 
@@ -147,7 +147,7 @@ const CourseCategorySidebar = () => {
         }
         footer={
           <CustomDrawerFooterButton
-            className="w-1/2 mx-auto mt-5"
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
           />
         }
@@ -158,6 +158,7 @@ const CourseCategorySidebar = () => {
           form={form}
           disabled={isLoading || isFetching}
           onFinish={onFinish}
+          className="p-2"
           requiredMark={CustomLabel}
         >
           <Form.Item
@@ -166,7 +167,7 @@ const CourseCategorySidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <Input id="tnaCourseNameFieldId" className="control" />
+            <Input id="tnaCourseNameFieldId" className="control h-10" />
           </Form.Item>
           <Form.Item
             name="courseCategoryId"
@@ -176,7 +177,7 @@ const CourseCategorySidebar = () => {
           >
             <Select
               id="tnaCourseCategoryFieldId"
-              className="control"
+              className="control h-10"
               placeholder="Select Category"
               options={formatToOptions(courseCategory, 'title', 'id')}
             />
@@ -228,7 +229,7 @@ const CourseCategorySidebar = () => {
             />
           </Form.Item>
         </Form>
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center m-5">
           <Button
             type="primary"
             htmlType="button"

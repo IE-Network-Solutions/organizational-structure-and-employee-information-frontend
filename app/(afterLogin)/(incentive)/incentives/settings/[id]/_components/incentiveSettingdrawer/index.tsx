@@ -163,7 +163,25 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
           {recognitionData?.name || '-'}
         </CustomDrawerHeader>
       }
-      footer={null}
+      footer={
+        <div className="flex justify-center  w-full p-4 gap-6">
+          <Button
+            type="default"
+            onClick={handleClose}
+            className=" p-4 px-10 h-10 "
+          >
+            Cancel
+          </Button>
+
+          <Button htmlType="submit" type="primary" className="p-4 px-10 h-10">
+            {formulaById?.expression === null ? (
+              <span>Create</span>
+            ) : (
+              <span>Edit</span>
+            )}
+          </Button>
+        </div>
+      }
       width="600px"
     >
       <Form
@@ -300,28 +318,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             </div>
           </Form.Item>
         )}
-
-        <Form.Item className="">
-          <div className="flex justify-center  w-full px-6 py-6 gap-6 my-3">
-            <Button
-              onClick={handleClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-            >
-              Cancel
-            </Button>
-
-            <Button
-              htmlType="submit"
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12  border-none"
-            >
-              {formulaById?.expression === null ? (
-                <span>Create</span>
-              ) : (
-                <span>Edit</span>
-              )}
-            </Button>
-          </div>
-        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );

@@ -83,7 +83,7 @@ const TnaUpdateSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isFetching || isLoading,
       onClick: () => onClose(),
@@ -91,7 +91,7 @@ const TnaUpdateSidebar = () => {
     {
       label: 'Create',
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isFetching || isLoading,
@@ -139,13 +139,13 @@ const TnaUpdateSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start">
             TNA Update
           </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
-            className="w-1/2 mx-auto"
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
           />
         }

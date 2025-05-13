@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomButton from '@/components/common/buttons/customButton';
 import {
   useCreateTaxRule,
   useUpdateTaxRule,
@@ -72,19 +71,25 @@ const Drawer: React.FC = () => {
       width="700px"
       footer={
         <div className="flex justify-center items-center w-full h-full">
-          <div className="flex justify-between items-center gap-4">
-            <CustomButton
+          <div className="flex justify-between items-center gap-4 p-4">
+            <Button
               type="default"
-              title="Cancel"
+              className="h-10 px-10"
               onClick={() => {
                 closeDrawer(), form.resetFields();
               }}
-            />
-            <CustomButton
-              title={currentTaxRule ? 'Update' : 'Create'}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="primary"
+              className="h-10 px-10"
               onClick={() => form.submit()}
               loading={currentTaxRule ? isUpdateLoading : isCreateLoading}
-            />
+            >
+              {currentTaxRule ? 'Update' : 'Create'}
+            </Button>
           </div>
         </div>
       }
