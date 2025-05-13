@@ -254,16 +254,15 @@ export const useSetAllFinalApproveLeaveRequest = () => {
       handleSuccessMessage(method);
     },
   });
-
 };
 
 export const useSetAllLeaveRequestNotification = () => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   return useMutation(setAllLeaveRequestNotification, {
     onSuccess: () => {
-     NotificationMessage.success({
-        message: 'Incentive generated successfully!',
-        description: 'Incentive has been successfully generated',
+      NotificationMessage.success({
+        message: 'Email Sent successfully',
+        description: 'Email Sent successfully',
       });
     },
   });
