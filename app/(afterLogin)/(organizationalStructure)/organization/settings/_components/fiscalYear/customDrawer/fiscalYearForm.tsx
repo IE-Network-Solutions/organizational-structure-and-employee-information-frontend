@@ -32,7 +32,6 @@ const FiscalYearForm: React.FC = () => {
     isFormValid,
     setIsFormValid,
     fiscalYearFormValues,
-    resetFormState,
     calendarType,
     setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
