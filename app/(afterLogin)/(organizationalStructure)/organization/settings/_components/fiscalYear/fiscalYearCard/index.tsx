@@ -69,7 +69,7 @@ const FiscalYearListCard: React.FC = () => {
     return <p>Loading...</p>;
   }
   return (
-    <div className="mx-auto p-4">
+    <div className="mx-auto p-4  p-none">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>

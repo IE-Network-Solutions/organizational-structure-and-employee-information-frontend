@@ -10,6 +10,21 @@ export function middleware(req: NextRequest) {
     // TODO: Uncomment and restore token validation and redirects
 
     const token = getCookie('token', req);
+    const calendarCookie = getCookie('activeCalendar', req);
+    const loggedUserRole = getCookie('loggedUserRole', req);
+
+    let hasEndedFiscalYear = false;
+
+    if (calendarCookie) {
+      const activeCalendar = JSON.parse(calendarCookie);
+      if (
+        activeCalendar?.isActive &&
+        activeCalendar?.endDate &&
+        new Date(activeCalendar?.endDate) < new Date()
+      ) {
+        hasEndedFiscalYear = true;
+      }
+    }
 
     const excludedPath = [
       '/authentication/login',
@@ -24,6 +39,15 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
 
+    if (
+      token &&
+      hasEndedFiscalYear &&
+      !pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
+    ) {
+      return NextResponse.redirect(
+        new URL('/organization/settings/fiscalYear/fiscalYearCard', req.url),
+      );
+    }
     if (pathname === '/onboarding') return NextResponse.next();
 
     // TODO: Uncomment and restore the redirect for the root path
@@ -33,6 +57,18 @@ export function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
+      }
+    }
+
+    // Protect fiscal year settings routes
+    if (
+      pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
+    ) {
+      if (
+        !loggedUserRole ||
+        (loggedUserRole !== 'owner' && loggedUserRole !== 'admin')
+      ) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
 

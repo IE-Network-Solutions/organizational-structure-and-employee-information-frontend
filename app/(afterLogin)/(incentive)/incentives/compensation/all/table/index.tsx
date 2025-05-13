@@ -9,6 +9,9 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const columns: TableColumnsType<any> = [
   {
@@ -59,6 +62,8 @@ const AllIncentiveTable: React.FC = () => {
       setSelectedRowKeys(selectedRowKeys);
     },
   };
+
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: incentiveData, isLoading: responseLoading } =
     useGetAllIncentiveData(
@@ -140,14 +145,7 @@ const AllIncentiveTable: React.FC = () => {
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={allIncentiveTableData}
-        pagination={{
-          total: incentiveData?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
+        pagination={false}
         loading={responseLoading}
         scroll={{ x: 1000 }}
         onRow={(record) => ({
@@ -156,6 +154,23 @@ const AllIncentiveTable: React.FC = () => {
           },
         })}
       />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={incentiveData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={incentiveData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

@@ -144,6 +144,15 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
                 ),
               )}
             </div>
+            <div className="flex flex-col gap-6 text-right justify-end items-start">
+              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
+                (item: any, index: any) => (
+                  <Text className="font-bold" key={index}>
+                    {item.reason || '-'}
+                  </Text>
+                ),
+              )}
+            </div>
           </div>
           <Divider />
         </div>

@@ -12,7 +12,7 @@ import {
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useMediaQuery } from 'react-responsive';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
 
 const IncentiveFilter: React.FC = () => {
   const {
@@ -214,9 +214,9 @@ const IncentiveFilter: React.FC = () => {
             ))}
           </Select>
           <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
-            <IoMdSwitch
+            <LuSettings2
               onClick={() => setShowMobileFilter(true)}
-              className="text-xl cursor-pointer"
+              className="text-lg cursor-pointer"
             />
           </div>
           <Modal
