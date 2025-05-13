@@ -78,11 +78,11 @@ const Approvals = () => {
   };
 
   return (
-    <div className=" mt-3">
+    <div className="p-5 rounded-2xl bg-white h-full">
       {addDepartmentApproval ? (
         departmentApproval ? (
           <div className="">
-            <div className="mb-10 flex justify-between">
+            <div className="flex justify-between mb-4">
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setDepartmentApproval(false)}
@@ -101,7 +101,7 @@ const Approvals = () => {
           </div>
         ) : (
           <div className="">
-            <div className="mb-10 flex justify-between">
+            <div className="mb-4 flex justify-between">
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setAddDepartmentApproval(false)}
@@ -116,8 +116,8 @@ const Approvals = () => {
         )
       ) : (
         <div>
-          <div className="mb-10 flex justify-between">
-            <div className="text-2xl font-bold ">List Of Approval</div>
+          <div className="mb-4 flex justify-between">
+            <div className="text-lg font-bold ">List Of Approval</div>
             <PermissionWraper permissions={[Permissions.CreateApprover]}>
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"

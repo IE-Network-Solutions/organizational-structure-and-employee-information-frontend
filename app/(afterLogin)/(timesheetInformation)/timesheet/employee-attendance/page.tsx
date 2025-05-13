@@ -5,7 +5,6 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { Button, Col, Dropdown, Menu, Popover, Row, Space } from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
-import { LuBookmark } from 'react-icons/lu';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
@@ -31,10 +30,18 @@ const EmployeeAttendance = () => {
   const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>({
     filter: {}, // Initialize with empty filter
   });
-  const { data, isFetching } = useGetAttendances({}, bodyRequest, true, true);
-
+  const { data, isFetching, refetch } = useGetAttendances(
+    {},
+    bodyRequest,
+    true,
+    true,
+  );
   // Log the current state of data and request
-  useEffect(() => {}, [data, bodyRequest, isFetching]);
+  useEffect(() => {
+    if (bodyRequest.exportType) {
+      refetch();
+    }
+  }, [bodyRequest]);
 
   const {
     mutate: uploadImport,
@@ -47,10 +54,30 @@ const EmployeeAttendance = () => {
 
   useEffect(() => {
     if (data && data.file) {
-      const url = new URL(TIME_AND_ATTENDANCE_URL!);
-      window.open(`${url.origin}/${data.file}`, '_blank');
+      const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
+
+      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
+
+      const fileUrl = `${url}${filePath}`;
+      // Open the file in a new window
+      window.open(fileUrl, '_blank');
+
+      // Create a temporary link to trigger the download
+      // const link = document.createElement('a');
+      // link.href = fileUrl;
+      // link.download = `attendance_${new Date().toISOString().split('T')[0]}`;
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+
+      setIsExportLoading(false);
+      setExportType(null);
+      setBodyRequest((prev) => ({
+        ...prev,
+        exportType: undefined,
+      }));
     }
-  }, [data]);
+  }, [data, isFetching]);
 
   useEffect(() => {
     if (file) {
@@ -70,7 +97,6 @@ const EmployeeAttendance = () => {
       if (!data?.items?.length) {
         return;
       }
-
       // Create a new request object with export type and filter
       const exportRequest: AttendanceRequestBody = {
         exportType: type,
@@ -78,53 +104,8 @@ const EmployeeAttendance = () => {
       };
       // Set the request
       setBodyRequest(exportRequest);
-
-      // Wait for the state to update and get the response
-      const response = await new Promise<{ file: string }>(
-        (resolve, reject) => {
-          let attempts = 0;
-          const maxAttempts = 10; // Maximum number of attempts
-          const checkData = () => {
-            if (data?.file) {
-              resolve({ file: data.file });
-            } else if (attempts >= maxAttempts) {
-              reject(new Error('Export timed out'));
-            } else {
-              attempts++;
-              setTimeout(checkData, 500); // Check every 500ms
-            }
-          };
-          checkData();
-        },
-      );
-
-      if (response?.file) {
-        // Ensure the file path is properly formatted
-        const filePath = response.file.startsWith('/')
-          ? response.file
-          : `/${response.file}`;
-
-        const url = new URL(TIME_AND_ATTENDANCE_URL!);
-        const fileUrl = `${url.origin}${filePath}`;
-
-        // Create a temporary link to trigger the download
-        const link = document.createElement('a');
-        link.href = fileUrl;
-        link.download = `attendance_${type.toLowerCase()}_${new Date().toISOString().split('T')[0]}.${type.toLowerCase()}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Clean up the file after download
-        setTimeout(() => {
-          fetch(fileUrl, { method: 'DELETE' }).catch(() => {
-            // Ignore cleanup errors
-          });
-        }, 1000);
-      }
     } catch (error) {
       // You might want to show an error message to the user here
-    } finally {
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({
@@ -281,19 +262,21 @@ const EmployeeAttendance = () => {
                   content={
                     <div className="pt-4">
                       <Row gutter={20}>
-                        <Col span={12}>
+                        <Col span={24}>
                           <Button
                             size="small"
                             className="w-full"
                             type="primary"
                             icon={<TbLayoutList size={16} />}
-                            onClick={() => onExport('EXCEL')}
+                            onClick={() => {
+                              onExport('EXCEL');
+                            }}
                             loading={isExportLoading && exportType === 'EXCEL'}
                           >
                             Excel
                           </Button>
                         </Col>
-                        <Col span={12}>
+                        {/* <Col span={12}>
                           <Button
                             size="small"
                             className="w-full"
@@ -304,7 +287,7 @@ const EmployeeAttendance = () => {
                           >
                             PDF
                           </Button>
-                        </Col>
+                        </Col> */}
                       </Row>
                     </div>
                   }

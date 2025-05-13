@@ -213,6 +213,11 @@ const TypesAndPoliciesSidebar = () => {
                     unCheckedChildren={<CloseOutlined />}
                     onChange={(checked) => {
                       setIsFixed(checked);
+                      form.setFieldsValue({
+                        accrualRule: undefined,
+                        carryOverRule: undefined,
+                        isIncremental: false,
+                      });
                     }}
                   />
                 </Form.Item>

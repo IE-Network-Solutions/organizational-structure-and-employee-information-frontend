@@ -48,39 +48,35 @@ const EmploymentType = () => {
   ];
 
   return (
-    <>
-      <div className="border-b-0 py-3 sm:px-6 lg:px-8 border-none bg-white">
-        <div className="flex justify-between items-center">
-          <div className="text-black font-bold text-lg mb-2 sm:mb-0">
-            Employment Type
-          </div>
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-black font-bold text-lg ">Employment Type</h1>
 
-          <div className="flex items-center space-x-2">
-            <AccessGuard permissions={[Permissions.CreateEmploymentType]}>
-              {/* Desktop button */}
-              <Button
-                className="hidden sm:flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
-                onClick={showDrawer}
-              >
-                <FaPlus className="text-white" />
-                <span>Add New Type</span>
-              </Button>
+        <div className="flex items-center space-x-2">
+          <AccessGuard permissions={[Permissions.CreateEmploymentType]}>
+            {/* Desktop button */}
+            <Button
+              className="hidden sm:flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
+              onClick={showDrawer}
+            >
+              <FaPlus className="text-white" />
+              <span>Add New Type</span>
+            </Button>
 
-              {/* Mobile button */}
-              <Button
-                className="flex sm:hidden items-center justify-center px-3 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
-                onClick={showDrawer}
-              >
-                <FaPlus className="text-white" />
-              </Button>
-            </AccessGuard>
-          </div>
+            {/* Mobile button */}
+            <Button
+              className="flex sm:hidden items-center justify-center px-3 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
+              onClick={showDrawer}
+            >
+              <FaPlus className="text-white" />
+            </Button>
+          </AccessGuard>
         </div>
       </div>
 
       <EmployementTypeSideDrawer onClose={onClose} />
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto w-full scrollbar-none">
         {isLoading ? (
           <div className="flex justify-center items-center h-20">
             <Spin size="large" />
@@ -107,7 +103,7 @@ const EmploymentType = () => {
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -32,6 +32,36 @@ const createBenefitEntitlement = async (data: any) => {
     headers,
   });
 };
+const createBenefitEntitlementSettlement = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/employee-settlement-tracking`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
+const updateBenefitEntitlementSettlement = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/employee-settlement-tracking/${data.id}`,
+    method: 'PATCH',
+    data,
+    headers,
+  });
+};
 
 /**
  * Deletes a benefit entitlement by sending a DELETE request to the API.
@@ -82,6 +112,26 @@ export const useDeleteBenefitEntitlement = () => {
 export const useCreateBenefitEntitlement = () => {
   const queryClient = useQueryClient();
   return useMutation(createBenefitEntitlement, {
+    onSuccess: (unused: any, variables: any) => {
+      queryClient.invalidateQueries('benefitEntitlement');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method, 'Benefit entitlement successfully created.');
+    },
+  });
+};
+export const useUpdatedBenefitEntitlementSettlement = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateBenefitEntitlementSettlement, {
+    onSuccess: (unused: any, variables: any) => {
+      queryClient.invalidateQueries('benefitEntitlement');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method, 'Benefit entitlement successfully updated.');
+    },
+  });
+};
+export const useCreateBenefitEntitlementSettlement = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createBenefitEntitlementSettlement, {
     onSuccess: (unused: any, variables: any) => {
       queryClient.invalidateQueries('benefitEntitlement');
       const method = variables?.method?.toUpperCase();

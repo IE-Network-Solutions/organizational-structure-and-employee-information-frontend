@@ -25,6 +25,7 @@ import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -33,6 +34,7 @@ interface CustomMenuItem {
   className?: string;
   permissions?: string[];
   children?: CustomMenuItem[];
+  disabled?: boolean;
 }
 
 interface MyComponentProps {
@@ -61,6 +63,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     (string | number | bigint)[]
   >([pathname]);
 
+  // ===========> Fiscal Year Ended Section <=================
+
+  const { token } = useAuthenticationStore();
+  const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
+
+  useEffect(() => {
+    refetch();
+  }, [token]);
+
+  const hasEndedFiscalYear =
+    !!activeFiscalYear?.isActive &&
+    !!activeFiscalYear?.endDate &&
+    new Date(activeFiscalYear?.endDate) <= new Date();
+
+  // ===========> Fiscal Year Ended Section <=================
+
   const treeData: CustomMenuItem[] = [
     {
       title: (
@@ -77,12 +95,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/organization',
       className: 'font-bold',
       permissions: ['view_organization'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Org Structure</span>,
           key: '/organization/chart',
           className: 'font-bold',
           permissions: ['view_organization_chart'],
+          disabled: hasEndedFiscalYear,
         },
         {
           title: <span>Settings</span>,
@@ -105,6 +125,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees',
       className: 'font-bold',
       permissions: ['view_employees'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Manage Employees</span>,
@@ -139,6 +160,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/recruitment',
       className: 'font-bold',
       permissions: ['view_recruitment'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Jobs</span>,
@@ -179,6 +201,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'okr-menu',
       className: 'font-bold',
       permissions: ['view_okr'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Dashboard</span>,
@@ -227,6 +250,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'feedback-menu',
       className: 'font-bold',
       permissions: ['view_feedback'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Conversation</span>,
@@ -246,6 +270,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className: 'font-bold',
           permissions: ['view_feedback_recognition'],
         },
+
         {
           title: <span>Settings</span>,
           key: '/feedback/settings',
@@ -267,6 +292,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'tna-menu',
       className: 'font-bold',
       permissions: ['view_learning_growth'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>My-TNA</span>,
@@ -306,6 +332,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: 'payroll-menu',
       className: 'font-bold',
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Employee Information</span>,
@@ -348,6 +375,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'timesheet-menu',
       className: 'font-bold',
       permissions: ['view_timesheet'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>My Timesheet</span>,
@@ -390,6 +418,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'compensation-menu',
       className: 'font-bold',
       permissions: ['view_compensation'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Allowance</span>,
@@ -432,6 +461,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'incentive-menu',
       className: 'font-bold',
       permissions: ['view_incentive'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Incentive</span>,
@@ -463,6 +493,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'admin-menu',
       className: 'font-bold',
       permissions: ['view_admin_configuration'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Dashboard</span>,

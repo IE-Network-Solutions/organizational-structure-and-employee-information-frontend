@@ -2,6 +2,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { requestHeader } from '@/helpers/requestHeader';
 import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 const importData = async (data: any) => {
@@ -12,13 +13,39 @@ const importData = async (data: any) => {
     data,
   });
 };
+
 const exportData = async (data: any) => {
-  return await crudRequest({
-    url: `${INCENTIVE_URL}/incentives/export/incentive-data`,
-    method: 'POST',
-    headers: requestHeader(),
-    data,
-  });
+  try {
+    const response = await axios.post(
+      `${INCENTIVE_URL}/incentives/export/incentive-data`,
+      data,
+      {
+        headers: {
+          ...requestHeader(),
+        },
+        responseType: 'blob', // Important for file download!
+      },
+    );
+    const blob = new Blob([response.data], {
+      type: response.headers['content-type'],
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const disposition = response.headers['content-disposition'];
+    let fileName = 'Incentive Data Export.xlsx';
+    if (disposition && disposition.includes('filename=')) {
+      fileName = disposition.split('filename=')[1].replace(/"/g, '');
+    }
+
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
 };
 
 const sendIncentiveToPayroll = async (data: string[]) => {

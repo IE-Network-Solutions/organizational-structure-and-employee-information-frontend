@@ -239,8 +239,8 @@ const Page = () => {
   };
 
   return (
-    <div>
-      <div className="flex flex-col gap-10">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex flex-col gap-10 ">
         <span className="font-bold text-lg">Feedback</span>
 
         <div className="mt-5">

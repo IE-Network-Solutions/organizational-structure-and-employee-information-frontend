@@ -50,7 +50,7 @@ const ApproverListTableComponent = ({
   };
 }) => {
   return (
-    <div>
+    <div className="mt-2 w-[900px]">
       <Table
         columns={columns}
         dataSource={data}
@@ -63,6 +63,7 @@ const ApproverListTableComponent = ({
           onShowSizeChange: onPageChange,
         }}
         loading={isEmployeeLoading}
+        scroll={{ x: 100 }}
       />
     </div>
   );

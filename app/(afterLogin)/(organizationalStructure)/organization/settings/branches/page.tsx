@@ -81,11 +81,9 @@ const Branches = () => {
 
   return (
     <div className="flex-1 rounded-lg  items-center w-full h-full">
-      <div className="bg-white p-3 rounded-lg h-full w-full">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold">
-            Branches
-          </h2>
+      <div className="bg-white p-5 rounded-2xl h-full w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-lg text-bold">Branches</h1>
           <AccessGuard permissions={[Permissions.CreateBranch]}>
             <Button icon={<FaPlus />} type="primary" onClick={handleAddNew}>
               <span className="hidden lg:block">Add Branch</span>
@@ -101,39 +99,42 @@ const Branches = () => {
               loading={isLoading}
               className="mt-3"
               title={
-                <div className="grid space-y-2 p-3">
-                  {item.name.includes('HQ') ? (
-                    <span className="flex justify-start items-center gap-4">
-                      {item.name}{' '}
-                      <span className="bg-blue rounded-lg text-white p-1 text-xs border">
-                        HQ
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="flex justify-start items-center gap-4">
-                      {item.name}{' '}
-                    </span>
-                  )}
-                  <p className="text-sm font-light">{item.location}</p>
+                <div>
+                  <div className="flex justify-between items-start p-3">
+                    <div className="grid space-y-2">
+                      {item.name.includes('HQ') ? (
+                        <span className="flex justify-start items-center gap-4">
+                          {item.name}{' '}
+                          <span className="bg-blue rounded-lg text-white p-1 text-xs border">
+                            HQ
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="flex justify-start items-center gap-4">
+                          {item.name}
+                        </span>
+                      )}
+                      <p className="text-sm font-light">{item.location}</p>
+                    </div>
+
+                    <Dropdown overlay={menu(item)} trigger={['click']}>
+                      <BsThreeDotsVertical
+                        id={`${item.name}ThreeDotButton`}
+                        className="flex justify-center items-center cursor-pointer"
+                      />
+                    </Dropdown>
+                  </div>
                 </div>
               }
-              extra={
-                <Dropdown overlay={menu(item)} trigger={['click']}>
-                  <BsThreeDotsVertical
-                    id={`${item.name}ThreeDotButton`}
-                    className="flex justify-center items-center cursor-pointer"
-                  />
-                </Dropdown>
-              }
             >
-              <p className="flex justify-start items-center text-gray-400 gap-6">
-                <p>Contact Number</p>
+              <div className="flex flex-col text-[#677588] text-xs gap-1 p-3">
+                <span>Contact Number</span>
                 <span className="text-black">{item.contactNumber}</span>
-              </p>
-              <p className="flex justify-start items-center text-gray-400 gap-6">
-                <p>Contact Email</p>
+              </div>
+              <div className="flex flex-col text-[#677588] text-xs gap-1 p-3">
+                <span>Contact Email</span>
                 <span className="text-black">{item.contactEmail}</span>
-              </p>
+              </div>
             </Card>
           )}
         />

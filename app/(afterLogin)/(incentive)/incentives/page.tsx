@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Skeleton, Tabs } from 'antd';
+import { Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -13,6 +13,8 @@ import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all
 import { Eye, FileDown, FileUp } from 'lucide-react';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
+import { MdOutlineSend } from 'react-icons/md';
 
 const Page = () => {
   const {
@@ -26,13 +28,24 @@ const Page = () => {
     setSelectedRecognition,
     selectedRecognition,
     setParentResponseIsLoading,
-    setIsOpen,
     selectedRowKeys,
     setSelectedRowKeys,
     confirmationModal,
     setConfirmationModal,
   } = useIncentiveStore();
+  const { mutate: exportIncentiveData } = useExportIncentiveData();
 
+  const { searchParams } = useIncentiveStore();
+  const handleExport = (values: any, generateAll: boolean) => {
+    const formattedValues = {
+      parentRecognitionTypeId: selectedRecognition?.id || '',
+      generateAll: generateAll,
+      sessionId: values?.bySession || [],
+      userId: values?.employee_name || '',
+      monthId: values?.byMonth || '',
+    };
+    exportIncentiveData(formattedValues);
+  };
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
 
@@ -45,9 +58,6 @@ const Page = () => {
     setParentResponseIsLoading(parentResponseLoading);
   }, [parentResponseLoading]);
 
-  const handleExportClick = () => {
-    setIsOpen(true);
-  };
   const handleSendToPayrollClick = () => {
     setConfirmationModal(true);
   };
@@ -99,12 +109,18 @@ const Page = () => {
     if (activeKey === '1') {
       return (
         <div className="flex items-center justify-center gap-3">
-          <Button
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Send to Payroll</span>
+              )
+            }
+            id="createUserButton"
+            icon={<MdOutlineSend className="md:mr-0 ml-2" size={18} />}
             onClick={() => handleSendToPayrollClick()}
-            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-          >
-            {'Send to Payroll'}
-          </Button>
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
 
           {isPayrollView ? (
             <CustomButton
@@ -116,8 +132,8 @@ const Page = () => {
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
               onClick={() => setShowGenerateModal(!showGenerateModal)}
-              textClassName="!text-sm !font-medium"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+              textClassName="!text-sm !font-lg"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           ) : (
             <CustomButton
@@ -128,9 +144,9 @@ const Page = () => {
               }
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
-              onClick={() => handleExportClick()}
-              textClassName="!text-sm !font-medium"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+              onClick={() => handleExport(searchParams, true)}
+              textClassName="!text-sm !font-lg"
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
             />
           )}
 
@@ -145,8 +161,8 @@ const Page = () => {
             id="createUserButton"
             icon={<Eye className="md:mr-0 ml-2" size={18} />}
             onClick={() => setIsPayrollView(!isPayrollView)}
-            textClassName="!text-sm !font-medium"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
         </div>
       );
@@ -154,12 +170,18 @@ const Page = () => {
       // Show Import & Generate for all other tabs
       return (
         <div className="flex items-center justify-center gap-3">
-          <Button
+          <CustomButton
+            title={
+              !(isMobile || isTablet) && (
+                <span className="hidden sm:inline">Send to Payroll</span>
+              )
+            }
+            id="createUserButton"
+            icon={<MdOutlineSend className="md:mr-0 ml-2" size={18} />}
             onClick={() => handleSendToPayrollClick()}
-            className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
-          >
-            {'Send to Payroll'}
-          </Button>
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
+          />
 
           <CustomButton
             title={
@@ -169,9 +191,9 @@ const Page = () => {
             }
             id="createUserButton"
             icon={<FileUp className="md:mr-0 ml-2" size={18} />}
-            onClick={() => handleExportClick()}
-            textClassName="!text-sm !font-medium"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            onClick={() => handleExport(searchParams, false)}
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
 
           <CustomButton
@@ -183,8 +205,8 @@ const Page = () => {
             id="createUserButton"
             icon={<FileDown className="md:mr-0 ml-2" size={18} />}
             onClick={() => setProjectDrawer(true)}
-            textClassName="!text-sm !font-medium"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-8 !py-4 sm:h-6 sm:px-5 px-4 "
+            textClassName="!text-sm !font-lg"
+            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
         </div>
       );
