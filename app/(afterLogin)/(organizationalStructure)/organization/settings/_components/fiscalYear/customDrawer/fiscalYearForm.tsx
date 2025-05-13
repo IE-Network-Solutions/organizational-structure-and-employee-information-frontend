@@ -323,7 +323,7 @@ const FiscalYearForm: React.FC = () => {
         </Select>
       </Form.Item>
 
-      <Form.Item className="mb-5">
+      <Form.Item className="">
         <div className="flex justify-center w-full space-x-5 p-6 sm:p-0 ">
           {departments?.length > 0 && (
             <Button
@@ -345,7 +345,7 @@ const FiscalYearForm: React.FC = () => {
             <Button
               onClick={handleNext}
               disabled={!isFormValid}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
             >
               Next
             </Button>

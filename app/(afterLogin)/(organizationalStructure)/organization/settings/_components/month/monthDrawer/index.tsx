@@ -262,7 +262,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
         })}
 
         <Form.Item>
-          <div className="flex justify-center w-full p-6 sm:p-0">
+          <div className="flex justify-center gap-4 w-full p-6 sm:p-0">
             <Button
               type="default"
               onClick={() => setCurrent(1)}
