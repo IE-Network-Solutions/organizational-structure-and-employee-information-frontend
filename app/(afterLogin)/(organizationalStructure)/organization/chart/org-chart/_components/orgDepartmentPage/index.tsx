@@ -73,7 +73,9 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
             />
           ) : (
             <span className="text-[10px] text-center">
-              {user?.employeeJobInformation ? user?.employeeJobInformation[0]?.position?.name?.trim() : 'Role not assigned'}
+              {user?.employeeJobInformation
+                ? user?.employeeJobInformation[0]?.position?.name?.trim()
+                : 'Role not assigned'}
             </span>
           )}
         </div>
