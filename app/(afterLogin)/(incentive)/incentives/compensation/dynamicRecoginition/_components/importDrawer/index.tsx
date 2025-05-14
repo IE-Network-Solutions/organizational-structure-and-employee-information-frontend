@@ -17,12 +17,8 @@ interface ImportDataProps {
 }
 const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
   const [form] = Form.useForm();
-  const {
-    projectDrawer,
-    setProjectDrawer,
-    selectedRecognition,
-    setIsPayrollView,
-  } = useIncentiveStore();
+  const { projectDrawer, setProjectDrawer, selectedRecognition } =
+    useIncentiveStore();
   const { mutate: importData } = useImportData();
   const { data: recognitionData } =
     useRecognitionByParentId(parentRecognitionId);

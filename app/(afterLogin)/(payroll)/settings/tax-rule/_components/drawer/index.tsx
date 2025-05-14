@@ -7,7 +7,6 @@ import {
 } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/taxRulesStore';
 
-
 <style jsx global>{`
   @media (max-width: 767px) {
     .input-number-mobile .ant-input-number,
@@ -24,7 +23,7 @@ import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/t
       font-size: 20px !important;
     }
   }
-`}</style>
+`}</style>;
 
 const Drawer: React.FC = () => {
   const { isDrawerVisible, closeDrawer, currentTaxRule } = useDrawerStore();
@@ -75,7 +74,7 @@ const Drawer: React.FC = () => {
       } else {
         createTaxRule(taxRuleData);
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   return (
@@ -203,4 +202,3 @@ const Drawer: React.FC = () => {
 };
 
 export default Drawer;
-
