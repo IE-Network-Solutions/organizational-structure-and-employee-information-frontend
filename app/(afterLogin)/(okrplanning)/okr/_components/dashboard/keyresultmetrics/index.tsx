@@ -7,10 +7,6 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { HiOutlineHashtag } from 'react-icons/hi';
-import { AiOutlineDollar, AiOutlinePercentage } from 'react-icons/ai';
-import { GiAchievement } from 'react-icons/gi';
-import { BsSortNumericUpAlt } from 'react-icons/bs';
 
 interface KPIMetricsProps {
   keyResult: any;
