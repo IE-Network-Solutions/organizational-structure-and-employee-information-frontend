@@ -15,12 +15,17 @@ import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import LeaveRequestSidebar from '../../my-timesheet/_components/leaveRequestSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { useMediaQuery } from 'react-responsive';
+import { useSetAllLeaveRequestNotification } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { MdMarkEmailRead } from 'react-icons/md';
 
 const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
     {} as LeaveRequestBody,
   );
   const { setLeaveTypes } = useMyTimesheetStore();
+  const { mutate: sendNotification, isLoading } =
+    useSetAllLeaveRequestNotification();
+
   const { data: leaveTypesData } = useGetLeaveTypes();
   const {
     data: leaveRequestData,
@@ -66,6 +71,14 @@ const LeaveManagement = () => {
         <BlockWrapper>
           <PageHeader title="Leave Management">
             <Space size={20}>
+              <CustomButton
+                title={!isSmallScreen ? 'Email Reminder' : ' '} // Hide text on small screens
+                id="emailNotification"
+                className={isSmallScreen ? 'w-[65px]' : ''}
+                icon={<MdMarkEmailRead size={20} />}
+                onClick={() => sendNotification()}
+                loading={isLoading}
+              />
               <Popover
                 trigger="click"
                 placement="bottomRight"
