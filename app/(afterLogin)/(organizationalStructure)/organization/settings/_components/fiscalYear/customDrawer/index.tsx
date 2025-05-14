@@ -224,7 +224,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
         <CustomDrawerLayout
           modalHeader={
             <h1 className="flex justify-center text-xl font-extrabold text-gray-800 py-6 ">
-              {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
+              {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
             </h1>
           }
           onClose={handleCancel}

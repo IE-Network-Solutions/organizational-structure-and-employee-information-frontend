@@ -91,33 +91,47 @@ const FiscalYearForm: React.FC = () => {
   };
 
   const handleClose = () => {
-    setSelectedFiscalYear(null);
-    setCalendarType('');
-    setOpenFiscalYearDrawer(false);
-    resetFormState();
+    try {
+      setSelectedFiscalYear(null);
+      setOpenFiscalYearDrawer(false);
+      setCalendarType('');
+      resetFormState();
+    } catch (error) {
+      message.error('Failed to close the form. Please try again.');
+    }
   };
 
-  const handleValuesChange = (val: string) => setCalendarType(val);
-  const handleStartDateChange = (val: any) => setFiscalYearStart(val);
-  const handleEndDateChange = (val: any) => setFiscalYearEnd(val);
+  const handleValuesChange = (val: string) => {
+    try {
+      setCalendarType(val);
+    } catch (error) {
+      message.error('Failed to update calendar type. Please try again.');
+    }
+  };
 
-  const handleNext = () => {
-    if (isEditMode) {
-      // In edit mode, skip validation and proceed
+  const handleStartDateChange = (val: any) => {
+    try {
+      setFiscalYearStart(val);
+    } catch (error) {
+      message.error('Failed to update start date. Please try again.');
+    }
+  };
+
+  const handleEndDateChange = (val: any) => {
+    try {
+      setFiscalYearEnd(val);
+    } catch (error) {
+      message.error('Failed to update end date. Please try again.');
+    }
+  };
+
+  const handleNext = async () => {
+    try {
       const currentValues = form.getFieldsValue();
       setFiscalYearFormValues(currentValues);
       setCurrent(1);
-    } else {
-      // Not in edit mode, validate fields before proceeding
-      form
-        .validateFields()
-        .then((currentValues) => {
-          setFiscalYearFormValues(currentValues);
-          setCurrent(1);
-        })
-        .catch(() => {
-          // Validation failed, do nothing or show error
-        });
+    } catch (error) {
+      message.error('Failed to proceed to next step. Please try again.');
     }
   };
 
@@ -265,6 +279,7 @@ const FiscalYearForm: React.FC = () => {
         id="fiscalYearCalenderId"
         name="fiscalYearCalenderId"
         label={<span className="font-medium">Fiscal Year Calendar</span>}
+        initialValue={calendarType}
         rules={[{ required: true, message: 'Please select a calendar type!' }]}
       >
         <Select
@@ -291,7 +306,7 @@ const FiscalYearForm: React.FC = () => {
           )}
           <Tooltip
             title={
-              !isEditMode && !isFormValid
+              !isFormValid
                 ? 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
                 : ''
             }
@@ -299,7 +314,7 @@ const FiscalYearForm: React.FC = () => {
           >
             <Button
               onClick={handleNext}
-              disabled={!isEditMode && !isFormValid}
+              disabled={!isFormValid}
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
             >
               Next
