@@ -183,6 +183,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
         </div>
       }
       width="600px"
+      customMobileHeight="45vh"
     >
       <Form
         requiredMark={false}
@@ -193,7 +194,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
         <Form.Item
           rules={[{ required: true, message: 'Please choose type' }]}
           label={
-            <span className="font-bold">
+            <span className="font-bold mb-2">
               Formula <span className="text-red-500">*</span>
             </span>
           }
@@ -205,14 +206,14 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             options={plainOptions}
             onChange={handleRadioChange}
             value={value}
-            className="text-md font-md my-2"
+            className="text-md font-md "
           />
         </Form.Item>
         {(value === null || value === '' || value === 'Fixed') && (
           <Form.Item
             rules={[{ required: true, message: 'Please enter amount' }]}
             label={
-              <span className="font-bold">
+              <span className="font-medium text-sm mb-2">
                 Amount <span className="text-red-500">*</span>
               </span>
             }
@@ -221,8 +222,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
           >
             <Input
               placeholder="Enter Fixed amount"
-              size="large"
-              className="text-sm font-md"
+              className="text-sm font-md h-10"
             />
           </Form.Item>
         )}

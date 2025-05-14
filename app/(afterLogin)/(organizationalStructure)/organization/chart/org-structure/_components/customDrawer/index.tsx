@@ -23,7 +23,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   drawerContent,
   footerButtonText,
   onSubmit,
-  width = '30%',
+  width = '40%',
   form,
 }) => {
   const renderDrawerContent = () => {
@@ -43,22 +43,22 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       open={visible}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4 ">
+        <div className="flex justify-start text-xl font-extrabold text-gray-800 ">
           {title}
         </div>
       }
       width={width}
       footer={
-        <div className="w-full flex justify-center space-x-5  p-6 sm:p-0">
+        <div className="w-full flex justify-center space-x-5 p-4">
           <Button
-            className="h-[40px] sm:h-[56px] text-base"
+            className="h-[40px] sm:h-[56px] text-base px-10"
             type="default"
             onClick={onClose}
           >
             Cancel
           </Button>
           <Button
-            className="h-[40px] sm:h-[56px] text-base"
+            className="h-[40px] sm:h-[56px] text-base px-10"
             type="primary"
             onClick={onSubmit}
             loading={loading}

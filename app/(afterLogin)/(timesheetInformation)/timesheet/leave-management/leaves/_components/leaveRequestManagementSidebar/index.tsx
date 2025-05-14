@@ -86,7 +86,7 @@ const LeaveRequestManagementSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader>Leave Request Details</CustomDrawerHeader>
+          <CustomDrawerHeader>Leave Request Management</CustomDrawerHeader>
         }
         footer={
           <div className="p-6 sm:p-0">
@@ -94,6 +94,7 @@ const LeaveRequestManagementSidebar = () => {
           </div>
         }
         width="40%"
+        customMobileHeight="90vh"
       >
         {!leaveData ? (
           <div className="flex justify-center py-10">

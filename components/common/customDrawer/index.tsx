@@ -13,6 +13,7 @@ interface CustomDrawerLayoutProps {
   paddingBottom?: number;
   footer?: React.ReactNode | null;
   hideButton?: boolean;
+  customMobileHeight?: string | null;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -24,6 +25,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   hideButton = false,
   footer = null,
   paddingBottom = 50,
+  customMobileHeight = null,
 }) => {
   // Default width
   const {
@@ -91,7 +93,10 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         style={{ paddingBottom: isMobile ? 0 : paddingBottom }}
         footer={footer}
         styles={{
-          header: { borderBottom: 'none' },
+          header: {
+            borderBottom: 'none',
+            padding: isMobile ? '24px 12px' : '24px 36px',
+          },
           footer: {
             borderTop: 'none',
             paddingBlock: isMobile ? 0 : 8,
@@ -100,7 +105,9 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           },
           body: { padding: isMobile ? '0 12px' : '0 36px' },
         }}
-        height={isMobile ? '65vh' : 400}
+        height={
+          customMobileHeight ? customMobileHeight : isMobile ? '65vh' : 400
+        }
         placement={placement}
       >
         {children}

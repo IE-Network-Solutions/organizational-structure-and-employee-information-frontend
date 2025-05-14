@@ -179,6 +179,7 @@ const PayPeriodSideBar = () => {
           />
         }
         width="30%"
+        customMobileHeight="50vh"
       >
         <Spin spinning={false}>
           <Form
@@ -189,6 +190,7 @@ const PayPeriodSideBar = () => {
           >
             <Form.Item name="ActiveFiscalYear" label="Active Fiscal Year">
               <Select
+                className="mt-2 h-10"
                 placeholder={`${dayjs(activeFiscalYear?.startDate).format('MMMM D, YYYY')} -- ${dayjs(activeFiscalYear?.endDate).format('MMMM D, YYYY')}`}
                 disabled
               />
@@ -202,6 +204,7 @@ const PayPeriodSideBar = () => {
               ]}
             >
               <Select
+                className="mt-2 h-10"
                 placeholder="Select pay period mode"
                 options={modeOptions}
                 allowClear

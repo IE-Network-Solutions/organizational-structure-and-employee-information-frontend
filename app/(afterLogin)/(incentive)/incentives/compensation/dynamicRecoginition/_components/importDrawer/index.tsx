@@ -10,7 +10,6 @@ import { MdOutlineUploadFile } from 'react-icons/md';
 import { useImportData } from '@/store/server/features/incentive/all/mutation';
 import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { IoInformationCircleOutline } from 'react-icons/io5';
 import DownloadExcelButton from '../dowloadTemplateExcel';
 
 interface ImportDataProps {
@@ -18,8 +17,12 @@ interface ImportDataProps {
 }
 const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
   const [form] = Form.useForm();
-  const { projectDrawer, setProjectDrawer, selectedRecognition } =
-    useIncentiveStore();
+  const {
+    projectDrawer,
+    setProjectDrawer,
+    selectedRecognition,
+    setIsPayrollView,
+  } = useIncentiveStore();
   const { mutate: importData } = useImportData();
   const { data: recognitionData } =
     useRecognitionByParentId(parentRecognitionId);
@@ -53,16 +56,36 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
       onClose={handleClose}
       modalHeader={
         <CustomDrawerHeader className="flex justify-between">
-          <span>Import {selectedRecognition?.name} Data</span>
+          <span className="text-sm">
+            Import {selectedRecognition?.name} Data
+          </span>
           <div>
             <DownloadExcelButton />
           </div>
         </CustomDrawerHeader>
       }
-      footer={null}
+      footer={
+        <div className="flex justify-center gap-4 p-4">
+          <Button
+            type="default"
+            className=" h-10 px-10"
+            onClick={() => setProjectDrawer(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => form.submit()}
+            className=" h-10 px-10"
+          >
+            Create
+          </Button>
+        </div>
+      }
       width="600px"
+      customMobileHeight="75vh"
     >
-      <div className="flex items-start justify-center space-x-2">
+      {/* <div className="flex items-start justify-center space-x-2">
         <div>
           <IoInformationCircleOutline size={14} />
         </div>
@@ -71,7 +94,7 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
           clicking the <strong>&quot;Download Format&quot;</strong> button
           above.
         </div>
-      </div>
+      </div> */}
 
       <Form
         requiredMark={false}
@@ -82,12 +105,12 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         <Form.Item name="fileName">
           <Upload.Dragger
             name="file"
-            className="w-full p-6"
+            className="w-full p-3 bg-white"
             showUploadList
             accept=".xlsx"
             maxCount={1}
           >
-            <span className="flex flex-col gap-3 py-8">
+            <span className="flex flex-col gap-3 py-2">
               <p className="ant-upload-drag-icon flex items-center justify-center">
                 <svg
                   width="54"
@@ -305,7 +328,7 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         >
           <Select
             size="large"
-            className="my-1 h-12 text-sm font-normal"
+            className="mt-2 h-10 text-sm font-normal"
             placeholder="Select recognition type"
             allowClear
           >
@@ -338,7 +361,7 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
         >
           <Select
             size="large"
-            className="my-1 h-12 text-sm font-normal"
+            className="my-1 h-10 text-sm font-normal mt-2"
             placeholder="Select pay period"
             allowClear
           >
@@ -363,20 +386,12 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
           name="source"
         >
           <TextArea
+            className="mt-2"
             rows={2}
             size="large"
             placeholder="Insert other necessary information"
             allowClear
           />
-        </Form.Item>
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="w-full gap-3 rounded-lg bg-primary text-white h-14"
-          >
-            Create
-          </Button>
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

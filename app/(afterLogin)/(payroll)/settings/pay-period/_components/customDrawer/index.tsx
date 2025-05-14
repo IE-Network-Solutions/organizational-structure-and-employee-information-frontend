@@ -75,7 +75,6 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             onClick={() => form.submit()}
             loading={isLoading}
           >
-            {' '}
             Edit
           </Button>
         </div>
@@ -92,7 +91,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           name="month"
           rules={[{ required: true, message: 'Please enter the month' }]}
         >
-          <Input className="min-h-12" disabled />
+          <Input className="h-10" disabled />
         </Form.Item>
 
         <Form.Item
@@ -101,7 +100,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           rules={[{ required: true, message: 'Please select a start date' }]}
         >
           <DatePicker
-            className="min-h-12 w-full"
+            className="h-10 w-full"
             value={form.getFieldValue('startDate')}
             onChange={(date) => form.setFieldValue('startDate', date)}
           />

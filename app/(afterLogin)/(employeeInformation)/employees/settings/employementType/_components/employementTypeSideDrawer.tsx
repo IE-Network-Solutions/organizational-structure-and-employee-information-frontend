@@ -40,22 +40,22 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
         open={isOpen}
         onClose={props?.onClose}
         modalHeader={
-          <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+          <div className="flex justify-start text-base font-bold text-gray-800">
             Add Employee Type
           </div>
         }
-        width="30%"
+        width="40%"
         footer={
-          <div className=" w-full bg-[#fff]  flex justify-center space-x-5  p-6 sm:p-0">
+          <div className=" w-full bg-[#fff]  flex justify-center space-x-5  p-4">
             <Button
-              className="h-[40px] sm:h-[56px] text-base"
+              className="h-[40px] sm:h-[56px] text-base px-10"
               type="default"
               onClick={handleCloseDrawer}
             >
               Cancel
             </Button>
             <Button
-              className="h-[40px] sm:h-[56px] text-base"
+              className="h-[40px] sm:h-[56px] text-base px-10"
               type="primary"
               onClick={handleSubmit}
             >

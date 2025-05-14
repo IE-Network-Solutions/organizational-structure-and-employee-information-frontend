@@ -1,11 +1,30 @@
 import React, { useEffect } from 'react';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, InputNumber } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateTaxRule,
   useUpdateTaxRule,
 } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/taxRulesStore';
+
+
+<style jsx global>{`
+  @media (max-width: 767px) {
+    .input-number-mobile .ant-input-number,
+    .input-number-mobile .ant-input-number-input {
+      height: 48px !important;
+      font-size: 20px !important;
+      padding: 12px 16px !important;
+    }
+    .input-number-mobile .ant-input-number-handler-wrap {
+      width: 32px !important;
+    }
+    .input-number-mobile .ant-input-number-handler {
+      height: 24px !important;
+      font-size: 20px !important;
+    }
+  }
+`}</style>
 
 const Drawer: React.FC = () => {
   const { isDrawerVisible, closeDrawer, currentTaxRule } = useDrawerStore();
@@ -56,7 +75,7 @@ const Drawer: React.FC = () => {
       } else {
         createTaxRule(taxRuleData);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   return (
@@ -64,7 +83,7 @@ const Drawer: React.FC = () => {
       open={isDrawerVisible}
       onClose={closeDrawer}
       modalHeader={
-        <span className="text-xl font-semibold">
+        <span className=" flex justify-center text-xl font-semibold">
           {currentTaxRule ? 'Edit Tax Rule' : 'Define New Tax Rule'}
         </span>
       }
@@ -105,17 +124,28 @@ const Drawer: React.FC = () => {
           name="name"
           rules={[{ required: true, message: 'Please input the name!' }]}
         >
-          <Input placeholder="Full Name" className="h-12" />
+          <Input placeholder="Full Name" className="h-12 mt-2" />
         </Form.Item>
 
         <Form.Item
           label="Maximum Income"
           name="maximum-income"
           rules={[
-            { required: true, message: 'Please input the maximum income!' },
+            {
+              type: 'number',
+              required: true,
+              message: 'Please input the maximum income!',
+            },
           ]}
         >
-          <Input type="number" placeholder="Maximum Income" className="h-12" />
+          <InputNumber
+            className="h-12 mt-2 w-full input-number-mobile"
+            placeholder="Input Maximum Income"
+            min={0}
+            step={1}
+            controls={true}
+            addonAfter={null}
+          />
         </Form.Item>
 
         <Form.Item
@@ -125,7 +155,14 @@ const Drawer: React.FC = () => {
             { required: true, message: 'Please input the minimum income!' },
           ]}
         >
-          <Input type="number" placeholder="Minimum Income" className="h-12" />
+          <InputNumber
+            className="h-12 mt-2 w-full input-number-mobile"
+            placeholder="Input Minimum Income"
+            min={0}
+            step={1}
+            controls={true}
+            addonAfter={null}
+          />
         </Form.Item>
 
         <Form.Item
@@ -133,12 +170,16 @@ const Drawer: React.FC = () => {
           name="rate"
           rules={[{ required: true, message: 'Please input the tax rate!' }]}
         >
-          <Input
-            type="number"
+          <InputNumber
+            className="w-full h-12 mt-2 input-number-mobile"
             min={0}
             max={100}
-            placeholder="Rate in%"
-            className="w-full h-12"
+            step={0.01}
+            placeholder="Input Tax Rate"
+            controls={true}
+            addonAfter={
+              <span style={{ color: '#bdbdbd', fontWeight: 600 }}>%</span>
+            }
           />
         </Form.Item>
 
@@ -147,10 +188,13 @@ const Drawer: React.FC = () => {
           name="deduction"
           rules={[{ required: true, message: 'Please input the deduction!' }]}
         >
-          <Input
-            type="number"
-            placeholder="Deduction"
-            className="w-full h-12"
+          <InputNumber
+            className="w-full h-12 mt-2 input-number-mobile"
+            min={0}
+            step={1}
+            placeholder="Input Deduction Amount"
+            controls={true}
+            addonAfter={null}
           />
         </Form.Item>
       </Form>
@@ -159,3 +203,4 @@ const Drawer: React.FC = () => {
 };
 
 export default Drawer;
+

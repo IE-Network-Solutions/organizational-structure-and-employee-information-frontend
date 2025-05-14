@@ -53,14 +53,14 @@ const CheckOutSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base px-10',
       size: 'large',
       onClick: () => setIsShowCheckOutSidebar(false),
     },
     {
       label: 'Check-out',
       key: 'checkOut',
-      className: 'h-[40px] sm:h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base px-10',
       size: 'large',
       type: 'primary',
       onClick: () => form.submit(),
@@ -120,11 +120,14 @@ const CheckOutSidebar = () => {
       <CustomDrawerLayout
         open={isShowCheckOutSidebar}
         onClose={() => setIsShowCheckOutSidebar(false)}
-        modalHeader={<CustomDrawerHeader>Check-out</CustomDrawerHeader>}
+        modalHeader={
+          <CustomDrawerHeader className="px-3">Check-out</CustomDrawerHeader>
+        }
         footer={
-          <div className="p-6 sm:p-0">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
-          </div>
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-center p-4"
+            buttons={footerModalItems}
+          />
         }
         width="400px"
       >
@@ -134,6 +137,7 @@ const CheckOutSidebar = () => {
           requiredMark={CustomLabel}
           onFinish={onFinish}
           autoComplete="off"
+          className="px-3"
         >
           <Form.Item
             name="type"
