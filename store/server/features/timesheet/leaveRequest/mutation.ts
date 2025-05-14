@@ -13,6 +13,7 @@ import {
   AllLeaveRequestApproveData,
   LeaveRequestStatusBody,
 } from '@/store/server/features/timesheet/leaveRequest/interface';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const setLeaveRequest = async ({
   item,
@@ -113,6 +114,13 @@ const setAllFinalApproveLeaveRequest = async (data: any) => {
     method: 'POST',
     headers: requestHeader(),
     data,
+  });
+};
+const setAllLeaveRequestNotification = async () => {
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/current-approver/pending-leaves/notify`,
+    method: 'POST',
+    headers: requestHeader(),
   });
 };
 export const useSetLeaveRequest = () => {
@@ -244,6 +252,18 @@ export const useSetAllFinalApproveLeaveRequest = () => {
       queryClient.invalidateQueries('current_approval');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
+    },
+  });
+};
+
+export const useSetAllLeaveRequestNotification = () => {
+  // const queryClient = useQueryClient();
+  return useMutation(setAllLeaveRequestNotification, {
+    onSuccess: () => {
+      NotificationMessage.success({
+        message: 'Email Sent successfully',
+        description: 'Email Sent successfully',
+      });
     },
   });
 };

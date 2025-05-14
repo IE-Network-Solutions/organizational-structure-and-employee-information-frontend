@@ -1,12 +1,12 @@
 'use client';
 import React, { useState } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { Button, Select, Space } from 'antd';
-import { LuPlus } from 'react-icons/lu';
+import { Button, Select } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AllAllowanceTable from './_components/allAllowanceTable';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { FaPlus } from 'react-icons/fa';
 
 const AllAllowancePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,42 +24,65 @@ const AllAllowancePage: React.FC = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center">
-        <PageHeader title="All Allowance Entitlement" size="small" />
-        <Space direction="horizontal" size="large">
-          <Select
-            showSearch
-            allowClear
-            className="min-h-12"
-            placeholder="Search by name"
-            onChange={handleSearchChange}
-            filterOption={(input, option) => {
-              const label = option?.label;
-              return (
-                typeof label === 'string' &&
-                label.toLowerCase().includes(input.toLowerCase())
-              );
-            }}
-            options={options}
-            style={{ width: 300 }} // Set a width for better UX
-          />
-          <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
-            <Button
-              size="large"
-              type="primary"
-              className="min-h-12"
-              id="createNewClosedHolidayFieldId"
-              icon={<LuPlus size={18} />}
-              onClick={() => {}}
-              disabled
-            >
-              Employees
-            </Button>
-          </AccessGuard>
-        </Space>
+      <div className="mt-3">
+        {/* Mobile: PageHeader on top */}
+        <div className="block sm:hidden mb-4">
+          <PageHeader title="All Allowance" />
+        </div>
+
+        {/* Main layout for sm and up */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          {/* Desktop PageHeader */}
+          <div className="hidden sm:block">
+            <PageHeader title="All Allowance" />
+          </div>
+
+          {/* Right Section: Select + Button */}
+          <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
+            {/* Select: 75% on mobile */}
+            <div className="w-3/4 sm:w-72 mr-2">
+              <Select
+                showSearch
+                allowClear
+                className="h-10 w-full"
+                placeholder="Search by name"
+                onChange={handleSearchChange}
+                filterOption={(input, option) => {
+                  const label = option?.label;
+                  return (
+                    typeof label === 'string' &&
+                    label.toLowerCase().includes(input.toLowerCase())
+                  );
+                }}
+                options={options}
+              />
+            </div>
+
+            {/* Button: 25% on mobile */}
+            <div className="w-1/4 sm:w-auto">
+              <AccessGuard
+                permissions={[Permissions.CreateAllowanceEntitlement]}
+              >
+                <Button
+                  size="large"
+                  type="primary"
+                  className="h-10 w-full"
+                  id="createNewClosedHolidayFieldId"
+                  icon={<FaPlus />}
+                  onClick={() => {}}
+                  disabled
+                >
+                  <span className="hidden sm:inline">Employees</span>
+                </Button>
+              </AccessGuard>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <AllAllowanceTable searchQuery={searchQuery} />
+      <div className="overflow-x-auto">
+        <AllAllowanceTable searchQuery={searchQuery} />
+      </div>
     </>
   );
 };

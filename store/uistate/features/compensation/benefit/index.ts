@@ -8,16 +8,30 @@ interface SearchParams {
 
 interface BenefitEntitlementTypes {
   isBenefitEntitlementSidebarOpen: boolean;
+  isBenefitEntitlementSidebarUpdateOpen: boolean;
   selectedDepartment: string | null;
   departmentUsers: any[];
   benefitMode: string;
   BenefitApplicableTo: string;
   benefitDefaultAmount: number;
-
+  benefitData: any;
+  employeeBenefitData: any;
+  employeeSettlementData: any;
   currentPage: number;
   pageSize: number;
-
+  totalAmount: number;
+  setTotalAmount: (value: number) => void;
+  settlementPeriod: number;
+  setSettlementPeriod: (value: number) => void;
+  data: any[];
+  setData: (value: any[]) => void;
+  detailCurrentPage: number;
+  setDetailCurrentPage: (value: number) => void;
+  detailPageSize: number;
+  setDetailPageSize: (value: number) => void;
+  setEmployeeSettlementData: (value: any) => void;
   setIsBenefitEntitlementSidebarOpen: (value: boolean) => void;
+  setIsBenefitEntitlementSidebarUpdateOpen: (value: boolean) => void;
   setSelectedDepartment: (value: string | null) => void;
   setDepartmentUsers: (value: any[]) => void;
   setBenefitMode: (value: string) => void;
@@ -25,7 +39,8 @@ interface BenefitEntitlementTypes {
   setPageSize: (value: number) => void;
   setBenefitDefaultAmount: (value: number) => void;
   setBenefitApplicableTo: (value: string) => void;
-
+  setEditBenefitData: (value: any) => void;
+  setEmployeeBenefitData: (value: any) => void;
   resetStore: () => void;
 }
 
@@ -74,9 +89,16 @@ const variablePayInitialState = {
 export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
   (set) => ({
     ...benefitEntitlementInitialState,
-
+    isBenefitEntitlementSidebarUpdateOpen: false,
     setIsBenefitEntitlementSidebarOpen: (value) =>
       set({ isBenefitEntitlementSidebarOpen: value }),
+    employeeBenefitData: null,
+    employeeSettlementData: null,
+    setEmployeeSettlementData: (value) =>
+      set({ employeeSettlementData: value }),
+    setEmployeeBenefitData: (value) => set({ employeeBenefitData: value }),
+    setIsBenefitEntitlementSidebarUpdateOpen: (value) =>
+      set({ isBenefitEntitlementSidebarUpdateOpen: value }),
     setSelectedDepartment: (value) => set({ selectedDepartment: value }),
     setDepartmentUsers: (value) => set({ departmentUsers: value }),
     setBenefitMode: (value) => set({ benefitMode: value }),
@@ -85,7 +107,18 @@ export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
 
     setCurrentPage: (value) => set({ currentPage: value }),
     setPageSize: (value) => set({ pageSize: value }),
-
+    benefitData: null,
+    setEditBenefitData: (value) => set({ benefitData: value }),
+    data: [],
+    setData: (value) => set({ data: value }),
+    totalAmount: 0,
+    setTotalAmount: (value) => set({ totalAmount: value }),
+    settlementPeriod: 0,
+    setSettlementPeriod: (value) => set({ settlementPeriod: value }),
+    detailCurrentPage: 1,
+    setDetailCurrentPage: (value) => set({ detailCurrentPage: value }),
+    detailPageSize: 5,
+    setDetailPageSize: (value) => set({ detailPageSize: value }),
     resetStore: () => {
       set((state) => {
         const { benefitDefaultAmount, benefitMode } = state;

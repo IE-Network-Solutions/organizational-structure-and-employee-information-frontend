@@ -44,7 +44,7 @@ export const transformData = (data: any) => {
       effectiveEndDate: formatDate(data.effectiveEndDate),
       employementTypeId: data.employementTypeId,
       departmentId: data.departmentId,
-      departMentLeadOrNot: data.departmentLeadOrNot ?? true,
+      departmentLeadOrNot: data.departmentLeadOrNot ?? true,
       employmentContractType: data.employmentContractType,
       workScheduleId: data.workScheduleId,
     },

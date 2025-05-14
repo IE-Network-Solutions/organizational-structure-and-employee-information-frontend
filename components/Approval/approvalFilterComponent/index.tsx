@@ -26,26 +26,24 @@ const ApprovalFilterComponent = ({
   const { Option } = Select;
 
   return (
-    <Row gutter={[16, 24]} justify="space-between">
-      <Col xl={10} lg={12} md={24}>
-        <div className="w-full">
-          <Input
-            id={`inputEmployeeNames${searchParams.name}`}
-            placeholder="Search workflow name"
-            onChange={(e) => handleSearchInput(e.target.value, 'name')}
-            className="w-full h-14"
-            allowClear
-          />
-        </div>
+    <Row gutter={16} justify="space-between">
+      <Col xl={18} lg={18} md={18} sm={16} xs={16}>
+        <Input
+          id={`inputEmployeeNames${searchParams.name}`}
+          placeholder="Search workflow name"
+          onChange={(e) => handleSearchInput(e.target.value, 'name')}
+          className="w-full h-10"
+          allowClear
+        />
       </Col>
 
-      <Col xl={8} lg={12} md={24}>
+      <Col xl={6} lg={6} md={6} sm={8} xs={8}>
         <Select
           id={`selectDepartment${searchParams.entityType}`}
           placeholder="Applied For"
           onChange={handleDepartmentChange}
           allowClear
-          className="w-full h-14"
+          className="w-full h-10"
         >
           {EntityType?.map((item: any, index) => (
             <Option key={index} value={item?.name}>

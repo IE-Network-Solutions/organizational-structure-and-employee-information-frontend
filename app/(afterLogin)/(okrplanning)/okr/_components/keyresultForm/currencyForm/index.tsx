@@ -17,6 +17,7 @@ import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const CurrencyForm: React.FC<OKRFormProps> = ({
   keyItem,
@@ -55,34 +56,44 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
       return `${key} is required.`;
     }
     if (name.length < 3) {
-      return `${key} must be between 3 greater than characters long.`;
+      return `${key} must be greater than 3 characters long.`;
     }
     return null;
   };
 
+  const isMobile = useIsMobile();
   return (
-    <div className="p-4 sm:p-6 lg:p-2" id={`currency-form-${index}`}>
-      {/* Container with border and padding */}
+    <div
+      className={`p-4 ${isMobile ? 'p-2' : 'sm:p-6 lg:p-8'}`}
+      id={`currency-form-${index}`}
+    >
       <div
-        className="border border-blue rounded-lg p-4 mx-0 lg:mx-8"
+        className="border border-blue-500 rounded-lg p-4 mx-0"
         id={`form-container-${index}`}
       >
-        {/* Close icon to remove Key Result */}
-        <div className="flex justify-end">
-          <IoIosCloseCircleOutline
-            size={20}
-            title="Cancel"
+        <div className="flex justify-end mb-2">
+          <button
             onClick={() => removeKeyResult(index)}
-            className="cursor-pointer text-red-500 mb-2"
+            title="Cancel"
+            aria-label="Cancel"
             id={`remove-key-result-icon-${index}`}
-          />
+            className="cursor-pointer text-red-500 hover:text-red-600 transition-colors"
+          >
+            <IoIosCloseCircleOutline size={isMobile ? 24 : 20} />
+          </button>
         </div>
 
         <Form form={form} initialValues={keyItem} layout="vertical">
-          {/* Key Result Name */}
-          <Form.Item className="w-full mb-0" id={`key-result-select-${index}`}>
+          <Form.Item
+            rules={[
+              { required: true, message: 'Please select a Key Result type' },
+            ]}
+            id={`key-result-select-${index}`}
+            className="mb-2"
+          >
             <Select
-              className="w-full text-xs"
+              className="w-full"
+              popupClassName={isMobile ? 'text-sm' : 'text-xs'}
               onChange={(value) => {
                 const selectedMetric = metrics?.items?.find(
                   (metric) => metric.id === value,
@@ -92,8 +103,15 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   updateKeyResult(index, 'key_type', selectedMetric.name);
                 }
               }}
-              value={keyItem.key_type}
+              value={
+                metrics?.items?.find(
+                  (metric) => metric.name === keyItem.key_type,
+                )?.id || ''
+              }
             >
+              <Option value="" disabled>
+                Please select a metric type
+              </Option>
               {metrics?.items?.map((metric) => (
                 <Option key={metric?.id} value={metric?.id}>
                   {metric?.name}
@@ -103,7 +121,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
           </Form.Item>
 
           <Form.Item
-            className="font-semibold text-xs w-full mb-2 mt-2"
+            className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
             name={`key_name_${index}`}
             rules={[
               {
@@ -111,7 +129,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   !validateName('Key Result', value)
                     ? Promise.resolve()
                     : Promise.reject(
-                        new Error(validateName('Key Result Name', value) || ''),
+                        validateName('Key Result Name', value) || '',
                       ),
               },
             ]}
@@ -121,34 +139,33 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               value={keyItem.title || ''}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
+              className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-8 text-xs'}`}
+              aria-label="Key Result Name"
             />
           </Form.Item>
 
-          <Row gutter={[16, 16]}>
-            {/* Deadline */}
+          <Row gutter={[16, isMobile ? 12 : 16]}>
             <Col xs={24} md={12}>
               <Form.Item
-                layout="horizontal"
-                className="font-semibold text-xs w-full mb-2"
+                layout={isMobile ? 'vertical' : 'horizontal'}
+                className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
                 name={`dead_line_${index}`}
                 label="Deadline"
+                labelCol={{ span: isMobile ? undefined : 6 }}
+                wrapperCol={{ span: isMobile ? undefined : 18 }}
                 rules={[
-                  {
-                    required: true,
-                    message: 'Please select a deadline',
-                  },
+                  { required: true, message: 'Please select a deadline' },
                 ]}
                 id={`deadline-${index}`}
               >
                 <DatePicker
-                  className="w-full text-xs"
+                  className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-8 text-xs'} rounded-md`}
+                  popupClassName={isMobile ? 'text-sm' : 'text-xs'}
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
                     const startOfToday = dayjs().startOf('day');
-                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
-
-                    // Disable dates before today and above the objective deadline
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline);
                     return (
                       current &&
                       (current < startOfToday || current > objectiveDeadline)
@@ -161,18 +178,21 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       date ? date.format('YYYY-MM-DD') : null,
                     )
                   }
+                  aria-label="Deadline"
                 />
               </Form.Item>
             </Col>
 
-            {/* Weight */}
             <Col xs={24} md={12}>
               <Form.Item
-                layout="horizontal"
-                className="font-semibold text-xs w-full mb-2"
+                layout={isMobile ? 'vertical' : 'horizontal'}
+                className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
                 name={`weight_${index}`}
                 label="Weight"
+                labelCol={{ span: isMobile ? undefined : 6 }}
+                wrapperCol={{ span: isMobile ? undefined : 18 }}
                 rules={[
+                  { required: true, message: 'Please enter the weight' },
                   {
                     validator: (rule, value) =>
                       value > 0
@@ -183,36 +203,36 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 id={`weight-${index}`}
               >
                 <InputNumber
+                  className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-8 text-xs'} rounded-md`}
                   min={0}
+                  max={100}
                   step={0.01}
-                  className="w-full text-xs"
                   suffix="%"
                   value={keyItem.weight}
                   onChange={(value) => updateKeyResult(index, 'weight', value)}
+                  aria-label="Weight"
                 />
               </Form.Item>
             </Col>
           </Row>
 
-          <Row gutter={[16, 16]}>
-            {/* Initial Value */}
+          <Row gutter={[16, isMobile ? 12 : 16]}>
             <Col xs={24} md={12}>
               <Form.Item
-                layout="horizontal"
-                className="font-semibold text-xs w-full mb-2"
+                layout={isMobile ? 'vertical' : 'horizontal'}
+                className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
                 name={`initial_${index}`}
                 label="Initial"
+                labelCol={{ span: isMobile ? undefined : 6 }}
+                wrapperCol={{ span: isMobile ? undefined : 18 }}
                 rules={[
-                  {
-                    required: true,
-                    message: 'Please enter an initial value',
-                  },
+                  { required: true, message: 'Please enter an initial value' },
                 ]}
                 id={`initial-value-${index}`}
               >
                 <InputNumber
-                  className="w-full text-xs"
-                  prefix={<CiDollar size={20} />}
+                  className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-8 text-xs'} rounded-md`}
+                  prefix={<CiDollar size={isMobile ? 24 : 20} />}
                   value={keyItem.initialValue}
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -220,18 +240,21 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
                   }
+                  aria-label="Initial Value"
                 />
               </Form.Item>
             </Col>
 
-            {/* Target */}
             <Col xs={24} md={12}>
               <Form.Item
-                layout="horizontal"
-                className="font-semibold text-xs w-full mb-2"
+                layout={isMobile ? 'vertical' : 'horizontal'}
+                className={`font-semibold ${isMobile ? 'mb-3' : 'mb-2'}`}
                 name={`target_${index}`}
                 label="Target"
+                labelCol={{ span: isMobile ? undefined : 6 }}
+                wrapperCol={{ span: isMobile ? undefined : 18 }}
                 rules={[
+                  { required: true, message: 'Please enter the target value' },
                   {
                     validator: (rule, value) =>
                       value > 0
@@ -242,8 +265,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 id={`target-value-${index}`}
               >
                 <InputNumber
-                  className="w-full text-xs"
-                  prefix={<CiDollar size={20} />}
+                  className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-8 text-xs'} rounded-md`}
+                  prefix={<CiDollar size={isMobile ? 24 : 20} />}
                   value={keyItem.targetValue}
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -251,17 +274,20 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   onChange={(value) =>
                     updateKeyResult(index, 'targetValue', value)
                   }
+                  aria-label="Target Value"
                 />
               </Form.Item>
             </Col>
           </Row>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-4">
             <Button
               onClick={handleAddKeyResult}
               type="primary"
-              className="bg-blue-600 text-xs md:w-36 w-full"
-              icon={<GoPlus />}
+              className={`bg-blue-600 flex items-center justify-center rounded-md ${
+                isMobile ? 'w-full h-10 text-sm' : 'w-36 h-8 text-xs'
+              }`}
+              icon={<GoPlus size={isMobile ? 18 : 14} />}
               id={`add-key-result-button-${index}`}
               aria-label="Add Key Result"
             >

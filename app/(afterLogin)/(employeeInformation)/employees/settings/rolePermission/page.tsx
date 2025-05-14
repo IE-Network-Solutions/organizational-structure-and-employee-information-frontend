@@ -50,7 +50,7 @@ const SettingsPage = () => {
     setTabButton(tabName[tabKey]);
   };
   return (
-    <div className="w-full h-auto p-0 sm:p-1 md:p-2 lg:p-3 xl:p-4">
+    <div className="p-5 rounded-2xl bg-white h-full">
       <ParentRolePermissionCards onChange={onChange} />
       <GroupPermission />
       {(currentModal === 'roleModal' || currentModal === 'editRoleModal') && (

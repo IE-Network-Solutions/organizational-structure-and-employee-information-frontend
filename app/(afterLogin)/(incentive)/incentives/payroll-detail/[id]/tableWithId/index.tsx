@@ -9,6 +9,9 @@ import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRouter } from 'next/navigation';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 export type IncentiveTableDataParams = {
   recognition: string;
@@ -57,8 +60,15 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
 }) => {
   const router = useRouter();
 
-  const { searchParams, currentPage, pageSize, setCurrentPage, setPageSize } =
-    useIncentiveStore();
+  const {
+    searchParams,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    selectedRowKeys,
+    setSelectedRowKeys,
+  } = useIncentiveStore();
 
   const recognitionsTypeId = id;
 
@@ -86,6 +96,13 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
   };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedRowKeys: any) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
+  };
+  const { isMobile, isTablet } = useIsMobile();
 
   const IncentiveByRecognitionTypeTableData =
     responseLoading || dynamicRecognitionData?.items?.length < 0
@@ -138,17 +155,12 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   return (
     <div>
       <Table
+        rowSelection={{ type: 'checkbox', ...rowSelection }}
+        rowKey="id"
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={IncentiveByRecognitionTypeTableData}
-        pagination={{
-          total: dynamicRecognitionData?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
+        pagination={false}
         loading={responseLoading}
         scroll={{ x: 1000 }}
         onRow={(record) => ({
@@ -157,6 +169,22 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
           },
         })}
       />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={dynamicRecognitionData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={dynamicRecognitionData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

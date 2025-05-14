@@ -5,14 +5,13 @@ import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRul
 import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button, Table } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 import usePagination from '@/utils/usePagination';
 import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const {
@@ -73,28 +72,26 @@ const Page = () => {
   }, [isShowNewAccrualRuleSidebar]);
 
   return (
-    <>
-      <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1/2 mb-4 ">
-          <PageHeader title="Accrual Rule" size="small">
-            <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
-              <Button
-                size="large"
-                type="primary"
-                id="accrutualRuleId"
-                icon={<LuPlus size={18} />}
-                onClick={() => setIsShowNewAccrualRuleSidebar(true)}
-              >
-                <span className="hidden md:inline"> New Accrual Rule</span>
-              </Button>
-            </AccessGuard>
-          </PageHeader>
-        </div>
+    <div className="p-5 rounded-2xl bg-white w-full h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg text-bold">Accrual Rule</h1>
+        <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
+          <Button
+            size="large"
+            type="primary"
+            id="accrutualRuleId"
+            icon={<FaPlus />}
+            className="h-10 w-10 sm:w-auto"
+            onClick={() => setIsShowNewAccrualRuleSidebar(true)}
+          >
+            <span className="hidden md:inline"> New Accrual Rule</span>
+          </Button>
+        </AccessGuard>
       </div>
       <div className="overflow-x-auto scrollbar-none w-full">
         <Table
           columns={columns}
-          className="mt-12"
+          className=""
           loading={isFetching}
           dataSource={tableData()}
           pagination={DefaultTablePagination(data?.meta?.totalItems)}
@@ -107,12 +104,8 @@ const Page = () => {
         />
       </div>
 
-      {/* Scrollable Container for Horizontal Scroll */}
-
-      {/* Sidebar for creating new accrual rule */}
-
       <NewAccrualRuleSidebar />
-    </>
+    </div>
   );
 };
 

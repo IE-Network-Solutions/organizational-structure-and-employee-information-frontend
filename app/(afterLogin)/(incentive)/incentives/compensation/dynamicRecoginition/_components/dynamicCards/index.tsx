@@ -7,6 +7,7 @@ import Criterion from './images/criterion.svg';
 import Image from 'next/image';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { useGetIncentiveDataByRecognitionId } from '@/store/server/features/incentive/other/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface DynamicIncentiveCardsProps {
   parentRecognitionId: string;
@@ -16,6 +17,7 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
   parentRecognitionId,
 }) => {
   const { searchParams, currentPage, pageSize } = useIncentiveStore();
+  const { isMobile, isTablet } = useIsMobile();
   const { data: dynamicRecognitionData } = useGetIncentiveDataByRecognitionId(
     parentRecognitionId,
     searchParams?.employee_name || '',
@@ -25,9 +27,16 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
     pageSize,
     currentPage,
   );
+
+  const getColumnSpan = () => {
+    if (isMobile) return 24;
+    if (isTablet) return 12;
+    return 6;
+  };
+
   return (
     <Row gutter={[10, 10]} className="m-1">
-      <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+      <Col xs={24} sm={24} md={getColumnSpan()} lg={6} xl={6}>
         <Card className="bg-[#FAFAFA]" bordered={false}>
           <div className="flex items-center mb-5">
             <Image
@@ -49,7 +58,7 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
           </p>
         </Card>
       </Col>
-      <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+      <Col xs={24} sm={24} md={getColumnSpan()} lg={6} xl={6}>
         <Card className="bg-[#FAFAFA]" bordered={false}>
           <div className="flex items-center mb-5">
             <Image
@@ -69,7 +78,7 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
           </p>
         </Card>
       </Col>
-      <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+      <Col xs={24} sm={24} md={getColumnSpan()} lg={6} xl={6}>
         <Card className="bg-[#FAFAFA]" bordered={false}>
           <div className="flex items-center mb-5">
             <Image
@@ -91,7 +100,7 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
           </p>
         </Card>
       </Col>
-      <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+      <Col xs={24} sm={24} md={getColumnSpan()} lg={6} xl={6}>
         <Card className="bg-[#FAFAFA]" bordered={false}>
           <div className="flex items-center mb-5">
             <Image
