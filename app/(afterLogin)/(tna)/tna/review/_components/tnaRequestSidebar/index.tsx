@@ -25,6 +25,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
 const { Option } = Select;
 
 const TnaRequestSidebar = () => {
@@ -287,7 +288,7 @@ const TnaRequestSidebar = () => {
             <InputNumber
               id="tnaTraniningPriceFieldId"
               min={0}
-              suffix={'$'}
+              suffix={<AiOutlineDollarCircle />}
               className="control-number h-10"
             />
           </Form.Item>
@@ -298,7 +299,7 @@ const TnaRequestSidebar = () => {
           >
             <Input.TextArea
               id="tnaDetailInformationFieldId"
-              className="control-tarea h-10"
+              className="control-tarea h-24"
               rows={6}
               placeholder="Enter brief reason for your training of choice"
             />

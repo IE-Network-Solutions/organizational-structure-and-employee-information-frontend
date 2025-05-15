@@ -88,7 +88,7 @@ const CourseCategorySidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl">
             {courseCategoryId ? (
               <span>Edit Course Category</span>
             ) : (
@@ -103,6 +103,7 @@ const CourseCategorySidebar = () => {
           />
         }
         width="400px"
+        customMobileHeight="60vh"
       >
         <Spin spinning={isLoading || isFetching}>
           <Form
@@ -126,7 +127,7 @@ const CourseCategorySidebar = () => {
               className="form-item"
             >
               <Input.TextArea
-                className="control-tarea"
+                className="control-tarea h-28"
                 rows={6}
                 placeholder="Enter the Description"
               />

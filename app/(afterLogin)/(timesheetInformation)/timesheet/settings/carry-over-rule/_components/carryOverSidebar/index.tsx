@@ -89,7 +89,11 @@ const CarryOverSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Add Type</CustomDrawerHeader>}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Add Type</CustomDrawerHeader>
+          </div>
+        }
         footer={
           <div className="p-4">
             <CustomDrawerFooterButton buttons={footerModalItems} />

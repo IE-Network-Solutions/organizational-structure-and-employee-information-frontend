@@ -133,9 +133,11 @@ const AddTypesSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader>
-            {attendanceTypeId ? 'Edit' : 'Add'} Type
-          </CustomDrawerHeader>
+          <div className="px-2">
+            <CustomDrawerHeader>
+              {attendanceTypeId ? 'Edit' : 'Add'} Type
+            </CustomDrawerHeader>
+          </div>
         }
         footer={
           <div className="p-4">

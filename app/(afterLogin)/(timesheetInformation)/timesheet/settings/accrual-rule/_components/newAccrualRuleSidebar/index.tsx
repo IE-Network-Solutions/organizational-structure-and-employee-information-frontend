@@ -95,7 +95,11 @@ const AddTypesSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Accrual Rule</CustomDrawerHeader>}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Accrual Rule</CustomDrawerHeader>
+          </div>
+        }
         footer={
           <div className="p-4">
             <CustomDrawerFooterButton buttons={footerModalItems} />

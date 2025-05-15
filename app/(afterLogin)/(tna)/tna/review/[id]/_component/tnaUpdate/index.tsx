@@ -165,7 +165,7 @@ const TnaUpdateSidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <Input className="control" />
+            <Input className="control h-10" />
           </Form.Item>
 
           <Form.List name="trainingProofs">
@@ -176,7 +176,7 @@ const TnaUpdateSidebar = () => {
                     <Form.Item
                       {...restField}
                       name={[name, 'attachmentFile']}
-                      label="Name"
+                      label="Attachment"
                       className="form-item flex-1"
                       valuePropName="fileList"
                       getValueFromEvent={(e) => {
@@ -217,17 +217,17 @@ const TnaUpdateSidebar = () => {
                     >
                       <Input
                         id="tnaUpdateLinkUploadFieldId"
-                        className="control"
+                        className="control h-10 mb-1"
                       />
                     </Form.Item>
                     <Button
-                      icon={<LuPlus size={16} />}
+                      icon={<LuPlus />}
                       size="large"
                       type="primary"
                       id="tnaUpdateSubmitLinkButtonId"
                       htmlType="button"
                       onClick={add}
-                      className="mb-5 self-end"
+                      className="mb-4 self-end h-10"
                     >
                       Add link
                     </Button>
@@ -245,7 +245,7 @@ const TnaUpdateSidebar = () => {
           >
             <DatePicker
               id="tnaUpdateCompletedDateFieldId"
-              className="control"
+              className="control h-10"
               format={DATE_FORMAT}
             />
           </Form.Item>
@@ -256,7 +256,7 @@ const TnaUpdateSidebar = () => {
             className="form-item"
           >
             <Select
-              className="control"
+              className="control h-10"
               id="tnaUpdateCertificationStatusFieldId"
               suffixIcon={
                 <MdKeyboardArrowDown size={16} className="text-gray-900" />

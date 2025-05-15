@@ -111,9 +111,11 @@ const LocationSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader>
-            {allowedAreaId ? 'Edit' : 'New'} Location
-          </CustomDrawerHeader>
+          <div className="px-2">
+            <CustomDrawerHeader>
+              {allowedAreaId ? 'Edit' : 'New'} Location
+            </CustomDrawerHeader>
+          </div>
         }
         footer={
           <div className="p-4">

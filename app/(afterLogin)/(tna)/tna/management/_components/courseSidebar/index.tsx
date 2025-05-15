@@ -141,7 +141,7 @@ const CourseCategorySidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl px-2">
             {courseId ? <span>Edit Course</span> : <span>Add course </span>}
           </CustomDrawerHeader>
         }
@@ -211,7 +211,7 @@ const CourseCategorySidebar = () => {
           >
             <Input.TextArea
               id="tnaCourseDescriptionFieldId"
-              className="control-tarea"
+              className="control-tarea h-28"
               rows={6}
               placeholder="Enter the Description"
             />
@@ -225,7 +225,7 @@ const CourseCategorySidebar = () => {
             <TreeSelect
               treeData={departmentData}
               treeCheckable={true}
-              className="control"
+              className="control min-h-10 "
             />
           </Form.Item>
         </Form>

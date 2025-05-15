@@ -336,9 +336,8 @@ const LeaveRequestSidebar = () => {
                   setIsLoading={setIsLoading}
                 />
               </Form.Item>
-              <div className="text-xs font-medium text-gray-600 text-center">
-                Max file size : 5MB. File format : pdf, docx, png, epub, and
-                jpeg
+              <div className="text-xs font-medium text-gray-600 text-start mb-3">
+                Max file size : 5MB. File format : pdf, docx, epub, and jpeg
               </div>
               <Form.Item
                 name="delegatee"

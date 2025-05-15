@@ -88,7 +88,7 @@ const TnaCategorySidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-2">
             {tnaCategoryId ? (
               <span>Edit TNA Category</span>
             ) : (
@@ -103,6 +103,7 @@ const TnaCategorySidebar = () => {
           />
         }
         width="400px"
+        customMobileHeight="62vh"
       >
         <Spin spinning={isLoading || isFetching}>
           <Form
@@ -128,7 +129,7 @@ const TnaCategorySidebar = () => {
             >
               <Input.TextArea
                 id="tnaCategoryDescriptionFieldId"
-                className="control-tarea"
+                className="control-tarea h-28"
                 rows={6}
                 placeholder="Enter the Description"
               />

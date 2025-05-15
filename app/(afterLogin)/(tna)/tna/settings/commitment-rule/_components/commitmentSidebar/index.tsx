@@ -109,7 +109,7 @@ const TnaCommitmentSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-2">
             {tnaCommitmentId ? (
               <span> Edit Commitment Rule</span>
             ) : (
@@ -165,7 +165,7 @@ const TnaCommitmentSidebar = () => {
                       className="form-item"
                     >
                       <Input.TextArea
-                        className="control-tarea"
+                        className="control-tarea h-28"
                         rows={6}
                         placeholder="Enter the Description of the commitment rule"
                       />
@@ -228,11 +228,11 @@ const TnaCommitmentSidebar = () => {
                         suffix="Days"
                       />
                     </Form.Item>
-                    {!tnaCommitmentId && (
+                    {/* {!tnaCommitmentId && (
                       <Form.Item>
                         <div className="my-4 border-t border-gray-200"></div>
                       </Form.Item>
-                    )}
+                    )} */}
                   </React.Fragment>
                 ))}
 

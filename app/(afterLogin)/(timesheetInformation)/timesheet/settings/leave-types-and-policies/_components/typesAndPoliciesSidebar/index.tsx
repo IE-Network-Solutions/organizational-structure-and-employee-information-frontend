@@ -74,7 +74,7 @@ const TypesAndPoliciesSidebar = () => {
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
-  const inputNumberClass = 'w-full py-[11px] mt-2.5';
+  const inputNumberClass = 'w-full h-[40px] mt-2.5';
 
   const carryOverRuleOptions = () =>
     carryOverData ? formatToOptions(carryOverData.items, 'title', 'id') : [];
@@ -126,7 +126,11 @@ const TypesAndPoliciesSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Leave Type</CustomDrawerHeader>}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Leave Type</CustomDrawerHeader>
+          </div>
+        }
         footer={
           <div className="p-4">
             <CustomDrawerFooterButton buttons={footerModalItems} />
@@ -355,7 +359,7 @@ const TypesAndPoliciesSidebar = () => {
               name="description"
             >
               <Input.TextArea
-                className="w-full py-4 px-5 mt-2.5"
+                className="w-full h-36 px-5 mt-2.5"
                 placeholder="Input description"
                 rows={6}
               />

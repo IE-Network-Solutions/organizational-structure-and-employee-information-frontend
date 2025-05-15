@@ -101,7 +101,11 @@ const CreateRuleSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Create Rule</CustomDrawerHeader>}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Create Rule</CustomDrawerHeader>
+          </div>
+        }
         footer={
           <div className="p-4">
             <CustomDrawerFooterButton className="" buttons={footerModalItems} />

@@ -84,7 +84,11 @@ const BreakTypeSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => setIsShow(false)}
-        modalHeader={<CustomDrawerHeader>Break Type</CustomDrawerHeader>}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Break Type</CustomDrawerHeader>
+          </div>
+        }
         footer={
           <div className="p-4">
             <CustomDrawerFooterButton buttons={footerModalItems} />
@@ -120,7 +124,7 @@ const BreakTypeSidebar = () => {
               name="description"
             >
               <Input.TextArea
-                className="w-full py-4 px-5 mt-2.5"
+                className="w-full h-36 px-5 mt-2.5"
                 placeholder="Description"
                 rows={6}
               />
