@@ -333,21 +333,30 @@ const Payroll = () => {
         };
 
         // Calculate total deductions
-        const totalDeductions = deductions.reduce((sum: number, d: any) => sum + Number(d.amount || 0), 0);
+        const totalDeductions = deductions.reduce(
+          (sum: number, d: any) => sum + Number(d.amount || 0),
+          0,
+        );
         const deductionRow: any = {
           fullName,
           totalDeductions: formatAmount(totalDeductions),
         };
 
         // Calculate total allowances
-        const totalAllowances = allowances.reduce((sum: number, a: any) => sum + Number(a.amount || 0), 0);
+        const totalAllowances = allowances.reduce(
+          (sum: number, a: any) => sum + Number(a.amount || 0),
+          0,
+        );
         const allowanceRow: any = {
           fullName,
           totalAllowances: formatAmount(totalAllowances),
         };
 
         // Calculate total merits
-        const totalMerits = merits.reduce((sum: number, m: any) => sum + Number(m.amount || 0), 0);
+        const totalMerits = merits.reduce(
+          (sum: number, m: any) => sum + Number(m.amount || 0),
+          0,
+        );
         const meritRow: any = {
           fullName,
           totalMerits: formatAmount(totalMerits),
@@ -366,7 +375,9 @@ const Payroll = () => {
 
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m: any) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = formatAmount(merit?.amount || 0);
+          meritRow[type.replace(/\s+/g, '').toLowerCase()] = formatAmount(
+            merit?.amount || 0,
+          );
         });
 
         payrollData.push(payrollRowData);
@@ -411,7 +422,7 @@ const Payroll = () => {
         // **Calculate and Add Total Row**
         if (data.length > 0) {
           const totalRow: any = { fullName: 'Total' };
-          
+
           // Calculate totals for each column
           headers.forEach((col) => {
             if (col.key !== 'fullName') {
@@ -422,10 +433,11 @@ const Payroll = () => {
                 const value = row[col.key];
                 if (value) {
                   // Handle both string and number values
-                  const numValue = typeof value === 'string' 
-                    ? parseFloat(value.replace(/,/g, ''))
-                    : Number(value);
-                  
+                  const numValue =
+                    typeof value === 'string'
+                      ? parseFloat(value.replace(/,/g, ''))
+                      : Number(value);
+
                   if (!isNaN(numValue)) {
                     sum += numValue;
                     hasValidNumbers = true;
@@ -446,7 +458,7 @@ const Payroll = () => {
           });
 
           // Add the total row
-          const totalRowIndex = data.length + 2; // +1 for header, +1 for 1-based index
+          // const totalRowIndex = data.length + 2; // +1 for header, +1 for 1-based index
           const totalRowAdded = sheet.addRow(totalRow);
 
           // Style the total row
@@ -475,7 +487,8 @@ const Payroll = () => {
         // **Style Data Rows**
         for (let i = 2; i <= data.length + 1; i++) {
           sheet.getRow(i).eachCell((cell) => {
-            if (Number(cell.col) > 1) { // Skip the Full Name column
+            if (Number(cell.col) > 1) {
+              // Skip the Full Name column
               cell.alignment = { horizontal: 'right' };
             }
           });
