@@ -79,7 +79,7 @@ const AddTypesSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+  const controlClass = 'mt-2.5 h-[40px]  w-full';
 
   const unitOptions = [
     {
@@ -138,7 +138,7 @@ const AddTypesSidebar = () => {
           </CustomDrawerHeader>
         }
         footer={
-          <div className="p-6 sm:p-0">
+          <div className="p-4">
             <CustomDrawerFooterButton buttons={footerModalItems} />
           </div>
         }
@@ -174,7 +174,7 @@ const AddTypesSidebar = () => {
                 name="unit"
               >
                 <Radio.Group className={controlClass}>
-                  <Space direction="vertical" size={12} className="w-full">
+                  <Space direction="vertical" size={12} className="w-full mb-4">
                     {unitOptions.map((option) => (
                       <CustomRadio
                         key={option.value}

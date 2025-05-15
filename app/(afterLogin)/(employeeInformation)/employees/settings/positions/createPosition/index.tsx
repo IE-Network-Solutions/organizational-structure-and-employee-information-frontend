@@ -16,7 +16,7 @@ const CreatePosition: React.FC = () => {
   };
 
   const addPositionDrawerHeader = (
-    <div className="flex justify-start text-base font-bold text-gray-800">
+    <div className="flex justify-start text-xl font-extrabold text-gray-800">
       Add New Position
     </div>
   );
@@ -92,7 +92,7 @@ const CreatePosition: React.FC = () => {
             id="positionDescription"
             name="description"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span className="text-lg my-2 font-semibold text-gray-700">
                 Position Description
               </span>
             }
@@ -103,7 +103,12 @@ const CreatePosition: React.FC = () => {
               },
             ]}
           >
-            <TextArea rows={4} placeholder="Job description" allowClear />
+            <TextArea
+              className="h-36"
+              rows={4}
+              placeholder="Job description"
+              allowClear
+            />
           </Form.Item>
         </Form>
       </CustomDrawerLayout>

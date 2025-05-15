@@ -116,7 +116,7 @@ const LocationSidebar = () => {
           </CustomDrawerHeader>
         }
         footer={
-          <div className="p-6 sm:p-0">
+          <div className="p-4">
             <CustomDrawerFooterButton buttons={footerModalItems} />
           </div>
         }

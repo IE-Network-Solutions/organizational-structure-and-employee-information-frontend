@@ -103,6 +103,7 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
               onChange={workscheduleChangeHandler}
               allowClear
               value={workSchedule}
+              className="bg-white"
             >
               {workSchedules?.items.map((schedule) => (
                 <Option key={schedule?.id} value={schedule?.id}>

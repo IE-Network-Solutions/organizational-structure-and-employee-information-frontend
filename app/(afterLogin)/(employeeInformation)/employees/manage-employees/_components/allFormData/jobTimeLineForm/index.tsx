@@ -96,14 +96,14 @@ const JobTimeLineForm = () => {
       </Row>
 
       <Row gutter={16}>
-        <Col xs={24} sm={12}>
+        <Col xs={12} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
             name={'positionId'}
             id="jobTitle"
             label={
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="mb-1 font-semibold text-xs">Position</span>{' '}
+                <span className="mb-1 font-semibold text-xs">Position</span>
                 <Button
                   type="text"
                   size="small"
@@ -159,7 +159,7 @@ const JobTimeLineForm = () => {
             />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12}>
+        <Col xs={12} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
             name={'employementTypeId'}
@@ -309,10 +309,10 @@ const JobTimeLineForm = () => {
         </Row>
       )}
       <Row gutter={16}>
-        <Col xs={24} sm={8}>
+        <Col xs={16} sm={8}>
           <div className="font-semibold text-sm">Team Lead</div>
         </Col>
-        <Col xs={24} sm={16}>
+        <Col xs={8} sm={16}>
           <Form.Item
             name="departmentLeadOrNot"
             valuePropName="checked"
@@ -335,10 +335,10 @@ const JobTimeLineForm = () => {
           >
             <Radio.Group onChange={handleContractTypeChange}>
               <Row>
-                <Col xs={24} sm={12}>
+                <Col xs={12} sm={12}>
                   <Radio value="Permanent">Permanent</Radio>
                 </Col>
-                <Col xs={24} sm={12}>
+                <Col xs={12} sm={12}>
                   <Radio value="Contractual">Contractual</Radio>
                 </Col>
               </Row>

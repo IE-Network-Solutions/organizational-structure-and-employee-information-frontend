@@ -97,7 +97,7 @@ const AddTypesSidebar = () => {
         onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Accrual Rule</CustomDrawerHeader>}
         footer={
-          <div className="p-6 sm:p-0">
+          <div className="p-4">
             <CustomDrawerFooterButton buttons={footerModalItems} />
           </div>
         }
@@ -112,10 +112,7 @@ const AddTypesSidebar = () => {
             className={itemClass}
             onFinish={onFinish}
           >
-            <Space.Compact
-              direction="vertical"
-              className="w-full px-3 sm:px-0 "
-            >
+            <Space.Compact direction="vertical" className="w-full  sm:px-0 ">
               <Form.Item
                 label="Accrual Name"
                 id="accrualNameId"

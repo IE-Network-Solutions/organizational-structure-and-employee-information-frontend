@@ -40,7 +40,7 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
         open={isOpen}
         onClose={props?.onClose}
         modalHeader={
-          <div className="flex justify-start text-base font-bold text-gray-800">
+          <div className="flex justify-start text-base font-extrabold text-gray-800">
             Add Employee Type
           </div>
         }
@@ -84,7 +84,7 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
               allowClear
               size="large"
               placeholder="Enter EmployeType name"
-              className="text-sm w-full h-14"
+              className="text-sm w-full h-10"
             />
           </Form.Item>
           <Form.Item
@@ -103,6 +103,7 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
             ]}
           >
             <TextArea
+              className="h-36"
               allowClear
               rows={4}
               placeholder="Enter employetype description"

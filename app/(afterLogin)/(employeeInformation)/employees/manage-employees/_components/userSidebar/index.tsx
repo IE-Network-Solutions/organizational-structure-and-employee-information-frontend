@@ -48,7 +48,7 @@ const UserSidebar = (props: any) => {
   }, [isSuccess]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-0 sm:py-6">
+    <div className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6">
       Add New Employee
     </div>
   );

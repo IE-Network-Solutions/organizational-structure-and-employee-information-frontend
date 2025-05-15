@@ -32,7 +32,7 @@ const Page = () => {
           <AccessGuard permissions={[Permissions.CreateAttendanceRule]}>
             <Button
               id="createNewRuleMainButtonId"
-              type="primary"
+              type="default"
               icon={<FaPlus />}
               className="h-10 w-10 sm:w-auto"
               disabled={!attendanceNotificationType.length}
