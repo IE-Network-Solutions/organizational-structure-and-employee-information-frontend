@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { AttendanceImportLogsBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendanceImportLogs } from '@/store/server/features/timesheet/attendance/queries';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button, DatePicker, Modal, Spin } from 'antd';
 import { DATE_FORMAT } from '@/utils/constants';
 import LogCard from './_components/logCard';
