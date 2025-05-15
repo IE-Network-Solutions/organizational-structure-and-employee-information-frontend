@@ -8,7 +8,10 @@ import { Form, Select, Spin, DatePicker, Button, Popover } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
-import { useGetActiveFiscalYears, useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import {
+  useGetActiveFiscalYears,
+  useGetAllFiscalYears,
+} from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useCreatePayPeriods } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
@@ -23,10 +26,9 @@ const { Option } = Select;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
-  const [selectedFiscalYear, setSelectedFiscalYear] = useState<FiscalYear | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-  
+  const [selectedFiscalYear, setSelectedFiscalYear] =
+    useState<FiscalYear | null>(null);
+
   const {
     isPayPeriodSidebarVisible,
     payPeriodMode,
@@ -34,8 +36,11 @@ const PayPeriodSideBar = () => {
     divisions,
     setDivisions,
     resetStore,
+    currentPage,
+    pageSize,
   } = usePayPeriodStore();
-  const { mutate: createPayPeriods,isLoading: createPayPeriodsLoading } = useCreatePayPeriods();
+  const { mutate: createPayPeriods, isLoading: createPayPeriodsLoading } =
+    useCreatePayPeriods();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const { data: fiscalYearsData } = useGetAllFiscalYears(pageSize, currentPage);
 
@@ -138,7 +143,7 @@ const PayPeriodSideBar = () => {
   };
 
   const handleFiscalYearChange = (value: string) => {
-    const selected = fiscalYearsData?.items.find(year => year.id === value);
+    const selected = fiscalYearsData?.items.find((year) => year.id === value);
     setSelectedFiscalYear(selected || null);
   };
 
@@ -194,17 +199,19 @@ const PayPeriodSideBar = () => {
             onFinish={() => onFormSubmit()}
             requiredMark={CustomLabel}
           >
-            <Form.Item 
-              name="fiscalYear" 
+            <Form.Item
+              name="fiscalYear"
               label="Fiscal Year"
-              rules={[{ required: true, message: 'Please select a fiscal year' }]}
+              rules={[
+                { required: true, message: 'Please select a fiscal year' },
+              ]}
             >
               <Select
                 placeholder="Select fiscal year"
                 onChange={handleFiscalYearChange}
-                options={fiscalYearsData?.items.map(year => ({
+                options={fiscalYearsData?.items.map((year) => ({
                   label: `${dayjs(year.startDate).format('MMMM D, YYYY')} - ${dayjs(year.endDate).format('MMMM D, YYYY')}`,
-                  value: year.id
+                  value: year.id,
                 }))}
               />
             </Form.Item>
