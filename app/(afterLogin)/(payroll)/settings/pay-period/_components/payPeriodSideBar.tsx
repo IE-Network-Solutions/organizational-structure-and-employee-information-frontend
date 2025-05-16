@@ -14,10 +14,9 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useCreatePayPeriods } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
