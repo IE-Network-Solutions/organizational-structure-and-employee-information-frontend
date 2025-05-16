@@ -72,7 +72,6 @@ const RecognitionForm: React.FC<PropsData> = ({
   const { data: recognitionTypeById } = useGetRecognitionTypeById(
     selectedRecognitionType,
   );
-console.log(criteria,"criteria")
   const { mutate: createRecognitionType, isLoading: createLoading } =
     useAddRecognitionType();
   // const { mutate: updateRecognitionType, isLoading: updateLoading } =
@@ -133,7 +132,6 @@ console.log(criteria,"criteria")
       (sum, criteria) => sum + criteria.weight,
       0,
     );
-      console.log(updatedCriteria, 'updatedCriteria');
 
     setTotalWeight(updatedTotalWeight);
 
@@ -235,7 +233,6 @@ console.log(criteria,"criteria")
       departmentId: recognitionTypeById.departmentId || null,
     });
   }, [recognitionTypeById]);
-console.log(selectedCriteria,"recognitionTypeById")
   return (
     <CustomDrawerLayout
       modalHeader={modalHeader}

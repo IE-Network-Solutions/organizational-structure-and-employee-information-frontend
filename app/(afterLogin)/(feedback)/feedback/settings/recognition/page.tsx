@@ -40,7 +40,6 @@ const Page = () => {
         children: <AllRecognition data={[recognitionType]} />,
       })) || []),
   ];
- console.log(recognitionType,"recognitionType")
   return (
     <div className="p-5 rounded-2xl bg-white h-full">
       <Spin spinning={isLoading}>
