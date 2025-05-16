@@ -35,7 +35,6 @@ interface PropsData {
   onClose?: any;
 }
 
-
 const RecognitionForm: React.FC<PropsData> = ({
   createCategory = false,
   onClose,

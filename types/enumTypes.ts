@@ -89,7 +89,7 @@ export enum AggregateOperator {
 
 // Enum for condition operators
 export enum ConditionOperator {
-  EQUALS = '==',
+  EQUALS = '=',
   GREATER_THAN = '>',
   LESS_THAN = '<',
   RANGE = 'RANGE',

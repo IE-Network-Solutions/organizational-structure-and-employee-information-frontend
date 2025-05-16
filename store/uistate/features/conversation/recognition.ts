@@ -43,6 +43,8 @@ export interface CategoriesUseState {
   open: boolean;
   current: number;
   pageSize: number;
+  setCurrent: (current: number) => void;
+  setPageSize: (current: number) => void;
   totalPages: number;
   dateRange: DateRange;
   setDateRange: (dateRange: DateRange) => void;
