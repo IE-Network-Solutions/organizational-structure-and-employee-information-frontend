@@ -151,6 +151,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <Option value={4}>Show 4</Option>
           <Option value={10}>Show 10</Option>
           <Option value={25}>Show 25</Option>
+          <Option value={50}>Show 50</Option>
+          <Option value={75}>Show 75</Option>
+          <Option value={100}>Show 100</Option>
         </Select>
       </div>
     </div>
