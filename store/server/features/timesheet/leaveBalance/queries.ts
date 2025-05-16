@@ -5,9 +5,10 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { requestHeader } from '@/helpers/requestHeader';
 import { LeaveBalance } from '@/types/timesheet/myTimesheet';
 
-
-
-const getLeaveBalanceTableData = async (userId: string, leaveTypeId: string) => {
+const getLeaveBalanceTableData = async (
+  userId: string,
+  leaveTypeId: string,
+) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all-leaves`,
     method: 'GET',
@@ -67,11 +68,11 @@ export const useGetAllLeaveBalanceWithFilter = (
     () => getAllLeaveBalanceWithFilter(userId, leaveTypeId),
   );
 
-
-  export const useGetLeaveBalanceTableData = (userId: string, leaveTypeId: string) =>
+export const useGetLeaveBalanceTableData = (
+  userId: string,
+  leaveTypeId: string,
+) =>
   useQuery<ApiResponse<LeaveBalance>>(
     ['leave-balance', userId, leaveTypeId],
     () => getLeaveBalanceTableData(userId, leaveTypeId),
   );
-  
-  
