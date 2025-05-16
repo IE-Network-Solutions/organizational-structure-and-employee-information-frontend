@@ -26,12 +26,13 @@ const { Option } = Select;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
-  const [selectedFiscalYear, setSelectedFiscalYear] =
-    useState<FiscalYear | null>(null);
+
 
   const {
     isPayPeriodSidebarVisible,
     payPeriodMode,
+    selectedFiscalYear, 
+    setSelectedFiscalYear,
     setPayPeriodMode,
     divisions,
     setDivisions,
