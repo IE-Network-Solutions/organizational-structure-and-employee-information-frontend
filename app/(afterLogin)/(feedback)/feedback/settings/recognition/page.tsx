@@ -11,7 +11,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
-  const { setOpen, setOpenRecognitionType,openRecognitionType } = ConversationStore();
+  const { setOpen, setOpenRecognitionType, openRecognitionType } =
+    ConversationStore();
 
   // const { data: recognitionType } = useGetAllRecognitionType();
   const { data: recognitionType, isLoading } =
@@ -63,7 +64,10 @@ const Page = () => {
         </div>
       </Spin>
 
-      <RecognitionForm createCategory={openRecognitionType} onClose={() => setOpen(false)} />
+      <RecognitionForm
+        createCategory={openRecognitionType}
+        onClose={() => setOpen(false)}
+      />
     </div>
   );
 };

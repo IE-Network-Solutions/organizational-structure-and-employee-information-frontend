@@ -33,9 +33,9 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       title: 'Criteria Name',
       dataIndex: 'criteriaName',
       key: 'criteriaName',
-      render: (notused: string,record:any) => (
+      render: (notused: string, record: any) => (
         <p>{record?.criteria?.criteriaName}</p>
-      )
+      ),
     },
     {
       title: 'Weight',

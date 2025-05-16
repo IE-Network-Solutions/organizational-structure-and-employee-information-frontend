@@ -83,14 +83,14 @@ export enum APPROVALTYPES {
 
 // Enum for aggregate operators
 export enum AggregateOperator {
-ADDITION = '+',
+  ADDITION = '+',
   SUBTRACTION = '-',
 }
 
 // Enum for condition operators
 export enum ConditionOperator {
- EQUALS = '==',
- GREATER_THAN = '>',
+  EQUALS = '==',
+  GREATER_THAN = '>',
   LESS_THAN = '<',
   RANGE = 'RANGE',
   GREATER_THAN_Or_Equal_To = '>=',

@@ -149,7 +149,7 @@ export const useGetRecognitionTypeById = (id: string | null) => {
 export const useGetAllRecognitionType = () => {
   return useQuery<any>('recognitionTypes', getAllRecognitionTypes);
 };
-export const useGetAllCriteria= () => {
+export const useGetAllCriteria = () => {
   return useQuery<any>('criteria', getAllCriteria);
 };
 export const useGetAllRecognitionTypeChild = () => {
