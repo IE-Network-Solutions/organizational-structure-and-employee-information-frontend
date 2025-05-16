@@ -31,8 +31,11 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
   const columns = [
     {
       title: 'Criteria Name',
-      dataIndex: 'criterionKey',
-      key: 'criterionKey',
+      dataIndex: 'criteriaName',
+      key: 'criteriaName',
+      render: (notused: string,record:any) => (
+        <p>{record?.criteria?.criteriaName}</p>
+      )
     },
     {
       title: 'Weight',

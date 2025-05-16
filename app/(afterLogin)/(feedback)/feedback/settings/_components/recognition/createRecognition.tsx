@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Switch, Select, Button, Space, Popconfirm } from 'antd';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
+  useGetAllCriteria,
   useGetAllRecognitionTypeWithOutCriteria,
   useGetRecognitionTypeById,
 } from '@/store/server/features/CFR/recognition/queries';
@@ -44,6 +45,7 @@ const CRITERIA_OPTIONS = [
     label: 'Engagement score',
   },
 ] as const;
+
 const RecognitionForm: React.FC<PropsData> = ({
   createCategory = false,
   onClose,
@@ -60,15 +62,17 @@ const RecognitionForm: React.FC<PropsData> = ({
     setOpen,
     open: openModal,
     setParentRecognitionTypeId,
+    setOpenModal
   } = ConversationStore();
 
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
+  const { data: criteria } = useGetAllCriteria();
   const { data: recognitionTypeWithOutCriteria } =
     useGetAllRecognitionTypeWithOutCriteria();
   const { data: recognitionTypeById } = useGetRecognitionTypeById(
     selectedRecognitionType,
   );
-
+console.log(criteria,"criteria")
   const { mutate: createRecognitionType, isLoading: createLoading } =
     useAddRecognitionType();
   // const { mutate: updateRecognitionType, isLoading: updateLoading } =
@@ -98,12 +102,14 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   const handleCriteriaChange = (value: string[]) => {
     const noCriterion = value.length;
-
+   
     const updatedCriteria = value.map((criterion) => {
       const existingCriterion = selectedCriteria.find(
         (item: any) => item.criterionKey === criterion,
       );
-
+       const criteriaName = criteria.find(
+      (item: any) => item.id==criterion,
+    )?.criteriaName;
       const weight = parseFloat((1 / noCriterion).toFixed(2));
 
       return existingCriterion
@@ -112,7 +118,8 @@ const RecognitionForm: React.FC<PropsData> = ({
             weight, // Update weight but preserve other values
           }
         : {
-            criterionKey: criterion,
+            criterionKey: criteriaName,
+            id: criterion,
             weight,
             operator: null,
             condition: null,
@@ -126,12 +133,14 @@ const RecognitionForm: React.FC<PropsData> = ({
       (sum, criteria) => sum + criteria.weight,
       0,
     );
+      console.log(updatedCriteria, 'updatedCriteria');
+
     setTotalWeight(updatedTotalWeight);
 
     // Update form fields while preserving existing values
     form.setFieldsValue({
       recognitionCriteria: updatedCriteria.map((criteria) => ({
-        id: criteria.id || null, // Ensure ID is preserved if present
+        criteriaId: criteria.id || null, // Ensure ID is preserved if present
         criterionKey: criteria.criterionKey,
         weight: criteria.weight,
         operator: criteria.operator, // Preserve operator
@@ -173,6 +182,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       form.resetFields();
       onClose();
       setOpenRecognitionType(false);
+      setOpenModal(false)
       setSelectedCriteria([]);
       setTotalWeight(0);
     };
@@ -205,7 +215,11 @@ const RecognitionForm: React.FC<PropsData> = ({
       0,
     );
     setTotalWeight(totalWeight);
-    setSelectedCriteria(criteria);
+    const updatedData = criteria.map((item:any) => ({
+  ...item,
+  criterionKey: item.criteria?.criteriaName ?? null,
+}));
+    setSelectedCriteria(updatedData);
 
     form.setFieldsValue({
       parentTypeId: recognitionTypeById.parentTypeId,
@@ -213,7 +227,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       description: recognitionTypeById.description || '',
       criteria:
         recognitionTypeById.recognitionCriteria?.map(
-          (item: any) => item?.criterionKey,
+          (item: any) => item.criteriaId,
         ) || [],
       isMonetized: recognitionTypeById.isMonetized ?? false,
       requiresCertification: recognitionTypeById.requiresCertification ?? false,
@@ -221,7 +235,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       departmentId: recognitionTypeById.departmentId || null,
     });
   }, [recognitionTypeById]);
-
+console.log(selectedCriteria,"recognitionTypeById")
   return (
     <CustomDrawerLayout
       modalHeader={modalHeader}
@@ -342,9 +356,9 @@ const RecognitionForm: React.FC<PropsData> = ({
               className="text-xs text-gray-950"
               onChange={handleCriteriaChange}
             >
-              {CRITERIA_OPTIONS.map((option) => (
+              {criteria?.map((option:any) => (
                 <Select.Option key={option.id} value={option.value}>
-                  {option.label}
+                  {option.criteriaName}
                 </Select.Option>
               ))}
             </Select>
@@ -363,6 +377,12 @@ const RecognitionForm: React.FC<PropsData> = ({
                 hidden
               ></Form.Item>
             )}
+            <Form.Item
+                className="w-1/2 text-xs text-gray-950"
+                name={['recognitionCriteria', index, 'criteriaId']}
+                initialValue={criteria.id}
+                hidden
+              ></Form.Item>
             <Form.Item
               labelAlign="left"
               className="w-1/2 text-xs text-gray-950"
@@ -475,7 +495,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
           </div>
         )}
-
+ {!createCategory && (
         <div className="flex">
           <Form.Item
             className="text-xs text-gray-950"
@@ -504,9 +524,11 @@ const RecognitionForm: React.FC<PropsData> = ({
           >
             <Switch />
           </Form.Item>
-        </div>
+        </div>)}
         {/* Certification Data */}
-        <Form.Item>
+         {!createCategory && (
+        <>
+          <Form.Item>
           {({ getFieldValue }) =>
             getFieldValue('requiresCertification') && (
               <Space direction="vertical" style={{ width: '100%' }}>
@@ -571,6 +593,8 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Select.Option value="yearly">Yearly</Select.Option>
           </Select>
         </Form.Item>
+        </>)}
+      
 
         {!createCategory && (
           <Form.Item
@@ -593,6 +617,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             </Select>
           </Form.Item>
         )}
+         {!createCategory && (
         <Form.Item
           className="text-xs text-gray-950"
           label={
@@ -615,7 +640,7 @@ const RecognitionForm: React.FC<PropsData> = ({
               </Option>
             ))}
           </Select>
-        </Form.Item>
+        </Form.Item>)}
       </Form>
     </CustomDrawerLayout>
   );

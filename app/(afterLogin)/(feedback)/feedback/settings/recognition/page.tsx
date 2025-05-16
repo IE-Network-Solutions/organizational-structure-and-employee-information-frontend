@@ -11,7 +11,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
-  const { setOpen, setOpenRecognitionType } = ConversationStore();
+  const { setOpen, setOpenRecognitionType,openRecognitionType } = ConversationStore();
 
   // const { data: recognitionType } = useGetAllRecognitionType();
   const { data: recognitionType, isLoading } =
@@ -40,7 +40,7 @@ const Page = () => {
         children: <AllRecognition data={[recognitionType]} />,
       })) || []),
   ];
-
+ console.log(recognitionType,"recognitionType")
   return (
     <div className="p-5 rounded-2xl bg-white h-full">
       <Spin spinning={isLoading}>
@@ -64,7 +64,7 @@ const Page = () => {
         </div>
       </Spin>
 
-      <RecognitionForm onClose={() => setOpen(false)} />
+      <RecognitionForm createCategory={openRecognitionType} onClose={() => setOpen(false)} />
     </div>
   );
 };
