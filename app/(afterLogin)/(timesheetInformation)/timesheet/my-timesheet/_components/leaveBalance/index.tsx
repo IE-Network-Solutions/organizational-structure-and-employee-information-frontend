@@ -24,7 +24,7 @@ const LeaveBalance = () => {
   return (
     <>
       <div
-        className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-900 mb-2.5 p-3`}
+        className={`${isMobile ? 'text-sm' : 'text-2xl'} font-bold text-gray-900 mb-2.5 p-3`}
       >
         Leave Balances
       </div>
@@ -32,7 +32,7 @@ const LeaveBalance = () => {
         <div className="flex items-center">
           {data.items.length > 1 && (
             <Button
-              className="absolute left-0 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
+              className="absolute left-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
               id="leaveBalanceCardLeftId"
               icon={
@@ -72,7 +72,7 @@ const LeaveBalance = () => {
                   <SwiperSlide key={item.id}>
                     <LeaveBalanceCard
                       title={item?.leaveType?.title ?? ''}
-                      duration={item.totalBalance}
+                      duration={parseFloat(item.totalBalance.toFixed(1))}
                     />
                   </SwiperSlide>
                 ))}
@@ -80,7 +80,7 @@ const LeaveBalance = () => {
           </div>
           {data.items.length > 1 && (
             <Button
-              className="absolute right-0 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
+              className="absolute right-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
               icon={
                 <RightOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />
