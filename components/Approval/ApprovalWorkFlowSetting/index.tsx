@@ -7,6 +7,18 @@ import { Select, Button, Form, Row, Input, Radio } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import { HierarchyList } from '@/store/server/features/approver/interface';
 
+interface Department {
+  id: string;
+  name: string;
+}
+
+interface User {
+  id: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+}
+
 const ApprovalWorkFlowSettingComponent = ({
   handleSubmit,
   isSuccess,
@@ -168,9 +180,9 @@ const ApprovalWorkFlowSettingComponent = ({
             options={(() => {
               if (workflowApplies === 'Department') {
                 return (
-                  department?.map((list: any) => ({
-                    value: list?.id,
-                    label: list?.name,
+                  department?.map((list: Department) => ({
+                    value: list.id,
+                    label: list.name,
                   })) || []
                 );
               } else if (workflowApplies === 'Hierarchy') {
@@ -182,9 +194,10 @@ const ApprovalWorkFlowSettingComponent = ({
                 );
               } else if (workflowApplies === 'User') {
                 return (
-                  users?.items?.map((list: any) => ({
-                    value: list?.id,
-                    label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                  users?.items?.map((list: User) => ({
+                    value: list.id,
+                    label:
+                      `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
                   })) || []
                 );
               } else {
@@ -265,13 +278,14 @@ const ApprovalWorkFlowSettingComponent = ({
                   placeholder="Select User"
                   options={users?.items
                     ?.filter(
-                      (user: any) =>
+                      (user: User) =>
                         workflowApplies !== 'User' ||
                         user.id !== workflowUserId,
                     )
-                    ?.map((list: any) => ({
-                      value: list?.id,
-                      label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                    ?.map((list: User) => ({
+                      value: list.id,
+                      label:
+                        `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
                     }))}
                 />
               </Form.Item>
