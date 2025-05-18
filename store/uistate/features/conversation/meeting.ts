@@ -5,6 +5,9 @@ interface MeetingStore {
   open: boolean;
   setOpen: (value: boolean) => void;
 
+  openAddMeeting: boolean;
+  setOpenAddMeeting: (value: boolean) => void;
+  
   openDeleteModal: boolean;
   setOpenDeleteModal: (value: boolean) => void;
 
@@ -29,7 +32,8 @@ interface MeetingStore {
 export const useMeetingStore = create<MeetingStore>((set) => ({
   open: false,
   setOpen: (value) => set({ open: value }),
-
+  openAddMeeting:false,
+  setOpenAddMeeting: (value)=>set({openAddMeeting:value}),
   openDeleteModal: false,
   setOpenDeleteModal: (value) => set({ openDeleteModal: value }),
 
