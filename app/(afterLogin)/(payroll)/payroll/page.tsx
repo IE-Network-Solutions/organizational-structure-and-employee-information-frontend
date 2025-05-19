@@ -298,6 +298,7 @@ const Payroll = () => {
         const deductions = item.breakdown?.totalDeductionWithPension || [];
         const variablePay=item.breakdown?.variablePay?.amount || 0;
         const totalIncentive = item.breakdown?.incentives?.amount || 0;
+
         const allowances = item.breakdown?.allowances || [];
         const merits = item.breakdown?.merits || [];
         const transportAllowance = allowances
