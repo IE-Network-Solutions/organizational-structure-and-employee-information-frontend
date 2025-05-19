@@ -78,7 +78,12 @@ const FiscalYearListCard: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
-          <Button type="primary" icon={<FaPlus />} onClick={handelDrawerOpen}>
+          <Button
+            className="h-10 w-10 sm:w-auto"
+            type="primary"
+            icon={<FaPlus />}
+            onClick={handelDrawerOpen}
+          >
             <span className="hidden lg:inline">Create Fiscal Year</span>
           </Button>
         </AccessGuard>

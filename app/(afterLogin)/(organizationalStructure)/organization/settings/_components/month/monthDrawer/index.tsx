@@ -262,21 +262,23 @@ const MonthDrawer: React.FC<DrawerProps> = ({
         })}
 
         <Form.Item>
-          <div className="flex justify-center w-full px-6 py-6 gap-8">
+          <div className="flex justify-center gap-4 w-full p-6 sm:p-0">
             <Button
+              type="default"
               onClick={() => setCurrent(1)}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               Previous
             </Button>
             <Button
+              type="primary"
               htmlType={departments?.length > 0 ? 'submit' : 'button'}
               onClick={() => {
                 if (!departments?.length && onNextStep) {
                   onNextStep();
                 }
               }}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <div>

@@ -51,14 +51,14 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-[#fafafa] p-2">
       <div className="h-auto w-auto">
         <PageHeader title="Allowance" description="Allowance" />
 
-        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-6 mt-3">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto p-0">
             {children}
           </BlockWrapper>
         </div>

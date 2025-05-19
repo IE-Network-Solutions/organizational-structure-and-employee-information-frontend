@@ -115,6 +115,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
               }))}
               value={selectedPermissions}
               allowClear
+              className="text-xs"
             />
           </Form.Item>
         </Col>

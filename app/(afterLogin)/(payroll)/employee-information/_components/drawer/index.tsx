@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Select } from 'antd';
+import { Button, Form, Input, Select } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomButton from '@/components/common/buttons/customButton';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useUpdateAllowance } from '@/store/server/features/payroll/employeeInformation/mutation';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
@@ -67,44 +66,49 @@ const Drawer: React.FC = () => {
         closeDrawer;
       }}
       modalHeader={
-        <span className="text-xl font-semibold">Payroll Information </span>
+        <span className="text-lg font-semibold">Payroll Information </span>
       }
       width="700px"
       footer={
         <div className="flex justify-center items-center w-full h-full">
-          <div className="flex justify-between items-center gap-4">
-            <CustomButton
+          <div className="flex justify-between items-center gap-4 p-4">
+            <Button
               type="default"
-              title="Cancel"
+              className="h-10 px-10"
               onClick={() => {
                 closeDrawer();
               }}
-            />
-            <CustomButton
+            >
+              Cancel
+            </Button>
+
+            <Button
               type="primary"
-              title="Update"
+              className="h-10 px-10"
               onClick={() => {
                 form.submit();
               }}
-            />
+            >
+              Update
+            </Button>
           </div>
         </div>
       }
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      <Form form={form} className="p-2" layout="vertical" onFinish={onFinish}>
         <Form.Item label="Full Name" name="name">
-          <Input placeholder="Full Name" disabled className="h-12" />
+          <Input placeholder="Full Name" disabled className="h-10" />
         </Form.Item>
 
         <Form.Item label="Job Information" name="job_information">
-          <Input disabled placeholder="Job Information" className="h-12" />
+          <Input disabled placeholder="Job Information" className="h-10" />
         </Form.Item>
 
         <Form.Item label="Basic Salary" name="basic_salary">
           <Input
             disabled
             placeholder="Your basic Salary"
-            className="w-full h-12"
+            className="w-full h-10"
           ></Input>
         </Form.Item>
         <Form.Item
@@ -136,14 +140,14 @@ const Drawer: React.FC = () => {
           <Input
             disabled
             placeholder="Enat Bank"
-            className="w-full h-12"
+            className="w-full h-10"
           ></Input>
         </Form.Item>
         <Form.Item label="Branch" name="branch">
           <Input
             disabled
             placeholder="22 branch"
-            className="w-full h-12"
+            className="w-full h-10"
           ></Input>
         </Form.Item>
 
@@ -151,7 +155,7 @@ const Drawer: React.FC = () => {
           <Input
             disabled
             placeholder="account number"
-            className="w-full h-12"
+            className="w-full h-10"
           ></Input>
         </Form.Item>
       </Form>

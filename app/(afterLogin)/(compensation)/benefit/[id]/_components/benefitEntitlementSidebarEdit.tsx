@@ -80,7 +80,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: updateBenefitLoading,
       onClick: () => onClose(),
@@ -88,7 +88,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
     {
       label: <span>Update</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: updateBenefitLoading,
@@ -202,7 +202,12 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             <span>Update {title}</span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="600px"
       >
         <Spin spinning={allUserLoading || payLoading || isLoading}>

@@ -63,7 +63,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           description="Manage your system settings here"
         />
 
-        <div className="flex  flex-col lg:flex-row gap-6 mt-3">
+        <div className="flex  flex-col lg:flex-row gap-6  mt-1 sm:mt-3">
           <SidebarMenu menuItems={menuItems} />
           <BlockWrapper className="bg-[#fafafa] flex-1 h-max overflow-x-auto p-0">
             {children}

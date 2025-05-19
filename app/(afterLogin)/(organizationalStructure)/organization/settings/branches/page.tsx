@@ -81,11 +81,16 @@ const Branches = () => {
 
   return (
     <div className="flex-1 rounded-lg  items-center w-full h-full">
-      <div className="bg-white p-5 rounded-2xl h-full w-full">
+      <div className="bg-white p-3 rounded-2xl h-full w-full">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-lg text-bold">Branches</h1>
           <AccessGuard permissions={[Permissions.CreateBranch]}>
-            <Button icon={<FaPlus />} type="primary" onClick={handleAddNew}>
+            <Button
+              className="h-10 w-10 sm:w-auto"
+              icon={<FaPlus />}
+              type="primary"
+              onClick={handleAddNew}
+            >
               <span className="hidden lg:block">Add Branch</span>
             </Button>
           </AccessGuard>

@@ -6,8 +6,8 @@ import {
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
 import { Button, Col, Input, Row, Select } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
 import { Modal } from 'antd';
+import { VscSettings } from 'react-icons/vsc';
 
 const { Option } = Select;
 
@@ -77,27 +77,31 @@ const EmployeeSearch: React.FC = () => {
       >
         <Col xs={24} sm={24} lg={10}>
           <Row gutter={8} align="middle">
-            <Col flex="auto">
+            <Col xs={20} sm={20} flex="auto">
               <Input
                 id={`inputEmployeeNames${searchParams.employee_name}`}
                 placeholder="Search employee"
                 onChange={(e) =>
                   handleSearchInput(e.target.value, 'employee_name')
                 }
-                className="w-full h-10"
+                className="w-full h-10 rounded-lg"
                 allowClear
               />
             </Col>
-            <Col className="block lg:hidden">
-              <IoMdSwitch
-                className="cursor-pointer w-10 h-10 rounded-md border-gray-100 border-2"
-                onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
-              />
+            <Col xs={4} sm={4} className="block sm:hidden">
+              <div className="flex items-center justify-center w-10 h-10 text-black border border-gray-300 rounded-lg">
+                <VscSettings
+                  size={20}
+                  onClick={() =>
+                    setIsMobileFilterVisible(!isMobileFilterVisible)
+                  }
+                />
+              </div>
             </Col>
           </Row>
         </Col>
 
-        <Col lg={11} className="hidden lg:block ">
+        <Col lg={11} className="hidden sm:block ">
           <Row gutter={[8, 16]}>
             <Col lg={8} sm={12} xs={24}>
               <Select

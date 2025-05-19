@@ -31,7 +31,7 @@ const AllowanceEntitlementSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: allUserLoading,
       onClick: () => onClose(),
@@ -39,7 +39,7 @@ const AllowanceEntitlementSideBar = () => {
     {
       label: <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: allUserLoading,
@@ -79,12 +79,18 @@ const AllowanceEntitlementSideBar = () => {
         open={isAllowanceEntitlementSidebarOpen}
         onClose={onClose}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start">
             <span>Add Allowance Entitlement</span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="600px"
+        customMobileHeight="40vh"
       >
         <Spin spinning={allUserLoading}>
           <Form
@@ -122,7 +128,7 @@ const AllowanceEntitlementSideBar = () => {
                 showSearch
                 placeholder="Select a person"
                 mode="multiple"
-                className="w-full h-14"
+                className="w-full h-10 mt-2"
                 allowClear
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')

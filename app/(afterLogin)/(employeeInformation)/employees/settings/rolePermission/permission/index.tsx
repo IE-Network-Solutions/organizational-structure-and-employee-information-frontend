@@ -9,7 +9,7 @@ import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features
 import { GroupPermissionItem } from '@/store/server/features/employees/settings/groupPermission/interface';
 import useDebounce from '@/store/uistate/features/useDebounce';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
 
 const Permission: React.FC<any> = () => {
   const {
@@ -111,7 +111,7 @@ const Permission: React.FC<any> = () => {
                 }
                 suffixIcon={
                   <div className="flex items-center justify-center w-full h-full text-black">
-                    <IoMdSwitch size={20} />
+                    <LuSettings2 size={20} />
                   </div>
                 }
               >

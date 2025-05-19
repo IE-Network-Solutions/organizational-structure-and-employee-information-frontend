@@ -210,7 +210,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
             <button
               type="button"
               id="tnaFileUploadAttachmentButtonId"
-              className="mt-2.5 font-semibold text-sm text-gray-900 h-[54px] rounded-lg border border-gray-200 flex items-center justify-between transition-colors duration-150 px-[11px] hover:border-primary cursor-pointer w-full"
+              className="mt-2.5 font-semibold text-sm text-gray-900 h-[40px] rounded-lg border border-gray-200 flex items-center justify-between transition-colors duration-150 px-[11px] hover:border-primary cursor-pointer w-full"
             >
               Upload attachment
               <TbFileUpload size={18} className="text-gray-900" />
