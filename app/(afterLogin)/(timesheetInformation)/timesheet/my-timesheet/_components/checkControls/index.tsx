@@ -86,12 +86,12 @@ const CheckControl = () => {
       return (
         <AccessGuard permissions={[Permissions.CheckInRemotely]}>
           <Button
-            className="h-14 text-base"
+            className="h-10 sm:h-12 text-base"
             id="buttonCheckin"
             size="large"
             type="primary"
             icon={
-              isMobile ? <IoLocationOutline size={30} /> : <GoClock size={30} />
+              isMobile ? <IoLocationOutline size={20} /> : <GoClock size={16} />
             }
             loading={isLoading || isFetching}
             onClick={() => {
@@ -106,38 +106,40 @@ const CheckControl = () => {
       return (
         <Space>
           <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
-            <Button
-              className="h-14 text-base px-2"
-              size="large"
-              id="buttonBreakCheckOut"
-              icon={<GoClock size={20} />}
-              loading={isLoading || isFetching}
-              onClick={() => {
-                getCoords(() => {
-                  setIsShowCheckOutSidebar(true);
-                });
-              }}
-            >
-              Break Check Out
-            </Button>
-            <Button
-              className="h-14 text-base"
-              size="large"
-              id="buttonCheckOut"
-              icon={
-                isMobile ? (
-                  <IoLocationOutline size={30} />
-                ) : (
-                  <GoClock size={30} />
-                )
-              }
-              loading={isLoading || isFetching}
-              onClick={() => {
-                setAttendance(false);
-              }}
-            >
-              {isMobile ? '' : 'Check out'}
-            </Button>
+            <div className="flex justify-between gap-2">
+              <Button
+                className="h-12 text-base px-2"
+                size="large"
+                id="buttonBreakCheckOut"
+                icon={<GoClock size={20} />}
+                loading={isLoading || isFetching}
+                onClick={() => {
+                  getCoords(() => {
+                    setIsShowCheckOutSidebar(true);
+                  });
+                }}
+              >
+                Break Check Out
+              </Button>
+              <Button
+                className="h-12 text-base"
+                size="large"
+                id="buttonCheckOut"
+                icon={
+                  isMobile ? (
+                    <IoLocationOutline size={30} />
+                  ) : (
+                    <GoClock size={30} />
+                  )
+                }
+                loading={isLoading || isFetching}
+                onClick={() => {
+                  setAttendance(false);
+                }}
+              >
+                {isMobile ? '' : 'Check out'}
+              </Button>
+            </div>
           </AccessGuard>
         </Space>
       );
