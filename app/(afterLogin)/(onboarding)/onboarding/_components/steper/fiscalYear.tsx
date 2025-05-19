@@ -33,19 +33,23 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     if (!value) {
       return Promise.reject(new Error('Please select a start date.'));
     }
-    if (
-      activeCalendar?.endDate &&
-      dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
-    ) {
-      return Promise.reject(
-        new Error(
-          `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
-        ),
-      );
-    }
 
-    if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
-      return Promise.reject(new Error('Start date cannot be in the past.'));
+    // Skip active calendar validation in edit mode
+    if (!isEditMode) {
+      if (
+        activeCalendar?.endDate &&
+        dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
+      ) {
+        return Promise.reject(
+          new Error(
+            `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
+          ),
+        );
+      }
+
+      if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
+        return Promise.reject(new Error('Start date cannot be in the past.'));
+      }
     }
 
     return Promise.resolve();
@@ -96,12 +100,14 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     if (isEditMode && selectedFiscalYear) {
       const sessionCount = selectedFiscalYear?.sessions?.length;
       let calendarType = '';
-      if (sessionCount === 4) {
+      if (sessionCount > 4 || sessionCount === 4) {
         calendarType = 'Quarter';
       } else if (sessionCount === 2) {
         calendarType = 'Semester';
       } else if (sessionCount === 1) {
         calendarType = 'Year';
+      } else {
+        calendarType = 'Quarter'; // Default to Quarter for any other case
       }
 
       setCalendarType(calendarType);
@@ -110,11 +116,11 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         fiscalYearName: selectedFiscalYear?.name,
         fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
         fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
-        fiscalYearCalenderId: `${calendarType}`,
-        fiscalYearDescription: dayjs(selectedFiscalYear?.description),
+        fiscalYearCalenderId: calendarType,
+        fiscalYearDescription: selectedFiscalYear?.description || '',
       });
     }
-  }, [selectedFiscalYear, isEditMode, form]);
+  }, [selectedFiscalYear, isEditMode, form, setCalendarType]);
 
   return (
     <Form form={form} layout="vertical">
@@ -183,11 +189,33 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
           id="fiscalYearCalenderId"
           name="fiscalYearCalenderId"
           label={<span className="font-medium">Fiscal Year Calender</span>}
+          initialValue={
+            isEditMode
+              ? selectedFiscalYear?.sessions?.length >= 4
+                ? 'Quarter'
+                : selectedFiscalYear?.sessions?.length === 2
+                  ? 'Semester'
+                  : selectedFiscalYear?.sessions?.length === 1
+                    ? 'Year'
+                    : 'Quarter'
+              : undefined
+          }
         >
           <Select
             placeholder="Select Calendar"
             className="h-10 w-full font-normal text-xl mt-2"
             onChange={(value) => handleValuesChange(value)}
+            defaultValue={
+              isEditMode
+                ? selectedFiscalYear?.sessions?.length >= 4
+                  ? 'Quarter'
+                  : selectedFiscalYear?.sessions?.length === 2
+                    ? 'Semester'
+                    : selectedFiscalYear?.sessions?.length === 1
+                      ? 'Year'
+                      : 'Quarter'
+                : undefined
+            }
           >
             <Select.Option value="Quarter">Quarter</Select.Option>
             <Select.Option value="Semester">Semester</Select.Option>
