@@ -296,7 +296,7 @@ const Payroll = () => {
           item.employeeInfo?.basicSalaries?.find((bs: any) => bs.status)
             ?.basicSalary || 0;
         const deductions = item.breakdown?.totalDeductionWithPension || [];
-        const variablePay=item.breakdown?.variablePay?.amount || 0;
+        const variablePay = item.breakdown?.variablePay?.amount || 0;
         const totalIncentive = item.breakdown?.incentives?.amount || 0;
 
         const allowances = item.breakdown?.allowances || [];
@@ -319,7 +319,7 @@ const Payroll = () => {
           taxableIncome: formatAmount(item.grossSalary - 600 || 0),
           tax: formatAmount(item.breakdown?.tax?.amount),
           totalDeduction: formatAmount(item.totalDeductions || 0),
-          variablePay:formatAmount(variablePay || 0),
+          variablePay: formatAmount(variablePay || 0),
           totalIncentive: formatAmount(totalIncentive || 0),
           employeePension: formatAmount(
             item.breakdown?.pension?.find((i: any) => i.type == 'Pension')

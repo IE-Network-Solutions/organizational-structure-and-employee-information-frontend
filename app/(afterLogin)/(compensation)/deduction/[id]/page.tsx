@@ -14,10 +14,8 @@ import { useBenefitEntitlementStore } from '@/store/uistate/features/compensatio
 const SingleDeductionPage = () => {
   const { id } = useParams();
   const { data: deductionData } = useFetchAllowance(id);
-  const {
-    setIsAllowanceGlobal,
-    isAllowanceGlobal,
-  } = useAllowanceEntitlementStore();
+  const { setIsAllowanceGlobal, isAllowanceGlobal } =
+    useAllowanceEntitlementStore();
   const { setIsBenefitEntitlementSidebarOpen } = useBenefitEntitlementStore();
   useEffect(() => {
     if (deductionData?.applicableTo === 'GLOBAL') {

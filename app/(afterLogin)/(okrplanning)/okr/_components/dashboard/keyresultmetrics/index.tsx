@@ -7,10 +7,6 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { HiOutlineHashtag } from 'react-icons/hi';
-import { AiOutlineDollar, AiOutlinePercentage } from 'react-icons/ai';
-import { GiAchievement } from 'react-icons/gi';
-import { BsSortNumericUpAlt } from 'react-icons/bs';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -77,20 +73,20 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
       objectiveId,
     });
   }
-  function getMetricName(metricType: string) {
+  function getMetricName(metricType: string): string {
     switch (metricType) {
       case 'Milestone':
-        return <HiOutlineHashtag />;
+        return isMobile ? '#' : '';
       case 'Achieve':
-        return <GiAchievement />;
+        return isMobile ? '🏆' : '';
       case 'Percentage':
-        return <AiOutlinePercentage />;
+        return isMobile ? '%' : '';
       case 'Numeric':
-        return <BsSortNumericUpAlt />;
+        return isMobile ? '🔢' : '';
       case 'Currency':
-        return <AiOutlineDollar />;
+        return isMobile ? '$' : '';
       default:
-        return null; // Or <span>{metricType}</span> if you want to show the string
+        return isMobile ? metricType : '';
     }
   }
   return (
@@ -106,12 +102,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         <h2
           className={`flex items-center gap-1 ${isMobile ? 'text-xs' : 'text-sm'} font-normal`}
         >
-          {keyResult?.title}
-          {isMobile && keyResult?.metricType?.name && (
-            <span className="inline-flex items-center -mt-3">
-              {getMetricName(keyResult.metricType.name)}
-            </span>
-          )}
+          {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
         </h2>
         {keyResult?.isClosed === false && Number(keyResult?.progress) === 0 && (
           <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
@@ -144,7 +135,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
 
           <div className="flex items-center gap-1">
             <div
-              className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
+              className={`bg-light_purple text-[#3636f0] font-bold ${isMobile ? 'text-[6px] p-2' : 'text-xs p-2'} flex items-center rounded-lg`}
             >
               {keyResult?.weight}
             </div>
@@ -163,7 +154,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         <div className="flex flex-wrap gap-2">
           <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'}`}>
             <div
-              className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1 w-14' : 'text-sm p-1 w-16 sm:w-20'} text-center rounded-lg`}
+              className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-2 w-auto' : 'text-sm p-1 w-16 sm:w-20'} text-center rounded-lg`}
             >
               {keyResult?.metricType?.name === 'Milestone'
                 ? keyResult?.milestones?.filter(
@@ -184,7 +175,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
           </div>
           <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'}`}>
             <div
-              className={`bg-light_purple text-blue font-semibold ${isMobile ? 'text-[6px] p-1 min-w-14' : 'text-sm p-1 min-w-16 sm:min-w-20'} text-center rounded-lg`}
+              className={`bg-light_purple text-blue font-semibold ${isMobile ? 'text-[6px] p-2 w-auto' : 'text-sm p-1 min-w-16 sm:min-w-20'} text-center rounded-lg`}
             >
               {keyResult?.metricType?.name === 'Milestone'
                 ? keyResult?.milestones?.length || 0

@@ -11,6 +11,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
+
   const { setOpen, setOpenRecognitionType, openRecognitionType } =
     ConversationStore();
 
@@ -63,6 +64,7 @@ const Page = () => {
           </AccessGuard>
         </div>
       </Spin>
+
 
       <RecognitionForm
         createCategory={openRecognitionType}
