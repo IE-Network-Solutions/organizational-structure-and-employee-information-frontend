@@ -10,7 +10,9 @@
   font-display: swap;
   src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 }
-
+.ant-popconfirm-message{
+  display: block !important;
+}
 html,
 body {
   margin: 0;

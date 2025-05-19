@@ -1,4 +1,5 @@
 // components/ActionPlan/ActionPlanCard.tsx
+import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { EditOutlined } from '@ant-design/icons';
 import { Tag, Tooltip, Avatar } from 'antd';
 import { LuPencil } from 'react-icons/lu';
@@ -26,6 +27,12 @@ export default function ActionPlanCard({
                   : priority === 'Medium'
                     ? 'orange'
                     : 'blue'
+  const {setActionPlanData,setOpenAddActionPlan}=useMeetingStore();
+  function handleEditActionPlan(value:any){
+    setActionPlanData(value)
+    setOpenAddActionPlan(true)
+
+  }
 
   return (
     <div className="bg-white border rounded-xl p-4  space-y-2">
@@ -37,6 +44,14 @@ export default function ActionPlanCard({
         </div>
         <Tooltip title="Edit">
           <LuPencil
+           onClick={()=>handleEditActionPlan({
+  issue,
+  description,
+  deadline,
+  status,
+  priority,
+  responsiblePeople,
+})}
  className="text-gray-500 hover:text-blue-500 cursor-pointer" />
         </Tooltip>
       </div>

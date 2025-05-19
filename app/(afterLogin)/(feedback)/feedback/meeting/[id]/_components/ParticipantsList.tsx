@@ -1,6 +1,7 @@
 // components/MeetingDetail/ParticipantsList.tsx
 import { Tag, Avatar, Button } from 'antd';
 import { FaPlus } from 'react-icons/fa';
+import AddParticipantsPopconfirm from './AddParticipant';
 
 const participants = [
   { name: 'Nahom Samuel', email: 'nahom@email.com', status: null,  },
@@ -22,11 +23,7 @@ export default function ParticipantsList() {
     <div className=" p-4 space-y-3">
       <div className='flex justify-between items-center py-2'>
          <h2 className="text-lg font-semibold mb-2">List of Participants</h2>
-         <Button
-         icon={<FaPlus/>}
-
-          type='primary'
-         >Add New</Button>
+        <AddParticipantsPopconfirm/>
       </div>
       <h2 className="text-lg font-semibold"></h2>
       {participants.map((p, i) => (

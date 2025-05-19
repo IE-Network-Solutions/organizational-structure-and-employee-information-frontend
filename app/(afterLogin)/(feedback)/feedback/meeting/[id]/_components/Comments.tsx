@@ -30,7 +30,7 @@ const data = [
   {
     id: 'cmt1',
     commentedBy: 'u1',
-    comment: 'This is a really helpful update, thanks!',
+    comment: 'This is a really helpful update, thanks! hdbfkhdsbfdshghbskhdsfbdskhj',
     createdAt: dayjs().subtract(2, 'hour').toISOString(),
   },
   {
@@ -92,21 +92,22 @@ const CommentComponent = () => {
             className="w-full py-2"
           >
             <div className='flex  items-center'>
-              <div className="w-full text-xs font-semibold  items-center">
+              <div className=" text-xs font-semibold flex items-center">
                 <Avatar
                   src={profileImage || undefined}
                   icon={!profileImage ? <FaUser /> : undefined}
                   alt={fullName}
-                  className="mr-1"
                 />
-                <span className="font-normal"> {fullName}</span>
+                <div className=''> 
+                  <span  className="font-normal">{fullName}</span> 
+                  <span className="w-full text-gray-700  font-semibold ml-2">
+                {commentData.comment}
+              </span>
                 {/* <div className="text-gray-400 text-xs ml-2">
                   {dayjs(commentData.createdAt).fromNow()}
                 </div> */}
               </div>
-              <span className="w-full text-gray-700  font-semibold">
-                {commentData.comment}
-              </span>
+              </div>
             </div>
             {/* <Col hidden={commentData?.commentedBy !== userId}>
               <CommentActionMenu

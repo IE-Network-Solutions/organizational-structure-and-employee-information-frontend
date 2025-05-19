@@ -7,6 +7,15 @@ interface MeetingStore {
 
   openAddMeeting: boolean;
   setOpenAddMeeting: (value: boolean) => void;
+
+  openAddAgenda: boolean;
+  setOpenAddAgenda: (value: boolean) => void;
+  
+  openMeetingAgenda: boolean;
+  setOpenMeetingAgenda: (value: boolean) => void;
+
+  openAddActionPlan: boolean;
+  setOpenAddActionPlan: (value: boolean) => void;
   
   openDeleteModal: boolean;
   setOpenDeleteModal: (value: boolean) => void;
@@ -27,6 +36,9 @@ interface MeetingStore {
 
   editingTemplate: any | null;
   setEditingTemplate: (template: any | null) => void;
+
+  actionPlanData: any | null;
+  setActionPlanData: (actionPlanData: any | null) => void;
 }
 
 export const useMeetingStore = create<MeetingStore>((set) => ({
@@ -34,6 +46,14 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
   setOpen: (value) => set({ open: value }),
   openAddMeeting:false,
   setOpenAddMeeting: (value)=>set({openAddMeeting:value}),
+  openAddAgenda:false,
+  setOpenAddAgenda: (value)=>set({openAddAgenda:value}),
+
+   openMeetingAgenda:false,
+  setOpenMeetingAgenda: (value)=>set({openMeetingAgenda:value}),
+  
+  openAddActionPlan:false,
+  setOpenAddActionPlan: (value)=>set({openAddActionPlan:value}),
   openDeleteModal: false,
   setOpenDeleteModal: (value) => set({ openDeleteModal: value }),
 
@@ -52,4 +72,6 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
 
   editingTemplate: null,
   setEditingTemplate: (template) => set({ editingTemplate: template }),
+  actionPlanData: null,
+  setActionPlanData: (template) => set({ actionPlanData: template }),
 }));

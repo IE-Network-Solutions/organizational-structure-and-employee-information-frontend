@@ -13,7 +13,11 @@ import {
 import dayjs from "dayjs";
 import CustomDrawerLayout from "@/components/common/customDrawer";
 import { useMeetingStore } from "@/store/uistate/features/conversation/meeting";
+import { Steps } from 'antd';
+import { CheckCircleOutlined } from "@ant-design/icons";
+import { MdClose } from "react-icons/md";
 
+const { Step } = Steps;
 const { Option } = Select;
 
 const peopleOptions = [
@@ -75,57 +79,70 @@ setOpenAddMeeting } = useMeetingStore();
   const addGuest = () => {
     setGuests([...guests, { name: '', email: '' }]);
   };
+  const footer = (
+      <div className="flex justify-center gap-3 mt-6">
+           <Button className="w-36" onClick={onPrev}>Cancel</Button>
+          {step === 2 ? (
+            <>
+             
+              <Button className="w-36" type="primary" htmlType="submit">
+                Create
+              </Button>
+            </>
+          ) : (
+            <Button type="primary" onClick={onNext}  className="w-36">
+              Next
+            </Button>
+          )}
+        </div>
+  )
   return (
 <CustomDrawerLayout
       open={openAddMeeting}
       onClose={()=>handleClose()}
-      modalHeader={<div className='text-center'>Add New Meeting Template</div>}
+      modalHeader={    <h2 className="text-center font-semibold text-lg mb-2">Add New Meeting</h2>}
       width="40%"
+      footer={footer}
     >      
-    <h2 className="text-center font-semibold text-lg mb-2">Add New Meeting</h2>
       <p className="text-center text-gray-600 mb-6 font-medium">Meeting Information</p>
 
       {/* Step Indicator */}
-      <div className="flex justify-center items-center mb-8 space-x-4">
-        <div className={`flex flex-col items-center`}>
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-              step === 1 ? "border-blue-600 bg-blue-600" : "border-gray-300"
-            }`}
-          >
-            {step === 1 ? (
-              <div className="w-3 h-3 rounded-full bg-white"></div>
+      
+ <div className="flex justify-center mb-8">
+     <div className="flex justify-center ">
+      <Steps
+        current={step - 1}
+        size="small"
+        labelPlacement="vertical"
+        className="w-full max-w-md"
+      >
+        <Step
+          title="Step 1"
+          icon={
+            step === 1 ? (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
+                <span className="w-3 h-3 bg-blue rounded-full"></span>
+              </div>
             ) : (
-              <div className="w-3 h-3 rounded-full bg-transparent"></div>
-            )}
-          </div>
-          <span className="mt-1 text-xs font-medium text-gray-700">1</span>
-        </div>
-        <div className="flex-1 border-t-2 border-gray-300"></div>
-        <div className="flex flex-col items-center">
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-              step === 2 ? "border-blue-600 bg-blue-600" : "border-gray-300"
-            }`}
-          >
-            {step === 2 ? (
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path>
-              </svg>
+              <div className="w-8 h-8 rounded-full bg-gray-300"></div>
+            )
+          }
+        />
+        <Step
+          title="Step 2"
+          icon={
+            step === 2 ? (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
+                <span className="w-3 h-3 bg-blue rounded-full"></span>
+              </div>
             ) : (
-              <div className="w-3 h-3 rounded-full bg-transparent"></div>
-            )}
-          </div>
-          <span className="mt-1 text-xs font-medium text-gray-700">2</span>
-        </div>
-      </div>
+              <div className="w-8 h-8 rounded-full border border-gray-300"></div>
+            )
+          }
+        />
+      </Steps>
+    </div>
+    </div>
 
       <Form
         form={form}
@@ -157,19 +174,35 @@ setOpenAddMeeting } = useMeetingStore();
               </Select>
             </Form.Item>
 
-            <Form.Item
-              label="Location"
-              name="locationType"
-              rules={[{ required: true, message: "Please select location type" }]}
-            >
-              <Radio.Group buttonStyle="solid" className="space-x-3">
-                <Radio.Button value="in-person" className="border-blue-600 text-blue-600">
-                  In-person
-                </Radio.Button>
-                <Radio.Button value="virtual">Virtual</Radio.Button>
-                <Radio.Button value="hybrid">Hybrid</Radio.Button>
-              </Radio.Group>
-            </Form.Item>
+<Form.Item
+  label="Location"
+  name="locationType"
+  rules={[{ required: true, message: "Please select location type" }]}
+>
+  <Radio.Group className="flex gap-2 w-full">
+    <Radio value="in-person" className="w-full items-center  rounded-md border p-2">
+      <div className="flex justify-between w-full">
+        <span className="text-black">In-person</span>
+      </div>
+    </Radio>
+    <Radio value="virtual" className="w-full items-center border  rounded-md p-2">
+      <div className="flex justify-between  w-full">
+        <span className="text-black">Virtual</span>
+      </div>
+    </Radio>
+    
+    <Radio value="hybrid" className="w-full items-center border rounded-md p-2">
+      <div className="flex justify-between w-full">
+        <span className="text-black">Hybrid</span>
+      </div>
+    </Radio>
+   
+   
+  </Radio.Group>
+</Form.Item>
+
+
+
 
             <Form.Item
               label="Enter Location"
@@ -267,50 +300,50 @@ setOpenAddMeeting } = useMeetingStore();
                 Allow Guests
               </Checkbox>
                 </div>
-              
-               {allowGuests && (
-              <>
-                {guests.map((guest, index) => (
-                  <div key={index} className="flex space-x-3 mb-4">
-                     <Form.Item
-              label="Name"
-              name="guestFullName"
-              rules={[{ required: true, message: "Please add Guest fullname" }]}
-                            className="w-full"
+              {allowGuests && 
+              <Form.List name="guests">
+  {(fields, { add, remove }) => (
+    <>
+      {fields.map(({ key, name, ...restField }) => (
+        <div key={key} className="flex space-x-3 ">
+          <Form.Item
+            {...restField}
+            name={[name, 'name']}
+            label="Name"
+            rules={[{ required: true, message: 'Please add guest fullname' }]}
+            className="w-full mt-2"
+          >
+            <Input placeholder="Name" />
+          </Form.Item>
 
-            >
-              <Input
-                      placeholder="Name"
-                      value={guest.name}
-                      onChange={(e) => handleGuestChange(index, 'name', e.target.value)}
-                      
-                    />
-            </Form.Item>
-              <Form.Item
-              label="Email"
-              name="guestEmail"
-              rules={[{ required: true, message: "Please add Guest email" }]}
-              className="w-full"
-            >
-               <Input
-                      placeholder="Email"
-                      type="email"
-                      value={guest.email}
-                      onChange={(e) => handleGuestChange(index, 'email', e.target.value)}
-                      
-                    />
-            </Form.Item>
-                   
-                  </div>
-                ))}
-                 <div className='flex justify-end'>
-                  <Button type="primary" onClick={addGuest}>
-                  Add Guest
-                </Button>
-                 </div>
-                
-              </>
-            )}
+          <Form.Item
+            {...restField}
+            name={[name, 'email']}
+            label={<div className="flex justify-between items-center w-64">
+                                        <span>Email</span>
+                                        <Button
+                                          icon={<MdClose />}
+                                          type="link"
+                                          className="text-black ml-4"
+                                          onClick={() => remove(name)}
+                                        />
+                                      </div>}
+            rules={[{ required: true, message: 'Please add guest email' }]}
+            className="w-full"
+          >
+            <Input placeholder="Email" type="email" />
+          </Form.Item>
+        </div>
+      ))}
+      <div className="flex justify-end">
+        <Button type="primary" onClick={() => add()}>
+          Add Guest
+        </Button>
+      </div>
+    </>
+  )}
+</Form.List>}
+
             </Form.Item>
           </>
         )}
@@ -343,20 +376,7 @@ setOpenAddMeeting } = useMeetingStore();
         )}
 
         {/* Buttons */}
-        <div className="flex justify-between mt-6">
-          {step === 2 ? (
-            <>
-              <Button onClick={onPrev}>Cancel</Button>
-              <Button type="primary" htmlType="submit">
-                Create
-              </Button>
-            </>
-          ) : (
-            <Button type="primary" onClick={onNext} className="w-full">
-              Next
-            </Button>
-          )}
-        </div>
+      
       </Form>
     </CustomDrawerLayout>
   );
