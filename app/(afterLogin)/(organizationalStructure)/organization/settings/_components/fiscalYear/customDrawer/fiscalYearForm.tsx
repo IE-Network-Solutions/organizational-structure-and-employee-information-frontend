@@ -40,25 +40,27 @@ const FiscalYearForm: React.FC = () => {
   const { data: activeCalendar } = useGetActiveFiscalYears();
   const { data: departments } = useGetDepartments();
 
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
-  const validateStartDate = (_: any, value: any) => {
-    /* eslint-enable-next-line @typescript-eslint/naming-convention */
+  const validateStartDate = (nonused: any, value: any) => {
     if (!value) {
       return Promise.reject(new Error('Please select a start date.'));
     }
-    if (
-      activeCalendar?.endDate &&
-      dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
-    ) {
-      return Promise.reject(
-        new Error(
-          `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
-        ),
-      );
-    }
 
-    if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
-      return Promise.reject(new Error('Start date cannot be in the past.'));
+    // Skip active calendar validation in edit mode
+    if (!isEditMode) {
+      if (
+        activeCalendar?.endDate &&
+        dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
+      ) {
+        return Promise.reject(
+          new Error(
+            `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
+          ),
+        );
+      }
+
+      if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
+        return Promise.reject(new Error('Start date cannot be in the past.'));
+      }
     }
 
     return Promise.resolve();
@@ -122,12 +124,13 @@ const FiscalYearForm: React.FC = () => {
   };
 
   // Initialize form with stored values when component mounts or when returning from next step
+
   useEffect(() => {
     try {
       if (isEditMode && selectedFiscalYear) {
         const sessionCount = selectedFiscalYear?.sessions?.length;
         let newCalendarType = '';
-        if (sessionCount === 4) {
+        if (sessionCount >= 4) {
           newCalendarType = 'Quarter';
         } else if (sessionCount === 2) {
           newCalendarType = 'Semester';
