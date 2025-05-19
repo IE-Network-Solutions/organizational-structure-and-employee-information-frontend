@@ -158,7 +158,7 @@ const GroupPermission = () => {
           </div>
         </div>
         <Form.Item wrapperCol={{ span: 24, md: { span: 12, offset: 6 } }}>
-          <div className="w-full flex flex-col md:flex-row justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 mt-6 sm:mt-8 md:mt-10 lg:mt-12">
+          <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
             <Button
               id="cancelModalButton"
               className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-xs sm:text-sm font-bold"

@@ -27,6 +27,7 @@ const CustomAddJobFields: React.FC = () => {
           <Button
             type="primary"
             id="createUserButton"
+            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
             onClick={showDrawer}
           >

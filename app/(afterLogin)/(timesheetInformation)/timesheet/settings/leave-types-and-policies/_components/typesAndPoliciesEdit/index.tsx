@@ -57,7 +57,7 @@ const TypesAndPoliciesEdit = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -65,7 +65,7 @@ const TypesAndPoliciesEdit = () => {
     {
       label: 'Update',
       key: 'update',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -146,7 +146,11 @@ const TypesAndPoliciesEdit = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Leave Type Edit</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Spin spinning={getIsLoading}>

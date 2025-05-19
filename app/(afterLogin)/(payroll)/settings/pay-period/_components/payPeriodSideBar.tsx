@@ -157,7 +157,7 @@ const PayPeriodSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: false,
       onClick: () => onClose(),
@@ -165,7 +165,7 @@ const PayPeriodSideBar = () => {
     {
       label: <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: createPayPeriodsLoading,
@@ -189,8 +189,14 @@ const PayPeriodSideBar = () => {
             <span>Add Pay Periods</span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="30%"
+        customMobileHeight="50vh"
       >
         <Spin spinning={false}>
           <Form
@@ -224,6 +230,7 @@ const PayPeriodSideBar = () => {
               ]}
             >
               <Select
+                className="mt-2 h-10"
                 placeholder="Select pay period mode"
                 options={modeOptions}
                 allowClear

@@ -250,7 +250,7 @@ const ListOfRoles = () => {
           </div>
         </div>
         <Form.Item>
-          <div className="w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-6 sm:mt-8">
+          <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
             <Button
               id="cancelButtonForRole"
               className="px-6 py-3 text-xs font-bold"

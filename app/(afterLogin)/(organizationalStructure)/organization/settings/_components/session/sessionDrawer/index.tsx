@@ -120,7 +120,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       const sessions = selectedFiscalYear?.sessions || [];
 
       const inferredCalendarType =
-        sessions.length === 4
+        sessions.length >= 4
           ? 'Quarter'
           : sessions.length === 2
             ? 'Semester'
@@ -281,16 +281,18 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         })}
 
         <Form.Item>
-          <div className="flex justify-center w-full px-6 py-6 gap-8">
+          <div className="flex justify-center w-full px-6 py-6 gap-8 ">
             <Button
+              type="default"
               onClick={() => setCurrent(0)}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               Previous
             </Button>
             <Button
+              type="primary"
               onClick={handleNext}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <Spin />

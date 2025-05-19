@@ -11,12 +11,12 @@ interface BlockWrapperProps {
 const BlockWrapper: React.FC<BlockWrapperProps> = ({
   children,
   className = '',
-  padding = '!p-2 bg-gray-100',
+  padding = '',
 }) => {
   return (
     <div
       className={classNames(
-        `${padding ? padding : 'p-6 bg-gray-100'}`,
+        `${padding ? padding : 'p-3 bg-[#fafafa]'}`,
         className,
       )}
       style={{ borderRadius: 11 }}

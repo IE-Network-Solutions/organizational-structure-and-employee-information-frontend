@@ -141,7 +141,7 @@ const CustomFieldsDrawer: React.FC<{
       </Form.Item>
 
       <Row gutter={12}>
-        <Col lg={8} md={10} xs={24}>
+        <Col lg={8} md={10} xs={12}>
           <Form.Item
             label={
               <span className="text-md font-semibold text-gray-700">
@@ -151,7 +151,7 @@ const CustomFieldsDrawer: React.FC<{
             name="fieldType"
             rules={[{ required: true, message: 'Field type is required' }]}
           >
-            <Select allowClear placeholder="Select type">
+            <Select allowClear placeholder="Select type" className="h-10">
               <Option value="multiple_choice">Multiple Choice</Option>
               <Option value="checkbox">Checkbox</Option>
               <Option value="short_text">Short Text</Option>
@@ -159,7 +159,7 @@ const CustomFieldsDrawer: React.FC<{
             </Select>
           </Form.Item>
         </Col>
-        <Col lg={16} md={10} xs={24}>
+        <Col lg={16} md={10} xs={12}>
           <Form.Item
             label={
               <span className="text-md font-semibold text-gray-700">
@@ -170,7 +170,11 @@ const CustomFieldsDrawer: React.FC<{
             name="question"
             rules={[{ required: true, message: 'This field is required' }]}
           >
-            <Input placeholder="Enter your question here" allowClear />
+            <Input
+              placeholder="Enter your question here"
+              allowClear
+              className="h-10"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -290,17 +294,17 @@ const CustomFieldsDrawer: React.FC<{
         open={isCustomFieldsDrawerOpen}
         modalHeader={customFieldsDrawerHeader}
         onClose={onClose}
-        width="30%"
+        width="40%"
         footer={
-          <div className="flex justify-center w-full bg-[#fff] absolute bottom-8 space-x-5">
+          <div className="flex justify-center w-full bg-[#fff] space-x-5 p-4">
             <Button
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
               onClick={onClose}
             >
               Cancel
             </Button>
             <Button
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
               htmlType="submit"
             >
               {isEdit ? 'Update Template' : 'Create'}

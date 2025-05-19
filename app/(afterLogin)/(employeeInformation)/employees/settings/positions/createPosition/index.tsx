@@ -16,7 +16,7 @@ const CreatePosition: React.FC = () => {
   };
 
   const addPositionDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+    <div className="flex justify-start text-xl font-extrabold text-gray-800">
       Add New Position
     </div>
   );
@@ -38,11 +38,19 @@ const CreatePosition: React.FC = () => {
         modalHeader={addPositionDrawerHeader}
         width="40%"
         footer={
-          <div className="flex justify-center w-full bg-[#fff] px-6 space-x-5 mt-4 ">
-            <Button type="default" onClick={handleCloseDrawer}>
+          <div className="flex justify-center w-full bg-[#fff] space-x-5 p-4 ">
+            <Button
+              className="h-[40px] sm:h-[56px] text-base px-10"
+              type="default"
+              onClick={handleCloseDrawer}
+            >
               Cancel
             </Button>
-            <Button type="primary" onClick={() => form.submit()}>
+            <Button
+              className="h-[40px] sm:h-[56px] text-base px-10"
+              type="primary"
+              onClick={() => form.submit()}
+            >
               Submit
             </Button>
           </div>
@@ -84,7 +92,7 @@ const CreatePosition: React.FC = () => {
             id="positionDescription"
             name="description"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span className="text-lg my-2 font-semibold text-gray-700">
                 Position Description
               </span>
             }
@@ -95,7 +103,12 @@ const CreatePosition: React.FC = () => {
               },
             ]}
           >
-            <TextArea rows={4} placeholder="Job description" allowClear />
+            <TextArea
+              className="h-36"
+              rows={4}
+              placeholder="Job description"
+              allowClear
+            />
           </Form.Item>
         </Form>
       </CustomDrawerLayout>

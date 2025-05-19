@@ -32,7 +32,6 @@ const FiscalYearForm: React.FC = () => {
     isFormValid,
     setIsFormValid,
     fiscalYearFormValues,
-    resetFormState,
     calendarType,
     setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
@@ -40,25 +39,27 @@ const FiscalYearForm: React.FC = () => {
   const { data: activeCalendar } = useGetActiveFiscalYears();
   const { data: departments } = useGetDepartments();
 
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
-  const validateStartDate = (_: any, value: any) => {
-    /* eslint-enable-next-line @typescript-eslint/naming-convention */
+  const validateStartDate = (nonused: any, value: any) => {
     if (!value) {
       return Promise.reject(new Error('Please select a start date.'));
     }
-    if (
-      activeCalendar?.endDate &&
-      dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
-    ) {
-      return Promise.reject(
-        new Error(
-          `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
-        ),
-      );
-    }
 
-    if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
-      return Promise.reject(new Error('Start date cannot be in the past.'));
+    // Skip active calendar validation in edit mode
+    if (!isEditMode) {
+      if (
+        activeCalendar?.endDate &&
+        dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
+      ) {
+        return Promise.reject(
+          new Error(
+            `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
+          ),
+        );
+      }
+
+      if (activeCalendar && dayjs(value).isBefore(dayjs(), 'day')) {
+        return Promise.reject(new Error('Start date cannot be in the past.'));
+      }
     }
 
     return Promise.resolve();
@@ -91,15 +92,44 @@ const FiscalYearForm: React.FC = () => {
   };
 
   const handleClose = () => {
-    try {
-      setSelectedFiscalYear(null);
-      setOpenFiscalYearDrawer(false);
-      setCalendarType('');
-      resetFormState();
-    } catch (error) {
-      message.error('Failed to close the form. Please try again.');
-    }
+    setSelectedFiscalYear(null);
+    setCalendarType('');
+    setOpenFiscalYearDrawer(false);
   };
+
+  // const handleValuesChange = (val: string) => setCalendarType(val);
+  // const handleStartDateChange = (val: any) => setFiscalYearStart(val);
+  // const handleEndDateChange = (val: any) => setFiscalYearEnd(val);
+
+  // const handleNext = () => {
+  //   const currentValues = form.getFieldsValue();
+  //   setFiscalYearFormValues(currentValues);
+  //   setCurrent(1);
+  // };
+
+  useEffect(() => {
+    if (isEditMode && selectedFiscalYear) {
+      const sessionCount = selectedFiscalYear?.sessions?.length;
+      let calendarType = '';
+      if (sessionCount === 4) {
+        calendarType = 'Quarter';
+      } else if (sessionCount === 2) {
+        calendarType = 'Semester';
+      } else if (sessionCount === 1) {
+        calendarType = 'Year';
+      }
+
+      setCalendarType(calendarType);
+
+      form.setFieldsValue({
+        fiscalYearName: selectedFiscalYear?.name,
+        fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
+        fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
+        fiscalYearCalenderId: `${calendarType}`,
+        fiscalYearDescription: dayjs(selectedFiscalYear?.description),
+      });
+    }
+  });
 
   const handleValuesChange = (val: string) => {
     try {
@@ -136,12 +166,13 @@ const FiscalYearForm: React.FC = () => {
   };
 
   // Initialize form with stored values when component mounts or when returning from next step
+
   useEffect(() => {
     try {
       if (isEditMode && selectedFiscalYear) {
         const sessionCount = selectedFiscalYear?.sessions?.length;
         let newCalendarType = '';
-        if (sessionCount === 4) {
+        if (sessionCount >= 4) {
           newCalendarType = 'Quarter';
         } else if (sessionCount === 2) {
           newCalendarType = 'Semester';
@@ -294,12 +325,13 @@ const FiscalYearForm: React.FC = () => {
         </Select>
       </Form.Item>
 
-      <Form.Item className="mb-5">
-        <div className="flex justify-center w-full mt-40 space-x-5">
+      <Form.Item className="">
+        <div className="flex justify-center w-full space-x-5 p-6 sm:p-0 ">
           {departments?.length > 0 && (
             <Button
+              type="default"
               onClick={handleClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               Cancel
             </Button>
@@ -315,7 +347,7 @@ const FiscalYearForm: React.FC = () => {
             <Button
               onClick={handleNext}
               disabled={!isFormValid}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
             >
               Next
             </Button>

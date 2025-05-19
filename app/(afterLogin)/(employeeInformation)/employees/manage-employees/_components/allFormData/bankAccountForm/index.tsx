@@ -19,7 +19,9 @@ const BankInformationForm = () => {
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'bankName']}
             id="bankInformationBankName"
-            label="Bank Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">Bank Name</span>
+            }
             rules={[
               {
                 required: true,
@@ -40,7 +42,7 @@ const BankInformationForm = () => {
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'branch']}
             id="bankInformationBranch"
-            label="Branch"
+            label={<span className="mb-1 font-semibold text-xs">Branch</span>}
             rules={[
               {
                 required: false,
@@ -62,7 +64,9 @@ const BankInformationForm = () => {
           <Form.Item
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'accountName']}
-            label="Account Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">Account Name</span>
+            }
             id="bankInformationAccountName"
             rules={[
               {
@@ -84,7 +88,9 @@ const BankInformationForm = () => {
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'accountNumber']}
             id="bankInformationAccountNumber"
-            label="Account Number"
+            label={
+              <span className="mb-1 font-semibold text-xs">Account Number</span>
+            }
             rules={[{ required: true }]}
           >
             <Input />

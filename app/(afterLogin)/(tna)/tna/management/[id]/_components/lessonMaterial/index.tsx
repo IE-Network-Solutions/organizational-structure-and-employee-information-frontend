@@ -84,7 +84,7 @@ const CourseLessonMaterial = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-10',
       size: 'large',
       loading: isLoading || isLoadingMaterial,
       onClick: () => onClose(),
@@ -92,7 +92,7 @@ const CourseLessonMaterial = () => {
     {
       label: lessonMaterial ? 'Update' : 'Create',
       key: 'create',
-      className: 'h-14',
+      className: 'h-10',
       type: 'primary',
       size: 'large',
       loading: isLoading || isLoadingMaterial,
@@ -146,10 +146,7 @@ const CourseLessonMaterial = () => {
         </CustomDrawerHeader>
       }
       footer={
-        <CustomDrawerFooterButton
-          className="w-1/2 mx-auto"
-          buttons={footerModalItems}
-        />
+        <CustomDrawerFooterButton className="p-4" buttons={footerModalItems} />
       }
       width="50%"
     >
