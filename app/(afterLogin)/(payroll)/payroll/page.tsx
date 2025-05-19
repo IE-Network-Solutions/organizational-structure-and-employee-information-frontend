@@ -333,34 +333,51 @@ const Payroll = () => {
           netIncome: formatAmount(item.netPay || 0),
         };
 
+        // Calculate total deductions
+        const totalDeductions = deductions.reduce(
+          (sum: number, d: any) => sum + Number(d.amount || 0),
+          0,
+        );
         const deductionRow: any = {
           fullName,
-          totalDeductions: formatAmount(payrollRowData.totalDeduction),
+          totalDeductions: formatAmount(totalDeductions),
         };
+
+        // Calculate total allowances
+        const totalAllowances = allowances.reduce(
+          (sum: number, a: any) => sum + Number(a.amount || 0),
+          0,
+        );
         const allowanceRow: any = {
           fullName,
-          totalAllowances: formatAmount(payrollRowData.totalAllowance),
+          totalAllowances: formatAmount(totalAllowances),
         };
+
+        // Calculate total merits
+        const totalMerits = merits.reduce(
+          (sum: number, m: any) => sum + Number(m.amount || 0),
+          0,
+        );
         const meritRow: any = {
           fullName,
-          totalMerits: formatAmount(payrollRowData.totalBenefits),
+          totalMerits: formatAmount(totalMerits),
         };
 
         // **Ensure every row has all expected unique columns**
         uniqueDeductionTypes.forEach((type: any) => {
           const deduction = deductions.find((d: any) => d.type === type);
-          deductionRow[type] = formatAmount(deduction?.amount);
+          deductionRow[type] = formatAmount(deduction?.amount || 0);
         });
 
         uniqueAllowanceTypes.forEach((type) => {
           const allowance = allowances.find((a: any) => a.type === type);
-          allowanceRow[type] = formatAmount(allowance?.amount);
+          allowanceRow[type] = formatAmount(allowance?.amount || 0);
         });
 
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m: any) => m.type === type);
           meritRow[type.replace(/\s+/g, '').toLowerCase()] = formatAmount(
-            merit?.amount,
+            merit?.amount || 0,
           );
         });
 
@@ -386,7 +403,7 @@ const Payroll = () => {
           ...Array.from(uniqueTypes).map((type) => ({
             header: columnHeaderMap.get(type) || type,
             key: type,
-            minWidth: 12, // Ensure readable width
+            minWidth: 12,
           })),
           ...(sheetName !== 'Payrolls'
             ? [{ header: `Total ${sheetName}`, key: totalKey, minWidth: 18 }]
@@ -397,11 +414,65 @@ const Payroll = () => {
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
-          width: Math.max(col.header.length + 2, col.minWidth || 10), // Ensure a minimum width
+          width: Math.max(col.header.length + 2, col.minWidth || 10),
         }));
 
         // **Add Data Rows**
         data.forEach((row) => sheet.addRow(row));
+
+        // **Calculate and Add Total Row**
+        if (data.length > 0) {
+          const totalRow: any = { fullName: 'Total' };
+
+          // Calculate totals for each column
+          headers.forEach((col) => {
+            if (col.key !== 'fullName') {
+              let sum = 0;
+              let hasValidNumbers = false;
+
+              data.forEach((row) => {
+                const value = row[col.key];
+                if (value) {
+                  // Handle both string and number values
+                  const numValue =
+                    typeof value === 'string'
+                      ? parseFloat(value.replace(/,/g, ''))
+                      : Number(value);
+
+                  if (!isNaN(numValue)) {
+                    sum += numValue;
+                    hasValidNumbers = true;
+                  }
+                }
+              });
+
+              // Only add total if we found valid numbers
+              if (hasValidNumbers) {
+                totalRow[col.key] = sum.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                });
+              } else {
+                totalRow[col.key] = '';
+              }
+            }
+          });
+
+          // Add the total row
+          // const totalRowIndex = data.length + 2; // +1 for header, +1 for 1-based index
+          const totalRowAdded = sheet.addRow(totalRow);
+
+          // Style the total row
+          totalRowAdded.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFE6E6E6' }, // Light gray background
+            };
+            cell.alignment = { horizontal: 'right' };
+          });
+        }
 
         // **Style Header Row**
         sheet.getRow(1).eachCell((cell) => {
@@ -413,6 +484,16 @@ const Payroll = () => {
           cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
+
+        // **Style Data Rows**
+        for (let i = 2; i <= data.length + 1; i++) {
+          sheet.getRow(i).eachCell((cell) => {
+            if (Number(cell.col) > 1) {
+              // Skip the Full Name column
+              cell.alignment = { horizontal: 'right' };
+            }
+          });
+        }
 
         return sheet;
       };
