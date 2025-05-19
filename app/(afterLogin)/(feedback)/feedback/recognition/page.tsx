@@ -25,6 +25,7 @@ import { CiMedal } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 import RecognitionTypeModal from './_components/recognitionTypeModal';
 import EmployeeRecognitionModal from './_components/EmployeeRecognitionModal';
+import CustomPagination from '@/components/customPagination';
 function Page() {
   const {
     updateSearchValue,
@@ -35,6 +36,8 @@ function Page() {
     setFiscalActiveYearId,
     current,
     pageSize,
+    setCurrent,
+    setPageSize,
     visible,
     visibleEmployee,
     setVisible,
@@ -235,7 +238,6 @@ function Page() {
   function handleRecognitionModal() {
     setVisible(true);
   }
-
   return (
     <div>
       <Tabs
@@ -279,17 +281,26 @@ function Page() {
           <Table<any>
             columns={columns}
             dataSource={getAllRecognition?.items ?? []}
-            pagination={{
-              total: getAllRecognition?.meta?.total ?? 0, // Total number of items
-              current: getAllRecognition?.meta?.currentPage ?? 1, // Current page
-              pageSize: getAllRecognition?.meta?.itemsPerPage ?? 10, // Items per page
-            }}
+            pagination={false}
             scroll={{ x: 800 }} // Enable horizontal scrolling
             className="cursor-pointer"
             onRow={(record) => ({
               onClick: () => handleRowClick(record), // Add click handler
             })}
             loading={isLoading}
+          />
+          <CustomPagination
+            current={getAllRecognition?.meta?.currentPage || 1}
+            total={getAllRecognition?.meta?.totalItems || 1}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setCurrent(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrent(1);
+            }}
           />
         </TabLandingLayout>
         <RecognitionTypeModal

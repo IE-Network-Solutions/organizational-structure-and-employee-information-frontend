@@ -23,6 +23,7 @@ import { useAllApproval } from '@/store/server/features/approver/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
 
 const TnaRequestSidebar = () => {
   const {
@@ -102,10 +103,7 @@ const TnaRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
-          ? 'You lack an assigned approver.'
-          : 'Request',
+      label: 'Request',
       key: 'request',
       className: 'h-14',
       type: 'primary',
@@ -114,6 +112,10 @@ const TnaRequestSidebar = () => {
       onClick: () => form.submit(),
       disabled:
         approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
+      title:
+        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
+          ? 'You lack an assigned approver.'
+          : undefined,
     },
   ];
 
@@ -147,7 +149,7 @@ const TnaRequestSidebar = () => {
         open={isShowTnaReviewSidebar}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-center text-xl font-extrabold p-2 ">
             TNA Request
           </CustomDrawerHeader>
         }
@@ -223,7 +225,7 @@ const TnaRequestSidebar = () => {
             <InputNumber
               id="tnaTraniningPriceFieldId"
               min={0}
-              suffix={'$'}
+              suffix={<AiOutlineDollarCircle />}
               className="control-number"
             />
           </Form.Item>

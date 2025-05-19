@@ -41,20 +41,20 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       open={open}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
-          Add Candidate to Talent pool{' '}
+        <div className="flex justify-start  text-xl font-extrabold text-gray-800 py-3">
+          Add Candidate to Talent pool
         </div>
       }
       width="30%"
       footer={
-        <div className="flex justify-center  items-center bottom-8 space-x-5">
+        <div className="flex justify-center items-center space-x-5 p-2">
           <Button
             onClick={onClose}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300 "
+            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300 "
           >
             Cancel
           </Button>
-          <Button className=" p-4 px-10 h-12" type="primary" onClick={onSubmit}>
+          <Button className=" p-4 px-10 h-10" type="primary" onClick={onSubmit}>
             Submit
           </Button>
         </div>

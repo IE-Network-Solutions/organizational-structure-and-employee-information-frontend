@@ -132,9 +132,10 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
   }, [childDepartment, rootDepartment, orgStructureData]);
 
   return (
-    <Form layout="vertical" form={form}>
+    <Form className="pr-10" layout="vertical" form={form}>
       <Form.Item
         label="Select the teams to transfer from"
+        className="mb-1"
         name="Transfer From teams"
         rules={[
           {
@@ -147,6 +148,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
           mode="multiple"
           placeholder="Select the teams to transfer from"
           style={{ width: '100%' }}
+          className="h-10"
           value={childDepartment.map((child) => child.id)}
           onChange={handleChildDepartmentsChange}
           options={OPTIONS?.filter(
@@ -164,6 +166,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
       <Form.Item
         label="Select the team to transfer to"
         name="Transfer to team"
+        className="mb-1"
         rules={[
           { required: true, message: 'Please select the team to transfer' },
         ]}
@@ -173,6 +176,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
           style={{ width: '100%' }}
           placeholder="Select the team to transfer to"
           optionFilterProp="label"
+          className="h-10"
           value={rootDepartment?.id}
           onChange={handleRootDepartmentChange}
           options={OPTIONS?.filter(
@@ -183,9 +187,9 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
       </Form.Item>
 
       <Form.Item>
-        <p style={{ color: '#595959' }}>
-          <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
-          whole company structure
+        <p style={{ color: '#595959', fontSize: '12px' }}>
+          <span style={{ marginRight: '8px' }}>ⓘ</span>
+          This will affect the whole company structure
         </p>
       </Form.Item>
     </Form>
@@ -284,7 +288,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   ]);
 
   return (
-    <Form layout="vertical" className="flex flex-col gap-2" form={form}>
+    <Form layout="vertical" className="flex flex-col gap-2 pr-10" form={form}>
       <Form.Item
         label="New Merged Department Name"
         name="mergedDeptName"
@@ -296,7 +300,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         ]}
       >
         <Input
-          className="h-12"
+          className="h-10 mt-2"
           placeholder="Enter merged department name"
           value={mergedDeptName}
           onChange={(e) => setMergedDeptName(e.target.value)}
@@ -310,7 +314,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         ]}
       >
         <Select
-          className="h-12"
+          className="h-10 mt-2"
           placeholder="Select the team to merge from"
           style={{ width: '100%' }}
           options={OPTIONS?.filter(
@@ -337,7 +341,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
       >
         <Select
           disabled={!childDeptId}
-          className="h-12"
+          className="h-10 mt-2"
           placeholder="Select the team to merge into"
           style={{ width: '100%' }}
           options={OPTIONS?.filter(
@@ -362,7 +366,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         rules={[{ required: true, message: 'Please select a team leader' }]}
       >
         <Select
-          className="h-12"
+          className="h-10 mt-2"
           placeholder="Select a team leader"
           style={{ width: '100%' }}
           options={teamLeaderOptions}

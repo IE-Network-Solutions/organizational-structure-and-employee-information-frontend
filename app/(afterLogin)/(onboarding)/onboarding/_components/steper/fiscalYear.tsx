@@ -138,7 +138,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         >
           <Input
             size="large"
-            className="h-12 mt-2 w-full font-normal text-sm"
+            className="h-10 mt-2 w-full font-normal text-sm"
             placeholder="Enter session name"
           />
         </Form.Item>
@@ -155,7 +155,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
             >
               <DatePicker
                 onChange={(value: any) => handleStartDateChange(value)}
-                className="h-12 w-full font-normal text-xl mt-2"
+                className="h-10 w-full font-normal text-xl mt-2"
               />
             </Form.Item>
             {!isEditMode ? (
@@ -180,7 +180,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
             >
               <DatePicker
                 onChange={(value: any) => handleEndDateChange(value)}
-                className="h-12 w-full font-normal text-xl mt-2"
+                className="h-10 w-full font-normal text-xl mt-2"
               />
             </Form.Item>
           </Col>
@@ -203,7 +203,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         >
           <Select
             placeholder="Select Calendar"
-            className="h-12 w-full font-normal text-xl mt-2"
+            className="h-10 w-full font-normal text-xl mt-2"
             onChange={(value) => handleValuesChange(value)}
             defaultValue={
               isEditMode
@@ -242,18 +242,20 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
         </Form.Item>
 
         <Form.Item className="">
-          <div className="flex justify-center  w-full px-6 py-6 gap-6 my-3">
+          <div className="flex justify-center w-full p-6 sm:p-0">
             {departments?.length > 0 ? (
               <Button
+                type="default"
                 onClick={handleClose}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                className="h-[40px] sm:h-[56px] text-base"
               >
                 Cancel
               </Button>
             ) : null}
             <Button
+              type="primary"
               onClick={handleNext}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12  border-none"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               Next
             </Button>

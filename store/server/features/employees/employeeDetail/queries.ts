@@ -43,7 +43,7 @@ const getSimpleEmployee = async (id: string) => {
 export const useGetSimpleEmployee = (empId: string) =>
   useQuery<any>(['employee', empId], () => getSimpleEmployee(empId), {
     keepPreviousData: true,
-    // enabled: false,
+    enabled: !!empId,
   });
 export const useGetEmployee = (empId: string) =>
   useQuery<any>(['employeeItemData', empId], () => getEmployee(empId), {

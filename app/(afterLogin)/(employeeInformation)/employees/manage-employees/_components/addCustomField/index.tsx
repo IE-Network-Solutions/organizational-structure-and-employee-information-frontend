@@ -85,77 +85,80 @@ const AddCustomField: React.FC<any> = ({
   };
   const handleFormFailed = () => {};
   const popoverContent = (
-    <Form
-      layout="vertical"
-      form={form}
-      title={formTitle}
-      onFinish={onFinish}
-      onFinishFailed={handleFormFailed}
-      initialValues={{
-        fieldType,
-        isActive,
-        options,
-      }}
-    >
-      <Form.Item
-        label="Field Name"
-        name="fieldName"
-        rules={[{ required: true, message: 'Field Name is required' }]}
+    <div className="w-80">
+      <Form
+        layout="vertical"
+        form={form}
+        title={formTitle}
+        onFinish={onFinish}
+        onFinishFailed={handleFormFailed}
+        initialValues={{
+          fieldType,
+          isActive,
+          options,
+        }}
       >
-        <Input
-          value={fieldName}
-          onChange={(e) => setFieldName(e.target.value)}
-        />
-      </Form.Item>
-      <Form.Item
-        label="Field Type"
-        name="fieldType"
-        rules={[{ required: true, message: 'Field Type is required' }]}
-      >
-        <Select value={fieldType} onChange={(value) => setFieldType(value)}>
-          <Option value="input">Input</Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item
-        label="Field Validation"
-        name="fieldValidation"
-        rules={[{ required: true, message: 'Field Validation is required' }]}
-      >
-        <Select>
-          <Option value="text">Text</Option>
-          <Option value="number">Number</Option>
-          <Option value="email">Email</Option>
-          <Option value="date">Date</Option>
-          <Option value="url">URL</Option>
-          <Option value="any">any</Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item label="Is Active" name="isActive" valuePropName="checked">
-        <Switch
-          checked={isActive}
-          onChange={(checked) => setIsActive(checked)}
-        />
-      </Form.Item>
-      <Divider />
-      <Form.Item>
-        <Button
-          type="primary"
-          id={`addField${formTitle}`}
-          htmlType="submit"
-          style={{ width: '100%' }}
+        <Form.Item
+          label="Field Name"
+          name="fieldName"
+          rules={[{ required: true, message: 'Field Name is required' }]}
         >
-          Add Field
-        </Button>
-      </Form.Item>
-    </Form>
+          <Input
+            className="mt-2"
+            value={fieldName}
+            onChange={(e) => setFieldName(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Field Type"
+          name="fieldType"
+          rules={[{ required: true, message: 'Field Type is required' }]}
+        >
+          <Select value={fieldType} onChange={(value) => setFieldType(value)}>
+            <Option value="input">Input</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          label="Field Validation"
+          name="fieldValidation"
+          rules={[{ required: true, message: 'Field Validation is required' }]}
+        >
+          <Select>
+            <Option value="text">Text</Option>
+            <Option value="number">Number</Option>
+            <Option value="email">Email</Option>
+            <Option value="date">Date</Option>
+            <Option value="url">URL</Option>
+            <Option value="any">any</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Is Active" name="isActive" valuePropName="checked">
+          <Switch
+            checked={isActive}
+            onChange={(checked) => setIsActive(checked)}
+          />
+        </Form.Item>
+        <Divider />
+        <Form.Item>
+          <Button
+            type="primary"
+            id={`addField${formTitle}`}
+            htmlType="submit"
+            style={{ width: '100%' }}
+          >
+            Add Field
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
   );
 
   return (
-    <Card>
+    <Card bordered={false} bodyStyle={{ padding: 0, border: 'none' }}>
       <Row gutter={16}>
-        <Col xs={24} sm={24} className="flex justify-center items-center">
+        <Col xs={24} sm={24} className="flex justify-center items-center ">
           <Form.Item className="font-semibold text-xs">
             <Popover content={popoverContent} title={formTitle} trigger="click">
               <Button

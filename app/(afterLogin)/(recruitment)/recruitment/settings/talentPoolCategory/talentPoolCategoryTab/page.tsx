@@ -40,6 +40,7 @@ function TalentPoolCategoryTab() {
             type="primary"
             id="createTalentPoolButton"
             onClick={openDrawer}
+            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
           >
             <span className="hidden lg:inline"> Talent Pool Category</span>

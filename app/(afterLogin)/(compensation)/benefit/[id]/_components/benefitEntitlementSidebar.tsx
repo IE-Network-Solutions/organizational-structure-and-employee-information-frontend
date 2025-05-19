@@ -101,7 +101,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: createBenefitLoading,
       onClick: () => onClose(),
@@ -109,7 +109,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     {
       label: <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: createBenefitLoading,
@@ -226,23 +226,29 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         onClose={onClose}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            <span>{title}</span>
+            <span className="text-2xl">{title}</span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="600px"
       >
         <Spin spinning={allUserLoading || payLoading}>
           <Form
             layout="vertical"
+            className="p-2"
             form={form}
             onFinish={onFormSubmit}
             requiredMark={CustomLabel}
           >
-            <div className="grid grid-cols-2 gap-4 mb-1">
+            <div className="grid grid-cols-2 gap-4">
               <Form.Item required name="totalAmount" label="Total Amount">
                 <InputNumber
-                  className="w-full h-10"
+                  className="w-full h-10 mt-2"
                   value={totalAmount}
                   onChange={(value) => setTotalAmount(value || 0)}
                 />
@@ -253,7 +259,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 label="Settlement Period"
               >
                 <InputNumber
-                  className="w-full h-10"
+                  className="w-full h-10 mt-2"
                   value={settlementPeriod}
                   onChange={(value) => setSettlementPeriod(value || 0)}
                 />
@@ -278,7 +284,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               <Select
                 loading={depLoading}
                 placeholder="Select a department"
-                className="w-full"
+                className="w-full h-10 mt-2"
                 allowClear
                 showSearch
                 onChange={(value) => handleDepartmentChange(value)}
@@ -305,7 +311,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 showSearch
                 placeholder="Select a person"
                 mode="multiple"
-                className="w-full min-h-10"
+                className="w-full h-10 mt-2"
                 allowClear
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')

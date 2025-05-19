@@ -13,6 +13,7 @@ interface CustomDrawerLayoutProps {
   paddingBottom?: number;
   footer?: React.ReactNode | null;
   hideButton?: boolean;
+  customMobileHeight?: string | null;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -24,6 +25,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   hideButton = false,
   footer = null,
   paddingBottom = 50,
+  customMobileHeight = null,
 }) => {
   // Default width
   const {
@@ -62,7 +64,6 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   return (
     <div>
       <>
-        {' '}
         {open && !hideButton && (
           <Button
             id="closeSidebarButton"
@@ -89,14 +90,24 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         closable={false}
         onClose={onClose}
         open={open}
-        style={{ paddingBottom: paddingBottom }}
+        style={{ paddingBottom: isMobile ? 0 : paddingBottom }}
         footer={footer}
         styles={{
-          header: { borderBottom: 'none' },
-          footer: { borderTop: 'none' },
+          header: {
+            borderBottom: 'none',
+            padding: isMobile ? '24px 12px' : '24px 36px',
+          },
+          footer: {
+            borderTop: 'none',
+            paddingBlock: isMobile ? 0 : 8,
+            paddingInline: isMobile ? 0 : 16,
+            boxShadow: isMobile ? '0px 10px 50px 0px #00000033' : 'none',
+          },
           body: { padding: isMobile ? '0 12px' : '0 36px' },
         }}
-        height={isMobile ? 600 : 400}
+        height={
+          customMobileHeight ? customMobileHeight : isMobile ? '65vh' : 400
+        }
         placement={placement}
       >
         {children}

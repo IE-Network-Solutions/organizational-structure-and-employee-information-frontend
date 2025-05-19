@@ -34,7 +34,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
 
   return (
     <Header
-      className="flex justify-between items-center bg-white shadow-md w-[90%] md:w-full"
+      className="flex justify-between items-center bg-white w-[90%] md:w-full"
       style={{
         padding: '0 20px',
       }}

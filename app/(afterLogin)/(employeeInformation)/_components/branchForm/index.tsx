@@ -49,7 +49,7 @@ const BranchForm: React.FC<{
       }}
       open={formOpen}
       footer={
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: 'center' }}>
           <Space>
             <Button
               id={

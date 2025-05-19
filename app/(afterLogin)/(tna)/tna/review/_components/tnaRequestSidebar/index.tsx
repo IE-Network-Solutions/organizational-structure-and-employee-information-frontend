@@ -25,6 +25,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
 const { Option } = Select;
 
 const TnaRequestSidebar = () => {
@@ -99,7 +100,7 @@ const TnaRequestSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
@@ -110,7 +111,7 @@ const TnaRequestSidebar = () => {
           ? 'You lack an assigned approver.'
           : 'Request',
       key: 'request',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
@@ -190,21 +191,22 @@ const TnaRequestSidebar = () => {
         open={isShowTnaReviewSidebar}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start">
             TNA Request
           </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
-            className="w-1/2 mx-auto"
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
           />
         }
-        width="30%"
+        width="40%"
       >
         <Form
           layout="vertical"
           form={form}
+          className="p-2"
           disabled={isLoading || isFetching}
           onFinish={onFinish}
           requiredMark={CustomLabel}
@@ -215,7 +217,7 @@ const TnaRequestSidebar = () => {
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
           >
-            <Input id="tnaRequestTitleFieldId" className="control" />
+            <Input id="tnaRequestTitleFieldId" className="control h-10" />
           </Form.Item>
 
           <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />
@@ -227,7 +229,7 @@ const TnaRequestSidebar = () => {
             <Select
               placeholder="department data"
               allowClear
-              style={{ width: '100%', height: '48px' }}
+              style={{ width: '100%', height: '40px' }}
             >
               {departmentData?.map((department: any) => (
                 <Option key={department.id} value={department.id}>
@@ -250,7 +252,7 @@ const TnaRequestSidebar = () => {
               id="tnaCategoryOptionFieldId"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown size={16} className="text-gray-900 h-10" />
               }
               placeholder="Select"
               options={formatToOptions(
@@ -271,7 +273,7 @@ const TnaRequestSidebar = () => {
               id="currencyId"
               className="control"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown size={16} className="text-gray-900 h-10" />
               }
               placeholder="Select"
               options={formatToOptions(tnaCurrency, 'code', 'id')}
@@ -286,8 +288,8 @@ const TnaRequestSidebar = () => {
             <InputNumber
               id="tnaTraniningPriceFieldId"
               min={0}
-              suffix={'$'}
-              className="control-number"
+              suffix={<AiOutlineDollarCircle />}
+              className="control-number h-10"
             />
           </Form.Item>
           <Form.Item
@@ -297,7 +299,7 @@ const TnaRequestSidebar = () => {
           >
             <Input.TextArea
               id="tnaDetailInformationFieldId"
-              className="control-tarea"
+              className="control-tarea h-24"
               rows={6}
               placeholder="Enter brief reason for your training of choice"
             />

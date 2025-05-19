@@ -45,7 +45,6 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     filterOption,
     setFilterOption,
     dateRange,
-    selectedRowKeys,
     setSelectedRowKeys,
     resetSelection,
   } = useRecongnitionStore();
@@ -57,27 +56,44 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
 
   const issuerId = useAuthenticationStore.getState().userId;
 
-  const filteredEmployees = employeesList?.filter((employee: any) => {
-    // First filter by selectedEmployeeId if it exists
-    if (selectedEmployeeId) {
-      return employee?.recipientId === selectedEmployeeId;
-    }
+  const filteredEmployees = React.useMemo(() => {
+    const baseFilter =
+      employeesList?.filter((employee: any) => {
+        if (selectedEmployeeId) {
+          return employee?.recipientId === selectedEmployeeId;
+        }
 
-    // Then filter by filterOption (selected, not selected, or all)
-    if (filterOption === 'selected') {
-      return selectedEmployees.some(
-        (e: any) => e.recipientId === employee.recipientId,
-      ); // Show only selected employees
-    }
-    if (filterOption === 'notSelected') {
-      return !selectedEmployees.some(
-        (e: any) => e.recipientId === employee.recipientId,
-      ); // Show only unselected employees
-    }
+        if (filterOption === 'selected') {
+          return selectedEmployees.some(
+            (e: any) => e.recipientId === employee.recipientId,
+          );
+        }
 
-    // If no filterOption is selected, return all employees
-    return true;
-  });
+        if (filterOption === 'notSelected') {
+          return !selectedEmployees.some(
+            (e: any) => e.recipientId === employee.recipientId,
+          );
+        }
+
+        return true;
+      }) || [];
+
+    const missingSelected = selectedEmployees.filter(
+      (sel: any) =>
+        !baseFilter.some((emp: any) => emp.recipientId === sel.recipientId),
+    );
+
+    const merged = [...baseFilter, ...missingSelected];
+
+    // Add default fields to any employee who doesn't have them
+    return merged.map((emp: any) => ({
+      ...emp,
+      recipientId: emp.recipientId ?? emp.id, // make sure this is set
+      criteriaScore: emp.criteriaScore ?? [],
+      totalPoints: emp.totalPoints ?? 0,
+    }));
+  }, [employeesList, selectedEmployeeId, filterOption, selectedEmployees]);
+
   const { data: employeeData } = useGetAllUsers();
 
   const EmpRender = ({ userId }: any) => {
@@ -146,10 +162,20 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     },
   ];
   const rowSelection = {
-    selectedRowKeys,
-    onChange: (keys: React.Key[], selectedRows: any) => {
+    selectedRowKeys: selectedEmployees.map((emp: any) => emp.recipientId),
+    onChange: (keys: React.Key[]) => {
+      const updatedSelection = keys.map((key) => {
+        const found = filteredEmployees.find((emp) => emp.recipientId === key);
+        return {
+          recipientId: found.recipientId ?? found.id,
+          ...found,
+          criteriaScore: found.criteriaScore ?? [],
+          totalPoints: found.totalPoints ?? 0,
+        };
+      });
+
       setSelectedRowKeys(keys);
-      setSelectedEmployees(selectedRows);
+      setSelectedEmployees(updatedSelection);
     },
   };
 
@@ -189,7 +215,6 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
     setSelectedEmployeeId('');
     setSelectedRowKeys([]); // Reset selected rows
   };
-
   return (
     <Modal
       open={visible}
@@ -254,14 +279,18 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             allowClear
             onChange={(value) => setFilterOption(value)}
             className="col-span-4 h-10"
-            placeholder="Filter Option"
+            placeholder="Filter  By Selection"
           >
             <Option value="all">All</Option>
             <Option value="selected">Selected</Option>
             <Option value="notSelected">Not Selected</Option>
           </Select>
         </div>
+        <p className="text-sm text-gray-500 mt-2">
+          {selectedEmployees.length} employee(s) selected across filters.
+        </p>
         <Table
+          key={filterOption} // forces remount on filter change
           rowSelection={{ type: 'checkbox', ...rowSelection }}
           columns={columns}
           dataSource={filteredEmployees}

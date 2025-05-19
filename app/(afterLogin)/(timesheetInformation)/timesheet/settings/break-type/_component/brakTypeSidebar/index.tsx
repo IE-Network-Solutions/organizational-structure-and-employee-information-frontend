@@ -21,7 +21,7 @@ const BreakTypeSidebar = () => {
   const [form] = Form.useForm();
   const { mutate: setBreakType } = useSetBreakType();
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
   React.useEffect(() => {
     if (selectedBreakType) {
       const formattedBreakType = {
@@ -36,7 +36,7 @@ const BreakTypeSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => {
         setIsShow(false), form.resetFields();
@@ -46,7 +46,7 @@ const BreakTypeSidebar = () => {
     {
       label: selectedBreakType ? 'Edit' : 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       onClick: () => form.submit(),
@@ -84,8 +84,16 @@ const BreakTypeSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => setIsShow(false)}
-        modalHeader={<CustomDrawerHeader>Break Type</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Break Type</CustomDrawerHeader>
+          </div>
+        }
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Form
@@ -96,7 +104,7 @@ const BreakTypeSidebar = () => {
           className={itemClass}
           onFinish={onFinish}
         >
-          <Space direction="vertical" className="w-full" size={24}>
+          <Space.Compact direction="vertical" className="w-full px-3 sm:px-0 ">
             <Form.Item
               id="breakTypeNameFieldId"
               label="Break Type Name"
@@ -110,19 +118,17 @@ const BreakTypeSidebar = () => {
             >
               <Input className={controlClass} />
             </Form.Item>
-
             <Form.Item
               id="BreakTypeDescriptionFieldId"
               label="Break Type Description"
               name="description"
             >
               <Input.TextArea
-                className="w-full py-4 px-5 mt-2.5"
+                className="w-full h-36 px-5 mt-2.5"
                 placeholder="Description"
                 rows={6}
               />
             </Form.Item>
-
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
@@ -162,7 +168,7 @@ const BreakTypeSidebar = () => {
                 </Form.Item>
               </Col>
             </Row>
-          </Space>
+          </Space.Compact>
         </Form>
       </CustomDrawerLayout>
     )

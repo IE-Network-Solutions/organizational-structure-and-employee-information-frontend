@@ -25,7 +25,7 @@ const Workflow = () => {
           <Button
             title="Set Approval"
             id="createUserButton"
-            className="h-10 w-10 sm:w-auto"
+            className="h-10 w-10 sm:w-auto hidden sm:block"
             icon={<FaPlus />}
             onClick={handleNavigation}
             type="primary"

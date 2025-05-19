@@ -139,6 +139,7 @@ const CustomWorkingScheduleDrawer = () => {
           <div className="flex gap-2 md:gap-4 justify-start items-center">
             <Switch
               checked={record.status}
+              size="small"
               onChange={(checked) =>
                 setDetail(record.dayOfWeek, { status: checked })
               }
@@ -158,12 +159,13 @@ const CustomWorkingScheduleDrawer = () => {
             format="h:mm A"
             disabled={!record.status}
             use12Hours
-            className="min-w-[100px]"
+            className="min-w-[90px] h-7 custom-timepicker"
             onChange={(time) =>
               setDetail(record.dayOfWeek, {
                 startTime: time ? dayjs(time).format('h:mm A') : '',
               })
             }
+            size="small"
           />
         </Form.Item>
       ),
@@ -178,12 +180,13 @@ const CustomWorkingScheduleDrawer = () => {
             format="h:mm A"
             disabled={!record.status}
             use12Hours
-            className="min-w-[100px]"
+            className="min-w-[90px] h-7 custom-timepicker"
             onChange={(time) =>
               setDetail(record.dayOfWeek, {
                 endTime: time ? dayjs(time).format('h:mm A') : '',
               })
             }
+            size="small"
           />
         </Form.Item>
       ),
@@ -199,14 +202,13 @@ const CustomWorkingScheduleDrawer = () => {
             const end = getFieldValue(`${record.dayOfWeek}-end`);
             const duration =
               start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
+            const hours = Math.floor(duration);
+            const minutes = Math.round((duration - hours) * 60);
             return (
-              <span>
+              <span className="inline-block py-1 px-4 border rounded-lg bg-white text-[10px] min-w-[70px] text-center text-[#1a202c]">
                 {record.status
-                  ? duration
-                    ? duration.toFixed(1)
-                    : record.hours.toFixed(1)
-                  : ''}
-                h
+                  ? `${hours}h ${minutes.toString().padStart(2, '0')}m`
+                  : '0h 00m'}
               </span>
             );
           }}
@@ -218,33 +220,28 @@ const CustomWorkingScheduleDrawer = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-2xl font-semibold">Add New Work Schedule</h1>
+        <h1 className="text-base font-semibold">Add New Work Schedule</h1>
       }
       onClose={handleCancel}
       open={isOpen}
-      width="40%"
+      width="45%"
       footer={
-        <div className="flex justify-between items-center w-full">
-          <div className="flex justify items-center gap-2 mt-4">
-            <span>Total Working hours:</span>
-            <span className="mr-4">{standardHours.toFixed(1) ?? '-'}</span>
+        <div className="flex justify-between items-center w-full my-1 pb-3">
+          <div className="flex justify-start items-center gap-2 mt-4 mx-1">
+            <span className="text-xs font-semibold text-nowrap ">
+              Total Working hours:
+            </span>
+            <span className="mr-4 text-primary text-xs font-semibold text-nowrap">
+              {standardHours.toFixed(1) ?? '-'} / Week
+            </span>
           </div>
-          <div className="flex gap-4 mt-4 mr-8">
-            <Button type="default" onClick={handleCancel}>
+          <div className="flex gap-2 mt-4 mr-8">
+            <Button type="default" className="font-md" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" onClick={handleSubmit}>
+            <Button type="primary" className="font-md" onClick={handleSubmit}>
               {isEditMode ? 'Update' : 'Create'}
             </Button>
-            {/* <CustomButton
-              className="bg-gray-200 text-gray-700 hover:bg-gray-300"
-              title="Cancel"
-              onClick={handleCancel}
-            />
-            <CustomButton
-              title={isEditMode ? 'Update' : 'Create'}
-              onClick={handleSubmit}
-            /> */}
           </div>
         </div>
       }
@@ -262,11 +259,13 @@ const CustomWorkingScheduleDrawer = () => {
         >
           <Input
             size="large"
+            className="h-10"
             placeholder="Enter your schedule name"
             value={scheduleName}
             onChange={(e) => setScheduleName(e.target.value)}
           />
         </Form.Item>
+        <h1 className="text-base m-3">Working hours</h1>
         <Table
           columns={columns}
           dataSource={detail}

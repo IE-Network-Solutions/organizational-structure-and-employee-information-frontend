@@ -32,7 +32,6 @@ const FiscalYearForm: React.FC = () => {
     isFormValid,
     setIsFormValid,
     fiscalYearFormValues,
-    resetFormState,
     calendarType,
     setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
@@ -96,30 +95,73 @@ const FiscalYearForm: React.FC = () => {
     setSelectedFiscalYear(null);
     setCalendarType('');
     setOpenFiscalYearDrawer(false);
-    resetFormState();
   };
 
-  const handleValuesChange = (val: string) => setCalendarType(val);
-  const handleStartDateChange = (val: any) => setFiscalYearStart(val);
-  const handleEndDateChange = (val: any) => setFiscalYearEnd(val);
+  // const handleValuesChange = (val: string) => setCalendarType(val);
+  // const handleStartDateChange = (val: any) => setFiscalYearStart(val);
+  // const handleEndDateChange = (val: any) => setFiscalYearEnd(val);
 
-  const handleNext = () => {
-    if (isEditMode) {
-      // In edit mode, skip validation and proceed
+  // const handleNext = () => {
+  //   const currentValues = form.getFieldsValue();
+  //   setFiscalYearFormValues(currentValues);
+  //   setCurrent(1);
+  // };
+
+  useEffect(() => {
+    if (isEditMode && selectedFiscalYear) {
+      const sessionCount = selectedFiscalYear?.sessions?.length;
+      let calendarType = '';
+      if (sessionCount === 4) {
+        calendarType = 'Quarter';
+      } else if (sessionCount === 2) {
+        calendarType = 'Semester';
+      } else if (sessionCount === 1) {
+        calendarType = 'Year';
+      }
+
+      setCalendarType(calendarType);
+
+      form.setFieldsValue({
+        fiscalYearName: selectedFiscalYear?.name,
+        fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
+        fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
+        fiscalYearCalenderId: `${calendarType}`,
+        fiscalYearDescription: dayjs(selectedFiscalYear?.description),
+      });
+    }
+  });
+
+  const handleValuesChange = (val: string) => {
+    try {
+      setCalendarType(val);
+    } catch (error) {
+      message.error('Failed to update calendar type. Please try again.');
+    }
+  };
+
+  const handleStartDateChange = (val: any) => {
+    try {
+      setFiscalYearStart(val);
+    } catch (error) {
+      message.error('Failed to update start date. Please try again.');
+    }
+  };
+
+  const handleEndDateChange = (val: any) => {
+    try {
+      setFiscalYearEnd(val);
+    } catch (error) {
+      message.error('Failed to update end date. Please try again.');
+    }
+  };
+
+  const handleNext = async () => {
+    try {
       const currentValues = form.getFieldsValue();
       setFiscalYearFormValues(currentValues);
       setCurrent(1);
-    } else {
-      // Not in edit mode, validate fields before proceeding
-      form
-        .validateFields()
-        .then((currentValues) => {
-          setFiscalYearFormValues(currentValues);
-          setCurrent(1);
-        })
-        .catch(() => {
-          // Validation failed, do nothing or show error
-        });
+    } catch (error) {
+      message.error('Failed to proceed to next step. Please try again.');
     }
   };
 
@@ -268,6 +310,7 @@ const FiscalYearForm: React.FC = () => {
         id="fiscalYearCalenderId"
         name="fiscalYearCalenderId"
         label={<span className="font-medium">Fiscal Year Calendar</span>}
+        initialValue={calendarType}
         rules={[{ required: true, message: 'Please select a calendar type!' }]}
       >
         <Select
@@ -282,19 +325,20 @@ const FiscalYearForm: React.FC = () => {
         </Select>
       </Form.Item>
 
-      <Form.Item className="mb-5">
-        <div className="flex justify-center w-full mt-40 space-x-5">
+      <Form.Item className="">
+        <div className="flex justify-center w-full space-x-5 p-6 sm:p-0 ">
           {departments?.length > 0 && (
             <Button
+              type="default"
               onClick={handleClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="h-[40px] sm:h-[56px] text-base"
             >
               Cancel
             </Button>
           )}
           <Tooltip
             title={
-              !isEditMode && !isFormValid
+              !isFormValid
                 ? 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
                 : ''
             }
@@ -302,8 +346,8 @@ const FiscalYearForm: React.FC = () => {
           >
             <Button
               onClick={handleNext}
-              disabled={!isEditMode && !isFormValid}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              disabled={!isFormValid}
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
             >
               Next
             </Button>

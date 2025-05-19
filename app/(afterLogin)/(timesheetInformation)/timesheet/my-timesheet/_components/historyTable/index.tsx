@@ -27,6 +27,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { FaPlus } from 'react-icons/fa';
 
 const HistoryTable = () => {
   const { userId } = useAuthenticationStore();
@@ -235,22 +236,24 @@ const HistoryTable = () => {
   };
 
   return (
-    <div className="bg-white p-4 pr-6 rounded-lg">
+    <div className="bg-white p-5 sm:p-6 rounded-lg">
       <div className="flex items-center justify-between mb-6">
-        <div className="text-2xl font-bold text-gray-900">My Leave</div>
+        <div className="text-sm sm:text-2xl font-bold text-gray-900">
+          Leave History
+        </div>
 
-        <div className="flex items-center">
+        <div className="flex ">
           {/* Mobile View Icons */}
           <div className="sm:hidden flex items-center">
-            <div className="h-12 flex items-center">
+            <div className="h-10 flex ">
               <HistoryTableFilter onChange={onFilterChange} />
             </div>
-            <div className="-mt-8">
+            <div className="">
               <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
                 <Button
                   size="large"
                   type="primary"
-                  className="h-12 w-12 flex items-center justify-center ml-3 mt-4"
+                  className="h-10 w-10 flex items-center justify-center ml-3"
                   onClick={() => isShow(true)}
                 >
                   <span className="text-xl font-medium text-white">+</span>
@@ -265,11 +268,11 @@ const HistoryTable = () => {
               <Button
                 size="large"
                 type="primary"
-                className="h-12 w-auto px-0 min-w-[48px] flex items-center justify-center"
+                icon={<FaPlus />}
+                className="h-12 px-5 flex items-center justify-center"
                 onClick={() => isShow(true)}
               >
-                <span className="text-xl font-medium text-white">+</span>
-                <span className="ml-2">Add New Request</span>
+                <span className="hidden sm:inline">Add New Request</span>
               </Button>
             </AccessGuard>
           </div>

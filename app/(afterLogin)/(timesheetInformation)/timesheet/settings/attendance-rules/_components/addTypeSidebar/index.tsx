@@ -62,7 +62,7 @@ const AddTypesSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -70,7 +70,7 @@ const AddTypesSidebar = () => {
     {
       label: attendanceTypeId ? 'Edit' : 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -79,7 +79,7 @@ const AddTypesSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px]  w-full';
 
   const unitOptions = [
     {
@@ -133,11 +133,17 @@ const AddTypesSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader>
-            {attendanceTypeId ? 'Edit' : 'Add'} Type
-          </CustomDrawerHeader>
+          <div className="px-2">
+            <CustomDrawerHeader>
+              {attendanceTypeId ? 'Edit' : 'Add'} Type
+            </CustomDrawerHeader>
+          </div>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Spin spinning={isFetching || isLoading}>
@@ -151,7 +157,10 @@ const AddTypesSidebar = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
           >
-            <Space direction="vertical" className="w-full" size={24}>
+            <Space.Compact
+              direction="vertical"
+              className="w-full px-3 sm:px-0 "
+            >
               <Form.Item
                 id="createAddTypeNameFieldId"
                 label="Type Name"
@@ -166,8 +175,8 @@ const AddTypesSidebar = () => {
                 rules={[{ required: true, message: 'Required' }]}
                 name="unit"
               >
-                <Radio.Group className="w-full mt-2.5">
-                  <Space direction="vertical" size={12} className="w-full">
+                <Radio.Group className={controlClass}>
+                  <Space direction="vertical" size={12} className="w-full mb-4">
                     {unitOptions.map((option) => (
                       <CustomRadio
                         key={option.value}
@@ -179,7 +188,7 @@ const AddTypesSidebar = () => {
                   </Space>
                 </Radio.Group>
               </Form.Item>
-            </Space>
+            </Space.Compact>
           </Form>
         </Spin>
       </CustomDrawerLayout>

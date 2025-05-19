@@ -9,7 +9,7 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import CustomButton from '@/components/common/buttons/customButton';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
 
 const { Option } = Select;
 
@@ -336,7 +336,7 @@ const OkrSearch: React.FC = () => {
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
               title=""
-              icon={<IoMdSwitch size={20} className="text-gray-900" />}
+              icon={<LuSettings2 size={20} />}
             />
           </div>
         </div>

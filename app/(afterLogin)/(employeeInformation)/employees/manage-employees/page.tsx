@@ -23,7 +23,7 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div className="h-auto w-full">
-      <BlockWrapper>
+      <BlockWrapper className="h-auto w-full bg-white">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
             title="Employees"
@@ -35,6 +35,7 @@ const ManageEmployees: React.FC<any> = () => {
                 type="primary"
                 size="large"
                 id="createUserButton"
+                className="h-10 w-10 sm:w-auto"
                 icon={<FaPlus />}
                 onClick={showDrawer}
               >
