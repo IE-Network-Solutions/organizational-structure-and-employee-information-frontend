@@ -5,6 +5,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface DrawerProps {
   form: FormInstance<any> | undefined;
@@ -61,6 +62,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
 
   const fiscalStart = fiscalYearStart ? fiscalYearStart.toDate() : new Date();
   const fiscalEnd = fiscalYearEnd ? fiscalYearEnd.toDate() : new Date();
+  const { isMobile } = useIsMobile();
 
   const startMonth = fiscalStart.getMonth() + 1;
   const endMonth = fiscalEnd.getMonth() + 1;
@@ -169,15 +171,15 @@ const MonthDrawer: React.FC<DrawerProps> = ({
   return (
     <>
       <div
-        className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full`}
+        className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0 items-center w-full h-full`}
       >
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
+        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2">
           Set up Month
         </div>
 
         {Object.entries(groupedMonths).map(([section, months]) => {
           return (
-            <div key={section} className="mb-6">
+            <div key={section} className="px-3 sm:px-0">
               {months.map((month, index) => {
                 const { startDate, endDate } = getMonthStartEndDates(month);
                 const monthName = `Month-${month}`;
@@ -261,8 +263,10 @@ const MonthDrawer: React.FC<DrawerProps> = ({
           );
         })}
 
-        <Form.Item>
-          <div className="flex justify-center gap-4 w-full p-6 sm:p-0">
+        <Form.Item className="mb-0">
+          <div
+            className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+          >
             <Button
               type="default"
               onClick={() => setCurrent(1)}

@@ -187,6 +187,7 @@ const PayPeriodSideBar = () => {
             form={form}
             onFinish={() => onFormSubmit()}
             requiredMark={CustomLabel}
+            className="px-3"
           >
             <Form.Item name="ActiveFiscalYear" label="Active Fiscal Year">
               <Select

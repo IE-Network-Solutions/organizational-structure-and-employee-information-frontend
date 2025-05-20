@@ -6,6 +6,7 @@ import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { generateSessionData } from '../sessionIdentifier';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface SessionDrawerProps {
   form: FormInstance;
@@ -51,6 +52,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       getNumberOfSessionsCalenderType(),
     ),
   );
+  const { isMobile } = useIsMobile();
 
   const validateSessionDates = (rule: any, value: any, callback: any) => {
     const startDate = value;
@@ -172,15 +174,15 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
   return (
     <div
-      className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full`}
+      className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0  items-center w-full h-full`}
     >
-      <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
+      <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2">
         Set up Session
       </div>
       <Form form={form} layout="vertical">
         {sessionData?.map((item, index) => {
           return (
-            <div className="my-3" key={index}>
+            <div className="px-3 sm:px-0" key={index}>
               <Form.Item
                 id={`sessionNameId_${index}`}
                 name={['sessionData', index, 'sessionName']}
@@ -280,19 +282,21 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           );
         })}
 
-        <Form.Item>
-          <div className="flex justify-center w-full px-6 py-6 gap-8 ">
+        <Form.Item className="mb-0">
+          <div
+            className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+          >
             <Button
               type="default"
               onClick={() => setCurrent(0)}
-              className="h-[40px] sm:h-[56px] text-base"
+              className="h-[40px] text-base px-10"
             >
               Previous
             </Button>
             <Button
               type="primary"
               onClick={handleNext}
-              className="h-[40px] sm:h-[56px] text-base"
+              className="h-[40px] text-base px-10"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <Spin />

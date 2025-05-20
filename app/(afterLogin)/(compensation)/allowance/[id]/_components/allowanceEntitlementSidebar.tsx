@@ -90,7 +90,7 @@ const AllowanceEntitlementSideBar = () => {
           />
         }
         width="600px"
-        customMobileHeight="40vh"
+        customMobileHeight="37vh"
       >
         <Spin spinning={allUserLoading}>
           <Form

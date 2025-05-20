@@ -183,7 +183,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
         </div>
       }
       width="600px"
-      customMobileHeight="45vh"
+      customMobileHeight={value === 'Formula' ? '70vh' : '45vh'}
     >
       <Form
         requiredMark={false}

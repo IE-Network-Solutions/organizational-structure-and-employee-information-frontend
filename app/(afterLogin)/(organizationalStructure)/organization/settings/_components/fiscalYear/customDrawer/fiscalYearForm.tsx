@@ -14,9 +14,11 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 import dayjs from 'dayjs';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useEffect } from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const FiscalYearForm: React.FC = () => {
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
 
   const {
     setCurrent,
@@ -227,131 +229,147 @@ const FiscalYearForm: React.FC = () => {
   }, [formValidation, setIsFormValid, calendarType]);
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onValuesChange={(nonused, allValues) => {
-        try {
-          setFormValidation({
-            fiscalYearName: allValues.fiscalYearName,
-            fiscalYearStartDate: allValues.fiscalYearStartDate,
-            fiscalYearEndDate: allValues.fiscalYearEndDate,
-          });
-        } catch (error) {
-          message.error('Failed to update form values. Please try again.');
-        }
-      }}
-    >
-      <Form.Item
-        id="fiscalNameId"
-        name="fiscalYearName"
-        label={<span className="font-medium">Fiscal Year Name</span>}
-        rules={[
-          { required: true, message: 'Please input the fiscal year name!' },
-        ]}
+    <div className="flex flex-col min-h-[100vh]">
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={(nonused, allValues) => {
+          try {
+            setFormValidation({
+              fiscalYearName: allValues.fiscalYearName,
+              fiscalYearStartDate: allValues.fiscalYearStartDate,
+              fiscalYearEndDate: allValues.fiscalYearEndDate,
+            });
+          } catch (error) {
+            message.error('Failed to update form values. Please try again.');
+          }
+        }}
+        className="flex flex-col flex-grow"
       >
-        <Input
-          size="large"
-          className="h-12 mt-2 w-full font-normal text-sm"
-          placeholder="Enter fiscal year name"
-        />
-      </Form.Item>
-
-      <Row gutter={[16, 10]}>
-        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-          <Form.Item
-            id="fiscalYearStartDateId"
-            name="fiscalYearStartDate"
-            label={<span className="font-medium">Start Date</span>}
-            rules={[
-              { required: true, message: 'Please select a start date!' },
-              { validator: validateStartDate },
-            ]}
-          >
-            <DatePicker
-              onChange={(value: any) => handleStartDateChange(value)}
-              className="h-12 w-full font-normal text-xl mt-2"
-            />
-          </Form.Item>
-          {!isEditMode ? (
-            <span className="text-xs font-normal mt-0 flex items-start mb-4 ml-1">
-              Active Calendar End date:
-              <span className="font-semibold">
-                {activeCalendar?.endDate
-                  ? dayjs(activeCalendar.endDate).format('YYYY-MM-DD')
-                  : 'N/A'}
-              </span>
-            </span>
-          ) : (
-            ''
-          )}
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-          <Form.Item
-            id="fiscalYearEndDateId"
-            name="fiscalYearEndDate"
-            label={<span className="font-medium"> End Date</span>}
-            rules={[
-              { required: true, message: 'Please select an end date!' },
-              { validator: validateEndDate },
-            ]}
-          >
-            <DatePicker
-              onChange={(value: any) => handleEndDateChange(value)}
-              className="h-12 w-full font-normal text-xl mt-2"
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Form.Item
-        id="fiscalYearCalenderId"
-        name="fiscalYearCalenderId"
-        label={<span className="font-medium">Fiscal Year Calendar</span>}
-        initialValue={calendarType}
-        rules={[{ required: true, message: 'Please select a calendar type!' }]}
-      >
-        <Select
-          placeholder="Select Calendar"
-          className="h-12 w-full font-normal text-xl mt-2"
-          onChange={(value) => handleValuesChange(value)}
-          value={calendarType}
-        >
-          <Select.Option value="Quarter">Quarter</Select.Option>
-          <Select.Option value="Semester">Semester</Select.Option>
-          <Select.Option value="Year">Year</Select.Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item className="">
-        <div className="flex justify-center w-full space-x-5 p-6 sm:p-0 ">
-          {departments?.length > 0 && (
-            <Button
-              type="default"
-              onClick={handleClose}
-              className="h-[40px] sm:h-[56px] text-base"
+        <div className="px-3 sm:px-0 flex-grow">
+          <div className="px-3 sm:px-0">
+            <Form.Item
+              id="fiscalNameId"
+              name="fiscalYearName"
+              label={<span className="font-medium">Fiscal Year Name</span>}
+              rules={[
+                {
+                  required: true,
+                  message: 'Please input the fiscal year name!',
+                },
+              ]}
             >
-              Cancel
-            </Button>
-          )}
-          <Tooltip
-            title={
-              !isFormValid
-                ? 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
-                : ''
-            }
-            placement="top"
-          >
-            <Button
-              onClick={handleNext}
-              disabled={!isFormValid}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              <Input
+                size="large"
+                className="h-12 mt-2 w-full font-normal text-sm"
+                placeholder="Enter fiscal year name"
+              />
+            </Form.Item>
+
+            <Row gutter={[16, 10]}>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Form.Item
+                  id="fiscalYearStartDateId"
+                  name="fiscalYearStartDate"
+                  label={<span className="font-medium">Start Date</span>}
+                  rules={[
+                    { required: true, message: 'Please select a start date!' },
+                    { validator: validateStartDate },
+                  ]}
+                >
+                  <DatePicker
+                    onChange={(value: any) => handleStartDateChange(value)}
+                    className="h-10 w-full font-normal text-xl mt-2"
+                  />
+                </Form.Item>
+                {!isEditMode ? (
+                  <span className="text-xs font-normal mt-0 flex items-start text-nowrap mb-4 ml-1">
+                    Active Calendar End date:
+                    <span className="font-semibold ">
+                      {activeCalendar?.endDate
+                        ? dayjs(activeCalendar.endDate).format('YYYY-MM-DD')
+                        : 'N/A'}
+                    </span>
+                  </span>
+                ) : (
+                  ''
+                )}
+              </Col>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Form.Item
+                  id="fiscalYearEndDateId"
+                  name="fiscalYearEndDate"
+                  label={<span className="font-medium"> End Date</span>}
+                  rules={[
+                    { required: true, message: 'Please select an end date!' },
+                    { validator: validateEndDate },
+                  ]}
+                >
+                  <DatePicker
+                    onChange={(value: any) => handleEndDateChange(value)}
+                    className="h-10 w-full font-normal text-xl mt-2"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item
+              id="fiscalYearCalenderId"
+              name="fiscalYearCalenderId"
+              label={<span className="font-medium">Fiscal Year Calendar</span>}
+              initialValue={calendarType}
+              rules={[
+                { required: true, message: 'Please select a calendar type!' },
+              ]}
             >
-              Next
-            </Button>
-          </Tooltip>
+              <Select
+                placeholder="Select Calendar"
+                className="h-10 w-full font-normal text-xl mt-2"
+                onChange={(value) => handleValuesChange(value)}
+                value={calendarType}
+              >
+                <Select.Option value="Quarter">Quarter</Select.Option>
+                <Select.Option value="Semester">Semester</Select.Option>
+                <Select.Option value="Year">Year</Select.Option>
+              </Select>
+            </Form.Item>
+          </div>
         </div>
-      </Form.Item>
-    </Form>
+
+        <Form.Item className="mb-0">
+          <div
+            className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${
+              isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'
+            }`}
+          >
+            {departments?.length > 0 && (
+              <Button
+                type="default"
+                onClick={handleClose}
+                className="h-[40px] text-base px-10"
+              >
+                Cancel
+              </Button>
+            )}
+            <Tooltip
+              title={
+                !isFormValid
+                  ? 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
+                  : ''
+              }
+              placement="top"
+            >
+              <Button
+                onClick={handleNext}
+                disabled={!isFormValid}
+                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              >
+                Next
+              </Button>
+            </Tooltip>
+          </div>
+        </Form.Item>
+      </Form>
+    </div>
   );
 };
 

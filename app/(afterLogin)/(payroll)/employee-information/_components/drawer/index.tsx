@@ -36,6 +36,7 @@ const Drawer: React.FC = () => {
       },
     );
   };
+  const firstName = selectedPayrollData?.name.split(' ')[0];
 
   useEffect(() => {
     if (selectedPayrollData && isEditMode) {
@@ -66,7 +67,9 @@ const Drawer: React.FC = () => {
         closeDrawer;
       }}
       modalHeader={
-        <span className="text-lg font-semibold">Payroll Information </span>
+        <span className="text-lg font-semibold flex justify-center px-4">
+          {`${firstName}'s Payroll Information`}
+        </span>
       }
       width="700px"
       footer={
