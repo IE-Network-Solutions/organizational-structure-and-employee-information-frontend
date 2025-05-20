@@ -1,6 +1,6 @@
 import React from 'react';
 import ExcelJS from 'exceljs';
-import { Button, Popover, Skeleton } from 'antd';
+import { Button, Popover } from 'antd';
 import { useExcelHeaders } from '@/store/server/features/incentive/all/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
@@ -20,7 +20,7 @@ const DownloadExcelButton: React.FC = () => {
   const handleTemplateDownload = async () => {
     if (excelHeaders?.length === 0) {
       NotificationMessage.warning({
-        message: ' Excel Headers are not loaded yet!',
+        message: ' Excel Headers are not loaded yet! Please Try Again',
       });
       return;
     }
@@ -61,10 +61,6 @@ const DownloadExcelButton: React.FC = () => {
     URL.revokeObjectURL(url); // Free up memory
   };
 
-  if (templateResponseLoading || responseLoading) {
-    return <Skeleton.Button active />;
-  }
-
   return childRecognitionData?.length > 0 ? (
     <Popover
       content={
@@ -86,6 +82,7 @@ const DownloadExcelButton: React.FC = () => {
       trigger="click"
     >
       <Button
+        loading={templateResponseLoading || responseLoading}
         style={{
           padding: '10px 20px',
           backgroundColor: '#B2B2FF',
@@ -102,6 +99,7 @@ const DownloadExcelButton: React.FC = () => {
     </Popover>
   ) : (
     <Button
+      loading={templateResponseLoading || responseLoading}
       style={{
         padding: '10px 20px',
         backgroundColor: '#B2B2FF',
