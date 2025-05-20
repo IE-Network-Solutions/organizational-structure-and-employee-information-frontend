@@ -48,12 +48,11 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   //   ===========> HTTP Requests <============
 
   const { data: incentiveData } = useIncentiveCriteria();
-  const { mutate: updateIncentiveFormula } = useUpdateIncentiveFormula();
-  const { mutate: createFormula } = useSetIncentiveFormula();
+  const { mutate: updateIncentiveFormula, isLoading: updateLoading} = useUpdateIncentiveFormula();
+  const { mutate: createFormula , isLoading:createLoading} = useSetIncentiveFormula();
 
   const { data: formulaById } =
     useIncentiveFormulaByRecognitionId(recognitionId);
-
   //   ===========> Functions <============
 
   const handleClose = () => {
@@ -102,7 +101,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
       isComputed: value === 'Fixed' ? false : true,
       monetizedValue: value === 'Fixed' ? formValues?.fixedAmount : 0,
     };
-
     if (
       incentiveId &&
       formulaById !== null &&
@@ -173,7 +171,13 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             Cancel
           </Button>
 
-          <Button htmlType="submit" type="primary" className="p-4 px-10 h-10">
+          <Button
+            htmlType="submit"
+            type="primary"
+            className="p-4 px-10 h-10"
+            onClick={handleSubmit}
+            loading={updateLoading || createLoading}
+          >
             {formulaById?.expression === null ? (
               <span>Create</span>
             ) : (
@@ -260,7 +264,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                     </span>
                     <span className="flex flex-wrap my-1">
                       {incentiveData?.items ? (
-                        incentiveData?.items?.map((option: any) => (
+                        recognitionData?.recognitionCriteria?.map((option: any) => (
                           <div key={option?.id}>
                             {option?.criteria?.criteriaName && (
                               <Button
