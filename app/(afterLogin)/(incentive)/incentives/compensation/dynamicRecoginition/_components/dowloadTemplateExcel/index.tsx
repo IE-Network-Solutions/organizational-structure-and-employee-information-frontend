@@ -1,6 +1,6 @@
 import React from 'react';
 import ExcelJS from 'exceljs';
-import { Button, Popover, Skeleton } from 'antd';
+import { Button, Popover } from 'antd';
 import { useExcelHeaders } from '@/store/server/features/incentive/all/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
