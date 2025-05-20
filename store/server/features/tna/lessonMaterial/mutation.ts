@@ -27,7 +27,6 @@ const setCourseLessonMaterialWithProperOrderAdjustment = async (
   });
 };
 
-
 const deleteCourseLessonMaterial = async (id: string[]) => {
   return await crudRequest({
     url: `${TNA_URL}/learning/course/lesson/material`,

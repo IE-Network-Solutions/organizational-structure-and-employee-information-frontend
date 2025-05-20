@@ -18,7 +18,6 @@ const CourseLessonMaterial = () => {
     isShowLessonMaterial: isShow,
     setIsShowLessonMaterial: setIsShow,
     lesson,
-    course,
     setLesson,
     isShowAddLesson,
     lessonMaterial,
@@ -60,8 +59,14 @@ const CourseLessonMaterial = () => {
         article: item.article,
         timeToFinishMinutes: item.timeToFinishMinutes,
         order: item.order,
-        videos: item.videos.length ? item.videos.map((video) => formatLinkToUploadFile(video)) : undefined,
-        attachments: item.attachments.length ? item.attachments.map((attachment) => formatLinkToUploadFile(attachment)) : undefined
+        videos: item.videos.length
+          ? item.videos.map((video) => formatLinkToUploadFile(video))
+          : undefined,
+        attachments: item.attachments.length
+          ? item.attachments.map((attachment) =>
+              formatLinkToUploadFile(attachment),
+            )
+          : undefined,
       });
     }
   }, [lessonMaterialData]);
@@ -105,7 +110,7 @@ const CourseLessonMaterial = () => {
 
   const onFinish = () => {
     const values = form.getFieldsValue();
-    
+
     setMaterial([
       {
         ...(lessonMaterial || {}),
@@ -116,7 +121,9 @@ const CourseLessonMaterial = () => {
         order: parseFloat(values.order),
         courseLessonId: lesson?.id ?? '',
         videos: values.videos?.map((video: any) => video.response) ?? [],
-        attachments: values.attachments?.map((attachment: any) => attachment.response) ?? [],
+        attachments:
+          values.attachments?.map((attachment: any) => attachment.response) ??
+          [],
       },
     ]);
   };
@@ -124,12 +131,16 @@ const CourseLessonMaterial = () => {
   const getOrderOptions = () => {
     const defaultOption = {
       label: 'Add at the end',
-      value: parseFloat(((lesson?.courseLessonMaterials?.length || 0) + 1).toString()),
+      value: parseFloat(
+        ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
+      ),
     };
 
     const materialOptions = (lesson?.courseLessonMaterials || [])
-      .filter(material => !lessonMaterial || material.id !== lessonMaterial.id) // Exclude current material if editing
-      .map(material => ({
+      .filter(
+        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
+      ) // Exclude current material if editing
+      .map((material) => ({
         label: material.title,
         value: material.order,
       }));
@@ -250,7 +261,9 @@ const CourseLessonMaterial = () => {
               label="Insert Before"
               className="form-item"
               rules={[{ required: true, message: 'Required' }]}
-              initialValue={parseFloat(((lesson?.courseLessonMaterials?.length || 0) + 1).toString())}
+              initialValue={parseFloat(
+                ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
+              )}
             >
               <Select
                 className="control"
@@ -258,7 +271,9 @@ const CourseLessonMaterial = () => {
                 showSearch
                 optionFilterProp="label"
                 filterOption={(input, option) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={getOrderOptions()}
               />
