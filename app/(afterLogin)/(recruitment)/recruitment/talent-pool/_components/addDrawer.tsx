@@ -1,10 +1,12 @@
 import React from 'react';
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Form, Select } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useGetCandidates } from '@/store/server/features/recruitment/tallentPool/query';
 import { useCreateTalentPoolCandidate } from '@/store/server/features/recruitment/tallentPool/mutation';
 import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/tallentPoolCategory/query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import CustomLabel from '@/components/form/customLabel/customLabel';
+import TextArea from 'antd/es/input/TextArea';
 
 interface AddCandidateProps {
   open: boolean;
@@ -41,11 +43,11 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       open={open}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-start  text-xl font-extrabold text-gray-800 py-3">
-          Add Candidate to Talent pool
+        <div className="flex justify-start  text-xl font-extrabold text-gray-800">
+          Add New Candidate
         </div>
       }
-      width="30%"
+      width="40%"
       footer={
         <div className="flex justify-center items-center space-x-5 p-2">
           <Button
@@ -60,13 +62,22 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </div>
       }
     >
-      <Form className="h-full" form={form} layout="vertical">
+      <Form
+        // className="h-full"
+        form={form}
+        layout="vertical"
+        requiredMark={CustomLabel}
+      >
         <Form.Item
-          label="Select Candidate"
+          label={
+            <span className="text-md my-2 font-semibold text-gray-700">
+              Candidate
+            </span>
+          }
           name="candidateId"
           rules={[{ required: true, message: 'Please select a candidate!' }]}
         >
-          <Select placeholder="Select a candidate">
+          <Select placeholder="Select a candidate" className="h-10">
             {candidates?.items?.map((candidate: any) => (
               <Select.Option key={candidate.id} value={candidate.id}>
                 {candidate?.fullName}
@@ -75,11 +86,15 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           </Select>
         </Form.Item>
         <Form.Item
-          label="Select Talent Pool Category"
+          label={
+            <span className="text-md my-2 font-semibold text-gray-700">
+              Category
+            </span>
+          }
           name="category"
           rules={[{ required: true, message: 'Please select a category!' }]}
         >
-          <Select placeholder="Select a category">
+          <Select placeholder="Select a talent pool category" className="h-10">
             {talentPoolCategory?.items?.map((item: any) => (
               <Select.Option key={item.id} value={item?.id}>
                 {item?.title}
@@ -88,11 +103,15 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           </Select>
         </Form.Item>
         <Form.Item
-          label="Reason"
+          label={
+            <span className="text-md my-2 font-semibold text-gray-700">
+              Reason
+            </span>
+          }
           name="reason"
           rules={[{ required: true, message: 'Please input the reason!' }]}
         >
-          <Input.TextArea placeholder="Reason for adding candidate" />
+          <TextArea rows={6} placeholder="Reason for selecting candidate" />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

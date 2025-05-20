@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { Modal, Button, Form, Divider, Select } from 'antd';
-import { useGetApplicantStatusStages } from '@/store/server/features/recruitment/tallentPool/query';
+import { Button, Form, Select } from 'antd';
 import { useGetJobInformation } from '@/store/server/features/recruitment/jobs/query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import CustomLabel from '@/components/form/customLabel/customLabel';
+import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 
 interface TransferCandidateModalProps {
   selectedCandidate: any;
@@ -11,15 +13,14 @@ interface TransferCandidateModalProps {
   onCancel: () => void;
 }
 
-/* eslint-enable @typescript-eslint/naming-convention */
 const TransferTalentPoolToCandidateModal: React.FC<
   TransferCandidateModalProps
 > = ({ visible, onConfirm, onCancel, selectedCandidate }) => {
   const [form] = Form.useForm();
 
-  const { data: applicantStatusStage } = useGetApplicantStatusStages();
   const { data: jobInformations } = useGetJobInformation();
   const { userId } = useAuthenticationStore();
+  const { data: EmployeeDepartment } = useEmployeeDepartments();
 
   useEffect(() => {
     if (visible) {
@@ -36,44 +37,74 @@ const TransferTalentPoolToCandidateModal: React.FC<
     onConfirm(fullData);
   };
   return (
-    <Modal
-      title="Move Candidate to Candidates"
+    <CustomDrawerLayout
       open={visible}
-      onOk={onConfirm}
-      onCancel={onCancel}
-      okText="Move"
-      footer={null}
-      cancelText="Cancel"
+      onClose={onCancel}
+      modalHeader={
+        <div className="flex justify-start  text-xl font-extrabold text-gray-800">
+          Re-onboard
+        </div>
+      }
+      width="40%"
+      footer={
+        <div className="flex justify-center items-center space-x-5 p-2">
+          <Button
+            onClick={onCancel}
+            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300 "
+          >
+            Cancel
+          </Button>
+          <Button
+            className=" p-4 px-10 h-10"
+            type="primary"
+            onClick={handleFinish}
+          >
+            Re-onboard
+          </Button>
+        </div>
+      }
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        style={{ marginTop: 20 }}
+        requiredMark={CustomLabel}
       >
-        {' '}
         <Form.Item
-          name="applicantStatusStageId"
-          label="Applicant Status Stages"
+          name="departmentId"
+          label={
+            <span className="text-md my-2 font-semibold text-gray-700">
+              Select Department
+            </span>
+          }
           rules={[
             {
               required: true,
-              message: 'Please select the applicant status stage!',
+              message: 'Please select the department ',
             },
           ]}
         >
-          <Select placeholder="Select Applicant Status Stage">
-            {applicantStatusStage?.items?.map((stage: any) => (
-              <Select.Option key={stage.id} value={stage.id}>
-                {stage.title}
-              </Select.Option>
-            ))}
+          <Select
+            id="selectDepartment"
+            placeholder="Select Department"
+            allowClear
+            className="w-full h-10"
+          >
+            {EmployeeDepartment &&
+              EmployeeDepartment?.map((item: any) => (
+                <Select.Option key={item?.id} value={item?.id}>
+                  {item?.name}
+                </Select.Option>
+              ))}
           </Select>
         </Form.Item>
-        <Divider />
         <Form.Item
           name="jobInformations"
-          label="Job Informations"
+          label={
+            <span className="text-md my-2 font-semibold text-gray-700">
+              Job Information
+            </span>
+          }
           rules={[
             {
               required: true,
@@ -81,7 +112,11 @@ const TransferTalentPoolToCandidateModal: React.FC<
             },
           ]}
         >
-          <Select mode="multiple" placeholder="Select Job Information">
+          <Select
+            mode="multiple"
+            placeholder="Select Job Information"
+            className="h-10"
+          >
             {jobInformations?.items?.map((jobInformation: any) => (
               <Select.Option key={jobInformation.id} value={jobInformation.id}>
                 {jobInformation.jobTitle}
@@ -89,15 +124,9 @@ const TransferTalentPoolToCandidateModal: React.FC<
             ))}
           </Select>
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ marginTop: 10 }}>
-            Move
-          </Button>
-        </Form.Item>
       </Form>
-    </Modal>
+    </CustomDrawerLayout>
   );
 };
 
-/* eslint-disable @typescript-eslint/naming-convention */
 export default TransferTalentPoolToCandidateModal;
