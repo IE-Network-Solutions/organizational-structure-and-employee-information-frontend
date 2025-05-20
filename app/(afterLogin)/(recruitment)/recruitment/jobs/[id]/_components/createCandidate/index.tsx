@@ -88,7 +88,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   }
 
   const createJobDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 ">
       Add New Candidate
     </div>
   );
@@ -131,9 +131,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       onClose={onClose}
       modalHeader={createJobDrawerHeader}
       width="40%"
+      customMobileHeight="75vh"
       footer={
         <Form.Item>
-          <div className="flex justify-center absolute w-full bg-[#fff] pb-2 gap-6">
+          <div className="flex justify-center w-full bg-[#fff] gap-6 p-3">
             <Button
               onClick={onClose}
               className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
