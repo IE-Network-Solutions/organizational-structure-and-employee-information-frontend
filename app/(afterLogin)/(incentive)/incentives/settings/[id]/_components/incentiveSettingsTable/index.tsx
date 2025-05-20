@@ -70,7 +70,7 @@ const IncentiveSettingsTable: React.FC = () => {
       formulaById?.expression !== null ? (
         recognitionData?.recognitionCriteria?.map(
           (criterion: RecognitionCriteria, index: string) => (
-            <Skeleton active loading={responseLoading}>
+            <Skeleton active loading={responseLoading} key={index}>
               <span
                 key={index}
                 className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
