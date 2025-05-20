@@ -16,6 +16,17 @@ const setCourseLessonMaterial = async (
   });
 };
 
+const setCourseLessonMaterialWithProperOrderAdjustment = async (
+  items: Partial<CourseLessonMaterial>[],
+) => {
+  return await crudRequest({
+    url: `${TNA_URL}/learning/course/lesson/material/with-order-adjustment`,
+    method: 'PUT',
+    headers: requestHeader(),
+    data: { items },
+  });
+};
+
 const deleteCourseLessonMaterial = async (id: string[]) => {
   return await crudRequest({
     url: `${TNA_URL}/learning/course/lesson/material`,
@@ -36,7 +47,17 @@ export const useSetCourseLessonMaterial = () => {
     },
   });
 };
-
+export const useSetCourseLessonMaterialWithProperOrderAdjustment = () => {
+  const queryClient = useQueryClient();
+  return useMutation(setCourseLessonMaterialWithProperOrderAdjustment, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('course-lesson-material');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
 export const useDeleteCourseLessonMaterial = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteCourseLessonMaterial, {

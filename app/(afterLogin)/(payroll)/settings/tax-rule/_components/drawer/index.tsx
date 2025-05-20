@@ -116,6 +116,7 @@ const Drawer: React.FC = () => {
         id="tax-rule-form"
         layout="vertical"
         form={form}
+        className="px-3"
         onFinish={onFinish}
       >
         <Form.Item

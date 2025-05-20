@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { Form, Input, TimePicker, Switch, Table, Button } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 
 // interface WorkScheduleFormProps {
 //   form: FormInstance;
@@ -139,6 +140,8 @@ const CustomWorkingScheduleDrawer = () => {
           <div className="flex gap-2 md:gap-4 justify-start items-center">
             <Switch
               checked={record.status}
+              checkedChildren={<CheckOutlined />}
+              unCheckedChildren={<CloseOutlined />}
               size="small"
               onChange={(checked) =>
                 setDetail(record.dayOfWeek, { status: checked })

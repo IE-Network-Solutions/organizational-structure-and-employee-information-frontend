@@ -82,7 +82,7 @@ const TalentPoolDrawer: React.FC = () => {
       }
       onClose={handleCancel}
       open={isOpen}
-      width="4s0%"
+      width="40%"
       footer={
         <div className="flex justify-center items-center w-full space-x-5 p-4">
           <div className="flex justify-between items-center gap-4">
