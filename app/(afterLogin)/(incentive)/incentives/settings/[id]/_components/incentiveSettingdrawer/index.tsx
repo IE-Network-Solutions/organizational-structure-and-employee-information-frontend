@@ -13,7 +13,7 @@ import { Button, Col, Form, Input, Radio, Row } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { RadioChangeEvent } from 'antd/lib';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 const plainOptions = ['Fixed', 'Formula'];
 type Params = {
