@@ -20,7 +20,7 @@ const DownloadExcelButton: React.FC = () => {
   const handleTemplateDownload = async () => {
     if (excelHeaders?.length === 0) {
       NotificationMessage.warning({
-        message: ' Excel Headers are not loaded yet!',
+        message: ' Excel Headers are not loaded yet! Please Try Again',
       });
       return;
     }
@@ -61,10 +61,6 @@ const DownloadExcelButton: React.FC = () => {
     URL.revokeObjectURL(url); // Free up memory
   };
 
-  if (templateResponseLoading || responseLoading) {
-    return <Skeleton.Button active />;
-  }
-
   return childRecognitionData?.length > 0 ? (
     <Popover
       content={
@@ -86,6 +82,7 @@ const DownloadExcelButton: React.FC = () => {
       trigger="click"
     >
       <Button
+        loading={templateResponseLoading || responseLoading}
         style={{
           padding: '10px 20px',
           backgroundColor: '#B2B2FF',
@@ -100,6 +97,7 @@ const DownloadExcelButton: React.FC = () => {
     </Popover>
   ) : (
     <Button
+      loading={templateResponseLoading || responseLoading}
       style={{
         padding: '10px 20px',
         backgroundColor: '#B2B2FF',
