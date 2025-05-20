@@ -43,6 +43,8 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setIncentiveId,
     incentiveId,
     setOpenIncentiveDrawer,
+    formulaError,
+    setFormulaError,
   } = useIncentiveStore();
 
   //   ===========> HTTP Requests <============
@@ -152,6 +154,46 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setValue(value);
   }, [value]);
 
+  // Validation function for formula
+  function isValidFormula(formula: any[]): boolean {
+    if (!formula || formula.length === 0) return false;
+    // Check if first or last is an operand
+    if (
+      formula[0].type === 'operand' ||
+      formula[formula.length - 1].type === 'operand'
+    ) {
+      return false;
+    }
+    for (let i = 1; i < formula.length; i++) {
+      const prev = formula[i - 1];
+      const curr = formula[i];
+      // Consecutive operands
+      if (prev.type === 'operand' && curr.type === 'operand') {
+        return false;
+      }
+      // Consecutive criteria
+      if (prev.type === 'criteria' && curr.type === 'criteria') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Live validation effect
+  useEffect(() => {
+    if (value === 'Formula') {
+      if (formula && formula.length > 0 && !isValidFormula(formula)) {
+        setFormulaError(
+          'Invalid formula: Please avoid consecutive operands or criteria, and do not start or end with an operand.',
+        );
+      } else {
+        setFormulaError('');
+      }
+    } else {
+      setFormulaError('');
+    }
+  }, [formula, value, setFormulaError]);
+
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}
@@ -254,7 +296,9 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
               className="mt-2"
               rows={4}
             />
-
+            {formulaError && (
+              <div style={{ color: 'red', marginTop: 4 }}>{formulaError}</div>
+            )}
             <div className="my-5">
               <Row gutter={[16, 10]}>
                 <Col xs={12} sm={12} md={13} lg={13} xl={13}>
