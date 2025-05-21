@@ -101,21 +101,33 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
           form={form}
           onFieldsChange={() => onChange(form.getFieldsValue())}
         >
-          <Form.Item name="date">
+          <Form.Item name="startDate">
             <DatePicker
               className="w-full sm:w-auto h-[40px]"
               placeholder="Start Date"
               format={DATE_FORMAT}
               size="small"
+              onChange={(startDate) => {
+                const endDate = form.getFieldValue('endDate');
+                if (startDate && endDate) {
+                  form.setFieldsValue({ date: [startDate, endDate] });
+                }
+              }}
             />
           </Form.Item>
 
-          <Form.Item name="date">
+          <Form.Item name="endDate">
             <DatePicker
               className="w-full sm:w-auto h-[40px]"
               placeholder="End Date"
               format={DATE_FORMAT}
               size="small"
+              onChange={(endDate) => {
+                const startDate = form.getFieldValue('startDate');
+                if (startDate && endDate) {
+                  form.setFieldsValue({ date: [startDate, endDate] });
+                }
+              }}
             />
           </Form.Item>
           <Form.Item name="location">
