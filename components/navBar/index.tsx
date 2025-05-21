@@ -52,8 +52,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { setLocalId, setTenantId, setToken, setUserId, setError } =
-    useAuthenticationStore();
+  const {
+    setLocalId,
+    setTenantId,
+    setToken,
+    setUserId,
+    setError,
+    setActiveCalendar,
+    setLoggedUserRole,
+    setUserData,
+  } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
   const [expandedKeys, setExpandedKeys] = useState<
@@ -562,17 +570,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setMobileCollapsed(!mobileCollapsed);
   };
 
-  const handleLogout = () => {
-    setToken('');
-    setTenantId('');
-    setLocalId('');
-    removeCookie('token');
-    router.push(`/authentication/login`);
-    setUserId('');
-    setLocalId('');
-    setError('');
-    removeCookie('tenantId');
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      // First clear all state that might trigger queries
+      setUserData({});
+      setLoggedUserRole('');
+      setActiveCalendar('');
+      setUserId('');
+      setError('');
+
+      // Then remove cookies
+      removeCookie('token');
+      removeCookie('tenantId');
+      removeCookie('activeCalendar');
+      removeCookie('loggedUserRole');
+
+      // Finally clear the remaining state
+      setToken('');
+      setTenantId('');
+      setLocalId('');
+
+      await router.push('/authentication/login');
+    } catch (error) {}
   };
 
   const filteredMenuItems = treeData
