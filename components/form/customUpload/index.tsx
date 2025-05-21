@@ -50,7 +50,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
   const { fileList, setFileList, fileAttachmentList, setFileAttachmentList } =
     useTnaManagementCoursePageStore();
   const [form] = Form.useForm();
-  const [internalFileList, setInternalFileList] = useState<UploadFile[]>([]);
+  // const [internalFileList, setInternalFileList] = useState<UploadFile[]>([]);
 
   // Select the appropriate state based on targetState
   const effectiveFileList =
@@ -83,12 +83,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
         setFileList([]);
       }
     }
-    setInternalFileList(effectiveFileList.slice(0, 1)); // Ensure internal state has at most one file
   }, [value, fList, targetState, setFileList, setFileAttachmentList]);
 
   const triggerChange = (newFileList: UploadFile[]) => {
     const limitedList = newFileList.slice(0, 1); // Ensure only one file
-    setInternalFileList(limitedList);
     if (targetState === 'fileAttachmentList') {
       setFileAttachmentList(limitedList);
     } else {

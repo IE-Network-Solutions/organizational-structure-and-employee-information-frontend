@@ -12,6 +12,7 @@ import React, { useEffect } from 'react';
 import { useSetCourseLessonMaterialWithProperOrderAdjustment } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { useGetCourseLessonsMaterial } from '@/store/server/features/tna/lessonMaterial/queries';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import { CourseLessonMaterial as CourseLessonMaterialType } from '@/types/tna/course';
 
 const CourseLessonMaterial = () => {
   const {
@@ -77,6 +78,25 @@ const CourseLessonMaterial = () => {
     }
   }, [isSuccess]);
 
+
+  console.log(lesson?.courseLessonMaterials,"lesson?.courseLessonMaterials");
+
+  const getOrderOptions = (courseLessonMaterials: CourseLessonMaterialType[]) => {
+    const defaultOption = {
+      label: 'Add at the end',
+      value: 0, // Use 0 to indicate appending at the end
+    };
+  
+    // Generate options from existing materials, excluding the current material (if editing)
+    const materialOptions = courseLessonMaterials
+      .filter((material) => !lessonMaterial || material.id !== lessonMaterial.id)
+      .map((material) => ({
+        label: material.title || 'Untitled', // Fallback for missing titles
+        value: material.order,
+      }));
+  
+    return [defaultOption, ...materialOptions];
+  };
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -128,25 +148,7 @@ const CourseLessonMaterial = () => {
     ]);
   };
 
-  const getOrderOptions = () => {
-    const defaultOption = {
-      label: 'Add at the end',
-      value: parseFloat(
-        ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
-      ),
-    };
 
-    const materialOptions = (lesson?.courseLessonMaterials || [])
-      .filter(
-        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
-      ) // Exclude current material if editing
-      .map((material) => ({
-        label: material.title,
-        value: material.order,
-      }));
-
-    return [defaultOption, ...materialOptions];
-  };
 
   return (
     <CustomDrawerLayout
@@ -258,29 +260,25 @@ const CourseLessonMaterial = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              name="order"
-              label="Insert Before"
-              className="form-item"
-              rules={[{ required: true, message: 'Required' }]}
-              initialValue={parseFloat(
-                ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
-              )}
-            >
-              <Select
-                className="control"
-                placeholder="Select position"
-                showSearch
-                optionFilterProp="label"
-                filterOption={(input, option) =>
-                  (option?.label ?? '')
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={getOrderOptions()}
-              />
-            </Form.Item>
-          </Col>
+    <Form.Item
+      name="order"
+      label="Insert Before"
+      className="form-item"
+      rules={[{ required: true, message: 'Please select a position' }]}
+      initialValue={0} // Set default value to 0
+    >
+      <Select
+        className="control"
+        placeholder="Select position"
+        showSearch
+        optionFilterProp="label"
+        filterOption={(input, option) =>
+          (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+        }
+        options={getOrderOptions(lesson?.courseLessonMaterials ?? [])}
+      />
+    </Form.Item>
+  </Col>
         </Row>
       </Form>
     </CustomDrawerLayout>
