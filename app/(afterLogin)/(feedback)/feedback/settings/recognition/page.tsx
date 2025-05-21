@@ -63,7 +63,6 @@ const Page = () => {
           </AccessGuard>
         </div>
       </Spin>
-
       <RecognitionForm
         createCategory={openRecognitionType}
         onClose={() => setOpen(false)}
