@@ -14,6 +14,8 @@ interface FilterFormValues {
   dateRange?: [dayjs.Dayjs, dayjs.Dayjs];
   type?: string;
   status?: string;
+  startDate?: dayjs.Dayjs;
+  endDate?: dayjs.Dayjs;
 }
 
 interface HistoryTableFilterProps {
@@ -121,27 +123,41 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
             className="w-full"
           >
             <Form.Item
-              id="historyDateRangeId"
-              name="dateRange"
+              id="historyStartDateId"
+              name="startDate"
               className="w-full sm:w-auto h-[40px]"
             >
               <DatePicker
                 className="w-full sm:w-auto h-[40px]"
                 placeholder="Start Date"
                 format={DATE_FORMAT}
+                onChange={(startDate) => {
+                  const endDate = form.getFieldValue('endDate');
+                  if (startDate && endDate) {
+                    form.setFieldsValue({ dateRange: [startDate, endDate] });
+                  }
+                }}
               />
             </Form.Item>
+
             <Form.Item
-              id="historyDateRangeId"
-              name="dateRange"
+              id="historyEndDateId"
+              name="endDate"
               className="w-full sm:w-auto h-[40px]"
             >
               <DatePicker
                 className="w-full sm:w-auto h-[40px]"
                 placeholder="End Date"
                 format={DATE_FORMAT}
+                onChange={(endDate) => {
+                  const startDate = form.getFieldValue('startDate');
+                  if (startDate && endDate) {
+                    form.setFieldsValue({ dateRange: [startDate, endDate] });
+                  }
+                }}
               />
             </Form.Item>
+
             <Form.Item id="historyType" name="type">
               <Select
                 placeholder="Select Type"
