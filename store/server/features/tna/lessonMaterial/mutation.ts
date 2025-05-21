@@ -37,7 +37,6 @@ export const useSetCourseLessonMaterial = () => {
   });
 };
 
-
 export const useDeleteCourseLessonMaterial = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteCourseLessonMaterial, {

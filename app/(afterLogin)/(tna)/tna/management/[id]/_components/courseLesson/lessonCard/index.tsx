@@ -23,8 +23,6 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     refetchCourse,
     setIsShowLessonMaterial,
     activeKey,
-    lessonMaterial,
-
     setActiveKey,
   } = useTnaManagementCoursePageStore();
   const {

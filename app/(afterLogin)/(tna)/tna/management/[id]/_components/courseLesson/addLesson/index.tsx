@@ -3,7 +3,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Flex, Form, Input, InputNumber, Spin, Select } from 'antd';
+import { Flex, Form, Input, Spin, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import React, { useEffect } from 'react';
@@ -13,9 +13,7 @@ import { CourseLesson } from '@/types/tna/course';
 import { useGetCourseLessons } from '@/store/server/features/tna/lesson/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
-import {
-  useDeleteCourseLessonMaterial,
-} from '@/store/server/features/tna/lessonMaterial/mutation';
+import { useDeleteCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { useSetCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 
 const CourseAddLessonSidebar = () => {
@@ -35,11 +33,7 @@ const CourseAddLessonSidebar = () => {
     isLoading: isLoadingDelete,
     isSuccess: isSuccessDelete,
   } = useDeleteCourseLessonMaterial();
-  const {
-    mutate: setLessons,
-    isLoading,
-    isSuccess,
-  } = useSetCourseLesson();
+  const { mutate: setLessons, isLoading, isSuccess } = useSetCourseLesson();
 
   const {
     data: lessonData,
@@ -83,37 +77,34 @@ const CourseAddLessonSidebar = () => {
     }
   }, [isSuccess]);
 
-
-  const getLessonOrder = (
-    lessonOrder: number
-  ): number => {
+  const getLessonOrder = (lessonOrder: number): number => {
     const courseLessons = course?.courseLessons ?? [];
     // Return 0 if no materials or materialId is invalid
     if (!courseLessons?.length || !lessonOrder) {
       return 0;
     }
-  
+
     // Find the material with the given ID and its order
     const targetLesson = courseLessons.find(
-      (lesson) => lesson.order === lessonOrder
+      (lesson) => lesson.order === lessonOrder,
     );
     if (!targetLesson) {
       return 0; // Return 0 if material not found
     }
-  
+
     const targetOrder = targetLesson.order;
-  
+
     // Sort materials by order and find the last material with order < targetOrder
     const sortedLessons = [...courseLessons].sort((a, b) => a.order - b.order);
     const previousLesson = sortedLessons
       .filter((lesson) => lesson.order < targetOrder)
       .pop(); // Get last material (highest order) less than targetOrder
-  
+
     // If no previous material, return targetOrder / 2
     if (!previousLesson) {
       return targetOrder / 2;
     }
-  
+
     // Return average of previous material's order and targetOrder
     return (previousLesson.order + targetOrder) / 2;
   };
@@ -147,11 +138,13 @@ const CourseAddLessonSidebar = () => {
 
   const lessonOptions = [
     { label: 'Create at the end', value: 0 },
-    ...(course?.courseLessons?.sort((a, b) => a.order - b.order)?.map((lesson) => ({
-      label: lesson.title || 'Untitled Lesson',
-      value: lesson.order,
-      key: `lesson-${lesson.order}`,
-    })) || []),
+    ...(course?.courseLessons
+      ?.sort((a, b) => a.order - b.order)
+      ?.map((lesson) => ({
+        label: lesson.title || 'Untitled Lesson',
+        value: lesson.order,
+        key: `lesson-${lesson.order}`,
+      })) || []),
   ];
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -206,7 +199,7 @@ const CourseAddLessonSidebar = () => {
                         label="Enter the Lesson title"
                         rules={[{ required: true, message: 'Required' }]}
                         className="form-item flex-1 px-3"
-                      > 
+                      >
                         <Input
                           id="tnaLessonTitleFieldId"
                           className="control h-10"
@@ -221,23 +214,28 @@ const CourseAddLessonSidebar = () => {
                       ) : null}
                     </Flex>
                     <Form.Item
-                        {...restField}
-                        name={[name, 'order']}
-                        label="Insert Before Lesson"
-                        rules={[{ required: true, message: 'Please select a lesson order' }]}
-                        className="form-item px-3"
-                        initialValue={0}
-                      >
-                        <Select
-                          id="tnaLessonNumberFieldId"
-                          className="control-select h-10 w-full"
-                          placeholder="Select lesson order"
-                          options={lessonOptions}
-                          showSearch
-                          optionFilterProp="label"
-                          aria-label="Lesson order selection"
-                        />
-                      </Form.Item>
+                      {...restField}
+                      name={[name, 'order']}
+                      label="Insert Before Lesson"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please select a lesson order',
+                        },
+                      ]}
+                      className="form-item px-3"
+                      initialValue={0}
+                    >
+                      <Select
+                        id="tnaLessonNumberFieldId"
+                        className="control-select h-10 w-full"
+                        placeholder="Select lesson order"
+                        options={lessonOptions}
+                        showSearch
+                        optionFilterProp="label"
+                        aria-label="Lesson order selection"
+                      />
+                    </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, 'description']}

@@ -78,24 +78,25 @@ const CourseLessonMaterial = () => {
     }
   }, [isSuccess]);
 
-
-  console.log(lesson?.courseLessonMaterials,"lesson?.courseLessonMaterials");
-
-  const getOrderOptions = (courseLessonMaterials: CourseLessonMaterialType[]) => {
+  const getOrderOptions = (
+    courseLessonMaterials: CourseLessonMaterialType[],
+  ) => {
     const defaultOption = {
       label: 'Add at the end',
       value: 0, // Use 0 to indicate appending at the end
     };
-  
+
     // Generate options from existing materials, excluding the current material (if editing)
     const materialOptions = courseLessonMaterials
-      .filter((material) => !lessonMaterial || material.id !== lessonMaterial.id)
+      .filter(
+        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
+      )
       ?.sort((a, b) => a.order - b.order)
       .map((material) => ({
         label: material.title || 'Untitled', // Fallback for missing titles
         value: material.order,
       }));
-  
+
     return [defaultOption, ...materialOptions];
   };
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
@@ -129,42 +130,39 @@ const CourseLessonMaterial = () => {
     setIsShow(false);
   };
 
-
-   const getMaterialOrder = (
-    materialOrder: number
-  ): number => {
+  const getMaterialOrder = (materialOrder: number): number => {
     const courseLessonMaterials = lesson?.courseLessonMaterials ?? [];
     // Return 0 if no materials or materialId is invalid
     if (!courseLessonMaterials?.length || !materialOrder) {
       return 0;
     }
-  
+
     // Find the material with the given ID and its order
     const targetMaterial = courseLessonMaterials.find(
-      (material) => material.order === materialOrder
+      (material) => material.order === materialOrder,
     );
     if (!targetMaterial) {
       return 0; // Return 0 if material not found
     }
-  
+
     const targetOrder = targetMaterial.order;
-  
+
     // Sort materials by order and find the last material with order < targetOrder
-    const sortedMaterials = [...courseLessonMaterials].sort((a, b) => a.order - b.order);
+    const sortedMaterials = [...courseLessonMaterials].sort(
+      (a, b) => a.order - b.order,
+    );
     const previousMaterial = sortedMaterials
       .filter((material) => material.order < targetOrder)
       .pop(); // Get last material (highest order) less than targetOrder
-  
+
     // If no previous material, return targetOrder / 2
     if (!previousMaterial) {
       return targetOrder / 2;
     }
-  
+
     // Return average of previous material's order and targetOrder
     return (previousMaterial.order + targetOrder) / 2;
   };
-
-
 
   const onFinish = () => {
     const values = form.getFieldsValue();
@@ -185,8 +183,6 @@ const CourseLessonMaterial = () => {
       },
     ]);
   };
-
-
 
   return (
     <CustomDrawerLayout
@@ -298,25 +294,27 @@ const CourseLessonMaterial = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-    <Form.Item
-      name="order"
-      label="Insert Before"
-      className="form-item"
-      rules={[{ required: true, message: 'Please select a position' }]}
-      initialValue={0} // Set default value to 0
-    >
-      <Select
-        className="control"
-        placeholder="Select position"
-        showSearch
-        optionFilterProp="label"
-        filterOption={(input, option) =>
-          (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-        }
-        options={getOrderOptions(lesson?.courseLessonMaterials ?? [])}
-      />
-    </Form.Item>
-  </Col>
+            <Form.Item
+              name="order"
+              label="Insert Before"
+              className="form-item"
+              rules={[{ required: true, message: 'Please select a position' }]}
+              initialValue={0} // Set default value to 0
+            >
+              <Select
+                className="control"
+                placeholder="Select position"
+                showSearch
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={getOrderOptions(lesson?.courseLessonMaterials ?? [])}
+              />
+            </Form.Item>
+          </Col>
         </Row>
       </Form>
     </CustomDrawerLayout>
