@@ -68,7 +68,6 @@ const JobSummary = () => {
       },
     },
   };
-
   return (
     <Card loading={isLoading} className="w-full mx-auto ">
       <div className="flex justify-between items-center mb-2">

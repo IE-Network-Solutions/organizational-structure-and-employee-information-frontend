@@ -81,8 +81,11 @@ const EmploymentStats: React.FC = () => {
   };
 
   return (
-    <Card loading={isLoading} className="w-full mx-auto ">
-      <div className="flex justify-between items-center mb-2">
+    <Card
+      loading={isLoading}
+      className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col"
+    >
+      <div className="flex justify-between items-center mb-2 h-[20%] ">
         <h3 className="text-gray-700 font-semibold text-lg">Employee Stat</h3>
         <Select
           bordered={false}
@@ -98,16 +101,10 @@ const EmploymentStats: React.FC = () => {
           ))}
         </Select>
       </div>
+
       {employeeStatus?.length ? (
-        <div className="flex items-center">
-          <div
-            style={{
-              position: 'relative',
-              maxWidth: '130px',
-              maxHeight: '130px',
-              margin: '0 auto',
-            }}
-          >
+        <div className="flex-1 flex items-center justify-between h-[80%] mt-10">
+          <div className="relative min-h-32 max-w-32 m-auto">
             <div
               className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
               style={{

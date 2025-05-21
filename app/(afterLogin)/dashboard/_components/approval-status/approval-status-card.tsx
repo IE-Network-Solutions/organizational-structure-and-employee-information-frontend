@@ -206,7 +206,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           cancelText="Cancel"
           okButtonProps={{ disabled: !rejectComment }}
         >
-          <Button danger>Reject</Button>
+          <Button>Reject</Button>
         </Popconfirm>
         <Popconfirm
           title="Approve Request"

@@ -17,7 +17,7 @@ interface ChartData {
 }
 const CoursePermitted: React.FC = () => {
   const { data: coursePermitted, isLoading } = useGetCoursePermitted();
-
+  console.log('coursePermitted', coursePermitted);
   const data: ChartData = {
     labels: coursePermitted?.map((i) => i.categoryName) || [],
     datasets: [

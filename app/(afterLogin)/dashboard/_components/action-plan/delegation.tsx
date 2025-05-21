@@ -42,7 +42,6 @@ const Survey: React.FC = () => {
         className="my-2"
       />
       <Calendar headerRender={() => null} fullscreen={false} />
-
       <List
         loading={isLoading}
         dataSource={delegations}
