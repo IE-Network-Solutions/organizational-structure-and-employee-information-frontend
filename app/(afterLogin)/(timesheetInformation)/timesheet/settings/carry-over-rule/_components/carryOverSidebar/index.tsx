@@ -91,7 +91,7 @@ const CarryOverSidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <div className="px-2">
-            <CustomDrawerHeader>Add Type</CustomDrawerHeader>
+            <CustomDrawerHeader>Carry-over Rule</CustomDrawerHeader>
           </div>
         }
         footer={
