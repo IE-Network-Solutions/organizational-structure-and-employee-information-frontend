@@ -60,6 +60,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
           <AccessGuard permissions={[Permissions.CreateGroupPermission]}>
             <Button
               type="primary"
+              className="h-10 w-10 sm:w-auto"
               icon={<FaPlus />}
               onClick={handleClickNewButton}
             >

@@ -74,7 +74,7 @@ const TalentPoolDrawer: React.FC = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className=" flex justify-center text-xl font-extrabold text-gray-800 py-6">
+        <h1 className=" flex justify-start text-xl font-extrabold text-gray-800 py-6">
           {isEditMode
             ? 'Edit Talent Pool Category'
             : 'New Talent Pool Category'}
@@ -82,9 +82,9 @@ const TalentPoolDrawer: React.FC = () => {
       }
       onClose={handleCancel}
       open={isOpen}
-      width="30%"
+      width="4s0%"
       footer={
-        <div className="flex justify-center items-center w-full absolute bottom-8 space-x-5">
+        <div className="flex justify-center items-center w-full space-x-5 p-4">
           <div className="flex justify-between items-center gap-4">
             <CustomButton
               title="Cancel"

@@ -76,7 +76,7 @@ const DownloadExcelButton: React.FC = () => {
                 handleTemplateDownload();
                 setSelectedRecognitionTypeId(item?.id || '');
               }}
-              className="flex flex-col border-[1px] w-60 my-2 rounded-xl border-gray-300 p-2 cursor-pointer hover:bg-gray-100 transition"
+              className="flex flex-col border-[1px] w-32 sm:w-60 my-2 rounded-xl border-gray-300 p-2 cursor-pointer hover:bg-gray-100 transition"
             >
               {item?.name}
             </div>
@@ -93,6 +93,8 @@ const DownloadExcelButton: React.FC = () => {
           border: 'none',
           borderRadius: '10px',
           cursor: 'pointer',
+          fontSize: '12px',
+          height: '30px',
         }}
       >
         Download Format
@@ -107,6 +109,8 @@ const DownloadExcelButton: React.FC = () => {
         border: 'none',
         borderRadius: '10px',
         cursor: 'pointer',
+        fontSize: '12px',
+        height: '30px',
       }}
       onClick={() => {
         handleTemplateDownload();

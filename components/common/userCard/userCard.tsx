@@ -23,9 +23,9 @@ const UserCard: FC<UserCardProps> = ({
   return (
     <div className="flex items-center gap-3">
       {data ? (
-        <Avatar size={40} src={data?.profileImage} />
+        <Avatar size={25} src={data?.profileImage} />
       ) : (
-        <Avatar size={40}>
+        <Avatar size={25}>
           {data?.firstName[0]?.toUpperCase()}
           {data?.middleName[0]?.toUpperCase()}
           {data?.lastName[0]?.toUpperCase()}
