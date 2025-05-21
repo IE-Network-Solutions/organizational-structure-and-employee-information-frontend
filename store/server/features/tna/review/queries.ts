@@ -15,7 +15,7 @@ const getTna = async (
 ) => {
   return await crudRequest({
     url: `${TNA_URL}/tna${searchQuery}`,
-    method: 'POST',
+    method: 'PUT',
     headers: requestHeader(),
     data,
     params: query,
