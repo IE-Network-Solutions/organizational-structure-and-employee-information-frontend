@@ -14,6 +14,7 @@ interface CustomDrawerLayoutProps {
   footer?: React.ReactNode | null;
   hideButton?: boolean;
   customMobileHeight?: string | null;
+  customPadding?: string | null;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -22,10 +23,12 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   modalHeader,
   children,
   width,
+  width: widthProp,
   hideButton = false,
   footer = null,
-  paddingBottom = 50,
+  paddingBottom = 10,
   customMobileHeight = null,
+  customPadding = null,
 }) => {
   // Default width
   const {
@@ -42,21 +45,23 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   useEffect(() => {
     setIsClient(true);
 
-    if (window.innerWidth <= 768 && placement !== 'bottom') {
-      setPlacement?.('bottom');
-    } else if (window.innerWidth > 768 && placement !== 'right') {
-      setPlacement?.('right');
-    }
+    const updateLayout = () => {
+      const width = window.innerWidth;
 
-    const updateWidth = () => {
-      setCurrentWidth(window.innerWidth <= 768 ? '100%' : width || '40%');
+      setCurrentWidth(width <= 768 ? '100%' : widthProp || '40%');
+
+      if (width <= 768 && placement !== 'bottom') {
+        setPlacement?.('bottom');
+      } else if (width > 768 && placement !== 'right') {
+        setPlacement?.('right');
+      }
     };
 
-    updateWidth(); // run once on mount
+    updateLayout(); // run once on mount
 
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, [width, setCurrentWidth, placement, setPlacement, setIsClient]);
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
+  }, [widthProp, placement, setCurrentWidth, setPlacement, setIsClient]);
 
   // Render the component only on the client side
   if (!isClient) return null;
@@ -103,7 +108,11 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
             paddingInline: isMobile ? 0 : 16,
             boxShadow: isMobile ? '0px 10px 50px 0px #00000033' : 'none',
           },
-          body: { padding: isMobile ? '0 12px' : '0 36px' },
+          body: {
+            padding: isMobile
+              ? `0 ${customPadding ? customPadding : '12px'}`
+              : '0 36px',
+          },
         }}
         height={
           customMobileHeight ? customMobileHeight : isMobile ? '65vh' : 400

@@ -281,6 +281,7 @@ type IncentiveState = {
   selectedRowKeys: string[];
   showMobileFilter: boolean;
   selectedYear: string | null;
+  formulaError: string;
 };
 
 type IncentiveActions = {
@@ -320,6 +321,7 @@ type IncentiveActions = {
 
   setShowMobileFilter: (value: boolean) => void;
   setSelectedYear: (value: string | null) => void;
+  setFormulaError: (error: string) => void;
 };
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
@@ -435,6 +437,8 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   setShowMobileFilter: (value) => set({ showMobileFilter: value }),
   selectedYear: null,
   setSelectedYear: (value) => set({ selectedYear: value }),
+  formulaError: '',
+  setFormulaError: (error) => set({ formulaError: error }),
 });
 
 export const useIncentiveStore = create<IncentiveState & IncentiveActions>(

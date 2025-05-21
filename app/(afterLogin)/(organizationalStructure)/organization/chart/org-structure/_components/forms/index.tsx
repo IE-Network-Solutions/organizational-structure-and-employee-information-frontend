@@ -8,6 +8,7 @@ import useOrganizationStore from '@/store/uistate/features/organizationStructure
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
+import { MdInfo } from 'react-icons/md';
 
 interface DeleteFormProps {
   form?: FormInstance;
@@ -187,8 +188,12 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
       </Form.Item>
 
       <Form.Item>
-        <p style={{ color: '#595959', fontSize: '12px' }}>
-          <span style={{ marginRight: '8px' }}>ⓘ</span>
+        <p style={{ display: 'flex', color: '#595959', fontSize: '12px' }}>
+          <span
+            style={{ marginRight: '8px', display: 'flex', paddingTop: '2px' }}
+          >
+            <MdInfo size={16} className="text-black" />
+          </span>
           This will affect the whole company structure
         </p>
       </Form.Item>
@@ -374,9 +379,13 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         />
       </Form.Item>
       <Form.Item>
-        <p style={{ color: '#595959' }}>
-          <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
-          whole company structure.
+        <p style={{ display: 'flex', color: '#595959', fontSize: '12px' }}>
+          <span
+            style={{ marginRight: '8px', display: 'flex', paddingTop: '2px' }}
+          >
+            <MdInfo size={16} className="text-black" />
+          </span>
+          This will affect the whole company structure.
         </p>
       </Form.Item>
     </Form>
