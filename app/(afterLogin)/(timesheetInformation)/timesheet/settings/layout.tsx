@@ -8,7 +8,7 @@ import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
 import { GrTransaction } from 'react-icons/gr';
 import { IoArrowUndoCircleOutline } from 'react-icons/io5';
-import { PiUserCircleCheck } from 'react-icons/pi';
+import { PiUserCircle } from 'react-icons/pi';
 import { IoTimeOutline } from 'react-icons/io5';
 import { GoKey } from 'react-icons/go';
 import { AiOutlineImport } from 'react-icons/ai';
@@ -92,7 +92,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'approval-workflow',
-        icon: <PiUserCircleCheck className="hidden lg:block" />,
+        icon: <PiUserCircle className="hidden lg:block" />,
         label: <p className="menu-item-label">Approval Workflow</p>,
       },
       link: '/timesheet/settings/approvals',
