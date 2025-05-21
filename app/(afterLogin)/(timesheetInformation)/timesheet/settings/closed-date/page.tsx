@@ -22,6 +22,7 @@ const Page = () => {
             type="primary"
             id="createNewClosedHolidayFieldId"
             icon={<FaPlus />}
+            className="h-10 w-10 sm:w-auto"
             onClick={() => {
               setSelectedClosedDate(null);
               setIsShowClosedDateSidebar(true);

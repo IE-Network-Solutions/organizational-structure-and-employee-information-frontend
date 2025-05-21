@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import Filters from './filters';
 import CandidateTable from './talentPoolTable';
 import AddCandidate from './addDrawer';
-import CustomButton from '@/components/common/buttons/customButton';
 import { FaPlus } from 'react-icons/fa';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { Button } from 'antd';
 // import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const TalentPoolPage = () => {
@@ -31,13 +31,17 @@ const TalentPoolPage = () => {
         />
         <div className="flex items-center my-4 gap-4 md:gap-8">
           <AccessGuard permissions={[Permissions.TransferCandidate]}>
-            <CustomButton
-              title="Add Candidate to Talent Pool"
+            <Button
+              type="primary"
               id="createUserButton"
-              icon={<FaPlus className="mr-2" />}
+              className="h-10 w-10 sm:w-auto"
+              icon={<FaPlus />}
               onClick={handleAdd}
-              className="bg-blue-600 hover:bg-blue-700"
-            />
+            >
+              <span className="hidden sm:inline">
+                Add Candidate to Talent Pool
+              </span>
+            </Button>
           </AccessGuard>
         </div>
       </div>

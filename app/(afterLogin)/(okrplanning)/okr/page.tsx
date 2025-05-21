@@ -74,7 +74,9 @@ const OKR: React.FC<any> = () => {
   }
   return (
     <div className={`h-auto w-full ${isMobile ? 'p-0' : 'p-4'}`}>
-      <div className="flex flex-wrap justify-between items-center">
+      <div
+        className={`${isMobile && 'mx-5 mt-6'} flex flex-wrap justify-between items-center`}
+      >
         <CustomBreadcrumb
           title="Objective"
           subtitle="Employee's objective setting up"
@@ -94,7 +96,7 @@ const OKR: React.FC<any> = () => {
                   icon={
                     <LiaFileDownloadSolid
                       size={isMobile ? 14 : 20}
-                      className={isMobile ? 'mr-0' : 'mr-2'}
+                      className={`text-black ${isMobile ? 'mr-0' : 'mr-2'}`}
                     />
                   }
                   className={`bg-blue-600 hover:bg-blue-700 ${

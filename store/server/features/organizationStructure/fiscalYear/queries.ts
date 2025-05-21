@@ -6,10 +6,16 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { requestHeader } from '@/helpers/requestHeader';
 
 const getAllFiscalYears = async (pageSize?: number, currentPage?: number) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars?limit=${pageSize ?? 10}&&page=${currentPage ?? 1}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers,
   });
 };
 
@@ -46,8 +52,12 @@ export const useGetFiscalYearById = (id: string) =>
     keepPreviousData: true,
   });
 
-export const useGetActiveFiscalYears = () =>
-  useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear);
+export const useGetActiveFiscalYears = () => {
+  const token = useAuthenticationStore.getState().token;
+  return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
+    enabled: !!token,
+  });
+};
 
 export const useGetActiveFiscalYearsData = () => {
   const token = useAuthenticationStore.getState().token;

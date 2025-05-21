@@ -223,7 +223,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       {(!departments?.length || openfiscalYearDrawer) && (
         <CustomDrawerLayout
           modalHeader={
-            <h1 className="flex justify-center text-xl font-extrabold text-gray-800 py-6 ">
+            <h1 className="flex justify-start text-base font-bold text-gray-800">
               {isEditMode ? 'Edit New Fiscal Year' : 'Add New Fiscal Year'}
             </h1>
           }
@@ -231,6 +231,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           open={openfiscalYearDrawer}
           width="35%"
           footer={null}
+          customPadding="0px"
         >
           {formContent}
         </CustomDrawerLayout>

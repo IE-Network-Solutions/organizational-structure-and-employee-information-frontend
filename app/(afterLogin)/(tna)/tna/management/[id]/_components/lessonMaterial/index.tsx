@@ -3,13 +3,13 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Col, Form, Input, InputNumber, Row } from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import TextEditor from '@/components/form/textEditor';
 import CustomUpload from '@/components/form/customUpload';
 import React, { useEffect } from 'react';
-import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
+import { useSetCourseLessonMaterialWithProperOrderAdjustment } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { useGetCourseLessonsMaterial } from '@/store/server/features/tna/lessonMaterial/queries';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 
@@ -39,7 +39,7 @@ const CourseLessonMaterial = () => {
     mutate: setMaterial,
     isLoading,
     isSuccess,
-  } = useSetCourseLessonMaterial();
+  } = useSetCourseLessonMaterialWithProperOrderAdjustment();
 
   const [form] = Form.useForm();
 
@@ -53,24 +53,21 @@ const CourseLessonMaterial = () => {
     if (lesson && lessonMaterialData?.items?.length) {
       const item = lessonMaterialData.items[0];
       setLessonMaterial(item);
-      form.setFieldValue('title', item.title);
-      form.setFieldValue('description', item.description);
-      form.setFieldValue('article', item.article);
-      form.setFieldValue('timeToFinishMinutes', item.timeToFinishMinutes);
-      form.setFieldValue('order', item.order);
-      if (item.videos.length) {
-        form.setFieldValue(
-          'videos',
-          item.videos.map((video) => formatLinkToUploadFile(video)),
-        );
-      }
-
-      if (item.attachments.length) {
-        form.setFieldValue(
-          'attachments',
-          item.attachments.map((video) => formatLinkToUploadFile(video)),
-        );
-      }
+      form.setFieldsValue({
+        title: item.title,
+        description: item.description,
+        article: item.article,
+        timeToFinishMinutes: item.timeToFinishMinutes,
+        order: item.order,
+        videos: item.videos.length
+          ? item.videos.map((video) => formatLinkToUploadFile(video))
+          : undefined,
+        attachments: item.attachments.length
+          ? item.attachments.map((attachment) =>
+              formatLinkToUploadFile(attachment),
+            )
+          : undefined,
+      });
     }
   }, [lessonMaterialData]);
 
@@ -84,7 +81,7 @@ const CourseLessonMaterial = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-10',
       size: 'large',
       loading: isLoading || isLoadingMaterial,
       onClick: () => onClose(),
@@ -92,7 +89,7 @@ const CourseLessonMaterial = () => {
     {
       label: lessonMaterial ? 'Update' : 'Create',
       key: 'create',
-      className: 'h-14',
+      className: 'h-10',
       type: 'primary',
       size: 'large',
       loading: isLoading || isLoadingMaterial,
@@ -112,22 +109,43 @@ const CourseLessonMaterial = () => {
   };
 
   const onFinish = () => {
-    const value = form.getFieldsValue();
+    const values = form.getFieldsValue();
 
     setMaterial([
       {
-        ...(lessonMaterial && lessonMaterial),
-        title: value.title,
-        description: value.description,
-        article: value.article,
-        timeToFinishMinutes: value.timeToFinishMinutes,
-        order: value.order,
+        ...(lessonMaterial || {}),
+        title: values.title,
+        description: values.description,
+        article: values.article,
+        timeToFinishMinutes: values.timeToFinishMinutes,
+        order: parseFloat(values.order),
         courseLessonId: lesson?.id ?? '',
-        videos: [value.videos[0]['response']],
+        videos: values.videos?.map((video: any) => video.response) ?? [],
         attachments:
-          value.attachments?.map((item: any) => item['response']) ?? [],
+          values.attachments?.map((attachment: any) => attachment.response) ??
+          [],
       },
     ]);
+  };
+
+  const getOrderOptions = () => {
+    const defaultOption = {
+      label: 'Add at the end',
+      value: parseFloat(
+        ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
+      ),
+    };
+
+    const materialOptions = (lesson?.courseLessonMaterials || [])
+      .filter(
+        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
+      ) // Exclude current material if editing
+      .map((material) => ({
+        label: material.title,
+        value: material.order,
+      }));
+
+    return [defaultOption, ...materialOptions];
   };
 
   return (
@@ -146,10 +164,7 @@ const CourseLessonMaterial = () => {
         </CustomDrawerHeader>
       }
       footer={
-        <CustomDrawerFooterButton
-          className="w-1/2 mx-auto"
-          buttons={footerModalItems}
-        />
+        <CustomDrawerFooterButton className="p-4" buttons={footerModalItems} />
       }
       width="50%"
     >
@@ -243,14 +258,24 @@ const CourseLessonMaterial = () => {
           <Col span={12}>
             <Form.Item
               name="order"
-              label="Course Material Order in No"
+              label="Insert Before"
               className="form-item"
               rules={[{ required: true, message: 'Required' }]}
+              initialValue={parseFloat(
+                ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
+              )}
             >
-              <InputNumber
-                className="control-number"
-                placeholder="Enter Order No"
-                min={0}
+              <Select
+                className="control"
+                placeholder="Select position"
+                showSearch
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={getOrderOptions()}
               />
             </Form.Item>
           </Col>

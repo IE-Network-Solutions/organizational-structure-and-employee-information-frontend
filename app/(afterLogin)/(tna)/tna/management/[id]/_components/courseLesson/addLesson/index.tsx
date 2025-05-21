@@ -80,7 +80,7 @@ const CourseAddLessonSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-10',
       size: 'large',
       loading: isLoading || isFetching || isLoadingDelete,
       onClick: () => onClose(),
@@ -88,7 +88,7 @@ const CourseAddLessonSidebar = () => {
     {
       label: lesson ? 'Edit' : 'Create',
       key: 'create',
-      className: 'h-14',
+      className: 'h-10',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching || isLoadingDelete,
@@ -122,13 +122,13 @@ const CourseAddLessonSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-3">
             {lesson ? 'Edit' : 'Add'} Lesson
           </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
-            className="w-1/2 mx-auto"
+            className="p-4"
             buttons={footerModalItems}
           />
         }
@@ -154,9 +154,12 @@ const CourseAddLessonSidebar = () => {
                         name={[name, 'title']}
                         label="Enter the Lesson title"
                         rules={[{ required: true, message: 'Required' }]}
-                        className="form-item flex-1"
+                        className="form-item flex-1 px-3"
                       >
-                        <Input id="tnaLessonTitleFieldId" className="control" />
+                        <Input
+                          id="tnaLessonTitleFieldId"
+                          className="control h-10"
+                        />
                       </Form.Item>
                       {fields.length > 1 ? (
                         <RemoveFormFieldButton
@@ -169,13 +172,13 @@ const CourseAddLessonSidebar = () => {
                     <Form.Item
                       {...restField}
                       name={[name, 'order']}
-                      label="LeesonNumber"
+                      label="Lesson Number"
                       rules={[{ required: true, message: 'Required' }]}
-                      className="form-item pl-4"
+                      className="form-item px-3"
                     >
                       <InputNumber
                         id="tnaLessonNumberFieldId"
-                        className="control-number"
+                        className="control-number h-10"
                         placeholder="Enter the order of the lesson in number"
                         min={0}
                       />
@@ -185,20 +188,20 @@ const CourseAddLessonSidebar = () => {
                       name={[name, 'description']}
                       label="Description"
                       rules={[{ required: true, message: 'Required' }]}
-                      className="form-item pl-4"
+                      className="form-item px-3"
                     >
                       <Input.TextArea
                         id="tnaDescriptionFieldId"
-                        className="control-tarea"
+                        className="control-tarea h-24"
                         rows={6}
                         placeholder="Enter the Description"
                       />
                     </Form.Item>
-                    {!lesson && (
+                    {/* {!lesson && (
                       <Form.Item>
                         <div className="my-4 border-t border-gray-200"></div>
                       </Form.Item>
-                    )}
+                    )} */}
                   </React.Fragment>
                 ))}
 

@@ -27,7 +27,7 @@ const Workflow = () => {
             icon={<FaPlus />}
             onClick={handleNavigation}
           >
-            <span className="hidden lg:inline">Set Approval</span>
+            <span className="hidden sm:inline">Set Approval</span>
           </Button>
         </AccessGuard>
       </div>

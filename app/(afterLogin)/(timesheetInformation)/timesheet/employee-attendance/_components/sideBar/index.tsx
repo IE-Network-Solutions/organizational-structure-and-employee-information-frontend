@@ -17,7 +17,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
   const {
     isShowEmployeeAttendanceSidebar,
     employeeAttendanceId,
@@ -48,7 +48,7 @@ const EmployeeAttendanceSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoadingRequest,
       onClick: () => onClose(),
@@ -56,7 +56,7 @@ const EmployeeAttendanceSideBar = () => {
     {
       label: 'Update',
       key: 'create',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest,
@@ -178,7 +178,11 @@ const EmployeeAttendanceSideBar = () => {
           modalHeader={
             <CustomDrawerHeader>Update Employee Attendance</CustomDrawerHeader>
           }
-          footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+          footer={
+            <div className="p-6 sm:p-0">
+              <CustomDrawerFooterButton buttons={footerModalItems} />
+            </div>
+          }
           width="400px"
         >
           <Spin size="large" spinning={isAttendanceLoading || isUserLoading}>
@@ -188,7 +192,10 @@ const EmployeeAttendanceSideBar = () => {
               autoComplete="off"
               onFinish={onFinish}
             >
-              <Space className="w-full" direction="vertical" size={12}>
+              <Space.Compact
+                direction="vertical"
+                className="w-full px-3 sm:px-0 "
+              >
                 <Form.Item name="isAbsent" label="Is Absent">
                   <CustomRadio
                     label="Is Absent"
@@ -196,7 +203,6 @@ const EmployeeAttendanceSideBar = () => {
                     onChange={onChangeIsAbsent}
                   />
                 </Form.Item>
-
                 <Form.Item
                   name="startAt"
                   label="Clock In"
@@ -230,7 +236,6 @@ const EmployeeAttendanceSideBar = () => {
                     />
                   )}
                 </Form.Item>
-
                 <Form.Item
                   name="endAt"
                   label="Clock Out"
@@ -264,7 +269,7 @@ const EmployeeAttendanceSideBar = () => {
                     />
                   )}
                 </Form.Item>
-              </Space>
+              </Space.Compact>
             </Form>
           </Spin>
         </CustomDrawerLayout>

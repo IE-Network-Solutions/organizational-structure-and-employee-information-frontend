@@ -142,7 +142,12 @@ const Pension = () => {
     <div className="p-5 rounded-2xl bg-white h-full">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-lg text-bold">Pension</h1>
-        <Button type="primary" icon={<FaPlus />}>
+        <Button
+          className="h-10 w-10 sm:w-auto"
+          type="primary"
+          disabled
+          icon={<FaPlus />}
+        >
           <span className="hidden lg:inline"> Pension Rule</span>
         </Button>
       </div>

@@ -65,11 +65,11 @@ const EmploymentType = () => {
 
             {/* Mobile button */}
             <Button
-              className="flex sm:hidden items-center justify-center px-3 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
+              className="flex sm:hidden h-10 w-10 sm:w-auto"
               onClick={showDrawer}
-            >
-              <FaPlus className="text-white" />
-            </Button>
+              type="primary"
+              icon={<FaPlus />}
+            />
           </AccessGuard>
         </div>
       </div>

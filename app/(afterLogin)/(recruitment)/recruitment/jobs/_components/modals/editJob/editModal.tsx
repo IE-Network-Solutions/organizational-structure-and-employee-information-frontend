@@ -1,11 +1,13 @@
 import React from 'react';
-import { Modal, Button, Form, Input, Select, DatePicker } from 'antd';
+import { Button, Form, Input, Select, DatePicker } from 'antd';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useUpdateJobs } from '@/store/server/features/recruitment/job/mutation';
 import { LocationType } from '@/types/enumTypes';
-import TextArea from 'antd/es/input/TextArea';
 import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import TextEditor from '@/components/form/textEditor';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 
 const EditJob: React.FC = () => {
   const [form] = Form.useForm();
@@ -50,18 +52,39 @@ const EditJob: React.FC = () => {
   }, [form, selectedJob]);
   return (
     isEditModalVisible && (
-      <Modal
-        title="Edit Job"
+      <CustomDrawerLayout
         open={isEditModalVisible}
-        onCancel={handleEditModalClose}
-        footer={false}
+        onClose={handleEditModalClose}
+        modalHeader={
+          <CustomDrawerHeader className="flex justify-center">
+            <span>Edit Job</span>
+          </CustomDrawerHeader>
+        }
+        footer={
+          <Form.Item>
+            <div className="flex justify-center absolute w-full space-x-5 pb-2 bg-white ">
+              <Button
+                onClick={handleEditModalClose}
+                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                htmlType="submit"
+                className="flex justify-center border-none text-sm font-medium text-white bg-primary p-4 px-10 h-10"
+              >
+                Update Job
+              </Button>
+            </div>
+          </Form.Item>
+        }
+        width="600px"
       >
         <Form
           requiredMark={false}
           form={form}
           onFinish={handleUpdateJob}
           layout="vertical"
-          // initialValues={selectedJob}
         >
           <Form.Item
             id="jobTitle"
@@ -151,27 +174,10 @@ const EditJob: React.FC = () => {
               },
             ]}
           >
-            <TextArea rows={4} placeholder="Description" />
-          </Form.Item>
-
-          <Form.Item>
-            <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
-              <Button
-                onClick={handleEditModalClose}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-              >
-                Cancel
-              </Button>
-              <Button
-                htmlType="submit"
-                className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
-              >
-                Update Job
-              </Button>
-            </div>
+            <TextEditor placeholder="Enter job description" />
           </Form.Item>
         </Form>
-      </Modal>
+      </CustomDrawerLayout>
     )
   );
 };
