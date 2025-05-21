@@ -11,9 +11,9 @@ const setCourseLesson = async (items: Partial<CourseLesson>[]) => {
     method: 'PUT',
     headers: requestHeader(),
     data: { items },
-  });
-};
-
+    });
+  };
+  
 const deleteCourseLesson = async (id: string[]) => {
   return await crudRequest({
     url: `${TNA_URL}/learning/course/lesson`,

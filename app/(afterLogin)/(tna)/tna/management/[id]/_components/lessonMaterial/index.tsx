@@ -9,10 +9,10 @@ import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/ma
 import TextEditor from '@/components/form/textEditor';
 import CustomUpload from '@/components/form/customUpload';
 import React, { useEffect } from 'react';
-import { useSetCourseLessonMaterialWithProperOrderAdjustment } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { useGetCourseLessonsMaterial } from '@/store/server/features/tna/lessonMaterial/queries';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { CourseLessonMaterial as CourseLessonMaterialType } from '@/types/tna/course';
+import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 
 const CourseLessonMaterial = () => {
   const {
@@ -40,7 +40,7 @@ const CourseLessonMaterial = () => {
     mutate: setMaterial,
     isLoading,
     isSuccess,
-  } = useSetCourseLessonMaterialWithProperOrderAdjustment();
+  } = useSetCourseLessonMaterial();
 
   const [form] = Form.useForm();
 
@@ -90,6 +90,7 @@ const CourseLessonMaterial = () => {
     // Generate options from existing materials, excluding the current material (if editing)
     const materialOptions = courseLessonMaterials
       .filter((material) => !lessonMaterial || material.id !== lessonMaterial.id)
+      ?.sort((a, b) => a.order - b.order)
       .map((material) => ({
         label: material.title || 'Untitled', // Fallback for missing titles
         value: material.order,
@@ -128,6 +129,43 @@ const CourseLessonMaterial = () => {
     setIsShow(false);
   };
 
+
+   const getMaterialOrder = (
+    materialOrder: number
+  ): number => {
+    const courseLessonMaterials = lesson?.courseLessonMaterials ?? [];
+    // Return 0 if no materials or materialId is invalid
+    if (!courseLessonMaterials?.length || !materialOrder) {
+      return 0;
+    }
+  
+    // Find the material with the given ID and its order
+    const targetMaterial = courseLessonMaterials.find(
+      (material) => material.order === materialOrder
+    );
+    if (!targetMaterial) {
+      return 0; // Return 0 if material not found
+    }
+  
+    const targetOrder = targetMaterial.order;
+  
+    // Sort materials by order and find the last material with order < targetOrder
+    const sortedMaterials = [...courseLessonMaterials].sort((a, b) => a.order - b.order);
+    const previousMaterial = sortedMaterials
+      .filter((material) => material.order < targetOrder)
+      .pop(); // Get last material (highest order) less than targetOrder
+  
+    // If no previous material, return targetOrder / 2
+    if (!previousMaterial) {
+      return targetOrder / 2;
+    }
+  
+    // Return average of previous material's order and targetOrder
+    return (previousMaterial.order + targetOrder) / 2;
+  };
+
+
+
   const onFinish = () => {
     const values = form.getFieldsValue();
 
@@ -138,7 +176,7 @@ const CourseLessonMaterial = () => {
         description: values.description,
         article: values.article,
         timeToFinishMinutes: values.timeToFinishMinutes,
-        order: parseFloat(values.order),
+        order: getMaterialOrder(values.order),
         courseLessonId: lesson?.id ?? '',
         videos: values.videos?.map((video: any) => video.response) ?? [],
         attachments:

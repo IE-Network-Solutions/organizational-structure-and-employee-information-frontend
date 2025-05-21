@@ -23,7 +23,9 @@ const CourseLesson = () => {
 
   return (
     <div>
-      {course?.courseLessons?.map((lesson) => (
+      {course?.courseLessons
+        ?.sort((a, b) => (a.order || 0) - (b.order || 0))
+        .map((lesson) => (
         <LessonCard key={lesson.id} lesson={lesson} />
       ))}
 
