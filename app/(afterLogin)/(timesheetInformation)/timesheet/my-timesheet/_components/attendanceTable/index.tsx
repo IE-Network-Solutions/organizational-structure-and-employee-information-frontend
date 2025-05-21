@@ -4,6 +4,7 @@ import { AiOutlineReload } from 'react-icons/ai';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
 import dayjs from 'dayjs';
+import { DATE_FORMAT } from '@/utils/constants';
 
 // Types
 import { TableColumnsType } from '@/types/table/table';
@@ -73,8 +74,8 @@ const AttendanceTable = () => {
       key: 'createdAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4">
-          {dayjs(date).format('DD MMM YYYY')}
+        <div className="text-sm text-gray-900 py-4 whitespace-nowrap">
+          {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
     },
