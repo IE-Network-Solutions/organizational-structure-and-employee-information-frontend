@@ -171,8 +171,10 @@ export const useGetFormCategories = (formCatsId: string) => {
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
 export const useGetUsersById = () => {
+  const token = useAuthenticationStore.getState().token;
   return useQuery<any>('categories', fetchCatUsersById, {
     keepPreviousData: true,
+    enabled: !!token,
   });
 };
 
