@@ -128,6 +128,7 @@ const CourseLessonMaterial = () => {
     ]);
   };
 
+
   const getOrderOptions = () => {
     const defaultOption = {
       label: 'Add at the end',
@@ -222,6 +223,7 @@ const CourseLessonMaterial = () => {
             title="Upload Your video"
             accept="video/*"
             maxCount={1}
+            targetState="fileList"
           />
         </Form.Item>
         <Form.Item
@@ -239,6 +241,7 @@ const CourseLessonMaterial = () => {
             className="w-full mt-3"
             listType="picture"
             title="Upload Your Attachment"
+            targetState="fileAttachmentList"
           />
         </Form.Item>
         <Row gutter={24}>

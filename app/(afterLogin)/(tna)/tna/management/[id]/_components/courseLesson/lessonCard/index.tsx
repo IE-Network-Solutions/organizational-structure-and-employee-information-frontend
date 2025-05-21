@@ -23,6 +23,8 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     refetchCourse,
     setIsShowLessonMaterial,
     activeKey,
+    lessonMaterial,
+
     setActiveKey,
   } = useTnaManagementCoursePageStore();
   const {
@@ -33,7 +35,7 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
   const { isMobile } = useIsMobile();
 
   const shouldShowButton = !(isMobile && activeKey === lesson.id);
-
+  
   useEffect(() => {
     if (lesson) {
       setItems([
@@ -126,7 +128,7 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
       ]);
     }
   }, [lesson, isMobile, activeKey]);
-
+  
   useEffect(() => {
     if (isSuccess && refetchCourse) {
       refetchCourse();
