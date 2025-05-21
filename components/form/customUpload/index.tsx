@@ -57,8 +57,8 @@ const CustomUpload: FC<CustomUploadProps> = ({
     value !== undefined
       ? value
       : targetState === 'fileAttachmentList'
-      ? fileAttachmentList
-      : fileList;
+        ? fileAttachmentList
+        : fileList;
 
   useEffect(() => {
     // Sync the appropriate store state with the controlled value or external fileList prop
@@ -132,7 +132,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
     triggerChange(newFileList); // triggerChange will enforce maxCount=1
   };
 
-  const handleRemove = (file: UploadFile) => {
+  const handleRemove = () => {
     triggerChange([]); // Clear the file list on removal
   };
 
@@ -145,7 +145,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
             customRequest={handleUpload}
             fileList={effectiveFileList}
             onChange={handleChange}
-            maxCount={1} // Enforce single file
+            maxCount={maxCount} // Enforce single file
             {...otherProps}
           >
             <div className="flex flex-col items-center p-3 gap-1">
@@ -228,7 +228,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
                     key={file.uid}
                     onRemove={(e: MouseEvent) => {
                       e.stopPropagation();
-                      handleRemove(file);
+                      handleRemove();
                     }}
                   />
                 ))}

@@ -128,7 +128,6 @@ const CourseLessonMaterial = () => {
     ]);
   };
 
-
   const getOrderOptions = () => {
     const defaultOption = {
       label: 'Add at the end',

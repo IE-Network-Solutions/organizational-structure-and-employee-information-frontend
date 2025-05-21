@@ -9,12 +9,14 @@ import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/ma
 import React, { useEffect } from 'react';
 import RemoveFormFieldButton from '@/components/common/formButtons/removeFormFieldButton';
 import AddFormFieldsButton from '@/components/common/formButtons/addFormFieldsButton';
-import { useSetCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import { CourseLesson } from '@/types/tna/course';
 import { useGetCourseLessons } from '@/store/server/features/tna/lesson/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
-import { useDeleteCourseLessonMaterial, useSetCourseLessonMaterialWithProperOrderAdjustment } from '@/store/server/features/tna/lessonMaterial/mutation';
+import {
+  useDeleteCourseLessonMaterial,
+  useSetCourseLessonMaterialWithProperOrderAdjustment,
+} from '@/store/server/features/tna/lessonMaterial/mutation';
 
 const CourseAddLessonSidebar = () => {
   const {
@@ -33,7 +35,11 @@ const CourseAddLessonSidebar = () => {
     isLoading: isLoadingDelete,
     isSuccess: isSuccessDelete,
   } = useDeleteCourseLessonMaterial();
-  const { mutate: setLessons, isLoading, isSuccess } = useSetCourseLessonMaterialWithProperOrderAdjustment();
+  const {
+    mutate: setLessons,
+    isLoading,
+    isSuccess,
+  } = useSetCourseLessonMaterialWithProperOrderAdjustment();
   const {
     data: lessonData,
     isFetching,
