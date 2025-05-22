@@ -219,7 +219,7 @@ const AttendanceTable = () => {
   };
 
   return (
-    <div className="border border-gray-100 rounded p-3">
+    <div className=" bg-white border border-gray-100 rounded p-5">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-0.5">
           <div className="text-sm sm:text-2xl font-bold text-gray-900">
