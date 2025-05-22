@@ -27,6 +27,7 @@ interface InvoicesTableProps {
 const InvoicesTable = ({ 
   data, 
   loading = false, 
+  plans,
   currencies,
   subscriptions = []
 }: InvoicesTableProps) => {
@@ -198,6 +199,41 @@ const InvoicesTable = ({
           <span>{getPlanName(subscriptionId)}</span>
         </div>
       ),
+    },
+    {
+      title: 'New Plan',
+      dataIndex: 'newPlan',
+      key: 'newPlan',
+      width: 210,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      render: (_: unknown, record: Invoice) => {
+        const subscription = subscriptions?.find(sub => sub.id === record.subscriptionId);
+        const newPlanId = subscription?.scheduledChangesMetadata?.changes?.newPlanId;
+        const newPlanPeriodId = subscription?.scheduledChangesMetadata?.changes?.newPlanPeriodId;
+        const newSlotTotal = subscription?.scheduledChangesMetadata?.changes?.newSlotTotal;
+        const newTotalAmount = subscription?.scheduledChangesMetadata?.changes?.newTotalAmount;
+        const effectiveAt = subscription?.scheduledChangesMetadata?.effectiveAt;
+
+        if (!newPlanId) {
+          return '-';
+        }
+
+        // Looking for an identity plan in an array of plans
+        const newPlan = plans.find(p => p.id === newPlanId);
+        const newPlanPeriod = newPlan?.periods.find(p => p.id === newPlanPeriodId);
+
+        return (
+          <div className="min-w-[210px]">
+            <span className="text-xs text-gray-500">Plan changed to <span className="font-medium text-primary">{newPlan ? newPlan.name : '-'}</span></span><br />
+            {newPlanPeriod && (
+              <span className="text-xs text-gray-500">New plan period: <span className="font-medium text-primary">{newPlanPeriod?.periodType?.code}</span><br /></span>
+            )}
+            <span className="text-xs text-gray-500">New plan slot total: <span className="font-medium text-primary">{newSlotTotal ? newSlotTotal : '-'}</span></span><br />
+            <span className="text-xs text-gray-500">New plan total amount: <span className="font-medium text-primary">{newTotalAmount ? newTotalAmount : '-'}</span></span><br />
+            <span className="text-xs text-gray-500">New plan will be effective: <span className="font-medium text-primary">{effectiveAt ? dayjs(effectiveAt).format('DD.MM.YYYY') : '-'}</span></span>
+          </div>
+        );
+      },
     },
     {
       title: 'Amount',
