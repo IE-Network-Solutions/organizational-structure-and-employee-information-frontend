@@ -402,7 +402,7 @@ const Page = () => {
       )}
 
       <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
-        <div className="flex justify-start ">
+        <div className="flex justify-start pl-2 ">
           <Tabs
             className="max-w-[850px]"
             defaultActiveKey={activeTab}
@@ -417,7 +417,7 @@ const Page = () => {
         </div>
       </Spin>
 
-      <div className="flex justify-end sm:justify-start ">
+      <div className="flex justify-end sm:justify-start p-2 ">
         <Tabs
           defaultActiveKey="appreciation"
           items={variantTypeItems}
@@ -425,7 +425,7 @@ const Page = () => {
         />
       </div>
 
-      <div className="-mx-6 -mt-10">
+      <div className=" -mt-10">
         <TabLandingLayout
           buttonTitle={
             <div className="text-sm hidden sm:block">{variantType}</div>
