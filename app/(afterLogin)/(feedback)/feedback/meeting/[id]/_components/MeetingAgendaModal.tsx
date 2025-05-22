@@ -1,56 +1,71 @@
-import React, { useState } from "react";
-import { Modal, Button, Input, Mentions } from "antd";
-
-const { TextArea } = Input;
-const { Option } = Mentions;
+import React from 'react';
+import { Modal, Button } from 'antd';
+import Editor from './Editor';
+import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
+import { useCreateMeetingDiscussion } from '@/store/server/features/CFR/meeting/mutations';
 
 interface MeetingAgendaModalProps {
   visible: boolean;
   onClose: () => void;
+  meetingAgenda: any;
+  meetingId: string;
 }
 
-const users = [
-  { name: "Samuel Tesfaye", username: "samuel" },
-  { name: "Gelila Bekele", username: "gelila" },
-  { name: "Tesfahun Mekuria", username: "tesfahun" },
-  { name: "Selamawit Abebe", username: "selamawit" },
-];
-
-const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({ visible, onClose }) => {
-  const [content, setContent] = useState("");
-
+const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
+  visible,
+  onClose,
+  meetingAgenda,
+  meetingId,
+}) => {
+  const { content, setContent } = useMeetingStore();
+  const { mutate: createMeetingDiscussion, isLoading } =
+    useCreateMeetingDiscussion();
   const handleSubmit = () => {
-    console.log("Agenda Content:", content);
-    // Handle the submission logic here
-    onClose(); // Close the modal after submission
+    createMeetingDiscussion(
+      {
+        meetingId: meetingId,
+        agendaId: meetingAgenda?.id,
+        discussion: content,
+        order: 1,
+      },
+      {
+        onSuccess: () => {
+          setContent('');
+          onClose();
+        },
+      },
+    );
+    // onClose(); // Close the modal after submission
   };
 
   return (
     <Modal
-      title="[[Agenda Title as default value]]"
+      title={<div className="text-lg">{meetingAgenda?.agenda} </div>}
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={600}
+      width="80vw"
+      style={{
+        top: 20,
+        height: '90vh',
+        maxHeight: '90vh',
+      }}
+      bodyStyle={{
+        height: 'calc(95vh - 108px)', // Adjust for title + footer
+        overflowY: 'auto',
+      }}
     >
-      <p>Please add everything said for this agenda here</p>
-      <Mentions
-        style={{ width: "100%", minHeight: 100 }}
-        placeholder="Type @ to mention someone"
-        onChange={(value) => setContent(value)}
-        prefix="@"
-      >
-        {users.map((user) => (
-          <Option key={user.username} value={user.username}>
-            {user.name}
-          </Option>
-        ))}
-      </Mentions>
-      <div className="flex justify-end mt-4">
-        <Button onClick={onClose} style={{ marginRight: "8px" }}>
+      <p className="mb-5">Please add everything said for this agenda here</p>
+      <Editor meetingId={meetingId} />
+      <div className="flex justify-center mt-4 relative">
+        <Button
+          loading={isLoading}
+          onClick={onClose}
+          style={{ marginRight: '8px' }}
+        >
           Cancel
         </Button>
-        <Button type="primary" onClick={handleSubmit}>
+        <Button loading={isLoading} type="primary" onClick={handleSubmit}>
           Submit
         </Button>
       </div>

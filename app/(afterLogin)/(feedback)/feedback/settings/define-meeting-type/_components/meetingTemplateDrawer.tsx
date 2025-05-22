@@ -1,6 +1,6 @@
 import React from 'react';
-import { Drawer, Form, Input, Button, Space } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Form, Input, Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { MdClose } from 'react-icons/md';
 
@@ -9,9 +9,16 @@ interface DrawerProps {
   onClose: () => void;
   onFinish: (values: any) => void;
   initialValues?: any;
+  loading: boolean;
 }
 
-export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({ open, onClose, onFinish, initialValues }) => {
+export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
+  open,
+  onClose,
+  onFinish,
+  initialValues,
+  loading,
+}) => {
   const [form] = Form.useForm();
 
   React.useEffect(() => {
@@ -26,28 +33,39 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({ open, onClose, on
       <Button
         type="default"
         title="Cancel"
-        onClick={()=>onClose()}
+        onClick={() => onClose()}
         style={{ marginRight: 8 }}
-      >Cancel</Button>
+        loading={loading}
+      >
+        Cancel
+      </Button>
       <Button
         htmlType="submit"
         title={initialValues ? 'Update' : 'Submit'}
         type="primary"
         onClick={() => form.submit()}
-      >Submit</Button>
+        loading={loading}
+      >
+        Submit
+      </Button>
     </div>
   );
 
   return (
-    
-        <CustomDrawerLayout
+    <CustomDrawerLayout
       open={open}
-      onClose={()=>onClose()}
-      modalHeader={<div className='text-center'> {initialValues ? 'Update Meeting Template' : 'Add New Meeting Template'}</div>}
+      onClose={() => onClose()}
+      modalHeader={
+        <div className="text-center">
+          {' '}
+          {initialValues
+            ? 'Update Meeting Template'
+            : 'Add New Meeting Template'}
+        </div>
+      }
       width="40%"
       footer={footer}
     >
-
       <Form
         form={form}
         layout="vertical"
@@ -65,7 +83,9 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({ open, onClose, on
         <Form.Item
           label="Meeting Objective"
           name="objective"
-          rules={[{ required: true, message: 'Please enter the meeting objective' }]}
+          rules={[
+            { required: true, message: 'Please enter the meeting objective' },
+          ]}
         >
           <Input placeholder="The meeting objective" />
         </Form.Item>
@@ -82,15 +102,13 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({ open, onClose, on
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <div
-                 className='flex mb-1 gap-4 items-center'
-                >
+                <div key={key} className="flex mb-1 gap-4 items-center">
                   <Form.Item
                     {...restField}
                     name={name}
                     rules={[{ required: true, message: 'Missing agenda item' }]}
-                    className='w-full'
-                    label={`Agenda Item ${key+1}`}
+                    className="w-full"
+                    label={`Agenda Item ${key + 1}`}
                   >
                     <Input placeholder="Agenda Item" />
                   </Form.Item>
@@ -110,8 +128,6 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({ open, onClose, on
             </>
           )}
         </Form.List>
-
-        
       </Form>
     </CustomDrawerLayout>
   );

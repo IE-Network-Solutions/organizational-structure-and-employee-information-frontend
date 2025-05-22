@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Form,
   Input,
@@ -7,39 +7,78 @@ import {
   DatePicker,
   TimePicker,
   Button,
-  Tag,
   Checkbox,
-} from "antd";
-import dayjs from "dayjs";
-import CustomDrawerLayout from "@/components/common/customDrawer";
-import { useMeetingStore } from "@/store/uistate/features/conversation/meeting";
-import { Steps } from 'antd';
-import { CheckCircleOutlined } from "@ant-design/icons";
-import { MdClose } from "react-icons/md";
+  Steps,
+} from 'antd';
+import CustomDrawerLayout from '@/components/common/customDrawer';
+import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
+import { MdClose } from 'react-icons/md';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
+import {
+  useGetMeetingAgendaTemplate,
+  useGetMeetingAgendaTemplateById,
+  useGetMeetingType,
+} from '@/store/server/features/CFR/meeting/queries';
+import { useCreateMeeting } from '@/store/server/features/CFR/meeting/mutations';
 
 const { Step } = Steps;
-const { Option } = Select;
-
-const peopleOptions = [
-  { label: "Abraham Dulla", value: "abraham-dulla" },
-  { label: "Surafel Kifle", value: "surafel-kifle" },
-];
 
 export default function AddNewMeetingForm() {
   const [form] = Form.useForm();
   const [step, setStep] = useState(1);
-   const [allowGuests, setAllowGuests] = useState(false);
-  const [guests, setGuests] = useState([{ name: '', email: '' }]);
-  const { 
+  const [allowGuests, setAllowGuests] = useState(false);
+  const {
     openAddMeeting,
-setOpenAddMeeting } = useMeetingStore();
+    setOpenAddMeeting,
+    meetingTypeId,
+    setMeetingTypeId,
+    templateId,
+    setTemplateId,
+  } = useMeetingStore();
+  const [locationType, setMeetingType] = useState<string>('');
+
+  const firstStepFields = [
+    'title',
+    'type',
+    'locationType',
+    'location',
+    'department',
+    'date',
+    'startTime',
+    'endTime',
+    'chairPerson',
+    'facilitator',
+    'attendees',
+  ];
+
+  const { data: allUsers } = useGetAllUsers();
+  const { data: Departments } = useGetUserDepartment();
+  const { data: meetTypes } = useGetMeetingType();
+  const peopleOptions = allUsers?.items?.map((i: any) => ({
+    value: i.id,
+    label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
+  }));
+  const departmentOptions = Departments?.map((i) => ({
+    value: i.id,
+    label: i?.name,
+  }));
+  const meetingOptions = meetTypes?.items?.map((i: any) => ({
+    value: i.id,
+    label: i?.name,
+  }));
+  const { mutate: createMeeting, isLoading: meetingLoading } =
+    useCreateMeeting();
+  const handleClose = () => {
+    setOpenAddMeeting(false);
+  };
 
   const onNext = async () => {
     try {
-      await form.validateFields(step === 1 ? firstStepFields : secondStepFields);
+      await form.validateFields(firstStepFields);
       setStep(2);
     } catch (e) {
-      // validation failed
+      // validation error
     }
   };
 
@@ -47,336 +86,414 @@ setOpenAddMeeting } = useMeetingStore();
     setStep(1);
   };
 
-  const onFinish = (values) => {
-    console.log("Final values:", values);
-    // Handle form submit
-  };
+  const onFinish = (values: any) => {
+    createMeeting(
+      {
+        ...values,
+        agendaItems: values.agendaItems?.map((item: any, index: number) => ({
+          agenda: item,
+          order: index + 1,
+        })),
+        locationType: locationType,
+      },
+      {
+        onSuccess() {
+          form.resetFields();
+          handleClose();
+        },
+      },
+    );
 
-  const firstStepFields = [
-    "title",
-    "type",
-    "locationType",
-    "location",
-    "department",
-    "date",
-    "startTime",
-    "endTime",
-    "chairPerson",
-    "facilitator",
-    "attendees",
-  ];
-
-  const secondStepFields = ["meetingObjective", "template"];
-  function handleClose(){
- setOpenAddMeeting(false)
-  }
-   const handleGuestChange = (index, field, value) => {
-    const newGuests = [...guests];
-    newGuests[index][field] = value;
-    setGuests(newGuests);
+    // Handle final submission
   };
-
-  const addGuest = () => {
-    setGuests([...guests, { name: '', email: '' }]);
-  };
+  const { data: meetingAgendaTemplate } = useGetMeetingAgendaTemplate(
+    meetingTypeId || '',
+  );
+  const { data: meetingAgendaTemplateById } = useGetMeetingAgendaTemplateById(
+    templateId || '',
+  );
+  const meetingTemplateOptions = meetingAgendaTemplate?.items?.map(
+    (i: any) => ({
+      value: i.id,
+      label: i?.name,
+    }),
+  );
+  useEffect(() => {
+    if (meetingAgendaTemplateById) {
+      const selectedTemplate = meetingAgendaTemplateById;
+      if (selectedTemplate) {
+        form.setFieldsValue({
+          objective: selectedTemplate?.objective,
+          agendaItems: meetingAgendaTemplateById.agendaItems?.map(
+            (item: any) => item?.agenda,
+          ),
+        });
+      }
+    }
+  }, [templateId, meetingAgendaTemplateById]);
   const footer = (
-      <div className="flex justify-center gap-3 mt-6">
-           <Button className="w-36" onClick={onPrev}>Cancel</Button>
-          {step === 2 ? (
-            <>
-             
-              <Button className="w-36" type="primary" htmlType="submit">
-                Create
-              </Button>
-            </>
-          ) : (
-            <Button type="primary" onClick={onNext}  className="w-36">
-              Next
-            </Button>
-          )}
-        </div>
-  )
+    <div className="flex justify-center gap-3 mt-6">
+      <Button
+        loading={meetingLoading}
+        className="w-36"
+        onClick={step === 2 ? onPrev : handleClose}
+      >
+        {step === 2 ? 'Back' : 'Cancel'}
+      </Button>
+      <Button
+        type="primary"
+        className="w-36"
+        loading={meetingLoading}
+        onClick={step === 2 ? () => form.submit() : onNext}
+      >
+        {step === 2 ? 'Create' : 'Next'}
+      </Button>
+    </div>
+  );
   return (
-<CustomDrawerLayout
+    <CustomDrawerLayout
       open={openAddMeeting}
-      onClose={()=>handleClose()}
-      modalHeader={    <h2 className="text-center font-semibold text-lg mb-2">Add New Meeting</h2>}
+      onClose={handleClose}
+      modalHeader={
+        <h2 className="text-center font-semibold text-lg mb-2">
+          Add New Meeting
+        </h2>
+      }
       width="40%"
       footer={footer}
-    >      
-      <p className="text-center text-gray-600 mb-6 font-medium">Meeting Information</p>
+    >
+      <p className="text-center text-gray-600 mb-6 font-medium">
+        Meeting Information
+      </p>
 
-      {/* Step Indicator */}
-      
- <div className="flex justify-center mb-8">
-     <div className="flex justify-center ">
-      <Steps
-        current={step - 1}
-        size="small"
-        labelPlacement="vertical"
-        className="w-full max-w-md"
-      >
-        <Step
-          title="Step 1"
-          icon={
-            step === 1 ? (
-              <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
-                <span className="w-3 h-3 bg-blue rounded-full"></span>
-              </div>
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-300"></div>
-            )
-          }
-        />
-        <Step
-          title="Step 2"
-          icon={
-            step === 2 ? (
-              <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
-                <span className="w-3 h-3 bg-blue rounded-full"></span>
-              </div>
-            ) : (
-              <div className="w-8 h-8 rounded-full border border-gray-300"></div>
-            )
-          }
-        />
-      </Steps>
-    </div>
-    </div>
+      <div className="flex justify-center ">
+        <Steps
+          current={step - 1}
+          size="small"
+          labelPlacement="vertical"
+          className="w-full max-w-md"
+        >
+          <Step
+            icon={
+              step === 1 ? (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
+                  <span className="w-3 h-3 bg-blue rounded-full"></span>
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gray-300"></div>
+              )
+            }
+          />
+          <Step
+            icon={
+              step === 2 ? (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
+                  <span className="w-3 h-3 bg-blue rounded-full"></span>
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-full border border-gray-300"></div>
+              )
+            }
+          />
+        </Steps>
+      </div>
 
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          date: dayjs(),
-          startTime: dayjs(),
-          endTime: dayjs().add(1, "hour"),
-          locationType: "in-person",
-          department: "SaaS",
-        }}
-      >
-        {step === 1 && (
-          <>
-            <Form.Item
-              label="Title"
-              name="title"
-              rules={[{ required: true, message: "Please input the title" }]}
+      <Form form={form} layout="vertical" onFinish={onFinish}>
+        {/* Step 1 */}
+        <div style={{ display: step === 1 ? 'block' : 'none' }}>
+          <Form.Item
+            label="Title"
+            name="title"
+            rules={[{ required: true, message: 'Please input the title' }]}
+          >
+            <Input placeholder="Input area" />
+          </Form.Item>
+
+          <Form.Item label="Meeting Type" name="meetingTypeId">
+            <Select
+              showSearch
+              placeholder="Select meeting type"
+              allowClear
+              maxTagCount={3}
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={meetingOptions}
+              onChange={(value) => setMeetingTypeId(value)}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Location"
+            name="locationType"
+            rules={[{ required: true, message: 'Please select location type' }]}
+          >
+            <Radio.Group
+              onChange={(e) => setMeetingType(e.target.value)}
+              value={locationType}
+              className="flex gap-2 w-full"
             >
-              <Input placeholder="Input area" />
+              <Radio value="in-person" className="w-full border p-2 rounded-md">
+                In-person
+              </Radio>
+              <Radio value="virtual" className="w-full border p-2 rounded-md">
+                Virtual
+              </Radio>
+              <Radio value="hybrid" className="w-full border p-2 rounded-md">
+                Hybrid
+              </Radio>
+            </Radio.Group>
+          </Form.Item>
+          {(locationType === 'virtual' || locationType === 'hybrid') && (
+            <Form.Item
+              label="Enter Link"
+              name="virtualLink"
+              rules={[{ required: true, message: 'Please enter Virtual Link' }]}
+            >
+              <Input placeholder="Meeting link" />
             </Form.Item>
+          )}
 
-            <Form.Item label="Type" name="type">
-              <Select placeholder="Meeting Type" allowClear>
-                <Option value="team">Team Meeting</Option>
-                <Option value="client">Client Meeting</Option>
-                <Option value="one-on-one">One-on-One</Option>
-              </Select>
-            </Form.Item>
-
-<Form.Item
-  label="Location"
-  name="locationType"
-  rules={[{ required: true, message: "Please select location type" }]}
->
-  <Radio.Group className="flex gap-2 w-full">
-    <Radio value="in-person" className="w-full items-center  rounded-md border p-2">
-      <div className="flex justify-between w-full">
-        <span className="text-black">In-person</span>
-      </div>
-    </Radio>
-    <Radio value="virtual" className="w-full items-center border  rounded-md p-2">
-      <div className="flex justify-between  w-full">
-        <span className="text-black">Virtual</span>
-      </div>
-    </Radio>
-    
-    <Radio value="hybrid" className="w-full items-center border rounded-md p-2">
-      <div className="flex justify-between w-full">
-        <span className="text-black">Hybrid</span>
-      </div>
-    </Radio>
-   
-   
-  </Radio.Group>
-</Form.Item>
-
-
-
-
+          {(locationType === 'in-person' || locationType === 'hybrid') && (
             <Form.Item
               label="Enter Location"
-              name="location"
-              rules={[{ required: true, message: "Please enter location" }]}
+              name="physicalLocation"
+              rules={[{ required: true, message: 'Please enter location' }]}
             >
-              <Input placeholder="Conference Room 1" />
+              <Input placeholder="Conference Room" />
+            </Form.Item>
+          )}
+
+          <Form.Item
+            label="Department"
+            name="department"
+            rules={[{ required: true, message: 'Please select a department' }]}
+          >
+            <Select
+              showSearch
+              placeholder="Select department"
+              allowClear
+              mode="multiple"
+              maxTagCount={3}
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={departmentOptions}
+            />
+          </Form.Item>
+
+          <div className="grid grid-cols-3 gap-3">
+            <Form.Item
+              label="Date"
+              name="date"
+              rules={[{ required: true, message: 'Please select date' }]}
+            >
+              <DatePicker className="w-full" />
             </Form.Item>
 
             <Form.Item
-              label="Department"
-              name="department"
-              rules={[{ required: true, message: "Please select a department" }]}
+              label="Start Time"
+              name="startAt"
+              rules={[{ required: true, message: 'Please select start time' }]}
             >
-              <Select>
-                <Option value="SaaS">SaaS</Option>
-                <Option value="Marketing">Marketing</Option>
-                <Option value="HR">HR</Option>
-              </Select>
-            </Form.Item>
-
-            <div className="grid grid-cols-3 gap-3">
-              <Form.Item
-                label="Date"
-                name="date"
-                className="mb-0"
-                rules={[{ required: true, message: "Please select date" }]}
-              >
-                <DatePicker className="w-full" />
-              </Form.Item>
-
-              <Form.Item
-                label="Start Time"
-                name="startTime"
-                className="mb-0"
-                rules={[{ required: true, message: "Please select start time" }]}
-              >
-                <TimePicker className="w-full" />
-              </Form.Item>
-
-              <Form.Item
-                label="End Time"
-                name="endTime"
-                className="mb-0"
-                rules={[{ required: true, message: "Please select end time" }]}
-              >
-                <TimePicker className="w-full" />
-              </Form.Item>
-            </div>
-
-            <Form.Item
-              label="Select Chair person"
-              name="chairPerson"
-              rules={[{ required: true, message: "Please select chair person" }]}
-            >
-              <Select
-                mode="multiple"
-                options={peopleOptions}
-                placeholder="Select chair person"
-                maxTagCount={1}
-              />
+              <TimePicker className="w-full" />
             </Form.Item>
 
             <Form.Item
-              label="Select Facilitator"
-              name="facilitator"
-              rules={[{ required: true, message: "Please select facilitator" }]}
+              label="End Time"
+              name="endAt"
+              rules={[{ required: true, message: 'Please select end time' }]}
             >
-              <Select
-                mode="multiple"
-                options={peopleOptions}
-                placeholder="Select facilitator"
-                maxTagCount={1}
-              />
+              <TimePicker className="w-full" />
             </Form.Item>
+          </div>
 
-            <Form.Item
-              label="Add Attendee"
-              name="attendees"
-              rules={[{ required: true, message: "Please add attendees" }]}
-            >
-              <Select
-                mode="multiple"
-                options={peopleOptions}
-                placeholder="Add attendees"
-              />
-              
-            </Form.Item>
-              <Form.Item>
-                <div className='flex justify-end'>
-                  <Checkbox
+          <Form.Item
+            label="Select Chair person"
+            name="chairpersonId"
+            rules={[{ required: true, message: 'Please select chair person' }]}
+          >
+            <Select
+              showSearch
+              placeholder="Select chair person"
+              allowClear
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={peopleOptions}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Select Facilitator"
+            name="facilitatorId"
+            rules={[{ required: true, message: 'Please select facilitator' }]}
+          >
+            <Select
+              showSearch
+              placeholder="Select a facilitator"
+              allowClear
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={peopleOptions}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Add Attendee"
+            name="attendeeIds"
+            rules={[{ required: true, message: 'Please add attendees' }]}
+          >
+            <Select
+              showSearch
+              placeholder="Add attendees"
+              allowClear
+              mode="multiple"
+              maxTagCount={3}
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={peopleOptions}
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <div className="flex justify-end">
+              <Checkbox
                 checked={allowGuests}
                 onChange={(e) => setAllowGuests(e.target.checked)}
               >
                 Allow Guests
               </Checkbox>
-                </div>
-              {allowGuests && 
-              <Form.List name="guests">
-  {(fields, { add, remove }) => (
-    <>
-      {fields.map(({ key, name, ...restField }) => (
-        <div key={key} className="flex space-x-3 ">
-          <Form.Item
-            {...restField}
-            name={[name, 'name']}
-            label="Name"
-            rules={[{ required: true, message: 'Please add guest fullname' }]}
-            className="w-full mt-2"
-          >
-            <Input placeholder="Name" />
-          </Form.Item>
+            </div>
 
-          <Form.Item
-            {...restField}
-            name={[name, 'email']}
-            label={<div className="flex justify-between items-center w-64">
-                                        <span>Email</span>
-                                        <Button
-                                          icon={<MdClose />}
-                                          type="link"
-                                          className="text-black ml-4"
-                                          onClick={() => remove(name)}
-                                        />
-                                      </div>}
-            rules={[{ required: true, message: 'Please add guest email' }]}
-            className="w-full"
-          >
-            <Input placeholder="Email" type="email" />
+            {allowGuests && (
+              <Form.List name="guests">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <div key={key} className="flex space-x-3">
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'name']}
+                          label="Name"
+                          rules={[
+                            {
+                              required: true,
+                              message: 'Please add guest fullname',
+                            },
+                          ]}
+                          className="w-full mt-2"
+                        >
+                          <Input placeholder="Name" />
+                        </Form.Item>
+
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'email']}
+                          label={
+                            <div className="flex justify-between items-center w-64">
+                              <span>Email</span>
+                              <Button
+                                icon={<MdClose />}
+                                type="link"
+                                className="text-black ml-4"
+                                onClick={() => remove(name)}
+                              />
+                            </div>
+                          }
+                          rules={[
+                            {
+                              required: true,
+                              message: 'Please add guest email',
+                            },
+                          ]}
+                          className="w-full"
+                        >
+                          <Input placeholder="Email" type="email" />
+                        </Form.Item>
+                      </div>
+                    ))}
+                    <div className="flex justify-end">
+                      <Button type="primary" onClick={() => add()}>
+                        Add Guest
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </Form.List>
+            )}
           </Form.Item>
         </div>
-      ))}
-      <div className="flex justify-end">
-        <Button type="primary" onClick={() => add()}>
-          Add Guest
-        </Button>
-      </div>
-    </>
-  )}
-</Form.List>}
 
-            </Form.Item>
-          </>
-        )}
+        {/* Step 2 */}
+        <div style={{ display: step === 2 ? 'block' : 'none' }}>
+          <Form.Item
+            label="Meeting Objective"
+            name="objective"
+            rules={[
+              { required: true, message: 'Please enter meeting objective' },
+            ]}
+          >
+            <Input.TextArea
+              placeholder="[[Meeting Type + Objective]]"
+              rows={4}
+            />
+          </Form.Item>
 
-        {step === 2 && (
-          <>
-            <Form.Item
-              label="Meeting Objective"
-              name="meetingObjective"
-              rules={[{ required: true, message: "Please enter meeting objective" }]}
-            >
-              <Input.TextArea
-                placeholder="[[Meeting Type + Objective]]"
-                rows={4}
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Templates"
-              name="template"
-              rules={[{ required: true, message: "Please select a template" }]}
-            >
-              <Select placeholder="Select template">
-                <Option value="template1">Template 1</Option>
-                <Option value="template2">Template 2</Option>
-                <Option value="template3">Template 3</Option>
-              </Select>
-            </Form.Item>
-          </>
-        )}
-
-        {/* Buttons */}
-      
+          <Form.Item
+            label="Templates"
+            name="template"
+            rules={[{ required: true, message: 'Please select a template' }]}
+          >
+            <Select
+              showSearch
+              placeholder="Select template"
+              allowClear
+              maxTagCount={3}
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={meetingTemplateOptions}
+              onChange={(value) => setTemplateId(value)}
+            />
+          </Form.Item>
+          <Form.List name="agendaItems">
+            {(fields, { remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <div key={key} className="flex mb-1 gap-4 items-center">
+                    <Form.Item
+                      {...restField}
+                      name={name}
+                      rules={[
+                        { required: true, message: 'Missing agenda item' },
+                      ]}
+                      className="w-full"
+                      label={`Agenda Item ${key + 1}`}
+                    >
+                      <Input placeholder="Agenda Item" />
+                    </Form.Item>
+                    <MdClose onClick={() => remove(name)} />
+                  </div>
+                ))}
+              </>
+            )}
+          </Form.List>
+        </div>
       </Form>
     </CustomDrawerLayout>
   );

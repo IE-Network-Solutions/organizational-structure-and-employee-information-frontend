@@ -1,21 +1,30 @@
 // components/MeetingDetail/MeetingHeader.tsx
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { Button, Card } from 'antd';
 import Link from 'next/link';
+import { IoIosArrowBack } from 'react-icons/io';
 
 interface MeetingHeaderProps {
   title: string;
+  loading: boolean;
 }
 
-export default function MeetingHeader({ title }: MeetingHeaderProps) {
+export default function MeetingHeader({ title, loading }: MeetingHeaderProps) {
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <Link href="/meetings" className="text-blue-500 flex items-center gap-1">
-          <ArrowLeftOutlined /> Details of <span className="font-semibold">[{title}]</span>
+    <Card
+      bodyStyle={{ padding: 0 }}
+      loading={loading}
+      className=" my-5 border-none"
+    >
+      <div className="flex items-center justify-between">
+        <Link
+          href="/feedback/meeting"
+          className=" !text-black flex items-center gap-3"
+        >
+          <IoIosArrowBack size={20} />
+          <span className="font-semibold  text-2xl">{title}</span>
         </Link>
+        <Button type="primary">MoM</Button>
       </div>
-      <Button type="primary">MoM</Button>
-    </div>
+    </Card>
   );
 }

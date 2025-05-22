@@ -1,15 +1,8 @@
 // components/MeetingDetail/ParticipantsList.tsx
-import { Tag, Avatar, Button } from 'antd';
-import { FaPlus } from 'react-icons/fa';
+import { Tag, Avatar, Button, Tooltip, Spin } from 'antd';
 import AddParticipantsPopconfirm from './AddParticipant';
-
-const participants = [
-  { name: 'Nahom Samuel', email: 'nahom@email.com', status: null,  },
-  { name: 'Nahom Samuel', email: 'nahom@email.com', status: 'Confirmed' ,late:'2:00 min'},
-  { name: 'Nahom Samuel', email: 'nahom@email.com', status: 'Confirmed',late:'10:00 min' },
-  { name: 'Nahom Samuel', email: 'nahom@email.com', status: 'Not Confirmed' },
-  { name: 'Nahom Samuel', email: 'nahom@email.com', status: 'Confirmed' },
-];
+import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 const statusColorMap: Record<string, string> = {
   Revert: 'red',
@@ -18,48 +11,113 @@ const statusColorMap: Record<string, string> = {
   'Not Confirmed': 'orange',
 };
 
-export default function ParticipantsList() {
-  return (
-    <div className=" p-4 space-y-3">
-      <div className='flex justify-between items-center py-2'>
-         <h2 className="text-lg font-semibold mb-2">List of Participants</h2>
-        <AddParticipantsPopconfirm/>
-      </div>
-      <h2 className="text-lg font-semibold"></h2>
-      {participants.map((p, i) => (
-        <div key={i} className="flex justify-between items-center border p-2 rounded-md">
-          <div className="flex gap-2 items-center">
-            <Avatar src="/avatar.png" />
+interface ParticipantsListProps {
+  meeting: any; // Replace 'any' with a more specific type if available
+  loading: boolean;
+}
+
+export default function ParticipantsList({
+  meeting,
+  loading,
+}: ParticipantsListProps) {
+  const EmployeeDetails = ({
+    empId,
+    isEmp,
+    guest,
+  }: {
+    empId: string;
+    isEmp: boolean;
+    guest: any;
+  }) => {
+    const { data: userDetails, isLoading } = useGetEmployee(empId);
+    if (isLoading && isEmp)
+      return (
+        <>
+          <LoadingOutlined />
+        </>
+      );
+
+    const userName =
+      `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+      '-';
+    const email = `${userDetails?.email} ` || '-';
+    const profileImage = userDetails?.profileImage;
+    const guestName = guest?.name;
+    const guestEmail = guest?.email;
+
+    return (
+      <>
+        {isEmp ? (
+          <div className="flex gap-2">
+            <Avatar src={profileImage} icon={<UserOutlined />} />
             <div>
-              <p className="font-medium">{p.name}</p>
-              <p className="text-sm text-gray-500">{p.email}</p>
-              {p.late &&(
-               <Tag
-                        className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-                        color={
-                       'orange'
-                        }
-                      >
-                        Late By {p.late}
-                      </Tag>)}
+              <span className="text-[10px]">{userName}</span>
+
+              <Tooltip title={email}>
+                <div className="text-[8px] text-gray-500">
+                  {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
+                </div>
+              </Tooltip>
             </div>
           </div>
-          {p.status?
-          <Tag
-                        className="font-bold border-none min-w-16 text-center capitalize text-sm"
-                        color={
-                        statusColorMap[p.status]
-                        }
-                      >
-                        {p.status}
-                      </Tag>: <Button
-        
+        ) : (
+          <div className="flex gap-2">
+            <Avatar icon={<UserOutlined />} />
+            <div>
+              <span className="text-[10px]">{guestName}</span>
 
-          type='primary'
-         >Confirm</Button>}
+              <Tooltip title={guestEmail}>
+                <div className="text-[8px] text-gray-500">
+                  {guestEmail?.length >= 20
+                    ? guestEmail?.slice(0, 20) + '...'
+                    : guestEmail}
+                </div>
+              </Tooltip>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+  return (
+    <div className=" p-4 space-y-3">
+      <div className="flex justify-between items-center py-2">
+        <h2 className="text-lg font-semibold mb-2">List of Participants</h2>
+        <AddParticipantsPopconfirm meetingId={meeting?.id} loading={loading} />
+      </div>
+      {loading ? (
+        <div className="flex justify-center">
+          <Spin />
         </div>
-      ))}
-     
+      ) : (
+        <>
+          {meeting?.attendees?.map((p: any, i: number) => (
+            <div
+              key={i}
+              className="flex justify-between items-center border p-2 rounded-md"
+            >
+              <EmployeeDetails
+                isEmp={p?.userId == null ? false : true}
+                empId={p?.userId}
+                guest={p.guestUser}
+              />
+
+              {p.attendanceStatus ? (
+                <Tag
+                  className="font-bold border-none min-w-16 text-center capitalize text-[8px]"
+                  color={statusColorMap[p.attendanceStatus]}
+                >
+                  {p.attendanceStatus}
+                </Tag>
+              ) : (
+                <Button type="primary" className="text-[8px]">
+                  Confirm
+                </Button>
+              )}
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }
