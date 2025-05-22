@@ -20,12 +20,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 }) => {
   const { isMobile } = useIsMobile();
   return (
-    <div className="flex justify-between flex-wrap items-center p-2">
-      <div className="flex-1">
+    <div className="flex justify-between flex-wrap items-center px-2">
+      <div className="flex-1 px-2">
         {isMobile ? (
           <Tooltip title={toolTip} placement="top">
             <h2
-              className={classNames('text-gray-900 mt-10', {
+              className={classNames('text-gray-900 ', {
                 'text-xl': size === 'medium',
                 'text-lg': size === 'small',
               })}
@@ -36,7 +36,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         ) : (
           <Tooltip title={toolTip} placement="top">
             <h2
-              className={classNames('text-gray-900 mt-5', {
+              className={classNames('text-gray-900', {
                 'text-2xl': size === 'medium',
                 'text-xl': size === 'small',
               })}
