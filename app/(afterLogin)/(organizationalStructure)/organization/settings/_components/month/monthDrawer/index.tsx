@@ -272,7 +272,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
             <Button
               type="default"
               onClick={() => setCurrent(1)}
-              className="h-[40px] sm:h-[56px] text-base"
+              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
             >
               Previous
             </Button>
@@ -284,7 +284,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                   onNextStep();
                 }
               }}
-              className="h-[40px] sm:h-[56px] text-base"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <div>
