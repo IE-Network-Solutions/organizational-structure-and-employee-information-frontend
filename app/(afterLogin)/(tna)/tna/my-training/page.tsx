@@ -30,7 +30,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import UserCard from '@/components/common/userCard/userCard';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import TnaApprovalTable from './_components/approvalTabel';
-import { useGetTnaByUser } from '@/store/server/features/tna/review/queries';
+import { useGetTnaByUser, useGetTna } from '@/store/server/features/tna/review/queries';
+import { useSetTna } from '@/store/server/features/tna/review/mutation';
 
 const TnaReviewPage = () => {
   const EmpRender = ({ userId }: any) => {
@@ -86,6 +87,17 @@ const TnaReviewPage = () => {
     isLoading: isLoadingDelete,
     isSuccess,
   } = useDeleteTna();
+  const [selectedTnaId, setSelectedTnaId] = useState<string | null>(null);
+  const { mutate: updateTna } = useSetTna();
+  
+  // Add this to get current TNA data
+  const { data: currentTnaData } = useGetTna(
+    { page: 1, limit: 1 },
+    { filter: { id: selectedTnaId ? [selectedTnaId] : [] } },
+    '',
+    false,
+    !!selectedTnaId
+  );
 
   useEffect(() => {
     if (isSuccess) {
@@ -207,6 +219,20 @@ const TnaReviewPage = () => {
       ),
     },
   ];
+
+  const handleUpdate = (values: any) => {
+    if (selectedTnaId && currentTnaData?.items?.[0]) {
+      const currentData = currentTnaData.items[0];
+      updateTna({
+        items: [{
+          ...currentData,  // Keep existing data
+          ...values,       // Override with new values
+          id: selectedTnaId,
+          updatedAt: new Date().toISOString()
+        }]
+      });
+    }
+  };
 
   return (
     <div className="page-wrap">
