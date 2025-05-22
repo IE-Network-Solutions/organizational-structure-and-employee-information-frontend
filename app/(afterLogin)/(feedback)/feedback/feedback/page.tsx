@@ -230,7 +230,7 @@ const columns = [
     },
   },
 
-  ...(variantType === 'reprimand'
+  ...(variantType !== 'appreciation'
     ? [
         {
           title: 'Action To be Taken',
