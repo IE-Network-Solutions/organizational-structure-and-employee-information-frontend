@@ -50,8 +50,10 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   //   ===========> HTTP Requests <============
 
   const { data: incentiveData } = useIncentiveCriteria();
-  const { mutate: updateIncentiveFormula, isLoading: updateLoading} = useUpdateIncentiveFormula();
-  const { mutate: createFormula , isLoading:createLoading} = useSetIncentiveFormula();
+  const { mutate: updateIncentiveFormula, isLoading: updateLoading } =
+    useUpdateIncentiveFormula();
+  const { mutate: createFormula, isLoading: createLoading } =
+    useSetIncentiveFormula();
 
   const { data: formulaById } =
     useIncentiveFormulaByRecognitionId(recognitionId);
@@ -308,28 +310,30 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                     </span>
                     <span className="flex flex-wrap my-1">
                       {incentiveData?.items ? (
-                        recognitionData?.recognitionCriteria?.map((option: any) => (
-                          <div key={option?.id}>
-                            {option?.criteria?.criteriaName && (
-                              <Button
-                                onClick={() =>
-                                  handleOptionClick(
-                                    option?.criteria?.id,
-                                    option?.criteria?.criteriaName,
-                                    'criteria',
-                                  )
-                                }
-                                className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
-                              >
-                                <div className="flex flex-wrap items-center justify-center">
-                                  <span className="text-md font-md">
-                                    {option?.criteria?.criteriaName}
-                                  </span>
-                                </div>
-                              </Button>
-                            )}
-                          </div>
-                        ))
+                        recognitionData?.recognitionCriteria?.map(
+                          (option: any) => (
+                            <div key={option?.id}>
+                              {option?.criteria?.criteriaName && (
+                                <Button
+                                  onClick={() =>
+                                    handleOptionClick(
+                                      option?.criteria?.id,
+                                      option?.criteria?.criteriaName,
+                                      'criteria',
+                                    )
+                                  }
+                                  className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
+                                >
+                                  <div className="flex flex-wrap items-center justify-center">
+                                    <span className="text-md font-md">
+                                      {option?.criteria?.criteriaName}
+                                    </span>
+                                  </div>
+                                </Button>
+                              )}
+                            </div>
+                          ),
+                        )
                       ) : (
                         <span className="text-sm text-gray-500 m-1">
                           No Criterion
