@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Progress, Card, Avatar, Menu, Dropdown } from 'antd';
-import { PiCalendarPlus } from 'react-icons/pi';
+import { PiUserCircleCheck } from 'react-icons/pi';
+
 import KeyResultMetrics from '../keyresultmetrics';
 import EditObjective from '../editObjective';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -154,7 +155,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   className={`${isMobile ? 'gap-2 items-center justify-between w-full' : 'grid items-center gap-0'}`}
                 >
                   <div className="flex items-center">
-                    <PiCalendarPlus className="text-blue mt-1" />
+                    <PiUserCircleCheck className="text-blue mt-1" />
                     <div
                       className={`font-bold text-[#3636f0] ${isMobile ? 'text-lg ml-2' : 'text-2xl'}`}
                     >
