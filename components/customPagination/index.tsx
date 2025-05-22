@@ -1,6 +1,7 @@
 import React from 'react';
 import { Select } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -107,6 +108,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     return pageNumbers;
   };
 
+  const { isMobile } = useIsMobile();
   return (
     <div className="flex justify-between items-center py-6 mx-2">
       <div className="flex items-center space-x-2">
@@ -135,10 +137,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         </button>
       </div>
       <div className="flex items-center">
-        <span className="mr-2 text-sm text-gray-400">
-          Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
-          {Math.min(total, current * pageSize)} out of {total} entries
-        </span>
+        {!isMobile && (
+          <span className="mr-2 text-sm text-gray-400">
+            Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
+            {Math.min(total, current * pageSize)} out of {total} entries
+          </span>
+        )}
         <Select
           value={pageSize}
           className="w-24"
@@ -147,6 +151,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <Option value={4}>Show 4</Option>
           <Option value={10}>Show 10</Option>
           <Option value={25}>Show 25</Option>
+          <Option value={50}>Show 50</Option>
+          <Option value={75}>Show 75</Option>
+          <Option value={100}>Show 100</Option>
         </Select>
       </div>
     </div>

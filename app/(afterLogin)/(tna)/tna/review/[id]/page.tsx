@@ -113,7 +113,7 @@ const TnaDetailPage = () => {
       <BlockWrapper>
         <PageHeader
           title={
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 ">
               <Button
                 icon={<FaArrowLeftLong size={18} />}
                 className="text-gray-900 bg-transparent shadow-none"
@@ -154,8 +154,8 @@ const TnaDetailPage = () => {
 
               <div>
                 <div className="flex gap-2.5 text-sm mb-4">
-                  <div className="w-[200px] text-gray-600">Requester</div>
-                  <div className="flex-1">
+                  <div className="w-1/3 text-gray-600">Requester</div>
+                  <div className="flex-1 ">
                     <UserCard
                       data={data}
                       name={
@@ -167,19 +167,19 @@ const TnaDetailPage = () => {
                         userImage(String(data.items[0].assignedUserId))
                       }
                       size="small"
-                    />{' '}
+                    />
                   </div>
                 </div>
 
                 <div className="flex gap-2.5 mb-4 text-sm font-semibold">
-                  <div className="w-[200px]  text-gray-600">Training</div>
+                  <div className="w-1/3  text-gray-600">Training</div>
                   <div className="flex-1">
                     {data.items[0].trainingNeedCategory?.name}
                   </div>
                 </div>
 
                 <div className="flex gap-2.5 mb-4 text-sm">
-                  <div className="w-[200px] text-gray-600">Status</div>
+                  <div className="w-1/3 text-gray-600">Status</div>
                   <div className="flex-1">
                     <StatusBadge
                       theme={
@@ -194,7 +194,7 @@ const TnaDetailPage = () => {
                 </div>
 
                 <div className="flex gap-2.5 text-sm mb-4">
-                  <div className="w-[200px] text-gray-600">Cert-Status</div>
+                  <div className="w-1/3 text-gray-600">Cert-Status</div>
                   <div className="flex-1">
                     <StatusBadge
                       theme={
@@ -209,7 +209,7 @@ const TnaDetailPage = () => {
                 </div>
 
                 <div className="flex gap-2.5 text-sm mb-4">
-                  <div className="w-[200px] text-gray-600">Completed on</div>
+                  <div className="w-1/3 text-gray-600">Completed on</div>
                   <div className="flex-1">
                     {data.items[0].completedAt
                       ? dayjs(data.items[0].completedAt).format(DATE_FORMAT)
@@ -218,7 +218,7 @@ const TnaDetailPage = () => {
                 </div>
 
                 <div className="flex gap-2.5 mb-4">
-                  <div className="w-[200px] text-gray-600">Attachments</div>
+                  <div className="w-1/3 text-gray-600">Attachments</div>
                   <div className="flex-1 flex items-center gap-2.5 flex-wrap">
                     {data.items[0].trainingProofs?.map((proof) =>
                       proof.attachmentFile ? (

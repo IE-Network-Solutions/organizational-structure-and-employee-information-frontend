@@ -17,19 +17,17 @@ const Positions: React.FC = () => {
     setOpenPositionDrawer(true);
   };
   return (
-    <div className="w-full h-auto p-0 sm:p-1 md:p-2 lg:p-3 xl:p-4">
+    <div className="w-full h-auto p-0 ">
       <Card className="border-none">
         <div className="flex items-center justify-between">
           <Title level={5}>Employee Positions</Title>
           <AccessGuard permissions={[Permissions.CreatePosition]}>
-            {/* <CustomButton
-              title={<span className="hidden sm:inline">New Position</span>}
-              id="createUserButton"
-              icon={<FaPlus size={13} className="mr-2" />}
+            <Button
+              type="primary"
+              className="h-10 w-10 sm:w-auto"
+              icon={<FaPlus />}
               onClick={showDrawer}
-              className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-            /> */}
-            <Button type="primary" icon={<FaPlus />} onClick={showDrawer}>
+            >
               <span className="hidden lg:inline">New Position</span>
             </Button>
           </AccessGuard>

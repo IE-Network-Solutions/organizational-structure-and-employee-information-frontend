@@ -28,7 +28,6 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
 
   // Get the first user assigned to the department
   const user = getUserData(data?.employeeJobInformation?.[0]?.userId);
-
   return (
     <Card className="p-1.5 rounded-3xl inline-block border border-[#e8e8e8] sm:w-auto">
       <div className="flex flex-col items-center">
@@ -73,8 +72,10 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
               className="w-auto text-center"
             />
           ) : (
-            <span className="text-sm text-center">
-              {user?.role ? user?.role?.name?.trim() : 'Role not assigned'}
+            <span className="text-[10px] text-center">
+              {user?.employeeJobInformation
+                ? user?.employeeJobInformation[0]?.position?.name?.trim()
+                : 'Role not assigned'}
             </span>
           )}
         </div>

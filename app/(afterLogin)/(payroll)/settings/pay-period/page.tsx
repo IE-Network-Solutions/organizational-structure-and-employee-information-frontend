@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Table, Button, Space, Typography, Switch, Spin, Tooltip } from 'antd';
+import { Table, Button, Space, Switch, Spin, Tooltip } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
@@ -13,7 +13,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomDrawer from './_components/customDrawer';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import { FaPlus } from 'react-icons/fa';
-const { Title } = Typography;
 interface DataSource {
   key: string;
   id: string;
@@ -125,12 +124,13 @@ const PayPeriod = () => {
   ];
 
   return (
-    <div className="p-10 rounded-2xl bg-white">
-      <div className="flex justify-between items-center">
-        <Title level={3}>Pay Period</Title>
+    <div className="p-5 rounded-2xl bg-white">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-lg text-bold">Pay Period</h1>
         <AccessGuard permissions={[Permissions.CreatePayPeriod]}>
           <Button
             type="primary"
+            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
             style={{ marginBottom: '20px' }}
             onClick={handleAddPayPeriod}
@@ -146,17 +146,19 @@ const PayPeriod = () => {
       </div>
       <Spin spinning={isLoading}>
         <div className="flex overflow-x-auto scrollbar-none w-full ">
-          <Table
-            dataSource={dataSource}
-            columns={columns}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: dataSource.length,
-              showSizeChanger: true,
-            }}
-            onChange={handleTableChange}
-          />
+          <div className="w-full">
+            <Table
+              dataSource={dataSource}
+              columns={columns}
+              pagination={{
+                current: currentPage,
+                pageSize,
+                total: dataSource.length,
+                showSizeChanger: true,
+              }}
+              onChange={handleTableChange}
+            />
+          </div>
         </div>
       </Spin>
       <PayPeriodSideBar />

@@ -80,7 +80,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
     }
   }, [courseData]);
   return (
-    <div className="page-wrap bg-[#f5f5f5]">
+    <div className="page-wrap bg-[#f5f5f5] pt-4">
       {isLoading ? (
         <div className="flex justify-center p-5">
           <Spin />

@@ -187,7 +187,7 @@ h6 {
 }
 
 .menu-item-label {
-  @apply font-bold text-sm text-gray-900;
+  @apply font-bold text-sm;
 }
 
 .menu-item-icon {
@@ -265,6 +265,33 @@ h6 {
 .quill-editor-container {
   min-height: 200px;
 }
+.my-custom-datepicker {
+  max-width: 90vw;
+  font-size: 14px;
+}
+
+.ant-tree-treenode .ant-tree-title {
+  width: 100% !important;
+}
+
+.custom-dragger .ant-upload {
+  height: 80px !important;
+  min-height: 80px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+}
+
+@layer components {
+  @media (max-width: 640px) {
+
+    /* Ant Design menu active item */
+    .ant-menu-item-selected {
+      @apply text-primary;
+    }
+  }
+}
 
 .quill-editor-container .ql-container {
   min-height: 150px;
@@ -332,4 +359,11 @@ h6 {
     min-height: 55vh;
     border: none !important;
     padding: 10px 20px;
+}
+.custom-timepicker .ant-picker-input input {
+  font-size: 12px !important;
+}
+
+.custom-timepicker .ant-picker-suffix {
+  font-size: 12px !important;
 }

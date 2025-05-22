@@ -21,7 +21,6 @@ interface Params {
 interface EmployeeDetailsProps {
   params: Params;
 }
-
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const router = useRouter();
 

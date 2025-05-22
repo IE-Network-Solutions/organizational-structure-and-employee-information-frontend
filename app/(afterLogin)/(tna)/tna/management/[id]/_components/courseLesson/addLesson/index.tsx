@@ -3,18 +3,18 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Flex, Form, Input, InputNumber, Spin } from 'antd';
+import { Flex, Form, Input, Spin, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import React, { useEffect } from 'react';
 import RemoveFormFieldButton from '@/components/common/formButtons/removeFormFieldButton';
 import AddFormFieldsButton from '@/components/common/formButtons/addFormFieldsButton';
-import { useSetCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import { CourseLesson } from '@/types/tna/course';
 import { useGetCourseLessons } from '@/store/server/features/tna/lesson/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { useDeleteCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
+import { useDeleteCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
+import { useSetCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 
 const CourseAddLessonSidebar = () => {
   const {
@@ -34,6 +34,7 @@ const CourseAddLessonSidebar = () => {
     isSuccess: isSuccessDelete,
   } = useDeleteCourseLessonMaterial();
   const { mutate: setLessons, isLoading, isSuccess } = useSetCourseLesson();
+
   const {
     data: lessonData,
     isFetching,
@@ -76,11 +77,44 @@ const CourseAddLessonSidebar = () => {
     }
   }, [isSuccess]);
 
+  const getLessonOrder = (lessonOrder: number): number => {
+    const courseLessons = course?.courseLessons ?? [];
+    // Return 0 if no materials or materialId is invalid
+    if (!courseLessons?.length || !lessonOrder) {
+      return 0;
+    }
+
+    // Find the material with the given ID and its order
+    const targetLesson = courseLessons.find(
+      (lesson) => lesson.order === lessonOrder,
+    );
+    if (!targetLesson) {
+      return 0; // Return 0 if material not found
+    }
+
+    const targetOrder = targetLesson.order;
+
+    // Sort materials by order and find the last material with order < targetOrder
+    const sortedLessons = [...courseLessons].sort((a, b) => a.order - b.order);
+    const previousLesson = sortedLessons
+      .filter((lesson) => lesson.order < targetOrder)
+      .pop(); // Get last material (highest order) less than targetOrder
+
+    // If no previous material, return targetOrder / 2
+    if (!previousLesson) {
+      return targetOrder / 2;
+    }
+
+    // Return average of previous material's order and targetOrder
+    return (previousLesson.order + targetOrder) / 2;
+  };
+  // console.log(course?.courseLessons
+  //   ,"lessonData");
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-10',
       size: 'large',
       loading: isLoading || isFetching || isLoadingDelete,
       onClick: () => onClose(),
@@ -88,7 +122,7 @@ const CourseAddLessonSidebar = () => {
     {
       label: lesson ? 'Edit' : 'Create',
       key: 'create',
-      className: 'h-14',
+      className: 'h-10',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching || isLoadingDelete,
@@ -102,6 +136,16 @@ const CourseAddLessonSidebar = () => {
     setIsShow(false);
   };
 
+  const lessonOptions = [
+    { label: 'Create at the end', value: 0 },
+    ...(course?.courseLessons
+      ?.sort((a, b) => a.order - b.order)
+      ?.map((lesson) => ({
+        label: lesson.title || 'Untitled Lesson',
+        value: lesson.order,
+        key: `lesson-${lesson.order}`,
+      })) || []),
+  ];
   const onFinish = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -109,7 +153,7 @@ const CourseAddLessonSidebar = () => {
     const lessons: Partial<CourseLesson>[] = value['lessons'].map((l: any) => ({
       ...(lesson && otherData && otherData),
       title: l.title,
-      order: l.order,
+      order: getLessonOrder(l.order) || 0,
       description: l.description,
       courseId: course?.id ?? '',
     }));
@@ -122,13 +166,13 @@ const CourseAddLessonSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-3">
             {lesson ? 'Edit' : 'Add'} Lesson
           </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
-            className="w-1/2 mx-auto"
+            className="p-4"
             buttons={footerModalItems}
           />
         }
@@ -154,9 +198,12 @@ const CourseAddLessonSidebar = () => {
                         name={[name, 'title']}
                         label="Enter the Lesson title"
                         rules={[{ required: true, message: 'Required' }]}
-                        className="form-item flex-1"
+                        className="form-item flex-1 px-3"
                       >
-                        <Input id="tnaLessonTitleFieldId" className="control" />
+                        <Input
+                          id="tnaLessonTitleFieldId"
+                          className="control h-10"
+                        />
                       </Form.Item>
                       {fields.length > 1 ? (
                         <RemoveFormFieldButton
@@ -169,15 +216,24 @@ const CourseAddLessonSidebar = () => {
                     <Form.Item
                       {...restField}
                       name={[name, 'order']}
-                      label="LeesonNumber"
-                      rules={[{ required: true, message: 'Required' }]}
-                      className="form-item pl-4"
+                      label="Insert Before Lesson"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please select a lesson order',
+                        },
+                      ]}
+                      className="form-item px-3"
+                      initialValue={0}
                     >
-                      <InputNumber
+                      <Select
                         id="tnaLessonNumberFieldId"
-                        className="control-number"
-                        placeholder="Enter the order of the lesson in number"
-                        min={0}
+                        className="control-select h-10 w-full"
+                        placeholder="Select lesson order"
+                        options={lessonOptions}
+                        showSearch
+                        optionFilterProp="label"
+                        aria-label="Lesson order selection"
                       />
                     </Form.Item>
                     <Form.Item
@@ -185,20 +241,20 @@ const CourseAddLessonSidebar = () => {
                       name={[name, 'description']}
                       label="Description"
                       rules={[{ required: true, message: 'Required' }]}
-                      className="form-item pl-4"
+                      className="form-item px-3"
                     >
                       <Input.TextArea
                         id="tnaDescriptionFieldId"
-                        className="control-tarea"
+                        className="control-tarea h-24"
                         rows={6}
                         placeholder="Enter the Description"
                       />
                     </Form.Item>
-                    {!lesson && (
+                    {/* {!lesson && (
                       <Form.Item>
                         <div className="my-4 border-t border-gray-200"></div>
                       </Form.Item>
-                    )}
+                    )} */}
                   </React.Fragment>
                 ))}
 

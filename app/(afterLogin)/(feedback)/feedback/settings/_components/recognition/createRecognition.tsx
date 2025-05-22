@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Switch, Select, Button, Space, Popconfirm } from 'antd';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
+  useGetAllCriteria,
   useGetAllRecognitionTypeWithOutCriteria,
   useGetRecognitionTypeById,
 } from '@/store/server/features/CFR/recognition/queries';
@@ -33,17 +34,7 @@ interface PropsData {
   createCategory?: boolean;
   onClose?: any;
 }
-const CRITERIA_OPTIONS = [
-  { id: 'kpi_001', value: 'KPI', label: 'KPI' },
-  { id: 'okr_002', value: 'OKR', label: 'OKR Score' },
-  { id: 'attendance_003', value: 'ATTENDANCE', label: 'Attendance' },
-  { id: 'certificate_004', value: 'CERTIFICATE', label: 'Certificate' },
-  {
-    id: 'engagement_005',
-    value: 'ENGAGEMENT_SCORE',
-    label: 'Engagement score',
-  },
-] as const;
+
 const RecognitionForm: React.FC<PropsData> = ({
   createCategory = false,
   onClose,
@@ -57,15 +48,19 @@ const RecognitionForm: React.FC<PropsData> = ({
     selectedRecognitionType,
     setTotalWeight,
     totalWeight,
+    setOpen,
+    open: openModal,
+    setParentRecognitionTypeId,
+    setOpenModal,
   } = ConversationStore();
 
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
+  const { data: criteria } = useGetAllCriteria();
   const { data: recognitionTypeWithOutCriteria } =
     useGetAllRecognitionTypeWithOutCriteria();
   const { data: recognitionTypeById } = useGetRecognitionTypeById(
     selectedRecognitionType,
   );
-
   const { mutate: createRecognitionType, isLoading: createLoading } =
     useAddRecognitionType();
   // const { mutate: updateRecognitionType, isLoading: updateLoading } =
@@ -79,7 +74,9 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {openRecognitionType ? 'Update Recognition' : 'Add New Recognition'}
+      {openRecognitionType || openModal
+        ? 'Add New Recognition'
+        : 'Update Recognition'}
     </div>
   );
 
@@ -98,7 +95,9 @@ const RecognitionForm: React.FC<PropsData> = ({
       const existingCriterion = selectedCriteria.find(
         (item: any) => item.criterionKey === criterion,
       );
-
+      const criteriaName = criteria.find(
+        (item: any) => item.id == criterion,
+      )?.criteriaName;
       const weight = parseFloat((1 / noCriterion).toFixed(2));
 
       return existingCriterion
@@ -107,7 +106,8 @@ const RecognitionForm: React.FC<PropsData> = ({
             weight, // Update weight but preserve other values
           }
         : {
-            criterionKey: criterion,
+            criterionKey: criteriaName,
+            id: criterion,
             weight,
             operator: null,
             condition: null,
@@ -121,12 +121,13 @@ const RecognitionForm: React.FC<PropsData> = ({
       (sum, criteria) => sum + criteria.weight,
       0,
     );
+
     setTotalWeight(updatedTotalWeight);
 
     // Update form fields while preserving existing values
     form.setFieldsValue({
       recognitionCriteria: updatedCriteria.map((criteria) => ({
-        id: criteria.id || null, // Ensure ID is preserved if present
+        criteriaId: criteria.id || null, // Ensure ID is preserved if present
         criterionKey: criteria.criterionKey,
         weight: criteria.weight,
         operator: criteria.operator, // Preserve operator
@@ -151,25 +152,32 @@ const RecognitionForm: React.FC<PropsData> = ({
     <span className="text-black text-xs font-semibold">{text}</span>
   );
   const onFinish = (values: RecognitionFormValues) => {
-    const { parentTypeId, ...rest } = values;
-    // Check if parentTypeId is defined and not an empty string
+    const { ...rest } = values;
+
     const filteredObj = Object.fromEntries(
       Object.entries(rest).filter(([key]) => key !== 'criteria'),
     );
     const finalValues = {
       ...filteredObj,
       parentTypeId:
-        parentTypeId && parentTypeId.length !== 0 ? parentTypeId : undefined,
+        parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
+          ? parentRecognitionTypeId
+          : undefined,
+    };
+
+    const handleClose = () => {
+      form.resetFields();
+      onClose();
+      setOpenRecognitionType(false);
+      setOpenModal(false);
+      setSelectedCriteria([]);
+      setTotalWeight(0);
     };
 
     if (selectedRecognitionType === '') {
       createRecognitionType(finalValues, {
         onSuccess: () => {
-          form.resetFields();
-          onClose();
-          setOpenRecognitionType(false);
-          setSelectedCriteria([]);
-          setTotalWeight(0);
+          handleClose();
         },
       });
     } else {
@@ -178,11 +186,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         { ...updatedValues, id: selectedRecognitionType },
         {
           onSuccess: () => {
-            form.resetFields();
-            setSelectedRecognitionType('');
-            setOpenRecognitionType(false);
-            setSelectedCriteria([]);
-            setTotalWeight(0);
+            handleClose();
           },
         },
       );
@@ -198,7 +202,11 @@ const RecognitionForm: React.FC<PropsData> = ({
       0,
     );
     setTotalWeight(totalWeight);
-    setSelectedCriteria(criteria);
+    const updatedData = criteria.map((item: any) => ({
+      ...item,
+      criterionKey: item.criteria?.criteriaName ?? null,
+    }));
+    setSelectedCriteria(updatedData);
 
     form.setFieldsValue({
       parentTypeId: recognitionTypeById.parentTypeId,
@@ -206,7 +214,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       description: recognitionTypeById.description || '',
       criteria:
         recognitionTypeById.recognitionCriteria?.map(
-          (item: any) => item?.criterionKey,
+          (item: any) => item.criteriaId,
         ) || [],
       isMonetized: recognitionTypeById.isMonetized ?? false,
       requiresCertification: recognitionTypeById.requiresCertification ?? false,
@@ -214,12 +222,22 @@ const RecognitionForm: React.FC<PropsData> = ({
       departmentId: recognitionTypeById.departmentId || null,
     });
   }, [recognitionTypeById]);
-
   return (
     <CustomDrawerLayout
       modalHeader={modalHeader}
-      onClose={() => setOpenRecognitionType(false)}
-      open={openRecognitionType}
+      onClose={() => {
+        form.resetFields();
+        setOpenRecognitionType(false);
+        setOpen(false);
+        setParentRecognitionTypeId('');
+        setSelectedRecognitionType('');
+      }}
+      open={
+        openRecognitionType ||
+        openModal ||
+        parentRecognitionTypeId !== '' ||
+        selectedRecognitionType !== ''
+      }
       width="40%"
       footer={
         <Form.Item>
@@ -228,6 +246,8 @@ const RecognitionForm: React.FC<PropsData> = ({
               title="Are you sure you want to cancel?"
               onConfirm={() => {
                 form.resetFields();
+                setOpen(false);
+                setParentRecognitionTypeId('');
                 setSelectedRecognitionType('');
                 setOpenRecognitionType(false);
               }}
@@ -322,9 +342,9 @@ const RecognitionForm: React.FC<PropsData> = ({
               className="text-xs text-gray-950"
               onChange={handleCriteriaChange}
             >
-              {CRITERIA_OPTIONS.map((option) => (
+              {criteria?.map((option: any) => (
                 <Select.Option key={option.id} value={option.value}>
-                  {option.label}
+                  {option.criteriaName}
                 </Select.Option>
               ))}
             </Select>
@@ -343,6 +363,12 @@ const RecognitionForm: React.FC<PropsData> = ({
                 hidden
               ></Form.Item>
             )}
+            <Form.Item
+              className="w-1/2 text-xs text-gray-950"
+              name={['recognitionCriteria', index, 'criteriaId']}
+              initialValue={criteria.id}
+              hidden
+            ></Form.Item>
             <Form.Item
               labelAlign="left"
               className="w-1/2 text-xs text-gray-950"
@@ -455,102 +481,109 @@ const RecognitionForm: React.FC<PropsData> = ({
             Total Weight: {totalWeight} {totalWeight !== 1 && '(Must equal 1)'}
           </div>
         )}
+        {!createCategory && (
+          <div className="flex">
+            <Form.Item
+              className="text-xs text-gray-950"
+              label={
+                <span className="text-black text-xs font-semibold">
+                  Monetized
+                </span>
+              }
+              initialValue={false}
+              name="isMonetized"
+              valuePropName="checked"
+            >
+              <Switch />
+            </Form.Item>
 
-        <div className="flex">
-          <Form.Item
-            className="text-xs text-gray-950"
-            label={
-              <span className="text-black text-xs font-semibold">
-                Monetized
-              </span>
-            }
-            initialValue={false}
-            name="isMonetized"
-            valuePropName="checked"
-          >
-            <Switch />
-          </Form.Item>
-
-          <Form.Item
-            className="text-xs text-gray-950"
-            label={
-              <span className="text-black text-xs font-semibold">
-                Requires Certification
-              </span>
-            }
-            name="requiresCertification"
-            valuePropName="checked"
-            initialValue={false}
-          >
-            <Switch />
-          </Form.Item>
-        </div>
+            <Form.Item
+              className="text-xs text-gray-950"
+              label={
+                <span className="text-black text-xs font-semibold">
+                  Requires Certification
+                </span>
+              }
+              name="requiresCertification"
+              valuePropName="checked"
+              initialValue={false}
+            >
+              <Switch />
+            </Form.Item>
+          </div>
+        )}
         {/* Certification Data */}
-        <Form.Item>
-          {({ getFieldValue }) =>
-            getFieldValue('requiresCertification') && (
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <Form.Item
-                  className="text-xs text-gray-950"
-                  label={
-                    <span className="text-black text-xs font-semibold">
-                      Certification Title
-                    </span>
-                  }
-                  name={['certificationData', 'title']}
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please enter certification title',
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter certification title"
-                    className="text-xs text-gray-950"
-                  />
-                </Form.Item>
-                <Form.Item
-                  className="text-xs text-gray-950"
-                  label={
-                    <span className="text-black text-xs font-semibold">
-                      Certification Details
-                    </span>
-                  }
-                  name={['certificationData', 'details']}
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please enter certification details',
-                    },
-                  ]}
-                >
-                  <Input.TextArea
-                    placeholder="Enter details for certification"
-                    rows={3}
-                    className="text-xs text-gray-950"
-                  />
-                </Form.Item>
-              </Space>
-            )
-          }
-        </Form.Item>
+        {!createCategory && (
+          <>
+            <Form.Item>
+              {({ getFieldValue }) =>
+                getFieldValue('requiresCertification') && (
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Form.Item
+                      className="text-xs text-gray-950"
+                      label={
+                        <span className="text-black text-xs font-semibold">
+                          Certification Title
+                        </span>
+                      }
+                      name={['certificationData', 'title']}
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please enter certification title',
+                        },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Enter certification title"
+                        className="text-xs text-gray-950"
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      className="text-xs text-gray-950"
+                      label={
+                        <span className="text-black text-xs font-semibold">
+                          Certification Details
+                        </span>
+                      }
+                      name={['certificationData', 'details']}
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please enter certification details',
+                        },
+                      ]}
+                    >
+                      <Input.TextArea
+                        placeholder="Enter details for certification"
+                        rows={3}
+                        className="text-xs text-gray-950"
+                      />
+                    </Form.Item>
+                  </Space>
+                )
+              }
+            </Form.Item>
 
-        <Form.Item
-          className="text-xs text-gray-950"
-          label={
-            <span className="text-black text-xs font-semibold">Frequency</span>
-          }
-          name="frequency"
-          rules={[{ required: true, message: 'Please select a frequency' }]}
-        >
-          <Select className="text-xs text-gray-950">
-            <Select.Option value="weekly">Weekly</Select.Option>
-            <Select.Option value="monthly">Monthly</Select.Option>
-            <Select.Option value="quarterly">Quarterly</Select.Option>
-            <Select.Option value="yearly">Yearly</Select.Option>
-          </Select>
-        </Form.Item>
+            <Form.Item
+              className="text-xs text-gray-950"
+              label={
+                <span className="text-black text-xs font-semibold">
+                  Frequency
+                </span>
+              }
+              name="frequency"
+              rules={[{ required: true, message: 'Please select a frequency' }]}
+            >
+              <Select className="text-xs text-gray-950">
+                <Select.Option value="weekly">Weekly</Select.Option>
+                <Select.Option value="monthly">Monthly</Select.Option>
+                <Select.Option value="quarterly">Quarterly</Select.Option>
+                <Select.Option value="yearly">Yearly</Select.Option>
+              </Select>
+            </Form.Item>
+          </>
+        )}
 
         {!createCategory && (
           <Form.Item
@@ -573,29 +606,33 @@ const RecognitionForm: React.FC<PropsData> = ({
             </Select>
           </Form.Item>
         )}
-        <Form.Item
-          className="text-xs text-gray-950"
-          label={
-            <span className="text-black text-xs font-semibold">Department</span>
-          }
-          name="departmentId"
-          rules={[
-            { required: true, message: 'Please enter the department ID' },
-          ]}
-        >
-          <Select
-            placeholder="Select a department"
-            className="text-black text-xs font-semibold"
+        {!createCategory && (
+          <Form.Item
+            className="text-xs text-gray-950"
+            label={
+              <span className="text-black text-xs font-semibold">
+                Department
+              </span>
+            }
+            name="departmentId"
+            rules={[
+              { required: true, message: 'Please enter the department ID' },
+            ]}
           >
-            {allDepartmentWithData?.map((dep: any) => (
-              <Option key={dep.id} value={dep.id}>
-                <span className="text-xs font-semibold text-black">
-                  {dep?.name}
-                </span>
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+            <Select
+              placeholder="Select a department"
+              className="text-black text-xs font-semibold"
+            >
+              {allDepartmentWithData?.map((dep: any) => (
+                <Option key={dep.id} value={dep.id}>
+                  <span className="text-xs font-semibold text-black">
+                    {dep?.name}
+                  </span>
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
       </Form>
     </CustomDrawerLayout>
   );

@@ -4,6 +4,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Popover,
   Radio,
   Row,
   Select,
@@ -18,7 +19,11 @@ import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 import { useCreateLeaveType } from '@/store/server/features/timesheet/leaveType/mutation';
 import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
@@ -30,6 +35,8 @@ const TypesAndPoliciesSidebar = () => {
   const {
     isShowTypeAndPoliciesSidebar: isShow,
     setIsShowTypeAndPoliciesSidebar: setIsShow,
+    setIsFixed,
+    isFixed,
   } = useTimesheetSettingsStore();
 
   const { data: carryOverData } = useGetCarryOverRules();
@@ -47,7 +54,7 @@ const TypesAndPoliciesSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -55,7 +62,7 @@ const TypesAndPoliciesSidebar = () => {
     {
       label: 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -66,8 +73,8 @@ const TypesAndPoliciesSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
-  const inputNumberClass = 'w-full py-[11px] mt-2.5';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+  const inputNumberClass = 'w-full h-[40px] mt-2.5';
 
   const carryOverRuleOptions = () =>
     carryOverData ? formatToOptions(carryOverData.items, 'title', 'id') : [];
@@ -95,12 +102,15 @@ const TypesAndPoliciesSidebar = () => {
       isPaid: value.plan === 'paid',
       entitledDaysPerYear: value.entitled,
       isDeductible: !!value.isDeductible,
+      isIncremental: !!value.isIncremental,
+      isFixed: !!value.isFixed,
       minimumNotifyingDays: value.min,
       maximumAllowedConsecutiveDays: value.max,
       accrualRule: value.accrualRule,
       carryOverRule: value.carryOverRule,
       description: value.description,
     });
+    setIsFixed(false);
   };
 
   const onFinishFailed = () => {
@@ -116,8 +126,16 @@ const TypesAndPoliciesSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Leave Type</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Leave Type</CustomDrawerHeader>
+          </div>
+        }
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Form
@@ -130,7 +148,7 @@ const TypesAndPoliciesSidebar = () => {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
-          <Space direction="vertical" className="w-full" size={12}>
+          <Space.Compact direction="vertical" className="w-full px-3 sm:px-0 ">
             <Form.Item
               id={`TypesAndPoliciesTitleFieldId`}
               label="Type Name"
@@ -145,7 +163,7 @@ const TypesAndPoliciesSidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               name="plan"
             >
-              <Radio.Group className="w-full mt-2.5">
+              <Radio.Group className={controlClass}>
                 <Row gutter={16}>
                   <Col span={12}>
                     <CustomRadio
@@ -168,31 +186,108 @@ const TypesAndPoliciesSidebar = () => {
               label="Entitled Days/year"
               id={`TypesAndPoliciesEntitledDaysYearFieldId`}
               rules={[{ required: true, message: 'Required' }]}
+              className="mt-2"
               name="entitled"
             >
               <InputNumber
                 min={1}
-                className={inputNumberClass}
+                className={controlClass}
                 placeholder="Input entitled days"
               />
             </Form.Item>
-
-            <div className="h-[54px] w-full flex items-center gap-2.5 border rounded-[10px] pl-[11px]">
-              <Form.Item
-                id={`TypesAndPoliciesIsDeductableFieldId`}
-                name="isDeductible"
-                className="m-0"
-              >
-                <Switch
-                  checkedChildren={<CheckOutlined />}
-                  unCheckedChildren={<CloseOutlined />}
-                />
-              </Form.Item>
-              <span className="text-sm text-gray-900 font-medium">
-                Is deductible ?
-              </span>
+            <div className="flex justify-between gap-2">
+              <div className="h-[54px] w-full flex items-center gap-1">
+                <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                  <Popover
+                    content={
+                      <div className="w-72">
+                        Fixed leaves are granted upfront or as needed without
+                        accumulation, while non-fixed leaves build up over time.
+                      </div>
+                    }
+                  >
+                    <InfoCircleOutlined className="text-gray-500" />
+                  </Popover>
+                  Fixed
+                </span>
+                <Form.Item
+                  id={`TypesAndPoliciesIsDeductableFieldId`}
+                  name="isFixed"
+                  className="m-0"
+                >
+                  <Switch
+                    size="small"
+                    checkedChildren={<CheckOutlined />}
+                    unCheckedChildren={<CloseOutlined />}
+                    onChange={(checked) => {
+                      setIsFixed(checked);
+                      form.setFieldsValue({
+                        accrualRule: undefined,
+                        carryOverRule: undefined,
+                        isIncremental: false,
+                      });
+                    }}
+                  />
+                </Form.Item>
+              </div>
+              <div className="h-[54px] w-full flex items-center gap-1">
+                <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                  <Popover
+                    content={
+                      <div className="w-72">
+                        Deductible leaves reduce an employee&apos;s leave
+                        balance when taken (like vacation days), while
+                        non-deductible leaves do not affect the balance.
+                      </div>
+                    }
+                  >
+                    <InfoCircleOutlined className="text-gray-500" />
+                  </Popover>
+                  Deductable
+                </span>
+                <Form.Item
+                  id={`TypesAndPoliciesIsDeductableFieldId`}
+                  name="isDeductible"
+                  className="m-0"
+                >
+                  <Switch
+                    size="small"
+                    checkedChildren={<CheckOutlined />}
+                    unCheckedChildren={<CloseOutlined />}
+                  />
+                </Form.Item>
+              </div>
+              <div className="h-[54px] w-full flex items-center gap-1">
+                <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                  <Popover
+                    content={
+                      <div className="w-72">
+                        Annual Leave can be calculated increamentally per year.
+                        for example per <span className="font-bold">2</span>{' '}
+                        years of employement,{' '}
+                        <span className="font-bold">1</span> more day of leave
+                        is added.
+                      </div>
+                    }
+                  >
+                    <InfoCircleOutlined className="text-gray-500" />
+                  </Popover>
+                  Incremental
+                </span>
+                <Form.Item
+                  id={`TypesAndPoliciesIsDeductableFieldId`}
+                  name="isIncremental"
+                  className="m-0"
+                >
+                  <Switch
+                    size="small"
+                    disabled={isFixed}
+                    checkedChildren={<CheckOutlined />}
+                    unCheckedChildren={<CloseOutlined />}
+                  />
+                </Form.Item>
+              </div>
             </div>
-
             <Form.Item
               id={`TypesAndPoliciesMinAllowedDaysFieldId`}
               label="Minimum notifying period(days)"
@@ -208,7 +303,23 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`}
               label="Maximum allowed consecutive days"
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                { required: true, message: 'Required' },
+                {
+                  /* eslint-disable @typescript-eslint/naming-convention */
+                  validator: (_, value) => {
+                    /* eslint-enable @typescript-eslint/naming-convention */
+
+                    const entitledDays = form.getFieldValue('entitled');
+                    if (value > entitledDays) {
+                      return Promise.reject(
+                        'Maximum consecutive days cannot exceed entitled days',
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
               name="max"
             >
               <InputNumber
@@ -220,10 +331,16 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               label="Accrual Rule"
               id={`TypesAndPoliciesActualRuleFieldId`}
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                {
+                  required: !isFixed,
+                  message: 'Required',
+                },
+              ]}
               name="accrualRule"
             >
               <Select
+                disabled={!!isFixed}
                 className={controlClass}
                 suffixIcon={
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
@@ -234,10 +351,16 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               label="Carry-Over Rule"
               id={`TypesAndPoliciesRuleCarryOverFieldldId`}
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                {
+                  required: !isFixed,
+                  message: 'Required',
+                },
+              ]}
               name="carryOverRule"
             >
               <Select
+                disabled={!!isFixed}
                 className={controlClass}
                 options={carryOverRuleOptions()}
                 suffixIcon={
@@ -252,12 +375,12 @@ const TypesAndPoliciesSidebar = () => {
               name="description"
             >
               <Input.TextArea
-                className="w-full py-4 px-5 mt-2.5"
+                className="w-full h-36 px-5 mt-2.5"
                 placeholder="Input description"
                 rows={6}
               />
             </Form.Item>
-          </Space>
+          </Space.Compact>
         </Form>
       </CustomDrawerLayout>
     )

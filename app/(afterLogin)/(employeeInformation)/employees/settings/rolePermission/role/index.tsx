@@ -23,7 +23,7 @@ const RoleComponent: React.FC = () => {
     setPageSize(pageSize);
   };
   return (
-    <Card className="border-none">
+    <Card bodyStyle={{ padding: 0 }} className="border-none">
       <div className="flex justify-center items-center">
         {rolePermissionsData?.items?.length === 0 && roleLoading && (
           <Spin size="large" />

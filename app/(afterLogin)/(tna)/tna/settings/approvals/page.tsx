@@ -17,9 +17,9 @@ const Workflow = () => {
     setApproverType('');
   };
   return (
-    <div>
-      <div className="mb-10 flex justify-between">
-        <div className="text-2xl font-bold ">List Of Approval</div>
+    <div className="p-5 rounded-2xl bg-white  w-full">
+      <div className="flex justify-between mb-4 ">
+        <h1 className="text-lg font-bold ">List Of Approval</h1>
         <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
           <Button
             type="primary"
@@ -27,14 +27,14 @@ const Workflow = () => {
             icon={<FaPlus />}
             onClick={handleNavigation}
           >
-            <span className="hidden lg:inline">Set Approval</span>
+            <span className="hidden sm:inline">Set Approval</span>
           </Button>
         </AccessGuard>
       </div>
-      <div className="px-5">
+      <div className="mb-4">
         <ApprovalFilter />
       </div>
-      <div className="flex  overflow-x-auto scrollbar-none w-full">
+      <div className="overflow-x-auto scrollbar-none w-full">
         <ApprovalListTable />
       </div>
     </div>

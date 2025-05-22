@@ -24,6 +24,7 @@ type TimesheetSettingsState = {
   selectedBreakType: any | null;
   isTo: boolean;
   isLoading: boolean;
+  isFixed: boolean;
 };
 
 type TimesheetSettingsStateAction = {
@@ -57,6 +58,7 @@ type TimesheetSettingsStateAction = {
   setSelectedBreakType: (breakType: any | null) => void;
   setIsTo: (isTo: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
+  setIsFixed: (isFixed: boolean) => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -165,6 +167,10 @@ const timesheetSettingsSlice: StateCreator<
   isLoading: false,
   setIsLoading: (isLoading: boolean) => {
     set({ isLoading });
+  },
+  isFixed: false,
+  setIsFixed: (isFixed: boolean) => {
+    set({ isFixed });
   },
 });
 

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Select, Input, Button } from 'antd';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllUsers,
+  useGetActiveEmployee,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useFetchAllFeedbackTypes,
   useFetchFeedbackTypeById,
@@ -40,6 +43,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     null,
   );
   const { data: getAllUsersData } = useGetAllUsers();
+  const { data: getActiveEmployee } = useGetActiveEmployee();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
 
   const { data: departments, isLoading } = useGetDepartments();
@@ -133,7 +137,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     )?.category ?? '';
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-start text-xl font-extrabold text-gray-800 ">
       {`${activeTabName} - ${variantType}`}
     </div>
   );
@@ -150,13 +154,21 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       width="40%"
       footer={
         <Form.Item>
-          <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5">
-            <Button onClick={() => setOpen(false)} type="default">
+          <div className=" w-full bg-[#fff] flex justify-between space-x-5 p-4">
+            <Button
+              className="h-12 p-5 px-12"
+              onClick={() => setOpen(false)}
+              type="default"
+            >
               Cancel
             </Button>
 
             {selectedFeedbackRecord !== null ? (
-              <Button type="primary" onClick={() => form.submit()}>
+              <Button
+                className="h-12 p-5 px-12"
+                type="primary"
+                onClick={() => form.submit()}
+              >
                 Update
               </Button>
             ) : (
@@ -165,6 +177,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                   loadingCreateFeedbackRecord || loadingUpdateFeedbackRecord
                 }
                 type="primary"
+                className="h-12 p-5 px-12"
                 onClick={() => form.submit()}
               >
                 Submit
@@ -198,9 +211,11 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         >
           <Select
             showSearch
+            allowClear
+            className="h-10"
             placeholder="Select employee"
             options={
-              getAllUsersData?.items
+              getActiveEmployee?.items
                 ?.filter((i: any) => i.id !== userId)
                 ?.map((item: any) => ({
                   label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // `label` for display
@@ -221,6 +236,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         >
           <Select
             loading={isLoading}
+            className="h-10"
             placeholder="Select a department"
             onChange={(departmentId: string) =>
               setSelectedDepartmentId(departmentId)
@@ -244,6 +260,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           <Select
             showSearch
             placeholder="Select Feedback"
+            className="h-10"
             options={
               filteredFeedback
                 ?.filter((i: any) => i.variant === variantType)
@@ -273,10 +290,10 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         {/* Action to Be Taken */}
         <Form.Item
           name="action"
+          className={`${variantType === 'appreciation' ? 'hidden' : 'block'}`}
           label="Action to Be Taken"
           rules={[
             {
-              required: true,
               message: 'Please describe the action to be taken!',
             },
           ]}

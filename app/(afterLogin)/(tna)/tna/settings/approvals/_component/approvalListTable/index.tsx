@@ -176,7 +176,7 @@ const ApprovalListTable = () => {
             <Tooltip title={'Add Approver'}>
               <Button
                 id={`editUserButton${item?.id}`}
-                className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 "
+                className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none"
                 onClick={() => {
                   setAddModal(true);
                   setSelectedItem(item);
@@ -196,7 +196,7 @@ const ApprovalListTable = () => {
             <Tooltip title={'Edit Approver'}>
               <Button
                 id={`editUserButton${item?.id}`}
-                className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 "
+                className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none"
                 onClick={() => {
                   setEditModal(true);
                   setSelectedItem(item);
@@ -217,7 +217,7 @@ const ApprovalListTable = () => {
             <Tooltip title={'Delete Employee'}>
               <Button
                 id={`deleteUserButton${item?.id}`}
-                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none"
                 onClick={() => {
                   setDeleteModal(true);
                   setDeletedItem(item?.id);

@@ -1,5 +1,4 @@
 'use client';
-import CustomButton from '@/components/common/buttons/customButton';
 import React from 'react';
 import ApprovalFilter from './_component/approvalFilter';
 import ApprovalListTable from './_component/approvalListTable';
@@ -8,6 +7,7 @@ import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { Button } from 'antd';
 
 const Workflow = () => {
   const router = useRouter();
@@ -18,24 +18,25 @@ const Workflow = () => {
     setApproverType('');
   };
   return (
-    <div>
-      <div className="mb-10 flex justify-between">
-        <div className="text-2xl font-bold ">List Of Approval</div>
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-lg font-bold ">List Of Approval</h1>
         <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
-          <CustomButton
+          <Button
             title="Set Approval"
             id="createUserButton"
-            icon={<FaPlus className="mr-2" />}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="h-10 w-10 sm:w-auto hidden sm:block"
+            icon={<FaPlus />}
             onClick={handleNavigation}
-          />
+            type="primary"
+          >
+            <span className="hidden sm:inline">Set Approval</span>
+          </Button>
         </AccessGuard>
       </div>
-      <div className="px-5">
-        <ApprovalFilter />
-        <div className="overflow-x-auto w-full">
-          <ApprovalListTable />
-        </div>
+      <ApprovalFilter />
+      <div className="overflow-x-auto w-full mt-2">
+        <ApprovalListTable />
       </div>
     </div>
   );

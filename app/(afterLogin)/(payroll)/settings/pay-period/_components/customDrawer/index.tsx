@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { DatePicker, Form, Input } from 'antd';
+import { Button, DatePicker, Form, Input } from 'antd';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import dayjs from 'dayjs';
 import { useEditPayPeriod } from '@/store/server/features/payroll/setting/tax-rule/mutation';
@@ -66,14 +65,18 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       }
       width={width}
       footer={
-        <div className="w-full flex justify-center items-center gap-4 pt-8">
-          <CustomButton type="default" title="Cancel" onClick={onClose} />
-          <CustomButton
+        <div className="w-full flex justify-center items-center gap-4 p-4">
+          <Button type="default" className="h-10" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
             type="primary"
-            title="Edit"
+            className="h-10"
             onClick={() => form.submit()}
             loading={isLoading}
-          />
+          >
+            Edit
+          </Button>
         </div>
       }
     >
@@ -88,7 +91,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           name="month"
           rules={[{ required: true, message: 'Please enter the month' }]}
         >
-          <Input className="min-h-12" disabled />
+          <Input className="h-10" disabled />
         </Form.Item>
 
         <Form.Item
@@ -97,7 +100,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           rules={[{ required: true, message: 'Please select a start date' }]}
         >
           <DatePicker
-            className="min-h-12 w-full"
+            className="h-10 w-full"
             value={form.getFieldValue('startDate')}
             onChange={(date) => form.setFieldValue('startDate', date)}
           />

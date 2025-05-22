@@ -59,6 +59,15 @@ const CreateJobs: React.FC = () => {
 
   const addNewDrawerHeader = (
     <div className="flex flex-col items-center">
+      {currentStep === 0 ? (
+        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-2">
+          Create New Job
+        </div>
+      ) : (
+        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+          Create Application Forms
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <Steps
           current={currentStep}
@@ -71,15 +80,6 @@ const CreateJobs: React.FC = () => {
           <Step icon={customDot(1)} />
         </Steps>
       </div>
-      {currentStep === 0 ? (
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-          Create New Job
-        </div>
-      ) : (
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-          Create Application Forms
-        </div>
-      )}
     </div>
   );
   const handleCloseDrawer = () => {
@@ -147,6 +147,7 @@ const CreateJobs: React.FC = () => {
         modalHeader={addNewDrawerHeader}
         width="40%"
         footer={null}
+        customMobileHeight="90vh"
       >
         <Form
           form={form}

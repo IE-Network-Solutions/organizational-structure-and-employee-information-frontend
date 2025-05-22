@@ -1,28 +1,25 @@
 'use client';
 import React from 'react';
-import { theme } from 'antd';
-import { classNames } from '@/utils/classNames';
+import classNames from 'classnames';
 
 interface BlockWrapperProps {
   children: React.ReactNode;
   className?: string;
+  padding?: string;
 }
 
 const BlockWrapper: React.FC<BlockWrapperProps> = ({
   children,
   className = '',
+  padding = '',
 }) => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
   return (
     <div
-      className={classNames('p-6', undefined, [className])}
-      style={{
-        background: colorBgContainer,
-        borderRadius: borderRadiusLG,
-      }}
+      className={classNames(
+        `${padding ? padding : 'p-3 bg-[#fafafa]'}`,
+        className,
+      )}
+      style={{ borderRadius: 11 }}
     >
       {children}
     </div>
