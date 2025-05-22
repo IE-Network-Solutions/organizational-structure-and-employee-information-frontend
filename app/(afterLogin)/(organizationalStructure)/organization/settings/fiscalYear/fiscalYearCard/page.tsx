@@ -74,7 +74,7 @@ const FiscalYearListCard: React.FC = () => {
   };
 
   return (
-    <div className="p-5 rounded-2xl bg-white">
+    <div className="p-5 rounded-2xl bg-white h-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
