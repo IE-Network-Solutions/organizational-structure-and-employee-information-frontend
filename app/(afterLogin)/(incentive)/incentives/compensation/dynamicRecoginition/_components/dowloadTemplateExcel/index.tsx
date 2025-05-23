@@ -24,7 +24,7 @@ const DownloadExcelButton: React.FC = () => {
     // Wait for headers to be loaded
     if (!excelHeaders?.length) {
       NotificationMessage.warning({
-        message: 'Excel Headers are not loaded yet! Please try again.',
+        message: ' Excel Headers are not loaded yet! Please Try Again',
       });
       return;
     }
