@@ -93,7 +93,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
     if (selectedFiscalYear && isEditMode) {
       const sessions = selectedFiscalYear?.sessions || [];
       const inferredCalendarType =
-        sessions.length === 4
+        sessions.length >= 4
           ? 'Quarter'
           : sessions.length === 2
             ? 'Semester'
