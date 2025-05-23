@@ -366,23 +366,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           ))}
         </div>
       </Form>
-
-      <style jsx>{`
-        @media (max-width: 640px) {
-          .ant-form-item-label > label {
-            font-size: 14px !important;
-          }
-          .ant-input,
-          .ant-select-selector,
-          .ant-picker {
-            height: 40px !important;
-            border-radius: 6px !important;
-          }
-          .ant-btn {
-            border-radius: 6px !important;
-          }
-        }
-      `}</style>
     </CustomDrawerLayout>
   );
 };

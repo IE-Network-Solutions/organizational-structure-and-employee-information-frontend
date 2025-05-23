@@ -40,8 +40,8 @@ export default function OkrTab() {
     currentPage,
     setCurrentPage,
     searchObjParams,
-    setTeamCurrentPage,
-    setTeamPageSize,
+    // setTeamCurrentPage,
+    // setTeamPageSize,
     teamCurrentPage,
     teamPageSize,
     setCompanyCurrentPage,
@@ -66,8 +66,8 @@ export default function OkrTab() {
     searchObjParams?.metricTypeId,
   );
   const {
-    data: teamObjective,
-    isLoading: teamLoading,
+    // data: teamObjective,
+    // isLoading: teamLoading,
     refetch,
   } = useGetTeamObjective(
     teamPageSize,
@@ -180,51 +180,51 @@ export default function OkrTab() {
           },
           ...(canVieTeamOkr
             ? [
-                {
-                  key: '2',
-                  label: 'Team OKR',
-                  children: (
-                    <div>
-                      <OkrProgress />
-                      {teamLoading && (
-                        <Spin
-                          size="large"
-                          style={{ color: 'white' }}
-                          className="text-white text-center flex w-full justify-center"
-                        />
-                      )}
-                      {teamObjective?.items?.length !== 0 && (
-                        <div>
-                          {teamObjective?.items?.map((obj: any) => (
-                            <ObjectiveCard
-                              key={obj.id}
-                              myOkr={false}
-                              objective={obj}
-                            />
-                          ))}
-                          <CustomPagination
-                            current={teamObjective?.meta?.currentPage || 1}
-                            total={teamObjective?.meta?.totalItems || 1}
-                            pageSize={teamPageSize}
-                            onChange={(page, pageSize) => {
-                              setTeamCurrentPage(page);
-                              setTeamPageSize(pageSize);
-                            }}
-                            onShowSizeChange={(size) => {
-                              setTeamPageSize(size);
-                              setTeamCurrentPage(1);
-                            }}
-                          />
-                        </div>
-                      )}
-                      {teamObjective?.items?.length === 0 && (
-                        <div className="flex justify-center">
-                          <EmptyImage />
-                        </div>
-                      )}
-                    </div>
-                  ),
-                },
+                // {
+                //   key: '2',
+                //   label: 'Team OKR',
+                //   children: (
+                //     <div>
+                //       <OkrProgress />
+                //       {teamLoading && (
+                //         <Spin
+                //           size="large"
+                //           style={{ color: 'white' }}
+                //           className="text-white text-center flex w-full justify-center"
+                //         />
+                //       )}
+                //       {teamObjective?.items?.length !== 0 && (
+                //         <div>
+                //           {teamObjective?.items?.map((obj: any) => (
+                //             <ObjectiveCard
+                //               key={obj.id}
+                //               myOkr={false}
+                //               objective={obj}
+                //             />
+                //           ))}
+                //           <CustomPagination
+                //             current={teamObjective?.meta?.currentPage || 1}
+                //             total={teamObjective?.meta?.totalItems || 1}
+                //             pageSize={teamPageSize}
+                //             onChange={(page, pageSize) => {
+                //               setTeamCurrentPage(page);
+                //               setTeamPageSize(pageSize);
+                //             }}
+                //             onShowSizeChange={(size) => {
+                //               setTeamPageSize(size);
+                //               setTeamCurrentPage(1);
+                //             }}
+                //           />
+                //         </div>
+                //       )}
+                //       {teamObjective?.items?.length === 0 && (
+                //         <div className="flex justify-center">
+                //           <EmptyImage />
+                //         </div>
+                //       )}
+                //     </div>
+                //   ),
+                // },
               ]
             : []),
           ...(canVieCompanyOkr

@@ -44,6 +44,7 @@ const LeaveBalanceTable: React.FC = () => {
   const { userId, leaveTypeId } = useLeaveBalanceStore();
   const { data: leaveBalanceData, isLoading: leaveBalanceIsLoading } =
     useGetLeaveBalance(userId, leaveTypeId);
+
   const columns: TableColumnsType<NewUserData> = [
     {
       title: 'Leave Name',

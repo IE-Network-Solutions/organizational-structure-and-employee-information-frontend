@@ -3,8 +3,8 @@ import { Button, Space, Table, Drawer } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
-import { LuSettings2 } from 'react-icons/lu';
 import dayjs from 'dayjs';
+import { DATE_FORMAT } from '@/utils/constants';
 
 // Types
 import { TableColumnsType } from '@/types/table/table';
@@ -74,8 +74,8 @@ const AttendanceTable = () => {
       key: 'createdAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4">
-          {dayjs(date).format('DD MMM YYYY')}
+        <div className="text-sm text-gray-900 py-4 whitespace-nowrap">
+          {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
     },
@@ -219,10 +219,12 @@ const AttendanceTable = () => {
   };
 
   return (
-    <>
+    <div className=" bg-white border border-gray-100 rounded p-5">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-0.5">
-          <div className="text-2xl font-bold text-gray-900">My Attendance</div>
+          <div className="text-sm sm:text-2xl font-bold text-gray-900">
+            Attendance
+          </div>
 
           <Button
             type="text"
@@ -231,13 +233,12 @@ const AttendanceTable = () => {
             onClick={() => refetch()}
           />
         </div>
-
-        <Button
-          type="default"
-          className="sm:hidden"
-          icon={<LuSettings2 size={20} />}
-          onClick={() => setIsShowViewSidebar(true)}
-        />
+        {/* Mobile Filter */}
+        <div className="sm:hidden flex items-center">
+          <div className="h-10 flex ">
+            <AttendanceTableFilter onChange={onFilterChange} />
+          </div>
+        </div>
       </div>
 
       {/* Desktop Filter */}
@@ -295,14 +296,14 @@ const AttendanceTable = () => {
               if (window.innerWidth < 640) {
                 // Mobile view
                 return page === current ? (
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50">
+                  <div className="rounded-full flex items-center justify-center bg-gray-50">
                     <span className="text-gray-900">{page}</span>
                   </div>
                 ) : null;
               } else {
                 // Desktop view
                 return page === current ? (
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50">
+                  <div className="rounded-full flex items-center justify-center bg-gray-50">
                     <span className="text-gray-900">{page}</span>
                   </div>
                 ) : (
@@ -319,7 +320,6 @@ const AttendanceTable = () => {
         scroll={{ x: 'min-content' }}
       />
 
-      {/* Mobile Filter Drawer */}
       <Drawer
         title="Filter"
         placement="bottom"
@@ -334,7 +334,7 @@ const AttendanceTable = () => {
           <AttendanceTableFilter onChange={onFilterChange} />
         </div>
       </Drawer>
-    </>
+    </div>
   );
 };
 

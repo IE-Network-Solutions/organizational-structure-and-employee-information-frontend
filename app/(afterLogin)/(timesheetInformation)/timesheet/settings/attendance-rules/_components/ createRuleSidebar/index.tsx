@@ -60,7 +60,7 @@ const CreateRuleSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base px-10',
       size: 'large',
       loading: isFetching || isLoading,
       onClick: () => onClose(),
@@ -68,7 +68,7 @@ const CreateRuleSidebar = () => {
     {
       label: 'Create',
       key: 'create',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base px-10',
       size: 'large',
       type: 'primary',
       loading: isFetching || isLoading,
@@ -77,7 +77,7 @@ const CreateRuleSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -101,14 +101,17 @@ const CreateRuleSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Create Rule</CustomDrawerHeader>}
-        footer={
-          <CustomDrawerFooterButton
-            className="max-w-[320px] ml-auto"
-            buttons={footerModalItems}
-          />
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Create Rule</CustomDrawerHeader>
+          </div>
         }
-        width="50%"
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton className="" buttons={footerModalItems} />
+          </div>
+        }
+        width="40%"
       >
         <Spin spinning={isFetching || isLoading}>
           <Form

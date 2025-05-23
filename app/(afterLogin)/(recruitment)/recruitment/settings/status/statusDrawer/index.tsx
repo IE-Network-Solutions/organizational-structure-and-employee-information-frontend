@@ -70,15 +70,15 @@ const RecruitmentStatusDrawer: React.FC = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-2xl font-bold py-2">
+        <h1 className="text-lg font-bold py-2">
           {isEditMode ? 'Edit Status' : 'Define Status'}
         </h1>
       }
       onClose={handleCancel}
       open={isDrawerOPen}
-      width="30%"
+      width="40%"
       footer={
-        <div className="flex justify-center items-center w-full">
+        <div className="flex justify-center items-center w-full p-2">
           <div className="flex justify-between items-center gap-4">
             <CustomButton
               title="Cancel "
@@ -99,7 +99,7 @@ const RecruitmentStatusDrawer: React.FC = () => {
           name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
-          <Input className="h-12" placeholder="Enter the status title" />
+          <Input className="h-10" placeholder="Enter the status title" />
         </Form.Item>
 
         <Form.Item

@@ -130,6 +130,7 @@ const PayPeriod = () => {
         <AccessGuard permissions={[Permissions.CreatePayPeriod]}>
           <Button
             type="primary"
+            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
             style={{ marginBottom: '20px' }}
             onClick={handleAddPayPeriod}

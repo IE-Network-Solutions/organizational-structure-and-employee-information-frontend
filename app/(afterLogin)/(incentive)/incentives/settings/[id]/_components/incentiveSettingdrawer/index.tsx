@@ -43,17 +43,20 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setIncentiveId,
     incentiveId,
     setOpenIncentiveDrawer,
+    formulaError,
+    setFormulaError,
   } = useIncentiveStore();
 
   //   ===========> HTTP Requests <============
 
   const { data: incentiveData } = useIncentiveCriteria();
-  const { mutate: updateIncentiveFormula } = useUpdateIncentiveFormula();
-  const { mutate: createFormula } = useSetIncentiveFormula();
+  const { mutate: updateIncentiveFormula, isLoading: updateLoading } =
+    useUpdateIncentiveFormula();
+  const { mutate: createFormula, isLoading: createLoading } =
+    useSetIncentiveFormula();
 
   const { data: formulaById } =
     useIncentiveFormulaByRecognitionId(recognitionId);
-
   //   ===========> Functions <============
 
   const handleClose = () => {
@@ -102,7 +105,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
       isComputed: value === 'Fixed' ? false : true,
       monetizedValue: value === 'Fixed' ? formValues?.fixedAmount : 0,
     };
-
     if (
       incentiveId &&
       formulaById !== null &&
@@ -154,6 +156,46 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setValue(value);
   }, [value]);
 
+  // Validation function for formula
+  function isValidFormula(formula: any[]): boolean {
+    if (!formula || formula.length === 0) return false;
+    // Check if first or last is an operand
+    if (
+      formula[0].type === 'operand' ||
+      formula[formula.length - 1].type === 'operand'
+    ) {
+      return false;
+    }
+    for (let i = 1; i < formula.length; i++) {
+      const prev = formula[i - 1];
+      const curr = formula[i];
+      // Consecutive operands
+      if (prev.type === 'operand' && curr.type === 'operand') {
+        return false;
+      }
+      // Consecutive criteria
+      if (prev.type === 'criteria' && curr.type === 'criteria') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Live validation effect
+  useEffect(() => {
+    if (value === 'Formula') {
+      if (formula && formula.length > 0 && !isValidFormula(formula)) {
+        setFormulaError(
+          'Invalid formula: Please avoid consecutive operands or criteria, and do not start or end with an operand.',
+        );
+      } else {
+        setFormulaError('');
+      }
+    } else {
+      setFormulaError('');
+    }
+  }, [formula, value, setFormulaError]);
+
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}
@@ -163,8 +205,33 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
           {recognitionData?.name || '-'}
         </CustomDrawerHeader>
       }
-      footer={null}
+      footer={
+        <div className="flex justify-center  w-full p-4 gap-6">
+          <Button
+            type="default"
+            onClick={handleClose}
+            className=" p-4 px-10 h-10 "
+          >
+            Cancel
+          </Button>
+
+          <Button
+            htmlType="submit"
+            type="primary"
+            className="p-4 px-10 h-10"
+            onClick={handleSubmit}
+            loading={updateLoading || createLoading}
+          >
+            {formulaById?.expression === null ? (
+              <span>Create</span>
+            ) : (
+              <span>Edit</span>
+            )}
+          </Button>
+        </div>
+      }
       width="600px"
+      customMobileHeight={value === 'Formula' ? '70vh' : '45vh'}
     >
       <Form
         requiredMark={false}
@@ -175,7 +242,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
         <Form.Item
           rules={[{ required: true, message: 'Please choose type' }]}
           label={
-            <span className="font-bold">
+            <span className="font-bold mb-2">
               Formula <span className="text-red-500">*</span>
             </span>
           }
@@ -187,14 +254,14 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             options={plainOptions}
             onChange={handleRadioChange}
             value={value}
-            className="text-md font-md my-2"
+            className="text-md font-md "
           />
         </Form.Item>
         {(value === null || value === '' || value === 'Fixed') && (
           <Form.Item
             rules={[{ required: true, message: 'Please enter amount' }]}
             label={
-              <span className="font-bold">
+              <span className="font-medium text-sm mb-2">
                 Amount <span className="text-red-500">*</span>
               </span>
             }
@@ -203,8 +270,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
           >
             <Input
               placeholder="Enter Fixed amount"
-              size="large"
-              className="text-sm font-md"
+              className="text-sm font-md h-10"
             />
           </Form.Item>
         )}
@@ -232,7 +298,9 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
               className="mt-2"
               rows={4}
             />
-
+            {formulaError && (
+              <div style={{ color: 'red', marginTop: 4 }}>{formulaError}</div>
+            )}
             <div className="my-5">
               <Row gutter={[16, 10]}>
                 <Col xs={12} sm={12} md={13} lg={13} xl={13}>
@@ -242,28 +310,30 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
                     </span>
                     <span className="flex flex-wrap my-1">
                       {incentiveData?.items ? (
-                        incentiveData?.items?.map((option: any) => (
-                          <div key={option?.id}>
-                            {option?.criteria?.criteriaName && (
-                              <Button
-                                onClick={() =>
-                                  handleOptionClick(
-                                    option?.criteria?.id,
-                                    option?.criteria?.criteriaName,
-                                    'criteria',
-                                  )
-                                }
-                                className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
-                              >
-                                <div className="flex flex-wrap items-center justify-center">
-                                  <span className="text-md font-md">
-                                    {option?.criteria?.criteriaName}
-                                  </span>
-                                </div>
-                              </Button>
-                            )}
-                          </div>
-                        ))
+                        recognitionData?.recognitionCriteria?.map(
+                          (option: any) => (
+                            <div key={option?.id}>
+                              {option?.criteria?.criteriaName && (
+                                <Button
+                                  onClick={() =>
+                                    handleOptionClick(
+                                      option?.criteria?.id,
+                                      option?.criteria?.criteriaName,
+                                      'criteria',
+                                    )
+                                  }
+                                  className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
+                                >
+                                  <div className="flex flex-wrap items-center justify-center">
+                                    <span className="text-md font-md">
+                                      {option?.criteria?.criteriaName}
+                                    </span>
+                                  </div>
+                                </Button>
+                              )}
+                            </div>
+                          ),
+                        )
                       ) : (
                         <span className="text-sm text-gray-500 m-1">
                           No Criterion
@@ -300,28 +370,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             </div>
           </Form.Item>
         )}
-
-        <Form.Item className="">
-          <div className="flex justify-center  w-full px-6 py-6 gap-6 my-3">
-            <Button
-              onClick={handleClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-            >
-              Cancel
-            </Button>
-
-            <Button
-              htmlType="submit"
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12  border-none"
-            >
-              {formulaById?.expression === null ? (
-                <span>Create</span>
-              ) : (
-                <span>Edit</span>
-              )}
-            </Button>
-          </div>
-        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );
