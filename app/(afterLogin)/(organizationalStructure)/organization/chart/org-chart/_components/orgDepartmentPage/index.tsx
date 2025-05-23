@@ -64,7 +64,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
           ) : (
             <span className="text-xs font-bold text-center">
               {user?.firstName || user?.middleName || user?.lastName
-                ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} `.trim()
+                ? `${user?.firstName ?? ''}  ${user?.middleName ?? ''}  ${user?.lastName ?? ''}`.trim()
                 : 'Not assigned'}
             </span>
           )}
