@@ -22,7 +22,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
   } = CategoriesManagementStore();
 
   const { data: employees } = useFetchUsers(searchUserParams?.user_name);
-  const { mutate: updateForm ,isLoading} = useUpdateForm();
+  const { mutate: updateForm, isLoading } = useUpdateForm();
 
   const { data: formDataByID } = useGetFormsByID(selectedFormId);
   const handleSubmit = async () => {
@@ -98,11 +98,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
             suffixIcon={<CalendarOutlined />}
           />
         </Form.Item>
-        <Form.Item
-          name="users"
-          label="Users"
-        
-        >
+        <Form.Item name="users" label="Users">
           <Select mode="multiple" placeholder="Select users">
             {employees?.items.map((employee: any) => (
               <Option key={employee.id} value={employee.id}>

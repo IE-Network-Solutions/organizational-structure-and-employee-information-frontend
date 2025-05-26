@@ -176,7 +176,12 @@ const Question: React.FC<Props> = (props) => {
                                 {...restField}
                                 name={[name, 'fieldType']}
                                 required
-                                rules={[{ required: true, message: 'Please select a question type' }]}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: 'Please select a question type',
+                                  },
+                                ]}
                               >
                                 <Select placeholder="Select type" allowClear>
                                   <Option value="multiple_choice">

@@ -3,10 +3,7 @@ import { Col, Form, Pagination, Row, Tooltip, Tag, Divider } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { useFetchedQuestionsByFormId } from '@/store/server/features/organization-development/categories/queries';
 import { QuestionsType } from '@/store/server/features/organization-development/categories/interface';
-import ShortTextField from './shortTextField';
-import MultipleChoiceField from './multipleChoiceField';
 import CheckboxField from './checkboxField';
-import ParagraphField from './paragraphField';
 import TimeField from './timeField';
 import DropdownField from './dropdownField';
 import RadioField from './radioField';
@@ -134,11 +131,7 @@ const Questions = ({ id }: Params) => {
                       </div>
                     </div>
                     <Divider />
-                    <div
-                      key={q.id}
-                    
-                      className=""
-                    >
+                    <div key={q.id} className="">
                       {q?.fieldType === FieldType.MULTIPLE_CHOICE && (
                         <div className="mt-2 flex flex-col gap-1 pl-4">
                           {q?.field?.map((choice: any, index: number) => (

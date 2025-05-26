@@ -7,8 +7,6 @@ import {
 import { useGetAllActionPlan } from '@/store/server/features/organization-development/categories/queries';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { Avatar, Button, Card, List, Tooltip, Tag } from 'antd';
-import React from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { MdOutlineModeEditOutline } from 'react-icons/md';
 import { RiDeleteBin5Line } from 'react-icons/ri';
@@ -17,7 +15,8 @@ interface Params {
   id: string;
 }
 function ActionPlans({ id }: Params) {
-  const { data: actionPlanData ,refetch: refetchActionPlan} = useGetAllActionPlan(id);
+  const { data: actionPlanData, refetch: refetchActionPlan } =
+    useGetAllActionPlan(id);
   const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
   const {
     setSelectedActionPlan,
@@ -49,11 +48,14 @@ function ActionPlans({ id }: Params) {
     setSelectedEditActionPlan(item);
   };
   const handleResolveHandler = (id: string) => {
-    resolveActionPlan({ status: 'solved', id: id }, {
-      onSuccess: () => {
-        refetchActionPlan();
+    resolveActionPlan(
+      { status: 'solved', id: id },
+      {
+        onSuccess: () => {
+          refetchActionPlan();
+        },
       },
-    });
+    );
   };
   return (
     <div>
