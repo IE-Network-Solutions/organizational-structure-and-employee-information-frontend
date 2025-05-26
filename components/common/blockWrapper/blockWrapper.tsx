@@ -12,7 +12,7 @@ interface BlockWrapperProps {
 const BlockWrapper: React.FC<BlockWrapperProps> = ({
   children,
   className = '',
-  padding = 'p-2',
+  padding = '',
   withBackground = true,
 }) => {
   return (

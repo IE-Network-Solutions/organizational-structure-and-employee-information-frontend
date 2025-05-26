@@ -45,7 +45,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
 
         <div className="flex flex-col lg:flex-row  gap-6 mt-3">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max bg-[#fafafa] overflow-x-auto p-0 ">
+          <BlockWrapper
+            padding="0px"
+            className="flex-1 h-max bg-[#fafafa] overflow-x-auto p-0 "
+          >
             {children}
           </BlockWrapper>
         </div>
