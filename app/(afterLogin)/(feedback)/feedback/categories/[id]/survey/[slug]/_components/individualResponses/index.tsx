@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {  Form, Pagination,  Tag, Skeleton, Select } from 'antd';
+import { Form, Pagination, Tag, Skeleton, Select } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { useFetchedAllIndividualResponsesByFormId } from '@/store/server/features/organization-development/categories/queries';
 import { EmptyImage } from '@/components/emptyIndicator';
@@ -69,10 +69,10 @@ function getBarData(question: any, responses: any[]) {
 }
 
 const IndividualResponses = ({ id }: Params) => {
-  const { setCurrent, current, pageSize, selectedUser, setPageSize } =
+  const { setCurrent, current, pageSize, setPageSize } =
     useOrganizationalDevelopment();
   const { data: individualResponses, isLoading } =
-  useFetchedAllIndividualResponsesByFormId(id);
+    useFetchedAllIndividualResponsesByFormId(id);
   const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);

@@ -121,7 +121,6 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
     });
   });
 
-
   const renderProgress = (
     percent: number,
     completed: number,
@@ -302,20 +301,28 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                   <Flex gap="small" wrap justify="center">
                     {renderProgress(
                       (form.actionPlans?.filter(
-                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.PENDING,
-                      ).length / form.actionPlans.length) * 100,
+                        (actionPlan: any) =>
+                          actionPlan.status === ActionPlanStatus.PENDING,
+                      ).length /
+                        form.actionPlans.length) *
+                        100,
                       form.actionPlans?.filter(
-                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.PENDING,
+                        (actionPlan: any) =>
+                          actionPlan.status === ActionPlanStatus.PENDING,
                       ).length,
                       form.actionPlans.length,
                       'Pending',
                     )}
                     {renderProgress(
                       (form.actionPlans?.filter(
-                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.SOLVED,
-                      ).length / form.actionPlans.length) * 100,
+                        (actionPlan: any) =>
+                          actionPlan.status === ActionPlanStatus.SOLVED,
+                      ).length /
+                        form.actionPlans.length) *
+                        100,
                       form.actionPlans?.filter(
-                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.SOLVED,
+                        (actionPlan: any) =>
+                          actionPlan.status === ActionPlanStatus.SOLVED,
                       ).length,
                       form.actionPlans.length,
                       'Resolved',

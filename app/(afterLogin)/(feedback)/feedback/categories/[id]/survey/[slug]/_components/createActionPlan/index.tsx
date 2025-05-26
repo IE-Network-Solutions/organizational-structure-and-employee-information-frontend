@@ -92,7 +92,6 @@ const CreateActionPlan = (props: any) => {
     );
   };
   const handleOnFinish = (values: any) => {
-    console.log(values, 'values');
     selectedEditActionPlan
       ? handleOnUpdateActionPlan(values)
       : handleOnFinishActionPlan(values);
