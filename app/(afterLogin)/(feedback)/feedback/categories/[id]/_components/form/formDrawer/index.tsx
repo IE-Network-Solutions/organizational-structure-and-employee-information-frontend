@@ -27,7 +27,7 @@ import Avatar from '@/public/gender_neutral_avatar.jpg';
 function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
   const { data: formCategories } = useGetFormCategories(id);
   const { data: departments } = useEmployeeDepartments();
-  const { mutate: addForm } = useAddForm();
+  const { mutate: addForm, isLoading: addFormLoading } = useAddForm();
   const { isAddOpen, setIsAddOpen, clearSelectedUsers } = useDynamicFormStore();
 
   const {
@@ -75,18 +75,24 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     const startDate = surveyStartDate.toISOString();
     const endDate = surveyEndDate.toISOString();
 
-    addForm({
-      name,
-      description,
-      formPermissions: selectedUsers,
-      startDate,
-      endDate,
-      isAnonymous: Select ?? false,
-      formCategoryId: id,
-      status: 'published',
-    });
-    handleCloseDrawer();
-    form.resetFields();
+    addForm(
+      {
+        name,
+        description,
+        formPermissions: selectedUsers,
+        startDate,
+        endDate,
+        isAnonymous: Select ?? false,
+        formCategoryId: id,
+        status: 'published',
+      },
+      {
+        onSuccess: () => {
+          handleCloseDrawer();
+          form.resetFields();
+        },
+      },
+    );
   };
 
   return (
@@ -189,13 +195,23 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
               </Col>
             </Row>
             <Form.Item
+              name="isAnonymous"
               label={
                 <span className="text-md my-2 font-semibold text-gray-700">
-                  Permitted Employees
+                  Allow to be anonymous
                 </span>
               }
-              required
-              rules={[{ required: true, message: 'Please select employees' }]}
+              valuePropName="checked"
+              initialValue={false}
+            >
+              <Switch size="small" />
+            </Form.Item>
+            <Form.Item
+              label={
+                <span className="text-md my-2 font-semibold text-gray-700">
+                  Permitted Employees To Edit
+                </span>
+              }
             >
               <Collapse>
                 <Collapse.Panel header="Select employees" key="0">
@@ -269,18 +285,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                 </Collapse.Panel>
               </Collapse>
             </Form.Item>
-            <Form.Item
-              name="isAnonymous"
-              label={
-                <span className="text-md my-2 font-semibold text-gray-700">
-                  Allow to be anonymous
-                </span>
-              }
-              valuePropName="checked"
-              initialValue={false}
-            >
-              <Switch size="small" />
-            </Form.Item>
+
             <Form.Item>
               <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
                 <Button
@@ -292,6 +297,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                 <Button
                   onClick={handleSubmit}
                   className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                  loading={addFormLoading}
                 >
                   Submit
                 </Button>

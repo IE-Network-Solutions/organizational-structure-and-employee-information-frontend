@@ -120,6 +120,7 @@ export const useUpdateQuestions = () => {
     {
       onSuccess: (data, variables: any) => {
         queryClient.invalidateQueries(['questions', data?.formId]);
+        queryClient.invalidateQueries(['questions']);
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
       },

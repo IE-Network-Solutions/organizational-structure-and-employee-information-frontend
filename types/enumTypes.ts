@@ -7,6 +7,10 @@ export enum FieldType {
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
 }
+export enum ActionPlanStatus {
+  SOLVED = 'solved',
+  PENDING = 'pending',
+}
 
 export const PlanningType = [
   { key: 'myPlan', value: 'my plan' },
