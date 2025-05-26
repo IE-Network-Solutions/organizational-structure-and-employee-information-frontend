@@ -73,7 +73,7 @@ const DefineMeetingType = () => {
       {meetingTypeDetailData ? (
         <MeetingTypeDetail />
       ) : (
-        <div className="p- rounded-2xl bg- h-full ">
+        <div className="p-4 rounded-2xl min-h-screen bg-white h-full ">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Meeting Types</h2>
             {/* <AccessGuard permissions={[Permissions.CreateMeetingType]}> */}

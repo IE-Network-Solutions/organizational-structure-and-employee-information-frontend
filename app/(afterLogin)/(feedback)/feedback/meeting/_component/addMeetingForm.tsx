@@ -300,7 +300,7 @@ export default function AddNewMeetingForm() {
               name="startAt"
               rules={[{ required: true, message: 'Please select start time' }]}
             >
-              <TimePicker className="w-full" />
+              <TimePicker format="HH:mm" className="w-full" />
             </Form.Item>
 
             <Form.Item
@@ -308,7 +308,7 @@ export default function AddNewMeetingForm() {
               name="endAt"
               rules={[{ required: true, message: 'Please select end time' }]}
             >
-              <TimePicker className="w-full" />
+              <TimePicker format="HH:mm" className="w-full" />
             </Form.Item>
           </div>
 

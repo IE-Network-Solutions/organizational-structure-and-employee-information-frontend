@@ -6,12 +6,14 @@ interface FinalNotesProps {
   meetingId: string; // Change 'string' to the correct type if needed
   finalNote: string;
   loading: boolean;
+  canEdit: boolean;
 }
 
 export default function FinalNotes({
   meetingId,
   finalNote,
   loading,
+  canEdit,
 }: FinalNotesProps) {
   const [editing, setEditing] = useState(false);
   const { mutate: updateMeeting, isLoading } = useUpdateMeeting();
@@ -74,7 +76,7 @@ export default function FinalNotes({
       ) : (
         <div
           className="text-gray-700 whitespace-pre-wrap p-3 rounded-md text-sm border cursor-pointer hover:bg-gray-50"
-          onClick={() => setEditing(true)}
+          onClick={() => (canEdit ? setEditing(true) : null)}
         >
           {finalNote}
         </div>

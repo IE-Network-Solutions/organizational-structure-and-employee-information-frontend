@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Popconfirm, Button, Form, Input, Select, Spin } from 'antd';
+import { Popconfirm, Button, Form, Input, Select } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useCreateMeetingAttendeesBulk } from '@/store/server/features/CFR/meeting/mutations';
+import { LoadingOutlined } from '@ant-design/icons';
 
 interface AddParticipantsPopconfirmProps {
   loading: boolean;
@@ -161,7 +162,7 @@ const AddParticipantsPopconfirm = ({
         onConfirm={() => form.submit()}
         onCancel={() => setVisible(false)}
         cancelText="Cancel"
-        okText={isLoading ? <Spin /> : 'Add Participants'}
+        okText={isLoading ? <LoadingOutlined /> : 'Add Participants'}
       >
         {/* Dummy element since Popconfirm needs a child */}
         <span />

@@ -15,6 +15,7 @@ interface ActionPlanCardProps {
   status: 'Resolved' | 'Unresolved';
   priority: 'High' | 'Medium' | 'Low';
   responsibleUsers: string[];
+  canEdit: boolean;
 }
 
 export default function ActionPlanCard({
@@ -25,6 +26,7 @@ export default function ActionPlanCard({
   status,
   priority,
   responsibleUsers,
+  canEdit,
 }: ActionPlanCardProps) {
   const statusColor = status === 'Resolved' ? 'green' : 'orange';
   const priorityColor =
@@ -101,17 +103,19 @@ export default function ActionPlanCard({
           <p className="text-gray-600 text-sm">{issue}</p>
           {/* <p className="text-gray-600 text-sm">{description}</p> */}
         </div>
-        <Dropdown overlay={menu} trigger={['click']}>
-          <Tooltip title="More actions">
-            <Button
-              loading={isLoading}
-              type="text"
-              icon={
-                <FiMoreVertical className="text-gray-500 hover:text-blue-500 cursor-pointer text-lg" />
-              }
-            />
-          </Tooltip>
-        </Dropdown>
+        {canEdit && (
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Tooltip title="More actions">
+              <Button
+                loading={isLoading}
+                type="text"
+                icon={
+                  <FiMoreVertical className="text-gray-500 hover:text-blue-500 cursor-pointer text-lg" />
+                }
+              />
+            </Tooltip>
+          </Dropdown>
+        )}
       </div>
       <div className="grid grid-cols-4 text-sm pt-2">
         <div>

@@ -11,6 +11,7 @@ import ParticipantsList from './_components/ParticipantsList';
 import UploadSection from './_components/UploadSection';
 import PreviousMeeting from './_components/PreviousMeeting';
 import { useGetMeetingsById } from '@/store/server/features/CFR/meeting/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type Params = {
   id: string;
@@ -18,27 +19,45 @@ type Params = {
 
 export default function MeetingDetailPage({ params }: { params: Params }) {
   const { data: meeting, isLoading } = useGetMeetingsById(params?.id);
+  const { userId } = useAuthenticationStore();
+
+  const canEdit =
+    userId === meeting?.chairpersonId || userId === meeting?.facilitatorId;
   return (
     <div className="p-1">
       <MeetingHeader loading={isLoading} title={meeting?.title} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-        <div className="lg:col-span-2 border rounded-lg h-screen">
+        <div className="lg:col-span-2 border rounded-lg h-screen overflow-y-auto scrollbar-none">
           <MeetingObjectives
             loading={isLoading}
             objective={meeting?.objective}
           />
-          <MeetingAgenda id={meeting?.id} />
+          <MeetingAgenda canEdit={canEdit} id={meeting?.id} />
           <FinalNotes
             loading={isLoading}
             meetingId={meeting?.id}
             finalNote={meeting?.finalNote}
+            canEdit={canEdit}
           />
-          <ActionPlan loading={isLoading} meetingId={meeting?.id} />
+          <ActionPlan
+            meeting={meeting}
+            canEdit={canEdit}
+            loading={isLoading}
+            meetingId={meeting?.id}
+          />
           <UploadSection meetingId={meeting?.id} />
         </div>
-        <div className="border rounded-lg h-screen">
-          <OtherDetails loading={isLoading} meeting={meeting} />
-          <ParticipantsList loading={isLoading} meeting={meeting} />
+        <div className="border rounded-lg  h-screen overflow-y-auto scrollbar-none">
+          <OtherDetails
+            canEdit={canEdit}
+            loading={isLoading}
+            meeting={meeting}
+          />
+          <ParticipantsList
+            canEdit={canEdit}
+            loading={isLoading}
+            meeting={meeting}
+          />
           <CommentsSection />
           <PreviousMeeting />
         </div>

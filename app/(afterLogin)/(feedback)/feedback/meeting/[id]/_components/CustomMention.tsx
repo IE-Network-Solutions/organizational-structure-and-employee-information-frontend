@@ -1,3 +1,4 @@
+'use client';
 // lib/mentionExtension.ts
 import { Mention } from '@tiptap/extension-mention';
 import { ReactRenderer } from '@tiptap/react';
@@ -29,7 +30,7 @@ export function createMentionExtension(
           {
             src: node.attrs.profileImage || '/userIcon.png',
             alt: node.attrs.label,
-            class: 'w- h-5 rounded-full',
+            class: 'w-5 h-5 rounded-full',
           },
         ],
         ['span', { class: 'text-sm' }, node.attrs.label],
@@ -57,12 +58,8 @@ export function createMentionExtension(
               editor: props.editor,
             });
 
-            popup = tippy(document.body, {
-              getReferenceClientRect: () => {
-                const rect = props.clientRect?.();
-                // Fallback to a default rect if null
-                return rect || new DOMRect(0, 0, 0, 0);
-              },
+            popup = tippy('body', {
+              getReferenceClientRect: props.clientRect,
               appendTo: () => document.body,
               content: component.element,
               showOnCreate: true,

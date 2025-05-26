@@ -10,9 +10,10 @@ import { useDeleteMeetingAgenda } from '@/store/server/features/CFR/meeting/muta
 
 interface MeetingAgendaProps {
   id: string; // or number, depending on your usage
+  canEdit: boolean;
 }
 
-export default function MeetingAgenda({ id }: MeetingAgendaProps) {
+export default function MeetingAgenda({ id, canEdit }: MeetingAgendaProps) {
   const {
     openAddAgenda,
     setOpenAddAgenda,
@@ -39,13 +40,15 @@ export default function MeetingAgenda({ id }: MeetingAgendaProps) {
     <div className="p-4">
       <div className="flex justify-between items-center py-2">
         <h2 className="text-lg font-semibold mb-2">Meeting Agenda</h2>
-        <Button
-          icon={<FaPlus />}
-          onClick={() => setOpenAddAgenda(true)}
-          type="primary"
-        >
-          Add New
-        </Button>
+        {canEdit && (
+          <Button
+            icon={<FaPlus />}
+            onClick={() => setOpenAddAgenda(true)}
+            type="primary"
+          >
+            Add New
+          </Button>
+        )}
       </div>
       {isLoading ? (
         <div className="flex justify-center">
@@ -64,25 +67,27 @@ export default function MeetingAgenda({ id }: MeetingAgendaProps) {
               >
                 {i.agenda}
               </span>
-              <div className="flex items-center gap-2">
-                <EditOutlined
-                  key="edit"
-                  className="text-gray-500 hover:text-red-blue cursor-pointer"
-                  onClick={() => handleEdit(i)}
-                />
-                <Popconfirm
-                  title="Are you sure you want to remove this agenda?"
-                  onConfirm={() => handleDelete(i.id)}
-                  okText="Yes"
-                  cancelText="No"
-                  zIndex={0}
-                >
-                  <CloseOutlined
-                    key="close"
-                    className="text-gray-500 hover:text-red-500 cursor-pointer"
+              {canEdit && (
+                <div className="flex items-center gap-2">
+                  <EditOutlined
+                    key="edit"
+                    className="text-gray-500 hover:text-red-blue cursor-pointer"
+                    onClick={() => handleEdit(i)}
                   />
-                </Popconfirm>
-              </div>
+                  <Popconfirm
+                    title="Are you sure you want to remove this agenda?"
+                    onConfirm={() => handleDelete(i.id)}
+                    okText="Yes"
+                    cancelText="No"
+                    zIndex={0}
+                  >
+                    <CloseOutlined
+                      key="close"
+                      className="text-gray-500 hover:text-red-500 cursor-pointer"
+                    />
+                  </Popconfirm>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -98,6 +103,7 @@ export default function MeetingAgenda({ id }: MeetingAgendaProps) {
         onClose={() => setOpenMeetingAgenda(false)}
         meetingAgenda={meetingAgenda}
         meetingId={id}
+        canEdit={canEdit}
       />
     </div>
   );

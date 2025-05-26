@@ -3,12 +3,14 @@ import { Modal, Button } from 'antd';
 import Editor from './Editor';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useCreateMeetingDiscussion } from '@/store/server/features/CFR/meeting/mutations';
+import { useGetMeetingDiscussion } from '@/store/server/features/CFR/meeting/queries';
 
 interface MeetingAgendaModalProps {
   visible: boolean;
   onClose: () => void;
   meetingAgenda: any;
   meetingId: string;
+  canEdit: boolean;
 }
 
 const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
@@ -16,28 +18,49 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
   onClose,
   meetingAgenda,
   meetingId,
+  canEdit,
 }) => {
   const { content, setContent } = useMeetingStore();
   const { mutate: createMeetingDiscussion, isLoading } =
     useCreateMeetingDiscussion();
+  const { mutate: updateMeetingDiscussion, isLoading: updateLoading } =
+    useCreateMeetingDiscussion();
+  const { data: meetingDiscussion } = useGetMeetingDiscussion(
+    meetingId,
+    meetingAgenda?.id,
+  );
+
   const handleSubmit = () => {
-    createMeetingDiscussion(
-      {
-        meetingId: meetingId,
-        agendaId: meetingAgenda?.id,
-        discussion: content,
-        order: 1,
-      },
-      {
-        onSuccess: () => {
-          setContent('');
-          onClose();
-        },
-      },
-    );
+    !meetingDiscussion?.items[0]?.id
+      ? createMeetingDiscussion(
+          {
+            meetingId: meetingId,
+            agendaId: meetingAgenda?.id,
+            discussion: content,
+          },
+          {
+            onSuccess: () => {
+              setContent('');
+              onClose();
+            },
+          },
+        )
+      : updateMeetingDiscussion(
+          {
+            id: meetingDiscussion?.items[0]?.id,
+            meetingId: meetingId,
+            agendaId: meetingAgenda?.id,
+            discussion: content,
+          },
+          {
+            onSuccess: () => {
+              setContent('');
+              onClose();
+            },
+          },
+        );
     // onClose(); // Close the modal after submission
   };
-
   return (
     <Modal
       title={<div className="text-lg">{meetingAgenda?.agenda} </div>}
@@ -56,19 +79,29 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
       }}
     >
       <p className="mb-5">Please add everything said for this agenda here</p>
-      <Editor meetingId={meetingId} />
-      <div className="flex justify-center mt-4 relative">
-        <Button
-          loading={isLoading}
-          onClick={onClose}
-          style={{ marginRight: '8px' }}
-        >
-          Cancel
-        </Button>
-        <Button loading={isLoading} type="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </div>
+      <Editor
+        canEdit={canEdit}
+        meetingAgendaId={meetingAgenda?.id}
+        meetingId={meetingId}
+      />
+      {canEdit && (
+        <div className="flex justify-center mt-4 relative">
+          <Button
+            loading={isLoading || updateLoading}
+            onClick={onClose}
+            style={{ marginRight: '8px' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            loading={isLoading || updateLoading}
+            type="primary"
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </div>
+      )}
     </Modal>
   );
 };

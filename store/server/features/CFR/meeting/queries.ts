@@ -250,12 +250,12 @@ export const useGetMeetingAgendaTemplateById = (id: string) => {
   );
 };
 // meeting discussion
-const getMeetingDiscussion = async (id: string) => {
+const getMeetingDiscussion = async (id: string, agendaId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/meeting-discussions/${id}`,
+    url: `${ORG_DEV_URL}/meeting-discussions?meetingId=${id}&agendaId=${agendaId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -263,9 +263,9 @@ const getMeetingDiscussion = async (id: string) => {
     },
   });
 };
-export const useGetMeetingDiscussion = (id: string) => {
+export const useGetMeetingDiscussion = (id: string, agendaId: string) => {
   return useQuery<any>(
-    ['meeting-discussion', id], // Unique query key based on params
-    () => getMeetingDiscussion(id),
+    ['meeting-discussion', id, agendaId], // Unique query key based on params
+    () => getMeetingDiscussion(id, agendaId),
   );
 };

@@ -208,6 +208,22 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       <Option value="Low">Low</Option>
                     </Select>
                   </Form.Item>
+                  {actionPlanData && (
+                    <Form.Item
+                      {...restField}
+                      label="Status"
+                      name={[name, 'status']}
+                      rules={[
+                        { required: true, message: 'Please select a status!' },
+                      ]}
+                    >
+                      <Select placeholder="Select status">
+                        <Option value="Pending">Pending</Option>
+                        <Option value="In_Progress">In progress </Option>
+                        <Option value="Completed">Completed </Option>
+                      </Select>
+                    </Form.Item>
+                  )}
 
                   {/* Optional: Uncomment to enable deadline field */}
                   <Form.Item

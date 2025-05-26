@@ -57,6 +57,18 @@ interface MeetingStore {
 
   departmentId: string | null;
   setDepartmentId: (departmentId: string | null) => void;
+  startAt: any; // ISO string
+  endAt: any;
+  otherUser?: string;
+  locationType: 'in-person' | 'virtual' | 'hybrid' | string;
+  physicalLocation?: string;
+  virtualLink?: string;
+  setStartAt: (startAt: string) => void;
+  setEndAt: (endAt: string) => void;
+  setOtherUser: (otherUser: string) => void;
+  setLocationType: (locationType: string) => void;
+  setPhysicalLocation: (physicalLocation: string) => void;
+  setVirtualLink: (virtualLink: string) => void;
 }
 
 export const useMeetingStore = create<MeetingStore>((set) => ({
@@ -106,4 +118,16 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
   setTemplateId: (templateId) => set({ templateId }),
   content: '',
   setContent: (content) => set({ content }),
+  startAt: '',
+  endAt: '',
+  otherUser: '',
+  locationType: '',
+  physicalLocation: '',
+  virtualLink: '',
+  setStartAt: (startAt) => set({ startAt }),
+  setEndAt: (endAt) => set({ endAt }),
+  setOtherUser: (otherUser) => set({ otherUser }),
+  setLocationType: (locationType) => set({ locationType }),
+  setPhysicalLocation: (physicalLocation) => set({ physicalLocation }),
+  setVirtualLink: (virtualLink) => set({ virtualLink }),
 }));

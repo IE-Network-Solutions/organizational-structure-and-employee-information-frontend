@@ -194,7 +194,7 @@ h6 {
   @apply text-[#4DAEF0] !important;
 }
 
-.ant-collapse>.ant-collapse-item>.ant-collapse-header {
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
   align-items: center !important;
 }
 
@@ -285,7 +285,6 @@ h6 {
 
 @layer components {
   @media (max-width: 640px) {
-
     /* Ant Design menu active item */
     .ant-menu-item-selected {
       @apply text-primary;
@@ -351,14 +350,13 @@ h6 {
 }
 .mention {
   color: black;
-  font-weight: bold ;
+  font-weight: bold;
   font-size: 10px;
-  
 }
 .ProseMirror {
-    min-height: 55vh;
-    border: none !important;
-    padding: 10px 20px;
+  min-height: 55vh;
+  border: none !important;
+  padding: 10px 20px;
 }
 .custom-timepicker .ant-picker-input input {
   font-size: 12px !important;
