@@ -6,17 +6,20 @@ interface BlockWrapperProps {
   children: React.ReactNode;
   className?: string;
   padding?: string;
+  withBackground?: boolean;
 }
 
 const BlockWrapper: React.FC<BlockWrapperProps> = ({
   children,
   className = '',
-  padding = '',
+  padding = 'p-2',
+  withBackground = true,
 }) => {
   return (
     <div
       className={classNames(
-        `${padding ? padding : 'p-3 bg-[#fafafa]'}`,
+        padding,
+        withBackground ? 'bg-gray-100' : '',
         className,
       )}
       style={{ borderRadius: 11 }}

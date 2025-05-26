@@ -214,7 +214,7 @@ const TnaReviewPage = () => {
   return (
     <div className="page-wrap">
       <TnaApprovalTable />
-      <BlockWrapper>
+      <BlockWrapper withBackground={false}>
         <PageHeader title="MY TNA">
           <Space size={20}>
             <DatePicker.RangePicker
