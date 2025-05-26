@@ -22,6 +22,7 @@ import Question from '../../questions';
 import Link from 'next/link';
 import { useDeleteForm } from '@/store/server/features/feedback/form/mutation';
 import { CheckCheck, Copy } from 'lucide-react';
+import { ActionPlanStatus } from '@/types/enumTypes';
 
 const { Title, Paragraph } = Typography;
 
@@ -62,7 +63,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
       current,
     );
 
-  const { mutate: deleteForm } = useDeleteForm();
+  const { mutate: deleteForm, isLoading: deleteFormLoading } = useDeleteForm();
   const handleChange = (page: number = 1, pageSize: number) => {
     setCurrent(page);
     setPageSize(pageSize);
@@ -74,8 +75,11 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
   };
 
   const handleFormDelete = () => {
-    deleteForm(deletedItem);
-    setDeleteFormModal(false);
+    deleteForm(deletedItem, {
+      onSuccess: () => {
+        setDeleteFormModal(false);
+      },
+    });
   };
 
   const getStrokeColor = (percent: number) => {
@@ -117,16 +121,6 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
     });
   });
 
-  const pendingCount = uniqueStatusArray?.filter(
-    (status: any) => status === 'pending',
-  ).length;
-  const solvedCount = uniqueStatusArray?.filter(
-    (status: any) => status === 'solved',
-  ).length;
-
-  const total = uniqueStatusArray?.length;
-  const pendingPercentage = (pendingCount / total) * 100;
-  const resolvedPercentage = (solvedCount / total) * 100;
 
   const renderProgress = (
     percent: number,
@@ -307,15 +301,23 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                   </Link>
                   <Flex gap="small" wrap justify="center">
                     {renderProgress(
-                      pendingPercentage ?? 0,
-                      pendingCount ?? 0,
-                      total ?? 0,
+                      (form.actionPlans?.filter(
+                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.PENDING,
+                      ).length / form.actionPlans.length) * 100,
+                      form.actionPlans?.filter(
+                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.PENDING,
+                      ).length,
+                      form.actionPlans.length,
                       'Pending',
                     )}
                     {renderProgress(
-                      resolvedPercentage ?? 0,
-                      solvedCount ?? 0,
-                      total ?? 0,
+                      (form.actionPlans?.filter(
+                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.SOLVED,
+                      ).length / form.actionPlans.length) * 100,
+                      form.actionPlans?.filter(
+                        (actionPlan: any) => actionPlan.status === ActionPlanStatus.SOLVED,
+                      ).length,
+                      form.actionPlans.length,
                       'Resolved',
                     )}
                   </Flex>
@@ -342,6 +344,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
       <DeleteModal
         open={deleteFormModal}
         onConfirm={handleFormDelete}
+        loading={deleteFormLoading}
         onCancel={() => setDeleteFormModal(false)}
       />
       <Modal

@@ -6,7 +6,7 @@ import {
 } from '@/store/server/features/organization-development/categories/mutation';
 import { useGetAllActionPlan } from '@/store/server/features/organization-development/categories/queries';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { Avatar, Button, Card, List, Tooltip } from 'antd';
+import { Avatar, Button, Card, List, Tooltip, Tag } from 'antd';
 import React from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { IoCheckmarkSharp } from 'react-icons/io5';
@@ -17,13 +17,11 @@ interface Params {
   id: string;
 }
 function ActionPlans({ id }: Params) {
-  const { data: actionPlanData } = useGetAllActionPlan(id);
+  const { data: actionPlanData ,refetch: refetchActionPlan} = useGetAllActionPlan(id);
   const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
   const {
     setSelectedActionPlan,
     selectedActionPlan,
-    visibleItems,
-    setVisibleItems,
     setNumberOfActionPlan,
     setSelectedEditActionPlan,
     setOpen,
@@ -51,7 +49,11 @@ function ActionPlans({ id }: Params) {
     setSelectedEditActionPlan(item);
   };
   const handleResolveHandler = (id: string) => {
-    resolveActionPlan({ status: 'solved', id: id });
+    resolveActionPlan({ status: 'solved', id: id }, {
+      onSuccess: () => {
+        refetchActionPlan();
+      },
+    });
   };
   return (
     <div>
@@ -59,97 +61,92 @@ function ActionPlans({ id }: Params) {
         loading={userLoading}
         itemLayout="horizontal"
         dataSource={actionPlanData}
-        renderItem={(item: any) => (
-          <Card key={item.id}>
-            <List.Item
-              className="flex justify-between gap-2 cursor-pointer"
-              onClick={() => setVisibleItems(item.id)} // Toggle visibility for this item
-            >
-              <div className="flex justify-start gap-4">
-                {visibleItems[item.id] ? (
-                  <FaChevronUp className="font-bold" />
-                ) : (
-                  <FaChevronDown className="font-bold" />
-                )}
-                <div>{item?.actionToBeTaken}</div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  type="primary"
-                  onClick={() => handleEditActionPlan(item?.id)}
-                >
-                  <MdOutlineModeEditOutline />
-                </Button>
-                <Button
-                  type="primary"
-                  loading={actionPlanDeletingLoading}
-                  onClick={() => setSelectedActionPlan(item?.id)}
-                  danger
-                >
-                  <RiDeleteBin5Line />
-                </Button>
-                {item?.status !== 'solved' && (
-                  <Tooltip title="Resolve Action Plan">
-                    <Button
-                      hidden={item?.status === 'solved'}
-                      className="cursor-pointer"
-                      type="primary"
-                      loading={actionPlanResolvingLoading}
-                      onClick={() => handleResolveHandler(item?.id)}
-                      icon={<IoCheckmarkSharp />}
-                    />
-                  </Tooltip>
-                )}
-              </div>
-            </List.Item>
-            {visibleItems[item.id] && (
-              <>
-                <List.Item className="flex justify-start gap-2">
-                  <div className="flex flex-col text-gray-400 text-sm">
-                    <p>Responsible Person</p>
-                    <p>Description</p>
+        renderItem={(item: any) => {
+          // Support multiple responsible users
+          const responsibleUsers = Array.isArray(item.responsiblePerson)
+            ? item.responsiblePerson
+            : [item.responsiblePerson];
+          const responsibleUserObjs = responsibleUsers
+            .map((id: string) =>
+              employeeData?.items?.find((user: any) => user?.id === id),
+            )
+            .filter(Boolean);
+          return (
+            <Card key={item.id} className="mb-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <div className="font-bold text-base mb-1">
+                    {item?.actionToBeTaken}
                   </div>
-                  {employeeData?.items?.map((user: any) => {
-                    return (
-                      user?.id === item.responsiblePerson && (
-                        <List.Item.Meta
+                  <div className="text-gray-600 text-sm mb-2">
+                    {item?.description}
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Avatar.Group
+                      maxCount={4}
+                      maxStyle={{
+                        color: '#f56a00',
+                        backgroundColor: '#fde3cf',
+                      }}
+                    >
+                      {responsibleUserObjs.map((user: any) => (
+                        <Tooltip
                           key={user.id}
-                          avatar={
-                            <Avatar className="mt-2" src={user?.profileImage} />
-                          }
-                          title={
-                            <span className="text-sm">
-                              {user?.firstName +
-                                ' ' +
-                                user?.middleName +
-                                ' ' +
-                                user?.lastName}
-                            </span>
-                          }
-                          description={item.description}
+                          title={`${user.firstName} ${user.middleName} ${user.lastName}`}
+                        >
+                          <Avatar
+                            src={user.profileImage}
+                            style={{ backgroundColor: '#87d068' }}
+                          >
+                            {user.firstName?.[0]}
+                          </Avatar>
+                        </Tooltip>
+                      ))}
+                    </Avatar.Group>
+                  </div>
+                  <Tag color={item?.status === 'solved' ? 'green' : 'blue'}>
+                    {item?.status === 'solved' ? 'Resolved' : 'Pending'}
+                  </Tag>
+                </div>
+                <div className="flex gap-2 self-start md:self-center">
+                  {item?.status !== 'solved' && (
+                    <>
+                      <Button
+                        type="primary"
+                        onClick={() => handleEditActionPlan(item?.id)}
+                      >
+                        <MdOutlineModeEditOutline />
+                      </Button>
+                      <Button
+                        type="primary"
+                        loading={actionPlanDeletingLoading}
+                        onClick={() => setSelectedActionPlan(item?.id)}
+                        danger
+                      >
+                        <RiDeleteBin5Line />
+                      </Button>
+                      <Tooltip title="Resolve Action Plan">
+                        <Button
+                          className="cursor-pointer"
+                          type="primary"
+                          loading={actionPlanResolvingLoading}
+                          onClick={() => handleResolveHandler(item?.id)}
+                          icon={<IoCheckmarkSharp />}
                         />
-                      )
-                    );
-                  })}
-                </List.Item>
-                <List.Item className="flex justify-end">
-                  <Button
-                    disabled={item?.status === 'solved'}
-                    onClick={() => handleResolveHandler(item?.id)}
-                    className="flex justify-end bg-blue disabled:bg-gray-500 disabled:text-black text-white"
-                  >
-                    {item?.status === 'solved' ? 'Resolved' : 'Resolve'}
-                  </Button>
-                </List.Item>
-              </>
-            )}
-          </Card>
-        )}
+                      </Tooltip>
+                    </>
+                  )}
+                </div>
+              </div>
+            </Card>
+          );
+        }}
       />
       <DeleteModal
         onCancel={() => setSelectedActionPlan(null)}
         onConfirm={confirmDeleteActionPlanHandler}
         open={selectedActionPlan !== null}
+        loading={actionPlanDeletingLoading}
       />
     </div>
   );
