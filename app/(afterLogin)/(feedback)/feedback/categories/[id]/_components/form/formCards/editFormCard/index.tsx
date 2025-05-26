@@ -22,7 +22,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
   } = CategoriesManagementStore();
 
   const { data: employees } = useFetchUsers(searchUserParams?.user_name);
-  const { mutate: updateForm } = useUpdateForm();
+  const { mutate: updateForm ,isLoading} = useUpdateForm();
 
   const { data: formDataByID } = useGetFormsByID(selectedFormId);
   const handleSubmit = async () => {
@@ -101,7 +101,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
         <Form.Item
           name="users"
           label="Users"
-          rules={[{ required: true, message: 'Please select users!' }]}
+        
         >
           <Select mode="multiple" placeholder="Select users">
             {employees?.items.map((employee: any) => (
@@ -119,7 +119,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
           <Switch />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={isLoading}>
             Update Form
           </Button>
         </Form.Item>
