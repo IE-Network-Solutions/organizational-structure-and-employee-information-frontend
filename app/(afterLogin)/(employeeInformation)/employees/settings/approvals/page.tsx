@@ -121,11 +121,11 @@ const Approvals = () => {
             <PermissionWraper permissions={[Permissions.CreateApprover]}>
               <Button
                 type="primary"
-                className="h-10 w-10 sm:w-full"
+                className="hidden sm:flex h-10 w-10 sm:w-auto"
                 onClick={() => setAddDepartmentApproval(true)}
                 icon={<FaPlus />}
               >
-                <span className="hidden lg:inline"> Add Approval</span>
+                <span className="hidden sm:inline"> Add Approval</span>
               </Button>
             </PermissionWraper>
           </div>
