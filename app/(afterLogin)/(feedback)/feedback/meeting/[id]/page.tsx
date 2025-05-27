@@ -23,8 +23,9 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
 
   const canEdit =
     userId === meeting?.chairpersonId || userId === meeting?.facilitatorId;
+  console.log(meeting, "seeee")
   return (
-    <div className="p-1">
+    <div className="p-1 ">
       <MeetingHeader loading={isLoading} title={meeting?.title} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         <div className="lg:col-span-2 border rounded-lg h-screen overflow-y-auto scrollbar-none">
@@ -45,7 +46,8 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
             loading={isLoading}
             meetingId={meeting?.id}
           />
-          <UploadSection meetingId={meeting?.id} />
+          <UploadSection     canEdit={canEdit}
+ meetingId={meeting?.id} meeting={meeting} />
         </div>
         <div className="border rounded-lg  h-screen overflow-y-auto scrollbar-none">
           <OtherDetails
@@ -58,8 +60,8 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
             loading={isLoading}
             meeting={meeting}
           />
-          <CommentsSection />
-          <PreviousMeeting />
+          {/* <CommentsSection />
+          <PreviousMeeting /> */}
         </div>
       </div>
     </div>

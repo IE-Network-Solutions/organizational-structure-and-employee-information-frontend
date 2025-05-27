@@ -10,24 +10,22 @@ import {
   Checkbox,
   Input,
   Popconfirm,
+  InputNumber,
 } from 'antd';
 import AddParticipantsPopconfirm from './AddParticipant';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useState } from 'react';
-import {
-  useDeleteMeetingAttendees,
-  useUpdateMeetingAttendees,
-} from '@/store/server/features/CFR/meeting/mutations';
-import { useGetMeetingAttendees } from '@/store/server/features/CFR/meeting/queries';
+import { useEffect, useState } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { MdClose } from 'react-icons/md';
+import { useDeleteMeetingAttendees, useUpdateMeetingAttendees } from '@/store/server/features/CFR/meeting/attendees/mutations';
+import { useGetMeetingAttendees } from '@/store/server/features/CFR/meeting/attendees/queries';
 
 const statusColorMap: Record<string, string> = {
-  Revert: 'red',
+  absent: 'red',
   Confirmed: 'green',
-  Confirm: 'blue',
-  'Not Confirmed': 'orange',
+  attended: 'blue',
+  late: 'orange',
 };
 
 interface ParticipantsListProps {
@@ -72,6 +70,19 @@ export default function ParticipantsList({
     const [form] = Form.useForm();
     const [visible, setVisible] = useState(false);
     const formValues = Form.useWatch([], form) || {};
+    useEffect(() => {
+  if (visible) {
+    const isAbsent = attendanceStatus === 'absent';
+    const isLate = attendanceStatus === 'late';
+
+    form.setFieldsValue({
+      isAbsent,
+      isLate,
+      reason: isAbsent ? absentismReason : undefined,
+      time: isLate ? lateBy?.toString() : undefined,
+    });
+  }
+}, [visible, attendanceStatus, absentismReason, lateBy]);
     const handleSubmit = async () => {
       try {
         const values = await form.validateFields();
@@ -97,11 +108,6 @@ export default function ParticipantsList({
       }
     };
 
-    const handleCheckboxChange = (field: 'isLate' | 'isAbsent') => {
-      const current = form.getFieldValue(field);
-      const opposite = field === 'isLate' ? 'isAbsent' : 'isLate';
-      form.setFieldsValue({ [field]: !current, [opposite]: false });
-    };
 
     const userName = isEmp
       ? `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName}`
@@ -118,28 +124,40 @@ export default function ParticipantsList({
         <div className="flex items-center gap-3 mb-3">
           <Avatar src={profileImage} icon={<UserOutlined />} />
           <div>
-            <p className="font-semibold text-sm">{userName}</p>
-            <p className="text-xs text-gray-500">{email}</p>
+            <Tooltip title={userName}>
+            <p className="font-semibold text-sm"> {userName?.length >= 20 ? userName?.slice(0, 20) + '...' : userName}</p>
+
+            </Tooltip>
+             <Tooltip title={email}>
+            <div className="text-sm text-gray-500">
+              {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
+            </div>
+          </Tooltip>
           </div>
         </div>
 
-        <Form
-          form={form}
-          layout="vertical"
-          className="space-y-3"
-          initialValues={{ isLate: false, isAbsent: false }}
-        >
+       <Form
+  form={form}
+  layout="vertical"
+  className="space-y-3"
+  initialValues={{ isLate: false, isAbsent: false }}
+  onValuesChange={(changedValues, allValues) => {
+    if (changedValues.isLate) {
+      form.setFieldsValue({ isAbsent: false });
+    }
+    if (changedValues.isAbsent) {
+      form.setFieldsValue({ isLate: false });
+    }
+  }}
+>
           <div className="flex gap-2 items-center">
-            <Form.Item name="isLate" className="mb-0">
-              <Checkbox onChange={() => handleCheckboxChange('isLate')}>
-                Is Late
-              </Checkbox>
-            </Form.Item>
-            <Form.Item name="isAbsent" className="mb-0">
-              <Checkbox onChange={() => handleCheckboxChange('isAbsent')}>
-                Is Absent
-              </Checkbox>
-            </Form.Item>
+           <Form.Item name="isLate" valuePropName="checked" className="mb-0">
+  <Checkbox>Is Late</Checkbox>
+</Form.Item>
+
+<Form.Item name="isAbsent" valuePropName="checked" className="mb-0">
+  <Checkbox>Is Absent</Checkbox>
+</Form.Item>
           </div>
 
           {formValues?.isAbsent && (
@@ -153,13 +171,22 @@ export default function ParticipantsList({
           )}
 
           {formValues?.isLate && (
-            <Form.Item
-              name="time"
-              label="Time"
-              rules={[{ required: true, message: 'Please provide the time' }]}
-            >
-              <Input placeholder="e.g., 10 mins" />
-            </Form.Item>
+           <Form.Item
+  name="time"
+  label="Time"
+  rules={[{ required: true, message: 'Please provide the time' }]}
+>
+  <InputNumber
+    className="w-full"
+    min={1}
+    placeholder="e.g., 10 mins"
+    parser={(value) => {
+      const num = value?.replace(/[^\d]/g, '');
+      return num ? Number(num) : '';
+    }}
+  />
+</Form.Item>
+
           )}
         </Form>
 
@@ -179,18 +206,18 @@ export default function ParticipantsList({
       <div className="flex gap-2 items-center">
         <Avatar src={profileImage} icon={<UserOutlined />} />
         <div>
-          <span className="text-[10px]">{userName}</span>
+          <span className="text-[10px]">{userName?.length >= 20 ? userName?.slice(0, 20) + '...' : userName}</span>
           <Tooltip title={email}>
             <div className="text-[8px] text-gray-500">
               {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
             </div>
           </Tooltip>
           {attendanceStatus == 'absent' ? (
-            <div className="text-[8px] bg-red-100 text-red-500 py-[2px] rounded-lg px-2 mt-1 ">
+            <div className="text-[8px] bg-red-100 text-red-500 py-[2px] min-w-10 rounded-lg px-2 mt-1 ">
               Absent reason: <strong> {absentismReason}</strong>
             </div>
           ) : attendanceStatus == 'late' ? (
-            <div className="text-[8px] bg-yellow-100 text-yellow-500 py-[2px] rounded-lg px-2 mt-1">
+            <div className="text-[8px] bg-yellow-100 text-yellow-500 py-[2px] min-w-10 rounded-lg px-2 mt-1">
               Late By: <strong>{lateBy} min </strong>
             </div>
           ) : null}
@@ -218,7 +245,7 @@ export default function ParticipantsList({
         icon={null}
         okButtonProps={{ style: { display: 'none' } }}
         cancelButtonProps={{ style: { display: 'none' } }}
-        disabled={canEdit}
+        disabled={canEdit == false}
       >
         {details}
       </Popconfirm>
@@ -242,6 +269,7 @@ export default function ParticipantsList({
           <AddParticipantsPopconfirm
             meetingId={meeting?.id}
             loading={loading}
+            attendees={meetingAttendees?.items || []}
           />
         )}
       </div>
@@ -274,10 +302,10 @@ export default function ParticipantsList({
                   <>
                     <Tag
                       className="font-bold border-none min-w-16 text-center capitalize text-[8px] mr-0"
-                      color={statusColorMap[p.attendanceStatus]}
+                      color={statusColorMap[p.acknowledgedMom?"Confirmed":p.attendanceStatus]}
                       onMouseEnter={() => (canEdit ? setHoveredIndex(i) : null)}
                     >
-                      {p.attendanceStatus}
+                      {p.acknowledgedMom?"Confirmed":p.attendanceStatus}
                     </Tag>
                   </>
                 ) : (

@@ -1,29 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Popconfirm, Button, Form, Input, Select } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useCreateMeetingAttendeesBulk } from '@/store/server/features/CFR/meeting/mutations';
 import { LoadingOutlined } from '@ant-design/icons';
+import { useCreateMeetingAttendeesBulk } from '@/store/server/features/CFR/meeting/attendees/mutations';
 
 interface AddParticipantsPopconfirmProps {
   loading: boolean;
   meetingId: string;
+  attendees:any;
 }
 
 const AddParticipantsPopconfirm = ({
   meetingId,
   loading,
+  attendees,
 }: AddParticipantsPopconfirmProps) => {
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
+  const guests = Form.useWatch('guests', form);
+ useEffect(() => {
+  console.log('Updated guests:', guests);
+}, [guests]);
   const { data: allUsers } = useGetAllUsers();
   const { mutate: meetingAttendees, isLoading } =
     useCreateMeetingAttendeesBulk();
-  const peopleOptions = allUsers?.items?.map((i: any) => ({
+const attendeeIds = attendees?.map((att: any) => att.userId) ?? [];
+
+const peopleOptions = allUsers?.items
+  ?.filter((user: any) => !attendeeIds.includes(user.id))
+  .map((i: any) => ({
     value: i.id,
     label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
   }));
+
   const handleConfirm = (values: any) => {
     const attendees = [
       ...(values?.participants
@@ -54,13 +65,13 @@ const AddParticipantsPopconfirm = ({
     ];
 
     meetingAttendees(
-      { attendees: attendees },
+      { attendees },
       {
         onSuccess() {
           form.resetFields();
           setVisible(false);
         },
-      },
+      }
     );
   };
 
@@ -80,13 +91,13 @@ const AddParticipantsPopconfirm = ({
         visible={visible}
         overlayStyle={{ width: 370 }}
         icon={false}
-        description={null} // disables default message
+        description={null}
         zIndex={0}
         title={
           <Form form={form} layout="vertical" onFinish={handleConfirm}>
             <div className="border p-2 mb-2 rounded-md w-full">
               <Form.Item
-                rules={[{ required: true, message: 'Participant is required' }]}
+                rules={[{ required: guests?.length>0?false:true, message: 'Participant is required' }]}
                 label="Name"
                 name="participants"
               >
@@ -97,7 +108,7 @@ const AddParticipantsPopconfirm = ({
                   mode="multiple"
                   filterOption={(input: any, option: any) =>
                     (option?.label ?? '')
-                      ?.toLowerCase()
+                      .toLowerCase()
                       .includes(input.toLowerCase())
                   }
                   options={peopleOptions}
@@ -105,58 +116,91 @@ const AddParticipantsPopconfirm = ({
               </Form.Item>
             </div>
 
-            <div className="border p-2 mb-2 rounded-md w-full">
-              <Form.List name="guests">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="">
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'name']}
-                          rules={[
-                            { required: true, message: 'Name is required' },
-                          ]}
-                          label={
-                            <div className="flex justify-between items-center w-72">
-                              <span>Name</span>
-                              <Button
-                                icon={<MdClose size={12} />}
-                                type="link"
-                                className="text-black ml-4"
-                                onClick={() => remove(name)}
-                              />
-                            </div>
-                          }
-                        >
-                          <Input placeholder="Name" />
-                        </Form.Item>
+           <div className="border p-2 mb-2 rounded-md w-full">
+  <Form.List name="guests">
+    {(fields, { add, remove }) => (
+      <>
+        {fields.map(({ key, name, ...restField }) => (
+          <div key={key}>
+            <Form.Item
+              {...restField}
+              name={[name, 'name']}
+              label={
+                <div className="flex justify-between items-center w-72">
+                  <span>Name</span>
+                  <Button
+                    icon={<MdClose size={12} />}
+                    type="link"
+                    className="text-black ml-4"
+                    onClick={() => remove(name)}
+                  />
+                </div>
+              }
+              rules={[
+                {
+                  validator: (_, value) => {
+                    if (!value) return Promise.reject(new Error('Name is required'));
+                    const validName = /^[A-Za-z\s]+$/;
+                    if (!validName.test(value)) {
+                      return Promise.reject(
+                        new Error('Name can only include letters and spaces')
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Input placeholder="Name" />
+            </Form.Item>
 
-                        <Form.Item
-                          {...restField}
-                          name={[name, 'email']}
-                          rules={[
-                            { required: true, message: 'Email is required' },
-                          ]}
-                          label="Email"
-                        >
-                          <Input placeholder="Email" />
-                        </Form.Item>
-                      </div>
-                    ))}
-                    <div className="flex items-center justify-end gap-2 mt-2">
-                      <span>Add Guest</span>
-                      <Button
-                        icon={<FaPlus size={12} />}
-                        type="default"
-                        onClick={() => add()}
-                        className="w-6 h-6 p-0 flex items-center justify-center"
-                      />
-                    </div>
-                  </>
-                )}
-              </Form.List>
-            </div>
+            <Form.Item
+              {...restField}
+              name={[name, 'email']}
+              label="Email"
+              rules={[
+                {
+                  validator: (_, value) => {
+                    if (!value) {
+                      return Promise.reject(new Error('Email is required'));
+                    }
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) {
+                      return Promise.reject(new Error('Enter a valid email'));
+                    }
+                    // Check email existence in attendees guests
+                    const emailExists = attendees.some(
+                      (attendee: any) =>
+                      attendee.guestUser?.email.toLowerCase() === value.toLowerCase()
+                    );
+                    if (emailExists) {
+                      return Promise.reject(
+                        new Error('This email is already added as a guest attendee')
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Input placeholder="Email" />
+            </Form.Item>
+          </div>
+        ))}
+        <div className="flex items-center justify-end gap-2 mt-2">
+          <span>Add Guest</span>
+          <Button
+            icon={<FaPlus size={12} />}
+            type="default"
+            onClick={() => add()}
+            className="w-6 h-6 p-0 flex items-center justify-center"
+          />
+        </div>
+      </>
+    )}
+  </Form.List>
+</div>
+
           </Form>
         }
         onConfirm={() => form.submit()}
@@ -164,7 +208,7 @@ const AddParticipantsPopconfirm = ({
         cancelText="Cancel"
         okText={isLoading ? <LoadingOutlined /> : 'Add Participants'}
       >
-        {/* Dummy element since Popconfirm needs a child */}
+        {/* Dummy element to trigger Popconfirm */}
         <span />
       </Popconfirm>
     </div>

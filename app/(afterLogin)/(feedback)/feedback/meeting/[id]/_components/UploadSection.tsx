@@ -1,66 +1,116 @@
+'use client';
+
 import React from 'react';
-import { Upload, Typography, message, Spin } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
+import { Typography, Form, Button } from 'antd';
 import { useUpdateMeetingAttachment } from '@/store/server/features/CFR/meeting/mutations';
+import CustomUpload from '@/components/form/customUpload';
+import { FaRegFileLines } from 'react-icons/fa6';
 
-const { Dragger } = Upload;
 const { Text } = Typography;
-
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB in bytes
 
 interface UploadSectionProps {
   meetingId: string;
+  meeting: any;
+  canEdit: boolean;
 }
 
-const UploadSection: React.FC<UploadSectionProps> = ({ meetingId }) => {
+const UploadSection: React.FC<UploadSectionProps> = ({ meetingId, meeting, canEdit }) => {
   const { mutate: updateMeeting, isLoading } = useUpdateMeetingAttachment();
+  const [form] = Form.useForm();
 
-  const handleFileUpload = async (
-    file: File,
-    fileType: 'audio' | 'document',
-  ) => {
-    if (file.size > MAX_FILE_SIZE) {
-      message.error(`${file.name} is larger than 500MB.`);
-      return Upload.LIST_IGNORE;
-    }
-
-    const formData = new FormData();
-    formData.append('attachment', file);
-    formData.append('meetingId', meetingId);
-    formData.append('fileType', fileType);
-
-    updateMeeting(formData);
-    return false; // Prevent default upload
+  const handleFileUpload = async (value: any) => {
+    updateMeeting({
+      id: meetingId,
+      attachment: [{
+        audio: value?.audio?.[0]?.response || '',
+        document: value?.document?.[0]?.response || ''
+      }],
+    });
   };
 
-  return (
-    <div className="flex flex-col lg:flex-row items-center gap-6 p-6 bg-white">
-      <Dragger
-        accept="audio/*"
-        beforeUpload={(file) => handleFileUpload(file, 'audio')}
-        className="w-full h-40 rounded-lg border border-gray-300  text-center shadow-sm"
-      >
-        {isLoading ? (
-          <Spin />
-        ) : (
-          <>
-            <InboxOutlined className="text-2xl text-blue mb-2" />
-            <p className="text-base font-medium">Upload Your Audio</p>
-            <Text type="secondary">or drag and drop it here</Text>
-          </>
-        )}
-      </Dragger>
+  const audioUrl = meeting?.attachment?.[0]?.audio || '';
+  const documentUrl = meeting?.attachment?.[0]?.document || '';
 
-      <Dragger
-        accept=".pdf,.doc,.docx,.txt"
-        beforeUpload={(file) => handleFileUpload(file, 'document')}
-        className="w-full h-40 rounded-lg border border-gray-300 text-center shadow-sm"
-      >
-        <InboxOutlined className="text-2xl text-blue mb-2" />
-        <p className="text-base font-medium">Upload Your Documents</p>
-        <Text type="secondary">or drag and drop it here</Text>
-      </Dragger>
-    </div>
+  return (
+    <Form layout="vertical" form={form} onFinish={handleFileUpload}>
+      {/* Preview Existing Attachments */}
+    {(audioUrl || documentUrl) && (
+  <div className="flex flex-col gap-6 p-4 rounded-md mb-4">
+    {audioUrl && (
+      <div>
+        <Text className="block font-semibold mb-1 text-gray-800">Meeting Recording</Text>
+        <div className="border border-blue-400 rounded-md p-2 w-full flex items-center justify-between text-blue-500 bg-white">
+          <span>Recording 1</span>
+          <audio controls src={audioUrl} className="h-6" />
+        </div>
+      </div>
+    )}
+
+    {documentUrl && (
+      <div>
+        <Text className="block font-semibold mb-1 text-gray-800">Attached Documents</Text>
+        <a
+          href={documentUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 border rounded-md p-3 w-full  hover:bg-gray-100 transition text-gray-700"
+        >
+          <FaRegFileLines />
+          <span>Meeting Details PDF File</span>
+        </a>
+      </div>
+    )}
+  </div>
+)}
+
+      {/* Upload Section */}
+      {canEdit && (
+        <>
+          <div className="flex flex-col lg:flex-row items-center gap-4 p-4 bg-white">
+            <Form.Item
+              name="audio"
+              label="Audio"
+              className="form-item"
+              valuePropName="fileList"
+              rules={[{ required: true, message: 'Required' }]}
+              getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+            >
+              <CustomUpload
+                mode="dragWithLink"
+                className="w-full mt-3"
+                listType="picture"
+                title="Upload Your Audio"
+                maxCount={1}
+                targetState="fileList"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="document"
+              label="Document"
+              className="form-item"
+              valuePropName="fileList"
+              rules={[{ required: true, message: 'Required' }]}
+              getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+            >
+              <CustomUpload
+                mode="dragWithLink"
+                className="w-full mt-3"
+                listType="picture"
+                title="Upload Your Document"
+                targetState="fileAttachmentList"
+              />
+            </Form.Item>
+          </div>
+       {canEdit &&
+          <div className="flex justify-end mx-4 mb-2">
+            <Button loading={isLoading} type="primary" htmlType="submit">
+              Upload
+            </Button>
+          </div>}
+        </>
+      )}
+    </Form>
   );
 };
 

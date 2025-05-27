@@ -1,5 +1,5 @@
 // components/ActionPlan/ActionPlanCard.tsx
-import { useDeleteMeetingActionPlan } from '@/store/server/features/CFR/meeting/mutations';
+import { useDeleteMeetingActionPlan } from '@/store/server/features/CFR/meeting/action-plan/mutations';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
@@ -12,7 +12,7 @@ interface ActionPlanCardProps {
   id: string;
   description: string;
   deadline: string;
-  status: 'Resolved' | 'Unresolved';
+  status: 'Completed' | 'In_Progress' | 'Pending';
   priority: 'High' | 'Medium' | 'Low';
   responsibleUsers: string[];
   canEdit: boolean;
@@ -28,7 +28,7 @@ export default function ActionPlanCard({
   responsibleUsers,
   canEdit,
 }: ActionPlanCardProps) {
-  const statusColor = status === 'Resolved' ? 'green' : 'orange';
+  const statusColor = status === 'Completed' ? 'green' : 'orange';
   const priorityColor =
     priority === 'High' ? 'red' : priority === 'Medium' ? 'orange' : 'blue';
   const { setActionPlanData, setOpenAddActionPlan } = useMeetingStore();

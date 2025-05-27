@@ -5,8 +5,9 @@ import { CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import AgendaModal from './AddAgenda';
 import MeetingAgendaModal from './MeetingAgendaModal';
-import { useGetMeetingAgenda } from '@/store/server/features/CFR/meeting/queries';
-import { useDeleteMeetingAgenda } from '@/store/server/features/CFR/meeting/mutations';
+import { useGetMeetingAgenda } from '@/store/server/features/CFR/meeting/agenda/queries';
+import { useDeleteMeetingAgenda } from '@/store/server/features/CFR/meeting/agenda/mutations';
+
 
 interface MeetingAgendaProps {
   id: string; // or number, depending on your usage

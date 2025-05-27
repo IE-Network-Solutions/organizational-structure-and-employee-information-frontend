@@ -10,6 +10,7 @@ interface DrawerProps {
   onFinish: (values: any) => void;
   initialValues?: any;
   loading: boolean;
+  form:any;
 }
 
 export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
@@ -18,8 +19,8 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
   onFinish,
   initialValues,
   loading,
+  form,
 }) => {
-  const [form] = Form.useForm();
 
   React.useEffect(() => {
     if (initialValues) {
@@ -41,12 +42,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       </Button>
       <Button
         htmlType="submit"
-        title={initialValues ? 'Update' : 'Submit'}
         type="primary"
         onClick={() => form.submit()}
         loading={loading}
       >
-        Submit
+      {initialValues ? 'Update' : 'Create'}
       </Button>
     </div>
   );

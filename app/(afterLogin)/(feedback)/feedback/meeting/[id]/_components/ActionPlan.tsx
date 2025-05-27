@@ -2,6 +2,7 @@ import { Button, Card } from 'antd';
 import ActionPlanCard from './ActionPlanCard';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import AddActionPlanDrawer from './AddActionPlan';
+import { useGetMeetingActionPlan } from '@/store/server/features/CFR/meeting/action-plan/queries';
 // import { useGetMeetingActionPlan } from '@/store/server/features/CFR/meeting/queries';
 
 // components/MeetingDetail/ActionPlan.tsx
@@ -18,13 +19,13 @@ export default function ActionPlan({
   canEdit,
   meeting,
 }: ActionPlanProps) {
-  // const { data: meetingActionPlan, isLoading } =
-  //   useGetMeetingActionPlan(meetingId);
+  const { data: meetingActionPlan, isLoading } =
+    useGetMeetingActionPlan(meetingId);
   const { openAddActionPlan, setOpenAddActionPlan } = useMeetingStore();
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      loading={loading}
+      loading={loading || isLoading}
       className="border-none p-4"
     >
       <div className="space-y-4">
@@ -41,7 +42,7 @@ export default function ActionPlan({
             No Action Plan for This Meeting
           </div>
         ) : (
-          meeting?.actionPlans.map((item: any, index: number) => (
+        meetingActionPlan?.items.map((item: any, index: number) => (
             <ActionPlanCard canEdit={canEdit} key={index} {...item} />
           ))
         )}

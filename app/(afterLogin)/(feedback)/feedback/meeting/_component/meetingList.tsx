@@ -12,13 +12,13 @@ import dayjs from 'dayjs';
 import { FiUsers } from 'react-icons/fi';
 import {
   useGetMeetings,
-  useGetMeetingType,
 } from '@/store/server/features/CFR/meeting/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import Link from 'next/link';
 import CustomPagination from '@/components/customPagination';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
+import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
 
 const { RangePicker } = DatePicker;
 
@@ -36,7 +36,7 @@ const MeetingList = () => {
 
   const {
     data: meetings,
-    isLoading,
+    isLoading:meetingLoading,
     refetch,
   } = useGetMeetings(
     pageSize,
@@ -46,7 +46,7 @@ const MeetingList = () => {
   );
   useEffect(() => {
     refetch();
-  }, [pageSize, current, meetingTypeId, departmentId]);
+  }, [pageSize, current, meetingTypeId, departmentId,refetch]);
   const EmployeeDetails = ({
     empId,
     type,
@@ -96,8 +96,10 @@ const MeetingList = () => {
     value: i.id,
     label: i?.name,
   }));
+  console.log(meetings,"vmeetings")
+
   return (
-    <Spin spinning={isLoading} tip="Loading...">
+    <Spin spinning={meetingLoading} tip="Loading...">
       <div className=" space-y-6">
         {/* Filters */}
         <div className="grid grid-cols-12 gap-2 items-center">
@@ -122,24 +124,26 @@ const MeetingList = () => {
             filterOption={(input: any, option: any) =>
               (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
+            mode='multiple'
             options={departmentOptions}
+            maxTagCount={1}
             className="col-span-3"
             onChange={(value) => setDepartmentId(value)}
           />
 
           <RangePicker
-            defaultValue={[dayjs('2023-01-01'), dayjs('2023-03-10')]}
             format="DD MMM YYYY"
             className="col-span-3"
           />
         </div>
 
         {/* Meeting Cards */}
+        {meetings?.items?.length !== 0 ? 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {meetings?.items?.map((meeting: any, index: number) => (
             <Link key={index} href={`/feedback/meeting/${meeting.id}`} passHref>
               <Card
-                loading={isLoading}
+                loading={meetingLoading}
                 bodyStyle={{ padding: 10 }}
                 title={
                   <div className="flex flex-col">
@@ -235,10 +239,12 @@ const MeetingList = () => {
               </Card>
             </Link>
           ))}
-        </div>
+        </div>:<div className="flex justify-center items-center h-64">
+          <p className=" text-2xl text-gray-500">You Have No Meetings</p>
+        </div>}
         <CustomPagination
-          current={meetings?.meta?.currentPage || 1}
-          total={meetings?.meta?.totalItems || 1}
+          current={meetings?.meta?.currentPage}
+          total={meetings?.meta?.totalItems}
           pageSize={pageSize}
           onChange={onMeetingChange}
           onShowSizeChange={onMeetingChange}

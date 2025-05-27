@@ -6,15 +6,15 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useMemo } from 'react';
-import {
-  useGetMeetingAttendees,
-  useGetMeetingDiscussion,
-} from '@/store/server/features/CFR/meeting/queries';
+
 import { createMentionExtension } from './CustomMention';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import TextStyle from '@tiptap/extension-text-style';
 import { TextAlign } from '@tiptap/extension-text-align';
+import EditorSkeleton from './EditorSkeleton';
+import { useGetMeetingAttendees } from '@/store/server/features/CFR/meeting/attendees/queries';
+import { useGetMeetingDiscussion } from '@/store/server/features/CFR/meeting/discussion/queries';
 
 interface EditorProps {
   meetingId: string;
@@ -33,9 +33,18 @@ export default function Editor({
   const { data: meetingDiscussion, isLoading: meetingDiscussionLoading } =
     useGetMeetingDiscussion(meetingId, meetingAgendaId);
   const { setContent, content, openMeetingAgenda } = useMeetingStore();
+
+  // Update content when meeting discussion data changes
   useEffect(() => {
+    console.log('Editor useEffect triggered:', {
+      meetingAgendaId,
+      meetingDiscussion: meetingDiscussion?.items[0],
+      meetingDiscussionLoading,
+    });
     setContent(meetingDiscussion?.items[0]?.discussion);
-  }, [meetingDiscussion, meetingDiscussionLoading, openMeetingAgenda]);
+
+  }, [meetingDiscussion, meetingDiscussionLoading, meetingAgendaId, setContent, openMeetingAgenda]);
+
   // Lookup function
   const getEmployeeData = (id: string) => {
     return employeeData?.items?.find((emp: any) => emp?.id === id) || {};
@@ -70,7 +79,7 @@ export default function Editor({
         }),
         createMentionExtension(attendees),
       ],
-      content: content,
+      content: '',
       editable: canEdit,
     },
     [
@@ -78,16 +87,38 @@ export default function Editor({
       loadingEmployees,
       attendees,
       meetingDiscussionLoading,
-      openMeetingAgenda,
+      meetingAgendaId,
     ],
   );
 
-  if (loadingAttendees || loadingEmployees || !editor)
-    return <p>Loading editor...</p>;
-  editor.on('update', () => {
-    const html = editor.getHTML();
-    setContent(html);
-  });
+  // Update editor content when content from store changes
+  useEffect(() => {
+    if (editor && content !== undefined) {
+      const currentContent = editor.getHTML();
+      if (currentContent !== content) {
+        editor.commands.setContent(content);
+      }
+    }
+  }, [editor, content]);
+
+  // Set up editor update listener
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleUpdate = () => {
+      const html = editor.getHTML();
+      setContent(html);
+    };
+
+    editor.on('update', handleUpdate);
+
+    return () => {
+      editor.off('update', handleUpdate);
+    };
+  }, [editor]);
+
+  if (loadingAttendees || loadingEmployees || !editor || meetingDiscussionLoading)
+    return <EditorSkeleton/>;
   return (
     <div className=" border rounded ">
       {canEdit && (
@@ -157,18 +188,9 @@ export default function Editor({
             aria-label="Blockquote"
             className={getBtnClass(editor.isActive('blockquote'))}
           >
-            “ ”
+            " "
           </button>
-          <button
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            style={{
-              fontWeight: editor.isActive('codeBlock') ? 'bold' : 'normal',
-            }}
-            aria-label="Code Block"
-            className={getBtnClass(editor.isActive('codeBlock'))}
-          >
-            {'</>'}
-          </button>
+
           <button
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             style={{
@@ -197,9 +219,8 @@ export default function Editor({
   );
 }
 function getBtnClass(active: boolean) {
-  return `px-3 py-1 rounded border text-sm ${
-    active
-      ? 'font-bold'
-      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-  }`;
+  return `px-3 py-1 rounded border text-sm ${active
+    ? 'font-bold'
+    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+    }`;
 }

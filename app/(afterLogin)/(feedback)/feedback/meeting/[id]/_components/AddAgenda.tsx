@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import { Modal, Input, Button, Form } from 'antd';
 import { MdClose } from 'react-icons/md';
-import {
-  useCreateMeetingAgendaBulk,
-  useUpdateMeetingAgenda,
-} from '@/store/server/features/CFR/meeting/mutations';
+
+import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
+import { useCreateMeetingAgendaBulk, useUpdateMeetingAgenda } from '@/store/server/features/CFR/meeting/agenda/mutations';
 
 interface AgendaModalProps {
   visible: boolean;
@@ -24,7 +23,12 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
   const { mutate: updateMeetingAgenda, isLoading: updateLoading } =
     useUpdateMeetingAgenda();
   const [form] = Form.useForm();
-
+  const { setMeetingAgenda } = useMeetingStore();
+  const handleClose = () => {
+    setMeetingAgenda(null)
+    form.resetFields();
+    onClose();
+  };
   function onFinish(values: any) {
     const finalValue = (values.agendaItems || []).map((i: any) => ({
       ...i,
@@ -34,15 +38,13 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
     if (meetingAgenda == null) {
       createMeetingAgenda(finalValue, {
         onSuccess() {
-          form?.resetFields();
-          onClose();
+          handleClose()
         },
       });
     } else {
       updateMeetingAgenda(finalValueEdit, {
         onSuccess() {
-          form?.resetFields();
-          onClose();
+          handleClose()
         },
       });
     }
@@ -62,7 +64,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
     <Modal
       title="Agenda items"
       visible={visible}
-      onCancel={onClose}
+      onCancel={handleClose}
       footer={null}
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
@@ -108,7 +110,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
           )}
         </Form.List>
         <div className="flex justify-center gap-4 mt-4">
-          <Button loading={loading} className="w-48" onClick={onClose}>
+          <Button loading={loading} className="w-48" onClick={() => handleClose()}>
             Cancel
           </Button>
           <Button

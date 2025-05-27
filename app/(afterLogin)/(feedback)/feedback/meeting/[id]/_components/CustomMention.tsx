@@ -17,6 +17,28 @@ export function createMentionExtension(
         profileImage: {},
       };
     },
+
+    // ✅ Parses HTML into mention nodes
+    parseHTML() {
+      return [
+        {
+          tag: 'span.mention',
+          getAttrs: (element) => {
+            const span = element as HTMLElement;
+            const img = span.querySelector('img');
+            const labelSpan = span.querySelector('span');
+
+            return {
+              id: span.getAttribute('data-id'),
+              profileImage: img?.getAttribute('src') || '/userIcon.png',
+              label: labelSpan?.textContent || '',
+            };
+          },
+        },
+      ];
+    },
+
+    // ✅ Renders mention node as HTML
     renderHTML({ node }) {
       return [
         'span',

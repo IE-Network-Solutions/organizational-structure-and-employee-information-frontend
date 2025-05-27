@@ -3,8 +3,7 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
-//meetings
-const createMeetings = async (values: {
+const createMeetingActionPlan = async (values: {
   name: string;
   description: string;
 }) => {
@@ -16,14 +15,29 @@ const createMeetings = async (values: {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/meetings`,
+    url: `${ORG_DEV_URL}/meeting-action-plans`,
+    method: 'post',
+    data: values,
+    headers,
+  });
+};
+const createMeetingActionPlanBulk = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/meeting-action-plans/bulk`,
     method: 'post',
     data: values,
     headers,
   });
 };
 
-const deleteMeetings = async (id: string) => {
+const deleteMeetingActionPlan = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -32,13 +46,16 @@ const deleteMeetings = async (id: string) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/meetings/${id}`,
+    url: `${ORG_DEV_URL}/meeting-action-plans/${id}`,
     method: 'DELETE',
     headers,
   });
 };
 
-const updateMeetings = async (values: any) => {
+const updateMeetingActionPlan = async (values: {
+  id?: string;
+  name: string;
+}) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -47,42 +64,28 @@ const updateMeetings = async (values: any) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/meetings/${values?.id}`,
+    url: `${ORG_DEV_URL}/meeting-action-plans/${values?.id}`,
     method: 'patch',
     data: values,
     headers,
   });
 };
-const updateMeetingAttachment = async (values: FormData | any) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
-  const isFormData = values instanceof FormData;
-
-  const headers: Record<string, string> = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  if (isFormData) {
-    // Let the browser set the correct multipart/form-data boundary
-    // Do NOT set Content-Type manually here
-  } else {
-    headers['Content-Type'] = 'application/json';
-  }
-
-  return await crudRequest({
-    url: `${ORG_DEV_URL}/meetings/${isFormData ? values.get('meetingId') : values?.id}`,
-    method: 'patch',
-    data: values,
-    headers,
+export const useCreateMeetingActionPlan = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createMeetingActionPlan, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('meeting-action-plans');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
 };
-export const useCreateMeeting = () => {
+export const useCreateMeetingActionPlanBulk = () => {
   const queryClient = useQueryClient();
-  return useMutation(createMeetings, {
+  return useMutation(createMeetingActionPlanBulk, {
     onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('meetings');
+      queryClient.invalidateQueries('meeting-action-plans');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -90,37 +93,25 @@ export const useCreateMeeting = () => {
   });
 };
 
-export const useUpdateMeeting = () => {
+export const useUpdateMeetingActionPlan = () => {
   const queryClient = useQueryClient();
-  return useMutation(updateMeetings, {
+  return useMutation(updateMeetingActionPlan, {
     onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('meetings');
+      queryClient.invalidateQueries('meeting-action-plans');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
 };
-export const useUpdateMeetingAttachment = () => {
+export const useDeleteMeetingActionPlan = () => {
   const queryClient = useQueryClient();
-  return useMutation(updateMeetingAttachment, {
+  return useMutation(deleteMeetingActionPlan, {
     onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('meetings');
+      queryClient.invalidateQueries('meeting-action-plans');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
 };
-export const useDeleteMeeting = () => {
-  const queryClient = useQueryClient();
-  return useMutation(deleteMeetings, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('meetings');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
-  });
-};
-

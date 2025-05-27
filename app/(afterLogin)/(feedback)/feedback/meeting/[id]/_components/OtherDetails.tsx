@@ -5,6 +5,7 @@ import { GoClock } from 'react-icons/go';
 import { IoIosLink } from 'react-icons/io';
 import { useEffect, useState } from 'react';
 import { useUpdateMeeting } from '@/store/server/features/CFR/meeting/mutations';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 type Meeting = {
   startAt: string;
@@ -32,9 +33,13 @@ export default function OtherDetails({
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updateMeeting, isLoading } = useUpdateMeeting();
 
-  const duration = (
-    dayjs(meeting?.endAt).diff(dayjs(meeting?.startAt), 'minute') / 60
-  ).toFixed(2);
+const totalMinutes = dayjs(meeting?.endAt).diff(dayjs(meeting?.startAt), 'minute');
+
+const hours = Math.floor(totalMinutes / 60);
+const minutes = totalMinutes % 60;
+const duration = `${hours}h ${minutes}m`;
+
+
 
   useEffect(() => {
     form.setFieldsValue({
@@ -82,14 +87,33 @@ export default function OtherDetails({
                 ]}
                 style={{ flex: 1, marginBottom: 0 }}
               >
-                <TimePicker format="HH:mm" style={{ width: '100%' }} />
+                <TimePicker format="hh:mm A" use12Hours style={{ width: '100%' }} />
               </Form.Item>
               <Form.Item
                 name="endAt"
-                rules={[{ required: true, message: 'Please select end time' }]}
+                     dependencies={['startAt']}
+
+                 rules={[
+      { required: true, message: 'Please select end time' },
+      ({ getFieldValue }) => ({
+        validator(_, value) {
+          const start = getFieldValue('startAt');
+          if (!value || !start || value.isAfter(start)) {
+            return Promise.resolve();
+          }
+          NotificationMessage.warning({
+            message: 'Warning',
+            description: 'End time must be after start time',
+          });
+          return Promise.reject(
+            new Error('End time must be after start time')
+          );
+        },
+      }),
+    ]}
                 style={{ flex: 1, marginBottom: 0 }}
               >
-                <TimePicker format="HH:mm" style={{ width: '100%' }} />
+                <TimePicker format="hh:mm A" use12Hours style={{ width: '100%' }} />
               </Form.Item>
             </>
           ) : (
@@ -99,14 +123,14 @@ export default function OtherDetails({
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit start time"
               >
-                {dayjs(meeting?.startAt)?.format('HH:mm')}
+                {dayjs(meeting?.startAt)?.format('HH:mm A')}
               </p>
               <p
                 className="w-full border p-3 rounded-lg cursor-pointer"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit end time"
               >
-                {dayjs(meeting?.endAt)?.format('HH:mm')}
+                {dayjs(meeting?.endAt)?.format('HH:mm A')}
               </p>
             </>
           )}
@@ -119,7 +143,7 @@ export default function OtherDetails({
           <div className="w-full border p-3 rounded-lg flex items-center gap-3">
             <GoClock size={16} />
             <p>
-              {duration} hour{Number(duration) !== 1 ? 's' : ''}
+              {duration}
             </p>
           </div>
 

@@ -9,8 +9,9 @@ import MeetingTypeDrawer from './_components/meetingTypeDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { GoPencil } from 'react-icons/go';
 import MeetingTypeDetail from './_components/meetingTypeDetail';
-import { useGetMeetingType } from '@/store/server/features/CFR/meeting/queries';
-import { useDeleteMeetingType } from '@/store/server/features/CFR/meeting/mutations';
+import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
+import { useDeleteMeetingType } from '@/store/server/features/CFR/meeting/type/mutations';
+
 
 const DefineMeetingType = () => {
   const {

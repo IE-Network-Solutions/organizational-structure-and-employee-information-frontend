@@ -1,19 +1,23 @@
 'use client';
 
 import React from 'react';
-import { Dropdown, MenuProps } from 'antd';
+import { Dropdown, MenuProps, Popconfirm } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 
 interface MeetingTemplateCardProps {
   title: string;
   description: string;
   onClick: () => void;
+  onDelete: () => void;
+  loading: boolean;
 }
 
 export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
   title,
   description,
   onClick,
+  onDelete,
+  loading = false,
 }) => {
   const items: MenuProps['items'] = [
     {
@@ -22,7 +26,14 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
     },
     {
       key: 'delete',
-      label: <span onClick={() => {}}>Delete</span>,
+      label: <span ><Popconfirm
+            title="Are you sure you want to delete?"
+            onConfirm={onDelete}
+            okText="Yes"
+            icon={null}
+            okButtonProps={{ loading }}
+            cancelText="No"
+        >Delete</Popconfirm></span>,
     },
   ];
 
