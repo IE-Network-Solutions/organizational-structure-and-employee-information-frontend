@@ -42,10 +42,24 @@ const LeaveManagement = () => {
 
   useEffect(() => {
     if (leaveRequestData && leaveRequestData.file) {
-      const url = new URL(TIME_AND_ATTENDANCE_URL!);
-      window.open(`${url.origin}/${leaveRequestData.file}`, '_blank');
+      downloadFile(leaveRequestData.file, leaveRequestData.file.split('/').pop() || 'downloaded_file.xlsx');
     }
   }, [leaveRequestData]);
+
+  const downloadFile = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+  };
 
   useEffect(() => {
     if (bodyRequest.exportType) {
