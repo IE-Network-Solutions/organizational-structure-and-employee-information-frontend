@@ -80,8 +80,8 @@ export function createMentionExtension(
               editor: props.editor,
             });
 
-            popup = tippy('body', {
-              getReferenceClientRect: props.clientRect,
+            popup = tippy(document.body.appendChild(document.createElement('div')), {
+              getReferenceClientRect: props.clientRect as () => DOMRect,
               appendTo: () => document.body,
               content: component.element,
               showOnCreate: true,
