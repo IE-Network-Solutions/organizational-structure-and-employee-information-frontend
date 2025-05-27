@@ -12,7 +12,6 @@ import MeetingTypeDetail from './_components/meetingTypeDetail';
 import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
 import { useDeleteMeetingType } from '@/store/server/features/CFR/meeting/type/mutations';
 
-
 const DefineMeetingType = () => {
   const {
     open,

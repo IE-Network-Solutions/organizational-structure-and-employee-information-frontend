@@ -6,8 +6,10 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { MdClose } from 'react-icons/md';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useCreateMeetingActionPlanBulk, useUpdateMeetingActionPlan } from '@/store/server/features/CFR/meeting/action-plan/mutations';
-
+import {
+  useCreateMeetingActionPlanBulk,
+  useUpdateMeetingActionPlan,
+} from '@/store/server/features/CFR/meeting/action-plan/mutations';
 
 const { Option } = Select;
 

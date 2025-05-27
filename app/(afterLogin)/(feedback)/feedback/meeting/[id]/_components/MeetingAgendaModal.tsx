@@ -2,7 +2,10 @@ import React from 'react';
 import { Modal, Button } from 'antd';
 import Editor from './Editor';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import { useCreateMeetingDiscussion, useUpdateMeetingDiscussion } from '@/store/server/features/CFR/meeting/discussion/mutations';
+import {
+  useCreateMeetingDiscussion,
+  useUpdateMeetingDiscussion,
+} from '@/store/server/features/CFR/meeting/discussion/mutations';
 import { useGetMeetingDiscussion } from '@/store/server/features/CFR/meeting/discussion/queries';
 
 interface MeetingAgendaModalProps {
@@ -33,7 +36,7 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
   // Reset content when modal opens with a new agenda
 
   const handleClose = () => {
-    setMeetingAgenda(null)
+    setMeetingAgenda(null);
     setContent('');
     onClose();
   };
@@ -41,33 +44,32 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
   const handleSubmit = () => {
     !meetingDiscussion?.items[0]?.id
       ? createMeetingDiscussion(
-        {
-          meetingId: meetingId,
-          agendaId: meetingAgenda?.id,
-          discussion: content,
-        },
-        {
-          onSuccess: () => {
-            handleClose();
+          {
+            meetingId: meetingId,
+            agendaId: meetingAgenda?.id,
+            discussion: content,
           },
-        },
-      )
+          {
+            onSuccess: () => {
+              handleClose();
+            },
+          },
+        )
       : updateMeetingDiscussion(
-        {
-          id: meetingDiscussion?.items[0]?.id,
-          meetingId: meetingId,
-          agendaId: meetingAgenda?.id,
-          discussion: content,
-        },
-        {
-          onSuccess: () => {
-            handleClose();
+          {
+            id: meetingDiscussion?.items[0]?.id,
+            meetingId: meetingId,
+            agendaId: meetingAgenda?.id,
+            discussion: content,
           },
-        },
-      );
+          {
+            onSuccess: () => {
+              handleClose();
+            },
+          },
+        );
     // onClose(); // Close the modal after submission
   };
-  console.log(content, "llllllll")
   return (
     <Modal
       title={<div className="text-lg">{meetingAgenda?.agenda} </div>}

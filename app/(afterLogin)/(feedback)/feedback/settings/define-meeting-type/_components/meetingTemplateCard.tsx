@@ -26,14 +26,20 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
     },
     {
       key: 'delete',
-      label: <span ><Popconfirm
+      label: (
+        <span>
+          <Popconfirm
             title="Are you sure you want to delete?"
             onConfirm={onDelete}
             okText="Yes"
             icon={null}
             okButtonProps={{ loading }}
             cancelText="No"
-        >Delete</Popconfirm></span>,
+          >
+            Delete
+          </Popconfirm>
+        </span>
+      ),
     },
   ];
 

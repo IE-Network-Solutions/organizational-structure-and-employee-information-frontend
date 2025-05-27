@@ -42,7 +42,7 @@ export default function ActionPlan({
             No Action Plan for This Meeting
           </div>
         ) : (
-        meetingActionPlan?.items.map((item: any, index: number) => (
+          meetingActionPlan?.items.map((item: any, index: number) => (
             <ActionPlanCard canEdit={canEdit} key={index} {...item} />
           ))
         )}

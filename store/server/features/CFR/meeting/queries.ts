@@ -11,7 +11,6 @@ interface UseGetMeetingsParams {
   meta: any;
 }
 
-
 const getMeetings = async (
   pageSize: number,
   current: number,
@@ -65,6 +64,3 @@ export const useGetMeetings = (
     () => getMeetings(pageSize, current, meetingTypeId, departmentId),
   );
 };
-
-
-

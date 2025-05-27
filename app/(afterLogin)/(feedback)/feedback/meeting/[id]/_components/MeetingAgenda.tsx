@@ -8,7 +8,6 @@ import MeetingAgendaModal from './MeetingAgendaModal';
 import { useGetMeetingAgenda } from '@/store/server/features/CFR/meeting/agenda/queries';
 import { useDeleteMeetingAgenda } from '@/store/server/features/CFR/meeting/agenda/mutations';
 
-
 interface MeetingAgendaProps {
   id: string; // or number, depending on your usage
   canEdit: boolean;

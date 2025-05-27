@@ -4,9 +4,12 @@ import { MeetingTemplateCard } from './meetingTemplateCard';
 import { MeetingTemplateDrawer } from './meetingTemplateDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
-import { useCreateMeetingAgendaTemplate, useDeleteMeetingAgendaTemplate, useUpdateMeetingAgendaTemplate } from '@/store/server/features/CFR/meeting/agenda-template/mutations';
+import {
+  useCreateMeetingAgendaTemplate,
+  useDeleteMeetingAgendaTemplate,
+  useUpdateMeetingAgendaTemplate,
+} from '@/store/server/features/CFR/meeting/agenda-template/mutations';
 import { useGetMeetingAgendaTemplate } from '@/store/server/features/CFR/meeting/agenda-template/queries';
-
 
 interface TemplateData {
   id: string;
@@ -109,7 +112,7 @@ const MeetingTypeDetail: React.FC = () => {
 
   return (
     <Spin spinning={meetingAgendaTemplateLoading} className="">
-      <div className='bg-white p-4 rounded-lg mb-4 '>
+      <div className="bg-white p-4 rounded-lg mb-4 ">
         <div className="flex gap-4 items-center ">
           <MdKeyboardArrowLeft
             className="cursor-pointer"
@@ -118,20 +121,24 @@ const MeetingTypeDetail: React.FC = () => {
           />
           <span className="font-bold text-lg">Detail</span>
         </div>
-        <h2 className="text-lg font-bold mb-4">{meetingTypeDetailData?.name}</h2>
+        <h2 className="text-lg font-bold mb-4">
+          {meetingTypeDetailData?.name}
+        </h2>
         {meetingAgendaTemplate?.items.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {meetingAgendaTemplate?.items.map((template: any, idx: number) => (
-                <MeetingTemplateCard
-                  key={idx}
-                  title={template.name}
-                  description={template.description}
-                  onClick={() => handleEdit(template)}
-                  onDelete={() => handleDelete(template.id)}
-                  loading={deleteMeetingAgendaTemplateLoading}
-                />
-              ))}
+              {meetingAgendaTemplate?.items.map(
+                (template: any, idx: number) => (
+                  <MeetingTemplateCard
+                    key={idx}
+                    title={template.name}
+                    description={template.description}
+                    onClick={() => handleEdit(template)}
+                    onDelete={() => handleDelete(template.id)}
+                    loading={deleteMeetingAgendaTemplateLoading}
+                  />
+                ),
+              )}
             </div>
           </>
         ) : (

@@ -33,13 +33,14 @@ export default function OtherDetails({
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updateMeeting, isLoading } = useUpdateMeeting();
 
-const totalMinutes = dayjs(meeting?.endAt).diff(dayjs(meeting?.startAt), 'minute');
+  const totalMinutes = dayjs(meeting?.endAt).diff(
+    dayjs(meeting?.startAt),
+    'minute',
+  );
 
-const hours = Math.floor(totalMinutes / 60);
-const minutes = totalMinutes % 60;
-const duration = `${hours}h ${minutes}m`;
-
-
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const duration = `${hours}h ${minutes}m`;
 
   useEffect(() => {
     form.setFieldsValue({
@@ -87,33 +88,40 @@ const duration = `${hours}h ${minutes}m`;
                 ]}
                 style={{ flex: 1, marginBottom: 0 }}
               >
-                <TimePicker format="hh:mm A" use12Hours style={{ width: '100%' }} />
+                <TimePicker
+                  format="hh:mm A"
+                  use12Hours
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
               <Form.Item
                 name="endAt"
-                     dependencies={['startAt']}
-
-                 rules={[
-      { required: true, message: 'Please select end time' },
-      ({ getFieldValue }) => ({
-        validator(_, value) {
-          const start = getFieldValue('startAt');
-          if (!value || !start || value.isAfter(start)) {
-            return Promise.resolve();
-          }
-          NotificationMessage.warning({
-            message: 'Warning',
-            description: 'End time must be after start time',
-          });
-          return Promise.reject(
-            new Error('End time must be after start time')
-          );
-        },
-      }),
-    ]}
+                dependencies={['startAt']}
+                rules={[
+                  { required: true, message: 'Please select end time' },
+                  ({ getFieldValue }) => ({
+                    validator(notused, value) {
+                      const start = getFieldValue('startAt');
+                      if (!value || !start || value.isAfter(start)) {
+                        return Promise.resolve();
+                      }
+                      NotificationMessage.warning({
+                        message: 'Warning',
+                        description: 'End time must be after start time',
+                      });
+                      return Promise.reject(
+                        new Error('End time must be after start time'),
+                      );
+                    },
+                  }),
+                ]}
                 style={{ flex: 1, marginBottom: 0 }}
               >
-                <TimePicker format="hh:mm A" use12Hours style={{ width: '100%' }} />
+                <TimePicker
+                  format="hh:mm A"
+                  use12Hours
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
             </>
           ) : (
@@ -142,9 +150,7 @@ const duration = `${hours}h ${minutes}m`;
         <div className="flex gap-5 mt-3">
           <div className="w-full border p-3 rounded-lg flex items-center gap-3">
             <GoClock size={16} />
-            <p>
-              {duration}
-            </p>
+            <p>{duration}</p>
           </div>
 
           <div className="w-full border p-3 rounded-lg flex items-center gap-3 capitalize">

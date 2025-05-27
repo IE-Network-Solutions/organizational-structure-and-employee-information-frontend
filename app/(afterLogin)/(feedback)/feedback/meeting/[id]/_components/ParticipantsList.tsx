@@ -18,7 +18,10 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { useEffect, useState } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { MdClose } from 'react-icons/md';
-import { useDeleteMeetingAttendees, useUpdateMeetingAttendees } from '@/store/server/features/CFR/meeting/attendees/mutations';
+import {
+  useDeleteMeetingAttendees,
+  useUpdateMeetingAttendees,
+} from '@/store/server/features/CFR/meeting/attendees/mutations';
 import { useGetMeetingAttendees } from '@/store/server/features/CFR/meeting/attendees/queries';
 
 const statusColorMap: Record<string, string> = {
@@ -71,18 +74,18 @@ export default function ParticipantsList({
     const [visible, setVisible] = useState(false);
     const formValues = Form.useWatch([], form) || {};
     useEffect(() => {
-  if (visible) {
-    const isAbsent = attendanceStatus === 'absent';
-    const isLate = attendanceStatus === 'late';
+      if (visible) {
+        const isAbsent = attendanceStatus === 'absent';
+        const isLate = attendanceStatus === 'late';
 
-    form.setFieldsValue({
-      isAbsent,
-      isLate,
-      reason: isAbsent ? absentismReason : undefined,
-      time: isLate ? lateBy?.toString() : undefined,
-    });
-  }
-}, [visible, attendanceStatus, absentismReason, lateBy]);
+        form.setFieldsValue({
+          isAbsent,
+          isLate,
+          reason: isAbsent ? absentismReason : undefined,
+          time: isLate ? lateBy?.toString() : undefined,
+        });
+      }
+    }, [visible, attendanceStatus, absentismReason, lateBy]);
     const handleSubmit = async () => {
       try {
         const values = await form.validateFields();
@@ -108,7 +111,6 @@ export default function ParticipantsList({
       }
     };
 
-
     const userName = isEmp
       ? `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName}`
       : guest?.name;
@@ -125,39 +127,43 @@ export default function ParticipantsList({
           <Avatar src={profileImage} icon={<UserOutlined />} />
           <div>
             <Tooltip title={userName}>
-            <p className="font-semibold text-sm"> {userName?.length >= 20 ? userName?.slice(0, 20) + '...' : userName}</p>
-
+              <p className="font-semibold text-sm">
+                {' '}
+                {userName?.length >= 20
+                  ? userName?.slice(0, 20) + '...'
+                  : userName}
+              </p>
             </Tooltip>
-             <Tooltip title={email}>
-            <div className="text-sm text-gray-500">
-              {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
-            </div>
-          </Tooltip>
+            <Tooltip title={email}>
+              <div className="text-sm text-gray-500">
+                {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
+              </div>
+            </Tooltip>
           </div>
         </div>
 
-       <Form
-  form={form}
-  layout="vertical"
-  className="space-y-3"
-  initialValues={{ isLate: false, isAbsent: false }}
-  onValuesChange={(changedValues, allValues) => {
-    if (changedValues.isLate) {
-      form.setFieldsValue({ isAbsent: false });
-    }
-    if (changedValues.isAbsent) {
-      form.setFieldsValue({ isLate: false });
-    }
-  }}
->
+        <Form
+          form={form}
+          layout="vertical"
+          className="space-y-3"
+          initialValues={{ isLate: false, isAbsent: false }}
+          onValuesChange={(changedValues) => {
+            if (changedValues.isLate) {
+              form.setFieldsValue({ isAbsent: false });
+            }
+            if (changedValues.isAbsent) {
+              form.setFieldsValue({ isLate: false });
+            }
+          }}
+        >
           <div className="flex gap-2 items-center">
-           <Form.Item name="isLate" valuePropName="checked" className="mb-0">
-  <Checkbox>Is Late</Checkbox>
-</Form.Item>
+            <Form.Item name="isLate" valuePropName="checked" className="mb-0">
+              <Checkbox>Is Late</Checkbox>
+            </Form.Item>
 
-<Form.Item name="isAbsent" valuePropName="checked" className="mb-0">
-  <Checkbox>Is Absent</Checkbox>
-</Form.Item>
+            <Form.Item name="isAbsent" valuePropName="checked" className="mb-0">
+              <Checkbox>Is Absent</Checkbox>
+            </Form.Item>
           </div>
 
           {formValues?.isAbsent && (
@@ -171,22 +177,32 @@ export default function ParticipantsList({
           )}
 
           {formValues?.isLate && (
-           <Form.Item
-  name="time"
-  label="Time"
-  rules={[{ required: true, message: 'Please provide the time' }]}
->
-  <InputNumber
-    className="w-full"
-    min={1}
-    placeholder="e.g., 10 mins"
-    parser={(value) => {
-      const num = value?.replace(/[^\d]/g, '');
-      return num ? Number(num) : '';
-    }}
-  />
-</Form.Item>
-
+            <Form.Item
+              name="time"
+              label="Time"
+              rules={[
+                { required: true, message: 'Please provide the time' },
+                {
+                  validator: (notused, value) => {
+                    if (value === undefined || value === null || value <= 0) {
+                      return Promise.reject(
+                        new Error('Time must be greater than 0'),
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <InputNumber
+                className="w-full"
+                placeholder="e.g., 10 mins"
+                parser={(value) => {
+                  const num = value?.replace(/[^\d]/g, '');
+                  return num ? Number(num) : '';
+                }}
+              />
+            </Form.Item>
           )}
         </Form>
 
@@ -206,7 +222,9 @@ export default function ParticipantsList({
       <div className="flex gap-2 items-center">
         <Avatar src={profileImage} icon={<UserOutlined />} />
         <div>
-          <span className="text-[10px]">{userName?.length >= 20 ? userName?.slice(0, 20) + '...' : userName}</span>
+          <span className="text-[10px]">
+            {userName?.length >= 20 ? userName?.slice(0, 20) + '...' : userName}
+          </span>
           <Tooltip title={email}>
             <div className="text-[8px] text-gray-500">
               {email?.length >= 20 ? email?.slice(0, 20) + '...' : email}
@@ -302,10 +320,14 @@ export default function ParticipantsList({
                   <>
                     <Tag
                       className="font-bold border-none min-w-16 text-center capitalize text-[8px] mr-0"
-                      color={statusColorMap[p.acknowledgedMom?"Confirmed":p.attendanceStatus]}
+                      color={
+                        statusColorMap[
+                          p.acknowledgedMom ? 'Confirmed' : p.attendanceStatus
+                        ]
+                      }
                       onMouseEnter={() => (canEdit ? setHoveredIndex(i) : null)}
                     >
-                      {p.acknowledgedMom?"Confirmed":p.attendanceStatus}
+                      {p.acknowledgedMom ? 'Confirmed' : p.attendanceStatus}
                     </Tag>
                   </>
                 ) : (

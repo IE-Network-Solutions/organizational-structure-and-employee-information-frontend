@@ -5,11 +5,9 @@ import MeetingObjectives from './_components/MeetingObjectives';
 import MeetingAgenda from './_components/MeetingAgenda';
 import FinalNotes from './_components/FinalNotes';
 import ActionPlan from './_components/ActionPlan';
-import CommentsSection from './_components/CommentsSection';
 import OtherDetails from './_components/OtherDetails';
 import ParticipantsList from './_components/ParticipantsList';
 import UploadSection from './_components/UploadSection';
-import PreviousMeeting from './_components/PreviousMeeting';
 import { useGetMeetingsById } from '@/store/server/features/CFR/meeting/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
@@ -23,7 +21,6 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
 
   const canEdit =
     userId === meeting?.chairpersonId || userId === meeting?.facilitatorId;
-  console.log(meeting, "seeee")
   return (
     <div className="p-1 ">
       <MeetingHeader loading={isLoading} title={meeting?.title} />
@@ -46,8 +43,11 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
             loading={isLoading}
             meetingId={meeting?.id}
           />
-          <UploadSection     canEdit={canEdit}
- meetingId={meeting?.id} meeting={meeting} />
+          <UploadSection
+            canEdit={canEdit}
+            meetingId={meeting?.id}
+            meeting={meeting}
+          />
         </div>
         <div className="border rounded-lg  h-screen overflow-y-auto scrollbar-none">
           <OtherDetails

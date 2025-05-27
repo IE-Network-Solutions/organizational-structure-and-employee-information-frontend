@@ -10,9 +10,7 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { FiUsers } from 'react-icons/fi';
-import {
-  useGetMeetings,
-} from '@/store/server/features/CFR/meeting/queries';
+import { useGetMeetings } from '@/store/server/features/CFR/meeting/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import Link from 'next/link';
 import CustomPagination from '@/components/customPagination';
@@ -36,7 +34,7 @@ const MeetingList = () => {
 
   const {
     data: meetings,
-    isLoading:meetingLoading,
+    isLoading: meetingLoading,
     refetch,
   } = useGetMeetings(
     pageSize,
@@ -46,7 +44,7 @@ const MeetingList = () => {
   );
   useEffect(() => {
     refetch();
-  }, [pageSize, current, meetingTypeId, departmentId,refetch]);
+  }, [pageSize, current, meetingTypeId, departmentId, refetch]);
   const EmployeeDetails = ({
     empId,
     type,
@@ -96,7 +94,6 @@ const MeetingList = () => {
     value: i.id,
     label: i?.name,
   }));
-  console.log(meetings,"vmeetings")
 
   return (
     <Spin spinning={meetingLoading} tip="Loading...">
@@ -124,124 +121,128 @@ const MeetingList = () => {
             filterOption={(input: any, option: any) =>
               (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
-            mode='multiple'
+            mode="multiple"
             options={departmentOptions}
             maxTagCount={1}
             className="col-span-3"
             onChange={(value) => setDepartmentId(value)}
           />
 
-          <RangePicker
-            format="DD MMM YYYY"
-            className="col-span-3"
-          />
+          <RangePicker format="DD MMM YYYY" className="col-span-3" />
         </div>
 
         {/* Meeting Cards */}
-        {meetings?.items?.length !== 0 ? 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {meetings?.items?.map((meeting: any, index: number) => (
-            <Link key={index} href={`/feedback/meeting/${meeting.id}`} passHref>
-              <Card
-                loading={meetingLoading}
-                bodyStyle={{ padding: 10 }}
-                title={
-                  <div className="flex flex-col">
-                    {' '}
-                    <span className="text-md"> {meeting.title}</span>{' '}
-                    <span className="text-sm font-normal text-gray-500">
-                      {meeting.meetingType?.name || '-'}
-                    </span>
-                  </div>
-                }
-                className="shadow-md rounded-xl h-full"
+        {meetings?.items?.length !== 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {meetings?.items?.map((meeting: any, index: number) => (
+              <Link
+                key={index}
+                href={`/feedback/meeting/${meeting.id}`}
+                passHref
               >
-                <div className="space-y-1 text-sm text-gray-600 ">
-                  <div className="flex items-center gap-2">
-                    <CalendarOutlined className="text-blue" />
+                <Card
+                  loading={meetingLoading}
+                  bodyStyle={{ padding: 10 }}
+                  title={
                     <div className="flex flex-col">
-                      <span className="font-bold">Date</span>
-                      <span>
-                        {dayjs(meeting.createdAt).format('YYYY-MM-DD')}
+                      {' '}
+                      <span className="text-md"> {meeting.title}</span>{' '}
+                      <span className="text-sm font-normal text-gray-500">
+                        {meeting.meetingType?.name || '-'}
                       </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <UserOutlined className="text-blue" />
-                    <div className="flex flex-col">
-                      <span className="font-bold">Chair person:</span>
-                      <span>
-                        <EmployeeDetails
-                          type="all"
-                          empId={meeting.chairpersonId}
-                        />
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <UserOutlined className="text-blue" />
-                    <div className="flex flex-col">
-                      <span className="font-bold">Facilitator:</span>
-                      <span>
-                        <EmployeeDetails
-                          type="all"
-                          empId={meeting.facilitatorId}
-                        />
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <EnvironmentOutlined className="text-blue" />
-                    <div className="flex flex-col">
-                      <span className="font-bold">Location</span>
-                      <span>
+                  }
+                  className="shadow-md rounded-xl h-full"
+                >
+                  <div className="space-y-1 text-sm text-gray-600 ">
+                    <div className="flex items-center gap-2">
+                      <CalendarOutlined className="text-blue" />
+                      <div className="flex flex-col">
+                        <span className="font-bold">Date</span>
                         <span>
-                          {meeting.locationType} •{' '}
-                          <strong>
-                            {meeting.locationType == 'virtual'
-                              ? meeting.virtualLink
-                              : meeting?.physicalLocation}
-                          </strong>
+                          {dayjs(meeting.createdAt).format('YYYY-MM-DD')}
                         </span>
-                      </span>
+                      </div>
                     </div>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <UserOutlined className="text-blue" />
+                      <div className="flex flex-col">
+                        <span className="font-bold">Chair person:</span>
+                        <span>
+                          <EmployeeDetails
+                            type="all"
+                            empId={meeting.chairpersonId}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <UserOutlined className="text-blue" />
+                      <div className="flex flex-col">
+                        <span className="font-bold">Facilitator:</span>
+                        <span>
+                          <EmployeeDetails
+                            type="all"
+                            empId={meeting.facilitatorId}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <EnvironmentOutlined className="text-blue" />
+                      <div className="flex flex-col">
+                        <span className="font-bold">Location</span>
+                        <span>
+                          <span>
+                            {meeting.locationType} •{' '}
+                            <strong>
+                              {meeting.locationType == 'virtual'
+                                ? meeting.virtualLink
+                                : meeting?.physicalLocation}
+                            </strong>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    <FiUsers className="text-blue" />
-                    <div className="flex flex-col">
-                      <div className="font-bold">Attendees</div>
-                      {meeting?.attendees?.length > 0 ? (
-                        <Avatar.Group
-                          maxCount={5}
-                          maxStyle={{
-                            color: '#f56a00',
-                            backgroundColor: '#fde3cf',
-                          }}
-                          className="mt-1"
-                        >
-                          {meeting.attendees
-                            ?.filter((i: any) => i.userId)
-                            .map((attendee: any) => (
-                              <EmployeeDetails
-                                key={attendee.userId}
-                                type="avatar"
-                                empId={attendee.userId}
-                              />
-                            ))}
-                        </Avatar.Group>
-                      ) : (
-                        '-'
-                      )}
+                    <div className="flex items-center gap-2">
+                      <FiUsers className="text-blue" />
+                      <div className="flex flex-col">
+                        <div className="font-bold">Attendees</div>
+                        {meeting?.attendees?.length > 0 ? (
+                          <Avatar.Group
+                            maxCount={5}
+                            maxStyle={{
+                              color: '#f56a00',
+                              backgroundColor: '#fde3cf',
+                            }}
+                            className="mt-1"
+                          >
+                            {meeting.attendees
+                              ?.filter((i: any) => i.userId)
+                              .map((attendee: any) => (
+                                <EmployeeDetails
+                                  key={attendee.userId}
+                                  type="avatar"
+                                  empId={attendee.userId}
+                                />
+                              ))}
+                          </Avatar.Group>
+                        ) : (
+                          '-'
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>:<div className="flex justify-center items-center h-64">
-          <p className=" text-2xl text-gray-500">You Have No Meetings</p>
-        </div>}
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-64">
+            <p className=" text-2xl text-gray-500">You Have No Meetings</p>
+          </div>
+        )}
         <CustomPagination
           current={meetings?.meta?.currentPage}
           total={meetings?.meta?.totalItems}

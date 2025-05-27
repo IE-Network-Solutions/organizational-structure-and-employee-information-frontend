@@ -1,6 +1,9 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { useCreateMeetingType, useUpdateMeetingType } from '@/store/server/features/CFR/meeting/type/mutations';
+import {
+  useCreateMeetingType,
+  useUpdateMeetingType,
+} from '@/store/server/features/CFR/meeting/type/mutations';
 
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 

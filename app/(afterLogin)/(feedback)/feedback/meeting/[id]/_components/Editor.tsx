@@ -36,14 +36,14 @@ export default function Editor({
 
   // Update content when meeting discussion data changes
   useEffect(() => {
-    console.log('Editor useEffect triggered:', {
-      meetingAgendaId,
-      meetingDiscussion: meetingDiscussion?.items[0],
-      meetingDiscussionLoading,
-    });
     setContent(meetingDiscussion?.items[0]?.discussion);
-
-  }, [meetingDiscussion, meetingDiscussionLoading, meetingAgendaId, setContent, openMeetingAgenda]);
+  }, [
+    meetingDiscussion,
+    meetingDiscussionLoading,
+    meetingAgendaId,
+    setContent,
+    openMeetingAgenda,
+  ]);
 
   // Lookup function
   const getEmployeeData = (id: string) => {
@@ -117,8 +117,13 @@ export default function Editor({
     };
   }, [editor]);
 
-  if (loadingAttendees || loadingEmployees || !editor || meetingDiscussionLoading)
-    return <EditorSkeleton/>;
+  if (
+    loadingAttendees ||
+    loadingEmployees ||
+    !editor ||
+    meetingDiscussionLoading
+  )
+    return <EditorSkeleton />;
   return (
     <div className=" border rounded ">
       {canEdit && (
@@ -188,7 +193,7 @@ export default function Editor({
             aria-label="Blockquote"
             className={getBtnClass(editor.isActive('blockquote'))}
           >
-            " "
+            `&quot;`
           </button>
 
           <button
@@ -219,8 +224,9 @@ export default function Editor({
   );
 }
 function getBtnClass(active: boolean) {
-  return `px-3 py-1 rounded border text-sm ${active
-    ? 'font-bold'
-    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-    }`;
+  return `px-3 py-1 rounded border text-sm ${
+    active
+      ? 'font-bold'
+      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+  }`;
 }

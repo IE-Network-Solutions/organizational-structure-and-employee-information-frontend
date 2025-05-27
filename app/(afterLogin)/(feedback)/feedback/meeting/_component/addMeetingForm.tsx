@@ -18,7 +18,10 @@ import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/de
 
 import { useCreateMeeting } from '@/store/server/features/CFR/meeting/mutations';
 import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
-import { useGetMeetingAgendaTemplate, useGetMeetingAgendaTemplateById } from '@/store/server/features/CFR/meeting/agenda-template/queries';
+import {
+  useGetMeetingAgendaTemplate,
+  useGetMeetingAgendaTemplateById,
+} from '@/store/server/features/CFR/meeting/agenda-template/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const { Step } = Steps;
@@ -27,12 +30,8 @@ export default function AddNewMeetingForm() {
   const [form] = Form.useForm();
   const [step, setStep] = useState(1);
   const [allowGuests, setAllowGuests] = useState(false);
-  const {
-    openAddMeeting,
-    setOpenAddMeeting,
-    templateId,
-    setTemplateId,
-  } = useMeetingStore();
+  const { openAddMeeting, setOpenAddMeeting, templateId, setTemplateId } =
+    useMeetingStore();
   const [locationType, setMeetingType] = useState<string>('');
 
   const firstStepFields = [
@@ -105,12 +104,8 @@ export default function AddNewMeetingForm() {
   };
   const meetingTypeId = Form.useWatch('meetingTypeId', form);
 
-// You can now use meetingTypeId reactively anywhere in your component
-useEffect(() => {
-  if (meetingTypeId) {
-    console.log('Selected Meeting Type ID:', meetingTypeId);
-  }
-}, [meetingTypeId]);
+  // You can now use meetingTypeId reactively anywhere in your component
+  useEffect(() => {}, [meetingTypeId]);
   const { data: meetingAgendaTemplate } = useGetMeetingAgendaTemplate(
     meetingTypeId || '',
   );
@@ -155,7 +150,7 @@ useEffect(() => {
       </Button>
     </div>
   );
-  
+
   return (
     <CustomDrawerLayout
       open={openAddMeeting}
@@ -204,8 +199,12 @@ useEffect(() => {
         </Steps>
       </div>
 
-      <Form     initialValues={{ meetingTypeId: undefined }}
- form={form} layout="vertical" onFinish={onFinish}>
+      <Form
+        initialValues={{ meetingTypeId: undefined }}
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+      >
         {/* Step 1 */}
         <div style={{ display: step === 1 ? 'block' : 'none' }}>
           <Form.Item
@@ -216,10 +215,13 @@ useEffect(() => {
             <Input placeholder="Input area" />
           </Form.Item>
 
-          <Form.Item             
-          rules={[{ required: true, message: 'Please select a meeting type' }]}
-           label="Meeting Type" 
-           name="meetingTypeId">
+          <Form.Item
+            rules={[
+              { required: true, message: 'Please select a meeting type' },
+            ]}
+            label="Meeting Type"
+            name="meetingTypeId"
+          >
             <Select
               showSearch
               placeholder="Select meeting type"
@@ -304,41 +306,39 @@ useEffect(() => {
               <DatePicker className="w-full" />
             </Form.Item>
 
-        
-  <Form.Item
-    label="Start Time"
-    name="startAt"
-    rules={[{ required: true, message: 'Please select start time' }]}
-  >
-    <TimePicker format="hh:mm A" use12Hours className="w-full" />
-  </Form.Item>
+            <Form.Item
+              label="Start Time"
+              name="startAt"
+              rules={[{ required: true, message: 'Please select start time' }]}
+            >
+              <TimePicker format="hh:mm A" use12Hours className="w-full" />
+            </Form.Item>
 
-  <Form.Item
-    label="End Time"
-    name="endAt"
-    dependencies={['startAt']}
-    rules={[
-      { required: true, message: 'Please select end time' },
-      ({ getFieldValue }) => ({
-        validator(_, value) {
-          const start = getFieldValue('startAt');
-          if (!value || !start || value.isAfter(start)) {
-            return Promise.resolve();
-          }
-          NotificationMessage.warning({
-            message: 'Warning',
-            description: 'End time must be after start time',
-          });
-          return Promise.reject(
-            new Error('End time must be after start time')
-          );
-        },
-      }),
-    ]}
-  >
-    <TimePicker format="hh:mm A" use12Hours className="w-full" />
-  </Form.Item>
-
+            <Form.Item
+              label="End Time"
+              name="endAt"
+              dependencies={['startAt']}
+              rules={[
+                { required: true, message: 'Please select end time' },
+                ({ getFieldValue }) => ({
+                  validator(notused, value) {
+                    const start = getFieldValue('startAt');
+                    if (!value || !start || value.isAfter(start)) {
+                      return Promise.resolve();
+                    }
+                    NotificationMessage.warning({
+                      message: 'Warning',
+                      description: 'End time must be after start time',
+                    });
+                    return Promise.reject(
+                      new Error('End time must be after start time'),
+                    );
+                  },
+                }),
+              ]}
+            >
+              <TimePicker format="hh:mm A" use12Hours className="w-full" />
+            </Form.Item>
           </div>
 
           <Form.Item
@@ -419,8 +419,21 @@ useEffect(() => {
                           label="Name"
                           rules={[
                             {
-                              required: true,
-                              message: 'Please add guest fullname',
+                              validator: (notused, value) => {
+                                if (!value)
+                                  return Promise.reject(
+                                    new Error('Name is required'),
+                                  );
+                                const validName = /^[A-Za-z\s]+$/;
+                                if (!validName.test(value)) {
+                                  return Promise.reject(
+                                    new Error(
+                                      'Name can only include letters and spaces',
+                                    ),
+                                  );
+                                }
+                                return Promise.resolve();
+                              },
                             },
                           ]}
                           className="w-full mt-2"
@@ -444,8 +457,21 @@ useEffect(() => {
                           }
                           rules={[
                             {
-                              required: true,
-                              message: 'Please add guest email',
+                              validator: (notused, value) => {
+                                if (!value) {
+                                  return Promise.reject(
+                                    new Error('Email is required'),
+                                  );
+                                }
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (!emailRegex.test(value)) {
+                                  return Promise.reject(
+                                    new Error('Enter a valid email'),
+                                  );
+                                }
+
+                                return Promise.resolve();
+                              },
                             },
                           ]}
                           className="w-full"

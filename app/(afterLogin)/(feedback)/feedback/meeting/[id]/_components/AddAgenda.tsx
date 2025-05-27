@@ -3,7 +3,10 @@ import { Modal, Input, Button, Form } from 'antd';
 import { MdClose } from 'react-icons/md';
 
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import { useCreateMeetingAgendaBulk, useUpdateMeetingAgenda } from '@/store/server/features/CFR/meeting/agenda/mutations';
+import {
+  useCreateMeetingAgendaBulk,
+  useUpdateMeetingAgenda,
+} from '@/store/server/features/CFR/meeting/agenda/mutations';
 
 interface AgendaModalProps {
   visible: boolean;
@@ -25,7 +28,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
   const [form] = Form.useForm();
   const { setMeetingAgenda } = useMeetingStore();
   const handleClose = () => {
-    setMeetingAgenda(null)
+    setMeetingAgenda(null);
     form.resetFields();
     onClose();
   };
@@ -38,13 +41,13 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
     if (meetingAgenda == null) {
       createMeetingAgenda(finalValue, {
         onSuccess() {
-          handleClose()
+          handleClose();
         },
       });
     } else {
       updateMeetingAgenda(finalValueEdit, {
         onSuccess() {
-          handleClose()
+          handleClose();
         },
       });
     }
@@ -110,7 +113,11 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
           )}
         </Form.List>
         <div className="flex justify-center gap-4 mt-4">
-          <Button loading={loading} className="w-48" onClick={() => handleClose()}>
+          <Button
+            loading={loading}
+            className="w-48"
+            onClick={() => handleClose()}
+          >
             Cancel
           </Button>
           <Button
