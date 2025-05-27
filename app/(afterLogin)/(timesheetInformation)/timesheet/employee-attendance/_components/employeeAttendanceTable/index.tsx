@@ -25,12 +25,14 @@ import {
 } from '@/types/timesheet/attendance';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
-import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import { FiEdit2 } from 'react-icons/fi';
 import { EmployeeAttendance } from '@/types/timesheet/employeeAttendance';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -42,16 +44,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   isImport,
 }) => {
   const [tableData, setTableData] = useState<any[]>([]);
-  const {
-    page,
-    limit,
-    orderBy,
-    orderDirection,
-    setPage,
-    setLimit,
-    setOrderBy,
-    setOrderDirection,
-  } = usePagination(1, 10);
+
+  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+    useMyTimesheetStore();
+
   const {
     setEmployeeId,
     setIsShowEmployeeAttendanceSidebar,
@@ -59,9 +55,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   } = useEmployeeAttendanceStore();
   const { filter, setFilter } = useEmployeeAttendanceStore();
   const { data, isFetching, refetch } = useGetAttendances(
-    { page, limit, orderBy, orderDirection },
+    { page: currentPage, limit: pageSize },
     { filter },
   );
+
+  const { isMobile, isTablet } = useIsMobile();
   const EmpRender = ({ userId }: any) => {
     const {
       isLoading,
@@ -248,28 +246,53 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     }));
   };
 
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current ?? 1);
+    setPageSize(pagination.pageSize ?? 10);
+  };
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
   return (
     <>
       <div className="mb-6">
         <TableFilter onChange={onFilterChange} />
       </div>
-      <div className="flex  overflow-x-auto scrollbar-none  w-full">
-        <Table
-          loading={isFetching}
-          columns={columns}
-          dataSource={tableData}
-          rowSelection={{ checkStrictly: false }}
-          pagination={DefaultTablePagination(data?.meta?.totalItems)}
-          rowClassName={() => 'h-[60px]'}
-          scroll={{ x: 'max-content' }}
-          className="w-full"
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 5);
-            setOrderDirection(sorter['order']);
-            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-          }}
-        />
+      <div>
+        <div className="flex  overflow-x-auto scrollbar-none  w-full">
+          <Table
+            loading={isFetching}
+            columns={columns}
+            dataSource={tableData}
+            rowSelection={{ checkStrictly: false }}
+            pagination={false}
+            rowClassName={() => 'h-[60px]'}
+            scroll={{ x: 'max-content' }}
+            className="w-full"
+            onChange={handleTableChange}
+          />
+        </div>
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        )}
       </div>
     </>
   );

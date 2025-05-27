@@ -67,7 +67,7 @@ const LeaveManagement = () => {
 
   return (
     <>
-      <div className="h-auto w-auto pb-6">
+      <div className="h-auto w-auto pb-6 bg-[#fafafa]">
         <BlockWrapper>
           <PageHeader title="Leave Management">
             <Space size={20}>
