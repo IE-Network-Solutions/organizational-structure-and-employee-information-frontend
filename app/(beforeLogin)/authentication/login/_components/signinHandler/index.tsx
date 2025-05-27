@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useGetTenantId } from '@/store/server/features/employees/authentication/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
-import { useTenantChecker } from '../tenantChecker';
+// import { useTenantChecker } from '../tenantChecker';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useEffect } from 'react';
 
@@ -26,7 +26,7 @@ export const useHandleSignIn = () => {
   const { refetch: refetchFiscalYear } = useGetActiveFiscalYearsData();
 
   const router = useRouter();
-  const { tenant } = useTenantChecker();
+  // const { tenant } = useTenantChecker();
 
   useEffect(() => {
     refetchFiscalYear();
