@@ -97,7 +97,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
 
     {
       item: {
-        key: 'approval-workflow',
+        key: 'approvals',
         icon: <PiUserCircleCheck className="hidden lg:block" />,
         label: <p className="menu-item-label">Approval Workflow</p>,
         className: 'px-1',

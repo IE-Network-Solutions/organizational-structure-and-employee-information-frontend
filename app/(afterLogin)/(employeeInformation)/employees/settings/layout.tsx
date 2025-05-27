@@ -44,7 +44,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'approvals',
         icon: <IoMdSettings className="hidden lg:block" />,
-        label: 'Approvals',
+        label: 'Approval Workflow',
       },
       link: '/employees/settings/approvals',
     },
