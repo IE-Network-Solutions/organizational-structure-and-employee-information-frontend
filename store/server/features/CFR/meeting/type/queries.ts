@@ -2,12 +2,12 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-const getMeetingType = async () => {
+const getMeetingType = async (pageSizeType: number, currentType: number) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/meeting-type`,
+    url: `${ORG_DEV_URL}/meeting-type?limit=${pageSizeType}&page=${currentType}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -37,9 +37,12 @@ export const useGetMeetingTypeById = (id: string | null) => {
     },
   );
 };
-export const useGetMeetingType = () => {
+export const useGetMeetingType = (
+  pageSizeType?: number,
+  currentType?: number,
+) => {
   return useQuery<any>(
-    ['meeting-types'], // Unique query key based on params
-    () => getMeetingType(),
+    ['meeting-types', pageSizeType, currentType], // Unique query key based on params
+    () => getMeetingType(pageSizeType, currentType),
   );
 };

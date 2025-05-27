@@ -59,16 +59,21 @@ interface MeetingStore {
   setDepartmentId: (departmentId: string | null) => void;
   startAt: any; // ISO string
   endAt: any;
-  otherUser?: string;
+  title?: string;
   locationType: 'in-person' | 'virtual' | 'hybrid' | string;
   physicalLocation?: string;
   virtualLink?: string;
   setStartAt: (startAt: string) => void;
   setEndAt: (endAt: string) => void;
-  setOtherUser: (otherUser: string) => void;
+  setTitle: (title: string) => void;
   setLocationType: (locationType: string) => void;
   setPhysicalLocation: (physicalLocation: string) => void;
   setVirtualLink: (virtualLink: string) => void;
+
+  pageSizeType: number;
+  setPagesizeType: (value: number) => void;
+  currentType: number;
+  setCurrentType: (value: number) => void;
 }
 
 export const useMeetingStore = create<MeetingStore>((set) => ({
@@ -120,14 +125,18 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
   setContent: (content) => set({ content }),
   startAt: '',
   endAt: '',
-  otherUser: '',
+  title: '',
   locationType: '',
   physicalLocation: '',
   virtualLink: '',
   setStartAt: (startAt) => set({ startAt }),
   setEndAt: (endAt) => set({ endAt }),
-  setOtherUser: (otherUser) => set({ otherUser }),
+  setTitle: (title) => set({ title }),
   setLocationType: (locationType) => set({ locationType }),
   setPhysicalLocation: (physicalLocation) => set({ physicalLocation }),
   setVirtualLink: (virtualLink) => set({ virtualLink }),
+  pageSizeType: 5,
+  setPagesizeType: (value) => set({ pageSizeType: value }),
+  currentType: 1,
+  setCurrentType: (value) => set({ currentType: value }),
 }));

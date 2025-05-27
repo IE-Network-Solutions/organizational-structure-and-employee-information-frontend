@@ -16,12 +16,15 @@ const getMeetings = async (
   current: number,
   meetingTypeId: string,
   departmentId: string,
+  startAt: string | null = null,
+  endAt: string | null = null,
+  title: string | null = null,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/meetings?pageSize=${pageSize}&current=${current}&meetingTypeId=${meetingTypeId}&departmentId=${departmentId}`,
+    url: `${ORG_DEV_URL}/meetings?limit=${pageSize}&page=${current}&meetingTypeId=${meetingTypeId}&departmentId=${departmentId}&startAt=${startAt ?? ''}&endAt=${endAt ?? ''}&title=${title ?? ''}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -58,9 +61,30 @@ export const useGetMeetings = (
   current: number,
   meetingTypeId: string,
   departmentId: string,
+  startAt: string | null = null,
+  endAt: string | null = null,
+  title: string | null = null,
 ): ReturnType<typeof useQuery<UseGetMeetingsParams>> => {
   return useQuery<any>(
-    ['meetings'], // Unique query key based on params
-    () => getMeetings(pageSize, current, meetingTypeId, departmentId),
+    [
+      'meetings',
+      pageSize,
+      current,
+      meetingTypeId,
+      departmentId,
+      startAt,
+      endAt,
+      title,
+    ], // Unique query key based on params
+    () =>
+      getMeetings(
+        pageSize,
+        current,
+        meetingTypeId,
+        departmentId,
+        startAt,
+        endAt,
+        title,
+      ),
   );
 };

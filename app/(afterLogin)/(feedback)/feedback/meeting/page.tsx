@@ -15,7 +15,7 @@ export default function Index() {
     <TabLandingLayout
       buttonDisabled={false}
       id="meetingLayoutId"
-      title="Meeting types"
+      title="Meetings"
       subtitle="manage your Meetings"
       buttonTitle={'Add New'}
       buttonIcon={<FaPlus />}

@@ -11,6 +11,7 @@ import { GoPencil } from 'react-icons/go';
 import MeetingTypeDetail from './_components/meetingTypeDetail';
 import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
 import { useDeleteMeetingType } from '@/store/server/features/CFR/meeting/type/mutations';
+import CustomPagination from '@/components/customPagination';
 
 const DefineMeetingType = () => {
   const {
@@ -24,6 +25,10 @@ const DefineMeetingType = () => {
     setMeetingType,
     meetingTypeDetailData,
     setMeetingTypeDetail,
+    pageSizeType,
+    setPagesizeType,
+    currentType,
+    setCurrentType,
   } = useMeetingStore();
 
   // const { mutate: deleteOkrRule } = useDeleteMeetingType();
@@ -54,7 +59,10 @@ const DefineMeetingType = () => {
     // add other properties if needed
   };
 
-  const { data: meetingTypes = [], isLoading } = useGetMeetingType() as {
+  const { data: meetingTypes = [], isLoading } = useGetMeetingType(
+    pageSizeType,
+    currentType,
+  ) as {
     data: { items: MeetingType[] };
     isLoading: boolean;
   };
@@ -121,6 +129,39 @@ const DefineMeetingType = () => {
               </List.Item>
             )}
           />
+          <CustomPagination
+            current={
+              (meetingTypes as { meta?: { currentPage?: number } })?.meta
+                ?.currentPage || 1
+            }
+            total={
+              (meetingTypes as { meta?: { totalItems?: number } })?.meta
+                ?.totalItems || 1
+            }
+            pageSize={pageSizeType}
+            onChange={(page: number, pageSize: number) => {
+              setCurrentType(page);
+              setPagesizeType(pageSize);
+            }}
+            onShowSizeChange={(size: number) => {
+              setPagesizeType(size);
+              setCurrentType(1);
+            }}
+          />
+          <MeetingTypeDrawer
+            meetType={meetingType}
+            open={open}
+            onClose={onClose}
+          />
+          <DeleteModal
+            open={openDeleteModal}
+            onConfirm={() => {
+              if (deletedId) handleDeleteMeetingType(deletedId);
+            }}
+            onCancel={onCloseDeleteModal}
+            loading={deleteLoading}
+          />
+
           <MeetingTypeDrawer
             meetType={meetingType}
             open={open}

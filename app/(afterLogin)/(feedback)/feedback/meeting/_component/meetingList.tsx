@@ -30,6 +30,12 @@ const MeetingList = () => {
     departmentId,
     meetingTypeId,
     setMeetingTypeId,
+    startAt,
+    setStartAt,
+    endAt,
+    setEndAt,
+    title,
+    setTitle,
   } = useMeetingStore();
 
   const {
@@ -41,6 +47,9 @@ const MeetingList = () => {
     current,
     meetingTypeId ?? '',
     departmentId ?? '',
+    startAt ?? '',
+    endAt ?? '',
+    title ?? '',
   );
   useEffect(() => {
     refetch();
@@ -77,12 +86,7 @@ const MeetingList = () => {
       </div>
     );
   };
-  const onMeetingChange = (page: number, pageSize?: number) => {
-    setCurrent(page);
-    if (pageSize) {
-      setPagesize(pageSize);
-    }
-  };
+
   const { data: Departments } = useGetUserDepartment();
   const { data: meetTypes } = useGetMeetingType();
 
@@ -94,13 +98,30 @@ const MeetingList = () => {
     value: i.id,
     label: i?.name,
   }));
+  const handleChangeRange = (values: any) => {
+    if (values) {
+      setStartAt(values[0]);
+      setEndAt(values[1]);
+    } else {
+      setStartAt('');
+      setEndAt('');
+    }
+  };
+  const handleTitleChange = (value: any) => {
+    setTitle(value.target.value);
+  };
 
   return (
     <Spin spinning={meetingLoading} tip="Loading...">
       <div className=" space-y-6">
         {/* Filters */}
         <div className="grid grid-cols-12 gap-2 items-center">
-          <Input.Search placeholder="Search Meeting" className="col-span-3  " />
+          <Input
+            allowClear
+            onChange={handleTitleChange}
+            placeholder="Search Meeting"
+            className="col-span-3 h-12"
+          />
           <Select
             showSearch
             placeholder="Select meeting type"
@@ -110,7 +131,7 @@ const MeetingList = () => {
               (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
             options={meetingOptions}
-            className="col-span-3"
+            className="col-span-3 h-12"
             onChange={(value) => setMeetingTypeId(value)}
           />
 
@@ -124,11 +145,16 @@ const MeetingList = () => {
             mode="multiple"
             options={departmentOptions}
             maxTagCount={1}
-            className="col-span-3"
+            className="col-span-3  h-12"
             onChange={(value) => setDepartmentId(value)}
           />
 
-          <RangePicker format="DD MMM YYYY" className="col-span-3" />
+          <RangePicker
+            value={[startAt, endAt]}
+            onChange={handleChangeRange}
+            format="DD MMM YYYY"
+            className="col-span-3  h-12"
+          />
         </div>
 
         {/* Meeting Cards */}
@@ -243,12 +269,19 @@ const MeetingList = () => {
             <p className=" text-2xl text-gray-500">You Have No Meetings</p>
           </div>
         )}
+
         <CustomPagination
-          current={meetings?.meta?.currentPage}
-          total={meetings?.meta?.totalItems}
+          current={meetings?.meta?.currentPage || 1}
+          total={meetings?.meta?.totalItems || 1}
           pageSize={pageSize}
-          onChange={onMeetingChange}
-          onShowSizeChange={onMeetingChange}
+          onChange={(page, pageSize) => {
+            setCurrent(page);
+            setPagesize(pageSize);
+          }}
+          onShowSizeChange={(size) => {
+            setPagesize(size);
+            setCurrent(1);
+          }}
         />
       </div>
     </Spin>
