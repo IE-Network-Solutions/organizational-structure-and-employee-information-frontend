@@ -170,3 +170,47 @@ export const useCreateEmployeeRecognition = () => {
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
 };
+
+const downloadCertificate = async ({
+  recognitionId,
+  tenantId,
+}: {
+  recognitionId: string;
+  tenantId?: string;
+}) => {
+  const token = useAuthenticationStore.getState().token;
+  const headers = {
+    ...(tenantId ? { tenantId: tenantId } : {}),
+    Authorization: `Bearer ${token}`,
+  };
+
+  const response = await fetch(
+    `${ORG_DEV_URL}/recognition/${recognitionId}/certificate`,
+    {
+      method: 'GET',
+      headers,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch certificate');
+  }
+
+  return await response.blob();
+};
+
+export const useDownloadCertificate = () => {
+  return useMutation({
+    mutationFn: downloadCertificate,
+    onSuccess: (blob, variables) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `certificate-${variables.recognitionId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    },
+  });
+};
