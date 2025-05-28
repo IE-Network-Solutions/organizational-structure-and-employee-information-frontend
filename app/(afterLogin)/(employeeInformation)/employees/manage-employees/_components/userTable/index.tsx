@@ -29,7 +29,6 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Id',
@@ -81,7 +80,6 @@ const columns: TableColumnsType<EmployeeData> = [
   },
 ];
 
-
 const UserTable = () => {
   const {
     setDeletedItem,
@@ -93,27 +91,24 @@ const UserTable = () => {
     setReHireModalVisible,
     setUserCurrentPage,
     setPageSize,
-    selectionType,
     userToRehire,
     setUserToRehire,
   } = useEmployeeManagementStore();
   const [form] = Form.useForm();
   const { searchParams } = useEmployeeManagementStore();
-  const { data: allFilterData, isLoading: isEmployeeLoading } =
-    useEmployeeAllFilter(
-      pageSize,
-      userCurrentPage,
-      searchParams.allOffices ? searchParams.allOffices : '',
-      searchParams.allJobs ? searchParams.allJobs : '',
-      searchParams.employee_name,
-      searchParams.allStatus ? searchParams.allStatus : '',
-    );
+  const { data: allFilterData } = useEmployeeAllFilter(
+    pageSize,
+    userCurrentPage,
+    searchParams.allOffices ? searchParams.allOffices : '',
+    searchParams.allJobs ? searchParams.allJobs : '',
+    searchParams.employee_name,
+    searchParams.allStatus ? searchParams.allStatus : '',
+  );
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
   const { mutate: rehireEmployee, isLoading: rehireLoading } =
     useRehireTerminatedEmployee();
   const router = useRouter();
   const { isMobile, isTablet } = useIsMobile();
-
 
   const hasAccess = AccessGuard.checkAccess({
     permissions: [Permissions.ViewEmployeeDetail],
@@ -249,13 +244,14 @@ const UserTable = () => {
       setPageSize(pageSize);
     }
   };
-  const rowSelection = {
-    onChange: () => {},
-    getCheckboxProps: (record: EmployeeData) => ({
-      disabled: record.employee_name === 'Disabled User',
-      name: record.employee_name,
-    }),
-  };
+
+  // const rowSelection = {
+  //   onChange: () => {},
+  //   getCheckboxProps: (record: EmployeeData) => ({
+  //     disabled: record.employee_name === 'Disabled User',
+  //     name: record.employee_name,
+  //   }),
+  // };
 
   const handleActivateEmployee = (values: any) => {
     values['userId'] = userToRehire?.id;
@@ -279,23 +275,23 @@ const UserTable = () => {
   return (
     <div className="mt-2">
       <div>
-      <Table
-        className="w-full cursor-pointer"
-        columns={columns}
-        dataSource={data}
-        pagination={false}
-        scroll={{ x: 1000 }}
-        onRow={
-          hasAccess
-            ? (record) => ({
-                onClick: () => {
-                  router.push(`manage-employees/${record?.key}`);
-                },
-              })
-            : undefined
-        }
-      />
-      {isMobile || isTablet ? (
+        <Table
+          className="w-full cursor-pointer"
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          scroll={{ x: 1000 }}
+          onRow={
+            hasAccess
+              ? (record) => ({
+                  onClick: () => {
+                    router.push(`manage-employees/${record?.key}`);
+                  },
+                })
+              : undefined
+          }
+        />
+        {isMobile || isTablet ? (
           <CustomMobilePagination
             totalResults={allFilterData?.meta?.totalItems ?? 0}
             pageSize={pageSize}

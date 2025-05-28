@@ -54,7 +54,7 @@ const PositionCards: React.FC = () => {
     setPageSize(pageSize);
   };
 
-    return (
+  return (
     <>
       {positions?.items && positions?.items?.length > 0 ? (
         positions?.items.map((position: any, index: number) => (
@@ -94,31 +94,23 @@ const PositionCards: React.FC = () => {
         onConfirm={handleDelete}
       />
       {editModal && <PositionsEdit />}
-      {/* <Pagination 
-            align="end" 
-            defaultCurrent={currentPage} 
-            onChange={(page: number, pageSize: number)=>{setPageSize(pageSize); setCurrentPage(page)}}
-            total={positions?.meta.totalItems}
-          /> */}
-
-                
 
       {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={positions?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
-        ) : (
-          <CustomPagination
-            current={currentPage}
-            total={positions?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
-          />
-        )}
+        <CustomMobilePagination
+          totalResults={positions?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={positions?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+        />
+      )}
     </>
   );
 };

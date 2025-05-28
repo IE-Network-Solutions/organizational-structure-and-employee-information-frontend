@@ -92,30 +92,30 @@ const EmploymentType = () => {
           </div>
         ) : (
           <div>
-          <Table
-            columns={columns}
-            showHeader={false}
-            dataSource={reformattedData}
-            bordered={true}
-            className="min-w-[320px]"
-            pagination={false}  
-          />
-           {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={employeTypeData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
-        ) : (
-          <CustomPagination
-            current={page}
-            total={employeTypeData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
-          />
-        )}
+            <Table
+              columns={columns}
+              showHeader={false}
+              dataSource={reformattedData}
+              bordered={true}
+              className="min-w-[320px]"
+              pagination={false}
+            />
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={employeTypeData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+              />
+            ) : (
+              <CustomPagination
+                current={page}
+                total={employeTypeData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+              />
+            )}
           </div>
         )}
       </div>

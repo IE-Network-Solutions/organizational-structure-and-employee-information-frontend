@@ -28,7 +28,7 @@ const Permission: React.FC<any> = () => {
     useGetPermissions(permissionCurrentPage, pageSize);
   const { data: groupPermissionDatawithOutPagination } =
     useGetPermissionGroupsWithOutPagination();
-  const { isMobile, isTablet   } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
 
   const debouncedTerm = useDebounce(searchTerm?.searchTerm, 2000); // returns true and false
   const {
@@ -179,21 +179,21 @@ const Permission: React.FC<any> = () => {
         pagination={false}
       />
       {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={displayData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
-        ) : (
-          <CustomPagination
-            current={permissionCurrentPage}
-            total={displayData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
-          />
-        )}
+        <CustomMobilePagination
+          totalResults={displayData?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={permissionCurrentPage}
+          total={displayData?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+        />
+      )}
     </div>
   );
 };

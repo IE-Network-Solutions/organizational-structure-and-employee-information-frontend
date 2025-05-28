@@ -1,4 +1,4 @@
-import { Card, Empty, Pagination, Spin } from 'antd';
+import { Card, Empty, Spin } from 'antd';
 import React, { useState } from 'react';
 import EditAndDeleteButtonCard from './editDeleteButtonCard';
 import { EmptyImage } from '@/components/emptyIndicator';

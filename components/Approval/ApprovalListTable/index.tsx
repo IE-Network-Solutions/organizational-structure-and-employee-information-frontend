@@ -57,31 +57,31 @@ const ApproverListTableComponent = ({
   const { isMobile, isTablet } = useIsMobile();
   return (
     <div>
-    <div className="mt-2 w-[900px]">
-      <Table
-        columns={columns}
-        dataSource={data}
-        pagination={false}
-        loading={isEmployeeLoading}
-        scroll={{ x: 100 }}
-      />
+      <div className="mt-2 w-[900px]">
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          loading={isEmployeeLoading}
+          scroll={{ x: 100 }}
+        />
       </div>
       {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={allFilterData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
-        ) : (
-          <CustomPagination
-            current={allFilterData?.meta?.currentPage ?? 1}
-            total={allFilterData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-                  onShowSizeChange={onPageChange}
-          />
-        )}
+        <CustomMobilePagination
+          totalResults={allFilterData?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={allFilterData?.meta?.currentPage ?? 1}
+          total={allFilterData?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

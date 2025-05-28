@@ -1,4 +1,4 @@
-import { Card, Empty, Pagination, Spin } from 'antd';
+import { Card, Empty, Spin } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
 import { EmptyImage } from '@/components/emptyIndicator';
@@ -51,23 +51,22 @@ const GroupPermissionComponent = () => {
             ))}
           </div>
           <div>
-           
             {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={groupPermissionData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
-        ) : (
-          <CustomPagination
-            current={permissonGroupCurrentPage}
-            total={groupPermissionData?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
-          />
-        )}
+              <CustomMobilePagination
+                totalResults={groupPermissionData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+              />
+            ) : (
+              <CustomPagination
+                current={permissonGroupCurrentPage}
+                total={groupPermissionData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+              />
+            )}
           </div>
         </>
       ) : (
