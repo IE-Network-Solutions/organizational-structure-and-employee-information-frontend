@@ -33,6 +33,8 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import { usePathname } from 'next/navigation';
+
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -44,9 +46,15 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   isImport,
 }) => {
   const [tableData, setTableData] = useState<any[]>([]);
+  const pathname = usePathname();
 
-  const { currentPage, pageSize, setCurrentPage, setPageSize } =
+  const { currentPage, pageSize, setCurrentPage, setPageSize, resetPagination } =
     useMyTimesheetStore();
+
+
+  useEffect(() => {
+    resetPagination();
+  }, [pathname]);
 
   const {
     setEmployeeId,
@@ -251,11 +259,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setPageSize(pagination.pageSize ?? 10);
   };
 
-  const onPageChange = (page: number, pageSize?: number) => {
+  const onPageChange = (page: number) => {
     setCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
   };
 
   return (
@@ -290,7 +295,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             total={data?.meta?.totalItems ?? 0}
             pageSize={pageSize}
             onChange={onPageChange}
-            onShowSizeChange={onPageChange}
+            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
           />
         )}
       </div>

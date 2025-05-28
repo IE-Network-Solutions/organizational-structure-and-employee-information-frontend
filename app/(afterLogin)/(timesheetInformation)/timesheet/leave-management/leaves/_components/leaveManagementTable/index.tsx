@@ -30,6 +30,7 @@ import UserCard from '@/components/common/userCard/userCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { usePathname } from 'next/navigation';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
@@ -50,7 +51,14 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     pageSize,
     setCurrentPage,
     setPageSize,
+    resetPagination,
   } = useMyTimesheetStore();
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    resetPagination();
+  }, [pathname]);
 
   const handleTableChange = (pagination: any) => {
     setCurrentPage(pagination.current ?? 1);

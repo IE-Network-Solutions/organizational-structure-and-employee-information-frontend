@@ -30,6 +30,7 @@ type MyTimesheetState = {
   setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) => void;
   currentPage: number;
   pageSize: number;
+  resetPagination: () => void;
 };
 
 type MyTimesheetAction = {
@@ -142,6 +143,10 @@ const useMyTimesheetSlice: StateCreator<
 
   pageSize: 10,
   setPageSize: (pageSize) => set({ pageSize }),
+
+  resetPagination: () => {
+    set({ currentPage: 1, pageSize: 10 });
+  },
 
   location: { lat: null, lng: null },
   setLocation: (location) => {

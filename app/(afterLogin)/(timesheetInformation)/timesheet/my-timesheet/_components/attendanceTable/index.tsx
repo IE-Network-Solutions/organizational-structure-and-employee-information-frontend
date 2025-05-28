@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Space, Table, Drawer } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { IoEyeOutline } from 'react-icons/io5';
@@ -31,6 +31,7 @@ import {
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
+import { usePathname } from 'next/navigation';
 
 const AttendanceTable = () => {
   // Store hooks
@@ -46,7 +47,18 @@ const AttendanceTable = () => {
     pageSize,
     setCurrentPage,
     setPageSize,
+    resetPagination,
   } = useMyTimesheetStore();
+
+
+  const pathname = usePathname();
+
+
+
+
+  useEffect(() => {
+    resetPagination();
+  }, [pathname]);
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
