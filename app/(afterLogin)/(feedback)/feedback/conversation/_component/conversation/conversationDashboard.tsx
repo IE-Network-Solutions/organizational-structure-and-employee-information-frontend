@@ -151,9 +151,12 @@ const DashboardComponent = () => {
       >
         <div className="flex items-center gap-3 mb-2 border-b">
           <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center bg-light_purple animate-pulse"></div>
-          <Title level={5} className="!mb-0 !text-gray-800 ">
+            <Link href={`/feedback/categories`}>
+             <Title level={5} className="!mb-0 !text-gray-800 ">
             Surveys
           </Title>
+            </Link>
+         
         </div>
 
         <div className="flex gap-6 items-center mb-2">
