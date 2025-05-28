@@ -1,7 +1,6 @@
 import create from 'zustand';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
-
 interface PayPeriodType {
   isPayPeriodSidebarVisible: boolean;
   payPeriodMode: string;
@@ -44,7 +43,8 @@ const usePayPeriodStore = create<PayPeriodType>((set) => ({
   setPageSize: (value) => set({ pageSize: value }),
 
   selectedFiscalYear: null,
-  setSelectedFiscalYear: (value: FiscalYear | null) => set({ selectedFiscalYear: value }),
+  setSelectedFiscalYear: (value: FiscalYear | null) =>
+    set({ selectedFiscalYear: value }),
 
   resetStore: () => set(payPeriodInitialValues),
 }));

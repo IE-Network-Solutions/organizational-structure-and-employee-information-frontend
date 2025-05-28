@@ -7,6 +7,7 @@ import SidebarMenu from '@/components/sidebarMenu';
 import { GoQuestion } from 'react-icons/go';
 import { RiFeedbackLine } from 'react-icons/ri';
 import { CiCalendarDate } from 'react-icons/ci';
+import { IoListSharp } from 'react-icons/io5';
 
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
@@ -58,6 +59,24 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         className: 'px-1',
       },
       link: '/feedback/settings/target-achievement',
+    },
+    {
+      item: {
+        key: 'target-achievement',
+        icon: <CiCalendarDate className="hidden lg:block" />,
+        label: <p className="menu-item-label">Target Achievement</p>,
+        className: 'px-1',
+      },
+      link: '/feedback/settings/target-achievement',
+    },
+    {
+      item: {
+        key: 'meeting-type',
+        icon: <IoListSharp className="hidden lg:block" />,
+        label: <p className="menu-item-label">Meeting Type</p>,
+        className: 'px-1',
+      },
+      link: '/feedback/settings/define-meeting-type',
     },
   ]);
 
