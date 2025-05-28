@@ -108,7 +108,6 @@ const CourseAddLessonSidebar = () => {
     // Return average of previous material's order and targetOrder
     return (previousLesson.order + targetOrder) / 2;
   };
-
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
