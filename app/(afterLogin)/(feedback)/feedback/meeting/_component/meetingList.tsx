@@ -16,7 +16,8 @@ import Link from 'next/link';
 import CustomPagination from '@/components/customPagination';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
-import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
+import { useGetAllMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
+import { useDebounce } from '../../../../../../utils/useDebounce';
 
 const { RangePicker } = DatePicker;
 
@@ -88,7 +89,7 @@ const MeetingList = () => {
   };
 
   const { data: Departments } = useGetUserDepartment();
-  const { data: meetTypes } = useGetMeetingType();
+  const { data: meetTypes } = useGetAllMeetingType();
 
   const departmentOptions = Departments?.map((i) => ({
     value: i.id,
@@ -110,7 +111,10 @@ const MeetingList = () => {
   const handleTitleChange = (value: any) => {
     setTitle(value.target.value);
   };
-
+  const onSearchChange = useDebounce(handleTitleChange, 2000);
+  const handleSearchInput = (value: string) => {
+    onSearchChange(value);
+  };
   return (
     <Spin spinning={meetingLoading} tip="Loading...">
       <div className=" space-y-6">
@@ -118,7 +122,7 @@ const MeetingList = () => {
         <div className="grid grid-cols-12 gap-2 items-center">
           <Input
             allowClear
-            onChange={handleTitleChange}
+            onChange={(e) => handleSearchInput(e.target.value)}
             placeholder="Search Meeting"
             className="col-span-3 h-12"
           />

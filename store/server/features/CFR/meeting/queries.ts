@@ -88,3 +88,26 @@ export const useGetMeetings = (
       ),
   );
 };
+const getUserMeetings = async (id: string | null) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/meetings/user-report/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetUserMeetings = (id: string | null) => {
+  return useQuery<any>(
+    ['meetings', id], // Unique query key based on params
+    () => getUserMeetings(id),
+    {
+      enabled: !!id, // Ensures id is truthy and not null or empty
+    },
+  );
+};

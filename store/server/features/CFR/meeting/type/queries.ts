@@ -2,6 +2,20 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+
+const getAllMeetingType = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/meeting-type`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 const getMeetingType = async (pageSizeType: number, currentType: number) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -15,6 +29,7 @@ const getMeetingType = async (pageSizeType: number, currentType: number) => {
     },
   });
 };
+
 const getMeetingTypeById = async (id: string | null) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -38,11 +53,17 @@ export const useGetMeetingTypeById = (id: string | null) => {
   );
 };
 export const useGetMeetingType = (
-  pageSizeType?: number,
-  currentType?: number,
+  pageSizeType: number,
+  currentType: number,
 ) => {
   return useQuery<any>(
     ['meeting-types', pageSizeType, currentType], // Unique query key based on params
     () => getMeetingType(pageSizeType, currentType),
+  );
+};
+export const useGetAllMeetingType = () => {
+  return useQuery<any>(
+    'meeting-types', // Unique query key based on params
+    () => getAllMeetingType(),
   );
 };

@@ -17,12 +17,13 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 
 import { useCreateMeeting } from '@/store/server/features/CFR/meeting/mutations';
-import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
+import { useGetAllMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
 import {
   useGetMeetingAgendaTemplate,
   useGetMeetingAgendaTemplateById,
 } from '@/store/server/features/CFR/meeting/agenda-template/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import dayjs from 'dayjs';
 
 const { Step } = Steps;
 
@@ -50,7 +51,7 @@ export default function AddNewMeetingForm() {
 
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
-  const { data: meetTypes } = useGetMeetingType();
+  const { data: meetTypes } = useGetAllMeetingType();
   const peopleOptions = allUsers?.items?.map((i: any) => ({
     value: i.id,
     label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
@@ -83,9 +84,21 @@ export default function AddNewMeetingForm() {
   };
 
   const onFinish = (values: any) => {
+    const date = values.date;
+    const startTime = values.startAt;
+    const endTime = values.endAt;
+
+    const startAt = dayjs(
+      `${date?.format('YYYY-MM-DD')}T${startTime?.format('HH:mm:ss')}`,
+    );
+    const endAt = dayjs(
+      `${date?.format('YYYY-MM-DD')}T${endTime?.format('HH:mm:ss')}`,
+    );
     createMeeting(
       {
         ...values,
+        startAt: startAt,
+        endAt: endAt,
         agendaItems: values.agendaItems?.map((item: any, index: number) => ({
           agenda: item,
           order: index + 1,
