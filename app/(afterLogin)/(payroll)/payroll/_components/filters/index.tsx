@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { Col, Row, Select } from 'antd';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -36,128 +35,39 @@ const Filters: React.FC<FiltersProps> = ({
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: departmentData } = useGetDepartments();
-
   const { data: payroll } = useGetActivePayroll();
-
-  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>(
-    defaultValues,
-  );
-  const [fiscalYears, setFiscalYears] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [months, setMonths] = useState<any[]>([]);
   const { setMonthId, setYearId, setSessionId } = useTnaReviewStore();
 
-  useEffect(() => {
-    if (getAllFiscalYears) {
-      setFiscalYears(getAllFiscalYears.items || []);
-
-      // Reset state if defaultValues is undefined
-      if (!defaultValues) {
-        setSearchValue({});
-        setSessions([]);
-        setMonths([]);
-        return;
-      }
-
-      // If default values exist, use them to set up the initial state
-      if (defaultValues?.yearId) {
-        const selectedYear = getAllFiscalYears.items.find(
-          (year: any) => year.id === defaultValues.yearId,
-        );
-
-        if (selectedYear) {
-          setSessions(selectedYear.sessions || []);
-
-          // If sessionId exists in default values, set up months
-          if (defaultValues.sessionId) {
-            const selectedSession = selectedYear.sessions?.find(
-              (session: any) => session.id === defaultValues.sessionId,
-            );
-            if (selectedSession) {
-              setMonths(selectedSession.months || []);
-            }
-          }
-        }
-      } else {
-        // Original logic for when no default values exist
-        const activeFiscalYear = getAllFiscalYears.items.find(
-          (year: any) => year.active,
-        );
-        if (activeFiscalYear) {
-          const activeSession = activeFiscalYear.sessions?.find(
-            (session) => session.active,
-          );
-          const activeMonth = activeSession?.months?.find(
-            (month) => month.active,
-          );
-
-          setSearchValue((prev) => ({
-            ...prev,
-            yearId: activeFiscalYear.id || '',
-            sessionId: activeSession?.id || '',
-            monthId: activeMonth?.id || '',
-          }));
-
-          setSessions(activeFiscalYear.sessions || []);
-          setMonths(activeSession?.months || []);
-        }
-      }
-    }
-  }, [getAllFiscalYears, defaultValues]);
-
-  useEffect(() => {
-    if (payroll?.payrolls.length > 0) {
-      const defaultPayPeriodId = payroll.payrolls[0]?.payPeriodId;
-      const defaultPayPeriod = payPeriodData?.find(
-        (period: any) => period.id === defaultPayPeriodId,
-      );
-
-      if (defaultPayPeriod) {
-        setSearchValue((prev) => ({
-          ...prev,
-          payPeriodId: defaultPayPeriodId,
-        }));
-        onSearch({
-          ...searchValue,
-          payPeriodId: defaultPayPeriodId,
-        });
-      }
-    }
-  }, [payroll?.payrolls, payPeriodData]);
-
-  const handleEmployeeSelect = (value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, employeeId: value };
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
-  };
-
-  const handleSelectChange = (key: string, value: string) => {
-    // Get the current state first
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, [key]: value };
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
-
-    // Perform calculations outside of the setter
-    if (key === 'yearId') {
-      const selectedYear = fiscalYears.find((year) => year.id === value);
-      setSessions(selectedYear?.sessions || []);
-      setMonths([]); // Reset months
-    } else if (key === 'sessionId') {
-      const selectedSession = sessions.find((session) => session.id === value);
-      setMonths(selectedSession?.months || []);
-    }
-  };
+  // Get the selected year's sessions and months based on defaultValues
+  const selectedYear = getAllFiscalYears?.items?.find(
+    (year: any) => year.id === defaultValues?.yearId
+  );
+  const selectedSession = selectedYear?.sessions?.find(
+    (session: any) => session.id === defaultValues?.sessionId
+  );
 
   const options =
     employeeData?.items?.map((emp: any) => ({
       value: emp.id,
-      label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
+      label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`,
       employeeData: emp,
     })) || [];
+
+  const handleEmployeeSelect = (value: string) => {
+    onSearch({ ...defaultValues, employeeId: value });
+  };
+
+  const handleSelectChange = (key: string, value: string) => {
+    onSearch({ ...defaultValues, [key]: value });
+
+    if (key === 'yearId') {
+      setYearId(value);
+    } else if (key === 'sessionId') {
+      setSessionId(value);
+    } else if (key === 'monthId') {
+      setMonthId(value);
+    }
+  };
 
   return (
     <div className="mb-6">
@@ -185,6 +95,7 @@ const Filters: React.FC<FiltersProps> = ({
               className="min-h-12 w-full"
               placeholder="Search Employee"
               onChange={(value) => handleEmployeeSelect(value)}
+              value={defaultValues.employeeId}
               filterOption={(input, option) => {
                 const label = option?.label;
                 return (
@@ -203,15 +114,12 @@ const Filters: React.FC<FiltersProps> = ({
           >
             <Select
               placeholder="Year"
-              onChange={(value) => {
-                setYearId(value);
-                handleSelectChange('yearId', value);
-              }}
-              value={searchValue.yearId}
+              onChange={(value) => handleSelectChange('yearId', value)}
+              value={defaultValues.yearId}
               allowClear
               style={{ width: '100%', height: '48px' }}
             >
-              {fiscalYears.map((year) => (
+              {getAllFiscalYears?.items?.map((year) => (
                 <Option key={year.id} value={year.id}>
                   {year.name}
                 </Option>
@@ -226,16 +134,13 @@ const Filters: React.FC<FiltersProps> = ({
           >
             <Select
               placeholder="Session"
-              onChange={(value) => {
-                setSessionId(value);
-                handleSelectChange('sessionId', value);
-              }}
-              value={searchValue.sessionId}
+              onChange={(value) => handleSelectChange('sessionId', value)}
+              value={defaultValues.sessionId}
               allowClear
               style={{ width: '100%', height: '48px' }}
-              disabled={!searchValue.yearId}
+              disabled={!defaultValues.yearId}
             >
-              {sessions.map((session) => (
+              {selectedYear?.sessions?.map((session) => (
                 <Option key={session.id} value={session.id}>
                   {session.name}
                 </Option>
@@ -250,16 +155,13 @@ const Filters: React.FC<FiltersProps> = ({
           >
             <Select
               placeholder="Month"
-              onChange={(value) => {
-                setMonthId(value);
-                handleSelectChange('monthId', value);
-              }}
-              value={searchValue.monthId}
+              onChange={(value) => handleSelectChange('monthId', value)}
+              value={defaultValues.monthId}
               allowClear
               style={{ width: '100%', height: '48px' }}
-              disabled={!searchValue.sessionId}
+              disabled={!defaultValues.sessionId}
             >
-              {months.map((month) => (
+              {selectedSession?.months?.map((month) => (
                 <Option key={month.id} value={month.id}>
                   {month.name}
                 </Option>
@@ -275,7 +177,7 @@ const Filters: React.FC<FiltersProps> = ({
             <Select
               placeholder="Select department"
               onChange={(value) => handleSelectChange('departmentId', value)}
-              value={searchValue.departmentId}
+              value={defaultValues.departmentId}
               allowClear
               style={{ width: '100%', height: '48px' }}
             >
@@ -295,7 +197,7 @@ const Filters: React.FC<FiltersProps> = ({
             <Select
               placeholder="Pay Period"
               onChange={(value) => handleSelectChange('payPeriodId', value)}
-              value={searchValue.payPeriodId}
+              value={defaultValues.payPeriodId}
               allowClear
               style={{ width: '100%', height: '48px' }}
             >
