@@ -32,6 +32,15 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       },
       link: '/feedback/settings/define-questions',
     },
+    {
+      item: {
+        key: 'define-meeting-type',
+        icon: <GoQuestion className="hidden lg:block" />,
+        label: <p className="menu-item-label">Define Meeting Type</p>,
+        className: 'px-1',
+      },
+      link: '/feedback/settings/define-meeting-type',
+    },
     // {
     //   item: {
     //     key: 'feedback',

@@ -115,7 +115,11 @@ const CourseLessonMaterial = () => {
       className: 'h-10',
       type: 'primary',
       size: 'large',
-      loading: isLoading || isLoadingMaterial||isFileUploadLoading?.video||isFileUploadLoading?.attachment,
+      loading:
+        isLoading ||
+        isLoadingMaterial ||
+        isFileUploadLoading?.video ||
+        isFileUploadLoading?.attachment,
       onClick: () => {
         form.submit();
       },
@@ -243,16 +247,16 @@ const CourseLessonMaterial = () => {
           <TextEditor className="mt-3" placeholder="Enter the Article" />
         </Form.Item>
         <Spin spinning={isFileUploadLoading.video}>
-        <Form.Item
-          name="videos"
-          label="Video"
-          className="form-item"
-          valuePropName="fileList"
-          rules={[{ required: true, message: 'Required' }]}
-          getValueFromEvent={(e) => {
-            return Array.isArray(e) ? e : e && e.fileList;
-          }}
-        >
+          <Form.Item
+            name="videos"
+            label="Video"
+            className="form-item"
+            valuePropName="fileList"
+            rules={[{ required: true, message: 'Required' }]}
+            getValueFromEvent={(e) => {
+              return Array.isArray(e) ? e : e && e.fileList;
+            }}
+          >
             <CustomUpload
               mode="dragWithLink"
               className="w-full mt-3"
@@ -266,16 +270,16 @@ const CourseLessonMaterial = () => {
           </Form.Item>
         </Spin>
         <Spin spinning={isFileUploadLoading.attachment}>
-        <Form.Item
-          name="attachments"
-          label="Attachment"
-          className="form-item"
-          valuePropName="fileList"
-          rules={[{ required: true, message: 'Required' }]}
-          getValueFromEvent={(e) => {
-            return Array.isArray(e) ? e : e && e.fileList;
-          }}
-        >
+          <Form.Item
+            name="attachments"
+            label="Attachment"
+            className="form-item"
+            valuePropName="fileList"
+            rules={[{ required: true, message: 'Required' }]}
+            getValueFromEvent={(e) => {
+              return Array.isArray(e) ? e : e && e.fileList;
+            }}
+          >
             <CustomUpload
               mode="dragWithLink"
               className="w-full mt-3"
@@ -284,7 +288,7 @@ const CourseLessonMaterial = () => {
               targetState="fileAttachmentList"
               uploadType="attachment"
             />
-        </Form.Item>
+          </Form.Item>
         </Spin>
         <Row gutter={24}>
           <Col span={12}>
