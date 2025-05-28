@@ -44,8 +44,14 @@ const CustomUpload: FC<CustomUploadProps> = ({
   uploadType = '',
   ...otherProps
 }) => {
-  const { fileList, setFileList, fileAttachmentList,isFileUploadLoading, setIsFileUploadLoading,setFileAttachmentList } =
-    useTnaManagementCoursePageStore();
+  const {
+    fileList,
+    setFileList,
+    fileAttachmentList,
+    isFileUploadLoading,
+    setIsFileUploadLoading,
+    setFileAttachmentList,
+  } = useTnaManagementCoursePageStore();
   const [form] = Form.useForm();
   // const [internalFileList, setInternalFileList] = useState<UploadFile[]>([]);
 
@@ -114,12 +120,12 @@ const CustomUpload: FC<CustomUploadProps> = ({
     } finally {
       if (setIsLoading) {
         // setIsLoading(false);
-        prevIsFileUploadLoading[uploadType] = false; 
+        prevIsFileUploadLoading[uploadType] = false;
         setIsFileUploadLoading(prevIsFileUploadLoading);
       }
     }
   };
- 
+
   const onFinishLink = () => {
     const { link } = form.getFieldsValue();
     triggerChange([formatLinkToUploadFile(link)]); // Replace with the new link

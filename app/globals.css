@@ -11,6 +11,10 @@
   src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 }
 
+.ant-popconfirm-message {
+  display: block !important;
+}
+
 html,
 body {
   margin: 0;
@@ -190,7 +194,7 @@ h6 {
   @apply text-[#4DAEF0] !important;
 }
 
-.ant-collapse>.ant-collapse-item>.ant-collapse-header {
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
   align-items: center !important;
 }
 
@@ -257,6 +261,10 @@ h6 {
   transition: background-color 0.2s ease-in-out;
 }
 
+/* Quill Editor styles */
+.quill-editor-container {
+  min-height: 200px;
+}
 .my-custom-datepicker {
   max-width: 90vw;
   font-size: 14px;
@@ -277,7 +285,6 @@ h6 {
 
 @layer components {
   @media (max-width: 640px) {
-
     /* Ant Design menu active item */
     .ant-menu-item-selected {
       @apply text-primary;
@@ -285,7 +292,72 @@ h6 {
   }
 }
 
+.quill-editor-container .ql-container {
+  min-height: 150px;
+  max-height: 400px;
+  overflow-y: auto;
+}
 
+.ql-editor {
+  min-height: 150px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+}
+
+.ql-toolbar.ql-snow {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.ql-container.ql-snow {
+  border: 1px solid #e2e8f0 !important;
+  border-top: none !important;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  font-family: 'Manrope', sans-serif;
+  @apply text-gray-900 font-medium text-sm;
+}
+
+.ql-container.ql-snow h3 {
+  font-size: 24px !important;
+}
+
+.ql-container .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: rgba(0, 0, 0, 0.35);
+  @apply font-medium text-sm;
+}
+
+/* Mention styles */
+.ql-mention-list-container {
+  z-index: 9999;
+}
+
+.ql-mention-list {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ql-mention-list-item {
+  padding: 8px 12px;
+  font-family: 'Manrope', sans-serif;
+}
+
+.ql-mention-list-item.selected {
+  background-color: #e9f5ff;
+}
+.mention {
+  color: black;
+  font-weight: bold;
+  font-size: 10px;
+}
+.ProseMirror {
+  min-height: 55vh;
+  border: none !important;
+  padding: 10px 20px;
+}
 .custom-timepicker .ant-picker-input input {
   font-size: 12px !important;
 }

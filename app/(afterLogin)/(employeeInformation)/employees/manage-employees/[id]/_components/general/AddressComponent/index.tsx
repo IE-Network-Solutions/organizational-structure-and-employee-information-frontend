@@ -29,7 +29,8 @@ const AddressComponent = ({
 
   const getFieldValidation = (fieldName: string) => {
     return (
-      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+        ?.fieldValidation ?? 'any'
     );
   };
 
@@ -91,6 +92,11 @@ const AddressComponent = ({
                           case 'lastName':
                           case 'subCity':
                             fieldValidation = 'any';
+                            break;
+
+                          case 'country':
+                          case 'city':
+                            fieldValidation = 'text';
                             break;
 
                           default:
