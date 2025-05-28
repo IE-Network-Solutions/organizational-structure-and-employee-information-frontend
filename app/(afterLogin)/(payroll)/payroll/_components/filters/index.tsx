@@ -16,12 +16,21 @@ interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
   disable?: string[];
   oneRow?: boolean;
+  defaultValues?: {
+    employeeId?: string;
+    yearId?: string;
+    sessionId?: string;
+    monthId?: string;
+    departmentId?: string;
+    payPeriodId?: string;
+  };
 }
 
 const Filters: React.FC<FiltersProps> = ({
   onSearch,
   disable = [],
   oneRow = false,
+  defaultValues = {},
 }) => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const { data: employeeData } = useGetAllUsers();
@@ -30,7 +39,9 @@ const Filters: React.FC<FiltersProps> = ({
 
   const { data: payroll } = useGetActivePayroll();
 
-  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>(
+    defaultValues,
+  );
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
@@ -40,29 +51,59 @@ const Filters: React.FC<FiltersProps> = ({
     if (getAllFiscalYears) {
       setFiscalYears(getAllFiscalYears.items || []);
 
-      const activeFiscalYear = getAllFiscalYears.items.find(
-        (year: any) => year.active,
-      );
-      if (activeFiscalYear) {
-        const activeSession = activeFiscalYear.sessions?.find(
-          (session) => session.active,
-        );
-        const activeMonth = activeSession?.months?.find(
-          (month) => month.active,
+      // Reset state if defaultValues is undefined
+      if (!defaultValues) {
+        setSearchValue({});
+        setSessions([]);
+        setMonths([]);
+        return;
+      }
+
+      // If default values exist, use them to set up the initial state
+      if (defaultValues?.yearId) {
+        const selectedYear = getAllFiscalYears.items.find(
+          (year: any) => year.id === defaultValues.yearId,
         );
 
-        setSearchValue((prev) => ({
-          ...prev,
-          yearId: activeFiscalYear.id || '',
-          sessionId: activeSession?.id || '',
-          monthId: activeMonth?.id || '',
-        }));
+        if (selectedYear) {
+          setSessions(selectedYear.sessions || []);
 
-        setSessions(activeFiscalYear.sessions || []);
-        setMonths(activeSession?.months || []);
+          // If sessionId exists in default values, set up months
+          if (defaultValues.sessionId) {
+            const selectedSession = selectedYear.sessions?.find(
+              (session: any) => session.id === defaultValues.sessionId,
+            );
+            if (selectedSession) {
+              setMonths(selectedSession.months || []);
+            }
+          }
+        }
+      } else {
+        // Original logic for when no default values exist
+        const activeFiscalYear = getAllFiscalYears.items.find(
+          (year: any) => year.active,
+        );
+        if (activeFiscalYear) {
+          const activeSession = activeFiscalYear.sessions?.find(
+            (session) => session.active,
+          );
+          const activeMonth = activeSession?.months?.find(
+            (month) => month.active,
+          );
+
+          setSearchValue((prev) => ({
+            ...prev,
+            yearId: activeFiscalYear.id || '',
+            sessionId: activeSession?.id || '',
+            monthId: activeMonth?.id || '',
+          }));
+
+          setSessions(activeFiscalYear.sessions || []);
+          setMonths(activeSession?.months || []);
+        }
       }
     }
-  }, [getAllFiscalYears, employeeData]);
+  }, [getAllFiscalYears, defaultValues]);
 
   useEffect(() => {
     if (payroll?.payrolls.length > 0) {
