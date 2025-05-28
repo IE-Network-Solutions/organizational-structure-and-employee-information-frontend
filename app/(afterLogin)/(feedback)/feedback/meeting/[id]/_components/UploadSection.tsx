@@ -82,7 +82,6 @@ const UploadSection: React.FC<UploadSectionProps> = ({
               label="Audio"
               className="form-item"
               valuePropName="fileList"
-              rules={[{ required: true, message: 'Required' }]}
               getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
             >
               <CustomUpload
@@ -101,7 +100,6 @@ const UploadSection: React.FC<UploadSectionProps> = ({
               label="Document"
               className="form-item"
               valuePropName="fileList"
-              rules={[{ required: true, message: 'Required' }]}
               getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
             >
               <CustomUpload

@@ -109,7 +109,7 @@ const MeetingList = () => {
     }
   };
   const handleTitleChange = (value: any) => {
-    setTitle(value.target.value);
+    setTitle(value);
   };
   const onSearchChange = useDebounce(handleTitleChange, 2000);
   const handleSearchInput = (value: string) => {
