@@ -97,10 +97,6 @@ const TnaRequestSidebar = () => {
     if (data?.items?.[0] && tnaId !== null) {
       const formData = data.items[0];
 
-     
-
-    
-
       const formattedData = {
         title: formData.title || '',
         departmentId: formData.departmentId || undefined,
