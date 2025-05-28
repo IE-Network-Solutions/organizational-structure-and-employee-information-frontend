@@ -11,7 +11,6 @@ import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/qu
 import { useEffect, useState } from 'react';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
-import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import LeaveRequestSidebar from '../../my-timesheet/_components/leaveRequestSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { useMediaQuery } from 'react-responsive';
@@ -42,10 +41,27 @@ const LeaveManagement = () => {
 
   useEffect(() => {
     if (leaveRequestData && leaveRequestData.file) {
-      const url = new URL(TIME_AND_ATTENDANCE_URL!);
-      window.open(`${url.origin}/${leaveRequestData.file}`, '_blank');
+      downloadFile(
+        leaveRequestData.file,
+        leaveRequestData.file.split('/').pop() || 'downloaded_file.xlsx',
+      );
     }
   }, [leaveRequestData]);
+
+  const downloadFile = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+  };
 
   useEffect(() => {
     if (bodyRequest.exportType) {
