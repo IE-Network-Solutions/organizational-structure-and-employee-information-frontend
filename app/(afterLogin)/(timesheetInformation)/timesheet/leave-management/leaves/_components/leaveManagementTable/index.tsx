@@ -31,6 +31,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { usePathname } from 'next/navigation';
+import usePagination from '@/utils/usePagination';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
@@ -44,6 +45,9 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     setLeaveRequestId,
     setLeaveRequestWorkflowId,
   } = useLeaveManagementStore();
+
+  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
+    usePagination(1, 10);
   const {
     setIsShowLeaveRequestSidebar: isShow,
     setLeaveRequestSidebarData,
@@ -60,9 +64,11 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     resetPagination();
   }, [pathname]);
 
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (pagination: any, sorter: any) => {
     setCurrentPage(pagination.current ?? 1);
     setPageSize(pagination.pageSize ?? 10);
+    setOrderDirection(sorter['order']);
+    setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
   const [tableData, setTableData] = useState<any[]>([]);
 
@@ -71,7 +77,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   };
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
   const { data, isFetching } = useGetLeaveRequest(
-    { page: currentPage, limit: pageSize },
+    { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
   const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();

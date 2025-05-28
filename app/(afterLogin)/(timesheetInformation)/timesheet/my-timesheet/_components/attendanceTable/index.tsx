@@ -32,10 +32,14 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { usePathname } from 'next/navigation';
+import usePagination from '@/utils/usePagination';
 
 const AttendanceTable = () => {
   // Store hooks
   const { userId } = useAuthenticationStore();
+
+  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
+    usePagination(1, 10);
 
   const {
     setIsShowViewSidebar,
@@ -50,11 +54,7 @@ const AttendanceTable = () => {
     resetPagination,
   } = useMyTimesheetStore();
 
-
   const pathname = usePathname();
-
-
-
 
   useEffect(() => {
     resetPagination();
@@ -70,7 +70,7 @@ const AttendanceTable = () => {
 
   // API call
   const { data, isFetching, refetch } = useGetAttendances(
-    { page: currentPage, limit: pageSize },
+    { page: currentPage, limit: pageSize, orderBy, orderDirection },
 
     { filter },
   );
@@ -221,9 +221,11 @@ const AttendanceTable = () => {
     setFilter(nFilter);
   };
 
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (pagination: any, sorter: any) => {
     setCurrentPage(pagination.current ?? 1);
     setPageSize(pagination.pageSize ?? 10);
+    setOrderDirection(sorter['order']);
+    setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
 
   return (

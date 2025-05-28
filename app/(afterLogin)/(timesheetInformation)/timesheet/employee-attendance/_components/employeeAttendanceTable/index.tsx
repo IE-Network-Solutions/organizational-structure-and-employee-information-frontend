@@ -34,7 +34,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { usePathname } from 'next/navigation';
-
+import usePagination from '@/utils/usePagination';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -47,10 +47,16 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 }) => {
   const [tableData, setTableData] = useState<any[]>([]);
   const pathname = usePathname();
+  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
+    usePagination(1, 10);
 
-  const { currentPage, pageSize, setCurrentPage, setPageSize, resetPagination } =
-    useMyTimesheetStore();
-
+  const {
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    resetPagination,
+  } = useMyTimesheetStore();
 
   useEffect(() => {
     resetPagination();
@@ -63,7 +69,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   } = useEmployeeAttendanceStore();
   const { filter, setFilter } = useEmployeeAttendanceStore();
   const { data, isFetching, refetch } = useGetAttendances(
-    { page: currentPage, limit: pageSize },
+    { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
 
@@ -254,9 +260,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     }));
   };
 
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (pagination: any, sorter: any) => {
     setCurrentPage(pagination.current ?? 1);
     setPageSize(pagination.pageSize ?? 10);
+    setOrderDirection(sorter['order']);
+    setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
 
   const onPageChange = (page: number) => {
