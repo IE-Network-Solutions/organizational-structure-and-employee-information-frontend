@@ -25,6 +25,11 @@ import { MdAirplanemodeActive, MdAirplanemodeInactive } from 'react-icons/md';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useRouter } from 'next/navigation';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+
+
 const columns: TableColumnsType<EmployeeData> = [
   {
     title: 'Id',
@@ -75,6 +80,8 @@ const columns: TableColumnsType<EmployeeData> = [
     dataIndex: 'action',
   },
 ];
+
+
 const UserTable = () => {
   const {
     setDeletedItem,
@@ -105,6 +112,8 @@ const UserTable = () => {
   const { mutate: rehireEmployee, isLoading: rehireLoading } =
     useRehireTerminatedEmployee();
   const router = useRouter();
+  const { isMobile, isTablet } = useIsMobile();
+
 
   const hasAccess = AccessGuard.checkAccess({
     permissions: [Permissions.ViewEmployeeDetail],
@@ -269,25 +278,12 @@ const UserTable = () => {
 
   return (
     <div className="mt-2">
+      <div>
       <Table
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={data}
-        pagination={{
-          total: allFilterData?.meta?.totalItems,
-          current: userCurrentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showTotal: (total, range) =>
-            `${range[0]}-${range[1]} of ${total} items`, // Add showTotal here
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
-        loading={isEmployeeLoading}
-        rowSelection={{
-          type: selectionType,
-          ...rowSelection,
-        }}
+        pagination={false}
         scroll={{ x: 1000 }}
         onRow={
           hasAccess
@@ -299,6 +295,23 @@ const UserTable = () => {
             : undefined
         }
       />
+      {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={allFilterData?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            current={userCurrentPage}
+            total={allFilterData?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+          />
+        )}
+      </div>
       <DeleteModal
         deleteText="Confirm"
         deleteMessage="Are you sure you want to proceed?"
@@ -353,7 +366,7 @@ const UserTable = () => {
                   form.resetFields();
                 }}
               >
-                Cancel{' '}
+                Cancel
               </Button>
             </Row>
           </Form.Item>
