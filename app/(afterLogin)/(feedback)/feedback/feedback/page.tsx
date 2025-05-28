@@ -14,7 +14,7 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
-import { Edit2Icon } from 'lucide-react';
+// import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
@@ -28,7 +28,7 @@ const Page = () => {
   const {
     setOpen,
     setVariantType,
-    setSelectedFeedbackRecord,
+    // setSelectedFeedbackRecord,
     variantType,
     setUserId,
     userId,
@@ -74,9 +74,9 @@ const Page = () => {
     userId,
   );
 
-  const editHandler = (record: any) => {
-    setSelectedFeedbackRecord(record);
-  };
+  // const editHandler = (record: any) => {
+  //   setSelectedFeedbackRecord(record);
+  // };
   const handleDelete = (id: string) => {
     deleteFeedbackRecord(id, {
       onSuccess: () => {},
@@ -269,13 +269,13 @@ const Page = () => {
       render: (notused: any, record: any) => {
         return (
           <div className="flex gap-2">
-            <Button
+            {/* <Button
               disabled={record.issuerId !== userIdData}
               size="small"
               onClick={() => editHandler(record)}
               icon={<Edit2Icon className="w-4 h-4 text-xs" />}
               type="primary"
-            />
+            /> */}
             <Popconfirm
               title="Are you sure you want to delete?"
               onConfirm={() => handleDelete(record?.id)}
