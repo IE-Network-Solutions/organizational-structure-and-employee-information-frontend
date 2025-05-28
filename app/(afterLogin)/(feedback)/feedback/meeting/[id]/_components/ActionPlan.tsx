@@ -10,14 +10,12 @@ interface ActionPlanProps {
   meetingId: string; // Replace 'any' with the actual type if available
   loading: boolean;
   canEdit: boolean;
-  meeting: any;
 }
 
 export default function ActionPlan({
   meetingId,
   loading,
   canEdit,
-  meeting,
 }: ActionPlanProps) {
   const { data: meetingActionPlan, isLoading } =
     useGetMeetingActionPlan(meetingId);
@@ -37,7 +35,7 @@ export default function ActionPlan({
             </Button>
           )}
         </div>
-        {meeting?.actionPlans?.length <= 0 ? (
+        {meetingActionPlan?.items?.length <= 0 ? (
           <div className="text-center text-xl font-semibold">
             No Action Plan for This Meeting
           </div>

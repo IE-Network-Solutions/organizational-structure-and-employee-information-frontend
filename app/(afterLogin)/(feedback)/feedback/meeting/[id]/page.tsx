@@ -38,7 +38,6 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
             canEdit={canEdit}
           />
           <ActionPlan
-            meeting={meeting}
             canEdit={canEdit}
             loading={isLoading}
             meetingId={meeting?.id}
