@@ -39,8 +39,17 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
     delete updatedData.surveyStartDate;
     delete updatedData.surveyEndDate;
     delete updatedData.users;
-    updateForm({ data: updatedData, id: selectedFormId });
-    setIsEditModalVisible(false);
+    updateForm(
+      { data: updatedData, id: selectedFormId },
+      {
+        onSuccess: () => {
+          setIsEditModalVisible(false);
+        },
+        onError: () => {
+          setIsEditModalVisible(false);
+        },
+      },
+    );
   };
 
   useEffect(() => {
@@ -50,8 +59,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
       surveyStartDate: dayjs(formDataByID?.startDate),
       surveyEndDate: dayjs(formDataByID?.endDate),
       isAnonymous: formDataByID?.isAnonymous,
-      formPermissions:
-        formDataByID?.formPermissions?.map((p: any) => p.userId) || [],
+      users: formDataByID?.formPermissions?.map((p: any) => p.userId) || [],
     };
 
     formInstance.setFieldsValue(formValues);
