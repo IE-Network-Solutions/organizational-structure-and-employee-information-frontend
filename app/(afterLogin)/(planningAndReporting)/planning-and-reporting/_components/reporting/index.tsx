@@ -12,7 +12,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
 import {
@@ -114,6 +114,11 @@ function Reporting() {
 
   // const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+
+  useEffect(() => {
+    setPageReporting(1);
+    setPageSizeReporting(10);
+  }, [activeTab, setPageReporting, setPageSizeReporting]);
 
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(

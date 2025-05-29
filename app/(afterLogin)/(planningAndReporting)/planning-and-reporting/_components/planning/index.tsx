@@ -12,7 +12,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
@@ -108,6 +108,11 @@ function Planning() {
     planningPeriodId ?? '',
     activeTab.toString(),
   );
+
+  useEffect(() => {
+    setPage(1);
+    setPageSize(10);
+  }, [activeTab, setPage, setPageSize]);
 
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
     allPlanning?.items ?? [],
@@ -415,7 +420,6 @@ function Planning() {
             }}
           />
         ) : (
-          
           <CustomPagination
             current={page}
             total={allPlanning?.meta?.totalItems || 1}
