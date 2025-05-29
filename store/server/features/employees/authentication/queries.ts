@@ -78,10 +78,12 @@ const getTenantByDomainName = async (domain: string) => {
 const getTenant = async (tenantId?: string) => {
   const tenantIdData = useAuthenticationStore.getState().tenantId ?? tenantId;
   try {
-    const response = await axios.get(`${TENANT_MGMT_URL}/clients/${tenantIdData}`);
+    const response = await axios.get(
+      `${TENANT_MGMT_URL}/clients/${tenantIdData}`,
+    );
     return response.data;
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
 
@@ -95,11 +97,13 @@ export const useGetTenantId = () =>
     keepPreviousData: true,
     enabled: false, // Disabled by default, will be triggered manually
   });
-export const useGetTenant = (tenantId?: string) =>{
-
-  return useQuery<any>(['tenant', tenantId], () => getTenant(tenantId ?? undefined), {
-    // keepPreviousData: true,
-    enabled: true, // Disabled by default, will be triggered manually
-  });
-
-}
+export const useGetTenant = (tenantId?: string) => {
+  return useQuery<any>(
+    ['tenant', tenantId],
+    () => getTenant(tenantId ?? undefined),
+    {
+      // keepPreviousData: true,
+      enabled: true, // Disabled by default, will be triggered manually
+    },
+  );
+};

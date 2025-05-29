@@ -31,7 +31,9 @@ type TnaManagementCoursePageAction = {
   setFileAttachmentList: (fileAttachmentList: UploadFile[]) => void;
 
   isFileUploadLoading: Record<string, boolean>;
-  setIsFileUploadLoading: (isFileUploadLoading: Record<string, boolean>) => void;
+  setIsFileUploadLoading: (
+    isFileUploadLoading: Record<string, boolean>,
+  ) => void;
 };
 
 const tnaManagementCoursePageSlice: StateCreator<
