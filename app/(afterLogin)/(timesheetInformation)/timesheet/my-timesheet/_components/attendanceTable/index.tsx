@@ -279,7 +279,10 @@ const AttendanceTable = () => {
             total={data?.meta?.totalItems ?? 0}
             pageSize={pageSize}
             onChange={onPageChange}
-            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
           />
         )}
       </div>
