@@ -149,6 +149,16 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   useEffect(() => {
     if (openIncentiveDrawer) {
       form.setFieldsValue({ fixedAmount: formulaById?.monetizedValue || '' });
+      if (formulaById?.expression) {
+        setValue('Formula');
+        form.setFieldsValue({ amountType: 'Formula' });
+      } else if (formulaById?.monetizedValue) {
+        setValue('Fixed');
+        form.setFieldsValue({ amountType: 'Fixed' });
+      } else {
+        setValue('Fixed');
+        form.setFieldsValue({ amountType: 'Fixed' });
+      }
     }
   }, [openIncentiveDrawer, formulaById]);
 
@@ -249,16 +259,25 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   };
 
   const getDisplayValue = () => {
-    if (!formula || !Array.isArray(formula) || formula.length === 0) return '';
+    // If formula is a string, return it directly without quotes
+    if (typeof formula === 'string') {
+      return formula.replace(/"/g, '');
+    }
 
-    return formula
-      .map((item) => {
-        if (item?.type === 'criteria') {
+    // If formula is an array, process it
+    if (Array.isArray(formula)) {
+      return formula
+        .map((item: any) => {
+          if (item?.type === 'criteria') {
+            return item?.name;
+          }
           return item?.name;
-        }
-        return item.name;
-      })
-      .join(' ');
+        })
+        .join(' ');
+    }
+
+    // If formula is neither string nor array, return empty string
+    return '';
   };
 
   return (
