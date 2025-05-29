@@ -91,8 +91,8 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
 
   const handleMenuClick = (key: string, category: any) => {
     if (key === 'edit') {
-      setSelectedFormId(category.id);
       setIsEditModalVisible(true);
+      setSelectedFormId(category.id);
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteFormModal(true);
