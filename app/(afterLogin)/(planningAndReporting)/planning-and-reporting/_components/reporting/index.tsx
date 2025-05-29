@@ -7,7 +7,6 @@ import {
   Col,
   Dropdown,
   Menu,
-  Pagination,
   Row,
   Spin,
   Tooltip,
@@ -43,6 +42,9 @@ import KeyResultTasks from '../planning/KeyResultTasks';
 import { FiCheckCircle } from 'react-icons/fi';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
 
 const { Title } = Typography;
 
@@ -65,7 +67,7 @@ function Reporting() {
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
-
+  const { isMobile, isTablet } = useIsMobile();
   const hasPermission = AccessGuard.checkAccess({
     permissions: [
       Permissions.ViewDailyPlan,
@@ -410,19 +412,34 @@ function Reporting() {
             </Card>
           </>
         ))}
-        <Pagination
-          disabled={!allReporting?.items?.length} // Ensures no crash if items is undefined
-          className="flex justify-end"
-          total={allReporting?.items?.meta?.totalItems} // Ensures total count instead of pages
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={allReporting?.meta?.totalItems ?? 0}
+            pageSize={pageSizeReporting}
+            onChange={(page, pageSize) => {
+              setPageReporting(page);
+              setPageSizeReporting(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSizeReporting(size);
+              setPageReporting(1);
+            }}
+          />
+        ) : (
+            <CustomPagination
+          total={allReporting?.meta?.totalItems}
           current={pageReporting}
-          pageSize={pageSizeReporting} // Dynamically control page size
-          showSizeChanger // Allows user to change page size
+          pageSize={pageSizeReporting}
+          onShowSizeChange={(size) => {
+            setPageSizeReporting(size);
+            setPageReporting(1);
+          }}
           onChange={(page, pageSize) => {
             setPageReporting(page);
-            setPageSizeReporting(pageSize); // Ensure page size updates dynamically
+            setPageSizeReporting(pageSize);
           }}
-          pageSizeOptions={['10', '20', '50', '100']}
         />
+        )}
         {allReporting?.items?.length <= 0 && (
           <div className="flex justify-center">
             <div>
