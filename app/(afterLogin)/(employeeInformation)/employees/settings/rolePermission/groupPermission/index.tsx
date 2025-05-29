@@ -64,7 +64,10 @@ const GroupPermissionComponent = () => {
                 total={groupPermissionData?.meta?.totalItems ?? 0}
                 pageSize={pageSize}
                 onChange={onPageChange}
-                onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+                onShowSizeChange={(pageSize) => {
+                  setPageSize(pageSize);
+                  setPermissionGroupCurrentPage(1);
+                }}
               />
             )}
           </div>
