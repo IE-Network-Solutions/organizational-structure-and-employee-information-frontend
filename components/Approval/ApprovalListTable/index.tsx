@@ -79,7 +79,9 @@ const ApproverListTableComponent = ({
           total={allFilterData?.meta?.totalItems ?? 0}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={onPageChange}
+          onShowSizeChange={(pageSize) => {
+            onPageChange(1, pageSize);
+          }}
         />
       )}
     </div>
