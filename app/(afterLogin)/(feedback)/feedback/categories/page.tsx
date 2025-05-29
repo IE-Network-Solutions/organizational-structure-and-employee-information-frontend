@@ -24,13 +24,13 @@ const Categories: React.FC = () => {
     <div className="h-auto w-full p-4 bg-white rounded-md">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
-          title="Categories"
-          subtitle="Manage your categories"
+          title="Form Categories"
+          subtitle="Manage your form categories"
         />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
           <AccessGuard permissions={[Permissions.CreateFormCategory]}>
             <CustomButton
-              title="Create Category"
+              title="Create Form Category"
               id="createUserButton"
               icon={<FaPlus size={13} className="mr-2" />}
               onClick={showDrawer}
