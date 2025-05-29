@@ -1,11 +1,15 @@
-import { Card, Empty, Pagination, Spin } from 'antd';
+import { Card, Empty, Spin } from 'antd';
 import React, { useState } from 'react';
 import EditAndDeleteButtonCard from './editDeleteButtonCard';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { useGetRoles } from '@/store/server/features/employees/settings/role/queries';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const RoleComponent: React.FC = () => {
+  const { isMobile, isTablet } = useIsMobile();
   const { roleCurrentPage, pageSize, setRoleCurrentPage, setPageSize } =
     useSettingStore();
   const [visibleEditCardId, setVisibleEditCardId] = useState<string | null>(
@@ -42,15 +46,22 @@ const RoleComponent: React.FC = () => {
               </div>
             ))}
           </div>
-          <Pagination
-            className="flex justify-end"
-            current={roleCurrentPage}
-            pageSize={pageSize}
-            total={1}
-            onChange={(page, pageSize) => onPageChange(page, pageSize)}
-            showSizeChanger
-            onShowSizeChange={(page, pageSize) => onPageChange(page, pageSize)}
-          />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={rolePermissionsData?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+            />
+          ) : (
+            <CustomPagination
+              current={roleCurrentPage}
+              total={rolePermissionsData?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+            />
+          )}
         </>
       ) : (
         <div className="flex justify-center items-center">
