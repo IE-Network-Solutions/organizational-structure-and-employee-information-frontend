@@ -183,7 +183,10 @@ const Permission: React.FC<any> = () => {
           totalResults={displayData?.meta?.totalItems ?? 0}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={onPageChange}
+          onShowSizeChange={(pageSize) => {
+            setPageSize(pageSize);
+            setPermissionCurrentPage(1);
+          }}
         />
       ) : (
         <CustomPagination
@@ -191,7 +194,10 @@ const Permission: React.FC<any> = () => {
           total={displayData?.meta?.totalItems ?? 0}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+          onShowSizeChange={(pageSize) => {
+            setPageSize(pageSize);
+            setPermissionCurrentPage(1);
+          }}
         />
       )}
     </div>

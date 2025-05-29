@@ -304,7 +304,10 @@ const UserTable = () => {
             total={allFilterData?.meta?.totalItems ?? 0}
             pageSize={pageSize}
             onChange={onPageChange}
-            onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setUserCurrentPage(1);
+            }}
           />
         )}
       </div>

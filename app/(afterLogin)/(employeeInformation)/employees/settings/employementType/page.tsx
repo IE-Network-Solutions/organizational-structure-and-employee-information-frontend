@@ -113,7 +113,10 @@ const EmploymentType = () => {
                 total={employeTypeData?.meta?.totalItems ?? 0}
                 pageSize={pageSize}
                 onChange={onPageChange}
-                onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+                onShowSizeChange={(pageSize) => {
+                  setPageSize(pageSize);
+                  setPage(1);
+                }}
               />
             )}
           </div>
