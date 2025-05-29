@@ -22,7 +22,7 @@ const ManageEmployees: React.FC<any> = () => {
   };
 
   return (
-    <div className="h-auto w-full">
+    <div className="h-auto w-full px-3 sm:px-6">
       <BlockWrapper className="h-auto w-full bg-white">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
