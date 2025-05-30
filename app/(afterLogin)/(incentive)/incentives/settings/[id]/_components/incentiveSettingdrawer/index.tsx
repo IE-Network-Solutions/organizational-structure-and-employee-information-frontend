@@ -149,6 +149,16 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   useEffect(() => {
     if (openIncentiveDrawer) {
       form.setFieldsValue({ fixedAmount: formulaById?.monetizedValue || '' });
+      if (formulaById?.expression) {
+        setValue('Formula');
+        form.setFieldsValue({ amountType: 'Formula' });
+      } else if (formulaById?.monetizedValue) {
+        setValue('Fixed');
+        form.setFieldsValue({ amountType: 'Fixed' });
+      } else {
+        setValue('Fixed');
+        form.setFieldsValue({ amountType: 'Fixed' });
+      }
     }
   }, [openIncentiveDrawer, formulaById]);
 
@@ -195,6 +205,80 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
       setFormulaError('');
     }
   }, [formula, value, setFormulaError]);
+
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Remove newlines to keep formula single-line
+    const value = e.target.value.replace(/[\r\n]+/g, ' ');
+    if (!value.trim()) {
+      setFormula([]);
+      return;
+    }
+
+    // Find all criteria names in the input
+    const criteriaMatches = recognitionData?.recognitionCriteria?.reduce(
+      (acc: any[], crit: any) => {
+        if (value.includes(crit?.criteria?.criteriaName)) {
+          acc.push({
+            id: crit?.criteria?.id,
+            name: crit?.criteria?.criteriaName,
+            type: 'criteria',
+          });
+        }
+        return acc;
+      },
+      [],
+    );
+
+    // Replace ALL criteria names with their IDs in the value
+    let processedValue = value;
+    criteriaMatches?.forEach((crit: { id: string; name: string }) => {
+      // Use a global regex to replace all occurrences
+      const regex = new RegExp(crit.name, 'g');
+      processedValue = processedValue.replace(regex, crit.id);
+    });
+
+    // Split by spaces and filter empty strings
+    const parts = processedValue.split(/\s+/).filter(Boolean);
+
+    const newFormula = parts.map((part) => {
+      // If it's a number or operator
+      if (/^[0-9+\-*/()]$/.test(part)) {
+        return { id: part, name: part, type: 'operand' };
+      }
+      // If it's a criteria ID
+      const matchingCriteria = criteriaMatches?.find(
+        (crit: { id: string }) => crit.id === part,
+      );
+      if (matchingCriteria) {
+        return matchingCriteria;
+      }
+      return { id: part, name: part, type: 'operand' };
+    });
+
+    setFormula(newFormula);
+  };
+
+  const getDisplayValue = () => {
+    // If formula is a string, return it directly without quotes
+    if (typeof formula === 'string') {
+      return formula.replace(/"/g, '');
+    }
+
+    // If formula is an array, process it
+    if (Array.isArray(formula)) {
+      return formula
+        .map((item: any) => {
+          if (item?.type === 'criteria') {
+            return item?.name;
+          }
+          return item?.name;
+        })
+        .join(' ');
+    }
+
+    // If formula is neither string nor array, return empty string
+    return '';
+  };
 
   return (
     <CustomDrawerLayout
@@ -284,17 +368,9 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             }
           >
             <TextArea
-              value={
-                formula && formula.length > 0
-                  ? typeof formula === 'string'
-                    ? JSON.parse(formula)
-                    : Array.isArray(formula)
-                      ? formula?.map((item: any) => item?.name).join(' ')
-                      : ''
-                  : ''
-              }
-              readOnly
-              placeholder="Click criteria and operands to build a formula"
+              value={getDisplayValue()}
+              onChange={handleTextAreaChange}
+              placeholder="Type numbers or click criteria and operands to build a formula"
               className="mt-2"
               rows={4}
             />

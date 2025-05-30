@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Space, Table, Drawer } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 // Types
 import { TableColumnsType } from '@/types/table/table';
@@ -21,7 +24,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 // Utils
-import usePagination from '@/utils/usePagination';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { AttendanceRecordTypeBadgeTheme } from '@/types/timesheet/attendance';
 import {
@@ -29,10 +31,15 @@ import {
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
+import { usePathname } from 'next/navigation';
+import usePagination from '@/utils/usePagination';
 
 const AttendanceTable = () => {
   // Store hooks
   const { userId } = useAuthenticationStore();
+
+  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
+    usePagination(1, 10);
 
   const {
     setIsShowViewSidebar,
@@ -40,31 +47,34 @@ const AttendanceTable = () => {
     isShowViewSidebar,
     filter,
     setFilter,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    resetPagination,
   } = useMyTimesheetStore();
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    resetPagination();
+  }, [pathname]);
+
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const userFilter: Partial<AttendanceRequestBody['filter']> = {
     userIds: [userId ?? ''],
   };
 
-  // Pagination
-  const {
-    page,
-    limit,
-    orderBy,
-    orderDirection,
-    setPage,
-    setLimit,
-    setOrderBy,
-    setOrderDirection,
-  } = usePagination(1, 10);
-
-  const current = page;
-
   // API call
   const { data, isFetching, refetch } = useGetAttendances(
-    { page, limit, orderBy, orderDirection },
+    { page: currentPage, limit: pageSize, orderBy, orderDirection },
+
     { filter },
   );
+  const { isMobile, isTablet } = useIsMobile();
 
   // Table columns
   const columns: TableColumnsType<AttendanceRecord> = [
@@ -211,9 +221,9 @@ const AttendanceTable = () => {
     setFilter(nFilter);
   };
 
-  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-    setPage(pagination.current ?? 1);
-    setLimit(pagination.pageSize ?? 10);
+  const handleTableChange = (pagination: any, sorter: any) => {
+    setCurrentPage(pagination.current ?? 1);
+    setPageSize(pagination.pageSize ?? 10);
     setOrderDirection(sorter['order']);
     setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
@@ -246,79 +256,38 @@ const AttendanceTable = () => {
         <AttendanceTableFilter onChange={onFilterChange} />
       </div>
 
-      <Table<AttendanceRecord>
-        className="mt-6"
-        columns={columns}
-        dataSource={data?.items}
-        loading={isFetching}
-        pagination={{
-          total: data?.meta?.totalItems,
-          current: page,
-          pageSize: limit,
-          onChange: (page, pageSize) => {
-            setPage(page);
-            setLimit(pageSize);
-          },
-          showSizeChanger: true,
-          onShowSizeChange: (current, size) => {
-            setPage(current);
-            setLimit(size);
-          },
-          position: ['bottomRight'],
-          className: 'mt-4 flex items-center justify-between',
-          showTotal: (total) => (
-            <div className="text-gray-600">{total} results</div>
-          ),
-          showLessItems: true,
-          hideOnSinglePage: true,
-          itemRender: (page, type) => {
-            if (type === 'prev') {
-              return (
-                <button
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 ${page <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
-                  disabled={page <= 1}
-                >
-                  <span className="text-gray-600">&lt;</span>
-                </button>
-              );
-            }
-            if (type === 'next') {
-              return (
-                <button
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 ${page >= (data?.meta?.totalPages ?? 1) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
-                  disabled={page >= (data?.meta?.totalPages ?? 1)}
-                >
-                  <span className="text-gray-600">&gt;</span>
-                </button>
-              );
-            }
-            if (type === 'page') {
-              if (window.innerWidth < 640) {
-                // Mobile view
-                return page === current ? (
-                  <div className="rounded-full flex items-center justify-center bg-gray-50">
-                    <span className="text-gray-900">{page}</span>
-                  </div>
-                ) : null;
-              } else {
-                // Desktop view
-                return page === current ? (
-                  <div className="rounded-full flex items-center justify-center bg-gray-50">
-                    <span className="text-gray-900">{page}</span>
-                  </div>
-                ) : (
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600">{page}</span>
-                  </div>
-                );
-              }
-            }
-            return null;
-          },
-        }}
-        onChange={handleTableChange}
-        scroll={{ x: 'min-content' }}
-      />
+      <div>
+        <Table<AttendanceRecord>
+          className="mt-6"
+          columns={columns}
+          dataSource={data?.items}
+          loading={isFetching}
+          pagination={false}
+          onChange={handleTableChange}
+          scroll={{ x: 'min-content' }}
+        />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
+          />
+        )}
+      </div>
+
+      {/* View Attendance Sidebar */}
 
       <Drawer
         title="Filter"

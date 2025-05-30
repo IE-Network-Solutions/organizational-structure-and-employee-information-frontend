@@ -10,6 +10,8 @@ import { GroupPermissionItem } from '@/store/server/features/employees/settings/
 import useDebounce from '@/store/uistate/features/useDebounce';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { LuSettings2 } from 'react-icons/lu';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 const Permission: React.FC<any> = () => {
   const {
@@ -26,7 +28,7 @@ const Permission: React.FC<any> = () => {
     useGetPermissions(permissionCurrentPage, pageSize);
   const { data: groupPermissionDatawithOutPagination } =
     useGetPermissionGroupsWithOutPagination();
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
 
   const debouncedTerm = useDebounce(searchTerm?.searchTerm, 2000); // returns true and false
   const {
@@ -174,15 +176,30 @@ const Permission: React.FC<any> = () => {
         columns={columns}
         dataSource={displayData?.items}
         loading={permissionLoading || isSearching}
-        pagination={{
-          current: permissionCurrentPage,
-          pageSize: pageSize,
-          total: displayData?.meta?.totalItems,
-          onChange: (page, pageSize) => onPageChange(page, pageSize),
-          showSizeChanger: true,
-          onShowSizeChange: (page, pageSize) => onPageChange(page, pageSize),
-        }}
+        pagination={false}
       />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={displayData?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(pageSize) => {
+            setPageSize(pageSize);
+            setPermissionCurrentPage(1);
+          }}
+        />
+      ) : (
+        <CustomPagination
+          current={permissionCurrentPage}
+          total={displayData?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(pageSize) => {
+            setPageSize(pageSize);
+            setPermissionCurrentPage(1);
+          }}
+        />
+      )}
     </div>
   );
 };
