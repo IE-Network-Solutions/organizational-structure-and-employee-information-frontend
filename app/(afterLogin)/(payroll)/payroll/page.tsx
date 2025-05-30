@@ -100,13 +100,13 @@ const Payroll = () => {
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
 
-    // if (paySlip)
-    //   exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
+    if (paySlip)
+      exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
 
-    // if (exportPayrollData)
-    //   exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
+    if (exportPayrollData)
+      exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
 
-    // if (exportBank) exportTasks.push(handleExportBank());
+    if (exportBank) exportTasks.push(handleExportBank());
 
     if (bankLetter)
       exportTasks.push(
