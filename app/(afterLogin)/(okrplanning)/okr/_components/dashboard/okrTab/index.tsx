@@ -159,32 +159,32 @@ export default function OkrTab() {
                       />
                     ))}
                     {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={userObjectives?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setCurrentPage(page);
-              setPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-          />
-        ) : (
-                    <CustomPagination
-                      current={userObjectives?.meta?.currentPage || 1}
-                      total={userObjectives?.meta?.totalItems || 1}
-                      pageSize={pageSize}
-                      onChange={(page, pageSize) => {
-                        setCurrentPage(page);
-                        setPageSize(pageSize);
-                      }}
-                      onShowSizeChange={(size) => {
-                        setPageSize(size);
-                        setCurrentPage(1);
-                      }}
-                    />
+                      <CustomMobilePagination
+                        totalResults={userObjectives?.meta?.totalItems ?? 0}
+                        pageSize={pageSize}
+                        onChange={(page, pageSize) => {
+                          setCurrentPage(page);
+                          setPageSize(pageSize);
+                        }}
+                        onShowSizeChange={(size) => {
+                          setPageSize(size);
+                          setCurrentPage(1);
+                        }}
+                      />
+                    ) : (
+                      <CustomPagination
+                        current={userObjectives?.meta?.currentPage || 1}
+                        total={userObjectives?.meta?.totalItems || 1}
+                        pageSize={pageSize}
+                        onChange={(page, pageSize) => {
+                          setCurrentPage(page);
+                          setPageSize(pageSize);
+                        }}
+                        onShowSizeChange={(size) => {
+                          setPageSize(size);
+                          setCurrentPage(1);
+                        }}
+                      />
                     )}
                   </div>
                 )}
@@ -270,34 +270,35 @@ export default function OkrTab() {
                             />
                           ))}
                           {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={companyObjective?.meta?.totalItems ?? 0}
-            pageSize={companyPageSize}
-            onChange={(page, pageSize) => {
-              setCompanyCurrentPage(page);
-              setCompanyPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setCompanyPageSize(size);
-              setCompanyCurrentPage(1);
-            }}
-          />
-        ) : (
-          <CustomPagination
-                            current={companyObjective?.meta?.currentPage || 1}
-                            total={companyObjective?.meta?.totalItems || 1}
-                            pageSize={companyPageSize}
-                            onChange={(page, pageSize) => {
-                              setCompanyCurrentPage(page);
-                              setCompanyPageSize(pageSize);
-                            }}
-                            onShowSizeChange={(size) => {
-                              setCompanyPageSize(size);
-                              setCompanyCurrentPage(1);
-                            }}
-                          />
-        )}
-                          
+                            <CustomMobilePagination
+                              totalResults={
+                                companyObjective?.meta?.totalItems ?? 0
+                              }
+                              pageSize={companyPageSize}
+                              onChange={(page, pageSize) => {
+                                setCompanyCurrentPage(page);
+                                setCompanyPageSize(pageSize);
+                              }}
+                              onShowSizeChange={(size) => {
+                                setCompanyPageSize(size);
+                                setCompanyCurrentPage(1);
+                              }}
+                            />
+                          ) : (
+                            <CustomPagination
+                              current={companyObjective?.meta?.currentPage || 1}
+                              total={companyObjective?.meta?.totalItems || 1}
+                              pageSize={companyPageSize}
+                              onChange={(page, pageSize) => {
+                                setCompanyCurrentPage(page);
+                                setCompanyPageSize(pageSize);
+                              }}
+                              onShowSizeChange={(size) => {
+                                setCompanyPageSize(size);
+                                setCompanyCurrentPage(1);
+                              }}
+                            />
+                          )}
                         </div>
                       )}
                       {companyObjective?.items?.length === 0 && (

@@ -294,7 +294,7 @@ const PlanAssignment: React.FC = () => {
             }}
           />
         )}
-        </div>
+      </div>
 
       <PlanningAssignationDrawer open={open} onClose={onClose} />
       <DeleteModal
