@@ -123,3 +123,87 @@ export const useDeleteMeeting = () => {
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
 };
+// meeting comment
+
+const createComments = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/meeting-comments`,
+    method: 'post',
+    data: values,
+    headers,
+  });
+};
+
+const deleteComments = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/meeting-comments/${id}`,
+    method: 'DELETE',
+    headers,
+  });
+};
+
+const updateComments = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/meeting-comments/${values?.id}`,
+    method: 'patch',
+    data: values,
+    headers,
+  });
+};
+
+export const useCreateComments = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createComments, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('meeting-comments');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
+  });
+};
+
+export const useUpdateComments = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateComments, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('meeting-comments');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
+  });
+};
+
+export const useDeleteComments = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteComments, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('meeting-comments');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
+  });
+};

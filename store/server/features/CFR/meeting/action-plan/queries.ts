@@ -28,6 +28,27 @@ const getMeetingActionPlanId = async (id: string | null) => {
     },
   });
 };
+const getAllActionPlan = async (
+  pageSizeAction: number,
+  currentAction: number,
+  empId: string | null,
+  priority: string | null,
+  status: string | null,
+  startAt: string | null,
+  endAt: string | null,
+) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/meeting-action-plans?limit=${pageSizeAction}&page=${currentAction}&userId=${empId}&priority=${priority}&status=${status}&completionStartDate=${startAt}&completionEndDate=${endAt}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 export const useGetMeetingActionPlan = (id: string | null) => {
   return useQuery<any>(
     ['meeting-action-plans', id], // Unique query key based on params
@@ -35,6 +56,42 @@ export const useGetMeetingActionPlan = (id: string | null) => {
     {
       enabled: !!id, // Ensures id is truthy and not null or empty
     },
+  );
+};
+
+export const useGetAllActionPlan = (
+  pageSizeAction: number,
+  currentAction: number,
+  empId: string | null,
+  priority: string | null,
+  status: string | null,
+  startAt: string | null,
+  endAt: string | null,
+) => {
+  return useQuery<any>(
+    [
+      'meeting-action-plans',
+      pageSizeAction,
+      currentAction,
+      empId,
+      priority,
+      status,
+      startAt,
+      endAt,
+    ], // Unique query key based on params
+    () =>
+      getAllActionPlan(
+        pageSizeAction,
+        currentAction,
+        empId,
+        priority,
+        status,
+        startAt,
+        endAt,
+      ),
+    // {
+    //   enabled: !!id, // Ensures id is truthy and not null or empty
+    // },
   );
 };
 export const useGetMeetingActionPlanPlanById = (id: string) => {

@@ -10,6 +10,8 @@ import ParticipantsList from './_components/ParticipantsList';
 import UploadSection from './_components/UploadSection';
 import { useGetMeetingsById } from '@/store/server/features/CFR/meeting/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import CommentsSection from './_components/CommentsSection';
+import PreviousMeeting from './_components/PreviousMeeting';
 
 type Params = {
   id: string;
@@ -59,8 +61,8 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
             loading={isLoading}
             meeting={meeting}
           />
-          {/* <CommentsSection />
-          <PreviousMeeting /> */}
+          <CommentsSection meetingId={meeting?.id} />
+          <PreviousMeeting meeting={meeting} />
         </div>
       </div>
     </div>
