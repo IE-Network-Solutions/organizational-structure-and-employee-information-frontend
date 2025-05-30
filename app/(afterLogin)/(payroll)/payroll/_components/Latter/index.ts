@@ -16,11 +16,14 @@ import {
 } from 'docx';
 import { saveAs } from 'file-saver';
 
-const getBase64FromUrl = async (): Promise<string> => {
+const getBase64FromUrl = async (url: string): Promise<string> => {
   try {
+    if (!url) {
+      return url;
+    }
     return IE_LOGO_BASE64;
   } catch (error) {
-    return '';
+    return IE_LOGO_BASE64 ; // Fallback to default logo
   }
 };
 
@@ -39,7 +42,11 @@ export const useGenerateBankLetter = () => {
     // Get the logo data
     let logoBase64 = '';
     if (tenant.logo) {
-      logoBase64 = await getBase64FromUrl();
+      try {
+        logoBase64 = await getBase64FromUrl(tenant.logo);
+      } catch (error) {
+        console.warn('Failed to load custom logo, using default:', error);
+      }
     }
 
     // Create document
@@ -65,12 +72,15 @@ export const useGenerateBankLetter = () => {
                       data: logoBase64,
                       type: 'png',
                       transformation: {
-                        width: 100,
-                        height: 100,
+                        width: 120,
+                        height: 120,
                       },
                     }),
                   ],
                   alignment: AlignmentType.LEFT,
+                  spacing: {
+                    after: 200,
+                  },
                 }),
                 new Paragraph({
                   children: [
@@ -130,7 +140,7 @@ export const useGenerateBankLetter = () => {
                   alignment: AlignmentType.CENTER,
                   border: {
                     top: {
-                      color: '1E40AF',
+                      color: '#1E40AF',
                       space: 8,
                       style: BorderStyle.SINGLE,
                       size: 16,

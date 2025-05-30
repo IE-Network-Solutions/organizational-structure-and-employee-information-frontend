@@ -76,7 +76,7 @@ const Filters: React.FC<FiltersProps> = ({
   }, [getAllFiscalYears, employeeData]);
 
   useEffect(() => {
-    if (payroll?.payrolls.length > 0) {
+    if (payroll?.payrolls?.length > 0) {
       const defaultPayPeriodId = payroll.payrolls[0]?.payPeriodId;
       const defaultPayPeriod = payPeriodData?.find(
         (period: any) => period.id === defaultPayPeriodId,

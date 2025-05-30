@@ -100,13 +100,13 @@ const Payroll = () => {
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
 
-    if (paySlip)
-      exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
+    // if (paySlip)
+    //   exportTasks.push(Promise.resolve(sendingPaySlipHandler(mergedPayroll)));
 
-    if (exportPayrollData)
-      exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
+    // if (exportPayrollData)
+    //   exportTasks.push(Promise.resolve(handleDeductionExportPayroll()));
 
-    if (exportBank) exportTasks.push(handleExportBank());
+    // if (exportBank) exportTasks.push(handleExportBank());
 
     if (bankLetter)
       exportTasks.push(
@@ -879,14 +879,14 @@ const Payroll = () => {
           )}
           <Popconfirm
             title={
-              payroll?.payrolls.length
+              payroll?.payrolls?.length
                 ? 'Are you sure you want to regenerate the payroll ?'
                 : 'Are you sure you want to generate the payroll ?'
             }
             onConfirm={handleDeletePayroll}
             okText="Yes"
             cancelText="No"
-            disabled={!(payroll?.payrolls.length > 0)}
+            disabled={!(payroll?.payrolls?.length > 0)}
           >
             <AccessGuard
               permissions={[
@@ -896,7 +896,7 @@ const Payroll = () => {
             >
               <Tooltip
                 title={
-                  payroll?.payrolls.length > 0
+                  payroll?.payrolls?.length > 0
                     ? 'Regenerate Payroll'
                     : 'Generate Payroll'
                 }
@@ -909,7 +909,7 @@ const Payroll = () => {
                 >
                   {isMobile ? (
                     <TbFileExport size={24} />
-                  ) : payroll?.payrolls.length > 0 ? (
+                  ) : payroll?.payrolls?.length > 0 ? (
                     'Regenerate'
                   ) : (
                     'Generate'
