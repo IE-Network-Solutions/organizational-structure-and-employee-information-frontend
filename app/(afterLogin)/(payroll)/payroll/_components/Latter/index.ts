@@ -23,7 +23,7 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
     }
     return IE_LOGO_BASE64;
   } catch (error) {
-    return IE_LOGO_BASE64 ; // Fallback to default logo
+    return IE_LOGO_BASE64; // Fallback to default logo
   }
 };
 
