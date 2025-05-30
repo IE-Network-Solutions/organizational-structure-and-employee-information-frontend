@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { Col, DatePicker, Form, Row, Select } from 'antd';
 import { CommonObject } from '@/types/commons/commonObject';
 import React, { FC } from 'react';
@@ -60,7 +60,11 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
                 suffixIcon={
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
                 }
-                options={formatToOptions(leaveTypesData?.items ?? [], 'title', 'id')}
+                options={formatToOptions(
+                  leaveTypesData?.items ?? [],
+                  'title',
+                  'id',
+                )}
               />
             </Form.Item>
           </Col>

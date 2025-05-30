@@ -431,19 +431,19 @@ function Reporting() {
             }}
           />
         ) : (
-            <CustomPagination
-          total={allReporting?.meta?.totalItems}
-          current={pageReporting}
-          pageSize={pageSizeReporting}
-          onShowSizeChange={(size) => {
-            setPageSizeReporting(size);
-            setPageReporting(1);
-          }}
-          onChange={(page, pageSize) => {
-            setPageReporting(page);
-            setPageSizeReporting(pageSize);
-          }}
-        />
+          <CustomPagination
+            total={allReporting?.meta?.totalItems}
+            current={pageReporting}
+            pageSize={pageSizeReporting}
+            onShowSizeChange={(size) => {
+              setPageSizeReporting(size);
+              setPageReporting(1);
+            }}
+            onChange={(page, pageSize) => {
+              setPageReporting(page);
+              setPageSizeReporting(pageSize);
+            }}
+          />
         )}
         {allReporting?.items?.length <= 0 && (
           <div className="flex justify-center">

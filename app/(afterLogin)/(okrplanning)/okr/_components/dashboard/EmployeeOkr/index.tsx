@@ -191,23 +191,23 @@ const EmployeeOKRTable: React.FC = () => {
         scroll={{ y: 400 }} // Add vertical scrolling with fixed height
         rowKey="id" // Ensure each row has a unique key
       />
-     
+
       {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={employeeOkr?.meta?.totalItems ?? 0}
-            pageSize={employeePageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
-        ) : (
-          <CustomPagination
-            current={employeeOkr?.meta?.currentPage ?? 0}
-            total={employeeOkr?.meta?.totalItems ?? 0}
-            pageSize={employeePageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => setEmployeePageSize(pageSize)}
-          />
-        )}
+        <CustomMobilePagination
+          totalResults={employeeOkr?.meta?.totalItems ?? 0}
+          pageSize={employeePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={employeeOkr?.meta?.currentPage ?? 0}
+          total={employeeOkr?.meta?.totalItems ?? 0}
+          pageSize={employeePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(pageSize) => setEmployeePageSize(pageSize)}
+        />
+      )}
     </div>
   );
 };

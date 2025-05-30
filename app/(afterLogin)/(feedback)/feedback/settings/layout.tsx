@@ -33,7 +33,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       },
       link: '/feedback/settings/define-questions',
     },
-   
+
     // {
     //   item: {
     //     key: 'feedback',
@@ -61,10 +61,10 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       },
       link: '/feedback/settings/target-achievement',
     },
-     {
+    {
       item: {
         key: 'meeting-type',
-        icon: <IoListSharp  className="hidden lg:block" />,
+        icon: <IoListSharp className="hidden lg:block" />,
         label: <p className="menu-item-label">Meeting Type</p>,
         className: 'px-1',
       },
