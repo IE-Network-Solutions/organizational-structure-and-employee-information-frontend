@@ -64,38 +64,40 @@ const DashboardComponent = () => {
         </div>
 
         <div className="flex gap-6 items-center mb-2">
-          <div className="flex gap-2 justify-between items-center border rounded-lg p-2 w-full">
-            <div className="">
-              <div className="text-lg font-bold text-gray-900">
-                {userMeetings?.totalActionPlans}
+          <Link href={`/feedback/action-plan`}>
+            <div className="flex gap-2 justify-between items-center border rounded-lg p-2 w-full">
+              <div className="">
+                <div className="text-lg font-bold text-gray-900">
+                  {userMeetings?.totalActionPlans}
+                </div>
+                <Text className="text-gray-500 text-[12px]">Action plans</Text>
               </div>
-              <Text className="text-gray-500 text-[12px]">Action plans</Text>
-            </div>
-            <div className="">
-              <div className="text-right">
-                <Text className="text-blue-600 text-[10px] !mb-0 ">
-                  <span className="font-bold text-blue">
-                    {userMeetings?.resolvedActionPlans}
-                  </span>{' '}
-                  resolved
-                </Text>
+              <div className="">
+                <div className="text-right">
+                  <Text className="text-blue-600 text-[10px] !mb-0 ">
+                    <span className="font-bold text-blue">
+                      {userMeetings?.resolvedActionPlans}
+                    </span>{' '}
+                    resolved
+                  </Text>
+                </div>
+                <Progress
+                  percent={
+                    userMeetings?.totalActionPlans
+                      ? (userMeetings.resolvedActionPlans /
+                          userMeetings.totalActionPlans) *
+                        100
+                      : 0
+                  }
+                  strokeColor="#3b82f6"
+                  trailColor="#e5e7eb"
+                  strokeWidth={6}
+                  showInfo={false}
+                  className="w-32 !m-0"
+                />
               </div>
-              <Progress
-                percent={
-                  userMeetings?.totalActionPlans
-                    ? (userMeetings.resolvedActionPlans /
-                        userMeetings.totalActionPlans) *
-                      100
-                    : 0
-                }
-                strokeColor="#3b82f6"
-                trailColor="#e5e7eb"
-                strokeWidth={6}
-                showInfo={false}
-                className="w-32 !m-0"
-              />
             </div>
-          </div>
+          </Link>
 
           <div className="text-right w-24">
             <div className="text-lg font-bold text-gray-900">

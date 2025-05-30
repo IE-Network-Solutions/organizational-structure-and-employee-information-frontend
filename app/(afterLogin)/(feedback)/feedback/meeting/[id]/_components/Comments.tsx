@@ -1,140 +1,216 @@
-import React from 'react';
-import { Row, Avatar, Form, Input, Button } from 'antd';
-import { FaUser } from 'react-icons/fa';
+import React, { useEffect, useMemo } from 'react';
+import { Row, Avatar, Form, Button, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-
+import { EditorContent, useEditor } from '@tiptap/react';
+import { useGetMeetingAttendees } from '@/store/server/features/CFR/meeting/attendees/queries';
+import { createMentionExtension } from './CustomMention';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextStyle from '@tiptap/extension-text-style';
+import TextAlign from '@tiptap/extension-text-align';
+import Placeholder from '@tiptap/extension-placeholder';
+import {
+  useGetAllUsers,
+  useGetEmployee,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
+import {
+  useCreateComments,
+  useDeleteComments,
+  useUpdateComments,
+} from '@/store/server/features/CFR/meeting/mutations';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { UserOutlined, LoadingOutlined } from '@ant-design/icons';
+import CommentActionMenu from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/comments/commentActionMenu';
 dayjs.extend(relativeTime);
 
-// Dummy users
-const users = {
-  u1: {
-    fullName: 'Alice Johnson',
-    profileImage: 'https://randomuser.me/api/portraits/women/1.jpg',
-  },
-  u2: {
-    fullName: 'Bob Smith',
-    profileImage: 'https://randomuser.me/api/portraits/men/2.jpg',
-  },
-  u3: {
-    fullName: 'Charlie Kim',
-    profileImage: '', // fallback to icon
-  },
+// Function to get user details
+const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
+  const { data: userDetails, isLoading, error } = useGetEmployee(empId);
+
+  if (isLoading)
+    return (
+      <>
+        <LoadingOutlined />
+      </>
+    );
+
+  if (error || !userDetails) return '-';
+
+  const userName =
+    `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+    '-';
+  const profileImage = userDetails?.profileImage;
+  return (
+    <div className="flex gap-2 items-center">
+      <Tooltip title={type == 'all' ? '' : userName}>
+        <Avatar size={20} src={profileImage} icon={<UserOutlined />} />
+      </Tooltip>
+
+      {type == 'all' && (
+        <div className="text-[10px]">
+          {userName?.length > 10 ? userName?.slice(0, 10) + '...' : userName}
+        </div>
+      )}
+    </div>
+  );
 };
 
-// Function to get user details
-const getUserDetail = (userId: keyof typeof users) =>
-  users[userId] || { fullName: 'Unknown', profileImage: '' };
+type CommentComponentProps = {
+  meetingId: string;
+  commentData: any;
+};
 
-// Dummy data
-type UserId = keyof typeof users;
-
-const data: {
-  id: string;
-  commentedBy: UserId;
-  comment: string;
-  createdAt: string;
-}[] = [
-  {
-    id: 'cmt1',
-    commentedBy: 'u1',
-    comment:
-      'This is a really helpful update, thanks! hdbfkhdsbfdshghbskhdsfbdskhj',
-    createdAt: dayjs().subtract(2, 'hour').toISOString(),
-  },
-  {
-    id: 'cmt2',
-    commentedBy: 'u2',
-    comment: 'Could we clarify the deadline again?',
-    createdAt: dayjs().subtract(1, 'day').toISOString(),
-  },
-  {
-    id: 'cmt3',
-    commentedBy: 'u3',
-    comment: 'I agree with the proposed changes.',
-    createdAt: dayjs().subtract(30, 'minute').toISOString(),
-  },
-];
-
-// Dummy variables
-const isLoading = false;
-
-// type CommentActionMenuProps = {
-//   onEdit: () => void;
-//   onDelete: () => void;
-// };
-
-// const CommentActionMenu: React.FC<CommentActionMenuProps> = ({
-//   onEdit,
-//   onDelete,
-// }) => (
-//   <div className="flex gap-2 text-xs">
-//     <Button size="small" onClick={onEdit}>
-//       Edit
-//     </Button>
-//     <Button size="small" danger onClick={onDelete}>
-//       Delete
-//     </Button>
-//   </div>
-// );
-
-const CommentComponent = () => {
+const CommentComponent: React.FC<CommentComponentProps> = ({
+  meetingId,
+  commentData,
+}) => {
   const [form] = Form.useForm();
+  const { comments, setComments, commentUpdate, setCommentUpdate } =
+    useMeetingStore() as {
+      comments: string;
+      setComments: (c: string) => void;
+      commentUpdate: any | null;
+      setCommentUpdate: (c: any | null) => void;
+    };
+  const { mutate: createComment, isLoading: createLoading } =
+    useCreateComments();
+  const { mutate: updateComment, isLoading: updateLoading } =
+    useUpdateComments();
+  const { mutate: deleteComment, isLoading: deleteLoading } =
+    useDeleteComments();
+  const { userId } = useAuthenticationStore();
 
-  // const handleSubmit = (values) => {
-  //   console.log('Submitted Comment:', values);
-  // };
+  const handleSubmit = () => {
+    if (commentUpdate) {
+      updateComment(
+        { comments: comments, userId, id: commentUpdate.id },
+        {
+          onSuccess() {
+            setComments('');
+            setCommentUpdate(null);
+          },
+        },
+      );
+    } else {
+      createComment(
+        { meetingId, comments: comments, userId },
+        {
+          onSuccess() {
+            setComments('');
+          },
+        },
+      );
+    }
+  };
 
-  // const handleEdit = (comment) => {
-  //   console.log('Edit:', comment);
-  // };
+  const handleUpdate = (comment: any) => {
+    setCommentUpdate(comment);
+    setComments(comment.comments);
+  };
 
-  // const handleDelete = (id) => {
-  //   console.log('Delete ID:', id);
-  // };
+  const { data: attendeesData, isLoading: loadingAttendees } =
+    useGetMeetingAttendees(meetingId);
+  const { data: employeeData } = useGetAllUsers();
+
+  const getEmployeeData = (id: string) => {
+    return employeeData?.items?.find((emp: any) => emp?.id === id) || {};
+  };
+
+  // 🧠 Memoize attendees
+  const attendees = useMemo(() => {
+    if (!attendeesData?.items || !employeeData?.items) return [];
+
+    return attendeesData.items
+      .filter((item: any) => item.userId)
+      .map((item: any) => {
+        const user = getEmployeeData(item.userId);
+        return {
+          id: item.userId,
+          label:
+            user?.firstName + ' ' + user?.middleName + ' ' + user?.lastName,
+          profileImage: user?.profileImage,
+        };
+      });
+  }, [attendeesData, employeeData]);
+
+  const editor = useEditor(
+    {
+      extensions: [
+        StarterKit,
+        Underline,
+        TextStyle,
+        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        Placeholder.configure({
+          placeholder: 'Type @ to mention attendees...',
+        }),
+        createMentionExtension(attendees),
+      ],
+      content: comments,
+      // editable: canEdit,
+    },
+    [loadingAttendees, attendees],
+  );
+
+  // Update editor content when content from store changes
+  useEffect(() => {
+    if (editor && comments !== undefined) {
+      const currentContent = editor.getHTML();
+      if (currentContent !== comments) {
+        editor.commands.setContent(comments);
+      }
+    }
+  }, [editor, comments]);
+
+  // Set up editor update listener
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleUpdate = () => {
+      const html = editor.getHTML();
+      setComments(html);
+    };
+
+    editor.on('update', handleUpdate);
+
+    return () => {
+      editor.off('update', handleUpdate);
+    };
+  }, [editor, setComments]);
+
+  function handleDelete(id: string) {
+    deleteComment(id);
+  }
 
   return (
     <div className="w-full">
-      {data.map((commentData) => {
-        const { fullName, profileImage } = getUserDetail(
-          commentData.commentedBy,
-        );
+      {commentData?.map((comment: any) => (
+        <Row
+          key={comment.id}
+          justify="space-between"
+          align="middle"
+          className="w-full p-2 border-b-2"
+        >
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+            <EmployeeDetails type="all" empId={comment.userId} />
 
-        return (
-          <Row
-            key={commentData.id}
-            justify="space-between"
-            align="middle"
-            className="w-full py-2"
-          >
-            <div className="flex  items-center">
-              <div className=" text-xs font-semibold flex items-center">
-                <Avatar
-                  src={profileImage || undefined}
-                  icon={!profileImage ? <FaUser /> : undefined}
-                  alt={fullName}
+            <div
+              className="text-gray-700 font-semibold text-[12px]"
+              dangerouslySetInnerHTML={{ __html: comment.comments }}
+            />
+            {comment.userId == userId &&
+              (!deleteLoading ? (
+                <CommentActionMenu
+                  onEdit={() => handleUpdate(comment)}
+                  onDelete={() => handleDelete(comment.id)}
                 />
-                <div className="">
-                  <span className="font-normal">{fullName}</span>
-                  <span className="w-full text-gray-700  font-semibold ml-2">
-                    {commentData.comment}
-                  </span>
-                  {/* <div className="text-gray-400 text-xs ml-2">
-                  {dayjs(commentData.createdAt).fromNow()}
-                </div> */}
-                </div>
-              </div>
-            </div>
-            {/* <Col hidden={commentData?.commentedBy !== userId}>
-              <CommentActionMenu
-                onEdit={() => handleEdit(commentData)}
-                onDelete={() => handleDelete(commentData.id)}
-              />
-            </Col> */}
-          </Row>
-        );
-      })}
-
+              ) : (
+                <LoadingOutlined className="text-gray-500" />
+              ))}
+          </div>
+        </Row>
+      ))}
       <Form
         form={form}
         layout="inline"
@@ -142,24 +218,21 @@ const CommentComponent = () => {
         // onFinish={handleSubmit}
       >
         <div className="w-full flex flex-col gap-2">
-          <Form.Item
-            name="comment"
-            rules={[{ required: true, message: 'Please enter a comment' }]}
-            className="w-full"
-          >
-            <Input.TextArea rows={3} placeholder="[[Comment by the person]]" />
-          </Form.Item>
+          <EditorContent
+            className="min-h-20 border rounded-md px-2 py-1 focus:outline-none"
+            editor={editor}
+          />
 
-          <Form.Item className="flex  justify-end mr-0">
+          <div className="flex  justify-end mr-0">
             <Button
-              loading={isLoading}
+              loading={createLoading || updateLoading}
               type="primary"
-              htmlType="submit"
+              onClick={() => handleSubmit()}
               className="w-24"
             >
               Send
             </Button>
-          </Form.Item>
+          </div>
         </div>
       </Form>
     </div>

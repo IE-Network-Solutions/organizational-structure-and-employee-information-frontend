@@ -94,6 +94,15 @@ export default function AddNewMeetingForm() {
     const endAt = dayjs(
       `${date?.format('YYYY-MM-DD')}T${endTime?.format('HH:mm:ss')}`,
     );
+    const attendeeIds = Array.from(
+      new Set(
+        [
+          ...(values.attendeeIds || []),
+          values.facilitatorId,
+          values.chairpersonId,
+        ].filter(Boolean),
+      ),
+    );
     createMeeting(
       {
         ...values,
@@ -103,6 +112,7 @@ export default function AddNewMeetingForm() {
           agenda: item,
           order: index + 1,
         })),
+        attendeeIds: attendeeIds,
         locationType: locationType,
       },
       {
