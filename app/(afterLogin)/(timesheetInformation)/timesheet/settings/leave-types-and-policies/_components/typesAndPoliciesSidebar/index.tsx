@@ -109,6 +109,10 @@ const TypesAndPoliciesSidebar = () => {
       accrualRule: value.accrualRule,
       carryOverRule: value.carryOverRule,
       description: value.description,
+      ...(value.isIncremental && {
+        incrementalYear: value.incrementalYear,
+        incrementAmount: value.incrementAmount,
+      }),
     });
     setIsFixed(false);
   };
@@ -120,6 +124,10 @@ const TypesAndPoliciesSidebar = () => {
   const onFieldChange = () => {
     setIsErrorPlan(!!form.getFieldError('plan').length);
   };
+
+  const isIncremental = Form.useWatch('isIncremental', form);
+  const incrementalYear = Form.useWatch('incrementalYear', form);
+  const incrementalDays = Form.useWatch('incrementAmount', form);
 
   return (
     isShow && (
@@ -288,6 +296,40 @@ const TypesAndPoliciesSidebar = () => {
                 </Form.Item>
               </div>
             </div>
+            <div>
+              {isIncremental && (
+                <div className="flex gap-2 mt-2 w-full">
+                  <Form.Item
+                    name="incrementalYear"
+                    rules={[{ required: isIncremental, message: 'Required' }]}
+                    className="m-0"
+                  >
+                    <InputNumber
+                      min={1}
+                      placeholder="Year"
+                      className="h-[40px] w-24"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name="incrementAmount"
+                    rules={[{ required: true, message: 'Required' }]}
+                    className="m-0"
+                  >
+                    <InputNumber
+                      min={1}
+                      placeholder="Entitled Days"
+                      className="h-[40px] w-32"
+                    />
+                  </Form.Item>
+                </div>
+              )}
+              {isIncremental && (
+                <div className="text-xs text-gray-500 mt-1">
+                  Every <b>{incrementalYear || '__'}</b> years add{' '}
+                  <b>{incrementalDays || '__'}</b> additional day(s)
+                </div>
+              )}
+            </div>
             <Form.Item
               id={`TypesAndPoliciesMinAllowedDaysFieldId`}
               label="Minimum notifying period(days)"
@@ -303,7 +345,23 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`}
               label="Maximum allowed consecutive days"
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                { required: true, message: 'Required' },
+                {
+                  /* eslint-disable @typescript-eslint/naming-convention */
+                  validator: (_, value) => {
+                    /* eslint-enable @typescript-eslint/naming-convention */
+
+                    const entitledDays = form.getFieldValue('entitled');
+                    if (value > entitledDays) {
+                      return Promise.reject(
+                        'Maximum consecutive days cannot exceed entitled days',
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
               name="max"
             >
               <InputNumber

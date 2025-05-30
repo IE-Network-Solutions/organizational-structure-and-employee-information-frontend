@@ -290,10 +290,10 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         {/* Action to Be Taken */}
         <Form.Item
           name="action"
+          className={`${variantType === 'appreciation' ? 'hidden' : 'block'}`}
           label="Action to Be Taken"
           rules={[
             {
-              required: true,
               message: 'Please describe the action to be taken!',
             },
           ]}

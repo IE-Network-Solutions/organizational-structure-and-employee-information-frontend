@@ -13,6 +13,7 @@ import { IoTimeOutline } from 'react-icons/io5';
 import { GoKey } from 'react-icons/go';
 import { AiOutlineImport } from 'react-icons/ai';
 import { BsFileBreak } from 'react-icons/bs';
+import { usePathname } from 'next/navigation';
 
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
@@ -21,12 +22,21 @@ interface TimesheetSettingsLayoutProps {
 const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
   children,
 }) => {
+  const pathname = usePathname();
   const menuItems = new SidebarMenuItem([
     {
       item: {
         key: 'closed-date',
-        icon: <CiCalendarDate className="hidden lg:block" />,
-        label: <p className="menu-item-label">Closed Date</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/closed-date') ? 'lg:ml-4' : ''}`}
+          >
+            <CiCalendarDate
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/closed-date') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Closed Date</p>
+          </div>
+        ),
         className: 'px-1',
       },
       link: '/timesheet/settings/closed-date',
@@ -34,8 +44,16 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'break-type',
-        icon: <BsFileBreak className="hidden lg:block" />,
-        label: <p className="menu-item-label">Break Type</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/break-type') ? 'lg:ml-4' : ''}`}
+          >
+            <BsFileBreak
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/break-type') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Break Type</p>
+          </div>
+        ),
         className: 'px-1',
       },
       link: '/timesheet/settings/break-type',
@@ -43,65 +61,137 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'leave-types-and-policies',
-        icon: <FiFileText className="hidden lg:block" />,
-        label: <p className="menu-item-label">Leave Types & Policies</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/leave-types-and-policies') ? 'lg:ml-4' : ''}`}
+          >
+            <FiFileText
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/leave-types-and-policies') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Leave Types & Policies</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/leave-types-and-policies',
     },
     {
       item: {
         key: 'allowed-areas',
-        icon: <GoKey className="hidden lg:block" />,
-        label: <p className="menu-item-label">Allowed Areas</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/allowed-areas') ? 'lg:ml-4' : ''}`}
+          >
+            <GoKey
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/allowed-areas') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Allowed Areas</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/allowed-areas',
     },
     {
       item: {
         key: 'attendance-rules',
-        icon: <IoTimeOutline className="hidden lg:block" />,
-        label: <p className="menu-item-label">Attendance Rules</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/attendance-rules') ? 'lg:ml-4' : ''}`}
+          >
+            <IoTimeOutline
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/attendance-rules') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Attendance Rules</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/attendance-rules',
     },
     {
       item: {
         key: 'imported-logs',
-        icon: <AiOutlineImport className="hidden lg:block" />,
-        label: <p className="menu-item-label">Imported Logs</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/imported-logs') ? 'lg:ml-4' : ''}`}
+          >
+            <AiOutlineImport
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/imported-logs') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Imported Logs</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/imported-logs',
     },
     {
       item: {
         key: 'accrual-rule',
-        icon: <GrTransaction className="hidden lg:block" />,
-        label: <p className="menu-item-label">Accrual Rule</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/accrual-rule') ? 'lg:ml-4' : ''}`}
+          >
+            <GrTransaction
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/accrual-rule') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Accrual Rule</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/accrual-rule',
     },
     {
       item: {
         key: 'carry-over-rule',
-        icon: <IoArrowUndoCircleOutline className="hidden lg:block" />,
-        label: <p className="menu-item-label">Carry-over Rule</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/carry-over-rule') ? 'lg:ml-4' : ''}`}
+          >
+            <IoArrowUndoCircleOutline
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/carry-over-rule') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Carry-over Rule</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/carry-over-rule',
     },
 
     {
       item: {
-        key: 'approval-workflow',
-        icon: <PiUserCircleCheck className="hidden lg:block" />,
-        label: <p className="menu-item-label">Approval Workflow</p>,
+        key: 'approvals',
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/approvals') ? 'lg:ml-4' : ''}`}
+          >
+            <PiUserCircleCheck
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/approvals') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Approval Workflow</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/approvals',
     },
     {
       item: {
         key: 'time-zone',
-        icon: <IoTimeOutline className="hidden lg:block" />,
-        label: <p className="menu-item-label">Time Zone</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/time-zone') ? 'lg:ml-4' : ''}`}
+          >
+            <IoTimeOutline
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/time-zone') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">Time Zone</p>
+          </div>
+        ),
+        className: 'px-1',
       },
       link: '/timesheet/settings/time-zone',
     },

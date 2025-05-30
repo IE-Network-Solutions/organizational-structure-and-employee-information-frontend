@@ -1,13 +1,6 @@
-import {
-  Dispatch,
-  FC,
-  ReactNode,
-  SetStateAction,
-  useEffect,
-  useState,
-} from 'react';
+import { Dispatch, FC, ReactNode, SetStateAction, useEffect } from 'react';
 import { RcFile, UploadProps } from 'antd/es/upload';
-import { fileUpload } from '@/utils/fileUpload';
+// import { fileUpload } from '@/utils/fileUpload';
 import { Button, Flex, Form, Input, Upload } from 'antd';
 import { classNames } from '@/utils/classNames';
 import { TbFileUpload } from 'react-icons/tb';
@@ -19,8 +12,12 @@ import {
   formatLinkToUploadFile,
 } from '@/helpers/formatTo';
 import FileButton from '@/components/common/fileButton';
+import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
+import { fileUpload } from '@/utils/fileUpload';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface CustomUploadProps extends UploadProps {
+  uploadType?: string;
   children?: ReactNode;
   className?: string;
   mode?: 'default' | 'draggable' | 'dragWithLink';
@@ -29,6 +26,7 @@ interface CustomUploadProps extends UploadProps {
   setIsLoading?: Dispatch<SetStateAction<boolean>>;
   onAddLink?: (link: string) => void;
   value?: UploadFile[];
+  targetState?: 'fileList' | 'fileAttachmentList'; // Required to differentiate video and attachment
 }
 
 const CustomUpload: FC<CustomUploadProps> = ({
@@ -38,53 +36,99 @@ const CustomUpload: FC<CustomUploadProps> = ({
   mode = 'default',
   icon = <FaRegImage size={24} />,
   title = 'Upload Your Certification',
-  value = [],
+  value,
   onChange,
-  maxCount,
+  maxCount = 1, // Enforce single file for both video and attachment
   fileList: fList,
+  targetState,
+  uploadType = '',
   ...otherProps
 }) => {
-  const [fileList, setFileList] = useState<UploadFile[]>(value);
+  const {
+    fileList,
+    setFileList,
+    fileAttachmentList,
+    isFileUploadLoading,
+    setIsFileUploadLoading,
+    setFileAttachmentList,
+  } = useTnaManagementCoursePageStore();
   const [form] = Form.useForm();
+  // const [internalFileList, setInternalFileList] = useState<UploadFile[]>([]);
+
+  // Select the appropriate state based on targetState
+  const effectiveFileList =
+    value !== undefined
+      ? value
+      : targetState === 'fileAttachmentList'
+        ? fileAttachmentList
+        : fileList;
 
   useEffect(() => {
-    if (fList && fList.length > 0) {
-      setFileList(fList);
+    // Sync the appropriate store state with the controlled value or external fileList prop
+    if (value !== undefined) {
+      if (targetState === 'fileAttachmentList') {
+        setFileAttachmentList(value.slice(0, 1)); // Ensure only one file
+      } else {
+        setFileList(value.slice(0, 1)); // Ensure only one file
+      }
+    } else if (fList && fList.length > 0) {
+      const limitedList = fList.slice(0, 1); // Limit to one file
+      if (targetState === 'fileAttachmentList') {
+        setFileAttachmentList(limitedList);
+      } else {
+        setFileList(limitedList);
+      }
+    } else {
+      // Clear the appropriate state when fList is empty
+      if (targetState === 'fileAttachmentList') {
+        setFileAttachmentList([]);
+      } else {
+        setFileList([]);
+      }
     }
-  }, [fList]);
+  }, [value, fList, targetState, setFileList, setFileAttachmentList]);
 
   const triggerChange = (newFileList: UploadFile[]) => {
-    setFileList(newFileList);
+    const limitedList = newFileList.slice(0, 1); // Ensure only one file
+    if (targetState === 'fileAttachmentList') {
+      setFileAttachmentList(limitedList);
+    } else {
+      setFileList(limitedList);
+    }
     if (onChange) {
-      onChange(newFileList as any);
+      onChange(limitedList as any);
     }
   };
 
   const handleUpload = async (options: any): Promise<void> => {
+    const prevIsFileUploadLoading = isFileUploadLoading;
+    prevIsFileUploadLoading[uploadType] = true;
+    setIsFileUploadLoading(prevIsFileUploadLoading);
     if (setIsLoading) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
     const { file, onSuccess } = options;
     const rcFile = file as RcFile;
 
-    const response = await fileUpload(rcFile);
-    if (setIsLoading) {
-      setIsLoading(false);
-    }
-    if (onSuccess && response) {
-      onSuccess(response.data['viewImage']);
+    try {
+      const response = await fileUpload(rcFile);
+      if (onSuccess && response) {
+        prevIsFileUploadLoading[uploadType] = false;
+        setIsFileUploadLoading(prevIsFileUploadLoading);
+        onSuccess(response.data['viewImage']);
+      }
+    } finally {
+      if (setIsLoading) {
+        // setIsLoading(false);
+        prevIsFileUploadLoading[uploadType] = false;
+        setIsFileUploadLoading(prevIsFileUploadLoading);
+      }
     }
   };
 
   const onFinishLink = () => {
-    const value = form.getFieldsValue();
-    if (maxCount && fileList.length >= maxCount) {
-      const fList = [...fileList];
-      fList.shift();
-      triggerChange([...fList, formatLinkToUploadFile(value.link)]);
-    } else {
-      triggerChange([...fileList, formatLinkToUploadFile(value.link)]);
-    }
+    const { link } = form.getFieldsValue();
+    triggerChange([formatLinkToUploadFile(link)]); // Replace with the new link
     form.resetFields();
   };
 
@@ -93,7 +137,11 @@ const CustomUpload: FC<CustomUploadProps> = ({
   }: {
     fileList: UploadFile[];
   }) => {
-    triggerChange(newFileList);
+    triggerChange(newFileList); // triggerChange will enforce maxCount=1
+  };
+
+  const handleRemove = () => {
+    triggerChange([]); // Clear the file list on removal
   };
 
   switch (mode) {
@@ -101,10 +149,12 @@ const CustomUpload: FC<CustomUploadProps> = ({
       return (
         <div className={classNames(className)}>
           <Upload.Dragger
-            id="draggableFieldId"
+            id={`draggableFieldId-${targetState}`}
             customRequest={handleUpload}
-            {...otherProps}
+            fileList={effectiveFileList}
             onChange={handleChange}
+            maxCount={maxCount} // Enforce single file
+            {...otherProps}
           >
             <div className="flex flex-col items-center p-3 gap-1">
               <div className="text-primary">{icon}</div>
@@ -120,11 +170,22 @@ const CustomUpload: FC<CustomUploadProps> = ({
       return (
         <div className={classNames(className)}>
           <Upload.Dragger
-            id="draggableWithLinkFieldId"
+            id={`draggableWithLinkFieldId-${targetState}`}
             customRequest={handleUpload}
-            {...otherProps}
+            fileList={effectiveFileList}
             showUploadList={false}
             onChange={handleChange}
+            maxCount={1} // Enforce single file
+            beforeUpload={(file) => {
+              const isUnder500MB = file?.size / 1024 / 1024 <= 500;
+              if (!isUnder500MB) {
+                NotificationMessage.warning({
+                  message: `${file?.name} is larger than 500MB.`,
+                });
+              }
+              return isUnder500MB || Upload.LIST_IGNORE;
+            }}
+            {...otherProps}
           >
             <div className="flex flex-col items-center p-3 gap-1 h-max">
               <div className="text-primary">{icon}</div>
@@ -150,7 +211,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
                     ]}
                   >
                     <Input
-                      id="tnaLinkHereFieldId"
+                      id={`tnaLinkHereFieldId-${targetState}`}
                       placeholder="Enter link here to upload"
                       size="large"
                       className="text-sm h-10"
@@ -161,7 +222,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
                   </Form.Item>
                   <Form.Item>
                     <Button
-                      id="tnaAddLinkHereButtonId"
+                      id={`tnaAddLinkHereButtonId-${targetState}`}
                       htmlType="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -177,16 +238,14 @@ const CustomUpload: FC<CustomUploadProps> = ({
               </Form>
 
               <div className="flex flex-wrap gap-2 mt-6">
-                {fileList.map((file) => (
+                {effectiveFileList.map((file) => (
                   <FileButton
                     fileName={formatFileNameToShort(file.name)}
                     isPreview={true}
                     key={file.uid}
                     onRemove={(e: MouseEvent) => {
                       e.stopPropagation();
-                      setFileList((prev) =>
-                        prev.filter((f) => f.uid !== file.uid),
-                      );
+                      handleRemove();
                     }}
                   />
                 ))}
@@ -198,25 +257,29 @@ const CustomUpload: FC<CustomUploadProps> = ({
 
     case 'default':
       return (
-        <Upload
-          customRequest={handleUpload}
-          className={classNames(className)}
-          {...otherProps}
-          onChange={handleChange}
-        >
-          {children ? (
-            children
-          ) : (
-            <button
-              type="button"
-              id="tnaFileUploadAttachmentButtonId"
-              className="mt-2.5 font-semibold text-sm text-gray-900 h-[40px] rounded-lg border border-gray-200 flex items-center justify-between transition-colors duration-150 px-[11px] hover:border-primary cursor-pointer w-full"
-            >
-              Upload attachment
-              <TbFileUpload size={18} className="text-gray-900" />
-            </button>
-          )}
-        </Upload>
+        <div className={classNames(className)}>
+          <Upload
+            customRequest={handleUpload}
+            className={classNames(className)}
+            fileList={effectiveFileList}
+            onChange={handleChange}
+            maxCount={1} // Enforce single file
+            {...otherProps}
+          >
+            {children ? (
+              children
+            ) : (
+              <button
+                type="button"
+                id={`tnaFileUploadAttachmentButtonId-${targetState}`}
+                className="mt-2.5 font-semibold text-sm text-gray-900 h-[40px] rounded-lg border border-gray-200 flex items-center justify-between transition-colors duration-150 px-[11px] hover:border-primary cursor-pointer w-full"
+              >
+                Upload attachment
+                <TbFileUpload size={18} className="text-gray-900" />
+              </button>
+            )}
+          </Upload>
+        </div>
       );
   }
 };

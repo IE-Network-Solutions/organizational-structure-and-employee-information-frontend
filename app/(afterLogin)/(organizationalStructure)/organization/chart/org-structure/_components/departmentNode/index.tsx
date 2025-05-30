@@ -40,7 +40,10 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
   );
 
   return (
-    <Card className="p-1.5 rounded-3xl inline-block  border-[#CBD5E0] border-2 sm:w-auto">
+    <Card
+      bodyStyle={{ padding: 0, background: 'transparent' }}
+      className="inline-block px-6 py-4 rounded-2xl border-[#CBD5E0] border-1 h-[51px]"
+    >
       {isRoot && (
         <div className="flex justify-center items-center z-50">
           <AccessGuard permissions={[Permissions.CreateDepartment]}>
@@ -49,12 +52,13 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
               icon={<PlusOutlined />}
               size="small"
               type="primary"
-              className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
+              className="rounded-full absolute bottom-[-10px] hide-on-download z-50"
               onClick={onAdd}
             />
           </AccessGuard>
         </div>
       )}
+
       {!isRoot && (
         <AccessGuard
           permissions={[
@@ -65,7 +69,7 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
           <Dropdown
             overlay={menu}
             trigger={['click']}
-            className="absolute top-[1px]  hide-on-download "
+            className="absolute top-[1px] hide-on-download"
           >
             <Button
               icon={<Pencil size={8} />}
@@ -77,17 +81,20 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
         </AccessGuard>
       )}
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'start',
-        }}
-      >
-        <Tooltip title={`${data.name}`} placement="top">
-          <span style={{ fontWeight: 'bold' }}>{data.name}</span>
+      <div className="flex justify-center items-start">
+        <Tooltip title={data.name} placement="top">
+          <span
+            style={{
+              fontWeight: 'bold',
+              fontSize: '12px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {data.name}
+          </span>
         </Tooltip>
       </div>
+
       {!isRoot && (
         <div className="flex justify-center items-center z-50">
           <AccessGuard permissions={[Permissions.CreateDepartment]}>
@@ -96,7 +103,7 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
               icon={<PlusOutlined />}
               size="small"
               type="primary"
-              className={`rounded-full absolute bottom-[-10px] hide-on-download z-50`}
+              className="rounded-full absolute bottom-[-10px] hide-on-download z-50"
               style={{ marginTop: '5px' }}
               onClick={onAdd}
             />

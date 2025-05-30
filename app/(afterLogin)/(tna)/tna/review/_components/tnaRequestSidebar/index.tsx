@@ -26,6 +26,7 @@ import { useGetTnaCategory } from '@/store/server/features/tna/category/queries'
 import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 const { Option } = Select;
 
 const TnaRequestSidebar = () => {
@@ -58,6 +59,8 @@ const TnaRequestSidebar = () => {
     userId || '',
     APPROVALTYPES?.TNA,
   );
+  const { data: fiscalYearData } = useGetActiveFiscalYears();
+
   useEffect(() => {
     if (employeeData?.employeeJobInformation?.[0]?.departmentId)
       getDepartmentApproval();
@@ -91,10 +94,26 @@ const TnaRequestSidebar = () => {
   }, [tnaId]);
 
   useEffect(() => {
-    if (tnaId && data?.items?.length) {
-      form.setFieldsValue(data.items[0]);
+    if (data?.items?.[0] && tnaId !== null) {
+      const formData = data.items[0];
+
+      const formattedData = {
+        title: formData.title || '',
+        departmentId: formData.departmentId || undefined,
+        reason: formData.reason || '',
+        trainingNeedCategoryId: formData.trainingNeedCategoryId || undefined,
+        currencyId: formData.currencyId || undefined,
+        trainingPrice: formData.trainingPrice || undefined,
+        detail: formData.detail || '',
+        sessionId: formData.sessionId || undefined,
+        yearId: formData.yearId || undefined,
+        monthId: formData.monthId || undefined,
+      };
+      form.setFieldsValue(formattedData);
+    } else {
+      form.resetFields();
     }
-  }, [data]);
+  }, [data, form, fiscalYearData]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -136,6 +155,7 @@ const TnaRequestSidebar = () => {
         ...finalValues, // Include monthId, yearId, sessionId
         certStatus: TrainingNeedAssessmentCertStatus.IN_PROGRESS,
         status: TrainingNeedAssessmentStatus.PENDING,
+
         assignedUserId: userId,
         approvalWorkflowId:
           approvalUserData?.length > 0
@@ -145,6 +165,7 @@ const TnaRequestSidebar = () => {
     ];
 
     const filteredData = dataValue?.map((originalData: any) => ({
+      id: tnaId ?? undefined,
       title: originalData.title,
       trainingPrice: originalData?.trainingPrice, // Modify the training price as requested
       assignedUserId: originalData.assignedUserId,
@@ -153,6 +174,7 @@ const TnaRequestSidebar = () => {
       currencyId: originalData.currencyId,
       sessionId: originalData.sessionId,
       yearId: originalData.yearId,
+      reason: originalData.reason,
       monthId: originalData.monthId,
       departmentId: originalData?.departmentId, // Modified departmentId
       status: originalData.status,
@@ -220,7 +242,20 @@ const TnaRequestSidebar = () => {
             <Input id="tnaRequestTitleFieldId" className="control h-10" />
           </Form.Item>
 
-          <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />
+          <Filters
+            onSearch={handleSearch}
+            disable={['name', 'payPeriod']}
+            defaultValues={
+              data?.items?.[0]
+                ? {
+                    yearId: data.items[0].yearId,
+                    sessionId: data.items[0].sessionId,
+                    monthId: data.items[0].monthId,
+                    departmentId: data.items[0].departmentId,
+                  }
+                : undefined
+            }
+          />
           <Form.Item
             name="departmentId"
             label="Department"

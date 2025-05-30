@@ -299,9 +299,9 @@ const BasicInformationForm = ({ form }: any) => {
             ]}
           >
             <Select placeholder="Select an option" allowClear>
-              <Option value="single">Single</Option>
-              <Option value="married">Married</Option>
-              <Option value="divorced">Divorced</Option>
+              <Option value="SINGLE">Single</Option>
+              <Option value="MARRIED">Married</Option>
+              <Option value="DIVORCED">Divorced</Option>
             </Select>
           </Form.Item>
         </Col>

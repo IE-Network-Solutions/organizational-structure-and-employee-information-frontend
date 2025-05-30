@@ -38,7 +38,7 @@ const MyTimesheet = () => {
 
   const { isMobile } = useIsMobile();
   return (
-    <div className="bg-[#fafafa]">
+    <div className="bg-[#f5f5f5]">
       <div
       // className={`${isMobile ? 'h-auto' : 'h-full w-auto pr-0 pb-6 pl-3'} `}
       >

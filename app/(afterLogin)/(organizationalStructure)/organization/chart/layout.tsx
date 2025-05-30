@@ -2,7 +2,6 @@
 import { Card, Dropdown, Menu, Button } from 'antd';
 import { FaDownload } from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import CustomButton from '@/components/common/buttons/customButton';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
 import { useRouter } from 'next/navigation';
 import React, { useRef } from 'react';
@@ -106,11 +105,14 @@ export default function ChartLayout({
                 <AccessGuard
                   permissions={[Permissions.DownloadOrganizationStructure]}
                 >
-                  <CustomButton
+                  <Button
                     title="Download"
                     icon={<FaDownload size={16} />}
                     type="default"
-                  />
+                    className="h-10 sm:h-14 w-10 sm:w-auto"
+                  >
+                    <span className="hidden sm:inline">Download</span>
+                  </Button>
                 </AccessGuard>
               </Dropdown>
               {selectedKey !== 'chart' && (
@@ -122,9 +124,9 @@ export default function ChartLayout({
                   >
                     <Button
                       type="primary"
-                      className="w-16 h-14 px-6 py-6 rounded-lg flex items-center justify-center gap-2"
+                      className="w-10 sm:w-[68px] h-10 sm:h-14  rounded-lg flex items-center justify-center gap-2"
                     >
-                      <BsThreeDotsVertical size={16} />
+                      <BsThreeDotsVertical size={24} />
                     </Button>
                   </Dropdown>
                 </AccessGuard>
@@ -134,7 +136,7 @@ export default function ChartLayout({
         >
           <div className="flex justify-end">
             <Menu
-              className="w-[250px] rounded-2xl py-2 pl-10 h-max border-none"
+              className="w-[250px] rounded-2xl pl-24 sm:pl-20 h-max border-none"
               items={items}
               mode="horizontal"
               defaultActiveFirst
