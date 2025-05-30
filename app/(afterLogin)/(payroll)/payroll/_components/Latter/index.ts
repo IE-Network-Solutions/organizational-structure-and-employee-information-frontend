@@ -19,9 +19,9 @@ import { saveAs } from 'file-saver';
 const getBase64FromUrl = async (url: string): Promise<string> => {
   try {
     if (!url) {
-      return url;
+      return IE_LOGO_BASE64;
     }
-    return IE_LOGO_BASE64;
+    return url;
   } catch (error) {
     return IE_LOGO_BASE64; // Fallback to default logo
   }
@@ -42,11 +42,7 @@ export const useGenerateBankLetter = () => {
     // Get the logo data
     let logoBase64 = '';
     if (tenant.logo) {
-      try {
-        logoBase64 = await getBase64FromUrl(tenant.logo);
-      } catch (error) {
-        console.warn('Failed to load custom logo, using default:', error);
-      }
+      logoBase64 = await getBase64FromUrl(tenant.logo);
     }
 
     // Create document
