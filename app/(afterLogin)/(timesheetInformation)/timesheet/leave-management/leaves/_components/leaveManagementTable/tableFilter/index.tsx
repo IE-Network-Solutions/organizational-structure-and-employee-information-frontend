@@ -1,5 +1,5 @@
+'use client'
 import { Col, DatePicker, Form, Row, Select } from 'antd';
-import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import { CommonObject } from '@/types/commons/commonObject';
 import React, { FC } from 'react';
 import { DATE_FORMAT } from '@/utils/constants';
@@ -9,6 +9,7 @@ import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMediaQuery } from 'react-responsive';
 import { LuSettings2 } from 'react-icons/lu';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 
 interface LeaveManagementTableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -17,7 +18,7 @@ interface LeaveManagementTableFilterProps {
 const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
   onChange,
 }) => {
-  const { leaveTypes } = useLeaveManagementStore();
+  const { data: leaveTypesData } = useGetLeaveTypes();
   const [form] = Form.useForm();
   const { data: users } = useGetAllUsers();
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
@@ -59,7 +60,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
                 suffixIcon={
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
                 }
-                options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
+                options={formatToOptions(leaveTypesData?.items ?? [], 'title', 'id')}
               />
             </Form.Item>
           </Col>
