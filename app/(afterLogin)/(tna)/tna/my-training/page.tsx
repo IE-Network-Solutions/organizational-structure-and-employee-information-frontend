@@ -15,7 +15,6 @@ import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/t
 import { useRouter } from 'next/navigation';
 
 import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { TnaRequestBody } from '@/store/server/features/tna/review/interface';
 import {
   TrainingNeedAssessment,

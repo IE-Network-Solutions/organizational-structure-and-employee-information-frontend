@@ -102,8 +102,6 @@ const TnaReviewPage = () => {
     isShowTnaReviewSidebar,
     setIsShowTnaReviewSidebar,
     setTnaId,
-    currentPage,
-    setCurrentPage,
     loading,
   } = useTnaReviewStore();
   const {
