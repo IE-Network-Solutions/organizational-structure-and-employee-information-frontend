@@ -112,6 +112,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
             <p className="menu-item-label">Meeting Type</p>
           </div>
         ),
+
         className: 'px-1',
       },
       link: '/feedback/settings/define-meeting-type',
