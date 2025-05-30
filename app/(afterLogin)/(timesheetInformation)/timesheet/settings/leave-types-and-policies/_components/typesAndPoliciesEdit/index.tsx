@@ -348,9 +348,7 @@ const TypesAndPoliciesEdit = () => {
                 {isIncremental && (
                   <div className="text-xs text-gray-500 mt-1">
                     Every <b>{incrementalYear || '__'}</b> years add{' '}
-                    <b>{incrementAmount || '__'}</b> additional day(s) (The
-                    numbers should dynamically change based on the user's
-                    calculation)
+                    <b>{incrementAmount || '__'}</b> additional day(s)
                   </div>
                 )}
               </div>
