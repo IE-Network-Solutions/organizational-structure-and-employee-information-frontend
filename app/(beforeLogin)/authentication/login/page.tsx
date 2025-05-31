@@ -133,7 +133,7 @@ const Login: FC = () => {
         </div>
       </div>
       <div className="text-xs font-thin text-center">
-        © 2024 Selamnew Workspace . All-rights reserved.
+        Selamnew Workspace, All-rights reserved.
         {/* <span className="font-semibold ml-1 cursor-pointer">
           Terms & Conditions
         </span>

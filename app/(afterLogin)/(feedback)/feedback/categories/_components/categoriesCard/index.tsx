@@ -58,13 +58,15 @@ const CategoriesCard: React.FC = () => {
 
   const handleMenuClick = (key: string, category: any) => {
     if (key === 'edit') {
+      setEditModal(true);
+
       setEditingCategory({
         ...category,
-        users: Array.isArray(category.users)
-          ? category.items.map((user: any) => user.id || user)
+        users: Array.isArray(category.permissions)
+          ? category.permissions.map((user: any) => user.userId)
           : [],
       });
-      setEditModal(true);
+
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteModal(true);

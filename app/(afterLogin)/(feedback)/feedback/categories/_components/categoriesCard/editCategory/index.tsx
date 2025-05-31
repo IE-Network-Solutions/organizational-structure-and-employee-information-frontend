@@ -27,7 +27,6 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ onConfirm }) => {
     if (editingCategory) {
       form.setFieldsValue({
         ...editingCategory,
-        users: selectedUsers.map((user) => user.userId),
       });
     }
   }, [editingCategory, form]);
@@ -76,7 +75,6 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ onConfirm }) => {
             mode="multiple"
             style={{ width: '100%' }}
             placeholder="Select users"
-            value={selectedUsers.map((user) => user.userId)}
             onChange={(userIds: string[]) =>
               setSelectedUsers(userIds.map((id) => ({ userId: id })))
             }
