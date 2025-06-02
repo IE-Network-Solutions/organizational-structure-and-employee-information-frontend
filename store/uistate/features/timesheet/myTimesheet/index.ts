@@ -26,6 +26,8 @@ type MyTimesheetState = {
   breakTypes: BreakType[];
   viewAttendanceId: string | null;
   location: { lat: null | number; lng: null | number };
+  showLeaveHistoryFilter: boolean;
+  setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) => void;
 };
 
 type MyTimesheetAction = {
@@ -135,6 +137,9 @@ const useMyTimesheetSlice: StateCreator<
   setLocation: (location) => {
     set({ location });
   },
+  showLeaveHistoryFilter: false,
+  setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) =>
+    set({ showLeaveHistoryFilter }),
 });
 
 export const useMyTimesheetStore = create<MyTimesheetState & MyTimesheetAction>(
