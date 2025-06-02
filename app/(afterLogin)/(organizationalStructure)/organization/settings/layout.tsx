@@ -61,7 +61,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#f3f4f6] py-6">
+    <div className="min-h-screen ">
       {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
       {hasEndedFiscalYear && (
         <div className="bg-[#323B49] h-12 flex items-center justify-start text-lg p-2 rounded-lg shadow-none ">
@@ -73,11 +73,16 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           </span>
         </div>
       )}
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+      <div className="min-h-screen bg-[#f5f5f5]">
         <PageHeader title="Settings" description="Manage your settings here" />
-        <div className="flex  flex-col lg:flex-row gap-6 mt-8">
+        <div className="flex  flex-col lg:flex-row gap-6 m-4">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max !p-0">{children}</BlockWrapper>
+          <BlockWrapper
+            padding="0px"
+            className="flex-1 h-max overflow-x-auto bg-[#fafafa] "
+          >
+            {children}
+          </BlockWrapper>
         </div>
       </div>
     </div>

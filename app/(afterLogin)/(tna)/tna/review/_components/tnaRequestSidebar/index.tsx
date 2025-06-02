@@ -145,6 +145,7 @@ const TnaRequestSidebar = () => {
     ];
 
     const filteredData = dataValue?.map((originalData: any) => ({
+      id: tnaId ?? undefined,
       title: originalData.title,
       trainingPrice: originalData?.trainingPrice, // Modify the training price as requested
       assignedUserId: originalData.assignedUserId,

@@ -9,9 +9,10 @@ import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/ma
 import TextEditor from '@/components/form/textEditor';
 import CustomUpload from '@/components/form/customUpload';
 import React, { useEffect } from 'react';
-import { useSetCourseLessonMaterialWithProperOrderAdjustment } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { useGetCourseLessonsMaterial } from '@/store/server/features/tna/lessonMaterial/queries';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import { CourseLessonMaterial as CourseLessonMaterialType } from '@/types/tna/course';
+import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 
 const CourseLessonMaterial = () => {
   const {
@@ -39,7 +40,7 @@ const CourseLessonMaterial = () => {
     mutate: setMaterial,
     isLoading,
     isSuccess,
-  } = useSetCourseLessonMaterialWithProperOrderAdjustment();
+  } = useSetCourseLessonMaterial();
 
   const [form] = Form.useForm();
 
@@ -77,6 +78,27 @@ const CourseLessonMaterial = () => {
     }
   }, [isSuccess]);
 
+  const getOrderOptions = (
+    courseLessonMaterials: CourseLessonMaterialType[],
+  ) => {
+    const defaultOption = {
+      label: 'Add at the end',
+      value: 0, // Use 0 to indicate appending at the end
+    };
+
+    // Generate options from existing materials, excluding the current material (if editing)
+    const materialOptions = courseLessonMaterials
+      .filter(
+        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
+      )
+      ?.sort((a, b) => a.order - b.order)
+      .map((material) => ({
+        label: material.title || 'Untitled', // Fallback for missing titles
+        value: material.order,
+      }));
+
+    return [defaultOption, ...materialOptions];
+  };
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -108,6 +130,40 @@ const CourseLessonMaterial = () => {
     setIsShow(false);
   };
 
+  const getMaterialOrder = (materialOrder: number): number => {
+    const courseLessonMaterials = lesson?.courseLessonMaterials ?? [];
+    // Return 0 if no materials or materialId is invalid
+    if (!courseLessonMaterials?.length || !materialOrder) {
+      return 0;
+    }
+
+    // Find the material with the given ID and its order
+    const targetMaterial = courseLessonMaterials.find(
+      (material) => material.order === materialOrder,
+    );
+    if (!targetMaterial) {
+      return 0; // Return 0 if material not found
+    }
+
+    const targetOrder = targetMaterial.order;
+
+    // Sort materials by order and find the last material with order < targetOrder
+    const sortedMaterials = [...courseLessonMaterials].sort(
+      (a, b) => a.order - b.order,
+    );
+    const previousMaterial = sortedMaterials
+      .filter((material) => material.order < targetOrder)
+      .pop(); // Get last material (highest order) less than targetOrder
+
+    // If no previous material, return targetOrder / 2
+    if (!previousMaterial) {
+      return targetOrder / 2;
+    }
+
+    // Return average of previous material's order and targetOrder
+    return (previousMaterial.order + targetOrder) / 2;
+  };
+
   const onFinish = () => {
     const values = form.getFieldsValue();
 
@@ -118,7 +174,7 @@ const CourseLessonMaterial = () => {
         description: values.description,
         article: values.article,
         timeToFinishMinutes: values.timeToFinishMinutes,
-        order: parseFloat(values.order),
+        order: getMaterialOrder(values.order),
         courseLessonId: lesson?.id ?? '',
         videos: values.videos?.map((video: any) => video.response) ?? [],
         attachments:
@@ -126,26 +182,6 @@ const CourseLessonMaterial = () => {
           [],
       },
     ]);
-  };
-
-  const getOrderOptions = () => {
-    const defaultOption = {
-      label: 'Add at the end',
-      value: parseFloat(
-        ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
-      ),
-    };
-
-    const materialOptions = (lesson?.courseLessonMaterials || [])
-      .filter(
-        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
-      ) // Exclude current material if editing
-      .map((material) => ({
-        label: material.title,
-        value: material.order,
-      }));
-
-    return [defaultOption, ...materialOptions];
   };
 
   return (
@@ -222,6 +258,7 @@ const CourseLessonMaterial = () => {
             title="Upload Your video"
             accept="video/*"
             maxCount={1}
+            targetState="fileList"
           />
         </Form.Item>
         <Form.Item
@@ -239,6 +276,7 @@ const CourseLessonMaterial = () => {
             className="w-full mt-3"
             listType="picture"
             title="Upload Your Attachment"
+            targetState="fileAttachmentList"
           />
         </Form.Item>
         <Row gutter={24}>
@@ -260,10 +298,8 @@ const CourseLessonMaterial = () => {
               name="order"
               label="Insert Before"
               className="form-item"
-              rules={[{ required: true, message: 'Required' }]}
-              initialValue={parseFloat(
-                ((lesson?.courseLessonMaterials?.length || 0) + 1).toString(),
-              )}
+              rules={[{ required: true, message: 'Please select a position' }]}
+              initialValue={0} // Set default value to 0
             >
               <Select
                 className="control"
@@ -275,7 +311,7 @@ const CourseLessonMaterial = () => {
                     .toLowerCase()
                     .includes(input.toLowerCase())
                 }
-                options={getOrderOptions()}
+                options={getOrderOptions(lesson?.courseLessonMaterials ?? [])}
               />
             </Form.Item>
           </Col>

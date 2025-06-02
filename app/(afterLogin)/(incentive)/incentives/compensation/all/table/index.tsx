@@ -124,13 +124,19 @@ const AllIncentiveTable: React.FC = () => {
               </div>
             ),
             status: (
-              <div className="rounded-lg px-3 py-2 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
+              <div className="inline-block">
                 {item?.isPaid ? (
-                  <span className="font-semibold text-md">Paid</span>
+                  <div className="rounded-lg bg-[#55C79033] py-1 px-6">
+                    <span className="text-[#0CAF60] font-semibold text-md">
+                      Paid
+                    </span>
+                  </div>
                 ) : (
-                  <span className="text-[#E03137] font-semibold text-md">
-                    Not Paid
-                  </span>
+                  <div className="rounded-lg bg-[#FFEDEC] py-1 px-4">
+                    <span className="text-[#E03137] font-semibold text-md">
+                      Not Paid
+                    </span>
+                  </div>
                 )}
               </div>
             ),

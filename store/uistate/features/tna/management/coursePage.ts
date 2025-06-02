@@ -1,5 +1,6 @@
 import { create, StateCreator } from 'zustand';
 import { Course, CourseLesson, CourseLessonMaterial } from '@/types/tna/course';
+import { UploadFile } from 'antd';
 
 type TnaManagementCoursePageState = {
   isShowAddLesson: boolean;
@@ -23,6 +24,11 @@ type TnaManagementCoursePageAction = {
   setLesson: (lesson: CourseLesson | null) => void;
   setLessonMaterial: (lessonMaterial: CourseLessonMaterial | null) => void;
   setActiveKey: (activeKey: string | string[] | undefined) => void; // ✅ should be a function
+  fileList: UploadFile[];
+  setFileList: (fileList: UploadFile[]) => void;
+
+  fileAttachmentList: UploadFile[];
+  setFileAttachmentList: (fileAttachmentList: UploadFile[]) => void;
 };
 
 const tnaManagementCoursePageSlice: StateCreator<
@@ -36,6 +42,16 @@ const tnaManagementCoursePageSlice: StateCreator<
   course: null,
   setCourse: (course: Course | null) => {
     set({ course });
+  },
+
+  fileAttachmentList: [],
+  setFileAttachmentList: (fileAttachmentList: UploadFile[]) => {
+    set({ fileAttachmentList });
+  },
+
+  fileList: [],
+  setFileList: (fileList: UploadFile[]) => {
+    set({ fileList });
   },
 
   refetchCourse: null,

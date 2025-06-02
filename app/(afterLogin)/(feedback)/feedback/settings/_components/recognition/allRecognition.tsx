@@ -102,6 +102,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     return (
       <>
         <Card
+          bodyStyle={{ padding: '0px' }} // Adjust padding for better spacing
           key={item?.id}
           title={item?.name}
           extra={
@@ -136,17 +137,19 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
         >
           <Card.Meta
             description={
-              <Table
-                columns={columns}
-                dataSource={
-                  item?.recognitionCriteria?.map((criteria: any) => ({
-                    ...criteria,
-                    recognitionTypeId: item?.id, // Add recognitionTypeId
-                  })) || []
-                }
-                rowKey="id" // Ensure rowKey is unique, changed from `criterionKey` to `id`
-                pagination={false} // Disable pagination if not needed
-              />
+              <div className="overflow-x-auto">
+                <Table
+                  columns={columns}
+                  dataSource={
+                    item?.recognitionCriteria?.map((criteria: any) => ({
+                      ...criteria,
+                      recognitionTypeId: item?.id, // Add recognitionTypeId
+                    })) || []
+                  }
+                  rowKey="id" // Ensure rowKey is unique, changed from `criterionKey` to `id`
+                  pagination={false} // Disable pagination if not needed
+                />
+              </div>
             }
           />
         </Card>
