@@ -9,7 +9,7 @@ import { Button, Tooltip } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 
 interface TabLandingLayoutProps {
-  title: string | any;
+  title?: string | any;
   subtitle?: string | any;
   buttonTitle?: string | any;
   buttonIcon?: ReactNode;
@@ -37,10 +37,14 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   permissionsData = [],
 }) => {
   return (
-    <div className="min-h-screen h-auto w-full bg-gray-100">
-      <BlockWrapper className="bg-gray-100 ">
+    <div className="min-h-screen h-auto w-full bg-white">
+      <BlockWrapper className="bg-white ">
         <div className="flex flex-wrap justify-between items-center">
-          <CustomBreadcrumb title={title} subtitle={subtitle ?? ''} />
+          <CustomBreadcrumb
+            title={title}
+            subtitle={subtitle ?? ''}
+            isRecognition={true}
+          />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
             {!buttonDisabled
               ? buttonTitle && (
