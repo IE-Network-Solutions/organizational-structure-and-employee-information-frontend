@@ -1,24 +1,26 @@
 'use client';
-// lib/mentionExtension.ts
 import { Mention } from '@tiptap/extension-mention';
 import { ReactRenderer } from '@tiptap/react';
-import tippy from 'tippy.js';
+import tippy, { Instance as TippyInstance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import MentionList from './MentionList';
 
-export function createMentionExtension(
-  attendees: { id: string; label: string; profileImage: string }[],
-) {
+interface Attendee {
+  id: string;
+  label: string;
+  profileImage: string;
+}
+
+export function createMentionExtension(attendees: Attendee[]) {
   return Mention.extend({
     addAttributes() {
       return {
-        id: {},
-        label: {},
-        profileImage: {},
+        id: { default: null },
+        label: { default: null },
+        profileImage: { default: '/userIcon.png' },
       };
     },
 
-    // ✅ Parses HTML into mention nodes
     parseHTML() {
       return [
         {
@@ -38,7 +40,6 @@ export function createMentionExtension(
       ];
     },
 
-    // ✅ Renders mention node as HTML
     renderHTML({ node }) {
       return [
         'span',
@@ -64,14 +65,15 @@ export function createMentionExtension(
     },
     suggestion: {
       char: '@',
-      items: ({ query }) => {
-        return attendees.filter((item) =>
-          item.label?.toLowerCase().includes(query.toLowerCase()),
-        );
-      },
+      items: ({ query }) =>
+        attendees
+          .filter((item) =>
+            item.label.toLowerCase().includes(query.toLowerCase()),
+          )
+          .slice(0, 5), // optional: limit suggestions
       render: () => {
-        let component: any;
-        let popup: any;
+        let component: ReactRenderer | null = null;
+        let popup: TippyInstance | null = null;
 
         return {
           onStart: (props) => {
@@ -80,27 +82,36 @@ export function createMentionExtension(
               editor: props.editor,
             });
 
-            popup = tippy(
-              document.body.appendChild(document.createElement('div')),
-              {
-                getReferenceClientRect: props.clientRect as () => DOMRect,
-                appendTo: () => document.body,
-                content: component.element,
-                showOnCreate: true,
-                interactive: true,
-                theme: 'mention',
-              },
-            );
+            const dom = document.createElement('div');
+            dom.appendChild(component.element);
+
+            popup = tippy(document.body, {
+              getReferenceClientRect: props.clientRect as () => DOMRect,
+              appendTo: () => document.body,
+              content: dom,
+              showOnCreate: true,
+              interactive: true,
+              trigger: 'manual',
+              placement: 'bottom-start',
+              theme: 'mention',
+            });
           },
           onUpdate(props) {
-            component.updateProps(props);
-            popup[0].setProps({
-              getReferenceClientRect: props.clientRect,
+            component?.updateProps(props);
+            popup?.setProps({
+              getReferenceClientRect: () => {
+                const rect = props.clientRect?.();
+                // Fallback to a default rect if null
+                return (
+                  rect ||
+                  new DOMRect(0, 0, 0, 0)
+                );
+              },
             });
           },
           onExit() {
-            popup[0].destroy();
-            component.destroy();
+            popup?.destroy();
+            component?.destroy();
           },
         };
       },
