@@ -480,7 +480,7 @@ export default function AddNewMeetingForm() {
   }
   rules={[
     {
-      validator: async (_, value) => {
+      validator: async (notused, value) => {
         if (!value) {
           return Promise.reject(new Error('Email is required'));
         }
