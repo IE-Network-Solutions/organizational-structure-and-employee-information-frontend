@@ -3,7 +3,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import TextEditor from '@/components/form/textEditor';
@@ -23,6 +23,7 @@ const CourseLessonMaterial = () => {
     isShowAddLesson,
     lessonMaterial,
     setLessonMaterial,
+    isFileUploadLoading,
   } = useTnaManagementCoursePageStore();
   const {
     data: lessonMaterialData,
@@ -114,7 +115,7 @@ const CourseLessonMaterial = () => {
       className: 'h-10',
       type: 'primary',
       size: 'large',
-      loading: isLoading || isLoadingMaterial,
+      loading: isLoading || isLoadingMaterial||isFileUploadLoading?.video||isFileUploadLoading?.attachment,
       onClick: () => {
         form.submit();
       },
@@ -241,6 +242,7 @@ const CourseLessonMaterial = () => {
         >
           <TextEditor className="mt-3" placeholder="Enter the Article" />
         </Form.Item>
+        <Spin spinning={isFileUploadLoading.video}>
         <Form.Item
           name="videos"
           label="Video"
@@ -251,16 +253,19 @@ const CourseLessonMaterial = () => {
             return Array.isArray(e) ? e : e && e.fileList;
           }}
         >
-          <CustomUpload
-            mode="dragWithLink"
-            className="w-full mt-3"
-            listType="picture"
-            title="Upload Your video"
-            accept="video/*"
-            maxCount={1}
-            targetState="fileList"
-          />
-        </Form.Item>
+            <CustomUpload
+              mode="dragWithLink"
+              className="w-full mt-3"
+              listType="picture"
+              title="Upload Your video"
+              accept="video/*"
+              maxCount={1}
+              targetState="fileList"
+              uploadType="video"
+            />
+          </Form.Item>
+        </Spin>
+        <Spin spinning={isFileUploadLoading.attachment}>
         <Form.Item
           name="attachments"
           label="Attachment"
@@ -271,14 +276,16 @@ const CourseLessonMaterial = () => {
             return Array.isArray(e) ? e : e && e.fileList;
           }}
         >
-          <CustomUpload
-            mode="dragWithLink"
-            className="w-full mt-3"
-            listType="picture"
-            title="Upload Your Attachment"
-            targetState="fileAttachmentList"
-          />
+            <CustomUpload
+              mode="dragWithLink"
+              className="w-full mt-3"
+              listType="picture"
+              title="Upload Your Attachment"
+              targetState="fileAttachmentList"
+              uploadType="attachment"
+            />
         </Form.Item>
+        </Spin>
         <Row gutter={24}>
           <Col span={12}>
             <Form.Item
