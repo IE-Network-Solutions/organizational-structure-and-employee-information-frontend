@@ -108,6 +108,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       item: {
     
         key: 'meeting-type',
+
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${
