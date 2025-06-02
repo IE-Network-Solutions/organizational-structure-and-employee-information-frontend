@@ -28,6 +28,9 @@ type MyTimesheetState = {
   location: { lat: null | number; lng: null | number };
   showLeaveHistoryFilter: boolean;
   setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) => void;
+  currentPage: number;
+  pageSize: number;
+  resetPagination: () => void;
 };
 
 type MyTimesheetAction = {
@@ -48,6 +51,8 @@ type MyTimesheetAction = {
   setBreakTypes: (breakTypes: BreakType[]) => void;
   setViewAttendanceId: (viewAttendanceId: string | null) => void;
   setLocation: (location: { lat: null | number; lng: null | number }) => void;
+  setCurrentPage: (currentPage: number) => void;
+  setPageSize: (pageSize: number) => void;
 };
 
 const useMyTimesheetSlice: StateCreator<
@@ -131,6 +136,16 @@ const useMyTimesheetSlice: StateCreator<
   viewAttendanceId: null,
   setViewAttendanceId: (viewAttendanceId: string | null) => {
     set({ viewAttendanceId });
+  },
+
+  currentPage: 1,
+  setCurrentPage: (currentPage) => set({ currentPage }),
+
+  pageSize: 10,
+  setPageSize: (pageSize) => set({ pageSize }),
+
+  resetPagination: () => {
+    set({ currentPage: 1, pageSize: 10 });
   },
 
   location: { lat: null, lng: null },

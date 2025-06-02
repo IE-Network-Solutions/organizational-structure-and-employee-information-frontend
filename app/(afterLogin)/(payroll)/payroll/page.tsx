@@ -899,6 +899,7 @@ const Payroll = () => {
           <Popconfirm
             title={
               payroll?.items.length
+
                 ? 'Are you sure you want to regenerate the payroll ?'
                 : 'Are you sure you want to generate the payroll ?'
             }
@@ -916,6 +917,7 @@ const Payroll = () => {
               <Tooltip
                 title={
                   payroll?.items.length > 0
+
                     ? 'Regenerate Payroll'
                     : 'Generate Payroll'
                 }
@@ -929,6 +931,7 @@ const Payroll = () => {
                   {isMobile ? (
                     <TbFileExport size={24} />
                   ) : payroll?.items.length > 0 ? (
+
                     'Regenerate'
                   ) : (
                     'Generate'

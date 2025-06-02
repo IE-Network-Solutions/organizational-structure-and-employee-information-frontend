@@ -55,7 +55,7 @@ export function createMentionExtension(
             class: 'w-5 h-5 rounded-full',
           },
         ],
-        ['span', { class: 'text-sm' }, node.attrs.label],
+        ['span', { class: 'text-[10px]' }, node.attrs.label],
       ];
     },
   }).configure({

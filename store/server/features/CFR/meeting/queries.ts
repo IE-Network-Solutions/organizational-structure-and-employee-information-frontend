@@ -111,3 +111,56 @@ export const useGetUserMeetings = (id: string | null) => {
     },
   );
 };
+//prev meeting
+const getPrevMeetings = async (meetingTypeId: string, userId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/meetings/previous-meetings?meetingTypeId=${meetingTypeId}&userId=${userId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+export const useGetPrevMeetings = (
+  meetingTypeId: string,
+  userId: string,
+): ReturnType<typeof useQuery<UseGetMeetingsParams>> => {
+  return useQuery<any>(
+    ['meeting-prev', meetingTypeId, userId], // Unique query key based on params
+    () => getPrevMeetings(meetingTypeId, userId),
+    {
+      enabled: !!meetingTypeId && !!userId,
+    },
+  );
+};
+
+//meeting comments
+const getMeetingComments = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/meeting-comments/by-meeting/${id}
+`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+export const useGetMeetingComments = (
+  id: string,
+): ReturnType<typeof useQuery<any>> => {
+  return useQuery<any>(
+    ['meeting-comments', id], // Unique query key based on params
+    () => getMeetingComments(id),
+    {
+      enabled: !!id, // Ensures id is truthy and not null or empty
+    },
+  );
+};

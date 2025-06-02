@@ -74,6 +74,17 @@ interface MeetingStore {
   setPagesizeType: (value: number) => void;
   currentType: number;
   setCurrentType: (value: number) => void;
+
+  pageSizeAction: number;
+  setPagesizeAction: (value: number) => void;
+  currentAction: number;
+  setCurrentAction: (value: number) => void;
+  showComments: boolean;
+  setShowComments: (value: boolean) => void;
+  comments: string;
+  setComments: (value: string) => void;
+  commentUpdate: string | null;
+  setCommentUpdate: (value: string) => void;
 }
 
 export const useMeetingStore = create<MeetingStore>((set) => ({
@@ -139,4 +150,15 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
   setPagesizeType: (value) => set({ pageSizeType: value }),
   currentType: 1,
   setCurrentType: (value) => set({ currentType: value }),
+
+  pageSizeAction: 5,
+  setPagesizeAction: (value) => set({ pageSizeAction: value }),
+  currentAction: 1,
+  setCurrentAction: (value) => set({ currentAction: value }),
+  showComments: false,
+  setShowComments: (value) => set({ showComments: value }),
+  comments: '',
+  setComments: (value) => set({ comments: value }),
+  commentUpdate: null,
+  setCommentUpdate: (value) => set({ commentUpdate: value }),
 }));
