@@ -43,6 +43,9 @@ import { LuSettings2 } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
 import GeneratePayrollModal, { Incentive } from './_components/modal';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,7 +53,6 @@ const Payroll = () => {
   const [bankLetter, setBankLetter] = useState(true);
   const [paySlip, setPaySlip] = useState(false);
   const [exportPayrollData, setExportPayrollData] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const {
     searchQuery,
     setSearchQuery,
@@ -59,15 +61,22 @@ const Payroll = () => {
     isPayrollModalOpen,
     setIsPayrollModalOpen,
   } = useEmployeeStore();
+
+  const { pageSize, currentPage, setCurrentPage, setPageSize } =
+    usePayrollStore();
+
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
-  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+  const { data: payroll, refetch } = useGetActivePayroll(
+    searchQuery,
+    pageSize,
+    currentPage,
+  );
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
@@ -82,8 +91,8 @@ const Payroll = () => {
     useDeletePayroll();
 
   useEffect(() => {
-    if (payroll?.payrolls && allEmployees?.items) {
-      const mergedData = payroll?.payrolls.map((pay: any) => {
+    if (payroll?.items && allEmployees?.items) {
+      const mergedData = payroll?.items.map((pay: any) => {
         const employee = allEmployees.items.find(
           (emp: any) => emp.id === pay.employeeId,
         );
@@ -161,7 +170,7 @@ const Payroll = () => {
     }
 
     const searchParams = queryParams.toString()
-      ? `?${queryParams.toString()}`
+      ? `&${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
     refetch();
@@ -760,7 +769,7 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
 
   const handleEmployeeSelect = (value: string) => {
     setSearchValue((prev) => {
@@ -776,6 +785,16 @@ const Payroll = () => {
       employeeData: emp,
     })) || [];
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setCurrentPage(1);
+  };
   return (
     <div
       className={isMobile ? 'pt-[16px] bg-gray-100' : 'pt-[16px] bg-white'}
@@ -879,14 +898,14 @@ const Payroll = () => {
           )}
           <Popconfirm
             title={
-              payroll?.payrolls.length
+              payroll?.items.length
                 ? 'Are you sure you want to regenerate the payroll ?'
                 : 'Are you sure you want to generate the payroll ?'
             }
             onConfirm={handleDeletePayroll}
             okText="Yes"
             cancelText="No"
-            disabled={!(payroll?.payrolls.length > 0)}
+            disabled={!(payroll?.items.length > 0)}
           >
             <AccessGuard
               permissions={[
@@ -896,7 +915,7 @@ const Payroll = () => {
             >
               <Tooltip
                 title={
-                  payroll?.payrolls.length > 0
+                  payroll?.items.length > 0
                     ? 'Regenerate Payroll'
                     : 'Generate Payroll'
                 }
@@ -909,7 +928,7 @@ const Payroll = () => {
                 >
                   {isMobile ? (
                     <TbFileExport size={24} />
-                  ) : payroll?.payrolls.length > 0 ? (
+                  ) : payroll?.items.length > 0 ? (
                     'Regenerate'
                   ) : (
                     'Generate'
@@ -1033,14 +1052,24 @@ const Payroll = () => {
           <Table
             dataSource={mergedPayroll || []}
             columns={columns}
-            pagination={{
-              current: currentPage,
-              pageSize: 6,
-              onChange: setCurrentPage,
-              simple: isMobile,
-              position: isMobile ? ['bottomCenter'] : ['bottomRight'],
-            }}
+            pagination={false}
           />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={payroll?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+            />
+          ) : (
+            <CustomPagination
+              current={currentPage}
+              total={payroll?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageSizeChange}
+            />
+          )}
         </div>
         <Modal
           title="Export for Bank"

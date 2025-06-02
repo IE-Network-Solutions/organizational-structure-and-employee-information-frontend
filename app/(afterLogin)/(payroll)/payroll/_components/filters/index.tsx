@@ -9,6 +9,7 @@ import {
 import dayjs from 'dayjs';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 const { Option } = Select;
 
@@ -37,8 +38,8 @@ const Filters: React.FC<FiltersProps> = ({
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: departmentData } = useGetDepartments();
 
-  const { data: payroll } = useGetActivePayroll();
-
+  const { pageSize, currentPage } = usePayrollStore();
+  const { data: payroll } = useGetActivePayroll('', pageSize, currentPage);
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({
     ...defaultValues,
   });
@@ -76,8 +77,8 @@ const Filters: React.FC<FiltersProps> = ({
   }, [getAllFiscalYears, employeeData]);
 
   useEffect(() => {
-    if (payroll?.payrolls.length > 0) {
-      const defaultPayPeriodId = payroll.payrolls[0]?.payPeriodId;
+    if (payroll?.items.length > 0) {
+      const defaultPayPeriodId = payroll.items[0]?.payPeriodId;
       const defaultPayPeriod = payPeriodData?.find(
         (period: any) => period.id === defaultPayPeriodId,
       );
@@ -93,7 +94,7 @@ const Filters: React.FC<FiltersProps> = ({
         });
       }
     }
-  }, [payroll?.payrolls, payPeriodData]);
+  }, [payroll?.items, payPeriodData]);
 
   const handleEmployeeSelect = (value: string) => {
     setSearchValue((prev) => {
