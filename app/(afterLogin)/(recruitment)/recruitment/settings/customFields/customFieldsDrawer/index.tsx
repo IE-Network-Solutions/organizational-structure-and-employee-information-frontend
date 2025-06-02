@@ -305,7 +305,7 @@ const CustomFieldsDrawer: React.FC<{
             </Button>
             <Button
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
-              htmlType="submit"
+              onClick={() => form.submit()}
             >
               {isEdit ? 'Update Template' : 'Create'}
             </Button>
