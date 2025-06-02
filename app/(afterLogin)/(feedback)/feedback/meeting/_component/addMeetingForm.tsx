@@ -465,42 +465,47 @@ export default function AddNewMeetingForm() {
                         </Form.Item>
 
                         <Form.Item
-                          {...restField}
-                          name={[name, 'email']}
-                          label={
-                            <div className="flex justify-between items-center w-64">
-                              <span>Email</span>
-                              <Button
-                                icon={<MdClose />}
-                                type="link"
-                                className="text-black ml-4"
-                                onClick={() => remove(name)}
-                              />
-                            </div>
-                          }
-                          rules={[
-                            {
-                              validator: (notused, value) => {
-                                if (!value) {
-                                  return Promise.reject(
-                                    new Error('Email is required'),
-                                  );
-                                }
-                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                                if (!emailRegex.test(value)) {
-                                  return Promise.reject(
-                                    new Error('Enter a valid email'),
-                                  );
-                                }
+  {...restField}
+  name={[name, 'email']}
+  label={
+    <div className="flex justify-between items-center w-64">
+      <span>Email</span>
+      <Button
+        icon={<MdClose />}
+        type="link"
+        className="text-black ml-4"
+        onClick={() => remove(name)}
+      />
+    </div>
+  }
+  rules={[
+    {
+      validator: async (_, value) => {
+        if (!value) {
+          return Promise.reject(new Error('Email is required'));
+        }
 
-                                return Promise.resolve();
-                              },
-                            },
-                          ]}
-                          className="w-full"
-                        >
-                          <Input placeholder="Email" type="email" />
-                        </Form.Item>
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          return Promise.reject(new Error('Enter a valid email'));
+        }
+
+        const allValues = form.getFieldValue('guests') || [];
+        const emails = allValues.map((g: any) => g?.email?.toLowerCase());
+        const duplicates = emails.filter((e:any) => e === value.toLowerCase());
+
+        if (duplicates.length > 1) {
+          return Promise.reject(new Error('This email is already added'));
+        }
+
+        return Promise.resolve();
+      },
+    },
+  ]}
+  className="w-full"
+>
+  <Input placeholder="Email" type="email" />
+</Form.Item>
                       </div>
                     ))}
                     <div className="flex justify-end">
