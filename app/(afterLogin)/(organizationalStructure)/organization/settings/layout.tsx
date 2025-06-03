@@ -8,6 +8,7 @@ import SidebarMenu from '@/components/sidebarMenu';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { Skeleton } from 'antd';
+import { usePathname } from 'next/navigation';
 
 interface SettingsLayoutProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ interface SettingsLayoutProps {
 
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const { token } = useAuthenticationStore();
+  const pathname = usePathname();
 
   const {
     data: activeFiscalYear,
@@ -35,8 +37,16 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'branches',
-        icon: <TbNotes className="hidden lg:block" />,
-        label: <p className="menu-item-label">Branches</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/branches') ? 'lg:ml-4' : ''}`}
+          >
+            <TbNotes
+              className={`hidden lg:block ${pathname.includes('/organization/settings/branches') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label">Branches</p>
+          </div>
+        ),
       },
       link: '/organization/settings/branches',
       disabled: hasEndedFiscalYear,
@@ -44,16 +54,32 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'fiscalYearCard',
-        icon: <TbNotes className="hidden lg:block" />,
-        label: <p className="menu-item-label">Fiscal Year</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/fiscalYear') ? 'lg:ml-4' : ''}`}
+          >
+            <TbNotes
+              className={`hidden lg:block ${pathname.includes('/organization/settings/fiscalYear') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label">Fiscal Year</p>
+          </div>
+        ),
       },
       link: '/organization/settings/fiscalYear/fiscalYearCard',
     },
     {
       item: {
         key: 'workSchedule',
-        icon: <TbNotes className="hidden lg:block" />,
-        label: <p className="menu-item-label">Work Schedule</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/workSchedule') ? 'lg:ml-4' : ''}`}
+          >
+            <TbNotes
+              className={`hidden lg:block ${pathname.includes('/organization/settings/workSchedule') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label">Work Schedule</p>
+          </div>
+        ),
       },
       link: '/organization/settings/workSchedule',
       disabled: hasEndedFiscalYear,
