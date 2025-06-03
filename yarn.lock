@@ -6748,9 +6748,10 @@ prop-types@^15.6.1, prop-types@^15.7.2, prop-types@^15.8.1:
     react-is "^16.13.1"
 
 prosemirror-changeset@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/prosemirror-changeset/-/prosemirror-changeset-2.3.0.tgz"
-  integrity sha512-8wRKhlEwEJ4I13Ju54q2NZR1pVKGTgJ/8XsQ8L5A5uUsQ/YQScQJuEAuh8Bn8i6IwAMjjLRABd9lVli+DlIiVw==
+
+  version "2.3.1"
+  resolved "https://registry.npmjs.org/prosemirror-changeset/-/prosemirror-changeset-2.3.1.tgz"
+  integrity sha512-j0kORIBm8ayJNl3zQvD1TTPHJX3g042et6y/KQhZhnPrruO8exkTgG8X+NRpj7kIyMMEx74Xb3DyMIBtO0IKkQ==
   dependencies:
     prosemirror-transform "^1.0.0"
 
