@@ -32,6 +32,8 @@ import { useGetSimpleEmployee } from '@/store/server/features/employees/employee
 import TnaApprovalTable from './_components/approvalTabel';
 import { useGetTnaByUser, useGetTna } from '@/store/server/features/tna/review/queries';
 import { useSetTna } from '@/store/server/features/tna/review/mutation';
+import { useIsMobile } from '@/hooks/useIsMobile';
+
 
 const TnaReviewPage = () => {
   const EmpRender = ({ userId }: any) => {
@@ -82,6 +84,8 @@ const TnaReviewPage = () => {
     { page, limit, orderBy, orderDirection },
     { filter },
   );
+  const { isMobile, isTablet } = useIsMobile();
+
   const {
     mutate: deleteTna,
     isLoading: isLoadingDelete,
@@ -237,7 +241,7 @@ const TnaReviewPage = () => {
   return (
     <div className="page-wrap">
       <TnaApprovalTable />
-      <BlockWrapper>
+      <BlockWrapper withBackground={false}>
         <PageHeader title="MY TNA">
           <Space size={20}>
             <DatePicker.RangePicker
@@ -257,20 +261,30 @@ const TnaReviewPage = () => {
                 }
               }}
             />
-            <AccessGuard permissions={[Permissions.CreateTna]}>
-              <Button
-                icon={<LuPlus size={16} />}
-                className="h-[54px]"
-                type="primary"
-                size="large"
-                onClick={() => setIsShowTnaReviewSidebar(true)}
-              >
-                New TNA
-              </Button>
-            </AccessGuard>
+            {isMobile || isTablet ? (
+              <AccessGuard permissions={[Permissions.CreateTna]}>
+                <Button
+                  className="p-6 mr-2 border border-gray-300"
+                  type="primary"
+                  onClick={() => setIsShowTnaReviewSidebar(true)}
+                  icon={<LuPlus size={20} />}
+                />
+              </AccessGuard>
+            ) : (
+              <AccessGuard permissions={[Permissions.CreateTna]}>
+                <Button
+                  icon={<LuPlus size={16} />}
+                  className="h-[54px]"
+                  type="primary"
+                  size="large"
+                  onClick={() => setIsShowTnaReviewSidebar(true)}
+                >
+                  New TNA
+                </Button>
+              </AccessGuard>
+            )}
           </Space>
         </PageHeader>
-
         <Table
           className="mt-6"
           columns={tableColumns}
@@ -283,6 +297,7 @@ const TnaReviewPage = () => {
             setOrderDirection(sorter['order']);
             setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
           }}
+          scroll={{ x: 'min-content' }}
         />
       </BlockWrapper>
 

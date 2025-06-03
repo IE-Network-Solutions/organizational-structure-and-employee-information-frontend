@@ -29,7 +29,6 @@ const fetchProjectIncentiveData = async (
 ) => {
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive?employee_name=${employeeName}&project=${project}&recognition=${recognition}&year=${year}&&sessions=${session}`,
-    // url: 'https://mocki.io/v1/5fe0076e-72f0-4e89-a30b-0d296b5bd123',
     method: 'GET',
     headers: requestHeader(),
   });

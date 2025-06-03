@@ -52,8 +52,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { setLocalId, setTenantId, setToken, setUserId, setError } =
-    useAuthenticationStore();
+  const {
+    setLocalId,
+    setTenantId,
+    setToken,
+    setUserId,
+    setError,
+    setActiveCalendar,
+    setLoggedUserRole,
+    setUserData,
+  } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
   const [expandedKeys, setExpandedKeys] = useState<
@@ -562,17 +570,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setMobileCollapsed(!mobileCollapsed);
   };
 
-  const handleLogout = () => {
-    setToken('');
-    setTenantId('');
-    setLocalId('');
-    removeCookie('token');
-    router.push(`/authentication/login`);
-    setUserId('');
-    setLocalId('');
-    setError('');
-    removeCookie('tenantId');
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      setUserData({});
+      setLoggedUserRole('');
+      setActiveCalendar('');
+      setUserId('');
+      setError('');
+
+      // Then remove cookies
+      removeCookie('token');
+      removeCookie('tenantId');
+      removeCookie('activeCalendar');
+      removeCookie('loggedUserRole');
+
+      // Finally clear the remaining state
+      setToken('');
+      setTenantId('');
+      setLocalId('');
+
+      await router.push('/authentication/login');
+    } catch (error) {}
   };
 
   const filteredMenuItems = treeData
@@ -731,7 +749,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         )}
 
         <div className="relative">
-          <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
+          <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
           {isLoading ? (
             <div className="px-5 w-full h-full flex justify-center items-center my-5">
               <Skeleton active />{' '}
@@ -745,7 +763,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               selectedKeys={selectedKeys}
               onSelect={handleSelect}
               onDoubleClick={handleDoubleClick}
-              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]:!shadow-lg [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
+              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
               switcherIcon={null}
             />
           )}
@@ -812,8 +830,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
             style={{
               borderRadius: borderRadiusLG,
-              marginTop: '3rem',
-              marginRight: `${isMobile ? 0 : !isAdminPage ? '1.3rem' : ''}`,
+              marginTop: '94px',
+              marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
             }}
           >
             {children}

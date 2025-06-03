@@ -42,7 +42,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
-        key: 'approval-workflow',
+        key: 'approvals',
         icon: <TbLayoutList className="hidden lg:block" />,
         label: <p className="menu-item-label">Approval Workflow</p>,
         className: 'px-1',

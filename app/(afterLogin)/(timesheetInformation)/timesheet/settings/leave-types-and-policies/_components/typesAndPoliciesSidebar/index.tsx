@@ -303,7 +303,23 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`}
               label="Maximum allowed consecutive days"
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                { required: true, message: 'Required' },
+                {
+                  /* eslint-disable @typescript-eslint/naming-convention */
+                  validator: (_, value) => {
+                    /* eslint-enable @typescript-eslint/naming-convention */
+
+                    const entitledDays = form.getFieldValue('entitled');
+                    if (value > entitledDays) {
+                      return Promise.reject(
+                        'Maximum consecutive days cannot exceed entitled days',
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
               name="max"
             >
               <InputNumber
