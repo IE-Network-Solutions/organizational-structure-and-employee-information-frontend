@@ -29,12 +29,14 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import UserCard from '@/components/common/userCard/userCard';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import TnaApprovalTable from './_components/approvalTabel';
-import { useGetTnaByUser, useGetTna } from '@/store/server/features/tna/review/queries';
+import {
+  useGetTnaByUser,
+  useGetTna,
+} from '@/store/server/features/tna/review/queries';
 import { useSetTna } from '@/store/server/features/tna/review/mutation';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
-
 
 const TnaReviewPage = () => {
   const EmpRender = ({ userId }: any) => {
@@ -94,14 +96,14 @@ const TnaReviewPage = () => {
   } = useDeleteTna();
   const [selectedTnaId, setSelectedTnaId] = useState<string | null>(null);
   const { mutate: updateTna } = useSetTna();
-  
+
   // Add this to get current TNA data
   const { data: currentTnaData } = useGetTna(
     { page: 1, limit: 1 },
     { filter: { id: selectedTnaId ? [selectedTnaId] : [] } },
     '',
     false,
-    !!selectedTnaId
+    !!selectedTnaId,
   );
 
   useEffect(() => {
@@ -229,12 +231,14 @@ const TnaReviewPage = () => {
     if (selectedTnaId && currentTnaData?.items?.[0]) {
       const currentData = currentTnaData.items[0];
       updateTna({
-        items: [{
-          ...currentData,  // Keep existing data
-          ...values,       // Override with new values
-          id: selectedTnaId,
-          updatedAt: new Date().toISOString()
-        }]
+        items: [
+          {
+            ...currentData, // Keep existing data
+            ...values, // Override with new values
+            id: selectedTnaId,
+            updatedAt: new Date().toISOString(),
+          },
+        ],
       });
     }
   };
