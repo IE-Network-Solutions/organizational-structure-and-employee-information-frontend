@@ -329,7 +329,7 @@ const TypesAndPoliciesEdit = () => {
                       <InputNumber
                         min={1}
                         placeholder="Year"
-                        className="h-[40px] w-24"
+                        className="h-[40px] w-full"
                       />
                     </Form.Item>
                     <Form.Item
@@ -340,17 +340,18 @@ const TypesAndPoliciesEdit = () => {
                       <InputNumber
                         min={1}
                         placeholder="Entitled Days"
-                        className="h-[40px] w-32"
+                        className="h-[40px] w-full"
                       />
                     </Form.Item>
                   </div>
                 )}
-                {isIncremental && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    Every <b>{incrementalYear || '__'}</b> years add{' '}
-                    <b>{incrementAmount || '__'}</b> additional day(s)
-                  </div>
-                )}
+                 {isIncremental && (
+                <div className="text-[11px] text-gray-500 mt-1 mb-4 flex items-center gap-1">
+                  <InfoCircleOutlined className="text-gray-500" />
+                  Every <b>{incrementalYear || '__'}</b> years add{' '}
+                  <b>{incrementalDays || '__'}</b> additional day(s)
+                </div>
+              )}
               </div>
               <Form.Item
                 id={`TypesAndPoliciesMinAllowedDaysFieldId`}
