@@ -15,7 +15,6 @@ import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/t
 import { useRouter } from 'next/navigation';
 
 import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { TnaRequestBody } from '@/store/server/features/tna/review/interface';
 import {
   TrainingNeedAssessment,
@@ -33,6 +32,8 @@ import TnaApprovalTable from './_components/approvalTabel';
 import { useGetTnaByUser, useGetTna } from '@/store/server/features/tna/review/queries';
 import { useSetTna } from '@/store/server/features/tna/review/mutation';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 
 const TnaReviewPage = () => {
@@ -237,6 +238,16 @@ const TnaReviewPage = () => {
       });
     }
   };
+  const onPageChange = (page: number, pageSize?: number) => {
+    setPage(page);
+    if (pageSize) {
+      setLimit(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setLimit(pageSize);
+    setPage(1);
+  };
 
   return (
     <div className="page-wrap">
@@ -290,15 +301,29 @@ const TnaReviewPage = () => {
           columns={tableColumns}
           dataSource={tableData}
           loading={isLoading || isLoadingDelete}
-          pagination={DefaultTablePagination(data?.meta?.totalItems)}
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 10);
+          onChange={(sorter: any) => {
             setOrderDirection(sorter['order']);
             setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
           }}
           scroll={{ x: 'min-content' }}
+          pagination={false}
         />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            current={page}
+            total={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageSizeChange}
+          />
+        )}
       </BlockWrapper>
 
       <TnaRequestSidebar />

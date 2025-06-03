@@ -7,13 +7,12 @@ import {
   Col,
   Dropdown,
   Menu,
-  Pagination,
   Row,
   Spin,
   Tooltip,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
@@ -43,6 +42,9 @@ import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
 
 const { Title } = Typography;
 
@@ -61,7 +63,7 @@ function Planning() {
     activePlanPeriodId,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
-
+  const { isMobile, isTablet } = useIsMobile();
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
@@ -106,6 +108,11 @@ function Planning() {
     planningPeriodId ?? '',
     activeTab.toString(),
   );
+
+  useEffect(() => {
+    setPage(1);
+    setPageSize(10);
+  }, [activeTab, setPage, setPageSize]);
 
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
     allPlanning?.items ?? [],
@@ -399,11 +406,38 @@ function Planning() {
             </Card>
           </>
         ))}
-
-        <Pagination
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={allPlanning?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={page}
+            total={allPlanning?.meta?.totalItems || 1}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        )}
+        {/* <Pagination
           disabled={!allPlanning?.items?.length} // Ensures no crash if items is undefined
           className="flex justify-end"
-          total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
+            total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
           current={page}
           pageSize={pageSize} // Dynamically control page size
           showSizeChanger // Allows user to change page size
@@ -412,7 +446,7 @@ function Planning() {
             setPageSize(pageSize); // Ensure page size updates dynamically
           }}
           pageSizeOptions={['10', '20', '50', '100']}
-        />
+        /> */}
 
         {transformedData?.length <= 0 && (
           <div className="flex justify-center">

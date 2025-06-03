@@ -91,6 +91,8 @@ const UploadSection: React.FC<UploadSectionProps> = ({
                 title="Upload Your Audio"
                 accept="audio/*"
                 maxCount={1}
+                targetState="fileList"
+
               />
             </Form.Item>
 
@@ -107,6 +109,8 @@ const UploadSection: React.FC<UploadSectionProps> = ({
                 listType="picture"
                 title="Upload Your Document"
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf"
+                targetState="fileAttachmentList"
+
               />
             </Form.Item>
           </div>

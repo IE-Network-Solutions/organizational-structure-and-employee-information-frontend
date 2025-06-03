@@ -35,6 +35,8 @@ import TnaApprovalTable from './_components/approvalTabel';
 import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const TnaReviewPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -100,8 +102,6 @@ const TnaReviewPage = () => {
     isShowTnaReviewSidebar,
     setIsShowTnaReviewSidebar,
     setTnaId,
-    currentPage,
-    setCurrentPage,
     loading,
   } = useTnaReviewStore();
   const {
@@ -127,7 +127,7 @@ const TnaReviewPage = () => {
     isSuccess,
   } = useDeleteTna();
   const { isFilterModalOpen, setIsFilterModalOpen } = useEmployeeStore();
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
 
   useEffect(() => {
     if (isSuccess) {
@@ -288,6 +288,16 @@ const TnaReviewPage = () => {
     },
   ];
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setPage(page);
+    if (pageSize) {
+      setLimit(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setLimit(pageSize);
+    setPage(1);
+  };
   return (
     <div className="page-wrap bg-gray-100">
       <TnaApprovalTable />
@@ -375,7 +385,6 @@ const TnaReviewPage = () => {
             />
           </Modal>
         )}
-
         <div className="flex  overflow-x-auto scrollbar-none  w-full ">
           <Table
             className="mt-6 w-full"
@@ -384,21 +393,29 @@ const TnaReviewPage = () => {
             columns={tableColumns}
             dataSource={tableData}
             loading={isLoading || isLoadingDelete}
-            pagination={{
-              current: currentPage,
-              pageSize: 6,
-              onChange: setCurrentPage,
-              simple: isMobile,
-              position: isMobile ? ['bottomLeft'] : ['bottomRight'],
-            }}
-            onChange={(pagination, filters, sorter: any) => {
-              setPage(pagination.current ?? 1);
-              setLimit(pagination.pageSize ?? 10);
+            pagination={false}
+            onChange={(sorter: any) => {
               setOrderDirection(sorter['order']);
               setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
             }}
           />
-        </div>
+        </div>{' '}
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            current={page}
+            total={data?.meta?.totalItems || 0}
+            pageSize={limit}
+            onChange={onPageChange}
+            onShowSizeChange={onPageSizeChange}
+          />
+        )}
       </BlockWrapper>
 
       <TnaRequestSidebar />

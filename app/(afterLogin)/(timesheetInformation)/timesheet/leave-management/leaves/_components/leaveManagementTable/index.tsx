@@ -21,14 +21,17 @@ import {
   LeaveRequestStatusBadgeTheme,
 } from '@/types/timesheet/settings';
 import { CommonObject } from '@/types/commons/commonObject';
-import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import UserCard from '@/components/common/userCard/userCard';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { usePathname } from 'next/navigation';
+import usePagination from '@/utils/usePagination';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
@@ -42,25 +45,43 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     setLeaveRequestId,
     setLeaveRequestWorkflowId,
   } = useLeaveManagementStore();
-  const { setIsShowLeaveRequestSidebar: isShow, setLeaveRequestSidebarData } =
-    useMyTimesheetStore();
-  const [tableData, setTableData] = useState<any[]>([]);
+
+  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
+    usePagination(1, 10);
   const {
-    page,
-    limit,
-    orderBy,
-    orderDirection,
-    setPage,
-    setLimit,
-    setOrderBy,
-    setOrderDirection,
-  } = usePagination(1, 10);
+    setIsShowLeaveRequestSidebar: isShow,
+    setLeaveRequestSidebarData,
+    currentPage,
+    pageSize,
+    setCurrentPage,
+    setPageSize,
+    resetPagination,
+  } = useMyTimesheetStore();
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    resetPagination();
+  }, [pathname]);
+
+  const handleTableChange = (pagination: any, sorter: any) => {
+    setCurrentPage(pagination.current ?? 1);
+    setPageSize(pagination.pageSize ?? 10);
+    setOrderDirection(sorter['order']);
+    setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+  };
+  const [tableData, setTableData] = useState<any[]>([]);
+
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
   const { data, isFetching } = useGetLeaveRequest(
-    { page, limit, orderBy, orderDirection },
+    { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
   const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
+  const { isMobile, isTablet } = useIsMobile();
 
   const EmpRender = ({ userId }: any) => {
     const {
@@ -253,23 +274,39 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   return (
     <div className="mt-6">
       <LeaveManagementTableFilter onChange={onFilterChange} />
-      <div className="flex  overflow-x-auto scrollbar-none  w-full">
-        <Table
-          className="mt-6 w-full"
-          rowClassName={() => 'h-[60px]'}
-          scroll={{ x: 'max-content' }}
-          columns={columns}
-          dataSource={tableData}
-          loading={isFetching}
-          rowSelection={{ checkStrictly: false }}
-          pagination={DefaultTablePagination(data?.meta?.totalItems)}
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 10);
-            setOrderDirection(sorter['order']);
-            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-          }}
-        />
+      <div>
+        <div className="flex  overflow-x-auto scrollbar-none  w-full bg-[#fafafa]">
+          <Table
+            className="mt-6 w-full"
+            rowClassName={() => 'h-[60px]'}
+            scroll={{ x: 'max-content' }}
+            columns={columns}
+            dataSource={tableData}
+            loading={isFetching}
+            rowSelection={{ checkStrictly: false }}
+            pagination={false}
+            onChange={handleTableChange}
+          />
+        </div>
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={data?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
+          />
+        )}
       </div>
     </div>
   );

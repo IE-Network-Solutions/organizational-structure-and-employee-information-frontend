@@ -53,7 +53,13 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900">Tax Rule</p>,
+        label: (
+          <p
+            className={`font-bold text-sm ${isMobile ? (currentItem === 'tax-rule' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
+          >
+            Tax Rule
+          </p>
+        ),
         className: currentItem === 'tax-rule' ? 'px-4' : 'px-1',
       },
       link: '/settings/tax-rule',
@@ -68,8 +74,14 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900">Pension</p>,
-        className: currentItem === 'planning-assignation' ? 'px-4' : 'px-1',
+        label: (
+          <p
+            className={`font-bold text-sm ${isMobile ? (currentItem === 'pension' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
+          >
+            Pension
+          </p>
+        ),
+        className: currentItem === 'pension' ? 'px-4' : 'px-1',
       },
       link: '/settings/pension',
     },
@@ -80,11 +92,17 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         icon: !isMobile ? (
           <MdOutlinePayments
             className={
-              currentItem === 'pey-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
+              currentItem === 'pay-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900">Pay Period</p>,
+        label: (
+          <p
+            className={`font-bold text-sm ${isMobile ? (currentItem === 'pay-period' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
+          >
+            Pay Period
+          </p>
+        ),
         className: currentItem === 'pay-period' ? 'px-4' : 'px-1',
       },
       link: '/settings/pay-period',

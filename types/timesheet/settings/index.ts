@@ -139,6 +139,8 @@ export interface LeaveType extends DateInfo {
   isFixed: boolean;
   isIncremental: boolean;
   isActive: boolean;
+  incrementalYear?: number;
+  incrementAmount?: number;
 }
 
 export interface AccrualRule extends DateInfo {
