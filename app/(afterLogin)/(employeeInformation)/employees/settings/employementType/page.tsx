@@ -8,6 +8,9 @@ import { useGetEmployementTypes } from '@/store/server/features/employees/employ
 import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const EmploymentType = () => {
   const { setOpen, pageSize, setPageSize, setPage, page } =
@@ -16,12 +19,18 @@ const EmploymentType = () => {
     page,
     pageSize,
   );
-
+  const { isMobile, isTablet } = useIsMobile();
   const showDrawer = () => {
     setOpen(true);
   };
   const onClose = () => {
     setOpen(false);
+  };
+  const onPageChange = (page: number, pageSize?: number) => {
+    setPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
 
   const reformattedData = employeTypeData?.items?.map(
@@ -82,25 +91,35 @@ const EmploymentType = () => {
             <Spin size="large" />
           </div>
         ) : (
-          <Table
-            columns={columns}
-            showHeader={false}
-            dataSource={reformattedData}
-            bordered={true}
-            className="min-w-[320px]"
-            pagination={{
-              pageSize: pageSize,
-              current: page,
-              total: employeTypeData?.meta?.totalItems,
-              showSizeChanger: true,
-              onChange: (page, pageSize) => {
-                setPageSize(pageSize);
-                setPage(page);
-              },
-              // showTotal: (total, range) =>
-              //   `Showing ${range[0]} to ${range[1]} of ${total} items`,
-            }}
-          />
+          <div>
+            <Table
+              columns={columns}
+              showHeader={false}
+              dataSource={reformattedData}
+              bordered={true}
+              className="min-w-[320px]"
+              pagination={false}
+            />
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={employeTypeData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+              />
+            ) : (
+              <CustomPagination
+                current={page}
+                total={employeTypeData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={(pageSize) => {
+                  setPageSize(pageSize);
+                  setPage(1);
+                }}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>

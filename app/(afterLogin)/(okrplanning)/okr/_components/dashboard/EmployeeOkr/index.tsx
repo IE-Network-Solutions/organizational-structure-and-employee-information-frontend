@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
-import { Table, Avatar, Pagination } from 'antd';
+import { Table, Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetEmployeeOkr } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useGetSessionById } from '@/store/server/features/payroll/payroll/queries';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 // Memoized score tag component to prevent unnecessary re-renders
 const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
@@ -110,6 +113,8 @@ const EmployeeOKRTable: React.FC = () => {
     employeeCurrentPage,
   );
 
+  const { isMobile, isTablet } = useIsMobile();
+
   // Memoize columns to prevent unnecessary re-renders
   const columns = useMemo(
     () => [
@@ -186,16 +191,23 @@ const EmployeeOKRTable: React.FC = () => {
         scroll={{ y: 400 }} // Add vertical scrolling with fixed height
         rowKey="id" // Ensure each row has a unique key
       />
-      <Pagination
-        total={employeeOkr?.meta?.totalItems}
-        current={employeeOkr?.meta?.currentPage}
-        pageSize={employeePageSize}
-        onChange={onPageChange}
-        showSizeChanger={true}
-        onShowSizeChange={onPageChange}
-        pageSizeOptions={['5', '10', '20', '50', '100']}
-        className="mt-4 flex w-full justify-end"
-      />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={employeeOkr?.meta?.totalItems ?? 0}
+          pageSize={employeePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={employeeOkr?.meta?.currentPage ?? 0}
+          total={employeeOkr?.meta?.totalItems ?? 0}
+          pageSize={employeePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(pageSize) => setEmployeePageSize(pageSize)}
+        />
+      )}
     </div>
   );
 };

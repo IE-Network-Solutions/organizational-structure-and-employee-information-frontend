@@ -47,7 +47,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
     defaultOptions: {
       queries: {
         retry: (failureCount, error: any) => {
-        
+
           if (error?.response?.status === 401) return false;
           return failureCount < 3;
         },
