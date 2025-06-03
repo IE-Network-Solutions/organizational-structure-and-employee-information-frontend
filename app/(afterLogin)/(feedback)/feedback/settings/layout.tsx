@@ -65,6 +65,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'meeting-type',
         icon: <IoListSharp className="hidden lg:block" />,
+
         label: <p className="menu-item-label">Meeting Type</p>,
         className: 'px-1',
       },
