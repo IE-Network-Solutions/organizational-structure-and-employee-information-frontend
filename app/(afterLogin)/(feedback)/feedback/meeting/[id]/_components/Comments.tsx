@@ -23,6 +23,7 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { UserOutlined, LoadingOutlined } from '@ant-design/icons';
 import CommentActionMenu from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/comments/commentActionMenu';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 dayjs.extend(relativeTime);
 
 // Function to get user details
@@ -60,11 +61,13 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
 type CommentComponentProps = {
   meetingId: string;
   commentData: any;
+  canEditComment:boolean
 };
 
 const CommentComponent: React.FC<CommentComponentProps> = ({
   meetingId,
   commentData,
+  canEditComment
 }) => {
   const [form] = Form.useForm();
   const { comments, setComments, commentUpdate, setCommentUpdate } =
@@ -84,6 +87,9 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
 
   const handleSubmit = () => {
     if (commentUpdate) {
+     if(comments=="" || comments=="<p></p>"){
+          NotificationMessage.warning({message:"Warning",description:"Please add Comment first"})
+       }else{
       updateComment(
         { comments: comments, userId, id: commentUpdate.id },
         {
@@ -93,8 +99,12 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
           },
         },
       );
+    }
     } else {
-      createComment(
+       if(comments=="" || comments=="<p></p>"){
+          NotificationMessage.warning({message:"Warning",description:"Please add Comment first"})
+       }else{
+         createComment(
         { meetingId, comments: comments, userId },
         {
           onSuccess() {
@@ -102,6 +112,8 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
           },
         },
       );
+       }
+     
     }
   };
 
@@ -182,7 +194,6 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
   function handleDelete(id: string) {
     deleteComment(id);
   }
-
   return (
     <div className="w-full">
       {commentData?.map((comment: any) => (
@@ -211,6 +222,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
           </div>
         </Row>
       ))}
+      {canEditComment &&
       <Form
         form={form}
         layout="inline"
@@ -234,7 +246,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
             </Button>
           </div>
         </div>
-      </Form>
+      </Form>}
     </div>
   );
 };
