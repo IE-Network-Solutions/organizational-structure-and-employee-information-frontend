@@ -571,7 +571,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      // First step: clear all state that might trigger queries
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
