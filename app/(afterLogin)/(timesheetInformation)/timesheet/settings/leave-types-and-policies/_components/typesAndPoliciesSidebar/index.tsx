@@ -298,7 +298,7 @@ const TypesAndPoliciesSidebar = () => {
             </div>
             <div>
               {isIncremental && (
-                <div className="flex gap-2 mt-2 w-full">
+                <div className="flex gap-4 mt-2 w-full">
                   <Form.Item
                     name="incrementalYear"
                     rules={[{ required: isIncremental, message: 'Required' }]}
@@ -307,7 +307,7 @@ const TypesAndPoliciesSidebar = () => {
                     <InputNumber
                       min={1}
                       placeholder="Year"
-                      className="h-[40px] w-24"
+                      className="h-[40px] w-full"
                     />
                   </Form.Item>
                   <Form.Item
@@ -318,13 +318,14 @@ const TypesAndPoliciesSidebar = () => {
                     <InputNumber
                       min={1}
                       placeholder="Entitled Days"
-                      className="h-[40px] w-32"
+                      className="h-[40px] w-full"
                     />
                   </Form.Item>
                 </div>
               )}
               {isIncremental && (
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-[11px] text-gray-500 mt-1 mb-4 flex items-center gap-1">
+                  <InfoCircleOutlined className="text-gray-500" />
                   Every <b>{incrementalYear || '__'}</b> years add{' '}
                   <b>{incrementalDays || '__'}</b> additional day(s)
                 </div>
