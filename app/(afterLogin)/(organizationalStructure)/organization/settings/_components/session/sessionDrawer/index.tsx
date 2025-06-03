@@ -289,14 +289,14 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             <Button
               type="default"
               onClick={() => setCurrent(0)}
-              className="h-[40px] text-base px-10"
+              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
             >
               Previous
             </Button>
             <Button
               type="primary"
               onClick={handleNext}
-              className="h-[40px] text-base px-10"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <Spin />

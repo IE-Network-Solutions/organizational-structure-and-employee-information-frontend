@@ -17,22 +17,26 @@ const DownloadExcelButton: React.FC = () => {
   const { data: childRecognitionData, isLoading: responseLoading } =
     useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
 
-  const handleTemplateDownload = async () => {
-    if (excelHeaders?.length === 0) {
+  const handleTemplateDownload = async (recognitionId: string) => {
+    // Set the recognition type ID first
+    setSelectedRecognitionTypeId(recognitionId);
+
+    // Wait for headers to be loaded
+    if (!excelHeaders?.length) {
       NotificationMessage.warning({
         message: ' Excel Headers are not loaded yet! Please Try Again',
       });
       return;
     }
 
-    //  Create a new workbook and worksheet
+    // Create a new workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('My Sheet');
 
-    //  Define Excel headers dynamically from props
+    // Define Excel headers dynamically from props
     const columns = excelHeaders?.map((header: any) => {
       return {
-        header: capitalizeInitials(header?.criterionKey), // Header name passed from props
+        header: capitalizeInitials(header?.criterionKey),
         key: header?.id,
         width: 20,
       };
@@ -45,20 +49,20 @@ const DownloadExcelButton: React.FC = () => {
     }
     const buffer = await workbook.xlsx.writeBuffer();
 
-    //  Create a Blob and download using native APIs
+    // Create a Blob and download using native APIs
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
 
-    //  Generate a download link and programmatically click it
+    // Generate a download link and programmatically click it
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = 'IncentiveImportTemplate.xlsx';
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link); // Clean up
-    URL.revokeObjectURL(url); // Free up memory
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return childRecognitionData?.length > 0 ? (
@@ -69,8 +73,7 @@ const DownloadExcelButton: React.FC = () => {
             <div
               key={item?.id}
               onClick={() => {
-                handleTemplateDownload();
-                setSelectedRecognitionTypeId(item?.id || '');
+                handleTemplateDownload(item?.id || '');
               }}
               className="flex flex-col border-[1px] w-32 sm:w-60 my-2 rounded-xl border-gray-300 p-2 cursor-pointer hover:bg-gray-100 transition"
             >
@@ -111,8 +114,7 @@ const DownloadExcelButton: React.FC = () => {
         height: '30px',
       }}
       onClick={() => {
-        handleTemplateDownload();
-        setSelectedRecognitionTypeId(activeKey);
+        handleTemplateDownload(activeKey);
       }}
     >
       Download Format

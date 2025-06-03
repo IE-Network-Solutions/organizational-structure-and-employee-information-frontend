@@ -31,10 +31,10 @@ function Page({ params: { dataId } }: IncentiveTableDetailsProps) {
         <span className="text-2xl font-bold">Detail</span>
       </div>
       <Row gutter={[10, 10]} justify="space-between">
-        <Col xs={24} sm={24} md={24} lg={24} xl={5}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={7}>
           <IncentiveUserInfo detailId={dataId} />
         </Col>
-        <Col xs={24} sm={24} md={24} lg={24} xl={17}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={16}>
           <IncentiveDetail detailId={dataId} />
         </Col>
       </Row>

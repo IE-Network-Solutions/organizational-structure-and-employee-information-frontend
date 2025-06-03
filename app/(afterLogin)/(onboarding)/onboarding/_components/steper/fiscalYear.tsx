@@ -100,7 +100,7 @@ const FiscalYear: React.FC<FiscalYearProps> = ({ form }) => {
     if (isEditMode && selectedFiscalYear) {
       const sessionCount = selectedFiscalYear?.sessions?.length;
       let calendarType = '';
-      if (sessionCount > 4 || sessionCount === 4) {
+      if (sessionCount >= 4) {
         calendarType = 'Quarter';
       } else if (sessionCount === 2) {
         calendarType = 'Semester';
