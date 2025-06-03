@@ -139,7 +139,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                   {fields.length > 1 && (
                     <MdClose
                       size={18}
-                      className="absolute top-1 right-2  hover:text-red-700"
+                      className="absolute top-1 right-2  hover:text-red-700 z-50"
                       onClick={() => remove(name)}
                     />
                   )}
