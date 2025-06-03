@@ -97,7 +97,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
+        key: 'target-achievement',
+        icon: <CiCalendarDate className="hidden lg:block" />,
+        label: <p className="menu-item-label">Target Achievement</p>,
+        className: 'px-1',
+      },
+      link: '/feedback/settings/target-achievement',
+    },
+    {
+      item: {
+    
         key: 'meeting-type',
+
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${
