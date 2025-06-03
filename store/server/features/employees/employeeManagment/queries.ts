@@ -265,4 +265,5 @@ export const useGetEmployee = (empId: string) =>
   useQuery<any>(['employee', empId], () => getEmployee(empId), {
     keepPreviousData: true,
     enabled: !!empId, // Only fetch if empId is provided
+
   });
