@@ -605,7 +605,7 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      generateBankLetter(amount);
+      await generateBankLetter(amount);
     } catch (error) {
       notification.error({
         message: 'Error Generating Bank Letter',
@@ -899,7 +899,6 @@ const Payroll = () => {
           <Popconfirm
             title={
               payroll?.items.length
-
                 ? 'Are you sure you want to regenerate the payroll ?'
                 : 'Are you sure you want to generate the payroll ?'
             }
@@ -917,7 +916,6 @@ const Payroll = () => {
               <Tooltip
                 title={
                   payroll?.items.length > 0
-
                     ? 'Regenerate Payroll'
                     : 'Generate Payroll'
                 }
@@ -931,7 +929,6 @@ const Payroll = () => {
                   {isMobile ? (
                     <TbFileExport size={24} />
                   ) : payroll?.items.length > 0 ? (
-
                     'Regenerate'
                   ) : (
                     'Generate'
@@ -1124,7 +1121,7 @@ const Payroll = () => {
             <div className="flex flex-col justify-between items-start gap-2 ">
               <span>Export Bank</span>
               <Switch
-                checked={bankLetter}
+                checked={exportBank}
                 onChange={() => setExportBank(!exportBank)}
               />
             </div>
