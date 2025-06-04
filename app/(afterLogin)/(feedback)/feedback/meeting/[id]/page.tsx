@@ -23,7 +23,9 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
 
   const canEdit =
     userId === meeting?.chairpersonId || userId === meeting?.facilitatorId;
-  const canEditComment= meeting?.attendees?.some((i:any)=>i.userId===userId)
+  const canEditComment = meeting?.attendees?.some(
+    (i: any) => i.userId === userId,
+  );
   return (
     <div className="p-1 ">
       <MeetingHeader loading={isLoading} title={meeting?.title} />
@@ -62,7 +64,10 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
             loading={isLoading}
             meeting={meeting}
           />
-          <CommentsSection canEditComment={canEditComment} meetingId={meeting?.id} />
+          <CommentsSection
+            canEditComment={canEditComment}
+            meetingId={meeting?.id}
+          />
           <PreviousMeeting meeting={meeting} />
         </div>
       </div>

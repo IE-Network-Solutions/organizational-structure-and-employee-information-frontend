@@ -8,11 +8,9 @@ import {
   Paragraph,
   TextRun,
   AlignmentType,
-  BorderStyle,
   ImageRun,
   Header,
   Footer,
-  PageNumber,
 } from 'docx';
 import { saveAs } from 'file-saver';
 
@@ -43,7 +41,6 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
       reader.readAsDataURL(blob);
     });
   } catch (error) {
-    console.error('Error converting image to base64:', error);
     return IE_LOGO_BASE64.split(',')[1]; // Return fallback without data URI prefix
   }
 };
