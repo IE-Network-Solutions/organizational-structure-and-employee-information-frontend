@@ -102,10 +102,7 @@ export function createMentionExtension(attendees: Attendee[]) {
               getReferenceClientRect: () => {
                 const rect = props.clientRect?.();
                 // Fallback to a default rect if null
-                return (
-                  rect ||
-                  new DOMRect(0, 0, 0, 0)
-                );
+                return rect || new DOMRect(0, 0, 0, 0);
               },
             });
           },

@@ -66,7 +66,6 @@ const CategoriesCard: React.FC = () => {
           ? category.permissions.map((user: any) => user.userId)
           : [],
       });
-
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteModal(true);
