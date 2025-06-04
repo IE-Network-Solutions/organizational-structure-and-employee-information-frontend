@@ -5,7 +5,6 @@ import { SearchOutlined } from '@ant-design/icons';
 import { useDebounce } from '@/utils/useDebounce';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 
-
 const CategorySearch = () => {
   const { searchParams, setSearchParams } = CategoriesManagementStore();
 
@@ -26,7 +25,6 @@ const CategorySearch = () => {
     onSearchChange(trimmedValue, keyValue);
   };
 
-
   return (
     <div className="my-2">
       <Row gutter={[16, 24]} justify="space-between" className="py-4">
@@ -39,7 +37,6 @@ const CategorySearch = () => {
             className="w-full h-12"
           />
         </Col>
-      
       </Row>
     </div>
   );
