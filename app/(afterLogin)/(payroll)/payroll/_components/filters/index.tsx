@@ -9,7 +9,9 @@ import {
 import dayjs from 'dayjs';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+
 
 const { Option } = Select;
 
@@ -17,12 +19,21 @@ interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
   disable?: string[];
   oneRow?: boolean;
+  defaultValues?: {
+    employeeId?: string;
+    yearId?: string;
+    sessionId?: string;
+    monthId?: string;
+    departmentId?: string;
+    payPeriodId?: string;
+  };
 }
 
 const Filters: React.FC<FiltersProps> = ({
   onSearch,
   disable = [],
   oneRow = false,
+  defaultValues,
 }) => {
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const { data: employeeData } = useGetAllUsers();
@@ -30,13 +41,16 @@ const Filters: React.FC<FiltersProps> = ({
   const { data: departmentData } = useGetDepartments();
   const { searchQuery, pageSize, currentPage } = useEmployeeStore();
 
-  const { data: payroll } = useGetActivePayroll(
+  const { pageSize, currentPage } = usePayrollStore();
+    const { data: payroll } = useGetActivePayroll(
     searchQuery,
     pageSize,
     currentPage,
   );
+  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({
+    ...defaultValues,
+  });
 
-  const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
@@ -71,8 +85,9 @@ const Filters: React.FC<FiltersProps> = ({
   }, [getAllFiscalYears, employeeData]);
 
   useEffect(() => {
-    if (payroll?.payrolls.length > 0) {
-      const defaultPayPeriodId = payroll.payrolls[0]?.payPeriodId;
+    if (payroll?.items.length > 0) {
+      const defaultPayPeriodId = payroll.items[0]?.payPeriodId;
+
       const defaultPayPeriod = payPeriodData?.find(
         (period: any) => period.id === defaultPayPeriodId,
       );
@@ -88,7 +103,7 @@ const Filters: React.FC<FiltersProps> = ({
         });
       }
     }
-  }, [payroll?.payrolls, payPeriodData]);
+  }, [payroll?.items, payPeriodData]);
 
   const handleEmployeeSelect = (value: string) => {
     setSearchValue((prev) => {

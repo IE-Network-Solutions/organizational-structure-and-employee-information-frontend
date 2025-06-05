@@ -8,6 +8,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { setCookie } from '@/helpers/storageHelper';
 import { Spin } from 'antd';
 import { auth } from '@/utils/firebaseConfig';
+import { useQuery } from 'react-query';
 
 interface ReactQueryWrapperProps {
   children: ReactNode;
@@ -44,16 +45,22 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
 
   const queryClient = new QueryClient({
     defaultOptions: {
+      queries: {
+        retry: (failureCount, error: any) => {
+          if (error?.response?.status === 401) return false;
+          return failureCount < 3;
+        },
+      },
       mutations: {
         onError: async (error: any) => {
           if (error?.response?.status === 401) {
             const newToken = await refreshToken();
             if (newToken) {
               queryClient.invalidateQueries(); // Retry with new token
-            } else {
+            } else if (process.env.NODE_ENV !== 'production') {
               handleNetworkError(error);
             }
-          } else {
+          } else if (process.env.NODE_ENV !== 'production') {
             handleNetworkError(error);
           }
         },
@@ -70,7 +77,8 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
         if (error?.response?.status === 401) {
           const newToken = await refreshToken();
           if (newToken) {
-          } else {
+            queryClient.invalidateQueries(); // Retry with new token
+          } else if (process.env.NODE_ENV !== 'production') {
             handleNetworkError(error);
           }
         } else if (process.env.NODE_ENV !== 'production') {
@@ -86,21 +94,34 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
     </div>
   );
 
-  useEffect(() => {
-    refreshToken(); // Initial token refresh on mount
-    const refreshInterval = setInterval(
-      () => {
-        refreshToken();
+  // Create a separate component for token refresh
+  const TokenRefresh = () => {
+    const { refetch: refreshTokenQuery } = useQuery(
+      'refreshToken',
+      refreshToken,
+      {
+        refetchInterval: 45 * 60 * 1000, // Refresh every 45 minutes
+        refetchIntervalInBackground: true, // Continue refreshing in background
+        refetchOnWindowFocus: true, // Refresh when window regains focus
+        refetchOnMount: true, // Refresh when component mounts
+        refetchOnReconnect: true, // Refresh when network reconnects
+        enabled: !!auth.currentUser, // Only run if user is logged in
       },
-      50 * 60 * 1000,
-    ); // Refresh every 50 minutes
+    );
 
-    return () => clearInterval(refreshInterval);
-  }, []);
+    useEffect(() => {
+      if (auth.currentUser) {
+        refreshTokenQuery();
+      }
+    }, [refreshTokenQuery]);
+
+    return null; // This component doesn't render anything
+  };
 
   return (
     <Suspense fallback={<FullPageSpinner />}>
       <QueryClientProvider client={queryClient}>
+        <TokenRefresh />
         {children}
         <ReactQueryDevtools />
       </QueryClientProvider>

@@ -36,6 +36,7 @@ import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { IoChevronBackSharp } from 'react-icons/io5';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -52,6 +53,9 @@ const EmployeeProfile = () => {
   const empId = id as string;
 
   const { data: employee, isLoading } = useGetEmployee(empId);
+
+  const { pageSize, currentPage } = usePayrollStore();
+  const { data: payroll } = useGetActivePayroll('', pageSize, currentPage);
 
   const { data: payrollHistory } = useGetPayrollHistory(empId);
 
@@ -102,8 +106,8 @@ const EmployeeProfile = () => {
   }, [activeMergedPayroll, payPeriodData]);
 
   useEffect(() => {
-    if (payroll?.payrolls && employee) {
-      const mergedData = payroll.payrolls
+    if (payroll?.index && employee) {
+      const mergedData = payroll.index
         .filter((pay: any) => pay.employeeId === employee.id)
         .map((pay: any) => ({
           ...pay,

@@ -1,16 +1,13 @@
 'use client';
-import { Col, Input, Row, Select } from 'antd';
+import { Col, Input, Row } from 'antd';
 import React from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import { useDebounce } from '@/utils/useDebounce';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
-
-const { Option } = Select;
 
 const CategorySearch = () => {
   const { searchParams, setSearchParams } = CategoriesManagementStore();
-  const { data: users } = useFetchUsers(searchParams?.category_name);
+
   const handleSearchCategory = async (
     value: string | boolean,
     keyValue: keyof typeof searchParams,
@@ -19,7 +16,6 @@ const CategorySearch = () => {
   };
 
   const onSearchChange = useDebounce(handleSearchCategory, 2000);
-  const onSelectChange = handleSearchCategory;
 
   const handleSearchInput = (
     value: string,
@@ -27,10 +23,6 @@ const CategorySearch = () => {
   ) => {
     const trimmedValue = value.trim();
     onSearchChange(trimmedValue, keyValue);
-  };
-
-  const handleCreatedBySearch = (value: string) => {
-    onSelectChange(value, 'createdBy');
   };
 
   return (
@@ -44,20 +36,6 @@ const CategorySearch = () => {
             prefix={<SearchOutlined className="text-gray-400" />}
             className="w-full h-12"
           />
-        </Col>
-        <Col lg={8} md={14} xs={24}>
-          <Select
-            allowClear
-            placeholder="Select Users"
-            className="w-full h-12"
-            onChange={handleCreatedBySearch}
-          >
-            {users?.items?.map((item: any) => (
-              <Option key={item?.id} value={item?.id}>
-                {item?.firstName + ' ' + item?.middleName}
-              </Option>
-            ))}
-          </Select>
         </Col>
       </Row>
     </div>

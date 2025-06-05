@@ -24,6 +24,7 @@ const nextConfig = {
     INCENTIVE_URL: process.env.INCENTIVE_URL,
     PAYROLL_URL: process.env.PAYROLL_URL,
     TENANT_BASE_URL:process.env.TENANT_BASE_URL,
+    TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
   },
 };
 

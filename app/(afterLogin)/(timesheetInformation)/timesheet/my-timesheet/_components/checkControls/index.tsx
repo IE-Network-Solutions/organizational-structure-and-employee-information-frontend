@@ -1,4 +1,4 @@
-import { Button, Space } from 'antd';
+import { Button, Space, Dropdown } from 'antd';
 import { GoClock } from 'react-icons/go';
 import {
   CheckStatus,
@@ -81,6 +81,41 @@ const CheckControl = () => {
     });
   };
 
+  const mobileMenuItems = [
+    {
+      key: 'break',
+      label: (
+        <Button
+          type="text"
+          icon={<GoClock size={20} />}
+          loading={isLoading || isFetching}
+          onClick={() => {
+            getCoords(() => {
+              setIsShowCheckOutSidebar(true);
+            });
+          }}
+        >
+          Break Check Out
+        </Button>
+      ),
+    },
+    {
+      key: 'checkout',
+      label: (
+        <Button
+          type="text"
+          icon={<GoClock size={20} />}
+          loading={isLoading || isFetching}
+          onClick={() => {
+            setAttendance(false);
+          }}
+        >
+          Check Out
+        </Button>
+      ),
+    },
+  ];
+
   switch (checkStatus) {
     case CheckStatus.notStarted:
       return (
@@ -104,44 +139,58 @@ const CheckControl = () => {
       );
     case CheckStatus.started:
       return (
-        <Space>
-          <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
-            <div className="flex justify-between gap-2">
-              <Button
-                className="h-12 text-base px-2"
-                size="large"
-                id="buttonBreakCheckOut"
-                icon={<GoClock size={20} />}
-                loading={isLoading || isFetching}
-                onClick={() => {
-                  getCoords(() => {
-                    setIsShowCheckOutSidebar(true);
-                  });
-                }}
+        <>
+          {!isMobile ? (
+            <Space className="hidden sm:block">
+              <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
+                <div className="flex justify-between gap-2">
+                  <Button
+                    className="h-10 text-base px-2"
+                    size="large"
+                    id="buttonBreakCheckOut"
+                    icon={<GoClock size={20} />}
+                    loading={isLoading || isFetching}
+                    onClick={() => {
+                      getCoords(() => {
+                        setIsShowCheckOutSidebar(true);
+                      });
+                    }}
+                  >
+                    Break Check Out
+                  </Button>
+                  <Button
+                    className="h-10 text-base"
+                    size="large"
+                    id="buttonCheckOut"
+                    icon={<GoClock size={20} />}
+                    loading={isLoading || isFetching}
+                    onClick={() => {
+                      setAttendance(false);
+                    }}
+                  >
+                    Check Out
+                  </Button>
+                </div>
+              </AccessGuard>
+            </Space>
+          ) : (
+            <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
+              <Dropdown
+                menu={{ items: mobileMenuItems }}
+                trigger={['click']}
+                placement="bottomRight"
               >
-                Break Check Out
-              </Button>
-              <Button
-                className="h-12 text-base"
-                size="large"
-                id="buttonCheckOut"
-                icon={
-                  isMobile ? (
-                    <IoLocationOutline size={30} />
-                  ) : (
-                    <GoClock size={30} />
-                  )
-                }
-                loading={isLoading || isFetching}
-                onClick={() => {
-                  setAttendance(false);
-                }}
-              >
-                {isMobile ? '' : 'Check out'}
-              </Button>
-            </div>
-          </AccessGuard>
-        </Space>
+                <Button
+                  className="h-10 text-base"
+                  size="large"
+                  id="buttonCheckOut"
+                  icon={<IoLocationOutline size={20} />}
+                  loading={isLoading || isFetching}
+                />
+              </Dropdown>
+            </AccessGuard>
+          )}
+        </>
       );
     case CheckStatus.breaking:
       return (

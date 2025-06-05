@@ -100,28 +100,45 @@ const TypesAndPoliciesEdit = () => {
         accrualRule: getLeaveTypeById.items[0].accrualRuleId,
         carryOverRule: getLeaveTypeById.items[0].carryOverRuleId,
         description: getLeaveTypeById.items[0].description,
+        ...(getLeaveTypeById.items[0].isIncremental && {
+          incrementalYear: getLeaveTypeById.items[0].incrementalYear,
+          incrementAmount: getLeaveTypeById.items[0].incrementAmount,
+        }),
       });
       setIsFixed(!!getLeaveTypeById.items[0].isFixed);
     }
   }, [getLeaveTypeById, form]);
 
+  const onFieldChange = () => {
+    setIsErrorPlan(!!form.getFieldError('plan').length);
+  };
+
+  const isIncremental = Form.useWatch('isIncremental', form);
+  const incrementalYear = Form.useWatch('incrementalYear', form);
+  const incrementAmount = Form.useWatch('incrementAmount', form);
+
   const onFinish = (values: any) => {
+    const payload: any = {
+      title: values.title,
+      isPaid: values.plan === 'paid',
+      entitledDaysPerYear: values.entitled,
+      isDeductible: !!values.isDeductible,
+      isIncremental: !!values.isIncremental,
+      isFixed: !!values.isFixed,
+      minimumNotifyingDays: values.min,
+      maximumAllowedConsecutiveDays: values.max,
+      accrualRule: values.accrualRule,
+      carryOverRule: values.carryOverRule,
+      description: values.description,
+    };
+    if (values.isIncremental) {
+      payload.incrementalYear = values.incrementalYear;
+      payload.incrementAmount = values.incrementAmount;
+    }
     updateLeaveType(
       {
         id: leaveTypeId ?? '',
-        values: {
-          title: values.title,
-          isPaid: values.plan === 'paid',
-          entitledDaysPerYear: values.entitled,
-          isDeductible: !!values.isDeductible,
-          isIncremental: !!values.isIncremental,
-          isFixed: !!values.isFixed,
-          minimumNotifyingDays: values.min,
-          maximumAllowedConsecutiveDays: values.max,
-          accrualRule: values.accrualRule,
-          carryOverRule: values.carryOverRule,
-          description: values.description,
-        },
+        values: payload,
       },
       {
         onSuccess: () => {
@@ -133,10 +150,6 @@ const TypesAndPoliciesEdit = () => {
   };
 
   const onFinishFailed = () => {
-    setIsErrorPlan(!!form.getFieldError('plan').length);
-  };
-
-  const onFieldChange = () => {
     setIsErrorPlan(!!form.getFieldError('plan').length);
   };
 
@@ -304,6 +317,41 @@ const TypesAndPoliciesEdit = () => {
                     />
                   </Form.Item>
                 </div>
+              </div>
+              <div>
+                {isIncremental && (
+                  <div className="flex gap-2 mt-2 w-full">
+                    <Form.Item
+                      name="incrementalYear"
+                      rules={[{ required: isIncremental, message: 'Required' }]}
+                      className="m-0"
+                    >
+                      <InputNumber
+                        min={1}
+                        placeholder="Year"
+                        className="h-[40px] w-full"
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="incrementAmount"
+                      rules={[{ required: isIncremental, message: 'Required' }]}
+                      className="m-0"
+                    >
+                      <InputNumber
+                        min={1}
+                        placeholder="Entitled Days"
+                        className="h-[40px] w-full"
+                      />
+                    </Form.Item>
+                  </div>
+                )}
+                {isIncremental && (
+                  <div className="text-[11px] text-gray-500 mt-1 mb-4 flex items-center gap-1">
+                    <InfoCircleOutlined className="text-gray-500" />
+                    Every <b>{incrementalYear || '__'}</b> years add{' '}
+                    <b>{incrementAmount || '__'}</b> additional day(s)
+                  </div>
+                )}
               </div>
               <Form.Item
                 id={`TypesAndPoliciesMinAllowedDaysFieldId`}

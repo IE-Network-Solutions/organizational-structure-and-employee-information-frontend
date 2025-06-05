@@ -12,7 +12,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
   duration = '',
 }) => {
   return (
-    <div className="w-full h-[88px] rounded-xl bg-white py-4 px-4 sm:px-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="w-full h-[88px] rounded-xl bg-white m-2 py-4 px-4 sm:px-6 shadow-[0px_8px_9px_2px_rgba(0,_0,_0,_0.1)] transition-shadow duration-200">
       <div className="flex justify-between gap-[10px]">
         <div className="text-sm sm:text-base font-bold text-gray-900 line-clamp-1 my-1">
           {title}
