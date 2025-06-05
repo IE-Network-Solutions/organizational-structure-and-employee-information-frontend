@@ -8,12 +8,9 @@ import {
   Paragraph,
   TextRun,
   AlignmentType,
-  BorderStyle,
   ImageRun,
   Header,
   Footer,
-  PageNumber,
-
 } from 'docx';
 import { saveAs } from 'file-saver';
 
@@ -44,7 +41,6 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
     });
   } catch (error) {
     return IE_LOGO_BASE64.split(',')[1]; // Return fallback without data URI prefix
-
   }
 };
 
@@ -66,7 +62,6 @@ export const useGenerateBankLetter = () => {
       logoBase64 = await getBase64FromUrl(tenant.logo);
     } else {
       logoBase64 = IE_LOGO_BASE64.split(',')[1]; // Use fallback if no logo
-
     }
 
     // Create document
@@ -87,7 +82,6 @@ export const useGenerateBankLetter = () => {
             default: new Header({
               children: [
                 new Paragraph({
-
                   children: logoBase64
                     ? [
                         new ImageRun({
@@ -152,7 +146,6 @@ export const useGenerateBankLetter = () => {
           footers: {
             default: new Footer({
               children: [
-
                 // Blue bar
                 new Paragraph({
                   children: [],
@@ -231,7 +224,6 @@ export const useGenerateBankLetter = () => {
                   ],
                   alignment: AlignmentType.CENTER,
                   spacing: { after: 200 },
-
                 }),
               ],
             }),
