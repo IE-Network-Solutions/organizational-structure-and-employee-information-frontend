@@ -24,7 +24,6 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import UserCard from '@/components/common/userCard/userCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -49,8 +48,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
     usePagination(1, 10);
   const {
-    setIsShowLeaveRequestSidebar: isShow,
-    setLeaveRequestSidebarData,
     currentPage,
     pageSize,
     setCurrentPage,
@@ -80,7 +77,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     { filter },
   );
 
-  const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
+  // const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
+
   const { isMobile, isTablet } = useIsMobile();
 
   const EmpRender = ({ userId }: any) => {
@@ -198,21 +196,21 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       render: (item: LeaveRequest) => (
         <ActionButtons
           id={item?.id ?? null}
-          disableDelete={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          disableEdit={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          onEdit={() => {
-            isShow(true);
-            setLeaveRequestSidebarData(item.id);
-          }}
-          onDelete={() => {
-            deleteLeaveRequest(item.id);
-          }}
+          // disableDelete={
+          //   item.status === LeaveRequestStatus.APPROVED ||
+          //   item.status === LeaveRequestStatus.DECLINED
+          // }
+          // disableEdit={
+          //   item.status === LeaveRequestStatus.APPROVED ||
+          //   item.status === LeaveRequestStatus.DECLINED
+          // }
+          // onEdit={() => {
+          //   isShow(true);
+          //   setLeaveRequestSidebarData(item.id);
+          // }}
+          // onDelete={() => {
+          //   deleteLeaveRequest(item.id);
+          // }}
           onDetail={() => {
             setIsShowLeaveRequestManagementSidebar(true);
             setLeaveRequestId(item.id);

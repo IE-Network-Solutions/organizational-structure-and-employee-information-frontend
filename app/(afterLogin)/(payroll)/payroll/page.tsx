@@ -605,7 +605,7 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      generateBankLetter(amount);
+      await generateBankLetter(amount);
     } catch (error) {
       notification.error({
         message: 'Error Generating Bank Letter',
@@ -1121,7 +1121,7 @@ const Payroll = () => {
             <div className="flex flex-col justify-between items-start gap-2 ">
               <span>Export Bank</span>
               <Switch
-                checked={bankLetter}
+                checked={exportBank}
                 onChange={() => setExportBank(!exportBank)}
               />
             </div>
