@@ -2,7 +2,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { Button, Col, Dropdown, Menu, Popover, Row, Space, message } from 'antd';
+import {
+  Button,
+  Col,
+  Dropdown,
+  Menu,
+  Popover,
+  Row,
+  Space,
+  message,
+} from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
@@ -97,9 +106,7 @@ const EmployeeAttendance = () => {
         }));
         message.error('Export timed out. Please try again.');
       }, 30000); // 30 seconds timeout
-
     } catch (error) {
-      console.error('Export error:', error);
       message.error('Failed to export. Please try again.');
       setIsExporting(false);
       setIsExportLoading(false);
@@ -126,7 +133,7 @@ const EmployeeAttendance = () => {
       const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
       const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
       const fileUrl = `${url}${filePath}`;
-      
+
       window.open(fileUrl, '_blank');
 
       // Reset all export states
