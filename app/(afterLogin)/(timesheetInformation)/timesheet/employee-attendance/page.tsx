@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { Button, Col, Dropdown, Menu, Popover, Row, Space } from 'antd';
+import { Button, Col, Dropdown, Menu, Popover, Row, Space, message } from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
@@ -52,30 +52,96 @@ const EmployeeAttendance = () => {
   const { setIsShowBreakAttendanceImportSidebar, filter } =
     useEmployeeAttendanceStore();
 
-  useEffect(() => {
-    if (data && data.file) {
-      const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
+  const [isExporting, setIsExporting] = useState(false);
+  const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
-      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
+  const onExport = async (type: 'PDF' | 'EXCEL') => {
+    try {
+      // Prevent multiple exports
+      if (isExporting) {
+        message.warning('Export is already in progress. Please wait.');
+        return;
+      }
 
-      const fileUrl = `${url}${filePath}`;
-      // Open the file in a new window
-      window.open(fileUrl, '_blank');
+      setIsExporting(true);
+      setExportType(type);
+      setIsExportLoading(true);
 
-      // Create a temporary link to trigger the download
-      // const link = document.createElement('a');
-      // link.href = fileUrl;
-      // link.download = `attendance_${new Date().toISOString().split('T')[0]}`;
-      // document.body.appendChild(link);
-      // link.click();
-      // document.body.removeChild(link);
+      if (!data?.items?.length) {
+        message.warning('No data available to export');
+        return;
+      }
 
+      // Clear any existing timeout
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+
+      // Create a new request object with export type and filter
+      const exportRequest: AttendanceRequestBody = {
+        exportType: type,
+        filter: filter,
+      };
+
+      // Set the request
+      setBodyRequest(exportRequest);
+
+      // Set a timeout to reset the export state if it takes too long
+      exportTimeoutRef.current = setTimeout(() => {
+        setIsExporting(false);
+        setIsExportLoading(false);
+        setExportType(null);
+        setBodyRequest((prev) => ({
+          ...prev,
+          exportType: undefined,
+        }));
+        message.error('Export timed out. Please try again.');
+      }, 30000); // 30 seconds timeout
+
+    } catch (error) {
+      console.error('Export error:', error);
+      message.error('Failed to export. Please try again.');
+      setIsExporting(false);
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({
         ...prev,
         exportType: undefined,
       }));
+    }
+  };
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reset export state when data is received
+  useEffect(() => {
+    if (data && data.file) {
+      const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
+      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
+      const fileUrl = `${url}${filePath}`;
+      
+      window.open(fileUrl, '_blank');
+
+      // Reset all export states
+      setIsExporting(false);
+      setIsExportLoading(false);
+      setExportType(null);
+      setBodyRequest((prev) => ({
+        ...prev,
+        exportType: undefined,
+      }));
+
+      // Clear the timeout
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
     }
   }, [data, isFetching]);
 
@@ -89,31 +155,6 @@ const EmployeeAttendance = () => {
       });
     }
   }, [file]);
-
-  const onExport = async (type: 'PDF' | 'EXCEL') => {
-    try {
-      setExportType(type);
-      setIsExportLoading(true);
-      if (!data?.items?.length) {
-        return;
-      }
-      // Create a new request object with export type and filter
-      const exportRequest: AttendanceRequestBody = {
-        exportType: type,
-        filter: filter,
-      };
-      // Set the request
-      setBodyRequest(exportRequest);
-    } catch (error) {
-      // You might want to show an error message to the user here
-      setIsExportLoading(false);
-      setExportType(null);
-      setBodyRequest((prev) => ({
-        ...prev,
-        exportType: undefined,
-      }));
-    }
-  };
 
   // Dropdown Menu for Import Buttons
   const importMenu = (
