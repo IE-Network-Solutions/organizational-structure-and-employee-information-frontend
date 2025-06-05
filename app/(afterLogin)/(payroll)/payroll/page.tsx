@@ -898,7 +898,7 @@ const Payroll = () => {
           )}
           <Popconfirm
             title={
-              payroll?.items.length
+              payroll?.items?.length
                 ? 'Are you sure you want to regenerate the payroll ?'
                 : 'Are you sure you want to generate the payroll ?'
             }
