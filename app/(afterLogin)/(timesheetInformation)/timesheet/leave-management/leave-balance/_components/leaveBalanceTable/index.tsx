@@ -42,9 +42,9 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
 };
 
 const LeaveBalanceTable: React.FC = () => {
-  const { userId, leaveTypeId } = useLeaveBalanceStore();
+  const { selectedUserId, leaveTypeId } = useLeaveBalanceStore();
   const { data: leaveBalanceData, isLoading: leaveBalanceIsLoading } =
-    useGetLeaveBalance(userId, leaveTypeId);
+    useGetLeaveBalance(selectedUserId, leaveTypeId);
   const columns: TableColumnsType<NewUserData> = [
     {
       title: 'Leave Name',
@@ -100,7 +100,7 @@ const LeaveBalanceTable: React.FC = () => {
         dataSource={dataSource}
         loading={leaveBalanceIsLoading}
         locale={{
-          emptyText: userId ? undefined : <h3>Please Select User</h3>,
+          emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
         }}
       />
     </>

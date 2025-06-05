@@ -1,6 +1,6 @@
 'use client';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import React from 'react';
+import React, { useEffect } from 'react';
 import LeaveBalanceTable from './_components/leaveBalanceTable';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Form, Select, Space } from 'antd';
@@ -8,16 +8,25 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
 import DownloadLeaveBalance from './_components/Download';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const LeaveBalance = () => {
   const [form] = Form.useForm();
+  const { userId } = useAuthenticationStore();
 
   const { data: users } = useGetAllUsers();
   const { data: leaveTypes } = useGetLeaveTypes();
-  const { userId, setLeaveTypeId, setUserId } = useLeaveBalanceStore();
+  const { selectedUserId, setLeaveTypeId, setUserId } = useLeaveBalanceStore();
   const handleChange = (values: any) => {
     setUserId(values || '');
   };
+
+  useEffect(() => {
+    userId ? setUserId(userId) : '';
+    form.setFieldsValue({
+      userId: userId || '',
+    });
+  }, [userId, form]);
   const handleLeaveChange = (values: any) => {
     setLeaveTypeId(values || '');
   };
@@ -46,7 +55,7 @@ const LeaveBalance = () => {
                   }))}
                 />
               </Form.Item>
-              {userId && (
+              {selectedUserId && (
                 <Form.Item
                   id="filterByLeaveRequestLeaveTypeIds"
                   name="LeaveTypeId"
