@@ -9,7 +9,6 @@ import {
 import dayjs from 'dayjs';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
 const { Option } = Select;
@@ -39,8 +38,6 @@ const Filters: React.FC<FiltersProps> = ({
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: departmentData } = useGetDepartments();
   const { searchQuery, pageSize, currentPage } = useEmployeeStore();
-
-  const { pageSize, currentPage } = usePayrollStore();
   const { data: payroll } = useGetActivePayroll(
     searchQuery,
     pageSize,
