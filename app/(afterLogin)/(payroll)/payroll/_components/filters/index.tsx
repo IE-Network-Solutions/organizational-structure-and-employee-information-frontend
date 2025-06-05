@@ -12,7 +12,6 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
-
 const { Option } = Select;
 
 interface FiltersProps {
@@ -42,7 +41,7 @@ const Filters: React.FC<FiltersProps> = ({
   const { searchQuery, pageSize, currentPage } = useEmployeeStore();
 
   const { pageSize, currentPage } = usePayrollStore();
-    const { data: payroll } = useGetActivePayroll(
+  const { data: payroll } = useGetActivePayroll(
     searchQuery,
     pageSize,
     currentPage,
