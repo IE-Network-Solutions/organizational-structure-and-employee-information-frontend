@@ -52,7 +52,7 @@ const EmployeeProfile = () => {
   const empId = id as string;
 
   const { data: employee, isLoading } = useGetEmployee(empId);
-  const { data: payroll } = useGetActivePayroll();
+
   const { data: payrollHistory } = useGetPayrollHistory(empId);
 
   const {
@@ -61,8 +61,16 @@ const EmployeeProfile = () => {
     setMergedPayroll,
     setActiveMergedPayroll,
     setActivePayPeriod,
+    searchQuery,
+    pageSize,
+    currentPage,
   } = useEmployeeStore();
   const payslipRef = useRef(null);
+  const { data: payroll } = useGetActivePayroll(
+    searchQuery,
+    pageSize,
+    currentPage,
+  );
 
   const downloadPayslip = () => {
     if (!payslipRef.current) return;
