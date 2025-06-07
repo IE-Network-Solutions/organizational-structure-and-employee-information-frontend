@@ -33,9 +33,11 @@ export const usePasswordReset = () => {
  * @param id The ID of the localId which fetch from firebase to fetch
  * @returns The response data from the API
  */
-const getTenantId = async () => {
-  const token = useAuthenticationStore.getState().token; // Access the latest token
+const getTenantId = async (token: string) => {
   const localId = useAuthenticationStore.getState().localId;
+  if (!token || token.length === 0) {
+    token = useAuthenticationStore.getState().token;
+  }
   try {
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -92,11 +94,20 @@ export const useGetTenantByDomain = (domain: string) =>
     keepPreviousData: true,
     enabled: false,
   });
-export const useGetTenantId = () =>
-  useQuery<any>(['tenantId'], () => getTenantId(), {
-    keepPreviousData: true,
-    enabled: false, // Disabled by default, will be triggered manually
-  });
+export const useGetTenantId = () => {
+  const { refetch } = useQuery<any>(
+    ['tenantId'],
+    () => getTenantId(''), // Default empty token, will be overridden in refetch
+    {
+      keepPreviousData: true,
+      enabled: false, // Disabled by default, will be triggered manually
+    },
+  );
+
+  return {
+    refetch: (token: string) => refetch({ queryKey: ['tenantId', token] }),
+  };
+};
 export const useGetTenant = (tenantId?: string) => {
   return useQuery<any>(
     ['tenant', tenantId],
