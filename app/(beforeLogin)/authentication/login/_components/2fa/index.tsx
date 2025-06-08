@@ -132,7 +132,7 @@ const TwoFactorAuth = () => {
           </Form.Item>
         </Form>
         <p className="text-center text-xs mb-6">
-          Didn't receive the code?
+          Didn&apos;t receive the code?
           <Button
             type="link"
             className="text-blue cursor-pointer"
