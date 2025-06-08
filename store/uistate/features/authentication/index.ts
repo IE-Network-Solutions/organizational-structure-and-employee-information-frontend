@@ -25,6 +25,16 @@ interface StoreState {
   ) => void;
   loggedUserRole: string;
   setLoggedUserRole: (loggedUserRole: string) => void;
+  is2FA: boolean;
+  setIs2FA: (is2FA: boolean) => void;
+  user2FA: { email: string; pass: string };
+  setUser2FA: (user2FA: { email: string; pass: string }) => void;
+  twoFactorAuthEmail: string;
+  setTwoFactorAuthEmail: (twoFactorAuthEmail: string) => void;
+  countdown: number;
+  setCountdown: (value: number) => void;
+  resetCountdown: () => void;
+  decrementCountdown: () => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -71,6 +81,21 @@ export const useAuthenticationStore = create<StoreState>()(
           setCookie('activeCalendar', activeCalendar, 30);
           set({ activeCalendar });
         },
+        is2FA: false,
+        setIs2FA: (is2FA: boolean) => set({ is2FA }),
+        user2FA: { email: '', pass: '' },
+        setUser2FA: (user2FA: { email: string; pass: string }) =>
+          set({ user2FA }),
+        twoFactorAuthEmail: '',
+        setTwoFactorAuthEmail: (twoFactorAuthEmail: string) =>
+          set({ twoFactorAuthEmail }),
+        countdown: 300, // 5 minutes in seconds
+        setCountdown: (value: number) => set({ countdown: value }),
+        resetCountdown: () => set({ countdown: 300 }),
+        decrementCountdown: () =>
+          set((state) => ({
+            countdown: state.countdown > 0 ? state.countdown - 1 : 0,
+          })),
       }),
       {
         name: 'authentications-storage', // Unique name for the storage
