@@ -585,7 +585,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
       setTenantId('');
       setToken('');
-      setUser2FA({ email: '', pass: '' });
+      setUser2FA({ email: '', pass: '', recaptchaToken: '' });
 
 
       // Then remove cookies
