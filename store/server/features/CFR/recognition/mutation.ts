@@ -80,6 +80,21 @@ const createEmployeeRecognition = async ({ value }: { value: any }) => {
     headers,
   });
 };
+
+const createRecognitionCriteria = async ({value}: {value:any}) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/criterias`,
+    method: 'post',
+    data: value,
+    headers,
+  });
+};
 const deleteRecognitionType = async (id: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -168,5 +183,15 @@ export const useCreateEmployeeRecognition = () => {
       handleSuccessMessage(method);
     },
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
+  });
+};
+export const useCreateRecognitionCriteria = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createRecognitionCriteria, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('criteria');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
   });
 };

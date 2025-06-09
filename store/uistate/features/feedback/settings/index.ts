@@ -25,6 +25,9 @@ export interface CustomTemplates {
   setQuestionModal: (value: boolean) => void;
   deleteModal: boolean;
   setDeleteModal: (value: boolean) => void;
+
+  isModalVisible: boolean;
+  setIsModalVisible: (isModalVisible: boolean) => void;
 }
 
 export const useCustomQuestionTemplateStore = create<CustomTemplates>(
@@ -51,5 +54,8 @@ export const useCustomQuestionTemplateStore = create<CustomTemplates>(
     setQuestionModal: (value) => set({ questionModal: value }),
     deleteModal: false,
     setDeleteModal: (value) => set({ deleteModal: value }),
+    isModalVisible: false,
+    setIsModalVisible: (isModalVisible: boolean) =>
+      set({ isModalVisible }),
   }),
 );

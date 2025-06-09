@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Switch, Select, Button, Space, Popconfirm } from 'antd';
+import {
+  Form,
+  Input,
+  Switch,
+  Select,
+  Button,
+  Space,
+  Popconfirm,
+  Modal,
+} from 'antd';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useGetAllCriteria,
@@ -9,10 +18,17 @@ import {
 import { AggregateOperator, ConditionOperator } from '@/types/enumTypes';
 import {
   useAddRecognitionType,
+  useCreateRecognitionCriteria,
   useUpdateRecognitionWithCriteria,
 } from '@/store/server/features/CFR/recognition/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import CustomDrawerLayout from '@/components/common/customDrawer';
+import { FaPlus } from 'react-icons/fa';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
+import cancelIcon from '../../../../../../../public/image/Button.svg';
+import Image from 'next/image';
+
 
 interface RecognitionFormValues {
   id: string;
@@ -29,6 +45,12 @@ interface RecognitionFormValues {
   parentTypeId?: string | undefined;
   departmentId: string;
 }
+
+interface CriteriaFormValues {
+  criteriaName: string;
+  description: string;
+}
+
 const { Option } = Select;
 interface PropsData {
   createCategory?: boolean;
@@ -40,6 +62,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   onClose,
 }) => {
   const [form] = Form.useForm();
+  const [criteriaForm] = Form.useForm();
   const {
     openRecognitionType,
     setOpenRecognitionType,
@@ -53,6 +76,9 @@ const RecognitionForm: React.FC<PropsData> = ({
     setParentRecognitionTypeId,
     setOpenModal,
   } = ConversationStore();
+
+  const { isModalVisible, setIsModalVisible } =
+    useCustomQuestionTemplateStore();
 
   const { data: allDepartmentWithData } = useGetDepartmentsWithUsers();
   const { data: criteria } = useGetAllCriteria();
@@ -69,8 +95,14 @@ const RecognitionForm: React.FC<PropsData> = ({
     mutate: updateRecognitionWithCriteria,
     isLoading: updateWithCriteriaLoading,
   } = useUpdateRecognitionWithCriteria();
+  const {
+    mutate: createRecognitionCriteria,
+    isLoading: createCriteriaLoading,
+  } = useCreateRecognitionCriteria();
 
   const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
+  const { isMobile } = useIsMobile();
+  const [pendingNewCriteriaId, setPendingNewCriteriaId] = useState<string | null>(null);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -222,6 +254,38 @@ const RecognitionForm: React.FC<PropsData> = ({
       departmentId: recognitionTypeById.departmentId || null,
     });
   }, [recognitionTypeById]);
+
+  const onFinishCriteria = (values: CriteriaFormValues) => {
+    createRecognitionCriteria(
+      { value: values },
+      {
+        onSuccess: (response) => {
+          setIsModalVisible(false);
+          criteriaForm.resetFields();
+          const newCriteriaId = response?.id;
+          if (newCriteriaId) {
+            setPendingNewCriteriaId(newCriteriaId);
+            // Set the form value immediately for UI feedback
+            const currentCriteria = form.getFieldValue('criteria') || [];
+            const updatedCriteria = [...currentCriteria, newCriteriaId];
+            form.setFieldsValue({ criteria: updatedCriteria });
+          }
+        },
+      },
+    );
+  };
+
+  useEffect(() => {
+    if (pendingNewCriteriaId && criteria?.some((c: any) => c.id === pendingNewCriteriaId)) {
+      // Now the new criteria is available in the list, so update the fields
+      const currentCriteria = form.getFieldValue('criteria') || [];
+      if (currentCriteria.includes(pendingNewCriteriaId)) {
+        handleCriteriaChange(currentCriteria);
+        setPendingNewCriteriaId(null); // Reset
+      }
+    }
+  }, [criteria, pendingNewCriteriaId]);
+
   return (
     <CustomDrawerLayout
       modalHeader={modalHeader}
@@ -300,7 +364,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         >
           <Input
             placeholder="Enter recognition type name"
-            className="text-xs text-gray-950"
+            className="text-xs text-gray-950 h-10"
           />
         </Form.Item>
 
@@ -339,7 +403,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Select
               mode="multiple"
               placeholder="Select criteria"
-              className="text-xs text-gray-950"
+              className="text-xs text-gray-950 h-10"
               onChange={handleCriteriaChange}
             >
               {criteria?.map((option: any) => (
@@ -471,6 +535,23 @@ const RecognitionForm: React.FC<PropsData> = ({
                 className={commonClass}
               />
             </Form.Item>
+              <Image 
+                src={cancelIcon} 
+                alt="remove" 
+                width={16} 
+                height={16} 
+                onClick={() => {
+                  const updatedCriteria = selectedCriteria.filter((_: any, i: number) => i !== index);
+                  setSelectedCriteria(updatedCriteria);
+                  setTotalWeight(calculateTotalWeight(updatedCriteria));
+                  form.setFieldsValue({
+                    criteria: updatedCriteria.map((c: any) => c.id),
+                    recognitionCriteria: updatedCriteria
+                  });
+                }}
+                className="cursor-pointer"
+              />
+
           </div>
         ))}
 
@@ -564,6 +645,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                 )
               }
             </Form.Item>
+            <div className="flex justify-center mb-3">
+              <Button
+                className="flex justify-end items-center px-5"
+                icon={<FaPlus />}
+                onClick={() => setIsModalVisible(true)}
+                type="primary"
+              >
+                New Criteria
+              </Button>
+            </div>
 
             <Form.Item
               className="text-xs text-gray-950"
@@ -575,7 +666,7 @@ const RecognitionForm: React.FC<PropsData> = ({
               name="frequency"
               rules={[{ required: true, message: 'Please select a frequency' }]}
             >
-              <Select className="text-xs text-gray-950">
+              <Select className="text-xs text-gray-950 h-10">
                 <Select.Option value="weekly">Weekly</Select.Option>
                 <Select.Option value="monthly">Monthly</Select.Option>
                 <Select.Option value="quarterly">Quarterly</Select.Option>
@@ -621,7 +712,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           >
             <Select
               placeholder="Select a department"
-              className="text-black text-xs font-semibold"
+              className="text-black text-xs font-semibold h-10"
             >
               {allDepartmentWithData?.map((dep: any) => (
                 <Option key={dep.id} value={dep.id}>
@@ -634,6 +725,74 @@ const RecognitionForm: React.FC<PropsData> = ({
           </Form.Item>
         )}
       </Form>
+      <Modal
+        centered={false}
+        width={isMobile ? undefined : '30vw'}
+        style={
+          isMobile
+            ? {}
+            : {
+                top: '20vh',
+                left: '64vw',
+                right: 0,
+                margin: 0,
+                transform: 'none',
+              }
+        }
+        title=""
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={
+          <div className="flex justify-center items-center space-x-4">
+            <Button
+              type="default"
+              className="px-3"
+              onClick={() => setIsModalVisible(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              loading={createCriteriaLoading}
+              onClick={() => criteriaForm.submit()}
+              type="primary"
+              className="px-3"
+            >
+              Create
+            </Button>
+          </div>
+        }
+      >
+        <Form form={criteriaForm} layout="vertical" onFinish={onFinishCriteria}>
+          <Form.Item
+            label="Criteria Name"
+            name="criteriaName"
+            rules={[{ required: true, message: 'Please enter criteria name' }]}
+          >
+            <Input
+              className="w-full h-[40px] mt-1"
+              placeholder="Enter criteria name"
+              type="text"
+            />
+          </Form.Item>
+
+          <Form.Item
+            className="text-xs text-gray-950"
+            label={
+              <span className="text-black text-xs font-semibold mb-1">
+                Description
+              </span>
+            }
+            name="description"
+            rules={[{ message: 'Please enter a description' }]}
+          >
+            <Input.TextArea
+              placeholder="Enter a detailed description"
+              rows={4}
+              className="text-xs text-gray-950"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </CustomDrawerLayout>
   );
 };
