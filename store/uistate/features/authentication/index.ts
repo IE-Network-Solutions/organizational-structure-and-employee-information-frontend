@@ -27,8 +27,8 @@ interface StoreState {
   setLoggedUserRole: (loggedUserRole: string) => void;
   is2FA: boolean;
   setIs2FA: (is2FA: boolean) => void;
-  user2FA: { email: string; pass: string };
-  setUser2FA: (user2FA: { email: string; pass: string }) => void;
+  user2FA: { email: string; pass: string; recaptchaToken: string };
+  setUser2FA: (user2FA: { email: string; pass: string; recaptchaToken: string }) => void;
   twoFactorAuthEmail: string;
   setTwoFactorAuthEmail: (twoFactorAuthEmail: string) => void;
   countdown: number;
@@ -83,8 +83,8 @@ export const useAuthenticationStore = create<StoreState>()(
         },
         is2FA: false,
         setIs2FA: (is2FA: boolean) => set({ is2FA }),
-        user2FA: { email: '', pass: '' },
-        setUser2FA: (user2FA: { email: string; pass: string }) =>
+        user2FA: { email: '', pass: '', recaptchaToken: '' },
+        setUser2FA: (user2FA: { email: string; pass: string; recaptchaToken: string }) =>
           set({ user2FA }),
         twoFactorAuthEmail: '',
         setTwoFactorAuthEmail: (twoFactorAuthEmail: string) =>
