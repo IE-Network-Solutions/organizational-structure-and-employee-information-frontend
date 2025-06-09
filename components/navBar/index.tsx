@@ -18,7 +18,7 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -126,7 +126,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <LuUsers2
+          <LuUsers
             size={18}
             className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
           />
@@ -600,7 +600,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const filteredMenuItems = treeData
@@ -615,10 +615,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-              }),
-            )
+            AccessGuard.checkAccess({
+              permissions: child.permissions,
+            }),
+          )
           : [],
       };
     })
@@ -635,9 +635,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
-                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                  }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);

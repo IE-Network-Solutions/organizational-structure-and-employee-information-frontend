@@ -27,6 +27,7 @@
     "antd": "^5.20.5",
     "axios": "^1.7.2",
     "chart.js": "^4.4.4",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "company-organization-template": "file:",
     "dayjs": "^1.11.12",
     "docx": "^9.5.0",
