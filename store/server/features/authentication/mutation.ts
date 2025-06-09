@@ -3,7 +3,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
-const get2FACode = async (values: { email: string ,pass:string}) => {
+const get2FACode = async (values: {
+  email: string;
+  pass: string;
+  recaptchaToken: string;
+}) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/multi-factor-auth`,
     method: 'POST',
@@ -21,7 +25,13 @@ const verify2FACode = async (values: { uid: string; code: string }) => {
 
 export const useGet2FACode = () => {
   return useMutation(
-    ({ values }: { values: { email: string ,pass:string} }) => get2FACode(values),
+    ({
+      values,
+      recaptchaToken,
+    }: {
+      values: { email: string; pass: string };
+      recaptchaToken: string;
+    }) => get2FACode({ ...values, recaptchaToken }),
     {
       onSuccess: () => {
         NotificationMessage.success({
