@@ -1,5 +1,5 @@
 'use client';
-import { FC} from 'react';
+import { FC } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import {
   auth,
@@ -49,8 +49,8 @@ const Login: FC = () => {
         values: {
           email: values.email,
           pass: values.password,
+          recaptchaToken,
         },
-        recaptchaToken,
       },
       {
         onSuccess: (data) => {
@@ -61,7 +61,6 @@ const Login: FC = () => {
           setLocalId(data?.uid);
           setIs2FA(true);
         },
-        onError: () => {},
       },
     );
   };
