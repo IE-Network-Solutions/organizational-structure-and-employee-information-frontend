@@ -53,37 +53,49 @@ const LeaveSection: React.FC = () => {
         datasets: [
             {
                 label: 'Number of Employees on leave',
-                data: [20, 35, 45, 25, 30, 40, 35, 50, 45, 40, 35, 30],
-                borderColor: 'rgb(147, 51, 234)',
-                backgroundColor: 'rgba(147, 51, 234, 0.1)',
-                tension: 0.4,
-                fill: true,
+                data: [20, 75, 45, 25, 30, 40, 35, 80, 45, 40, 35, 30],
+                borderColor: '#8979FF', // New line color (e.g., Indigo-600)
+    backgroundColor: 'rgba(79, 70, 229, 0.1)', // Lighter fill
+    borderWidth: 1.5, // Line thickness
+    tension: 0.4,
+    fill: true,
+    pointRadius: 2.5, // Optional: increase point size
+    pointBackgroundColor: '#ffffff', // Point color
             },
         ],
     };
 
-    const lineChartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false,
-            },
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.1)',
-                },
-            },
-            x: {
-                grid: {
-                    display: false,
-                },
-            },
-        },
-    };
+   const lineChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+ datalabels: { display: false },
+
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      min: 0,
+      max: 100,
+      ticks: {
+        stepSize: 20,
+        color: '#333',
+      },
+      grid: {
+        color: 'rgba(0, 0, 0, 0.1)',
+      },
+    },
+    x: {
+      grid: {
+        display: true,
+      },
+    },
+  },
+};
+
 
     return (
         <Card title="Leave" className="h-full">
