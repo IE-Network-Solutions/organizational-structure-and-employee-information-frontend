@@ -207,7 +207,7 @@ const Header = () => {
           />
           <CardList
             type="birthday"
-            title="Whose Birthday is today?"
+            title="Whooooooooooooooose Birthday is today?"
             people={birthDays || []}
             loading={birthdayLoading}
           />

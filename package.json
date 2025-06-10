@@ -38,6 +38,7 @@
     "jspdf": "^2.5.2",
     "lucide-react": "^0.436.0",
     "next": "14.2.5",
+    "next-pwa": "^5.6.0",
     "quill": "^2.0.3",
     "quill-mention": "^6.1.1",
     "react": "^18",
@@ -58,6 +59,8 @@
     "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2",
     "uuid": "^10.0.0",
+    "web-push": "^3.6.7",
+    "workbox-window": "^7.0.0",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
@@ -75,6 +78,7 @@
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
+    "@types/web-push": "^3.6.3",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
     "@typescript-eslint/parser": "^7.13.1",
     "cypress": "^13.14.2",
