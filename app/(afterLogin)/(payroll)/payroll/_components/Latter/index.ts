@@ -167,7 +167,6 @@ export const useGenerateBankLetter = () => {
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
-
                   spacing: { after: 200 },
                 }),
                 // Contact info row

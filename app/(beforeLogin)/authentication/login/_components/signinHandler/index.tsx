@@ -15,6 +15,7 @@ export const useHandleSignIn = () => {
     setToken,
     setUserId,
     token,
+    tenantId,
     setLocalId,
     setTenantId,
     setUserData,
@@ -29,8 +30,11 @@ export const useHandleSignIn = () => {
   const { tenant } = useTenantChecker();
 
   useEffect(() => {
-    refetchFiscalYear();
-  }, [token]);
+    //also check tenantId
+    if (token.length > 0 && tenantId.length > 0) {
+      refetchFiscalYear();
+    }
+  }, [token, tenantId]);
 
   const handleSignIn = async (signInMethod: () => Promise<any>) => {
     setLoading(true);
@@ -44,19 +48,19 @@ export const useHandleSignIn = () => {
       setToken(token);
       setLocalId(uid);
 
-      const fetchedData = await fetchTenantId();
+      const fetchedData = await fetchTenantId(token);
 
       if (fetchedData.isError) {
         message.error('Failed to fetch user data. Please try again.');
         setToken('');
-        setLocalId('');
+        // setLocalId('');
       } else {
         if (tenant?.id !== fetchedData?.data?.tenantId) {
           message.error(
             'This user does not belong to this tenant. Please contact your administrator.',
           );
           setToken('');
-          setLocalId('');
+          // setLocalId('');
           return;
         }
         setTenantId(fetchedData?.data?.tenantId);

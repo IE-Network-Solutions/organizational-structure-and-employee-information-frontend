@@ -929,6 +929,7 @@ const Payroll = () => {
                   {isMobile ? (
                     <TbFileExport size={24} />
                   ) : payroll?.items?.length > 0 ? (
+
                     'Regenerate'
                   ) : (
                     'Generate'
