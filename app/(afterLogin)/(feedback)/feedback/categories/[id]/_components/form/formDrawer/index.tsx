@@ -182,6 +182,20 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                   className="w-full h-10"
                   rules={[
                     { required: true, message: 'Please select end date' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (
+                          !value ||
+                          !getFieldValue('surveyStartDate') ||
+                          value.isAfter(getFieldValue('surveyStartDate'))
+                        ) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error('End date must be after start date'),
+                        );
+                      },
+                    }),
                   ]}
                 >
                   <DatePicker
