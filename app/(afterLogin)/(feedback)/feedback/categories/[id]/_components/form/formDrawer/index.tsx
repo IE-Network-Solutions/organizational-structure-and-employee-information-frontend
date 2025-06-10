@@ -183,7 +183,9 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                   rules={[
                     { required: true, message: 'Please select end date' },
                     ({ getFieldValue }) => ({
+                      /* eslint-disable-next-line @typescript-eslint/naming-convention */
                       validator(_, value) {
+                        /* eslint-enable-next-line @typescript-eslint/naming-convention */
                         if (
                           !value ||
                           !getFieldValue('surveyStartDate') ||
