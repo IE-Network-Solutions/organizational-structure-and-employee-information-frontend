@@ -19,11 +19,7 @@ const TwoFactorAuth = () => {
   const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
     useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
-<<<<<<< HEAD
-=======
   const { tenant } = useTenantChecker();
-
->>>>>>> bb27bb0a90bd5145f05e32f12c1e8099939f69a2
 
   const {
     localId,

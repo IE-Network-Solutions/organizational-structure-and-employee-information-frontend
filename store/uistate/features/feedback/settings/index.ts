@@ -76,5 +76,5 @@ export const useCustomQuestionTemplateStore = create<CustomTemplates>(
     setEditingCriteriaName: (value) => set({ editingCriteriaName: value }),
     selectedCriteria: [],
     setSelectedCriteria: (value) => set({ selectedCriteria: value }),
-  })
+  }),
 );
