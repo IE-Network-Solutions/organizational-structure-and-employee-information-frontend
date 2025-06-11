@@ -412,6 +412,11 @@ const RecognitionForm: React.FC<PropsData> = ({
           setOpen(false);
           setParentRecognitionTypeId('');
           setSelectedRecognitionType('');
+          setSelectedCriteria([]);
+          setTotalWeight(0);
+          setPendingNewCriteriaId(null);
+          setEditingCriteriaId(null);
+          setEditingCriteriaName('');
         }}
         open={
           openRecognitionType ||
@@ -431,6 +436,11 @@ const RecognitionForm: React.FC<PropsData> = ({
                   setParentRecognitionTypeId('');
                   setSelectedRecognitionType('');
                   setOpenRecognitionType(false);
+                  setSelectedCriteria([]);
+                  setTotalWeight(0);
+                  setPendingNewCriteriaId(null);
+                  setEditingCriteriaId(null);
+                  setEditingCriteriaName('');
                 }}
                 okText="Yes"
                 cancelText="No"
