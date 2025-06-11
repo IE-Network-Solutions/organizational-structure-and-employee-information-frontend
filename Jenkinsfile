@@ -253,7 +253,7 @@ pipeline {
                         script {
                             withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
                                 sh """
-                                    sshpass -p '$SERVER_PASSWORD'  ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'cd ~/$REPO_DIR && npm run build'
+                                    sshpass -p '$SERVER_PASSWORD'  ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'cd ~/$REPO_DIR && export NODE_OPTIONS="--max-old-space-size=4096" && npm run build'
 
 
                                 """
