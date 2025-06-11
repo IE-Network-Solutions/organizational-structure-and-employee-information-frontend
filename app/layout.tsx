@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   publisher: 'Selamnew',
   applicationName: 'Selamnew Workspace',
   generator: 'Next.js',
-  manifest: '/manifest.webmanifest',
+  manifest: '/manifest.json',
   themeColor: '#1890ff',
   colorScheme: 'light',
   viewport: {
