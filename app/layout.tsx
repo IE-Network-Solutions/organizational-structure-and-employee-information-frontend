@@ -11,8 +11,17 @@ const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Selamnew Workspace',
-  description: 'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
-  keywords: ['enterprise', 'management', 'HR', 'payroll', 'recruitment', 'organizational', 'workspace'],
+  description:
+    'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
+  keywords: [
+    'enterprise',
+    'management',
+    'HR',
+    'payroll',
+    'recruitment',
+    'organizational',
+    'workspace',
+  ],
   authors: [{ name: 'Selamnew' }],
   creator: 'Selamnew',
   publisher: 'Selamnew',
@@ -49,7 +58,8 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Selamnew Workspace',
     title: 'Selamnew Workspace - Enterprise Management System',
-    description: 'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
+    description:
+      'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
     images: [
       {
         url: '/icons/manifest-icon-512.png',
@@ -62,7 +72,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Selamnew Workspace - Enterprise Management System',
-    description: 'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
+    description:
+      'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
     images: ['/icons/manifest-icon-512.png'],
   },
   robots: {
@@ -78,13 +89,37 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icons/android/android-launchericon-48-48.png', sizes: '48x48', type: 'image/png' },
-      { url: '/icons/android/android-launchericon-72-72.png', sizes: '72x72', type: 'image/png' },
-      { url: '/icons/android/android-launchericon-96-96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/icons/android/android-launchericon-144-144.png', sizes: '144x144', type: 'image/png' },
-      { url: '/icons/android/android-launchericon-192-192.png', sizes: '192x192', type: 'image/png' },
+      {
+        url: '/icons/android/android-launchericon-48-48.png',
+        sizes: '48x48',
+        type: 'image/png',
+      },
+      {
+        url: '/icons/android/android-launchericon-72-72.png',
+        sizes: '72x72',
+        type: 'image/png',
+      },
+      {
+        url: '/icons/android/android-launchericon-96-96.png',
+        sizes: '96x96',
+        type: 'image/png',
+      },
+      {
+        url: '/icons/android/android-launchericon-144-144.png',
+        sizes: '144x144',
+        type: 'image/png',
+      },
+      {
+        url: '/icons/android/android-launchericon-192-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
       { url: '/icons/ios/256.png', sizes: '256x256', type: 'image/png' },
-      { url: '/icons/android/android-launchericon-512-512.png', sizes: '512x512', type: 'image/png' },
+      {
+        url: '/icons/android/android-launchericon-512-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
     ],
     apple: [
       { url: '/icons/ios/57.png', sizes: '57x57', type: 'image/png' },
@@ -124,18 +159,49 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
         <meta name="msapplication-TileColor" content="#1890ff" />
         <meta name="msapplication-tap-highlight" content="no" />
-        
+
         {/* Splash Screens */}
-        <link rel="apple-touch-startup-image" href="/icons/apple-splash-2048-2732.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1668-2224.jpg" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1536-2048.jpg" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1125-2436.jpg" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-        <link rel="apple-touch-startup-image" href="/icons/apple-splash-1242-2208.jpg" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-        <link rel="apple-touch-startup-image" href="/icons/apple-splash-750-1334.jpg" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-        <link rel="apple-touch-startup-image" href="/icons/apple-splash-828-1792.jpg" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-        
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-2048-2732.jpg"
+          media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1668-2224.jpg"
+          media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1536-2048.jpg"
+          media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1125-2436.jpg"
+          media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1242-2208.jpg"
+          media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-750-1334.jpg"
+          media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-828-1792.jpg"
+          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+
         {/* Microsoft Edge */}
-        <meta name="msapplication-TileImage" content="/icons/manifest-icon-144.png" />
+        <meta
+          name="msapplication-TileImage"
+          content="/icons/manifest-icon-144.png"
+        />
       </head>
       <body className={manrope.className}>
         <PWAProvider>

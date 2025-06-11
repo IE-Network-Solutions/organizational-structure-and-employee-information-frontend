@@ -416,13 +416,13 @@ h6 {
     user-select: none;
     -webkit-user-select: none;
   }
-  
+
   /* Hide scrollbars in standalone mode for better app-like experience */
   ::-webkit-scrollbar {
     width: 0px;
     background: transparent;
   }
-  
+
   /* Add safe area padding for devices with notches */
   .main-content {
     padding-top: env(safe-area-inset-top);
@@ -439,25 +439,25 @@ h6 {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   .ant-menu-item {
     min-height: 48px;
     display: flex;
     align-items: center;
   }
-  
+
   /* Better mobile scrolling */
   body {
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Prevent zoom on input focus */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="url"],
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='url'],
   select,
   textarea {
     font-size: 16px !important;
@@ -510,7 +510,7 @@ h6 {
     border-radius: 8px;
     margin: 16px 0;
   }
-  
+
   /* Fix for iOS viewport height issues */
   .full-height {
     height: 100vh;
@@ -522,7 +522,9 @@ h6 {
 @media (display-mode: window-controls-overlay) {
   .app-header {
     padding-left: env(titlebar-area-x);
-    padding-right: calc(100vw - env(titlebar-area-x) - env(titlebar-area-width));
+    padding-right: calc(
+      100vw - env(titlebar-area-x) - env(titlebar-area-width)
+    );
     padding-top: env(titlebar-area-y);
     min-height: env(titlebar-area-height);
   }
@@ -533,7 +535,7 @@ h6 {
   .install-modal .ant-modal-content {
     border: 2px solid currentColor;
   }
-  
+
   .install-button-minimal {
     border: 2px solid currentColor;
   }

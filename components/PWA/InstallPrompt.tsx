@@ -2,7 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Card, Space, Typography, Alert } from 'antd';
-import { DownloadOutlined, CloseOutlined, MobileOutlined, DesktopOutlined, ShareAltOutlined } from '@ant-design/icons';
+import {
+  DownloadOutlined,
+  CloseOutlined,
+  MobileOutlined,
+  DesktopOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons';
 import { usePWA } from '@/hooks/usePWA';
 
 const { Title, Text, Paragraph } = Typography;
@@ -20,15 +26,9 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
   onInstall,
   onDismiss,
 }) => {
-  const { 
-    isInstallable, 
-    isInstalled, 
-    installApp, 
-    deviceType, 
-    platform,
-    isStandalone 
-  } = usePWA();
-  
+  const { isInstallable, isInstalled, installApp, deviceType, isStandalone } =
+    usePWA();
+
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
@@ -40,7 +40,13 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
   }, []);
 
   useEffect(() => {
-    if (autoShow && isInstallable && !isInstalled && !isDismissed && !isStandalone) {
+    if (
+      autoShow &&
+      isInstallable &&
+      !isInstalled &&
+      !isDismissed &&
+      !isStandalone
+    ) {
       // Show after a short delay to not interrupt user experience
       const timer = setTimeout(() => {
         setIsVisible(true);
@@ -55,7 +61,7 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       setIsVisible(false);
       onInstall?.();
     } catch (error) {
-      console.error('Installation failed:', error);
+      // console.error('Installation failed:', error);
     }
   };
 
@@ -78,11 +84,9 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
                   1. Tap the <ShareAltOutlined /> share button in your browser
                 </Paragraph>
                 <Paragraph>
-                  2. Scroll down and tap "Add to Home Screen"
+                  2. Scroll down and tap &quot;Add to Home Screen&quot;
                 </Paragraph>
-                <Paragraph>
-                  3. Tap "Add" to install the app
-                </Paragraph>
+                <Paragraph>3. Tap &quot;Add&quot; to install the app</Paragraph>
               </div>
             }
             type="info"
@@ -173,7 +177,8 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
                 Install Selamnew Workspace
               </Title>
               <Text type="secondary" className="text-sm">
-                Get the full app experience with offline access, notifications, and faster performance.
+                Get the full app experience with offline access, notifications,
+                and faster performance.
               </Text>
             </div>
 
@@ -202,9 +207,7 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
 
             <div className="mt-4">
               <Space className="w-full justify-end">
-                <Button onClick={handleDismiss}>
-                  Maybe Later
-                </Button>
+                <Button onClick={handleDismiss}>Maybe Later</Button>
                 {!/iPad|iPhone|iPod/.test(navigator.userAgent) && (
                   <Button
                     type="primary"
@@ -222,4 +225,4 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       </Modal>
     </>
   );
-}; 
+};

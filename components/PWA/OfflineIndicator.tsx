@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Alert, Button, notification } from 'antd';
-import { WifiOutlined, DisconnectOutlined, SyncOutlined } from '@ant-design/icons';
+import {
+  WifiOutlined,
+  DisconnectOutlined,
+  SyncOutlined,
+} from '@ant-design/icons';
 import { usePWA } from '@/hooks/usePWA';
 
 interface OfflineIndicatorProps {
@@ -24,18 +28,19 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     if (!isOnline && !wasOffline) {
       setWasOffline(true);
       setShowOfflineAlert(true);
-      
+
       if (showNotifications) {
         notification.warning({
           message: 'You are offline',
-          description: 'Some features may be limited while offline. The app will sync when you reconnect.',
+          description:
+            'Some features may be limited while offline. The app will sync when you reconnect.',
           icon: <DisconnectOutlined style={{ color: '#faad14' }} />,
           duration: 5,
         });
       }
     } else if (isOnline && wasOffline) {
       setShowOfflineAlert(false);
-      
+
       if (showNotifications) {
         notification.success({
           message: 'Back online',
@@ -44,7 +49,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           duration: 3,
         });
       }
-      
+
       // Reset the offline state after showing online notification
       setTimeout(() => {
         setWasOffline(false);
@@ -70,7 +75,9 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           message="You are offline"
           description={
             <div className="flex items-center justify-between">
-              <span>Some features may be limited. Check your internet connection.</span>
+              <span>
+                Some features may be limited. Check your internet connection.
+              </span>
               <Button
                 size="small"
                 icon={<SyncOutlined />}
@@ -96,7 +103,9 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           message="Update available"
           description={
             <div className="flex items-center justify-between">
-              <span>A new version is available. Update now for the latest features.</span>
+              <span>
+                A new version is available. Update now for the latest features.
+              </span>
               <Button
                 size="small"
                 type="primary"
@@ -117,7 +126,9 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 };
 
 // Connection status badge component
-export const ConnectionStatus: React.FC<{ className?: string }> = ({ className = '' }) => {
+export const ConnectionStatus: React.FC<{ className?: string }> = ({
+  className = '',
+}) => {
   const { isOnline } = usePWA();
 
   return (
@@ -135,4 +146,4 @@ export const ConnectionStatus: React.FC<{ className?: string }> = ({ className =
       )}
     </div>
   );
-}; 
+};

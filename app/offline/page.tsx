@@ -25,26 +25,25 @@ export default function OfflinePage() {
           title="You're Offline"
           subTitle="Please check your internet connection and try again. Some features may be limited while offline."
           extra={[
-            <Button 
-              type="primary" 
-              icon={<ReloadOutlined />} 
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
               onClick={handleRefresh}
               key="refresh"
             >
               Try Again
             </Button>,
-            <Button 
-              onClick={handleGoBack}
-              key="back"
-            >
+            <Button onClick={handleGoBack} key="back">
               Go Back
             </Button>,
           ]}
         />
-        
+
         <div className="mt-8 text-center">
           <div className="bg-white rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg font-semibold mb-2">Offline Features Available:</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Offline Features Available:
+            </h3>
             <ul className="text-left space-y-2 text-gray-600">
               <li>• View previously loaded pages</li>
               <li>• Access cached employee data</li>
@@ -56,4 +55,4 @@ export default function OfflinePage() {
       </div>
     </div>
   );
-} 
+}

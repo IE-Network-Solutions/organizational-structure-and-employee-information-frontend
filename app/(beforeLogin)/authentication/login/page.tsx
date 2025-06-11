@@ -1,5 +1,5 @@
 'use client';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, useCallback } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import {
   auth,
@@ -32,104 +32,89 @@ const Login: FC = () => {
     useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
   const { executeRecaptcha } = useGoogleReCaptcha();
-  
+
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [installable, setInstallable] = useState(false);
-  const [swRegistered, setSwRegistered] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
 
+  const checkPWACriteria = useCallback(() => {
+    const criteria = {
+      hasServiceWorker: 'serviceWorker' in navigator,
+      isSecure:
+        location.protocol === 'https:' || location.hostname === 'localhost',
+      hasManifest: document.querySelector('link[rel="manifest"]') !== null,
+      isStandalone: window.matchMedia('(display-mode: standalone)').matches,
+      hasInstallPrompt: !!deferredPrompt,
+    };
+
+    const issues = [];
+    if (!criteria.isSecure) issues.push('Not HTTPS/localhost');
+    if (!criteria.hasServiceWorker) issues.push('No Service Worker');
+    if (!criteria.hasManifest) issues.push('No Manifest');
+    if (criteria.isStandalone) issues.push('Already installed');
+
+    if (issues.length > 0) {
+      setDebugInfo(`Issues: ${issues.join(', ')}`);
+    } else if (!criteria.hasInstallPrompt) {
+      setDebugInfo('Waiting for install prompt...');
+    }
+  }, [deferredPrompt]);
+
   useEffect(() => {
-    // Log initial PWA detection
-    console.log('🔍 PWA Detection Started');
-    
     const handler = (e: any) => {
       e.preventDefault();
-      console.log('✅ beforeinstallprompt fired!', e);
       setDeferredPrompt(e);
       setInstallable(true);
       setDebugInfo('Install prompt available!');
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-    
-    // Check for app already installed
+
     window.addEventListener('appinstalled', () => {
-      console.log('✅ App was installed');
       setInstallable(false);
       setDeferredPrompt(null);
       setDebugInfo('App installed successfully!');
     });
-    
-    // Force service worker registration immediately
+
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('✅ SW registered successfully:', registration);
-          setSwRegistered(true);
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then(() => {
           setDebugInfo('Service worker registered');
-          
-          // Force check PWA criteria after registration
           setTimeout(() => {
             checkPWACriteria();
           }, 3000);
         })
         .catch((error) => {
-          console.log('❌ SW registration failed:', error);
           setDebugInfo(`SW failed: ${error.message}`);
         });
     } else {
       setDebugInfo('Service workers not supported');
     }
-    
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
     };
-  }, []);
-
-  const checkPWACriteria = () => {
-    const criteria = {
-      hasServiceWorker: 'serviceWorker' in navigator,
-      isSecure: location.protocol === 'https:' || location.hostname === 'localhost',
-      hasManifest: document.querySelector('link[rel="manifest"]') !== null,
-      isStandalone: window.matchMedia('(display-mode: standalone)').matches,
-      hasInstallPrompt: !!deferredPrompt
-    };
-    
-    console.log('🔍 PWA Criteria Check:', criteria);
-    
-    const issues = [];
-    if (!criteria.isSecure) issues.push('Not HTTPS/localhost');
-    if (!criteria.hasServiceWorker) issues.push('No Service Worker');
-    if (!criteria.hasManifest) issues.push('No Manifest');
-    if (criteria.isStandalone) issues.push('Already installed');
-    
-    if (issues.length > 0) {
-      setDebugInfo(`Issues: ${issues.join(', ')}`);
-    } else if (!criteria.hasInstallPrompt) {
-      setDebugInfo('Waiting for install prompt...');
-    }
-  };
+  }, [checkPWACriteria]);
 
   const handleInstall = async () => {
-    // First try the deferred prompt
     if (deferredPrompt) {
-      const result = await deferredPrompt.prompt();
-      console.log('Install result:', result);
+      await deferredPrompt.prompt();
       setDeferredPrompt(null);
       setInstallable(false);
       return;
     }
-    
-    // Check if already installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+    const isStandalone = window.matchMedia(
+      '(display-mode: standalone)',
+    ).matches;
     if (isStandalone) {
       alert('✅ App is already installed!');
       return;
     }
-    
-    // Browser-specific instructions with exact locations
+
     const userAgent = navigator.userAgent.toLowerCase();
-    
+
     if (userAgent.includes('chrome')) {
       const msg = `🔍 LOOK FOR THE INSTALL ICON IN YOUR ADDRESS BAR:
       
@@ -141,7 +126,9 @@ const Login: FC = () => {
 ⚠️ If you don't see it, wait 30 seconds and check again.`;
       alert(msg);
     } else {
-      alert('🚨 Use Google Chrome browser for best PWA install experience!\n\nChrome has the most reliable PWA installation.');
+      alert(
+        '🚨 Use Google Chrome browser for best PWA install experience!\n\nChrome has the most reliable PWA installation.',
+      );
     }
   };
 
@@ -170,7 +157,7 @@ const Login: FC = () => {
           setUser2FA({
             email: values.email,
             pass: values.password,
-            recaptchaToken
+            recaptchaToken,
           });
           setLocalId(data?.uid);
           setIs2FA(true);
@@ -282,7 +269,7 @@ const Login: FC = () => {
             Microsoft
           </Button>
         </div>
-        
+
         {/* INSTALL APP BUTTON */}
         <div className="mt-4">
           <Button
@@ -290,7 +277,11 @@ const Login: FC = () => {
             icon={<DownloadOutlined />}
             onClick={handleInstall}
             block
-            className={installable ? "bg-green-600 hover:bg-green-700 border-green-600" : "bg-blue-600 hover:bg-blue-700 border-blue-600"}
+            className={
+              installable
+                ? 'bg-green-600 hover:bg-green-700 border-green-600'
+                : 'bg-blue-600 hover:bg-blue-700 border-blue-600'
+            }
           >
             {installable ? '🎉 Install App Now!' : '📱 Install App'}
           </Button>

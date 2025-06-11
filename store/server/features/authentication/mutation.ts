@@ -26,11 +26,7 @@ const verify2FACode = async (values: { uid: string; code: string }) => {
 
 export const useGet2FACode = () => {
   return useMutation(
-    ({
-      values,
-    }: {
-      values: Get2FACodeProps;
-    }) => get2FACode({ ...values }),
+    ({ values }: { values: Get2FACodeProps }) => get2FACode({ ...values }),
     {
       onSuccess: () => {
         NotificationMessage.success({

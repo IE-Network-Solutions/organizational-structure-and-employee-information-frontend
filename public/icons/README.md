@@ -7,6 +7,7 @@ This folder should contain all the PWA icons for the Selamnew Workspace applicat
 You need to generate the following icons from your app logo:
 
 ### Manifest Icons (PNG format)
+
 - manifest-icon-48.png (48x48)
 - manifest-icon-72.png (72x72)
 - manifest-icon-96.png (96x96)
@@ -17,6 +18,7 @@ You need to generate the following icons from your app logo:
 - manifest-icon-512.png (512x512)
 
 ### Apple Touch Icons (PNG format)
+
 - apple-icon-57x57.png
 - apple-icon-60x60.png
 - apple-icon-72x72.png
@@ -29,18 +31,21 @@ You need to generate the following icons from your app logo:
 - apple-icon-precomposed.png (180x180)
 
 ### Windows Tile Icons (PNG format)
+
 - manifest-icon-70.png (70x70)
 - manifest-icon-150.png (150x150)
 - manifest-icon-310.png (310x310)
 - manifest-icon-310-150.png (310x150)
 
 ### Shortcut Icons (PNG format)
+
 - dashboard-96x96.png
 - employees-96x96.png
 - payroll-96x96.png
 - recruitment-96x96.png
 
 ### Splash Screens (JPG format)
+
 - apple-splash-2048-2732.jpg (iPad Pro 12.9")
 - apple-splash-1668-2224.jpg (iPad Pro 11")
 - apple-splash-1536-2048.jpg (iPad 9.7")
@@ -52,19 +57,23 @@ You need to generate the following icons from your app logo:
 ## How to Generate Icons
 
 ### Method 1: Using Online Tools
+
 1. Go to https://www.pwabuilder.com/imageGenerator
 2. Upload your app logo (preferably 512x512 PNG with transparent background)
 3. Download the generated icon pack
 4. Extract and place icons in this folder
 
 ### Method 2: Using PWA Asset Generator
+
 ```bash
 npm install -g pwa-asset-generator
 pwa-asset-generator your-logo.png public/icons --padding "10%" --background "#1890ff"
 ```
 
 ### Method 3: Manual Creation
+
 Use design tools like:
+
 - Figma
 - Adobe Illustrator
 - Canva
@@ -82,6 +91,7 @@ Use design tools like:
 ## Testing Icons
 
 After generating icons:
+
 1. Test on different devices (iOS, Android, Windows)
 2. Check in different browsers (Chrome, Safari, Edge, Firefox)
 3. Verify icons appear correctly in:
@@ -95,4 +105,4 @@ After generating icons:
 
 ❌ Icons not yet generated - Please generate icons using one of the methods above.
 
-Once icons are generated, remove this README and verify all icons are working correctly. 
+Once icons are generated, remove this README and verify all icons are working correctly.

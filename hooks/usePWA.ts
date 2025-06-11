@@ -24,13 +24,17 @@ interface PWAHookReturn {
 }
 
 export const usePWA = (): PWAHookReturn => {
-  const [deferredPrompt, setDeferredPrompt] = useState<PWAInstallPrompt | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<PWAInstallPrompt | null>(
+    null,
+  );
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
-  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>(
+    'desktop',
+  );
 
   // Detect device type
   useEffect(() => {
@@ -53,11 +57,11 @@ export const usePWA = (): PWAHookReturn => {
   // Detect standalone mode
   useEffect(() => {
     const checkStandalone = () => {
-      const isStandaloneMode = 
+      const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true ||
         document.referrer.includes('android-app://');
-      
+
       setIsStandalone(isStandaloneMode);
       setIsInstalled(isStandaloneMode);
     };
@@ -100,7 +104,10 @@ export const usePWA = (): PWAHookReturn => {
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt,
+      );
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
@@ -125,7 +132,9 @@ export const usePWA = (): PWAHookReturn => {
     if (!deferredPrompt) {
       // Fallback for iOS
       if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        alert('To install this app on your iOS device, tap the share button and then "Add to Home Screen"');
+        alert(
+          'To install this app on your iOS device, tap the share button and then "Add to Home Screen"',
+        );
         return;
       }
       throw new Error('Install prompt not available');
@@ -134,11 +143,11 @@ export const usePWA = (): PWAHookReturn => {
     try {
       await deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
-      
+
       if (choiceResult.outcome === 'accepted') {
         setIsInstalled(true);
       }
-      
+
       setDeferredPrompt(null);
       setIsInstallable(false);
     } catch (error) {
@@ -173,7 +182,9 @@ export const usePWA = (): PWAHookReturn => {
       }
     } else {
       // Fallback: copy to clipboard
-      await navigator.clipboard.writeText(shareData.url || window.location.href);
+      await navigator.clipboard.writeText(
+        shareData.url || window.location.href,
+      );
       alert('Link copied to clipboard!');
     }
   }, []);
@@ -194,4 +205,4 @@ export const usePWA = (): PWAHookReturn => {
     deviceType,
     platform,
   };
-}; 
+};

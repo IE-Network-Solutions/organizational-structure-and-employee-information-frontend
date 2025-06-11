@@ -24,7 +24,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
         .register('/sw.js')
         .then((registration) => {
           console.log('Service Worker registered successfully:', registration);
-          
+
           // Check for updates
           registration.addEventListener('updatefound', () => {
             const installingWorker = registration.installing;
@@ -60,9 +60,13 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
     const sharedTitle = urlParams.get('title');
     const sharedText = urlParams.get('text');
     const sharedUrl = urlParams.get('url');
-    
+
     if (sharedTitle || sharedText || sharedUrl) {
-      console.log('App opened via share target:', { sharedTitle, sharedText, sharedUrl });
+      console.log('App opened via share target:', {
+        sharedTitle,
+        sharedText,
+        sharedUrl,
+      });
       // Handle shared content here
     }
 
@@ -115,13 +119,13 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           e.preventDefault();
           window.location.reload();
         }
-        
+
         // Prevent F5 (refresh)
         if (e.key === 'F5') {
           e.preventDefault();
           window.location.reload();
         }
-        
+
         // Prevent Alt+F4 (close)
         if (e.altKey && e.key === 'F4') {
           e.preventDefault();
@@ -142,4 +146,4 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       {enableOfflineIndicator && <OfflineIndicator />}
     </>
   );
-}; 
+};
