@@ -237,7 +237,7 @@ pipeline {
                         script {
                             sshagent([env.SSH_CREDENTIALS_ID_1]) {
                                 sh """
-                                   ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && export NODE_OPTIONS="--max-old-space-size=4096" && npm run build'
+                                   ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR &&  npm run build'
 
 
                                 """
