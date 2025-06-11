@@ -199,29 +199,33 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   const handleSaveEdit = (criteriaItem: any) => {
-    updateCriteria({
-      id: criteriaItem.id,
-      criteriaName: editingCriteriaName,
-    }, {
-      onSuccess: () => {
-        // Update the selectedCriteria to reflect the new name
-        const updatedSelectedCriteria = selectedCriteria.map((criteria: any) => 
-          criteria.id === criteriaItem.id 
-            ? { ...criteria, criterionKey: editingCriteriaName }
-            : criteria
-        );
-        setSelectedCriteria(updatedSelectedCriteria);
-        
-        // Update form values
-        form.setFieldsValue({
-          recognitionCriteria: updatedSelectedCriteria
-        });
+    updateCriteria(
+      {
+        id: criteriaItem.id,
+        criteriaName: editingCriteriaName,
+      },
+      {
+        onSuccess: () => {
+          // Update the selectedCriteria to reflect the new name
+          const updatedSelectedCriteria = selectedCriteria.map(
+            (criteria: any) =>
+              criteria.id === criteriaItem.id
+                ? { ...criteria, criterionKey: editingCriteriaName }
+                : criteria,
+          );
+          setSelectedCriteria(updatedSelectedCriteria);
 
-        // Reset editing state
-        setEditingCriteriaId(null);
-        setEditingCriteriaName('');
-      }
-    });
+          // Update form values
+          form.setFieldsValue({
+            recognitionCriteria: updatedSelectedCriteria,
+          });
+
+          // Reset editing state
+          setEditingCriteriaId(null);
+          setEditingCriteriaName('');
+        },
+      },
+    );
   };
 
   const handleCancelEdit = () => {
@@ -239,8 +243,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       ),
       okText: 'Confirm',
       okButtonProps: {
-        className:
-          'bg-red-500 text-white border-red-500 hover:bg-red-600 hover:border-red-600',
+        className: 'bg-red-500 text-white',
       },
       cancelText: 'Cancel',
       centered: false,
@@ -262,25 +265,25 @@ const RecognitionForm: React.FC<PropsData> = ({
           onSuccess: () => {
             // Remove the deleted criteria from selectedCriteria if it was selected
             const updatedSelectedCriteria = selectedCriteria.filter(
-              (criteria: any) => criteria.id !== criteriaItem.id
+              (criteria: any) => criteria.id !== criteriaItem.id,
             );
             setSelectedCriteria(updatedSelectedCriteria);
-            
+
             // Update form values to remove the deleted criteria
             const currentFormCriteria = form.getFieldValue('criteria') || [];
             const updatedFormCriteria = currentFormCriteria.filter(
-              (id: string) => id !== criteriaItem.id
+              (id: string) => id !== criteriaItem.id,
             );
-            
+
             // Recalculate total weight
             setTotalWeight(calculateTotalWeight(updatedSelectedCriteria));
-            
+
             // Update form values
             form.setFieldsValue({
               criteria: updatedFormCriteria,
-              recognitionCriteria: updatedSelectedCriteria
+              recognitionCriteria: updatedSelectedCriteria,
             });
-          }
+          },
         });
       },
     });
