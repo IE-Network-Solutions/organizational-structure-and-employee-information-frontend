@@ -55,7 +55,6 @@ export const useCustomQuestionTemplateStore = create<CustomTemplates>(
     deleteModal: false,
     setDeleteModal: (value) => set({ deleteModal: value }),
     isModalVisible: false,
-    setIsModalVisible: (isModalVisible: boolean) =>
-      set({ isModalVisible }),
+    setIsModalVisible: (isModalVisible: boolean) => set({ isModalVisible }),
   }),
 );
