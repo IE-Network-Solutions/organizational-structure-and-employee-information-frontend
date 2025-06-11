@@ -32,7 +32,7 @@ const nextConfig = {
 
 const pwaConfig = withPWA({
   dest: 'public',
-  disable: false,
+  disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
   register: true,
   skipWaiting: true,
   sw: 'sw.js',
