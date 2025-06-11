@@ -11,6 +11,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useEffect } from 'react';
 import { useHandleSignIn } from '../signinHandler';
 import { auth } from '@/utils/firebaseConfig';
+import { useTenantChecker } from '../tenantChecker';
 
 const TwoFactorAuth = () => {
   const { mutate: verify2FACode, isLoading: isVerify2FACodeLoading } =
@@ -18,6 +19,11 @@ const TwoFactorAuth = () => {
   const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
     useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
+<<<<<<< HEAD
+=======
+  const { tenant } = useTenantChecker();
+
+>>>>>>> bb27bb0a90bd5145f05e32f12c1e8099939f69a2
 
   const {
     localId,
@@ -69,6 +75,7 @@ const TwoFactorAuth = () => {
           email: user2FA.email,
           pass: user2FA.pass,
           recaptchaToken: user2FA.recaptchaToken,
+          logeInTenantId: tenant?.id,
         },
       },
       {
