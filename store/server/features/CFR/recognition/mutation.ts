@@ -50,6 +50,35 @@ const updateRecognitionType = async (data: any) => {
   });
 };
 
+const updateCriteria = async (data: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/criterias/${data?.id}`,
+    method: 'patch',
+    data,
+    headers,
+  });
+};
+
+const deleteCriteria = async (id: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/criterias/${id}`,
+    method: 'delete',
+    headers,
+  });
+};
+
 const createRecognition = async ({ value }: { value: any }) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -75,6 +104,21 @@ const createEmployeeRecognition = async ({ value }: { value: any }) => {
   };
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition/recognize`,
+    method: 'post',
+    data: value,
+    headers,
+  });
+};
+
+const createRecognitionCriteria = async ({ value }: { value: any }) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/criterias`,
     method: 'post',
     data: value,
     headers,
@@ -168,5 +212,35 @@ export const useCreateEmployeeRecognition = () => {
       handleSuccessMessage(method);
     },
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
+  });
+};
+export const useCreateRecognitionCriteria = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createRecognitionCriteria, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('criteria');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useUpdateCriteria = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateCriteria, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('criteria');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+export const useDeleteCriteria = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteCriteria, {
+    onSuccess: (notused, variables: any) => {
+      queryClient.invalidateQueries('criteria');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
   });
 };

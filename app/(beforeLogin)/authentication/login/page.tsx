@@ -57,7 +57,7 @@ const Login: FC = () => {
           setUser2FA({
             email: values.email,
             pass: values.password,
-            recaptchaToken
+            recaptchaToken,
           });
           setLocalId(data?.uid);
           setIs2FA(true);
