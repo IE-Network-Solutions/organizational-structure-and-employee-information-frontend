@@ -41,6 +41,7 @@ pipeline {
                 }
             }
         }
+	}
 
         stage('Fetch Environment Variables') {
             parallel {
