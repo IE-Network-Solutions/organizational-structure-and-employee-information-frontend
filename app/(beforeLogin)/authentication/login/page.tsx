@@ -17,6 +17,7 @@ import TwoFactorAuth from './_components/2fa';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
 import { useGet2FACode } from '@/store/server/features/authentication/mutation';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { useTenantChecker } from './_components/tenantChecker';
 
 type FieldType = {
   email: string;
@@ -25,6 +26,7 @@ type FieldType = {
 };
 
 const Login: FC = () => {
+  const { tenant } = useTenantChecker();
   const { loading, is2FA, setIs2FA, setLocalId, setUser2FA } =
     useAuthenticationStore();
   const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
@@ -50,6 +52,7 @@ const Login: FC = () => {
           email: values.email,
           pass: values.password,
           recaptchaToken,
+          logeInTenantId: tenant?.id,
         },
       },
       {
