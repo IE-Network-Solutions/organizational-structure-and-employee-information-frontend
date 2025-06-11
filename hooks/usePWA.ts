@@ -32,9 +32,20 @@ export const usePWA = (): PWAHookReturn => {
   const [isOnline, setIsOnline] = useState(true);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+  const [platform, setPlatform] = useState('');
   const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>(
     'desktop',
   );
+
+  useEffect(() => {
+    // Client-side only checks
+    if (typeof window !== 'undefined') {
+      setCanShare('share' in navigator);
+      setPlatform(navigator.platform);
+      setIsOnline(navigator.onLine);
+    }
+  }, []);
 
   // Detect device type
   useEffect(() => {
@@ -76,7 +87,6 @@ export const usePWA = (): PWAHookReturn => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    setIsOnline(navigator.onLine);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
@@ -188,9 +198,6 @@ export const usePWA = (): PWAHookReturn => {
       alert('Link copied to clipboard!');
     }
   }, []);
-
-  const canShare = 'share' in navigator;
-  const platform = navigator.platform;
 
   return {
     isInstallable,

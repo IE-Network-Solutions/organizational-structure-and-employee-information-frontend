@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "NODE_OPTIONS=--max-old-space-size=2048 DISABLE_PWA=true next build && next-pwa",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 DISABLE_PWA=true next build && next-pwa",
     "start": "next start -p 3001",
     "stage": "next start -p 3005",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
