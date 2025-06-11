@@ -25,6 +25,21 @@ export interface CustomTemplates {
   setQuestionModal: (value: boolean) => void;
   deleteModal: boolean;
   setDeleteModal: (value: boolean) => void;
+
+  isModalVisible: boolean;
+  setIsModalVisible: (isModalVisible: boolean) => void;
+
+  pendingNewCriteriaId: string | null;
+  setPendingNewCriteriaId: (value: string | null) => void;
+
+  editingCriteriaId: string | null;
+  setEditingCriteriaId: (value: string | null) => void;
+
+  editingCriteriaName: string;
+  setEditingCriteriaName: (value: string) => void;
+
+  selectedCriteria: any[];
+  setSelectedCriteria: (value: any[]) => void;
 }
 
 export const useCustomQuestionTemplateStore = create<CustomTemplates>(
@@ -51,5 +66,15 @@ export const useCustomQuestionTemplateStore = create<CustomTemplates>(
     setQuestionModal: (value) => set({ questionModal: value }),
     deleteModal: false,
     setDeleteModal: (value) => set({ deleteModal: value }),
-  }),
+    isModalVisible: false,
+    setIsModalVisible: (isModalVisible: boolean) => set({ isModalVisible }),
+    pendingNewCriteriaId: null,
+    setPendingNewCriteriaId: (value) => set({ pendingNewCriteriaId: value }),
+    editingCriteriaId: null,
+    setEditingCriteriaId: (value) => set({ editingCriteriaId: value }),
+    editingCriteriaName: '',
+    setEditingCriteriaName: (value) => set({ editingCriteriaName: value }),
+    selectedCriteria: [],
+    setSelectedCriteria: (value) => set({ selectedCriteria: value }),
+  })
 );

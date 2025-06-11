@@ -21,6 +21,7 @@ const TwoFactorAuth = () => {
   const { handleSignIn } = useHandleSignIn();
   const { tenant } = useTenantChecker();
 
+
   const {
     localId,
     twoFactorAuthEmail,
