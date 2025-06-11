@@ -15,7 +15,10 @@ import {
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-import { UseExportAttendanceData, useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import {
+  UseExportAttendanceData,
+  useGetAttendances,
+} from '@/store/server/features/timesheet/attendance/queries';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
@@ -63,7 +66,6 @@ const EmployeeAttendance = () => {
   const { setIsShowBreakAttendanceImportSidebar, filter } =
     useEmployeeAttendanceStore();
 
-  const [isExporting, setIsExporting] = useState(false);
   const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
   const onExport = async (type: 'PDF' | 'EXCEL') => {
@@ -74,7 +76,6 @@ const EmployeeAttendance = () => {
       });
     } catch (error) {
       message.error('Failed to export. Please try again.');
-      setIsExporting(false);
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({
@@ -103,7 +104,6 @@ const EmployeeAttendance = () => {
       window.open(fileUrl, '_blank');
 
       // Reset all export states
-      setIsExporting(false);
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({

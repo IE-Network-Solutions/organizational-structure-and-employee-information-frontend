@@ -75,8 +75,6 @@ const LeaveManagement = () => {
   }, [bodyRequest]);
 
   const onExport = (type: 'PDF' | 'EXCEL') => {
-
-    
     setBodyRequest((prev) => ({
       ...prev,
       exportType: type,

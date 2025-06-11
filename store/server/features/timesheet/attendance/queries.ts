@@ -40,13 +40,14 @@ const exportAttendanceData = async (data: any) => {
           ...requestHeader(),
         },
         responseType: 'blob',
-      }
+      },
     );
 
     const blob = new Blob([response.data], {
-      type: data.exportType === 'PDF' 
-        ? 'application/pdf'
-        : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      type:
+        data.exportType === 'PDF'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
 
     const url = window.URL.createObjectURL(blob);
@@ -65,11 +66,9 @@ const exportAttendanceData = async (data: any) => {
     link.remove();
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Error exporting attendance data:', error);
     throw error;
   }
 };
-
 
 const getSingleAttendances = async (id: string) => {
   return await crudRequest({
@@ -126,7 +125,6 @@ export const UseExportAttendanceData = () => {
   return useMutation(exportAttendanceData, {
     onSuccess: () => {
       queryClient.invalidateQueries('exportData');
-   
     },
   });
 };
