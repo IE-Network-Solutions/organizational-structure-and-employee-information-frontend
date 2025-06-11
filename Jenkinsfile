@@ -32,7 +32,7 @@ pipeline {
                             env.REMOTE_SERVER_2 = REMOTE_SERVER_PROD2
                             env.SECRETS_PATH = '/home/ubuntu/preview-secrets/.osei-front-env'
                             env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/preview'
-                        } else if (branchName.contains('ooo')) {
+                        } else if (branchName.contains('OOO')) {
                             env.SSH_CREDENTIALS_ID_1 = 'peptest'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_TEST
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.pwa-env'
@@ -283,9 +283,9 @@ pipeline {
                         }
                     }
                 }
-stage('Deploy pwa') {
+ stage('Deploy pwa') {
                     when {
-                        expression { env.BRANCH_NAME.contains('ooo') }
+                        expression { env.BRANCH_NAME.contains('OOO') }
                     }
                     steps {
                         script {
