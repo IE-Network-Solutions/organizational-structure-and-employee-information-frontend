@@ -176,8 +176,8 @@ export default function ChartLayout({
                         closeDrawer();
                         reset();
                       },
-                    });     
-                  } 
+                    });
+                  }
                 } else if (footerButtonText == 'Merge') {
                   mergeDepartments(mergeData, {
                     onSuccess: () => {
