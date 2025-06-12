@@ -7,7 +7,7 @@ interface Get2FACodeProps {
   email: string;
   pass: string;
   recaptchaToken: string;
-  logeInTenantId: string;
+  loginTenantId: string;
 }
 const get2FACode = async (values: Get2FACodeProps) => {
   return crudRequest({
