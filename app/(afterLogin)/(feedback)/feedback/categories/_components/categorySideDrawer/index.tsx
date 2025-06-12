@@ -2,18 +2,11 @@
 import React, { useEffect } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Spin,
-} from 'antd';
+import { Button, Form, Input, Select, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useAddCategory } from '@/store/server/features/feedback/category/mutation';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
-
 
 interface CategoryFormValues {
   name: string;
@@ -30,8 +23,11 @@ const CategorySideDrawer: React.FC<any> = (props) => {
     searchUserParams,
     setSelectedUsers,
   } = CategoriesManagementStore();
-  const { mutateAsync: createCategory, isLoading: isCreatingCategory } = useAddCategory();
-  const { data: employees, isLoading: isEmployeesLoading } = useFetchUsers(searchUserParams?.user_name);
+  const { mutateAsync: createCategory, isLoading: isCreatingCategory } =
+    useAddCategory();
+  const { data: employees, isLoading: isEmployeesLoading } = useFetchUsers(
+    searchUserParams?.user_name,
+  );
 
   const [form] = Form.useForm();
   useEffect(() => {
@@ -49,23 +45,23 @@ const CategorySideDrawer: React.FC<any> = (props) => {
     deselectAllUsers();
   };
 
-
-
   const handleSubmit = async () => {
     const values = await form.validateFields();
     const { name, description } = values as CategoryFormValues;
 
-    await createCategory({
-      name,
-      description,
-      users: selectedUsers,
-    }, {
-      onSuccess: () => {
-        handleCloseDrawer();
-        form.resetFields();
+    await createCategory(
+      {
+        name,
+        description,
+        users: selectedUsers,
       },
-    });
-   
+      {
+        onSuccess: () => {
+          handleCloseDrawer();
+          form.resetFields();
+        },
+      },
+    );
   };
 
   return (
@@ -150,12 +146,10 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                   // value={selectedUsers.map(user => user.userId)}
                   showSearch
                   filterOption={(input, option) => {
-                    if (typeof option?.children === 'string') {
-                      return option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase());
-                    }
-                    return false;
+                    return (option?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase());
                   }}
                   onChange={(userIds: string[]) =>
                     setSelectedUsers(userIds.map((id) => ({ userId: id })))
@@ -163,9 +157,9 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                 >
                   {employees?.items.map((employee: any) => (
                     <Select.Option key={employee.id} value={employee.id}>
-                      {isEmployeesLoading? (
+                      {isEmployeesLoading ? (
                         <Spin size="small" />
-                      ): (
+                      ) : (
                         employee.firstName +
                         ' ' +
                         (employee?.middleName || '') +
