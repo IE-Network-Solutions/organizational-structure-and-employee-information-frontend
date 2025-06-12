@@ -23,7 +23,8 @@ export default function Home() {
   const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
     useEmployeeManagementStore();
   useEffect(() => {
-    if (departments?.length < 1) {
+    // if (departments?.length < 1) {
+    if (true) {
       router.push('/onboarding');
     } else if (
       employeeData &&

@@ -42,6 +42,8 @@ export interface DrawerState {
 
   fiscalYearFormValues: Record<string, any>;
   setFiscalYearFormValues: (newData: Record<string, any>) => void;
+  fiscalYearPayLoad: any;
+  setFiscalYearPayLoad:(newData: Record<string, any>) => void;
 
   sessionFormValues: Record<string, any>;
   setSessionFormValues: (newData: Record<string, any>) => void;

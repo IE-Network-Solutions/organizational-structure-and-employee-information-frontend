@@ -1,16 +1,15 @@
 'use client';
+import { useEffect } from 'react';
 import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
 import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
 import { Button, Form, Select } from 'antd';
 
-// Define the type for GMT offset options
 interface GmtOffsetOption {
   value: string;
   label: string;
 }
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const gmtOffsets: GmtOffsetOption[] = Array.from({ length: 27 }, (_, i) => {
-  // eslint-enable-next-line @typescript-eslint/naming-convention
   const hour = i - 12;
   const sign = hour >= 0 ? '+' : '-';
   const absHour = Math.abs(hour).toString().padStart(2, '0');
@@ -30,45 +29,76 @@ const gmtOffsets: GmtOffsetOption[] = Array.from({ length: 27 }, (_, i) => {
   }));
 }).flat();
 
-const TimezoneComponent = () => {
+interface TimezoneComponentProps {
+  autoDetectedTimeZone: string;
+}
+
+const TimezoneComponent = ({ autoDetectedTimeZone }: TimezoneComponentProps) => {
+  const [form] = Form.useForm();
   const { data } = useGetTimeZone();
   const { mutate: updateTimeZone, isLoading } = useUpdateTimeZone();
+
+  // Converts time zone like "Africa/Addis_Ababa" to "+03:00"
+  const convertTZToOffset = (tzName: string): string | null => {
+    try {
+      const date = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: tzName,
+        hourCycle: 'h23',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'shortOffset',
+      };
+      const formatter = new Intl.DateTimeFormat('en-US', options);
+      const parts = formatter.formatToParts(date);
+      const offset = parts.find(p => p.type === 'timeZoneName')?.value.replace('GMT', '').trim();
+      return offset || null;
+    } catch (e) {
+      console.warn('Failed to convert timezone:', e);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const offset = convertTZToOffset(autoDetectedTimeZone);
+    if (offset) {
+      form.setFieldsValue({ timezone: offset });
+    }
+  }, [autoDetectedTimeZone]);
 
   const handleFinish = (values: any) => {
     if (data) {
       updateTimeZone({ ...values, id: data.id });
     }
   };
+
   return (
-    <>
-      <div className="mt-4">
-        <Form onFinish={handleFinish}>
-          <Form.Item
-            name="timezone"
-            rules={[
-              { required: true, message: 'Please select your timezone!' },
-            ]}
-          >
-            <Select
-              showSearch
-              placeholder="Select GMT offset"
-              style={{ width: 200 }}
-              options={gmtOffsets}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={isLoading}>
-              Set Timezone
-            </Button>
-          </Form.Item>
-        </Form>
-        <hr />
-        <div className="text-xl">
-          Your Current Timezone:{' '}
-          <span className="font-extrabold">{data?.timezone} GMT</span>{' '}
-        </div>
+    <div className="mt-4">
+      <Form form={form} onFinish={handleFinish}>
+        <Form.Item
+          name="timezone"
+          rules={[{ required: true, message: 'Please select your timezone!' }]}
+        >
+          <Select
+            showSearch
+            placeholder="Select GMT offset"
+            style={{ width: 200 }}
+            options={gmtOffsets}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={isLoading}>
+            Set Timezone
+          </Button>
+        </Form.Item>
+      </Form>
+      <hr />
+      <div className="text-xl">
+        Your Current Timezone:{' '}
+        <span className="font-extrabold">{autoDetectedTimeZone}</span>
       </div>
-    </>
+    </div>
   );
 };
+
 export default TimezoneComponent;

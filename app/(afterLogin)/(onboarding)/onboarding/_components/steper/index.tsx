@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
@@ -39,11 +39,16 @@ import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructu
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import {
+  useGetCompanyProfileByTenantId,
   // useUpdateCompanyProfile,
   useUpdateCompanyProfileWithStamp,
 } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import TimeZone from './timezone';
+import FiscalYearForm from './onBoardingFy';
+import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
+import { useCreateBranch, useDeleteBranch } from '@/store/server/features/organizationStructure/branchs/mutation';
+import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -58,7 +63,10 @@ const OnboaringSteper: React.FC = () => {
   const { calendarType } = useFiscalYearDrawerStore();
   const router = useRouter();
   useEffect(() => {
-    if (departments?.length > 0) {
+    // if (departments?.length > 0) {
+    //   router.push('/dashboard');
+    // }
+     if (false) {
       router.push('/dashboard');
     }
   }, [departments?.length]);
@@ -73,13 +81,44 @@ const OnboaringSteper: React.FC = () => {
     togleIsModalVisible,
   } = useStepStore((state) => state);
 
-  const { createWorkSchedule, getSchedule } = useScheduleStore();
+  const { createWorkSchedule, getSchedule, detail } = useScheduleStore();
   const { data: branches } = useGetBranches();
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
+  const { data: companyInformation } = useGetCompanyProfileByTenantId(tenantId);
   const { orgData } = useOrganizationStore();
   // const { getFiscalYear } = useFiscalYearStore();
+  const { data } = useGetTimeZone();
+ const [detectedTimeZone, setDetectedTimeZone] = useState<string>('');
+function getBrowserGMTOffset(): string {
+  const offsetMinutes = new Date().getTimezoneOffset();
+  const totalMinutes = -offsetMinutes;
 
-  const { fiscalYearFormValues, sessionFormValues, monthRangeValues } =
+  const sign = totalMinutes >= 0 ? '+' : '-';
+  const absMinutes = Math.abs(totalMinutes);
+  const hours = Math.floor(absMinutes / 60).toString().padStart(2, '0');
+  const minutes = (absMinutes % 60).toString().padStart(2, '0');
+  return `${sign}${hours}:${minutes}`;
+}
+  useEffect(() => {
+    setDetectedTimeZone(getBrowserGMTOffset());
+  }, [getBrowserGMTOffset()]);
+  const timeZonePayload={
+    timezone: detectedTimeZone,
+    id:data? data.id:""
+}
+const schedulePayload={
+  name:"Full-time Schedule",
+detail
+}
+const branchPayload={
+    name: "HQ",
+    description: "HQ",
+    location: "HQ",
+    contactNumber: companyInformation?.contactPersonPhoneNumber,
+    contactEmail: companyInformation?.contactPersonEmail
+}
+  const { fiscalYearPayLoad } =
     useFiscalYearDrawerStore();
   const { companyName, companyProfileImage, companyStamp } =
     useCompanyProfile();
@@ -93,6 +132,10 @@ const OnboaringSteper: React.FC = () => {
   const deleteOrgChart = useDeleteOrgChart();
   const createCompanyInfo = useCreateCompanyInfo();
   const deleteCompanyInfo = useDeleteCompanyInfo();
+  const createBranch = useCreateBranch();
+  const deleteBranch= useDeleteBranch();
+  const updateTimeZone=useUpdateTimeZone();
+
   const { companyInfo } = useStep2Store();
   // const updateCompanyProfile = useUpdateCompanyProfile();
   const updateComapnyImageWithStamp = useUpdateCompanyProfileWithStamp();
@@ -103,6 +146,8 @@ const OnboaringSteper: React.FC = () => {
     orgData: any,
     companyInfo: any,
     companyProfileImage: any,
+    timeZone:any,
+    branch:any
   ) {
     yield {
       createFn: createFiscalYear.mutateAsync,
@@ -124,10 +169,6 @@ const OnboaringSteper: React.FC = () => {
       deleteFn: deleteCompanyInfo.mutateAsync,
       data: companyInfo,
     };
-    // yield {
-    //   createFn: updateCompanyProfile.mutateAsync,
-    //   data: { id: tenantId, companyProfileImage: companyProfileImage},
-    // };
     yield {
       createFn: updateComapnyImageWithStamp.mutateAsync,
       data: {
@@ -137,92 +178,20 @@ const OnboaringSteper: React.FC = () => {
         companyStamp: companyProfileImage?.companyStamp,
       },
     };
+    yield {
+      createFn: updateTimeZone.mutateAsync,
+      data: timeZone,
+    };
+    yield {
+      createFn: createBranch.mutateAsync,
+      deleteFn: deleteBranch.mutateAsync,
+      data: branch,
+    };
   }
 
   const onSubmitOnboarding = async () => {
     toggleLoading();
     createWorkSchedule();
-
-    const getTransformedFiscalYear = (
-      monthFormValues: any,
-      sessionFormValues: any,
-    ) => {
-      const months = Object.keys(monthFormValues)
-        .filter((key) => key.startsWith('monthName_'))
-        /* eslint-disable-next-line @typescript-eslint/naming-convention */
-        .map((_, index) => ({
-          /* eslint-enable @typescript-eslint/naming-convention */
-
-          name: monthFormValues[`monthName_${index + 1}`],
-          description: monthFormValues[`monthDescription_${index + 1}`],
-          startDate: monthFormValues[`monthStartDate_${index + 1}`],
-          endDate: monthFormValues[`monthEndDate_${index + 1}`],
-        }));
-
-      const sessions = [];
-      if (calendarType === 'Quarter') {
-        sessions.push(
-          ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
-            name: session.sessionName || `Session ${index + 1}`,
-            description:
-              session.sessionDescription ||
-              `Description for Session ${index + 1}`,
-            startDate: session.sessionStartDate || '',
-            endDate: session.sessionEndDate || '',
-            months: months.slice(index * 3, (index + 1) * 3),
-          })),
-        );
-      } else if (calendarType === 'Semester') {
-        sessions.push(
-          ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
-            name: session.sessionName || `Session ${index + 1}`,
-            description:
-              session.sessionDescription ||
-              `Description for Session ${index + 1}`,
-            startDate: session.sessionStartDate || '',
-            endDate: session.sessionEndDate || '',
-            months: months.slice(index * 6, (index + 1) * 6),
-          })),
-        );
-      } else if (calendarType === 'Year') {
-        sessions.push(
-          ...sessionFormValues?.sessionData.map((session: any) => ({
-            name: session?.sessionName || 'Session 1',
-            description:
-              session?.sessionDescription || 'Description for Session 1',
-            startDate: session?.sessionStartDate || '',
-            endDate: session?.sessionEndDate || '',
-            months,
-          })),
-        );
-      }
-
-      return sessions;
-    };
-
-    const fiscalYearData = getTransformedFiscalYear(
-      monthRangeValues,
-      sessionFormValues,
-    );
-
-    const fiscalYear = {
-      name: fiscalYearFormValues?.fiscalYearName,
-      startDate: fiscalYearFormValues?.fiscalYearStartDate,
-      endDate: fiscalYearFormValues?.fiscalYearEndDate,
-      description: fiscalYearFormValues?.fiscalYearDescription,
-      sessions: fiscalYearData?.map((session: any) => ({
-        name: session?.name,
-        description: session?.description,
-        startDate: session?.startDate,
-        endDate: session?.endDate,
-        months: session?.months.map((month: any) => ({
-          name: month?.name,
-          description: month?.description,
-          startDate: month?.startDate,
-          endDate: month?.endDate,
-        })),
-      })),
-    };
     const schedule = getSchedule();
 
     const successfulRequests: {
@@ -230,13 +199,18 @@ const OnboaringSteper: React.FC = () => {
       deleteFn: (id: string) => Promise<any>;
     }[] = [];
     const generator: any = createResourcesGenerator(
-      fiscalYear,
-      schedule,
+      fiscalYearPayLoad,
+      schedulePayload,
       orgData,
       companyInfo,
       { companyProfileImage, companyStamp },
+      timeZonePayload,
+      branchPayload,
     );
-
+// console.log( {fiscalYearPayLoad,
+//       schedulePayload,
+//       orgData,
+//       companyInfo,timeZonePayload,branchPayload},"KKKKK")
     try {
       for (const { createFn, deleteFn, data } of generator) {
         const response = await createFn(data);
@@ -286,28 +260,24 @@ const OnboaringSteper: React.FC = () => {
       content: <CompanyProfile form={form1} />,
     },
     {
-      title: 'Step 2',
-      content: <TimeZone />,
-    },
-    {
-      title: 'Step 3',
+      title: 'Step 1',
       content: (
-        <CustomWorFiscalYearDrawer
-          form={form3}
-          handleNextStep={handleNextStep}
+        
+        <FiscalYearForm
         />
+    
       ),
     },
     {
-      title: 'Step 4',
+      title: 'Step 2',
       content: <WorkSchedule form={form4} />,
     },
+    // {
+    //   title: 'Step 3',
+    //   content: <Branches />,
+    // },
     {
-      title: 'Step 5',
-      content: <Branches />,
-    },
-    {
-      title: 'Step 6',
+      title: 'Step 3',
       content: <OrgChartComponent />,
     },
   ];
@@ -315,7 +285,7 @@ const OnboaringSteper: React.FC = () => {
   const handleClose = () => {
     togleIsModalVisible();
   };
-
+  console.log(companyInformation,"companyInfo")
   return (
     <div className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12">
       <div
@@ -330,15 +300,17 @@ const OnboaringSteper: React.FC = () => {
       mobile-lg:p-2 
       tablet-md:p-4  
       lg:p-4
-      lg:flex-row 
+      lg:flex-row-reverse 
       lg:space-x-2
       items-center
-      md:items-stretch lg:items-stretch
+      md:items-center lg:items-center
       tablet-md:px-2
+      gap-10
       "
       >
         {/* Left Section */}
-        <div className="flex-1 pr-0 tablet-md:pr-0 mb-4 md:mb-0 w-full">
+        <div className='mx-auto'>
+           <div className="pr-0 tablet-md:pr-0 mb-4 md:mb-0 w-full ">
           <div className="flex items-center mb-4 md:mb-8">
             <div className="flex items-center">
               {/*eslint-disable @typescript-eslint/naming-convention */}
@@ -355,10 +327,10 @@ const OnboaringSteper: React.FC = () => {
             STEP {currentStep + 1} OF {steps.length}
           </div>
           <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-            We can now create a workspace for your team.
+            {currentStep +1==1?"Personalize your experience and ensure smooth setup":currentStep +1==2?"Please define fiscal year for Your organization":currentStep +1==3?"Define the work schedule for your organization ":currentStep+1==4?"Create and define your organizational structure":""}
           </h2>
           <p className="text-gray-600 mb-10">
-            Please fill out your teams in your company
+           {currentStep+1==1?"This will help us configure the system to better align with your organizations operation ":currentStep+1==2?"This will help us ensure accurate reporting and data alignment.":currentStep+1==3?"Specify working days and hours to ensure proper planning and resource management.":currentStep+1==4?"Add departments, roles, and reporting hierarchies to ensure clear communication and streamlined workflows.":""}
           </p>
 
           {currentStep == 5 && (
@@ -410,10 +382,12 @@ const OnboaringSteper: React.FC = () => {
             </Button>
           </div>
         </div>
+        </div>
+       
 
         {/* Right Section */}
         {currentStep !== 5 && (
-          <div className="w-full lg:w-1/2 mt-8 md:mt-0">
+          <div className="w-full  mt-8 md:mt-0">
             {steps[currentStep].content}
           </div>
         )}

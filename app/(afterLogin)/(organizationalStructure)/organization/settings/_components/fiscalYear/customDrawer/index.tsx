@@ -140,7 +140,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       monthFormValues,
       sessionFormValues,
     );
-
     const fiscalYearPayload = {
       name: fiscalYearFormValues?.fiscalYearName,
       startDate: fiscalYearFormValues?.fiscalYearStartDate,
@@ -159,26 +158,27 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
         })),
       })),
     };
+   console.log(fiscalYearPayload,"fiscalYearPayload")
 
-    if (isEditMode) {
-      updateFiscalYear({
-        id: selectedFiscalYear?.id,
-        fiscalYear: fiscalYearPayload,
-      });
-    } else {
-      createFiscalYear(fiscalYearPayload, {
-        onSuccess: () => {
-          form1.resetFields();
-          form2.resetFields();
-          form3.resetFields();
-          setMonthRangeFormValues(null);
-          setFiscalYearFormValues({});
-          setSessionFormValues({});
-          setCurrent(0);
-          setOpenFiscalYearDrawer(false);
-        },
-      });
-    }
+    // if (isEditMode) {
+    //   updateFiscalYear({
+    //     id: selectedFiscalYear?.id,
+    //     fiscalYear: fiscalYearPayload,
+    //   });
+    // } else {
+    //   createFiscalYear(fiscalYearPayload, {
+    //     onSuccess: () => {
+    //       form1.resetFields();
+    //       form2.resetFields();
+    //       form3.resetFields();
+    //       setMonthRangeFormValues(null);
+    //       setFiscalYearFormValues({});
+    //       setSessionFormValues({});
+    //       setCurrent(0);
+    //       setOpenFiscalYearDrawer(false);
+    //     },
+    //   });
+    // }
   };
 
   const formContent = (
@@ -203,10 +203,12 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       )}
     </Form>
   );
+  
 
   return (
     <>
-      {(!departments?.length || openfiscalYearDrawer) && (
+    {/* !departments?.length || oenfiscalYearDrawer */}
+      {(true) && (
         <CustomDrawerLayout
           modalHeader={
             <h1 className="flex justify-center text-xl font-extrabold text-gray-800 py-6 ">
@@ -221,7 +223,9 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           {formContent}
         </CustomDrawerLayout>
       )}
-      {!departments?.length && !openfiscalYearDrawer && formContent}
+      {/* {!departments?.length && !openfiscalYearDrawer && formContent} */}
+      { formContent}
+
     </>
   );
 };

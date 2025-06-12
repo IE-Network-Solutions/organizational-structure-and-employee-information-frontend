@@ -68,6 +68,8 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
         ? { monthRangeValues: newData }
         : state,
     ),
+  fiscalYearPayLoad: null,
+  setFiscalYearPayLoad:(value) => set({ fiscalYearPayLoad: value }),
 
   openfiscalYearDrawer: false,
   setOpenFiscalYearDrawer: (value) => set({ openfiscalYearDrawer: value }),

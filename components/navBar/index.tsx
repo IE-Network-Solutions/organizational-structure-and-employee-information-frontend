@@ -18,7 +18,7 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -92,7 +92,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12 w-60">
-          <LuUsers2
+          <LuUsers
             size={18}
             className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
           />{' '}
