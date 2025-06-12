@@ -17,6 +17,13 @@ export const usePasswordReset = () => {
       const domainName = window.location.hostname;
       const dynamicLink = `https://${domainName}/authentication/reset-password`;
 
+      if (!loginTenantId || loginTenantId.length <= 0) {
+        NotificationMessage.error({
+          message: 'This tenant is unknown.',
+        });
+        throw new Error('Missing tenant ID'); // Needed to prevent mutation from continuing
+      }
+
       const values = {
         email: email,
         url: dynamicLink,
