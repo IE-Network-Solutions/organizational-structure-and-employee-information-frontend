@@ -33,6 +33,7 @@ export const useCreatePlanTasks = () => {
       queryClient.invalidateQueries('okrPlans');
       queryClient.invalidateQueries('okrReports');
       queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('planningPeriodsHierarchy');
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
