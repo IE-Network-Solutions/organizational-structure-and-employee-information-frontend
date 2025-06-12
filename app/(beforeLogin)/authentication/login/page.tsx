@@ -98,8 +98,40 @@ const Login: FC = () => {
   }, [checkPWACriteria]);
 
   const handleInstall = async () => {
+    const userAgent =
+      navigator.userAgent || navigator.vendor || (window as any).opera;
+
+    // iOS detection for Safari
+    if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+      alert(`To install this app on your iOS device, please follow these steps:
+
+1. Tap the "Share" button in the Safari toolbar.
+2. Scroll down and select "Add to Home Screen".`);
+      return;
+    }
+
+    // WebKit (Safari) on desktop
+    if (
+      /Safari/.test(userAgent) &&
+      !/Chrome/.test(userAgent) &&
+      !/CriOS/.test(userAgent) &&
+      !/FxiOS/.test(userAgent)
+    ) {
+      alert(`To install the app on Safari, you may need to do so from the File menu:
+
+1. Go to File > Add to Dock.
+If that option isn't available, this browser version may not support installation.`);
+      return;
+    }
+
     if (deferredPrompt) {
       await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDebugInfo('App installed successfully!');
+      } else {
+        setDebugInfo('User dismissed the install prompt.');
+      }
       setDeferredPrompt(null);
       setInstallable(false);
       return;
@@ -113,9 +145,8 @@ const Login: FC = () => {
       return;
     }
 
-    const userAgent = navigator.userAgent.toLowerCase();
-
-    if (userAgent.includes('chrome')) {
+    // Fallback for browsers that don't support deferredPrompt but might be installable
+    if (userAgent.toLowerCase().includes('chrome')) {
       const msg = `🔍 LOOK FOR THE INSTALL ICON IN YOUR ADDRESS BAR:
       
 1. 📍 Check the RIGHT SIDE of your address bar for a download/install icon (⬇️)
@@ -127,7 +158,7 @@ const Login: FC = () => {
       alert(msg);
     } else {
       alert(
-        '🚨 Use Google Chrome browser for best PWA install experience!\n\nChrome has the most reliable PWA installation.',
+        `For the best experience, please use Google Chrome. For other browsers, look for an "Install" or "Add to Home Screen" option in your browser's menu.`,
       );
     }
   };

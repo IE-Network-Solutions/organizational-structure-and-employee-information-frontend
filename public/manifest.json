@@ -6,7 +6,7 @@
   "dir": "auto",
   "start_url": "/",
   "id": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1890ff",
   "orientation": "portrait-primary",
