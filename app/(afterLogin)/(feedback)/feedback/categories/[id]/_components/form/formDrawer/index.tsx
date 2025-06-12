@@ -8,36 +8,50 @@ import {
   Input,
   Row,
   Switch,
-  Collapse,
-  Checkbox,
+  Select,
+  Spin,
 } from 'antd';
 import React from 'react';
 import { CalendarOutlined } from '@ant-design/icons';
 import {
   useEmployeeDepartments,
+  useFetchUsers,
   useGetFormCategories,
 } from '@/store/server/features/feedback/category/queries';
 import { useAddForm } from '@/store/server/features/feedback/form/mutation';
 import TextArea from 'antd/es/input/TextArea';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { useGetFormsByCategoryID } from '@/store/server/features/feedback/form/queries';
 
 function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
+  const {
+    current,
+    pageSize,
+    searchFormParams,
+  } = CategoriesManagementStore();
   const { data: formCategories } = useGetFormCategories(id);
   const { data: departments } = useEmployeeDepartments();
   const { mutate: addForm, isLoading: addFormLoading } = useAddForm();
   const { isAddOpen, setIsAddOpen, clearSelectedUsers } = useDynamicFormStore();
+  const { data: employees, isLoading: isEmployeesLoading } = useFetchUsers('');
+  const {refetch: refetchForms } =
+  useGetFormsByCategoryID(
+    id,
+    searchFormParams?.form_name || '',
+    searchFormParams?.form_description || '',
+    searchFormParams?.createdBy || '',
+    pageSize,
+    current,
+  );
+
 
   const {
     selectedUsers,
     selectAllUsers,
     isAllSelected,
-    selectedDepartmentIds,
     deselectAllUsers,
-    toggleUserSelection,
-    toggleDepartmentSelection,
+    setSelectedUsers,
   } = CategoriesManagementStore();
 
   const [form] = Form.useForm();
@@ -53,20 +67,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     form.resetFields();
     clearSelectedUsers();
   };
-  const handleSelectAll = () => {
-    if (isAllSelected) {
-      deselectAllUsers();
-    } else {
-      selectAllUsers(
-        departments?.flatMap(
-          (department: any) =>
-            department?.users?.map((user: any) => ({
-              userId: user?.id,
-            })) || [],
-        ) || [],
-      );
-    }
-  };
+
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
@@ -88,6 +89,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
       },
       {
         onSuccess: () => {
+          refetchForms();
           handleCloseDrawer();
           form.resetFields();
         },
@@ -225,11 +227,43 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
             <Form.Item
               label={
                 <span className="text-md my-2 font-semibold text-gray-700">
-                  Permitted Employees To Edit
+                  Permitted Employees to view results
                 </span>
               }
             >
-              <Collapse>
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="Select users"
+                // value={selectedUsers.map(user => user.userId)}
+                showSearch
+                filterOption={(input, option) => {
+                  if (typeof option?.children === 'string') {
+                    return option.children
+                      .toLowerCase()
+                      .includes(input.toLowerCase());
+                  }
+                  return false;
+                }}
+                onChange={(userIds: string[]) =>
+                  setSelectedUsers(userIds.map((id) => ({ userId: id })))
+                }
+              >
+                {employees?.items.map((employee: any) => (
+                  <Select.Option key={employee.id} value={employee.id}>
+                    {isEmployeesLoading ? (
+                      <Spin size="small" />
+                    ) : (
+                      employee.firstName +
+                      ' ' +
+                      (employee?.middleName || '') +
+                      ' ' +
+                      employee.lastName
+                    )}
+                  </Select.Option>
+                ))}
+              </Select>
+              {/* <Collapse>
                 <Collapse.Panel header="Select employees" key="0">
                   <div className="flex flex-col justify-center ">
                     <div className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2 mb-2">
@@ -299,7 +333,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                     ))}
                   </div>
                 </Collapse.Panel>
-              </Collapse>
+              </Collapse> */}
             </Form.Item>
 
             <Form.Item>

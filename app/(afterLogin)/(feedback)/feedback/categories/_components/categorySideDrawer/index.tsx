@@ -2,14 +2,18 @@
 import React, { useEffect } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import { Avatar, Button, Checkbox, Collapse, Form, Image, Input } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  Spin,
+} from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useAddCategory } from '@/store/server/features/feedback/category/mutation';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
-import dayjs from 'dayjs';
-import { UserOutlined } from '@ant-design/icons';
-import SelectEmployeeSearch from './selectEmployeeSearch';
+
 
 interface CategoryFormValues {
   name: string;
@@ -23,14 +27,11 @@ const CategorySideDrawer: React.FC<any> = (props) => {
     selectedUsers,
     deselectAllUsers,
     isAllSelected,
-    toggleUserSelection,
-    selectAllUsers,
-    activeKey,
-    setActiveKey,
     searchUserParams,
+    setSelectedUsers,
   } = CategoriesManagementStore();
-  const createCategory = useAddCategory();
-  const { data: employees } = useFetchUsers(searchUserParams?.user_name);
+  const { mutateAsync: createCategory, isLoading: isCreatingCategory } = useAddCategory();
+  const { data: employees, isLoading: isEmployeesLoading } = useFetchUsers(searchUserParams?.user_name);
 
   const [form] = Form.useForm();
   useEffect(() => {
@@ -48,29 +49,23 @@ const CategorySideDrawer: React.FC<any> = (props) => {
     deselectAllUsers();
   };
 
-  const handleSelectAll = () => {
-    if (isAllSelected) {
-      deselectAllUsers();
-    } else {
-      const selectedUsers =
-        employees?.items?.map((user: { id: string }) => ({
-          userId: user.id,
-        })) || [];
-      selectAllUsers(selectedUsers);
-    }
-  };
+
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
     const { name, description } = values as CategoryFormValues;
 
-    await createCategory.mutateAsync({
+    await createCategory({
       name,
       description,
       users: selectedUsers,
+    }, {
+      onSuccess: () => {
+        handleCloseDrawer();
+        form.resetFields();
+      },
     });
-    handleCloseDrawer();
-    form.resetFields();
+   
   };
 
   return (
@@ -148,11 +143,43 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                   },
                 ]}
               >
-                <Collapse
+                <Select
+                  mode="multiple"
+                  style={{ width: '100%' }}
+                  placeholder="Select users"
+                  // value={selectedUsers.map(user => user.userId)}
+                  showSearch
+                  filterOption={(input, option) => {
+                    if (typeof option?.children === 'string') {
+                      return option.children
+                        .toLowerCase()
+                        .includes(input.toLowerCase());
+                    }
+                    return false;
+                  }}
+                  onChange={(userIds: string[]) =>
+                    setSelectedUsers(userIds.map((id) => ({ userId: id })))
+                  }
+                >
+                  {employees?.items.map((employee: any) => (
+                    <Select.Option key={employee.id} value={employee.id}>
+                      {isEmployeesLoading? (
+                        <Spin size="small" />
+                      ): (
+                        employee.firstName +
+                        ' ' +
+                        (employee?.middleName || '') +
+                        ' ' +
+                        employee.lastName
+                      )}
+                    </Select.Option>
+                  ))}
+                </Select>
+                {/* <Collapse
                   activeKey={activeKey}
                   onChange={(key) => setActiveKey(key)}
                 >
-                  <Collapse.Panel header={<SelectEmployeeSearch />} key="0">
+                  <Collapse.Panel header={<div>Select Employee</div>} key="0">
                     <div className="flex flex-col justify-center gap-2">
                       <div className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2">
                         <Checkbox
@@ -194,7 +221,9 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                               <div className="font-semibold text-md">
                                 {employee?.firstName +
                                   ' ' +
-                                  employee?.middleName}
+                                  employee?.middleName +
+                                  ' ' +
+                                  employee?.lastName}
                               </div>
                               <div className=" flex items-center justify-center gap-2 text-xs font-light">
                                 <div> Join Date </div>
@@ -211,7 +240,7 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                       ))}
                     </div>
                   </Collapse.Panel>
-                </Collapse>
+                </Collapse> */}
               </Form.Item>
               <Form.Item>
                 <div className="flex justify-center absolute w-full bg-[#fff] space-x-5 mt-24">
@@ -222,6 +251,7 @@ const CategorySideDrawer: React.FC<any> = (props) => {
                     Cancel
                   </Button>
                   <Button
+                    loading={isCreatingCategory}
                     onClick={handleSubmit}
                     className="flex justify-center text-sm font-medium text-white bg-primary  hover:border-gray-500 p-4 px-10 h-12 border-none"
                   >
