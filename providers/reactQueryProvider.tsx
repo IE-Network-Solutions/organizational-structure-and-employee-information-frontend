@@ -113,7 +113,7 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       if (auth.currentUser) {
         refreshTokenQuery();
       }
-    }, [refreshTokenQuery]);
+    }, []);
 
     return null; // This component doesn't render anything
   };
