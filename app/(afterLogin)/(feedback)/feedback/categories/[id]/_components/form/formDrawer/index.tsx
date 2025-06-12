@@ -24,17 +24,12 @@ import { CategoriesManagementStore } from '@/store/uistate/features/feedback/cat
 import { useGetFormsByCategoryID } from '@/store/server/features/feedback/form/queries';
 
 function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
-  const {
-    current,
-    pageSize,
-    searchFormParams,
-  } = CategoriesManagementStore();
+  const { current, pageSize, searchFormParams } = CategoriesManagementStore();
   const { data: formCategories } = useGetFormCategories(id);
   const { mutate: addForm, isLoading: addFormLoading } = useAddForm();
   const { isAddOpen, setIsAddOpen, clearSelectedUsers } = useDynamicFormStore();
   const { data: employees, isLoading: isEmployeesLoading } = useFetchUsers('');
-  const {refetch: refetchForms } =
-  useGetFormsByCategoryID(
+  const { refetch: refetchForms } = useGetFormsByCategoryID(
     id,
     searchFormParams?.form_name || '',
     searchFormParams?.form_description || '',
@@ -43,11 +38,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     current,
   );
 
-
-  const {
-    selectedUsers,
-    setSelectedUsers,
-  } = CategoriesManagementStore();
+  const { selectedUsers, setSelectedUsers } = CategoriesManagementStore();
 
   const [form] = Form.useForm();
 
@@ -62,7 +53,6 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     form.resetFields();
     clearSelectedUsers();
   };
-
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
@@ -233,12 +223,10 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                 // value={selectedUsers.map(user => user.userId)}
                 showSearch
                 filterOption={(input, option) => {
-                  if (typeof option?.children === 'string') {
-                    return option.children
-                      .toLowerCase()
-                      .includes(input.toLowerCase());
-                  }
-                  return false;
+                  return (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase());
                 }}
                 onChange={(userIds: string[]) =>
                   setSelectedUsers(userIds.map((id) => ({ userId: id })))
