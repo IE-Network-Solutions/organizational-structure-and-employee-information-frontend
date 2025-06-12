@@ -28,13 +28,20 @@ interface StoreState {
   is2FA: boolean;
   setIs2FA: (is2FA: boolean) => void;
   user2FA: { email: string; pass: string; recaptchaToken: string };
-  setUser2FA: (user2FA: { email: string; pass: string; recaptchaToken: string }) => void;
+  setUser2FA: (user2FA: {
+    email: string;
+    pass: string;
+    recaptchaToken: string;
+  }) => void;
   twoFactorAuthEmail: string;
   setTwoFactorAuthEmail: (twoFactorAuthEmail: string) => void;
   countdown: number;
   setCountdown: (value: number) => void;
   resetCountdown: () => void;
   decrementCountdown: () => void;
+
+  isCheckingPermissions: boolean;
+  setIsCheckingPermissions: (isChecking: boolean) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -84,8 +91,14 @@ export const useAuthenticationStore = create<StoreState>()(
         is2FA: false,
         setIs2FA: (is2FA: boolean) => set({ is2FA }),
         user2FA: { email: '', pass: '', recaptchaToken: '' },
-        setUser2FA: (user2FA: { email: string; pass: string; recaptchaToken: string }) =>
-          set({ user2FA }),
+        setUser2FA: (user2FA: {
+          email: string;
+          pass: string;
+          recaptchaToken: string;
+        }) => set({ user2FA }),
+        isCheckingPermissions: true,
+        setIsCheckingPermissions: (isChecking: boolean) =>
+          set({ isCheckingPermissions: isChecking }),
         twoFactorAuthEmail: '',
         setTwoFactorAuthEmail: (twoFactorAuthEmail: string) =>
           set({ twoFactorAuthEmail }),
@@ -97,6 +110,7 @@ export const useAuthenticationStore = create<StoreState>()(
             countdown: state.countdown > 0 ? state.countdown - 1 : 0,
           })),
       }),
+
       {
         name: 'authentications-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
@@ -108,6 +122,7 @@ export const useAuthenticationStore = create<StoreState>()(
           userData: state.userData,
           activeCalendar: state.activeCalendar,
         }),
+
         // getStorage: () => ({
         //   getItem: async (key: string) => {
         //     const storedValue = await get(key); // Get item from IndexedDB

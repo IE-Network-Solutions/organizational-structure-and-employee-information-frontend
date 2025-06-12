@@ -52,6 +52,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
+  const { userData } = useAuthenticationStore();
+
   const {
     setLocalId,
     setTenantId,
@@ -64,6 +66,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIs2FA,
     setTwoFactorAuthEmail,
     setUser2FA,
+    isCheckingPermissions,
+    setIsCheckingPermissions,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -527,6 +531,75 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
+  const getRoutesAndPermissions = (
+    menuItems: CustomMenuItem[],
+  ): { route: string; permissions: string[] }[] => {
+    const routes: { route: string; permissions: string[] }[] = [];
+
+    const traverse = (items: CustomMenuItem[]) => {
+      items.forEach((item) => {
+        // Add the current item's route and permissions if they exist
+        if (item.key && item.permissions) {
+          routes.push({
+            route: item.key,
+            permissions: item.permissions,
+          });
+        }
+
+        // Recursively process children if they exist
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    traverse(menuItems);
+    return routes;
+  };
+
+  const checkPathnamePermissions = (pathname: string): boolean => {
+    // Get all routes and their permissions
+    const routesWithPermissions = getRoutesAndPermissions(treeData);
+
+    // First check if the pathname matches any defined route
+    const matchingRoute = routesWithPermissions.find((route) =>
+      pathname.startsWith(route.route),
+    );
+
+    // If no matching route found, deny access by default
+    if (!matchingRoute) {
+      return false;
+    }
+
+    // If route exists but has no permissions, allow access
+    if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
+      return true;
+    }
+
+    // Get user's permissions from the authentication store
+    const userPermissions = userData?.permissions || [];
+
+    // Check if user has ALL required permissions for this route
+    const hasAllPermissions = matchingRoute.permissions.every(
+      (requiredPermission) => userPermissions.includes(requiredPermission),
+    );
+
+    return hasAllPermissions;
+  };
+
+  // Add useEffect to check permissions on pathname change
+  useEffect(() => {
+    const checkPermissions = async () => {
+      setIsCheckingPermissions(true);
+      if (!checkPathnamePermissions(pathname)) {
+        router.push('/unauthorized');
+      }
+      setIsCheckingPermissions(false);
+    };
+
+    checkPermissions();
+  }, [pathname]);
+
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
@@ -586,7 +659,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setTenantId('');
       setToken('');
       setUser2FA({ email: '', pass: '', recaptchaToken: '' });
-
 
       // Then remove cookies
       removeCookie('token');
@@ -836,16 +908,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             transition: 'padding-left 0.3s ease',
           }}
         >
-          <div
-            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-            style={{
-              borderRadius: borderRadiusLG,
-              marginTop: '94px',
-              marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-            }}
-          >
-            {children}
-          </div>
+          {isCheckingPermissions ? (
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton active />
+            </div>
+          ) : (
+            <div
+              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              style={{
+                borderRadius: borderRadiusLG,
+                marginTop: '94px',
+                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+              }}
+            >
+              {children}
+            </div>
+          )}
         </Content>
       </Layout>
     </Layout>
