@@ -65,6 +65,8 @@ export const useUpdatePlanTasks = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
       queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('planningPeriodsHierarchy');
       NotificationMessage.success({
         message: 'Successfully Updated ',
         description: ' ',
