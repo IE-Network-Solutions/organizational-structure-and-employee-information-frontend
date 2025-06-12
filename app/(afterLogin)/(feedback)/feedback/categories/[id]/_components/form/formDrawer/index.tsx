@@ -14,7 +14,6 @@ import {
 import React from 'react';
 import { CalendarOutlined } from '@ant-design/icons';
 import {
-  useEmployeeDepartments,
   useFetchUsers,
   useGetFormCategories,
 } from '@/store/server/features/feedback/category/queries';
@@ -31,7 +30,6 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     searchFormParams,
   } = CategoriesManagementStore();
   const { data: formCategories } = useGetFormCategories(id);
-  const { data: departments } = useEmployeeDepartments();
   const { mutate: addForm, isLoading: addFormLoading } = useAddForm();
   const { isAddOpen, setIsAddOpen, clearSelectedUsers } = useDynamicFormStore();
   const { data: employees, isLoading: isEmployeesLoading } = useFetchUsers('');
@@ -48,9 +46,6 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
 
   const {
     selectedUsers,
-    selectAllUsers,
-    isAllSelected,
-    deselectAllUsers,
     setSelectedUsers,
   } = CategoriesManagementStore();
 
