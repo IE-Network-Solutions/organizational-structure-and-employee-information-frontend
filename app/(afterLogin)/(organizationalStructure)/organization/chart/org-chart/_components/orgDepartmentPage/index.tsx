@@ -9,6 +9,7 @@ import { useGetOrgChartsPeoples } from '@/store/server/features/organizationStru
 import { BiUser } from 'react-icons/bi';
 import OrgChartSkeleton from '../../../org-structure/_components/loading/orgStructureLoading';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useChartRef } from '../../../layout';
 
 interface DepartmentNodeProps {
   data: any;
@@ -25,6 +26,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
 
     return user;
   };
+
 
   // Get the first user assigned to the department
   const user = getUserData(data?.employeeJobInformation?.[0]?.userId);
@@ -112,6 +114,8 @@ const OrgChartComponent: React.FC = () => {
   const { data: orgStructureData, isLoading: orgStructureLoading } =
     useGetOrgChartsPeoples();
 
+  const chartRef = useChartRef();
+
   const handleFormSubmit = (values: Department) => {
     if (selectedDepartment) {
       updateDepartment({ ...selectedDepartment, ...values });
@@ -134,7 +138,7 @@ const OrgChartComponent: React.FC = () => {
         {orgStructureLoading ? (
           <OrgChartSkeleton loading={orgStructureLoading} />
         ) : (
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8">
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
             <Tree
               label={
                 <DepartmentNode
