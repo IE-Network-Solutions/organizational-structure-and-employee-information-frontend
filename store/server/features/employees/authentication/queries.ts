@@ -35,8 +35,7 @@ export const usePasswordReset = () => {
       onSuccess: (data) => {
         NotificationMessage.success({
           message:
-            data?.message ||
-            'Password reset email sent! Please check your inbox.',
+            data || 'Password reset email sent! Please check your inbox.',
         });
       },
       onError: (error: any) => {

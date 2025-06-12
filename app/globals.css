@@ -375,3 +375,9 @@ h6 {
 .custom-timepicker .ant-picker-suffix {
   font-size: 12px !important;
 }
+
+/* Hide the selected checkmark icon in Select dropdown */
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  display: none;
+}
