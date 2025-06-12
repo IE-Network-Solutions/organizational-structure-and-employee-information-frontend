@@ -159,11 +159,17 @@ export default function ChartLayout({
                   transferDepartments(transferDepartment, {
                     onSuccess: () => {
                       closeDrawer();
+                      reset();
                     },
                   });
                 }
               } else if (footerButtonText == 'Merge') {
-                mergeDepartments(mergeData);
+                mergeDepartments(mergeData, {
+                  onSuccess: () => {
+                    closeDrawer();
+                    reset();
+                  },
+                });
               } else {
                 setIsDeleteConfirmVisible(true);
                 closeDrawer();
