@@ -47,18 +47,18 @@ export const useHandleSignIn = () => {
           sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
         sessionStorage.removeItem('redirectAfterLogin');
 
-        // if (fetchedData?.data?.hasCompany === false) {
-        //   router.push('/onboarding');
-        // } else if (redirectPath) {
-        //   router.push(redirectPath);
-        // } else if (fetchedData?.data?.hasChangedPassword === false) {
-        //   router.push('/authentication/new-password');
-        // } else if (
-        //   fetchedData?.data?.hasCompany === true &&
-        //   fetchedData?.data?.hasChangedPassword === true
-        // ) {
-        //   router.push('/dashboard');
-        // }
+        if (fetchedData?.data?.hasCompany === false) {
+          router.push('/onboarding');
+        } else if (redirectPath) {
+          router.push(redirectPath);
+        } else if (fetchedData?.data?.hasChangedPassword === false) {
+          router.push('/authentication/new-password');
+        } else if (
+          fetchedData?.data?.hasCompany === true &&
+          fetchedData?.data?.hasChangedPassword === true
+        ) {
+          router.push('/dashboard');
+        }
       }
     } catch (err: any) {
       setError(err);

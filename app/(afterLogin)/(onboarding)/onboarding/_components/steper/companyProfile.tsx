@@ -1,15 +1,15 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Input, Form, Upload, Select } from 'antd';
+import { Input, Form, Upload, Select, Slider } from 'antd';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import Image from 'next/image';
 import { UploadFile } from 'antd/es/upload/interface';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-
 import { FormInstance } from 'antd/lib';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-
+import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
+ const {Option}=Select;
 interface CompanyProfileProps {
   form: FormInstance;
 }
@@ -41,6 +41,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
       setCompanyProfile(undefined);
     }
   };
+
   const handleStampChange = (info: any) => {
     const fileList = info.fileList as UploadFile<any>[];
     if (fileList.length > 0) {
@@ -62,36 +63,68 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
     return '';
   };
 
-  const domainNameSuffix = (
-    <Form.Item name="suffix" noStyle>
-      <p style={{ width: 'auto' }}>.selamnew.com</p>
-    </Form.Item>
-  );
-
+ 
   const tenantId = useAuthenticationStore.getState().tenantId;
-
   const { data: companyInfo } = useGetCompanyProfileByTenantId(tenantId);
-
+  
+  const businessSize: { [key: number]: string } = {
+    0: '1-10',
+    1: '11-50',
+    2: '51-100',
+    3: '101-200',
+    4: '201-500',
+    5: '500+',
+  };
+const getBusinessSizeIndex = (value: string) => {
+  return Object.entries(businessSize).find(
+    ([_, label]) => label === value
+  )?.[0];
+}
   useEffect(() => {
     if (companyInfo) {
-      const domainName = companyInfo?.domainName?.replace('.selamnew.com', '');
+      const domainName = companyInfo.domainName?.replace('.selamnew.com', '');
+
+      // Set form fields
       form.setFieldsValue({
-        companyName: companyInfo?.companyName,
+        companyName: companyInfo.companyName,
+        companyEmail: companyInfo.companyEmail,
+        companyPhone: companyInfo.phoneNumber,
+        companyCountry: companyInfo.country,
+        companyRegion: companyInfo.region,
+        contactPersonName: companyInfo.contactPersonName,
+        contactPersonEmail: companyInfo.contactPersonEmail,
+        contactPersonPhone: companyInfo.contactPersonPhoneNumber,
         companyDomainName: domainName,
+        industry:companyInfo.industry,
+        businessSize: getBusinessSizeIndex(companyInfo.businessSize || '') ?? null,
       });
-      setCompanyName(companyInfo?.companyName || '');
+
+      // Set UI state
+      setCompanyName(companyInfo.companyName || '');
       setCompanyDomainName(domainName || '');
+
+      // Set logo and stamp if available
+      if (companyInfo.logo) {
+        setCompanyProfile({
+          uid: '1',
+          name: 'Company Logo',
+          url: companyInfo.logo,
+          status: 'done',
+        });
+      }
+
+      if (companyInfo.stamp) {
+        setCompanyStamp({
+          uid: '2',
+          name: 'Company Stamp',
+          url: companyInfo.stamp,
+          status: 'done',
+        });
+      }
     }
-  }, [companyInfo, form, setCompanyName, setCompanyDomainName]);
-
-  useEffect(() => {
-    const domainName = companyDomainName?.replace('.selamnew.com', '');
-    form.setFieldsValue({
-      companyName: companyName,
-      companyDomainName: domainName,
-    });
-  }, [companyName, companyDomainName, form]);
-
+  }, [companyInfo, form, setCompanyName, setCompanyDomainName, setCompanyProfile, setCompanyStamp]);
+ console.log(companyInfo,"companyInfocompanyInfo")
+  
   return (
     <div className="flex-1 bg-gray-50 p-8 rounded-lg h-full my-8 items-center">
       <div className="bg-white p-8 rounded-lg h-full">
@@ -133,54 +166,80 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
           </Form.Item>
 
           <div className="grid grid-cols-2 gap-4 mt-4">
-            <Form.Item name="companyName" label="Company Name" rules={[{ required: true }]}> 
+            <Form.Item name="companyName" label="Company Name" rules={[{ required: true }]}>
               <Input placeholder="Enter company name" />
             </Form.Item>
 
-            <Form.Item name="companyDomainName" label="Company Domain name" rules={[{ required: true }]}> 
-              <Input addonAfter={domainNameSuffix} placeholder="companydomain" disabled />
+            <Form.Item name="companyDomainName" label="Company Domain name" rules={[{ required: true }]}>
+              <Input addonAfter={".selamnew.com"} placeholder="companydomain" disabled />
             </Form.Item>
 
-            <Form.Item name="companyEmail" label="Company Email" rules={[{ required: true }]}> 
+            <Form.Item name="companyEmail" label="Company Email" rules={[{ required: true }]}>
               <Input placeholder="Company Email" />
             </Form.Item>
 
-            <Form.Item name="companyPhone" label="Company Phone" rules={[{ required: true }]}> 
+            <Form.Item name="companyPhone" label="Company Phone" rules={[{ required: true }]}>
               <Input placeholder="Company Phone" />
             </Form.Item>
 
-            <Form.Item name="companyCountry" label="Company Country" rules={[{ required: true }]}> 
+            <Form.Item name="companyCountry" label="Company Country" rules={[{ required: true }]}>
               <Input placeholder="Country" />
             </Form.Item>
 
-            <Form.Item name="companyRegion" label="Company Region" rules={[{ required: true }]}> 
+            <Form.Item name="companyRegion" label="Company Region" rules={[{ required: true }]}>
               <Input placeholder="Region" />
             </Form.Item>
 
-            <Form.Item name="contactPersonName" label="Contact Person Name" rules={[{ required: true }]}> 
+            <Form.Item name="contactPersonName" label="Contact Person Name" rules={[{ required: true }]}>
               <Input placeholder="Contact Name" />
             </Form.Item>
 
-            <Form.Item name="contactPersonPhone" label="Contact Person Phone" rules={[{ required: true }]}> 
+            <Form.Item name="contactPersonPhone" label="Contact Person Phone" rules={[{ required: true }]}>
               <Input placeholder="Contact Phone" />
             </Form.Item>
 
-            <Form.Item name="contactPersonEmail" label="Contact Person Email" rules={[{ required: true }]}> 
+            <Form.Item name="contactPersonEmail" label="Contact Person Email" rules={[{ required: true }]}>
               <Input placeholder="Contact Email" />
             </Form.Item>
-
-            <Form.Item name="industry" label="Industry" rules={[{ required: true }]}> 
-              <Select placeholder="Add or select your preferred industry" showSearch allowClear />
-            </Form.Item>
+             <Form.Item
+          name="industry"
+          label="Industry Type"
+          rules={[
+            { required: true, message: 'Please select an industry type' },
+          ]}
+        >
+          <Select placeholder="Select industry type">
+            <Option value="" disabled>
+              Please select an industry type
+            </Option>
+            <Option value="technology">Technology</Option>
+            <Option value="finance">Finance</Option>
+            <Option value="healthcare">Healthcare</Option>
+            <Option value="education">Education</Option>
+            <Option value="media">Media & Entertainment</Option>
+            <Option value="ecommerce">E-commerce</Option>
+            <Option value="government">Government</Option>
+            <Option value="non-profit">Non-Profit & NGOs</Option>
+            <Option value="other">Other</Option>
+          </Select>
+        </Form.Item>
           </div>
-
-          <Form.Item name="companySize" label="Size of your company" rules={[{ required: true }]}> 
-            <div className="mt-2 w-full">
-              <p>Select the range of people you have in your company</p>
-              {/* Use custom slider or radio group depending on design */}
-            </div>
-          </Form.Item>
-
+ <Form.Item
+  name="businessSize"
+  label="Size of Your Company"
+  rules={[{ required: true, message: 'Please select company size' }]}
+>
+  <Slider
+    min={0}
+    max={5}
+    step={1}
+    marks={businessSize}
+    tooltip={{
+      formatter: (value?: number) =>
+        value !== undefined ? businessSize[value] : '',
+    }}
+  />
+</Form.Item>
           <div className="flex justify-start items-center gap-2 text-gray-400 mt-8">
             We will create a unique company URL for you to log into Selamnew
           </div>

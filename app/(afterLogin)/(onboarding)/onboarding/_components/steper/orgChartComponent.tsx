@@ -51,6 +51,19 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
   return (
     <Card className="p-1.5 rounded-md inline-block border border-[#e8e8e8] sm:w-auto">
       {isRoot && (
+        <Dropdown
+          overlay={menu}
+          trigger={['click']}
+          className="absolute top-[5px] right-[5px]"
+        >
+          <Button
+            icon={<MoreOutlined />}
+            id={`${data.name}ThreeDotButton`}
+            size="small"
+          />
+        </Dropdown>
+      )}
+      {isRoot && (
         <Button
           id="ceoButton"
           icon={<PlusOutlined />}
@@ -177,33 +190,27 @@ const OrgChartComponent: React.FC = () => {
 
   const { data: branches } = useGetBranches();
 
-  const isInitialized = useRef(false); // Add this inside your component before useEffect
+  useEffect(() => {
 
-useEffect(() => {
-  if (!isInitialized.current && branches && branches.items.length > 0) {
-    const branchId = branches.items[0].id;
-    setBranchId(branchId);
 
     if (!orgData.department || orgData.department.length === 0) {
       const defaultDepartments: Department[] = [
-        { id: uuidv4(), name: 'HR', department: [], branchId, description: '', collapsed: false },
-        { id: uuidv4(), name: 'Marketing', department: [], branchId, description: '', collapsed: false },
-        { id: uuidv4(), name: 'Finance', department: [], branchId, description: '', collapsed: false },
+        { id: uuidv4(), name: 'HR', department: [], branchId: null, description: '', collapsed: false },
+        { id: uuidv4(), name: 'Marketing', department: [], branchId: null, description: '', collapsed: false },
+        { id: uuidv4(), name: 'Finance', department: [], branchId: null, description: '', collapsed: false },
       ];
 
       setOrgData({
         ...orgData,
         name: orgData.name || 'CEO',
-        branchId,
+        branchId: null,
         department: defaultDepartments,
       });
-
-      isInitialized.current = true; // mark as initialized
     }
-  }
-}, [branches]);
 
- console.log(orgData,"orgData")
+  }, [branches, orgData.department]);
+
+  console.log(orgData, "orgData")
   return (
     <div className="w-full py-7 overflow-x-auto lg:overflow-x-visible">
       <div className="p-4 sm:p-2 md:p-6 lg:p-8">
@@ -214,20 +221,20 @@ useEffect(() => {
                 id: 'root',
                 name: orgData?.name || 'CEO',
                 department: orgData?.department || [],
-                branchId: orgData?.branchId,
+                branchId: orgData?.branchId || '',
                 description: '',
                 collapsed: false,
               }}
-               onEdit={() => handleEdit({
-        id: 'root',
-        name: orgData?.name || 'CEO',
-        department: orgData?.department || [],
-        branchId: orgData?.branchId,
-        description: '',
-        collapsed: false,
-      })}
+              onEdit={() => handleEdit({
+                id: 'root',
+                name: orgData?.name || 'CEO',
+                department: orgData?.department || [],
+                branchId: orgData?.branchId || '',
+                description: '',
+                collapsed: false,
+              })}
               onAdd={() => handleAdd('root')}
-              onDelete={() => {}}
+              onDelete={() => { }}
               isRoot={true}
             />
           }
