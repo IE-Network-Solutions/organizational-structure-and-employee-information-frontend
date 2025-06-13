@@ -5,7 +5,6 @@ import { CategoriesManagementStore } from '@/store/uistate/features/feedback/cat
 import { useFetchCategories } from '@/store/server/features/feedback/category/queries';
 import {
   useDeleteFormCategory,
-  useUpdateFormCategory,
 } from '@/store/server/features/feedback/category/mutation';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import CategoryCard from './categoryCard';
@@ -35,7 +34,7 @@ const CategoriesCard: React.FC = () => {
       searchParams?.createdBy || '',
     );
 
-  const updateCategory = useUpdateFormCategory();
+
   const deleteCategory = useDeleteFormCategory();
 
   const userOptions = React.useMemo(() => {
@@ -58,32 +57,20 @@ const CategoriesCard: React.FC = () => {
 
   const handleMenuClick = (key: string, category: any) => {
     if (key === 'edit') {
+      setEditModal(true);
+
       setEditingCategory({
         ...category,
-        users: Array.isArray(category.users)
-          ? category.items.map((user: any) => user.id || user)
+        users: Array.isArray(category.permissions)
+          ? category.permissions.map((user: any) => user.userId)
           : [],
       });
-      setEditModal(true);
     } else if (key === 'delete') {
       setDeletedItem(category.id);
       setDeleteModal(true);
     }
   };
-  const handleUpdate = (values: any) => {
-    const editingCategory =
-      CategoriesManagementStore.getState().editingCategory;
-    if (editingCategory) {
-      updateCategory.mutate({
-        id: editingCategory.id,
-        data: {
-          name: values.name,
-          description: values.description,
-          users: values.users,
-        },
-      });
-    }
-  };
+
 
   const handleDelete = () => {
     deleteCategory.mutate(CategoriesManagementStore.getState().deletedItem);
@@ -120,7 +107,7 @@ const CategoriesCard: React.FC = () => {
           <NoData />
         )}
       </div>
-      <EditCategoryModal onConfirm={handleUpdate} userOptions={userOptions} />
+      <EditCategoryModal  userOptions={userOptions} />
       <DeleteModal
         open={deleteModal}
         onCancel={() => setDeleteModal(false)}

@@ -24,7 +24,7 @@ const InfoItem: FC<InfoItemProps> = ({
   );
 
   return (
-    <div className="flex items-center justify-between px-5 py-4 rounded-[10px] border border-gray-300 bg-gray-100">
+    <div className="flex justify-between px-1 py-2 rounded-[10px] border border-gray-300 bg-gray-100">
       <div className={textClass}>{value}</div>
       {children}
       {info && <div className={textClass}>{info}</div>}

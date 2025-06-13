@@ -17,7 +17,7 @@ const EmployeeAddressForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['address', 'country']}
-            label="Country"
+            label={<span className="mb-1 font-semibold text-xs">Country</span>}
             id="addressCountryId"
             rules={[
               {
@@ -38,7 +38,7 @@ const EmployeeAddressForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['address', 'city']}
-            label="City"
+            label={<span className="mb-1 font-semibold text-xs">City</span>}
             id="addressCityId"
             rules={[
               {

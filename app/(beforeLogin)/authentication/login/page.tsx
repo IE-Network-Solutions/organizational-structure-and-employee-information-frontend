@@ -1,18 +1,22 @@
 'use client';
 import { FC } from 'react';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import {
   auth,
   googleProvider,
   microsoftProvider,
 } from '@/utils/firebaseConfig';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useHandleSignIn } from './_components/signinHandler';
 import Link from 'next/link';
+import TwoFactorAuth from './_components/2fa';
+import SimpleLogo from '@/components/common/logo/simpleLogo';
+import { useGet2FACode } from '@/store/server/features/authentication/mutation';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 type FieldType = {
   email: string;
@@ -21,15 +25,44 @@ type FieldType = {
 };
 
 const Login: FC = () => {
-  const { loading } = useAuthenticationStore();
-
+  const { loading, is2FA, setIs2FA, setLocalId, setUser2FA } =
+    useAuthenticationStore();
+  const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
+    useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {
-    await handleSignIn(() =>
-      signInWithEmailAndPassword(auth, values.email, values.password),
+    if (!executeRecaptcha) {
+      message.error('reCAPTCHA not yet available');
+      return;
+    }
+    const recaptchaToken = await executeRecaptcha('login');
+    if (!recaptchaToken) {
+      message.error('reCAPTCHA verification failed. Please try again.');
+      return;
+    }
+    get2FACode(
+      {
+        values: {
+          email: values.email,
+          pass: values.password,
+          recaptchaToken,
+        },
+      },
+      {
+        onSuccess: (data) => {
+          setUser2FA({
+            email: values.email,
+            pass: values.password,
+            recaptchaToken,
+          });
+          setLocalId(data?.uid);
+          setIs2FA(true);
+        },
+      },
     );
   };
 
@@ -41,14 +74,16 @@ const Login: FC = () => {
     await handleSignIn(() => signInWithPopup(auth, microsoftProvider));
   };
 
-  return (
+  return is2FA ? (
+    <TwoFactorAuth />
+  ) : (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
       <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
-        <p className="text-center font-semibold">
-          <span className="text-blue">Selamnew</span> Workspace
+        <p className="flex justify-center font-semibold">
+          <SimpleLogo />
         </p>
         <h5 className="text-center my-2">Login</h5>
         <Form
@@ -103,7 +138,7 @@ const Login: FC = () => {
 
           <Form.Item>
             <Button
-              loading={loading}
+              loading={loading || isGet2FACodeLoading}
               className="py-5 my-4"
               type="primary"
               htmlType="submit"
@@ -136,7 +171,8 @@ const Login: FC = () => {
         </div>
       </div>
       <div className="text-xs font-thin text-center">
-        © 2024 Selamnew Workspace . All-rights reserved.
+        © {new Date().getFullYear().toString()} Selamnew Workspace . All-rights
+        reserved.
         {/* <span className="font-semibold ml-1 cursor-pointer">
           Terms & Conditions
         </span>

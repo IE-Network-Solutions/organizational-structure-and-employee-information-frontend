@@ -56,7 +56,7 @@ function PersonalDataComponent({
         }
         className="my-6 mt-0"
       >
-        <Row gutter={[16, 24]}>
+        <Row gutter={16}>
           {edit.general ? (
             <>
               <Row>
@@ -203,7 +203,7 @@ function PersonalDataComponent({
               <Col lg={12}>
                 <InfoLine
                   title="Full Name"
-                  value={`${employeeData?.firstName} ${employeeData?.middleName} ${employeeData?.middleName} ${employeeData?.lastName}`}
+                  value={`${employeeData?.firstName} ${employeeData?.middleName} ${employeeData?.lastName}`}
                 />
                 <InfoLine
                   title="Date of Birth"

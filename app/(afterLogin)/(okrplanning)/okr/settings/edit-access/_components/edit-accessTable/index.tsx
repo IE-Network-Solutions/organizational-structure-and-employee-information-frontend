@@ -1,4 +1,8 @@
 'use client';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGrantObjectiveEditAccess } from '@/store/server/features/okrplanning/okr/editAccess/mutation';
 import { useGetAllObjective } from '@/store/server/features/okrplanning/okr/editAccess/queries';
@@ -35,9 +39,11 @@ const EditAccessTable: React.FC = () => {
     Record<string, boolean>
   >({});
 
+  const { isMobile, isTablet } = useIsMobile();
+
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const { data: allUser, isLoading: responseLoading } = useGetAllUsersData();
-  const { mutate: grantEditAccess } = useGrantObjectiveEditAccess();
+  const { mutate: grantEditAccess, isLoading } = useGrantObjectiveEditAccess();
 
   const { data: allUserObjective } = useGetAllObjective();
 
@@ -71,7 +77,7 @@ const EditAccessTable: React.FC = () => {
     if (allUser?.items) {
       const newSwitchStates = allUser.items.reduce(
         (acc: Record<string, boolean>, item: any) => {
-          acc[item.id] = !checked;
+          acc[item.id] = checked;
           return acc;
         },
         {},
@@ -87,7 +93,14 @@ const EditAccessTable: React.FC = () => {
       userId,
     };
 
-    grantEditAccess(formattedValue);
+    grantEditAccess(formattedValue, {
+      onSuccess: () => {
+        NotificationMessage.success({
+          message: 'Success',
+          description: 'Edit Access Granted Successfully',
+        });
+      },
+    });
 
     setSwitchStates((prev) => ({
       ...prev,
@@ -117,6 +130,7 @@ const EditAccessTable: React.FC = () => {
       ),
       grant_access: (
         <Switch
+          loading={isLoading}
           checked={switchStates[item?.id] ?? false}
           onChange={(isChecked) => handleToggleAccess(item?.id, isChecked)}
         />
@@ -132,22 +146,36 @@ const EditAccessTable: React.FC = () => {
       )
     : data;
 
+  // Add pagination logic
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedData = filteredDataSource?.slice(startIndex, endIndex);
+
   return (
     <div className="mt-5">
       <Table
         className="w-full cursor-pointer"
         columns={columns}
-        dataSource={filteredDataSource}
-        pagination={{
-          total: allUser?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
+        dataSource={paginatedData}
+        pagination={false}
         loading={responseLoading}
       />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={allUser?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={allUser?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

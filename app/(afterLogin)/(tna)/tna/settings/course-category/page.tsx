@@ -1,7 +1,6 @@
 'use client';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 import React, { useEffect } from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button, Spin } from 'antd';
 import CourseCategorySidebar from './_components/categorySidebar';
 import { useGetCourseCategory } from '@/store/server/features/tna/courseCategory/queries';
@@ -22,8 +21,9 @@ const TnaCourseCategoryPage = () => {
   }, [isShowCourseCategorySidebar]);
 
   return (
-    <>
-      <PageHeader title="Course Category" size="small">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between mb-4 ">
+        <h1 className="text-lg text-bold">Course Category</h1>
         <AccessGuard permissions={[Permissions.CreateCourseCategory]}>
           <Button
             icon={<FaPlus />}
@@ -36,7 +36,7 @@ const TnaCourseCategoryPage = () => {
             <span className="hidden lg:inline">New Category</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
+      </div>
 
       <Spin spinning={isFetching}>
         {data?.items ? (
@@ -49,7 +49,7 @@ const TnaCourseCategoryPage = () => {
       </Spin>
 
       <CourseCategorySidebar />
-    </>
+    </div>
   );
 };
 

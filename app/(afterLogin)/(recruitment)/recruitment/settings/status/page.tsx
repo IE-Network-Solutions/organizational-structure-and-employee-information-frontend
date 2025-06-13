@@ -51,23 +51,17 @@ const Status: React.FC = () => {
     setSelectedStatus(null);
   };
   return (
-    <div className="p-6">
+    <div className="p-5 rounded-2xl bg-white h-full">
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
         <Title level={5}>Define New Status</Title>
         <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
-          {/* <CustomButton
-            title="Define New Status"
-            id="createStatusButton"
-            icon={<FaPlus size={13} className="mr-2" />}
-            onClick={handleOpen}
-            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          /> */}
           <Button
             type="primary"
             id="createStatusButton"
             onClick={handleOpen}
-            icon={<FaPlus size={13} className="mr-2" />}
+            className="h-10 w-10 sm:w-auto"
+            icon={<FaPlus />}
           >
             <span className="hidden lg:inline">Define New Status</span>
           </Button>

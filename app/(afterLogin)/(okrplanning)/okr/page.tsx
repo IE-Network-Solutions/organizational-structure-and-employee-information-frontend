@@ -13,6 +13,7 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { LiaFileDownloadSolid } from 'react-icons/lia';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useDownloadEmployeeOkrScore } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
@@ -34,6 +35,9 @@ const OKR: React.FC<any> = () => {
     currentPage,
     searchObjParams?.metricTypeId,
   );
+
+  const { isMobile, isTablet } = useIsMobile();
+
   function handleDownload() {
     if (okrTab == 1) {
       NotificationMessage.warning({
@@ -69,41 +73,62 @@ const OKR: React.FC<any> = () => {
     }
   }
   return (
-    <div className="h-auto w-full p-4">
-      <div className="flex flex-wrap justify-between items-center">
+    <div className={`h-auto w-full ${isMobile ? 'p-0' : 'p-4'}`}>
+      <div
+        className={`${isMobile && 'mx-5 mt-6'} flex flex-wrap justify-between items-center`}
+      >
         <CustomBreadcrumb
           title="Objective"
           subtitle="Employee's objective setting up"
         />
         <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
-          <AccessGuard permissions={[Permissions.ViewOkrReports]}>
-            <CustomButton
-              loading={empOkrScoreLoading}
-              title="Download"
-              id="createUserButton"
-              icon={<LiaFileDownloadSolid size={20} className="mr-2" />}
-              onClick={handleDownload}
-              className="bg-white text-black hover:bg-black hover:text-white border-2 border-black"
-            />
-          </AccessGuard>
           {userObjectives?.items?.length === 0 ||
           userObjectives?.items?.some(
             (item: any) => item?.isClosed == false,
           ) ? (
-            <div className="py-4 flex justify-center items-center gap-4">
+            <div className="py-4 px-2 flex justify-center items-center gap-4">
+              <AccessGuard permissions={[Permissions.ViewOkrReports]}>
+                <CustomButton
+                  size={isMobile ? 'small' : 'middle'}
+                  loading={empOkrScoreLoading}
+                  title={isMobile ? '' : 'Download'}
+                  isTitleHidden={isMobile ? true : false}
+                  icon={
+                    <LiaFileDownloadSolid
+                      size={isMobile ? 14 : 20}
+                      className={`text-black ${isMobile ? 'mr-0' : 'mr-2'}`}
+                    />
+                  }
+                  className={`bg-blue-600 hover:bg-blue-700 ${
+                    isMobile
+                      ? 'py-1 h-8 w-8 flex items-center justify-center'
+                      : isTablet
+                        ? 'h-11 px-4 py-3'
+                        : 'h-14 px-6 py-6'
+                  }`}
+                  type="default"
+                  onClick={handleDownload}
+                />
+              </AccessGuard>
               <CustomButton
-                loading={empOkrScoreLoading}
-                title="Download"
-                icon={<LiaFileDownloadSolid size={20} className="mr-2" />}
-                type="default"
-                onClick={handleDownload}
-              />
-              <CustomButton
-                title="Set Objective"
+                size={isMobile ? 'small' : 'middle'}
+                title={isMobile ? '' : 'Set Objective'}
+                isTitleHidden={isMobile ? true : false}
                 id="createUserButton"
-                icon={<FaPlus className="mr-2" />}
+                icon={
+                  <FaPlus
+                    size={isMobile ? 14 : 20}
+                    className={isMobile ? 'mr-0' : 'mr-2'}
+                  />
+                }
                 onClick={showDrawer}
-                className="bg-blue-600 hover:bg-blue-700"
+                className={`bg-blue-600 hover:bg-blue-700 ${
+                  isMobile
+                    ? 'py-1 h-8 w-8 flex items-center justify-center'
+                    : isTablet
+                      ? 'h-11 px-4 py-3'
+                      : 'h-14 px-6 py-6'
+                }`}
               />
             </div>
           ) : (

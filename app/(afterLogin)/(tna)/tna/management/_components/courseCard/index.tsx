@@ -39,7 +39,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
       <Card
         hoverable
         className={classNames(
-          'relative min-h-[400px] max-h-[400px] overflow-hidden',
+          'relative min-h-[350px] max-h-[350px] overflow-hidden',
           { 'opacity-70': item?.isDraft },
           [className],
         )}
@@ -67,20 +67,32 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 item?.courseCategory?.title || ''
               )}
             </div>
+            {item?.tenantId === null && (
+              <div className="absolute top-5 right-5 z-10 py-2 px-3 rounded-lg bg-green-500 text-white text-sm font-semibold">
+                system course
+              </div>
+            )}
+
             <Meta
               title={
                 <div className="flex items-center gap-1">
-                  <div className="text-lg font-bold text-gray-900 flex-1 text-pretty">
+                  <div className="text-lg font-bold text-gray-900 flex-1 text-pretty line-clamp-1">
                     {item?.title}
                   </div>
                 </div>
               }
               description={
-                <div className="text-base text-gray-600">{item?.overview}</div>
+                <div className="text-base text-gray-600 line-clamp-1">
+                  {item?.overview}
+                </div>
               }
             />
           </div>
-          <div className="action-buttons mt-2  gap-2">
+
+          <div
+            className="action-buttons mt-2  gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
             <AccessGuard
               permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
             >

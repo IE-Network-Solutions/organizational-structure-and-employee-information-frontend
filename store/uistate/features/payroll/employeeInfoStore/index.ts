@@ -8,6 +8,10 @@ interface VariablePay {
   amount: string;
   type: 'VP';
 }
+interface Incentives {
+  amount: string;
+  type: 'Incentive';
+}
 
 export interface Allowances {
   amount: string;
@@ -32,6 +36,7 @@ interface Breakdown {
   merits: Merits[];
   pension: Pension[];
   variablePay: VariablePay;
+  incentives: Incentives;
   tax: any;
   employeeId: string;
   employeeInfo: EmployeeInfo;
@@ -220,9 +225,25 @@ interface PayrollState {
   setActiveMergedPayroll: (payroll: ActiveMergedPayroll) => void;
   setMergedPayroll: (payroll: ActiveMergedPayroll[]) => void;
   setActivePayPeriod: (payPeriod: PayPeriod) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  isFilterModalOpen: boolean;
+  setIsFilterModalOpen: (open: boolean) => void;
+
+  isPayrollModalOpen: boolean;
+  setIsPayrollModalOpen: (open: boolean) => void;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+
+  pageSize: number;
+  setPageSize: (size: number) => void;
 }
 
 const useEmployeeStore = create<PayrollState>((set) => ({
+  searchQuery: '',
+  setSearchQuery: (query) => set({ searchQuery: query }),
+  isFilterModalOpen: false,
+  setIsFilterModalOpen: (open) => set({ isFilterModalOpen: open }),
   activeMergedPayroll: null,
   mergedPayroll: [],
   activePayPeriod: null,
@@ -233,6 +254,15 @@ const useEmployeeStore = create<PayrollState>((set) => ({
     set({ mergedPayroll: data }),
   setActivePayPeriod: (data: PayPeriod | null) =>
     set({ activePayPeriod: data }),
+
+  isPayrollModalOpen: false,
+  setIsPayrollModalOpen: (open) => set({ isPayrollModalOpen: open }),
+
+  currentPage: 1,
+  setCurrentPage: (page: number) => set({ currentPage: page }),
+
+  pageSize: 10,
+  setPageSize: (size: number) => set({ pageSize: size }),
 }));
 
 export default useEmployeeStore;

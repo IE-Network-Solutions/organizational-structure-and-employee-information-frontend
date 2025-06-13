@@ -7,13 +7,12 @@ import {
   Col,
   Dropdown,
   Menu,
-  Pagination,
   Row,
   Spin,
   Tooltip,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
@@ -43,8 +42,9 @@ import { UserOutlined } from '@ant-design/icons';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { FiCheckCircle } from 'react-icons/fi';
 import KeyResultTasks from './KeyResultTasks';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
 
 const { Title } = Typography;
 
@@ -60,9 +60,10 @@ function Planning() {
     pageSize,
     setPageSize,
     activeTab,
+    activePlanPeriodId,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
-
+  const { isMobile, isTablet } = useIsMobile();
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
@@ -70,22 +71,32 @@ function Planning() {
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
-  const hasPermission = AccessGuard.checkAccess({
-    permissions: [
-      Permissions.ViewDailyPlan,
-      Permissions.ViewWeeklyPlan,
-      Permissions.ViewMonthlyPlan,
-    ],
-  });
+  // const hasPermission = AccessGuard.checkAccess({
+  //   permissions: [
+  //     Permissions.ViewDailyPlan,
+  //     Permissions.ViewWeeklyPlan,
+  //     Permissions.ViewMonthlyPlan,
+  //   ],
+  // });
 
-  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+  const getPlanningPeriodDetail = (id: string) => {
+    const planningPeriodDetail = planningPeriods?.items?.find(
+      (period: any) => period?.id === id,
+    );
+    return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+  };
+  // const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
 
   // const { mutate: handleDeletePlan, isLoading: loadingDeletePlan } =
   //   useDeletePlanById();
   const { data: objective } = useFetchObjectives(userId);
-  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
-  const userPlanningPeriodId =
-    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  // const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId =
+    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  // const userPlanningPeriodId =userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  const userPlanningPeriodId = userPlanningPeriods?.find(
+    (item) => item?.planningPeriodId === planningPeriodId,
+  )?.planningPeriodId;
 
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: selectedUser,
@@ -98,8 +109,13 @@ function Planning() {
     activeTab.toString(),
   );
 
+  useEffect(() => {
+    setPage(1);
+    setPageSize(10);
+  }, [activeTab, setPage, setPageSize]);
+
   const transformedData = groupPlanTasksByKeyResultAndMilestone(
-    allPlanning?.items,
+    allPlanning?.items ?? [],
   );
 
   const handleApproveHandler = (id: string, value: boolean) => {
@@ -109,7 +125,9 @@ function Planning() {
     };
     approvalPlanningPeriod(data);
   };
-  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  // const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -244,13 +262,12 @@ function Planning() {
             </div>
           </Tooltip>
         </div>
-        {hasPermission && (
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={PlanningType}
-            optionArray3={departmentData}
-          />
-        )}
+
+        <EmployeeSearch
+          optionArray1={employeeData?.items}
+          optionArray2={PlanningType}
+          optionArray3={departmentData}
+        />
 
         {transformedData?.map((dataItem: any, index: number) => (
           <>
@@ -389,11 +406,38 @@ function Planning() {
             </Card>
           </>
         ))}
-
-        <Pagination
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={allPlanning?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={page}
+            total={allPlanning?.meta?.totalItems || 1}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        )}
+        {/* <Pagination
           disabled={!allPlanning?.items?.length} // Ensures no crash if items is undefined
           className="flex justify-end"
-          total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
+            total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
           current={page}
           pageSize={pageSize} // Dynamically control page size
           showSizeChanger // Allows user to change page size
@@ -402,7 +446,7 @@ function Planning() {
             setPageSize(pageSize); // Ensure page size updates dynamically
           }}
           pageSizeOptions={['10', '20', '50', '100']}
-        />
+        /> */}
 
         {transformedData?.length <= 0 && (
           <div className="flex justify-center">

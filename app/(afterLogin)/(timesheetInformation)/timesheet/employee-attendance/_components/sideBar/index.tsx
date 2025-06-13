@@ -17,7 +17,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
   const {
     isShowEmployeeAttendanceSidebar,
     employeeAttendanceId,
@@ -48,7 +48,7 @@ const EmployeeAttendanceSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoadingRequest,
       onClick: () => onClose(),
@@ -56,7 +56,7 @@ const EmployeeAttendanceSideBar = () => {
     {
       label: 'Update',
       key: 'create',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoadingRequest,
@@ -64,58 +64,28 @@ const EmployeeAttendanceSideBar = () => {
     },
   ];
   const onChangeIsAbsent = (isAbsent: any) => {
-    form.setFieldValue('isAbsent', !!isAbsent);
     setIsAbsent(isAbsent);
+    form.setFieldValue('isAbsent', isAbsent);
+    if (isAbsent) {
+      form.setFieldsValue({
+        startAt: null,
+        endAt: null,
+      });
+    }
   };
   const onFinish = () => {
     const value = form.getFieldsValue();
-    const dayOfTheWeek = value?.startAt.format('dddd');
-    const checkIn = value?.startAt.format('HH.mm ');
-    const checkOut = value?.endAt.format('HH.mm ');
 
-    const workScheduleData = employeeData?.employeeJobInformation
-      ?.find((item: any) => item.isPositionActive === true)
-      ?.workSchedule?.detail?.find((item: any) =>
-        item.day ? item.day == dayOfTheWeek : item.dayOfWeek == dayOfTheWeek,
-      );
-    if (workScheduleData) {
-      const lateByMinutes = value?.isAbsent
-        ? 0
-        : dayjs(`${checkIn}`, 'hh:mm').diff(
-            dayjs(`${workScheduleData.startTime}`, 'hh:mm'),
-            'minute',
-          );
-      const earlyByMinutes = value?.isAbsent
-        ? 0
-        : dayjs(
-            dayjs(`${workScheduleData.endTime}`, 'hh:mm A').format('HH:mm'),
-            'hh:mm',
-          ).diff(dayjs(`${checkOut}`, 'hh:mm'), 'minute');
+    if (value.isAbsent) {
       updateLeaveRequest(
         {
           id: employeeAttendanceId,
           data: {
-            startAt: value?.isAbsent
-              ? null
-              : dayjs(value?.startAt, 'YYYY-MM-DD HH:mm').format(
-                  'YYYY-MM-DD HH:mm',
-                ),
-            endAt: value?.isAbsent
-              ? null
-              : dayjs(value?.endAt, 'YYYY-MM-DD HH:mm').format(
-                  'YYYY-MM-DD HH:mm',
-                ),
-            lateByMinutes: value?.isAbsent
-              ? 0
-              : lateByMinutes > 0
-                ? lateByMinutes
-                : 0,
-            earlyByMinutes: value?.isAbsent
-              ? 0
-              : earlyByMinutes > 0
-                ? earlyByMinutes
-                : 0,
-            isAbsent: value?.isAbsent,
+            startAt: null,
+            endAt: null,
+            lateByMinutes: 0,
+            earlyByMinutes: 0,
+            isAbsent: true,
             isOnGoing: false,
           },
         },
@@ -125,12 +95,64 @@ const EmployeeAttendanceSideBar = () => {
           },
         },
       );
-    } else {
+      return;
+    }
+
+    if (!value.startAt || !value.endAt) {
+      NotificationMessage.warning({
+        message:
+          'Clock In and Clock Out times are required unless marked absent.',
+      });
+      return;
+    }
+
+    const dayOfTheWeek = value.startAt.format('dddd');
+    const checkIn = value.startAt.format('HH.mm');
+    const checkOut = value.endAt.format('HH.mm');
+
+    const workScheduleData = employeeData?.employeeJobInformation
+      ?.find((item: any) => item.isPositionActive === true)
+      ?.workSchedule?.detail?.find((item: any) =>
+        item.day ? item.day === dayOfTheWeek : item.dayOfWeek === dayOfTheWeek,
+      );
+
+    if (!workScheduleData) {
       NotificationMessage.warning({
         message: `This Employee does not have any active work scheduled`,
       });
+      return;
     }
+
+    const lateByMinutes = dayjs(checkIn, 'HH.mm').diff(
+      dayjs(workScheduleData.startTime, 'HH.mm'),
+      'minute',
+    );
+
+    const earlyByMinutes = dayjs(workScheduleData.endTime, 'HH:mm A').diff(
+      dayjs(checkOut, 'HH.mm'),
+      'minute',
+    );
+
+    updateLeaveRequest(
+      {
+        id: employeeAttendanceId,
+        data: {
+          startAt: dayjs(value.startAt).format('YYYY-MM-DD HH:mm'),
+          endAt: dayjs(value.endAt).format('YYYY-MM-DD HH:mm'),
+          lateByMinutes: Math.max(0, lateByMinutes),
+          earlyByMinutes: Math.max(0, earlyByMinutes),
+          isAbsent: false,
+          isOnGoing: false,
+        },
+      },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
+
   React.useEffect(() => {
     if (currentAttendanceData) {
       const formattedBreakType = {
@@ -156,7 +178,11 @@ const EmployeeAttendanceSideBar = () => {
           modalHeader={
             <CustomDrawerHeader>Update Employee Attendance</CustomDrawerHeader>
           }
-          footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+          footer={
+            <div className="p-6 sm:p-0">
+              <CustomDrawerFooterButton buttons={footerModalItems} />
+            </div>
+          }
           width="400px"
         >
           <Spin size="large" spinning={isAttendanceLoading || isUserLoading}>
@@ -166,7 +192,10 @@ const EmployeeAttendanceSideBar = () => {
               autoComplete="off"
               onFinish={onFinish}
             >
-              <Space className="w-full" direction="vertical" size={12}>
+              <Space.Compact
+                direction="vertical"
+                className="w-full px-3 sm:px-0 "
+              >
                 <Form.Item name="isAbsent" label="Is Absent">
                   <CustomRadio
                     label="Is Absent"
@@ -174,11 +203,10 @@ const EmployeeAttendanceSideBar = () => {
                     onChange={onChangeIsAbsent}
                   />
                 </Form.Item>
-
                 <Form.Item
                   name="startAt"
                   label="Clock In"
-                  rules={[{ required: true, message: 'Required' }]}
+                  rules={[{ required: !isAbsent, message: 'Required' }]}
                   className={itemClass}
                 >
                   {currentAttendanceData?.isAbsent ? (
@@ -208,11 +236,10 @@ const EmployeeAttendanceSideBar = () => {
                     />
                   )}
                 </Form.Item>
-
                 <Form.Item
                   name="endAt"
                   label="Clock Out"
-                  rules={[{ required: true, message: 'Required' }]}
+                  rules={[{ required: !isAbsent, message: 'Required' }]}
                   className={itemClass}
                 >
                   {currentAttendanceData?.isAbsent ? (
@@ -242,7 +269,7 @@ const EmployeeAttendanceSideBar = () => {
                     />
                   )}
                 </Form.Item>
-              </Space>
+              </Space.Compact>
             </Form>
           </Spin>
         </CustomDrawerLayout>

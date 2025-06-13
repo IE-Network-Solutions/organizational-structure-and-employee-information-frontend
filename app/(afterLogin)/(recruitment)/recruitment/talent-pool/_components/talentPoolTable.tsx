@@ -115,8 +115,11 @@ const TalentPoolTable: React.FC<any> = () => {
       key: 'actions',
       render: (_: any, record: any) => (
         <AccessGuard permissions={[Permissions.TransferCandidate]}>
-          <Button type="primary" onClick={() => showModal(record)}>
-            Transfer
+          <Button
+            className="bg-[#ADD5F0] border-none"
+            onClick={() => showModal(record)}
+          >
+            <div className="text-[#1D9BF0]">Re-onboard</div>
           </Button>
         </AccessGuard>
       ),

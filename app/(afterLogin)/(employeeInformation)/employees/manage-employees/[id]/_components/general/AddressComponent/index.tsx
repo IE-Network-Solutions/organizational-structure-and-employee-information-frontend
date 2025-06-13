@@ -29,8 +29,13 @@ const AddressComponent = ({
 
   const getFieldValidation = (fieldName: string) => {
     return (
-      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+        ?.fieldValidation ?? 'any'
     );
+  };
+
+  const titleMap: Record<string, string> = {
+    phoneNumber: 'Phone Number',
   };
 
   return (
@@ -79,10 +84,21 @@ const AddressComponent = ({
                         let fieldValidation = getFieldValidation(key);
 
                         switch (key) {
+                          case 'phoneNumber':
+                            fieldValidation = 'number';
+                            break;
+                          case 'firstName':
+                          case 'middleName':
+                          case 'lastName':
+                          case 'subCity':
+                            fieldValidation = 'any';
+                            break;
+
                           case 'country':
                           case 'city':
                             fieldValidation = 'text';
                             break;
+
                           default:
                             fieldValidation = getFieldValidation(key);
                         }
@@ -120,7 +136,7 @@ const AddressComponent = ({
             ).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={key.replace('address', '')}
+                title={(titleMap[key] || key).replace('address', '')}
                 value={val?.toString() || '-'}
               />
             ))}

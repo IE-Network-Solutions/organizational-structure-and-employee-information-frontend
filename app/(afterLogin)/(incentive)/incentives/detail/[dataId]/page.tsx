@@ -3,7 +3,7 @@
 import { Col, Row } from 'antd';
 import React from 'react';
 import IncentiveDetail from './_components/incentiveDetail';
-import { IoArrowBack } from 'react-icons/io5';
+import { IoChevronBackOutline } from 'react-icons/io5';
 import IncentiveUserInfo from './_components/userInfo';
 import { useRouter } from 'next/navigation';
 
@@ -22,19 +22,19 @@ function Page({ params: { dataId } }: IncentiveTableDetailsProps) {
   };
 
   return (
-    <div className="my-[72px] mx-10">
+    <div className="my-[72px] mx-4 sm:mx-10">
       <div
         onClick={handleGoBack}
-        className="flex items-center justify-start space-x-2 mb-4 text-gray-800 "
+        className="flex items-center justify-start space-x-1 mb-4 text-gray-800 "
       >
-        <IoArrowBack />
+        <IoChevronBackOutline className="text-xl text-gray-500" />
         <span className="text-2xl font-bold">Detail</span>
       </div>
       <Row gutter={[10, 10]} justify="space-between">
-        <Col xs={24} sm={24} md={5} lg={5} xl={5}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={7}>
           <IncentiveUserInfo detailId={dataId} />
         </Col>
-        <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={16}>
           <IncentiveDetail detailId={dataId} />
         </Col>
       </Row>

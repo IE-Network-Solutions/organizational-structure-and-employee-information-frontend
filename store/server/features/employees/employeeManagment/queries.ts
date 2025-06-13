@@ -174,6 +174,30 @@ const getEmployees = async () => {
  * @returns The response data from the API
  */
 
+const getActiveEmployee = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
+      {
+        headers,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useGetActiveEmployee = () =>
+  useQuery<any>('ActiveEmployees', getActiveEmployee);
+
 const getEmployee = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -219,7 +243,12 @@ export const useGetAllUsersData = () =>
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployees = () => useQuery<any>('employees', getEmployees);
+export const useGetEmployees = () => {
+  const token = useAuthenticationStore.getState().token;
+  return useQuery<any>('employees', getEmployees, {
+    enabled: !!token,
+  });
+};
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.
@@ -235,4 +264,5 @@ export const useGetEmployees = () => useQuery<any>('employees', getEmployees);
 export const useGetEmployee = (empId: string) =>
   useQuery<any>(['employee', empId], () => getEmployee(empId), {
     keepPreviousData: true,
+    enabled: !!empId, // Only fetch if empId is provided
   });

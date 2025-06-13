@@ -1,5 +1,4 @@
 'use client';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import React, { useEffect } from 'react';
 import CommitmentCard from './_components/commitmentCard';
 import TnaCommitmentSidebar from '@/app/(afterLogin)/(tna)/tna/settings/commitment-rule/_components/commitmentSidebar';
@@ -22,8 +21,10 @@ const TnaCommitmentRulePage = () => {
   }, [isShowCommitmentSidebar]);
 
   return (
-    <>
-      <PageHeader title="Commitment Rules" size="small">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-lg text-bold">Commitment Rules</h1>
+
         <AccessGuard permissions={[Permissions.CreateCommitmentRule]}>
           <Button
             icon={<FaPlus />}
@@ -36,7 +37,7 @@ const TnaCommitmentRulePage = () => {
             <span className="hidden lg:inline">New Rule</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
+      </div>
 
       <Spin spinning={isLoading}>
         {data?.items ? (
@@ -47,7 +48,7 @@ const TnaCommitmentRulePage = () => {
       </Spin>
 
       <TnaCommitmentSidebar />
-    </>
+    </div>
   );
 };
 

@@ -12,7 +12,6 @@ import {
   Upload,
   message,
 } from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateEmail, validateName } from '@/utils/validation';
 import { UploadFile } from 'antd/lib';
@@ -79,7 +78,9 @@ const BasicInformationForm = ({ form }: any) => {
         <Col span={24}>
           <Form.Item
             className="font-semibold text-xs"
-            label="Upload Profile"
+            label={
+              <span className="mb-1 font-semibold text-xs">Upload Profile</span>
+            }
             style={{ textAlign: 'center' }}
             name="profileImage"
             id="profileImageId"
@@ -90,6 +91,7 @@ const BasicInformationForm = ({ form }: any) => {
               beforeUpload={beforeProfileUpload}
               onChange={handleProfileChange}
               onRemove={handleProfileRemove}
+              className="custom-dragger"
               accept="image/*"
               maxCount={1}
               showUploadList={{
@@ -101,12 +103,17 @@ const BasicInformationForm = ({ form }: any) => {
                 <Image
                   src={getImageUrl(profileFileList)}
                   alt="Uploaded Preview"
-                  className="w-full h-auto max-h-64 object-cover rounded-xl"
+                  className="w-full h-full object-cover rounded-xl"
                 />
               ) : (
-                <>
-                  <p className="ant-upload-drag-icon">
-                    <InboxOutlined />
+                <div className="bg-white p-0">
+                  <p className="ant-upload-drag-icon ">
+                    <Image
+                      src="/icons/gallery-add.svg"
+                      alt="Upload"
+                      width={15}
+                      height={15}
+                    />
                   </p>
                   <p className="ant-upload-text font-semibold text-xs">
                     Upload Your Profile
@@ -114,7 +121,7 @@ const BasicInformationForm = ({ form }: any) => {
                   <p className="ant-upload-hint text-xs">
                     or drag and drop it here.
                   </p>
-                </>
+                </div>
               )}
             </Dragger>
           </Form.Item>
@@ -125,7 +132,9 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="userFirstName"
-            label="First Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">First Name</span>
+            }
             id="userFirstNameId"
             rules={[
               {
@@ -146,7 +155,9 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="userMiddleName"
-            label="Middle Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">Middle Name</span>
+            }
             id="userMiddleNameId"
             rules={[
               {
@@ -167,7 +178,9 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="userLastName"
-            label="Last Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">Last Name</span>
+            }
             id="userLastNameId"
             rules={[
               {
@@ -190,7 +203,9 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="userEmail"
-            label="Email Address"
+            label={
+              <span className="mb-1 font-semibold text-xs">Email Address</span>
+            }
             id="userEmailId"
             rules={[
               {
@@ -209,7 +224,7 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="employeeGender"
-            label="Gender"
+            label={<span className="mb-1 font-semibold text-xs">Gender</span>}
             id="userEmployeeGenderId"
             rules={[{ required: true }]}
           >
@@ -225,7 +240,9 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="dateOfBirth"
-            label="Date of Birth"
+            label={
+              <span className="mb-1 font-semibold text-xs">Date of Birth</span>
+            }
             id="userDateOfBirthId"
             rules={[{ required: true }]}
           >
@@ -248,7 +265,9 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="nationalityId"
-            label="Nationality"
+            label={
+              <span className="mb-1 font-semibold text-xs">Nationality</span>
+            }
             id="userNationalityId"
             rules={[{ required: true }]}
           >
@@ -271,16 +290,18 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="martialStatus"
-            label="Marital Status"
+            label={
+              <span className="mb-1 font-semibold text-xs">Marital Status</span>
+            }
             id="userMartialStatusId"
             rules={[
               { required: true, message: 'Please select a marital status!' },
             ]}
           >
             <Select placeholder="Select an option" allowClear>
-              <Option value="single">Single</Option>
-              <Option value="married">Married</Option>
-              <Option value="divorced">Divorced</Option>
+              <Option value="SINGLE">Single</Option>
+              <Option value="MARRIED">Married</Option>
+              <Option value="DIVORCED">Divorced</Option>
             </Select>
           </Form.Item>
         </Col>

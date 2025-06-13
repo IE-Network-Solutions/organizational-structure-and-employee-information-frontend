@@ -15,11 +15,15 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { useDeleteJobs } from '@/store/server/features/recruitment/job/mutation';
 
 const JobCard: React.FC = () => {
   const { searchParams } = useCandidateState();
   const {
     setChangeStatusModalVisible,
+    selectedJobId,
     setSelectedJobId,
     setEditModalVisible,
     currentPage,
@@ -29,12 +33,14 @@ const JobCard: React.FC = () => {
     setShareModalOpen,
     setSelectedJob,
   } = useJobState();
+  const { deleteModal, setDeleteModal } = CategoriesManagementStore();
 
   const { data: jobList, isLoading: isJobListLoading } = useGetJobs(
     searchParams?.whatYouNeed || '',
     currentPage,
     pageSize,
   );
+  const { mutate: deleteJob, isLoading } = useDeleteJobs();
 
   const { data: departments } = useGetDepartments();
 
@@ -54,6 +60,19 @@ const JobCard: React.FC = () => {
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);
     setSelectedJobId(jobId);
+  };
+
+  const handleDeleteJob = (jobId: string) => {
+    setSelectedJobId(jobId);
+  };
+
+  const handleDeleteModal = () => {
+    deleteJob(selectedJobId, {
+      onSuccess: () => {
+        setDeleteModal(false);
+      },
+    });
+    setSelectedJobId('');
   };
 
   if (isJobListLoading)
@@ -104,6 +123,15 @@ const JobCard: React.FC = () => {
               onClick: () => handleEditModalVisible(job),
               permissions: [Permissions.UpdateJobDescription],
             },
+            {
+              label: 'Delete',
+              key: '4',
+              onClick: () => {
+                handleDeleteJob(job?.id);
+                setDeleteModal(true);
+              },
+              permissions: [Permissions.UpdateJobDescription],
+            },
           ];
 
           const filteredItems = items.filter((item) => {
@@ -112,25 +140,29 @@ const JobCard: React.FC = () => {
           });
 
           return (
-            <Card key={index} className="mb-4 rounded-lg shadow-sm">
+            <Card key={index} className="mb-4 rounded-lg ">
               <div className="flex justify-between items-start">
-                <Link href={`/recruitment/jobs/${job?.id}`}>
+                <Link href={`/recruitment/jobs/${job?.id}`} className="gap-3">
                   <>
-                    <div className="font-medium text-sm flex justify-center items-center gap-4 mb-3">
+                    <div className="font-medium text-sm flex justify-center items-start sm:items-center gap-4 mb-3">
                       <div className="w-full text-left">
-                        <span className="font-bold text-xl text-gray-700">
-                          {job?.jobTitle}
-                        </span>
+                        <Tooltip title={job?.jobTitle}>
+                          <span className="font-bold text-xl sm:text-xl text-[12px] text-gray-700 block sm:max-w-none max-w-[140px] truncate whitespace-nowrap overflow-hidden">
+                            {job?.jobTitle}
+                          </span>
+                        </Tooltip>
                       </div>
-                      {jobStatus == 'Closed' ? (
-                        <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border">
-                          Closed
-                        </div>
-                      ) : (
-                        <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0]">
-                          Active
-                        </div>
-                      )}
+                      <div className="sm:mt-2 ">
+                        {jobStatus == 'Closed' ? (
+                          <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border md:mt-0 mt-1 md:mr-0 mr-2">
+                            Closed
+                          </div>
+                        ) : (
+                          <div className="mb-0 items-center text-xs font-normal rounded-lg px-4 py-1 bg-[#B2B2FF] text-[#3636F0] md:mt-0 mt-1 md:mr-0 mr-2">
+                            Active
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center justify-start gap-2">
                       <p className="text-sm text-gray-500">
@@ -179,7 +211,7 @@ const JobCard: React.FC = () => {
                   </>
                 </Link>
 
-                <div className="">
+                <div className="m-0">
                   <Dropdown
                     menu={{
                       items: filteredItems.map(({ label, key, onClick }) => ({
@@ -207,6 +239,15 @@ const JobCard: React.FC = () => {
           </div>
         </div>
       )}
+      <DeleteModal
+        loading={isLoading}
+        open={deleteModal}
+        deleteMessage="Are you sure you want to delete this job?"
+        onCancel={() => setDeleteModal(false)}
+        onConfirm={() => {
+          handleDeleteModal();
+        }}
+      />
 
       <ChangeStatusModal />
       <ShareToSocialMedia />

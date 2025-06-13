@@ -18,6 +18,12 @@ type TnaReviewAction = {
   setUserCurrentPage: (userCurrentPage: number) => void;
   setPageSize: (pageSize: number) => void;
 
+  currentPage: number;
+  setCurrentPage: (currentPage: number) => void;
+
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
 
@@ -42,6 +48,16 @@ const tnaReviewSlice: StateCreator<TnaReviewState & TnaReviewAction> = (
   isShowTnaUpdateSidebar: false,
   setIsShowTnaUpdateSidebar: (isShowTnaUpdateSidebar) => {
     set({ isShowTnaUpdateSidebar });
+  },
+
+  currentPage: 1,
+  setCurrentPage: (currentPage) => {
+    set({ currentPage });
+  },
+
+  loading: false,
+  setLoading: (loading) => {
+    set({ loading });
   },
 
   searchQuery: '',
