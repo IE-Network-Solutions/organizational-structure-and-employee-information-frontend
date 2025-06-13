@@ -562,9 +562,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     const routesWithPermissions = getRoutesAndPermissions(treeData);
 
     // First check if the pathname matches any defined route
-    const matchingRoute = routesWithPermissions.find((route) =>
-      pathname.startsWith(route.route),
-    );
+    const matchingRoute = routesWithPermissions.find((route) => {
+      // Check for exact match
+      if (pathname === route.route) {
+        return true;
+      }
+
+      // Check for parent-child relationship
+      // Only allow if the route is a direct parent (one level deep)
+      const pathParts = pathname.split('/').filter(Boolean);
+      const routeParts = route.route.split('/').filter(Boolean);
+
+      if (pathParts.length === routeParts.length + 1) {
+        return pathname.startsWith(route.route + '/');
+      }
+
+      return false;
+    });
 
     // If no matching route found, deny access by default
     if (!matchingRoute) {
@@ -577,11 +591,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
 
     // Get user's permissions from the authentication store
-    const userPermissions = userData?.permissions || [];
+    const userPermissions = userData?.userPermissions || [];
 
     // Check if user has ALL required permissions for this route
     const hasAllPermissions = matchingRoute.permissions.every(
-      (requiredPermission) => userPermissions.includes(requiredPermission),
+      (requiredPermission: any) => {
+        return userPermissions?.find(
+          (permission: any) =>
+            permission.permission.slug === requiredPermission,
+        );
+      },
     );
 
     return hasAllPermissions;
