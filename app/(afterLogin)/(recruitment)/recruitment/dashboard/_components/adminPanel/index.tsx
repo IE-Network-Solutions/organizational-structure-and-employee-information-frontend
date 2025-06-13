@@ -7,20 +7,16 @@ import StagesChart from './StagesChart';
 import RecruitmentPipeline from './RecruitmentPipeline';
 import JobPostPerformance from './JobPostPerformance';
 
-
-
 export default function DashboardComponent() {
-    return (
-        <div className="space-y-4">
-            <StatsCards />
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <HireToApplicantChart />
-      <StagesChart />
+  return (
+    <div className="space-y-4">
+      <StatsCards />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <HireToApplicantChart />
+        <StagesChart />
+      </div>
+      <RecruitmentPipeline />
+      <JobPostPerformance />
     </div>
-    <RecruitmentPipeline />
-    <JobPostPerformance />
-         
-
-        </div>
-    );
+  );
 }

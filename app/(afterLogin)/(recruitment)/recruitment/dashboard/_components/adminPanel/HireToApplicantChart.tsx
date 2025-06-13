@@ -9,13 +9,33 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 const data = {
-  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  labels: [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'June',
+    'July',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ],
   datasets: [
     {
       label: 'Hired',
@@ -33,23 +53,24 @@ const data = {
 const options = {
   responsive: true,
   plugins: {
-   
     legend: {
       position: 'top' as const,
       labels: {
         boxWidth: 10, // 👈 smaller width for the color box (default is 40)
         boxHeight: 10, // optional, if you want to set height too
-        padding: 10
+        padding: 10,
       },
     },
-    datalabels:{display:false}
+    datalabels: { display: false },
   },
 };
 
 export default function HireToApplicantChart() {
   return (
     <Card className="shadow-sm">
-      <h3 className="font-semibold mb-4 text-[16px]">Hire to applicant Trend</h3>
+      <h3 className="font-semibold mb-4 text-[16px]">
+        Hire to applicant Trend
+      </h3>
       <Bar options={options} data={data} height={180} />
     </Card>
   );

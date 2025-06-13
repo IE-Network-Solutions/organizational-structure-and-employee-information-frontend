@@ -57,7 +57,7 @@ const columns = [
   },
 ];
 
-export default function CandidateTable(){
+export default function CandidateTable() {
   return (
     <div>
       <Table
@@ -71,5 +71,4 @@ export default function CandidateTable(){
       />
     </div>
   );
-};
-
+}

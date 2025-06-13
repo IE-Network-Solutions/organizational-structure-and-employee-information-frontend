@@ -10,8 +10,8 @@ const data = [
     department: 'Software',
     stage: 'Stage 1',
     num: 0,
-    openDate:"6/9/2025",
-    closeDate:"10/9/2025"
+    openDate: '6/9/2025',
+    closeDate: '10/9/2025',
   },
   {
     key: '2',
@@ -20,8 +20,8 @@ const data = [
     department: 'Sales',
     stage: 'Stage 2',
     num: 5,
-    openDate:"6/9/2025",
-    closeDate:"10/9/2025"
+    openDate: '6/9/2025',
+    closeDate: '10/9/2025',
   },
   {
     key: '3',
@@ -30,8 +30,8 @@ const data = [
     department: 'Software',
     stage: 'Stage 2',
     num: 10,
-    openDate:"6/9/2025",
-    closeDate:"10/9/2025"
+    openDate: '6/9/2025',
+    closeDate: '10/9/2025',
   },
 ];
 
@@ -41,7 +41,7 @@ const columns = [
     dataIndex: 'job',
     key: 'job',
   },
-  
+
   {
     title: 'Department',
     dataIndex: 'department',
@@ -69,7 +69,7 @@ const columns = [
   },
 ];
 
-export default function JobPerformance(){
+export default function JobPerformance() {
   return (
     <div>
       <Table
@@ -83,5 +83,4 @@ export default function JobPerformance(){
       />
     </div>
   );
-};
-
+}

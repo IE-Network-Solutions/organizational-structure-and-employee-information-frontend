@@ -19,7 +19,14 @@ const data = {
     {
       label: 'Stages',
       data: [45, 90, 60, 84, 95, 92],
-      backgroundColor: ['#4A6CF7', '#FA916B', '#42D29D', '#FDBA74', '#A78BFA', '#34D399'],
+      backgroundColor: [
+        '#4A6CF7',
+        '#FA916B',
+        '#42D29D',
+        '#FDBA74',
+        '#A78BFA',
+        '#34D399',
+      ],
       borderWidth: 0,
     },
   ],
@@ -27,16 +34,15 @@ const data = {
 
 const options: ChartOptions<'pie'> = {
   responsive: false, // required when manually setting width/height
- 
+
   plugins: {
     legend: {
       position: 'right',
       labels: {
         usePointStyle: true,
-          boxWidth: 6, // 👈 smaller width for the color box (default is 40)
-    boxHeight: 6, // optional, if you want to set height too
-    padding: 10
-
+        boxWidth: 6, // 👈 smaller width for the color box (default is 40)
+        boxHeight: 6, // optional, if you want to set height too
+        padding: 10,
       },
     },
     tooltip: {
@@ -54,30 +60,34 @@ const options: ChartOptions<'pie'> = {
         weight: 'bold',
         size: 12,
       },
-      formatter: (value: number, context: any) => {
-        const label = context.chart.data.labels?.[context.dataIndex];
+      formatter: (value: number) => {
         return `${value}`;
       },
     },
   },
 };
 
-
 export default function StagesChart() {
   return (
     <Card className="shadow-sm">
-       <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4">
         <h3 className="font-semibold text-[16px]">Stages</h3>
         <div className="flex gap-2">
-          <Select defaultValue="Job" className="w-24 h-12" options={[{ value: 'Job', label: 'Job' }]} />
-          <Select defaultValue="Stage" className="w-24 h-12" options={[{ value: 'Stage', label: 'Stage' }]} />
+          <Select
+            defaultValue="Job"
+            className="w-24 h-12"
+            options={[{ value: 'Job', label: 'Job' }]}
+          />
+          <Select
+            defaultValue="Stage"
+            className="w-24 h-12"
+            options={[{ value: 'Stage', label: 'Stage' }]}
+          />
         </div>
       </div>
-      <div className='flex justify-center'>
-        
-      <Pie data={data} options={options}  width={280} height={250} />
+      <div className="flex justify-center">
+        <Pie data={data} options={options} width={280} height={250} />
       </div>
     </Card>
-   
   );
 }
