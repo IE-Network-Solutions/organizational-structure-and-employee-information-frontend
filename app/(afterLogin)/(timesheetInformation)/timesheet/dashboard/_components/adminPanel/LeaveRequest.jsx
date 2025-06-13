@@ -101,7 +101,7 @@ const LeaveRequest = () => {
       'Nov',
       'Dec',
     ],
-    datasets: leaveTypes.map((leave, index) => ({
+    datasets: leaveTypes.map((leave) => ({
       label: leave.label,
       data: Array.from({ length: 12 }, () => Math.floor(Math.random() * 3 + 5)),
       backgroundColor: leave?.backgroundColor

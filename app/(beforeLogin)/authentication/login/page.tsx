@@ -51,8 +51,6 @@ const Login: FC = () => {
         },
       },
     );
-
-
   };
 
   const handleGoogleSignIn = async () => {
