@@ -10,7 +10,9 @@ function getBrowserGMTOffset(): string {
 
   const sign = totalMinutes >= 0 ? '+' : '-';
   const absMinutes = Math.abs(totalMinutes);
-  const hours = Math.floor(absMinutes / 60).toString().padStart(2, '0');
+  const hours = Math.floor(absMinutes / 60)
+    .toString()
+    .padStart(2, '0');
   const minutes = (absMinutes % 60).toString().padStart(2, '0');
 
   return `${sign}${hours}:${minutes}`;
@@ -23,7 +25,6 @@ function TimeZone() {
   useEffect(() => {
     setDetectedTimeZone(getBrowserGMTOffset());
   }, [getBrowserGMTOffset()]);
-  console.log(detectedTimeZone,"detectedTimeZone")
 
   return (
     <div className="flex flex-col bg-gray-50 p-4 md:p-6 lg:p-8 rounded-lg my-4 md:my-6 lg:my-8 w-full h-full">

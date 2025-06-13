@@ -4,7 +4,6 @@ import { Button, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
 import WorkSchedule from './workSchedule';
-import Branches from './branches';
 import OrgChartComponent from './orgChartComponent';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -20,7 +19,6 @@ import {
   useCreateOrgChart,
   useDeleteOrgChart,
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
-import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
 import {
   useCreateCompanyInfo,
   useDeleteCompanyInfo,
@@ -35,7 +33,6 @@ import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/su
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
-import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructure)/organization/settings/_components/fiscalYear/customDrawer';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import {
@@ -46,10 +43,15 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import FiscalYearForm from './onBoardingFy';
 import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
-import { useCreateBranch, useDeleteBranch } from '@/store/server/features/organizationStructure/branchs/mutation';
+import {
+  useCreateBranch,
+  useDeleteBranch,
+} from '@/store/server/features/organizationStructure/branchs/mutation';
 import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
-import { useCreateRecruitmentStatus, useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/settings/status/mutation';
-
+import {
+  useCreateRecruitmentStatus,
+  useDeleteRecruitmentStatus,
+} from '@/store/server/features/recruitment/settings/status/mutation';
 
 const OnboaringSteper: React.FC = () => {
   const [form1] = Form.useForm();
@@ -76,7 +78,7 @@ const OnboaringSteper: React.FC = () => {
     togleIsModalVisible,
   } = useStepStore((state) => state);
 
-  const { createWorkSchedule, getSchedule, detail } = useScheduleStore();
+  const { createWorkSchedule, detail } = useScheduleStore();
   const { data: branches } = useGetBranches();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
@@ -92,7 +94,9 @@ const OnboaringSteper: React.FC = () => {
 
     const sign = totalMinutes >= 0 ? '+' : '-';
     const absMinutes = Math.abs(totalMinutes);
-    const hours = Math.floor(absMinutes / 60).toString().padStart(2, '0');
+    const hours = Math.floor(absMinutes / 60)
+      .toString()
+      .padStart(2, '0');
     const minutes = (absMinutes % 60).toString().padStart(2, '0');
     return `${sign}${hours}:${minutes}`;
   }
@@ -101,26 +105,25 @@ const OnboaringSteper: React.FC = () => {
   }, [getBrowserGMTOffset()]);
   const timeZonePayload = {
     timezone: detectedTimeZone,
-    id: data ? data.id : ""
-  }
+    id: data ? data.id : '',
+  };
   const schedulePayload = {
-    name: "Full-time Schedule",
-    detail
-  }
+    name: 'Full-time Schedule',
+    detail,
+  };
   const branchPayload = {
-    name: "HQ",
-    description: "HQ",
-    location: "HQ",
+    name: 'HQ',
+    description: 'HQ',
+    location: 'HQ',
     contactNumber: companyInformation?.contactPersonPhoneNumber,
-    contactEmail: companyInformation?.contactPersonEmail
-  }
-  const applicantStatusPayload={
-    title: "Initial Stage ",
-    description: "Initial Stage ",
-    createdBy:userId
-}
-  const { fiscalYearPayLoad } =
-    useFiscalYearDrawerStore();
+    contactEmail: companyInformation?.contactPersonEmail,
+  };
+  const applicantStatusPayload = {
+    title: 'Initial Stage ',
+    description: 'Initial Stage ',
+    createdBy: userId,
+  };
+  const { fiscalYearPayLoad } = useFiscalYearDrawerStore();
   const { companyName, companyProfileImage, companyStamp } =
     useCompanyProfile();
 
@@ -136,7 +139,7 @@ const OnboaringSteper: React.FC = () => {
   const createBranch = useCreateBranch();
   const deleteBranch = useDeleteBranch();
   const updateTimeZone = useUpdateTimeZone();
- const createApplicantStatus = useCreateRecruitmentStatus();
+  const createApplicantStatus = useCreateRecruitmentStatus();
   const deleteApplicantStatus = useDeleteRecruitmentStatus();
   const companyInfoPayload = form1.getFieldsValue();
   // const updateCompanyProfile = useUpdateCompanyProfile();
@@ -150,7 +153,7 @@ const OnboaringSteper: React.FC = () => {
     companyProfileImage: any,
     timeZone: any,
     branch: any,
-    applicantStatusPayload:any,
+    applicantStatusPayload: any,
   ) {
     yield {
       createFn: createFiscalYear.mutateAsync,
@@ -200,8 +203,6 @@ const OnboaringSteper: React.FC = () => {
   const onSubmitOnboarding = async () => {
     toggleLoading();
     createWorkSchedule();
-    const schedule = getSchedule();
-
     const successfulRequests: {
       id: string;
       deleteFn: (id: string) => Promise<any>;
@@ -216,7 +217,7 @@ const OnboaringSteper: React.FC = () => {
       branchPayload,
       applicantStatusPayload,
     );
-   
+
     try {
       for (const { createFn, deleteFn, data } of generator) {
         const response = await createFn(data);
@@ -245,9 +246,9 @@ const OnboaringSteper: React.FC = () => {
       branches && branches?.items?.length >= 1
         ? nextStep()
         : NotificationMessage.warning({
-          message: 'Branch Is not created Error',
-          description: 'You have to create at least one branch',
-        });
+            message: 'Branch Is not created Error',
+            description: 'You have to create at least one branch',
+          });
     } else {
       forms[currentStep]
         .validateFields()
@@ -267,13 +268,7 @@ const OnboaringSteper: React.FC = () => {
     },
     {
       title: 'Step 1',
-      content: (
-
-        <FiscalYearForm
-          form={form2}
-        />
-
-      ),
+      content: <FiscalYearForm form={form2} />,
     },
     {
       title: 'Step 2',
@@ -289,7 +284,6 @@ const OnboaringSteper: React.FC = () => {
   const handleClose = () => {
     togleIsModalVisible();
   };
-  console.log(companyInformation, "companyInfo")
   return (
     <div className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12">
       <div
@@ -313,7 +307,7 @@ const OnboaringSteper: React.FC = () => {
       "
       >
         {/* Left Section */}
-        <div className='mx-auto'>
+        <div className="mx-auto">
           <div className="pr-0 tablet-md:pr-0 mb-4 md:mb-0 w-full ">
             <div className="flex items-center mb-4 md:mb-8">
               <div className="flex items-center">
@@ -331,10 +325,26 @@ const OnboaringSteper: React.FC = () => {
               STEP {currentStep + 1} OF {steps.length}
             </div>
             <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-              {currentStep + 1 == 1 ? "Personalize your experience and ensure smooth setup" : currentStep + 1 == 2 ? "Please define fiscal year for Your organization" : currentStep + 1 == 3 ? "Define the work schedule for your organization " : currentStep + 1 == 4 ? "Create and define your organizational structure" : ""}
+              {currentStep + 1 == 1
+                ? 'Personalize your experience and ensure smooth setup'
+                : currentStep + 1 == 2
+                  ? 'Please define fiscal year for Your organization'
+                  : currentStep + 1 == 3
+                    ? 'Define the work schedule for your organization '
+                    : currentStep + 1 == 4
+                      ? 'Create and define your organizational structure'
+                      : ''}
             </h2>
             <p className="text-gray-600 mb-10">
-              {currentStep + 1 == 1 ? "This will help us configure the system to better align with your organizations operation " : currentStep + 1 == 2 ? "This will help us ensure accurate reporting and data alignment." : currentStep + 1 == 3 ? "Specify working days and hours to ensure proper planning and resource management." : currentStep + 1 == 4 ? "Add departments, roles, and reporting hierarchies to ensure clear communication and streamlined workflows." : ""}
+              {currentStep + 1 == 1
+                ? 'This will help us configure the system to better align with your organizations operation '
+                : currentStep + 1 == 2
+                  ? 'This will help us ensure accurate reporting and data alignment.'
+                  : currentStep + 1 == 3
+                    ? 'Specify working days and hours to ensure proper planning and resource management.'
+                    : currentStep + 1 == 4
+                      ? 'Add departments, roles, and reporting hierarchies to ensure clear communication and streamlined workflows.'
+                      : ''}
             </p>
 
             {currentStep == 5 && (
@@ -388,12 +398,14 @@ const OnboaringSteper: React.FC = () => {
           </div>
         </div>
 
-
         {/* Right Section */}
         {currentStep !== 5 && (
           <div className="w-full  mt-8 md:mt-0">
             {steps.map((step, idx) => (
-              <div key={idx} style={{ display: idx === currentStep ? 'block' : 'none' }}>
+              <div
+                key={idx}
+                style={{ display: idx === currentStep ? 'block' : 'none' }}
+              >
                 {step.content}
               </div>
             ))}
@@ -445,7 +457,10 @@ const OnboaringSteper: React.FC = () => {
         {/* Mobile/Tablet Step Content */}
         <div className="tablet-md:hidden w-full mt-8 md:mt-0">
           {steps.map((step, idx) => (
-            <div key={idx} style={{ display: idx === currentStep ? 'block' : 'none' }}>
+            <div
+              key={idx}
+              style={{ display: idx === currentStep ? 'block' : 'none' }}
+            >
               {step.content}
             </div>
           ))}

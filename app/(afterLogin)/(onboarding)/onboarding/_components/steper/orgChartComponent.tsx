@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { Card, Button, Menu, Dropdown, Tooltip, Modal } from 'antd';
 import {
@@ -152,7 +152,6 @@ const OrgChartComponent: React.FC = () => {
     setParentId,
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
-    setBranchId,
     setOrgData,
   } = useOrganizationStore();
 
@@ -191,13 +190,32 @@ const OrgChartComponent: React.FC = () => {
   const { data: branches } = useGetBranches();
 
   useEffect(() => {
-
-
     if (!orgData.department || orgData.department.length === 0) {
       const defaultDepartments: Department[] = [
-        { id: uuidv4(), name: 'HR', department: [], branchId: null, description: '', collapsed: false },
-        { id: uuidv4(), name: 'Marketing', department: [], branchId: null, description: '', collapsed: false },
-        { id: uuidv4(), name: 'Finance', department: [], branchId: null, description: '', collapsed: false },
+        {
+          id: uuidv4(),
+          name: 'HR',
+          department: [],
+          branchId: null,
+          description: '',
+          collapsed: false,
+        },
+        {
+          id: uuidv4(),
+          name: 'Marketing',
+          department: [],
+          branchId: null,
+          description: '',
+          collapsed: false,
+        },
+        {
+          id: uuidv4(),
+          name: 'Finance',
+          department: [],
+          branchId: null,
+          description: '',
+          collapsed: false,
+        },
       ];
 
       setOrgData({
@@ -207,10 +225,8 @@ const OrgChartComponent: React.FC = () => {
         department: defaultDepartments,
       });
     }
-
   }, [branches, orgData.department]);
 
-  console.log(orgData, "orgData")
   return (
     <div className="w-full py-7 overflow-x-auto lg:overflow-x-visible">
       <div className="p-4 sm:p-2 md:p-6 lg:p-8">
@@ -225,16 +241,18 @@ const OrgChartComponent: React.FC = () => {
                 description: '',
                 collapsed: false,
               }}
-              onEdit={() => handleEdit({
-                id: 'root',
-                name: orgData?.name || 'CEO',
-                department: orgData?.department || [],
-                branchId: orgData?.branchId || '',
-                description: '',
-                collapsed: false,
-              })}
+              onEdit={() =>
+                handleEdit({
+                  id: 'root',
+                  name: orgData?.name || 'CEO',
+                  department: orgData?.department || [],
+                  branchId: orgData?.branchId || '',
+                  description: '',
+                  collapsed: false,
+                })
+              }
               onAdd={() => handleAdd('root')}
-              onDelete={() => { }}
+              onDelete={() => {}}
               isRoot={true}
             />
           }

@@ -8,8 +8,7 @@ import { UploadFile } from 'antd/es/upload/interface';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { FormInstance } from 'antd/lib';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
- const {Option}=Select;
+const { Option } = Select;
 interface CompanyProfileProps {
   form: FormInstance;
 }
@@ -17,21 +16,11 @@ interface CompanyProfileProps {
 const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
   const {
     companyProfileImage,
-    companyName,
-    companyDomainName,
-    companyStamp,
     setCompanyStamp,
     setCompanyProfile,
     setCompanyName,
     setCompanyDomainName,
   } = useCompanyProfile();
-
-  const normFile = (e: any) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
-  };
 
   const handleFileChange = (info: any) => {
     const fileList = info.fileList as UploadFile<any>[];
@@ -39,15 +28,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
       setCompanyProfile(fileList[0]);
     } else {
       setCompanyProfile(undefined);
-    }
-  };
-
-  const handleStampChange = (info: any) => {
-    const fileList = info.fileList as UploadFile<any>[];
-    if (fileList.length > 0) {
-      setCompanyStamp(fileList[0]);
-    } else {
-      setCompanyStamp(undefined);
     }
   };
 
@@ -63,10 +43,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
     return '';
   };
 
- 
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { data: companyInfo } = useGetCompanyProfileByTenantId(tenantId);
-  
+
   const businessSize: { [key: number]: string } = {
     0: '1-10',
     1: '11-50',
@@ -75,11 +54,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
     4: '201-500',
     5: '500+',
   };
-const getBusinessSizeIndex = (value: string) => {
-  return Object.entries(businessSize).find(
-    ([_, label]) => label === value
-  )?.[0];
-}
+  const getBusinessSizeIndex = (value: string) => {
+    return Object.entries(businessSize).find(([label]) => label === value)?.[0];
+  };
   useEffect(() => {
     if (companyInfo) {
       const domainName = companyInfo.domainName?.replace('.selamnew.com', '');
@@ -95,8 +72,9 @@ const getBusinessSizeIndex = (value: string) => {
         contactPersonEmail: companyInfo.contactPersonEmail,
         contactPersonPhone: companyInfo.contactPersonPhoneNumber,
         companyDomainName: domainName,
-        industry:companyInfo.industry,
-        businessSize: getBusinessSizeIndex(companyInfo.businessSize || '') ?? null,
+        industry: companyInfo.industry,
+        businessSize:
+          getBusinessSizeIndex(companyInfo.businessSize || '') ?? null,
       });
 
       // Set UI state
@@ -122,9 +100,15 @@ const getBusinessSizeIndex = (value: string) => {
         });
       }
     }
-  }, [companyInfo, form, setCompanyName, setCompanyDomainName, setCompanyProfile, setCompanyStamp]);
- console.log(companyInfo,"companyInfocompanyInfo")
-  
+  }, [
+    companyInfo,
+    form,
+    setCompanyName,
+    setCompanyDomainName,
+    setCompanyProfile,
+    setCompanyStamp,
+  ]);
+
   return (
     <div className="flex-1 bg-gray-50 p-8 rounded-lg h-full my-8 items-center">
       <div className="bg-white p-8 rounded-lg h-full">
@@ -166,80 +150,120 @@ const getBusinessSizeIndex = (value: string) => {
           </Form.Item>
 
           <div className="grid grid-cols-2 gap-4 mt-4">
-            <Form.Item name="companyName" label="Company Name" rules={[{ required: true }]}>
+            <Form.Item
+              name="companyName"
+              label="Company Name"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Enter company name" />
             </Form.Item>
 
-            <Form.Item name="companyDomainName" label="Company Domain name" rules={[{ required: true }]}>
-              <Input addonAfter={".selamnew.com"} placeholder="companydomain" disabled />
+            <Form.Item
+              name="companyDomainName"
+              label="Company Domain name"
+              rules={[{ required: true }]}
+            >
+              <Input
+                addonAfter={'.selamnew.com'}
+                placeholder="companydomain"
+                disabled
+              />
             </Form.Item>
 
-            <Form.Item name="companyEmail" label="Company Email" rules={[{ required: true }]}>
+            <Form.Item
+              name="companyEmail"
+              label="Company Email"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Company Email" />
             </Form.Item>
 
-            <Form.Item name="companyPhone" label="Company Phone" rules={[{ required: true }]}>
+            <Form.Item
+              name="companyPhone"
+              label="Company Phone"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Company Phone" />
             </Form.Item>
 
-            <Form.Item name="companyCountry" label="Company Country" rules={[{ required: true }]}>
+            <Form.Item
+              name="companyCountry"
+              label="Company Country"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Country" />
             </Form.Item>
 
-            <Form.Item name="companyRegion" label="Company Region" rules={[{ required: true }]}>
+            <Form.Item
+              name="companyRegion"
+              label="Company Region"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Region" />
             </Form.Item>
 
-            <Form.Item name="contactPersonName" label="Contact Person Name" rules={[{ required: true }]}>
+            <Form.Item
+              name="contactPersonName"
+              label="Contact Person Name"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Contact Name" />
             </Form.Item>
 
-            <Form.Item name="contactPersonPhone" label="Contact Person Phone" rules={[{ required: true }]}>
+            <Form.Item
+              name="contactPersonPhone"
+              label="Contact Person Phone"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Contact Phone" />
             </Form.Item>
 
-            <Form.Item name="contactPersonEmail" label="Contact Person Email" rules={[{ required: true }]}>
+            <Form.Item
+              name="contactPersonEmail"
+              label="Contact Person Email"
+              rules={[{ required: true }]}
+            >
               <Input placeholder="Contact Email" />
             </Form.Item>
-             <Form.Item
-          name="industry"
-          label="Industry Type"
-          rules={[
-            { required: true, message: 'Please select an industry type' },
-          ]}
-        >
-          <Select placeholder="Select industry type">
-            <Option value="" disabled>
-              Please select an industry type
-            </Option>
-            <Option value="technology">Technology</Option>
-            <Option value="finance">Finance</Option>
-            <Option value="healthcare">Healthcare</Option>
-            <Option value="education">Education</Option>
-            <Option value="media">Media & Entertainment</Option>
-            <Option value="ecommerce">E-commerce</Option>
-            <Option value="government">Government</Option>
-            <Option value="non-profit">Non-Profit & NGOs</Option>
-            <Option value="other">Other</Option>
-          </Select>
-        </Form.Item>
+            <Form.Item
+              name="industry"
+              label="Industry Type"
+              rules={[
+                { required: true, message: 'Please select an industry type' },
+              ]}
+            >
+              <Select placeholder="Select industry type">
+                <Option value="" disabled>
+                  Please select an industry type
+                </Option>
+                <Option value="technology">Technology</Option>
+                <Option value="finance">Finance</Option>
+                <Option value="healthcare">Healthcare</Option>
+                <Option value="education">Education</Option>
+                <Option value="media">Media & Entertainment</Option>
+                <Option value="ecommerce">E-commerce</Option>
+                <Option value="government">Government</Option>
+                <Option value="non-profit">Non-Profit & NGOs</Option>
+                <Option value="other">Other</Option>
+              </Select>
+            </Form.Item>
           </div>
- <Form.Item
-  name="businessSize"
-  label="Size of Your Company"
-  rules={[{ required: true, message: 'Please select company size' }]}
->
-  <Slider
-    min={0}
-    max={5}
-    step={1}
-    marks={businessSize}
-    tooltip={{
-      formatter: (value?: number) =>
-        value !== undefined ? businessSize[value] : '',
-    }}
-  />
-</Form.Item>
+          <Form.Item
+            name="businessSize"
+            label="Size of Your Company"
+            rules={[{ required: true, message: 'Please select company size' }]}
+          >
+            <Slider
+              min={0}
+              max={5}
+              step={1}
+              marks={businessSize}
+              tooltip={{
+                formatter: (value?: number) =>
+                  value !== undefined ? businessSize[value] : '',
+              }}
+            />
+          </Form.Item>
           <div className="flex justify-start items-center gap-2 text-gray-400 mt-8">
             We will create a unique company URL for you to log into Selamnew
           </div>

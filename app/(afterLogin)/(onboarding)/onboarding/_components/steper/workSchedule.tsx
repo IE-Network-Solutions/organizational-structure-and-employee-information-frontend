@@ -17,53 +17,56 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
     detail: state.detail,
   }));
 
- useEffect(() => {
-  const defaultStart = '8:00 AM';
-  const defaultEnd = '5:00 PM';
-  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  useEffect(() => {
+    const defaultStart = '8:00 AM';
+    const defaultEnd = '5:00 PM';
+    const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-  const updatedDetail = detail.map((item) => {
-    if (weekdays.includes(item.dayOfWeek)) {
+    const updatedDetail = detail.map((item) => {
+      if (weekdays.includes(item.dayOfWeek)) {
+        return {
+          ...item,
+          status: true,
+          startTime: defaultStart,
+          endTime: defaultEnd,
+        };
+      }
       return {
         ...item,
-        status: true,
-        startTime: defaultStart,
-        endTime: defaultEnd,
+        status: false,
+        startTime: '',
+        endTime: '',
       };
-    }
-    return {
-      ...item,
-      status: false,
-      startTime: '',
-      endTime: '',
-    };
-  });
-
-  // Update the store
-  updatedDetail.forEach((item) => {
-    setDetail(item.dayOfWeek, {
-      status: item.status,
-      startTime: item.startTime,
-      endTime: item.endTime,
     });
-  });
 
-  const fieldValues: Record<string, any> = {
-    scheduleName:"Full-time Schedule",
-    ...updatedDetail.reduce((acc: Record<string, any>, item) => {
-      acc[`${item.dayOfWeek}-working`] = item.status;
-      acc[`${item.dayOfWeek}-start`] = item.startTime
-        ? dayjs(item.startTime, 'h:mm A')
-        : null;
-      acc[`${item.dayOfWeek}-end`] = item.endTime
-        ? dayjs(item.endTime, 'h:mm A')
-        : null;
-      return acc;
-    }, {} as Record<string, any>),
-  };
+    // Update the store
+    updatedDetail.forEach((item) => {
+      setDetail(item.dayOfWeek, {
+        status: item.status,
+        startTime: item.startTime,
+        endTime: item.endTime,
+      });
+    });
 
-  form.setFieldsValue(fieldValues);
-}, [form, scheduleName]);
+    const fieldValues: Record<string, any> = {
+      scheduleName: 'Full-time Schedule',
+      ...updatedDetail.reduce(
+        (acc: Record<string, any>, item) => {
+          acc[`${item.dayOfWeek}-working`] = item.status;
+          acc[`${item.dayOfWeek}-start`] = item.startTime
+            ? dayjs(item.startTime, 'h:mm A')
+            : null;
+          acc[`${item.dayOfWeek}-end`] = item.endTime
+            ? dayjs(item.endTime, 'h:mm A')
+            : null;
+          return acc;
+        },
+        {} as Record<string, any>,
+      ),
+    };
+
+    form.setFieldsValue(fieldValues);
+  }, [form, scheduleName]);
 
   const handleValuesChange = (s: any, allValues: any) => {
     let totalHours = 0;

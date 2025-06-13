@@ -9,31 +9,36 @@ interface GmtOffsetOption {
   label: string;
 }
 
-const gmtOffsets: GmtOffsetOption[] = Array.from({ length: 27 }, (_, i) => {
-  const hour = i - 12;
-  const sign = hour >= 0 ? '+' : '-';
-  const absHour = Math.abs(hour).toString().padStart(2, '0');
+const gmtOffsets: GmtOffsetOption[] = Array.from(
+  { length: 27 },
+  (notused, i) => {
+    const hour = i - 12;
+    const sign = hour >= 0 ? '+' : '-';
+    const absHour = Math.abs(hour).toString().padStart(2, '0');
 
-  const minuteOptions: string[] =
-    hour === -12 || hour === 14
-      ? ['00']
-      : [3, 5, 9, 10].includes(hour)
-        ? ['00', '30']
-        : [5.75, 8.75, 12.75].includes(hour)
-          ? ['45']
-          : ['00', '15', '30', '45'];
+    const minuteOptions: string[] =
+      hour === -12 || hour === 14
+        ? ['00']
+        : [3, 5, 9, 10].includes(hour)
+          ? ['00', '30']
+          : [5.75, 8.75, 12.75].includes(hour)
+            ? ['45']
+            : ['00', '15', '30', '45'];
 
-  return minuteOptions.map((min) => ({
-    value: `${sign}${absHour}:${min}`,
-    label: `GMT ${sign}${absHour}:${min}`,
-  }));
-}).flat();
+    return minuteOptions.map((min) => ({
+      value: `${sign}${absHour}:${min}`,
+      label: `GMT ${sign}${absHour}:${min}`,
+    }));
+  },
+).flat();
 
 interface TimezoneComponentProps {
   autoDetectedTimeZone: string;
 }
 
-const TimezoneComponent = ({ autoDetectedTimeZone }: TimezoneComponentProps) => {
+const TimezoneComponent = ({
+  autoDetectedTimeZone,
+}: TimezoneComponentProps) => {
   const [form] = Form.useForm();
   const { data } = useGetTimeZone();
   const { mutate: updateTimeZone, isLoading } = useUpdateTimeZone();
@@ -51,10 +56,12 @@ const TimezoneComponent = ({ autoDetectedTimeZone }: TimezoneComponentProps) => 
       };
       const formatter = new Intl.DateTimeFormat('en-US', options);
       const parts = formatter.formatToParts(date);
-      const offset = parts.find(p => p.type === 'timeZoneName')?.value.replace('GMT', '').trim();
+      const offset = parts
+        .find((p) => p.type === 'timeZoneName')
+        ?.value.replace('GMT', '')
+        .trim();
       return offset || null;
     } catch (e) {
-      console.warn('Failed to convert timezone:', e);
       return null;
     }
   };
