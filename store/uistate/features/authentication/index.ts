@@ -39,9 +39,6 @@ interface StoreState {
   setCountdown: (value: number) => void;
   resetCountdown: () => void;
   decrementCountdown: () => void;
-
-  isCheckingPermissions: boolean;
-  setIsCheckingPermissions: (isChecking: boolean) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -96,9 +93,6 @@ export const useAuthenticationStore = create<StoreState>()(
           pass: string;
           recaptchaToken: string;
         }) => set({ user2FA }),
-        isCheckingPermissions: true,
-        setIsCheckingPermissions: (isChecking: boolean) =>
-          set({ isCheckingPermissions: isChecking }),
         twoFactorAuthEmail: '',
         setTwoFactorAuthEmail: (twoFactorAuthEmail: string) =>
           set({ twoFactorAuthEmail }),
@@ -110,7 +104,6 @@ export const useAuthenticationStore = create<StoreState>()(
             countdown: state.countdown > 0 ? state.countdown - 1 : 0,
           })),
       }),
-
       {
         name: 'authentications-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
@@ -122,7 +115,6 @@ export const useAuthenticationStore = create<StoreState>()(
           userData: state.userData,
           activeCalendar: state.activeCalendar,
         }),
-
         // getStorage: () => ({
         //   getItem: async (key: string) => {
         //     const storedValue = await get(key); // Get item from IndexedDB
