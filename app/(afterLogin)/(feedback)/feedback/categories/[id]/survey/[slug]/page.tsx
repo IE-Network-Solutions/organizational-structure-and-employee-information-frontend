@@ -125,7 +125,7 @@ function Page({ params: { slug } }: FormDetailProps) {
           <CreateActionPlan onClose={onClose} id={slug} />
         </div>
       )}
-     
+
       <Row justify="center" style={{ width: '100%' }}>
         {/* {activeTab === '2' && (
           <Col span={8}>

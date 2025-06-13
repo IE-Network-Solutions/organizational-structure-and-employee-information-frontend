@@ -86,4 +86,6 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   openDrawer: () => set({ openfiscalYearDrawer: true }),
   setIsOpenFiscalYearDrawer: (isOpen: boolean) =>
     set({ openfiscalYearDrawer: isOpen }),
+  fiscalYearPayLoad: null,
+  setFiscalYearPayLoad: (value) => set({ fiscalYearPayLoad: value }),
 }));
