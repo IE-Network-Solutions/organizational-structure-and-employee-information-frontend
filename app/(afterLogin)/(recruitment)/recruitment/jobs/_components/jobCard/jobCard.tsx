@@ -15,11 +15,15 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { useDeleteJobs } from '@/store/server/features/recruitment/job/mutation';
 
 const JobCard: React.FC = () => {
   const { searchParams } = useCandidateState();
   const {
     setChangeStatusModalVisible,
+    selectedJobId,
     setSelectedJobId,
     setEditModalVisible,
     currentPage,
@@ -29,12 +33,14 @@ const JobCard: React.FC = () => {
     setShareModalOpen,
     setSelectedJob,
   } = useJobState();
+  const { deleteModal, setDeleteModal } = CategoriesManagementStore();
 
   const { data: jobList, isLoading: isJobListLoading } = useGetJobs(
     searchParams?.whatYouNeed || '',
     currentPage,
     pageSize,
   );
+  const { mutate: deleteJob, isLoading } = useDeleteJobs();
 
   const { data: departments } = useGetDepartments();
 
@@ -54,6 +60,19 @@ const JobCard: React.FC = () => {
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);
     setSelectedJobId(jobId);
+  };
+
+  const handleDeleteJob = (jobId: string) => {
+    setSelectedJobId(jobId);
+  };
+
+  const handleDeleteModal = () => {
+    deleteJob(selectedJobId, {
+      onSuccess: () => {
+        setDeleteModal(false);
+      },
+    });
+    setSelectedJobId('');
   };
 
   if (isJobListLoading)
@@ -102,6 +121,15 @@ const JobCard: React.FC = () => {
               label: 'Edit',
               key: '3',
               onClick: () => handleEditModalVisible(job),
+              permissions: [Permissions.UpdateJobDescription],
+            },
+            {
+              label: 'Delete',
+              key: '4',
+              onClick: () => {
+                handleDeleteJob(job?.id);
+                setDeleteModal(true);
+              },
               permissions: [Permissions.UpdateJobDescription],
             },
           ];
@@ -211,6 +239,15 @@ const JobCard: React.FC = () => {
           </div>
         </div>
       )}
+      <DeleteModal
+        loading={isLoading}
+        open={deleteModal}
+        deleteMessage="Are you sure you want to delete this job?"
+        onCancel={() => setDeleteModal(false)}
+        onConfirm={() => {
+          handleDeleteModal();
+        }}
+      />
 
       <ChangeStatusModal />
       <ShareToSocialMedia />

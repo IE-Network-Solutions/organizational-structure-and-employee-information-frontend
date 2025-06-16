@@ -556,3 +556,9 @@ h6 {
     display: none !important;
   }
 }
+
+/* Hide the selected checkmark icon in Select dropdown */
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  display: none;
+}

@@ -70,7 +70,11 @@ const TnaRequestSidebar = () => {
   }, [userId]);
 
   const { mutate: setTna, isLoading } = useSetTna();
-  const { data, isFetching, refetch } = useGetTna(
+  const {
+    data: tnaData,
+    isFetching,
+    refetch,
+  } = useGetTna(
     {
       page: 1,
       limit: 1,
@@ -94,8 +98,8 @@ const TnaRequestSidebar = () => {
   }, [tnaId]);
 
   useEffect(() => {
-    if (data?.items?.[0] && tnaId !== null) {
-      const formData = data.items[0];
+    if (tnaData?.items?.[0] && tnaId !== null) {
+      const formData = tnaData.items[0];
 
       const formattedData = {
         title: formData.title || '',
@@ -113,7 +117,7 @@ const TnaRequestSidebar = () => {
     } else {
       form.resetFields();
     }
-  }, [data, form, fiscalYearData]);
+  }, [tnaData, form, fiscalYearData]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -147,7 +151,7 @@ const TnaRequestSidebar = () => {
     const finalValues = { ...value, monthId, yearId, sessionId };
 
     // Extract `trainingNeedCategory`, keep `otherData`
-    const { ...otherData } = data?.items?.[0] || {};
+    const { ...otherData } = tnaData?.items?.[0] || {};
 
     const dataValue: any = [
       {
@@ -165,20 +169,21 @@ const TnaRequestSidebar = () => {
     ];
 
     const filteredData = dataValue?.map((originalData: any) => ({
-      id: tnaId ?? undefined,
-      title: originalData.title,
-      trainingPrice: originalData?.trainingPrice, // Modify the training price as requested
-      assignedUserId: originalData.assignedUserId,
-      trainingNeedCategoryId: originalData.trainingNeedCategoryId,
       approvalWorkflowId: originalData.approvalWorkflowId,
-      currencyId: originalData.currencyId,
-      sessionId: originalData.sessionId,
-      yearId: originalData.yearId,
-      reason: originalData.reason,
-      monthId: originalData.monthId,
-      departmentId: originalData?.departmentId, // Modified departmentId
-      status: originalData.status,
+      assignedUserId: originalData.assignedUserId,
       certStatus: originalData.certStatus,
+      currencyId: originalData.currencyId,
+      departmentId: originalData?.departmentId,
+      detail: originalData.detail,
+      id: tnaId ?? undefined,
+      monthId: originalData.monthId,
+      reason: originalData.reason,
+      sessionId: originalData.sessionId,
+      status: originalData.status,
+      title: originalData.title,
+      trainingNeedCategoryId: originalData.trainingNeedCategoryId,
+      trainingPrice: originalData?.trainingPrice,
+      yearId: originalData.yearId,
       trainingProofs: [],
     }));
 
@@ -246,12 +251,12 @@ const TnaRequestSidebar = () => {
             onSearch={handleSearch}
             disable={['name', 'payPeriod']}
             defaultValues={
-              data?.items?.[0]
+              tnaData?.items?.[0]
                 ? {
-                    yearId: data.items[0].yearId,
-                    sessionId: data.items[0].sessionId,
-                    monthId: data.items[0].monthId,
-                    departmentId: data.items[0].departmentId,
+                    yearId: tnaData.items[0].yearId,
+                    sessionId: tnaData.items[0].sessionId,
+                    monthId: tnaData.items[0].monthId,
+                    departmentId: tnaData.items[0].departmentId,
                   }
                 : undefined
             }
