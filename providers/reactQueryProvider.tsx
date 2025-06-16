@@ -16,8 +16,7 @@ interface ReactQueryWrapperProps {
 
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   // const router = useRouter();
-  // const { setLocalId, setTenantId, setToken, setUserId, setError } =
-  //   useAuthenticationStore();
+  const { tenantId } = useAuthenticationStore();
 
   const refreshToken = async () => {
     const getCookieFromDocument = (key: string): string | null => {
@@ -102,10 +101,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       {
         refetchInterval: 45 * 60 * 1000, // Refresh every 45 minutes
         refetchIntervalInBackground: true, // Continue refreshing in background
-        refetchOnWindowFocus: true, // Refresh when window regains focus
-        refetchOnMount: true, // Refresh when component mounts
+        refetchOnWindowFocus: false, // Refresh when window regains focus
+        refetchOnMount: false, // Refresh when component mounts
         refetchOnReconnect: true, // Refresh when network reconnects
-        enabled: !!auth.currentUser, // Only run if user is logged in
+        enabled: !!auth.currentUser && tenantId.length > 0, // Only run if user is logged in and tenantId is not empty or null
       },
     );
 

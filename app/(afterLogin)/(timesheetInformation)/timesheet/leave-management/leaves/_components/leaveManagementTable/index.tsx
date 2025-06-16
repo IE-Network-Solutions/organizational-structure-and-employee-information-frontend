@@ -24,7 +24,6 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import UserCard from '@/components/common/userCard/userCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -49,8 +48,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
     usePagination(1, 10);
   const {
-    setIsShowLeaveRequestSidebar: isShow,
-    setLeaveRequestSidebarData,
     currentPage,
     pageSize,
     setCurrentPage,
@@ -71,7 +68,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
   const [tableData, setTableData] = useState<any[]>([]);
-
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -80,7 +76,9 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
-  const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
+
+  // const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
+
   const { isMobile, isTablet } = useIsMobile();
 
   const EmpRender = ({ userId }: any) => {
@@ -139,7 +137,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       render: (date: string) => <div>{dayjs(date).format(DATE_FORMAT)}</div>,
     },
     {
-      title: 'total',
+      title: 'total request',
       dataIndex: 'days',
       key: 'days',
       sorter: true,
@@ -149,6 +147,13 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       title: 'type',
       dataIndex: 'leaveType',
       key: 'leaveType',
+      sorter: true,
+      render: (text: string) => <div>{text}</div>,
+    },
+    {
+      title: 'total available',
+      dataIndex: 'totalAvailable',
+      key: 'totalAvailable',
       sorter: true,
       render: (text: string) => <div>{text}</div>,
     },
@@ -191,21 +196,21 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       render: (item: LeaveRequest) => (
         <ActionButtons
           id={item?.id ?? null}
-          disableDelete={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          disableEdit={
-            item.status === LeaveRequestStatus.APPROVED ||
-            item.status === LeaveRequestStatus.DECLINED
-          }
-          onEdit={() => {
-            isShow(true);
-            setLeaveRequestSidebarData(item.id);
-          }}
-          onDelete={() => {
-            deleteLeaveRequest(item.id);
-          }}
+          // disableDelete={
+          //   item.status === LeaveRequestStatus.APPROVED ||
+          //   item.status === LeaveRequestStatus.DECLINED
+          // }
+          // disableEdit={
+          //   item.status === LeaveRequestStatus.APPROVED ||
+          //   item.status === LeaveRequestStatus.DECLINED
+          // }
+          // onEdit={() => {
+          //   isShow(true);
+          //   setLeaveRequestSidebarData(item.id);
+          // }}
+          // onDelete={() => {
+          //   deleteLeaveRequest(item.id);
+          // }}
           onDetail={() => {
             setIsShowLeaveRequestManagementSidebar(true);
             setLeaveRequestId(item.id);
@@ -235,6 +240,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
               ? ''
               : item.leaveType.title
             : '-',
+          totalAvailable: item.leaveType?.leaveBalance?.[0]?.balance || '-',
           attachment: item.justificationDocument,
           status: item.status,
           action: item,
@@ -270,7 +276,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       filter: nFilter,
     }));
   };
-
   return (
     <div className="mt-6">
       <LeaveManagementTableFilter onChange={onFilterChange} />

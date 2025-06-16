@@ -5,15 +5,19 @@ import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 interface CustomBreadcrumbProps extends BreadcrumbProps {
   title: JSX.Element | string;
   subtitle: JSX.Element | string;
+  isRecognition?: boolean;
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   title,
   subtitle,
+  isRecognition = false,
   // className,
   // ...rest
 }) => (
-  <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex py-4">
+  <div
+    className={`grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex py-4 ${isRecognition ? 'bg-white' : ''}`}
+  >
     <div className="self-stretch text-gray-900 text-2xl font-bold font-['Manrope'] leading-[31.20px]">
       {title}
     </div>
