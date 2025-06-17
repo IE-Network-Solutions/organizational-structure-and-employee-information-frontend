@@ -23,8 +23,17 @@ import { useGetPlannedTaskForReport } from '@/store/server/features/okrPlanningA
 const TaskCard: React.FC = () => {
   const [form] = Form.useForm();
   const { userId } = useAuthenticationStore();
-  const { data, setData, removeTask, modalOpen, setModalOpen } =
-    useWeeklyPriorityStore();
+  const {
+    data,
+    setData,
+    removeTask,
+    modalOpen,
+    setModalOpen,
+    failedReasonVisible,
+    setFailedReasonVisible,
+    failedReasons,
+    setFailedReasons,
+  } = useWeeklyPriorityStore();
   const { mutate: createWeeklyPriorityTask } = useCreateWeeklyPriority();
   const {
     mutate: updateWeeklyPriorityTask,
@@ -33,12 +42,6 @@ const TaskCard: React.FC = () => {
   const { mutate: deletedWeeklyPriorityTask } = useDeleteWeeklyPriority();
   const { data: userInfo } = useGetEmployee(userId);
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
-  const [failedReasonVisible, setFailedReasonVisible] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [failedReasons, setFailedReasons] = useState<{ [key: string]: string }>(
-    {},
-  );
   const [selectedTask, setSelectedTask] = useState<any>(null);
 
   const session = activeFiscalYear?.sessions?.find(
@@ -47,12 +50,12 @@ const TaskCard: React.FC = () => {
   const month = session?.months?.find((item: any) => item?.active === true);
   const userDepartmentId = userInfo?.employeeJobInformation[0]?.departmentId;
 
-  // const handleEditToggle = (itemIndex: number, taskIndex: number) => {
-  //   const newData = [...data];
-  //   newData[itemIndex].tasks[taskIndex].isEdit =
-  //     !newData[itemIndex].tasks[taskIndex].isEdit;
-  //   setData(newData);
-  // };
+  const handleEditToggle = (itemIndex: number, taskIndex: number) => {
+    const newData = [...data];
+    newData[itemIndex].tasks[taskIndex].isEdit =
+      !newData[itemIndex].tasks[taskIndex].isEdit;
+    setData(newData);
+  };
 
   const handleSaveEditTask = (itemIndex: number, taskIndex: number) => {
     form.validateFields().then((values) => {
@@ -141,6 +144,7 @@ const TaskCard: React.FC = () => {
     },
     null,
   );
+
   const { data: plannedTask, isLoading: plannedTaskLoading } =
     useGetPlannedTaskForReport(
       planningPeriodWithHighestInterval?.planningPeriodId,
@@ -207,7 +211,7 @@ const TaskCard: React.FC = () => {
             <span className="text-right text-md font-bold">
               {item.departmentId
                 ? getDepartmentData(item.departmentId)?.name +
-                    " Team's weekly priority:" || ''
+                " Team's weekly priority:" || ''
                 : ''}
             </span>
             <div className="flex items-center gap-2">
@@ -318,11 +322,11 @@ const TaskCard: React.FC = () => {
                       ) : (
                         <span
                           className="w-full"
-                          // onClick={() => {
-                          //   if (task.status === 'PENDING') {
-                          //     handleEditToggle(itemIndex, taskIndex);
-                          //   }
-                          // }}
+                          onClick={() => {
+                            if (task.status === 'PENDING') {
+                              handleEditToggle(itemIndex, taskIndex);
+                            }
+                          }}
                         >
                           {task.title}
                         </span>
@@ -482,11 +486,6 @@ const TaskCard: React.FC = () => {
           setModalOpen(false);
           setSelectedTask(null);
         }}
-        onAdd={(selected) => {
-          alert('Selected priorities: ' + selected.join(', '));
-          setModalOpen(false);
-          setSelectedTask(null);
-        }}
         priorities={plannedTask}
         isLoading={plannedTaskLoading}
         departmentId={userDepartmentId}
@@ -494,6 +493,7 @@ const TaskCard: React.FC = () => {
         session={session?.id || ''}
         month={month?.id || ''}
         selectedTask={selectedTask}
+        planningType={planningPeriodWithHighestInterval?.planningPeriod?.name}
       />
     </>
   );

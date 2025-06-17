@@ -1,37 +1,27 @@
-import React, { useState } from 'react';
-import { Modal, Button, Checkbox, Typography, Spin } from 'antd';
+import React from 'react';
+import { Modal, Button, Checkbox, Typography, Spin, Empty } from 'antd';
 import {
   useUpdateCreateWeeklyPriorityBulk,
   useCreateWeeklyPriorityBulk,
 } from '@/store/server/features/okrplanning/weeklyPriority/mutations';
+import {
+  CheckedItem,
+  useWeeklyPriorityStore,
+} from '@/store/uistate/features/weeklyPriority/useStore';
 
 const { Title } = Typography;
-
-type CheckedItem = {
-  taskId: string;
-  title: string;
-  planId: string;
-  departmentId: string;
-  userId: string;
-  session: string;
-  month: string;
-  createdBy: string;
-  status: string;
-  failureReason: string;
-  id?: string;
-};
 
 interface WeeklyPriorityModalProps {
   open: boolean;
   onCancel: () => void;
-  onAdd: (selected: number[]) => void;
-  priorities: { id: string; task: string; planId: string }[];
+  priorities: any[];
   isLoading: boolean;
   departmentId: string;
   userId: string;
   session: string;
   month: string;
-  selectedTask?: any;
+  selectedTask: any;
+  planningType: string;
 }
 
 const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
@@ -44,8 +34,9 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
   session,
   month,
   selectedTask,
+  planningType,
 }) => {
-  const [checkedList, setCheckedList] = useState<CheckedItem[]>([]);
+  const { checkedList, setCheckedList } = useWeeklyPriorityStore();
   const {
     mutate: createWeeklyPriorityBulkTask,
     isLoading: isLoadingCreateWeeklyPriorityBulkTask,
@@ -57,6 +48,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
   const isLoadings =
     isLoadingCreateWeeklyPriorityBulkTask ||
     isLoadingUpdateWeeklyPriorityBulkTask;
+
   // Set initial checked state when selectedTask changes
   React.useEffect(() => {
     if (selectedTask?.tasks?.length > 0) {
@@ -84,25 +76,13 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
       );
       setCheckedList(updatedCheckedList);
     }
-  }, [selectedTask, departmentId, userId, session, month]);
+  }, [selectedTask, departmentId, userId, session, month, setCheckedList]);
 
-  const handleCheck = (
-    checked: boolean,
-    item: {
-      taskId: string;
-      title: string;
-      planId: string;
-      departmentId: string;
-      userId: string;
-      session: string;
-      month: string;
-      createdBy: string;
-      status: string;
-      failureReason: string;
-    },
-  ) => {
-    setCheckedList((prev) =>
-      checked ? [...prev, item] : prev.filter((i) => i.taskId !== item.taskId),
+  const handleCheck = (checked: boolean, item: CheckedItem) => {
+    setCheckedList(
+      checked
+        ? [...checkedList, item]
+        : checkedList.filter((i) => i.taskId !== item.taskId),
     );
   };
 
@@ -194,7 +174,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
     >
       {isLoading ? (
         <Spin />
-      ) : (
+      ) : priorities?.length > 0 ? (
         <div style={{ marginBottom: 24 }}>
           {priorities?.map((priority) => (
             <div key={priority.id} style={{ marginBottom: 16 }}>
@@ -204,7 +184,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
                   handleCheck(e.target.checked, {
                     taskId: priority.id,
                     title: priority.task,
-                    planId: priority.planId,
+                    planId: priority.planId || '',
                     departmentId,
                     userId,
                     session,
@@ -220,6 +200,8 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
             </div>
           ))}
         </div>
+      ) : (
+        <Empty description={`Please add ${planningType} plan first`} />
       )}
     </Modal>
   );

@@ -12,12 +12,18 @@ export interface Task {
   createdBy?: string;
   failureReason?: string;
 }
-type CheckedItem = {
+export type CheckedItem = {
   taskId: string;
-  task: string;
+  title: string;
   planId: string;
   departmentId: string;
   userId: string;
+  session: string;
+  month: string;
+  createdBy: string;
+  status: string;
+  failureReason: string;
+  id?: string;
 };
 
 export interface DataItem {
@@ -44,8 +50,14 @@ interface WeeklyPriorityState {
   setCurrentPage: (currentPage: number) => void;
   modalOpen: boolean;
   setModalOpen: (modalOpen: boolean) => void;
-  checkedList: any[];
+  checkedList: CheckedItem[];
   setCheckedList: (checkedList: CheckedItem[]) => void;
+  failedReasonVisible: { [key: string]: boolean };
+  setFailedReasonVisible: (failedReasonVisible: {
+    [key: string]: boolean;
+  }) => void;
+  failedReasons: { [key: string]: string };
+  setFailedReasons: (failedReasons: { [key: string]: string }) => void;
 }
 
 export const useWeeklyPriorityStore = create<WeeklyPriorityState>((set) => ({
@@ -65,6 +77,10 @@ export const useWeeklyPriorityStore = create<WeeklyPriorityState>((set) => ({
   setModalOpen: (modalOpen) => set({ modalOpen }),
   checkedList: [],
   setCheckedList: (checkedList) => set({ checkedList }),
+  failedReasonVisible: {},
+  setFailedReasonVisible: (failedReasonVisible) => set({ failedReasonVisible }),
+  failedReasons: {},
+  setFailedReasons: (failedReasons) => set({ failedReasons }),
   addNewCard: (userId, departmentId) =>
     set((state) => ({
       data: [
