@@ -18,7 +18,8 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign } from 'react-icons/lu';
+import { LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -126,7 +127,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <LuUsers2
+          <LuUsers
             size={18}
             className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
           />
@@ -585,7 +586,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setTenantId('');
       setToken('');
       setUser2FA({ email: '', pass: '', recaptchaToken: '' });
-
 
       // Then remove cookies
       removeCookie('token');
