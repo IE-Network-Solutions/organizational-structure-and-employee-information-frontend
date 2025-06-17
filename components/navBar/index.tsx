@@ -633,8 +633,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     checkPermissions();
   }, [pathname]);
 
-=======
->>>>>>> develop
+
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
