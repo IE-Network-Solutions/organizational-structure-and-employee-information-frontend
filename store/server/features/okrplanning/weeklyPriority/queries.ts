@@ -21,10 +21,16 @@ type WeekData = {
   updatedAt: string;
   deletedAt: string | null;
   title: string;
+  failureReason?: string;
 }[];
 
 type ResponseData = {
   items?: DataItem[];
+  meta?: {
+    totalItems: number;
+    currentPage: number;
+    limit: number;
+  };
 };
 
 const getDepartmentChild = async (departmentId: string) => {
@@ -53,11 +59,18 @@ const getWeeks = async () => {
 const getWeeklyPriority = async (
   departmentIds: string[],
   weeklyId: string[],
+  pageSize: number,
+  currentPage: number,
 ) => {
   try {
     const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/weekly-priorities`,
-      { departmentId: departmentIds, weeklyPriorityWeekId: weeklyId }, // This is the request body
+      `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,
+      {
+        departmentId: departmentIds,
+        weeklyPriorityWeekId: weeklyId,
+        taskId: [],
+        planId: [],
+      }, // This is the request body
       {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -86,13 +99,14 @@ const getWeeklyPriority = async (
  * the query object containing the posts data and any loading or error states.
  */
 export const useGetWeeklyPriorities = (
-  // pageSize: number,
-  // currentPage: number,
   departmentIds: string[],
   weeklyId: string[],
+  pageSize: number,
+  currentPage: number,
 ) =>
-  useQuery<ResponseData>(['weeklyPriorities', departmentIds, weeklyId], () =>
-    getWeeklyPriority(departmentIds, weeklyId),
+  useQuery<ResponseData>(
+    ['weeklyPriorities', departmentIds, weeklyId, pageSize, currentPage],
+    () => getWeeklyPriority(departmentIds, weeklyId, pageSize, currentPage),
   );
 export const useGetDepartmentChild = (departmentId: string) =>
   useQuery<DepartmentData>(['departmentChild', departmentId], () =>

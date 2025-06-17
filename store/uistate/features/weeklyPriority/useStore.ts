@@ -10,7 +10,15 @@ export interface Task {
   month: string;
   createdAt?: string;
   createdBy?: string;
+  failureReason?: string;
 }
+type CheckedItem = {
+  taskId: string;
+  task: string;
+  planId: string;
+  departmentId: string;
+  userId: string;
+};
 
 export interface DataItem {
   weeklyPriorityWeekId?: string;
@@ -30,17 +38,33 @@ interface WeeklyPriorityState {
   setDepartmentId: (departmentId: string) => void;
   weekIds?: string[];
   setWeekIds: (weekIds: string[]) => void;
+  pageSize: number;
+  currentPage: number;
+  setPageSize: (pageSize: number) => void;
+  setCurrentPage: (currentPage: number) => void;
+  modalOpen: boolean;
+  setModalOpen: (modalOpen: boolean) => void;
+  checkedList: any[];
+  setCheckedList: (checkedList: CheckedItem[]) => void;
 }
 
 export const useWeeklyPriorityStore = create<WeeklyPriorityState>((set) => ({
   activeTab: 1,
   setActiveTab: (tab) => set({ activeTab: tab }),
+  pageSize: 10,
+  setPageSize: (pageSize) => set({ pageSize: pageSize }),
+  currentPage: 1,
+  setCurrentPage: (currentPage) => set({ currentPage: currentPage }),
   departmentId: '',
   setDepartmentId: (id) => set({ departmentId: id }),
   weekIds: [],
   setWeekIds: (id) => set({ weekIds: id }),
   data: [],
   setData: (newData) => set({ data: newData }),
+  modalOpen: false,
+  setModalOpen: (modalOpen) => set({ modalOpen }),
+  checkedList: [],
+  setCheckedList: (checkedList) => set({ checkedList }),
   addNewCard: (userId, departmentId) =>
     set((state) => ({
       data: [
