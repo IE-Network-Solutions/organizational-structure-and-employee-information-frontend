@@ -36,7 +36,6 @@ const TnaRequestSidebar = () => {
     monthId,
     sessionId,
     yearId,
-    searchQuery,
     setSearchQuery,
     tnaId,
     tnaData,

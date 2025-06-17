@@ -103,7 +103,6 @@ const TnaReviewPage = () => {
     setIsShowTnaReviewSidebar,
     setTnaId,
     setData,
-    tnaId,
     loading,
   } = useTnaReviewStore();
   const {
