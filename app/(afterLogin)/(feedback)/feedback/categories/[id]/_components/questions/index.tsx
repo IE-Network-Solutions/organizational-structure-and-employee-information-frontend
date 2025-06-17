@@ -20,7 +20,10 @@ interface Props {
 
 const Question: React.FC<Props> = (props) => {
   const [form] = Form.useForm();
-  const { refetch: refetchQuestions } = useFetchedQuestionsByFormId(props?.selectedFormId, '');
+  const { refetch: refetchQuestions } = useFetchedQuestionsByFormId(
+    props?.selectedFormId,
+    '',
+  );
   const { mutate: AddQuestion, isLoading: addQuestionLoading } =
     useCreateQuestion();
   const {
@@ -65,7 +68,7 @@ const Question: React.FC<Props> = (props) => {
       AddQuestion(formattedValues, {
         onSuccess: () => {
           setIsDrawerOpen(false);
-          refetchQuestions()
+          refetchQuestions();
         },
       });
     } catch (error) {
