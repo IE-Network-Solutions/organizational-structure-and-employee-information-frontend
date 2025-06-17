@@ -94,21 +94,50 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   // ===========> Fiscal Year Ended Section <=================
 
-  const treeData: CustomMenuItem[] = [
+  // Separate array for routes that should be accessible but not shown in navigation
+  const hiddenRoutes: { key: string; permissions: string[] }[] = [
     {
-      title: (
-        <span className="flex items-center gap-2 h-12">
-          <CiSettings
-            size={18}
-            className={expandedKeys.includes('/dashboard') ? 'text-blue' : ''}
-          />
-          <span>Dashboard</span>
-        </span>
-      ),
       key: '/dashboard',
-      className: 'font-bold',
-      permissions: [],
+      permissions: [], // No permissions required
     },
+  ];
+
+  const getRoutesAndPermissions = (
+    menuItems: CustomMenuItem[],
+  ): { route: string; permissions: string[] }[] => {
+    const routes: { route: string; permissions: string[] }[] = [];
+
+    const traverse = (items: CustomMenuItem[]) => {
+      items.forEach((item) => {
+        if (item.key && item.permissions) {
+          routes.push({
+            route: item.key,
+            permissions: item.permissions,
+          });
+        }
+
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    // First add hidden routes
+    hiddenRoutes.forEach((route) => {
+      if (route.key && route.permissions) {
+        routes.push({
+          route: route.key,
+          permissions: route.permissions,
+        });
+      }
+    });
+
+    // Then add visible menu routes
+    traverse(menuItems);
+    return routes;
+  };
+
+  const treeData: CustomMenuItem[] = [
     {
       title: (
         <span className="flex items-center gap-2 h-12">
@@ -544,32 +573,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
   ];
-
-  const getRoutesAndPermissions = (
-    menuItems: CustomMenuItem[],
-  ): { route: string; permissions: string[] }[] => {
-    const routes: { route: string; permissions: string[] }[] = [];
-
-    const traverse = (items: CustomMenuItem[]) => {
-      items.forEach((item) => {
-        // Add the current item's route and permissions if they exist
-        if (item.key && item.permissions) {
-          routes.push({
-            route: item.key,
-            permissions: item.permissions,
-          });
-        }
-
-        // Recursively process children if they exist
-        if (item.children) {
-          traverse(item.children);
-        }
-      });
-    };
-
-    traverse(menuItems);
-    return routes;
-  };
 
   const checkPathnamePermissions = (pathname: string): boolean => {
     // Get all routes and their permissions
