@@ -61,6 +61,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setActiveCalendar,
     setLoggedUserRole,
     setUserData,
+    setIs2FA,
+    setTwoFactorAuthEmail,
+    setUser2FA,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -576,6 +579,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setActiveCalendar('');
       setUserId('');
       setError('');
+      setIs2FA(false);
+      setTwoFactorAuthEmail('');
+      setLocalId('');
+      setTenantId('');
+      setToken('');
+      setUser2FA({ email: '', pass: '', recaptchaToken: '' });
+
 
       // Then remove cookies
       removeCookie('token');
@@ -588,7 +598,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setTenantId('');
       setLocalId('');
 
-      await router.push('/authentication/login');
+      router.push('/authentication/login');
     } catch (error) {}
   };
 
