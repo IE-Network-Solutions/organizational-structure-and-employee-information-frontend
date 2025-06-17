@@ -1,14 +1,14 @@
 import { CandidateData } from "@/store/uistate/features/recruitment/candidate";
-import { Col, Row, Select, Table, TableColumnsType ,DatePicker, Input, Modal, Button} from "antd";  
+import { Select, Col, Row, Table, DatePicker, TableColumnsType, Modal, Button, Input } from "antd";
 import { Option } from "antd/es/mentions";
 import { TableRowSelection } from "antd/es/table/interface";
 import { useState } from "react";
 import { VscSettings } from "react-icons/vsc";
 
-    const TalentRoasterTable = () => {
-        const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-        const [selectedCandidate, setSelectedCandidate] = useState<CandidateData[]>([]);
-        const { RangePicker } = DatePicker;
+const InternTable = () => {
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [selectedCandidate, setSelectedCandidate] = useState<CandidateData[]>([]);
+    const { RangePicker } = DatePicker;
     const columns: TableColumnsType<any> = [
         {
           title: 'Name',
@@ -51,8 +51,8 @@ import { VscSettings } from "react-icons/vsc";
           dataIndex: 'action',
         },
       ];
-
-      const rowSelection: TableRowSelection<any> = {
+      
+    const rowSelection: TableRowSelection<any> = {
         selectedRowKeys,
         onChange: (newSelectedRowKeys, selectedRows) => {
           setSelectedRowKeys(newSelectedRowKeys);
@@ -63,10 +63,9 @@ import { VscSettings } from "react-icons/vsc";
           );
         },
       };
-
-  return (
-  <div> 
-    <div>
+    return (
+        <div> 
+     <div>
       <Row
         gutter={[16, 24]}
         justify="space-between"
@@ -188,7 +187,6 @@ import { VscSettings } from "react-icons/vsc";
         </Select>
       </Modal>
     </div>
-
     <Table
   className="w-full"
   columns={columns}
@@ -196,8 +194,8 @@ import { VscSettings } from "react-icons/vsc";
   loading={false}
   scroll={{ x: 1000 }}
   rowSelection={rowSelection} // Enable selection
-    /></div>
-);
+    /></div>    
+    );
 };
 
-export default TalentRoasterTable;
+export default InternTable;

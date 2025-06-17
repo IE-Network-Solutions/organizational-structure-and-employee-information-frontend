@@ -12,7 +12,9 @@ const TalentRoasterPage = () => {
     <div className="flex flex-wrap justify-between items-center bg-white">
       <CustomBreadcrumb             
         title="Talent Roaster"
-        subtitle="Unassigned profiles for potential hiring."
+        subtitle={<>
+        <span className="text-xs sm:text-sm text-nowrap">profiles for potential hiring.</span>
+        </>}
       />
       <div className="flex justify-between items-center rounded-lg w-fit h-10 px-3 gap-4">
       <Button

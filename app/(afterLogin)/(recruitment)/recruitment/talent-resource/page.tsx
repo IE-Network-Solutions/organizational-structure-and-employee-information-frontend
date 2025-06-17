@@ -25,7 +25,7 @@ const TalentResourcePage = () => {
             title="Talent Resource"
             subtitle="Profiles of interested and prospective talent."
           />
-          <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-16 px-3 p-1 gap-12">
+          <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-8 sm:h-16 px-3  gap-4 sm:gap-12 mx-3 sm:mx-0">
             <button
               onClick={() => setActiveTab(1)}
               className={
@@ -34,7 +34,7 @@ const TalentResourcePage = () => {
                   : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >
-              Talent Pool
+              <span className="text-xs sm:text-sm text-nowrap">Talent Pool</span>
             </button>
             <button
               onClick={() => setActiveTab(2)}
@@ -44,7 +44,7 @@ const TalentResourcePage = () => {
                   : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >
-              Talent Roaster
+              <span className="text-xs sm:text-sm text-nowrap">Talent Roaster</span>
             </button>
             <button
               onClick={() => setActiveTab(3)}
@@ -54,7 +54,7 @@ const TalentResourcePage = () => {
                   : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >
-              Intern
+              <span className="text-xs sm:text-sm text-nowrap">Intern</span>
             </button>
           </div>
         </div>
