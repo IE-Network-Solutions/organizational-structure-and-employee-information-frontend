@@ -52,8 +52,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { userData } = useAuthenticationStore();
-
   const {
     setLocalId,
     setTenantId,
@@ -66,8 +64,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIs2FA,
     setTwoFactorAuthEmail,
     setUser2FA,
-    isCheckingPermissions,
-    setIsCheckingPermissions,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -574,6 +570,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
+<<<<<<< PPII-1279-afrontend-routes-should-be-protected
   const checkPathnamePermissions = (pathname: string): boolean => {
     // Get all routes and their permissions
     const routesWithPermissions = getRoutesAndPermissions(treeData);
@@ -636,6 +633,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     checkPermissions();
   }, [pathname]);
 
+=======
+>>>>>>> develop
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
@@ -944,22 +943,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             transition: 'padding-left 0.3s ease',
           }}
         >
-          {isCheckingPermissions ? (
-            <div className="flex justify-center items-center h-screen">
-              <Skeleton active />
-            </div>
-          ) : (
-            <div
-              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-              style={{
-                borderRadius: borderRadiusLG,
-                marginTop: '94px',
-                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-              }}
-            >
-              {children}
-            </div>
-          )}
+          <div
+            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+            style={{
+              borderRadius: borderRadiusLG,
+              marginTop: '94px',
+              marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+            }}
+          >
+            {children}
+          </div>
         </Content>
       </Layout>
     </Layout>
