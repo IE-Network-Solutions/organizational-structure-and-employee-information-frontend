@@ -45,7 +45,7 @@ describe('Employees information testing', () => {
     cy.get('#dependencies_nationalityId').click();
     cy.get('.ant-select-item-option-content').contains('Ethiopian').click();
 
-    cy.get('#dependencies_martialStatus').click();
+    cy.get('#dependencies_maritalStatus').click();
     cy.get('.ant-select-item-option-content').contains('Married').click();
 
     //adress
@@ -634,7 +634,7 @@ describe('Employees information testing', () => {
       'Please enter Nationality',
     );
 
-    cy.get('[id="dependencies_martialStatus_help"]').should(
+    cy.get('[id="dependencies_maritalStatus_help"]').should(
       'contain.text',
       'Please select a marital status!',
     );
