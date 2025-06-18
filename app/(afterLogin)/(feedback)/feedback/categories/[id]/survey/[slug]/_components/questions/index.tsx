@@ -46,6 +46,7 @@ const FIELD_TYPE_COLORS: Record<string, string> = {
 };
 
 const Questions = ({ id }: Params) => {
+
   const {setIsDrawerOpen} = useDynamicFormStore();
   const {setSelectedFormId} = CategoriesManagementStore();
   const {
@@ -98,6 +99,7 @@ const Questions = ({ id }: Params) => {
         style={{ width: '100%' }}
       >
         <>
+
         <CustomButton
             title="Create New Question"
             id="createQuestionButton"

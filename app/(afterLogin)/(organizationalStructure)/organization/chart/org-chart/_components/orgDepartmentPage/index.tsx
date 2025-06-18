@@ -27,7 +27,6 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
     return user;
   };
 
-
   // Get the first user assigned to the department
   const user = getUserData(data?.employeeJobInformation?.[0]?.userId);
   return (

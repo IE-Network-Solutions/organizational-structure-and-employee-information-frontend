@@ -34,7 +34,6 @@ const CategoriesCard: React.FC = () => {
       searchParams?.createdBy || '',
     );
 
-
   const deleteCategory = useDeleteFormCategory();
 
   const userOptions = React.useMemo(() => {
@@ -107,6 +106,7 @@ const CategoriesCard: React.FC = () => {
           <NoData />
         )}
       </div>
+
       <EditCategoryModal  userOptions={userOptions} />
       <DeleteModal
         open={deleteModal}

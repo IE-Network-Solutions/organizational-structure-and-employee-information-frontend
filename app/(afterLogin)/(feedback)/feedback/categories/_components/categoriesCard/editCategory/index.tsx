@@ -10,6 +10,7 @@ interface EditCategoryModalProps {
 
 const { Option } = Select;
 
+
 const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
   
 }) => {
@@ -26,6 +27,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
   const { data: users, isLoading: usersLoading } = useFetchUsers(
     searchParams?.category_name,
   );
+
   const { mutateAsync: updateCategory, isLoading: isUpdatingCategory } = useUpdateFormCategory();
 
 
@@ -49,6 +51,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
         ...values,
         users: selectedUsers,
       };
+
       const editingCategory = CategoriesManagementStore.getState().editingCategory;
     if (editingCategory) {
       updateCategory({
@@ -70,6 +73,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
   };
 
   return (
+
     <Modal title="Edit Category" open={editModal} footer={null} onCancel={handleCancel}>
       <Form form={form} layout="vertical" initialValues={editingCategory}>
         <Form.Item
