@@ -179,6 +179,43 @@ export default function RootLayout({
           name="msapplication-TileImage"
           content="/icons/manifest-icon-144.png"
         />
+
+        {/* Force Hide URL Bar Script */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Force hide address bar on mobile
+                function hideAddressBar() {
+                  if (window.innerHeight !== screen.height) {
+                    setTimeout(function() {
+                      window.scrollTo(0, 1);
+                      setTimeout(function() {
+                        window.scrollTo(0, 0);
+                      }, 50);
+                    }, 100);
+                  }
+                }
+                
+                // Run on load and resize
+                window.addEventListener('load', hideAddressBar);
+                window.addEventListener('orientationchange', function() {
+                  setTimeout(hideAddressBar, 500);
+                });
+                
+                // Continuous attempt to hide address bar
+                setInterval(function() {
+                  if (window.pageYOffset === 0) {
+                    window.scrollTo(0, 1);
+                    setTimeout(function() {
+                      window.scrollTo(0, 0);
+                    }, 100);
+                  }
+                }, 3000);
+              })();
+            `,
+          }}
+        />
       </head>
       <body className={`${manrope.className} pwa-viewport`}>
         <div className="status-bar-safe">
