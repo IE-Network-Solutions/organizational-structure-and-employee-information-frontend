@@ -11,14 +11,12 @@ interface AnimatedSplashScreenProps {
 }
 
 export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
-  duration = 2500, // Reduced duration for better UX
+  duration = 2000,
   onComplete,
 }) => {
   const { isStandalone } = usePWA();
-  const [isVisible, setIsVisible] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
-  const [hasPlayed, setHasPlayed] = useState(false); // Prevent replay
 
   // Prevent hydration issues
   useEffect(() => {
@@ -26,69 +24,41 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
   }, []);
 
   useEffect(() => {
-    // Only show splash screen for PWA (standalone mode) and if not already played
-    if (isStandalone && isMounted && !hasPlayed) {
-      setIsVisible(true);
-      setHasPlayed(true); // Mark as played to prevent replaying
+    if (!isMounted || !isStandalone) return;
 
-      // Start exit animation
-      const exitTimer = setTimeout(() => {
-        setIsExiting(true);
-      }, duration - 500); // Start exit 500ms before complete
+    // Show splash screen immediately for PWA
+    setShowSplash(true);
 
-      // Complete and hide
-      const completeTimer = setTimeout(() => {
-        setIsVisible(false);
-        onComplete?.();
-      }, duration);
+    // Hide splash screen after duration
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      onComplete?.();
+    }, duration);
 
-      return () => {
-        clearTimeout(exitTimer);
-        clearTimeout(completeTimer);
-      };
-    }
-  }, [isStandalone, isMounted, duration, onComplete, hasPlayed]);
+    return () => clearTimeout(timer);
+  }, [isMounted, isStandalone, duration, onComplete]);
 
-  // Don't render if not mounted, not standalone, already played, or not visible
-  if (!isMounted || !isStandalone || (hasPlayed && !isVisible) || !isVisible) {
+  // Don't render if not mounted or not standalone
+  if (!isMounted || !isStandalone || !showSplash) {
     return null;
   }
 
   return (
-    <div
-      className={`${styles.splashScreen} ${isExiting ? styles.exiting : ''}`}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        zIndex: 10000,
-      }}
-    >
-      {/* Floating background elements - no repeat */}
-      <div className={styles.floating} />
-      <div className={styles.floating} />
-      <div className={styles.floating} />
-      <div className={styles.floating} />
-
+    <div className={styles.splashScreen}>
       <div className={styles.splashContent}>
-        {/* Logo with single play animation */}
         <div className={styles.logoContainer}>
           <SimpleLogo />
         </div>
-
-        {/* App name with single play animation */}
         <div className={styles.appName}>
           <h1>Selamnew</h1>
           <p>Workspace</p>
         </div>
-
-        {/* Loading dots with single play animation */}
-        <div className={styles.loadingDots}>
-          <div className={styles.dot} />
-          <div className={styles.dot} />
-          <div className={styles.dot} />
+        <div className={styles.loadingAnimation}>
+          <div className={styles.loadingDots}>
+            <div className={styles.loadingDot}></div>
+            <div className={styles.loadingDot}></div>
+            <div className={styles.loadingDot}></div>
+          </div>
         </div>
       </div>
     </div>

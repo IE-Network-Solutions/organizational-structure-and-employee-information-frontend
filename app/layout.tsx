@@ -149,7 +149,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-test="layout">
       <head>
-        {/* PWA Meta Tags */}
+        {/* PWA Meta Tags - FORCE FULLSCREEN */}
         <meta name="application-name" content="Selamnew Workspace" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
@@ -163,9 +163,8 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#1890ff" />
         <meta name="msapplication-tap-highlight" content="no" />
 
-        {/* Additional PWA Meta Tags for Full Screen */}
+        {/* Force Fullscreen - Hide URL Bar */}
         <meta name="apple-touch-fullscreen" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="HandheldFriendly" content="true" />
         <meta name="MobileOptimized" content="320" />
@@ -175,48 +174,13 @@ export default function RootLayout({
         <meta name="x5-fullscreen" content="true" />
         <meta name="browsermode" content="application" />
         <meta name="x5-page-mode" content="app" />
+        <meta name="msapplication-navbutton-color" content="#1890ff" />
+        <meta name="theme-color" content="#1890ff" />
 
-        {/* Prevent zoom and scrolling issues */}
+        {/* CRITICAL: Force hide address bar */}
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-        />
-
-        {/* Splash Screens */}
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/apple-splash-2048-2732.jpg"
-          media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/apple-splash-1668-2224.jpg"
-          media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/apple-splash-1536-2048.jpg"
-          media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/apple-splash-1125-2436.jpg"
-          media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/apple-splash-1242-2208.jpg"
-          media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/apple-splash-750-1334.jpg"
-          media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
-        />
-        <link
-          rel="apple-touch-startup-image"
-          href="/icons/apple-splash-828-1792.jpg"
-          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui"
         />
 
         {/* Microsoft Edge */}
