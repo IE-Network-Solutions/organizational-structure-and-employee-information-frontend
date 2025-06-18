@@ -58,7 +58,6 @@ const PlanPage = () => {
     true,
     true,
   );
-  console.log({ currentPlan, activeSubscription, updatedQuota }, 'currentPlan');
   // Fetch plans
   const { data: plansData, isLoading: isPlansLoading } = useGetPlans(
     { filter: {} },
