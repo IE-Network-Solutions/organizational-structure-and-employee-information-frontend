@@ -7,6 +7,8 @@ interface RequestParams {
   data?: any;
   headers?: Record<string, string>;
   params?: Record<string, any>;
+  requestedBy?: string;
+  createdBy?: string;
 }
 
 /**
@@ -25,7 +27,7 @@ export const crudRequest = async ({
   const userId = useAuthenticationStore.getState().userId;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  headers = { ...headers, requestedBy: userId, createdBy: userId, tenantId };
+  headers = { ...headers, tenantId };
   try {
     const config: AxiosRequestConfig = {
       url,
@@ -35,7 +37,8 @@ export const crudRequest = async ({
     };
 
     if (data) {
-      config.data = data;
+      const dataValue = { ...data, updatedBy: userId, createdBy: userId };
+      config.data = dataValue;
     }
     const response = await axios(config);
     return response.data;

@@ -13,6 +13,8 @@ import {
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
 import axios from 'axios';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (
   query: RequestCommonQueryData,
@@ -32,9 +34,14 @@ const getAttendances = async (
 };
 const exportAttendanceData = async (data: any) => {
   try {
+    const payload = {
+      ...data,
+      updatedBy: logUserId,
+      createdBy: logUserId,
+    };
     const response = await axios.post(
       `${TIME_AND_ATTENDANCE_URL}/attendance`,
-      data,
+      payload,
       {
         headers: {
           ...requestHeader(),
