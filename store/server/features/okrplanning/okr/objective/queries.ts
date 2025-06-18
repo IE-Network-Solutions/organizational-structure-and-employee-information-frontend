@@ -6,6 +6,7 @@ import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+const logUserId = useAuthenticationStore.getState().userId;
 
 type ResponseData = {
   items: Objective[];
@@ -55,7 +56,13 @@ const getObjectiveByTeam = async (
   try {
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
-      { users: users, userId: userId, metricTypeId: metricTypeId }, // This is the request body
+      {
+        users: users,
+        userId: userId,
+        metricTypeId: metricTypeId,
+        updatedBy: logUserId,
+        createdBy: logUserId,
+      }, // This is the request body
       {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -80,7 +87,13 @@ const getObjectiveByCompany = async (
   try {
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/objective/company/okr/${id}?page=${currentPage}&limit=${pageSize}`,
-      { users: users, userId: userId, metricTypeId: metricTypeId }, // This is the request body
+      {
+        users: users,
+        userId: userId,
+        metricTypeId: metricTypeId,
+        updatedBy: logUserId,
+        createdBy: logUserId,
+      }, // This is the request body
       {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -111,6 +124,8 @@ const getEmployeeOkr = async (
         userId: searchObjParams?.userId,
         departmentId: searchObjParams?.departmentId,
         metricTypeId: searchObjParams?.metricTypeId,
+        updatedBy: logUserId,
+        createdBy: logUserId,
       }, // merged into one object
       {
         headers: {
