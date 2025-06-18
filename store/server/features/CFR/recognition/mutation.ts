@@ -202,11 +202,11 @@ const downloadCertificate = async ({
 export const useDownloadCertificate = () => {
   return useMutation({
     mutationFn: downloadCertificate,
-    onSuccess: (blob, variables) => {
+    onSuccess: (blob) => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `certificate-${variables.recognitionId}.pdf`;
+      a.download = `certificate-of-recognition.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
