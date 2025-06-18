@@ -41,15 +41,6 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'Selamnew Workspace',
-    startupImage: [
-      '/icons/apple-splash-2048-2732.jpg',
-      '/icons/apple-splash-1668-2224.jpg',
-      '/icons/apple-splash-1536-2048.jpg',
-      '/icons/apple-splash-1125-2436.jpg',
-      '/icons/apple-splash-1242-2208.jpg',
-      '/icons/apple-splash-750-1334.jpg',
-      '/icons/apple-splash-828-1792.jpg',
-    ],
   },
   formatDetection: {
     telephone: false,

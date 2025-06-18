@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { usePWA } from '@/hooks/usePWA';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
-import styles from './AnimatedSplashScreen.module.css';
 
 interface AnimatedSplashScreenProps {
   duration?: number;
@@ -11,14 +10,13 @@ interface AnimatedSplashScreenProps {
 }
 
 export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
-  duration = 2000,
+  duration = 1000, // Very short duration
   onComplete,
 }) => {
   const { isStandalone } = usePWA();
   const [showSplash, setShowSplash] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Prevent hydration issues
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -26,10 +24,10 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
   useEffect(() => {
     if (!isMounted || !isStandalone) return;
 
-    // Show splash screen immediately for PWA
+    // Show splash screen immediately
     setShowSplash(true);
 
-    // Hide splash screen after duration
+    // Hide splash screen quickly
     const timer = setTimeout(() => {
       setShowSplash(false);
       onComplete?.();
@@ -38,29 +36,50 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
     return () => clearTimeout(timer);
   }, [isMounted, isStandalone, duration, onComplete]);
 
-  // Don't render if not mounted or not standalone
+  // Don't render if not PWA or not showing
   if (!isMounted || !isStandalone || !showSplash) {
     return null;
   }
 
   return (
-    <div className={styles.splashScreen}>
-      <div className={styles.splashContent}>
-        <div className={styles.logoContainer}>
-          <SimpleLogo />
-        </div>
-        <div className={styles.appName}>
-          <h1>Selamnew</h1>
-          <p>Workspace</p>
-        </div>
-        <div className={styles.loadingAnimation}>
-          <div className={styles.loadingDots}>
-            <div className={styles.loadingDot}></div>
-            <div className={styles.loadingDot}></div>
-            <div className={styles.loadingDot}></div>
-          </div>
-        </div>
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: '#1890ff',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10000,
+        color: 'white',
+        fontFamily: 'Manrope, sans-serif',
+      }}
+    >
+      <div style={{ marginBottom: '2rem' }}>
+        <SimpleLogo />
       </div>
+      <h1
+        style={{
+          fontSize: '2rem',
+          margin: '0.5rem 0',
+          fontWeight: 'bold',
+        }}
+      >
+        Selamnew
+      </h1>
+      <p
+        style={{
+          fontSize: '1rem',
+          margin: 0,
+          opacity: 0.9,
+        }}
+      >
+        Workspace
+      </p>
     </div>
   );
 };
