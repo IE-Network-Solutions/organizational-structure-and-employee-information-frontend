@@ -53,32 +53,42 @@ const Filters: React.FC<FiltersProps> = ({
   const { setMonthId, setYearId, setSessionId } = useTnaReviewStore();
 
   useEffect(() => {
+    setMonthId(searchValue.monthId);
+    setYearId(searchValue.yearId);
+    setSessionId(searchValue.sessionId);
+  }, [searchValue]);
+  useEffect(() => {
     if (getAllFiscalYears) {
       setFiscalYears(getAllFiscalYears.items || []);
 
-      const activeFiscalYear = getAllFiscalYears.items.find(
-        (year: any) => year.active,
-      );
-      if (activeFiscalYear) {
-        const activeSession = activeFiscalYear.sessions?.find(
-          (session) => session.active,
-        );
-        const activeMonth = activeSession?.months?.find(
-          (month) => month.active,
-        );
+      const selectedYear =
+        getAllFiscalYears.items.find(
+          (year: any) => year.id === (defaultValues?.yearId || ''),
+        ) || getAllFiscalYears.items.find((year: any) => year.active);
+
+      if (selectedYear) {
+        const selectedSession =
+          selectedYear.sessions?.find(
+            (s: any) => s.id === (defaultValues?.sessionId || ''),
+          ) || selectedYear.sessions?.find((s: any) => s.active);
+
+        const selectedMonth =
+          selectedSession?.months?.find(
+            (m: any) => m.id === (defaultValues?.monthId || ''),
+          ) || selectedSession?.months?.find((m: any) => m.active);
+
+        setSessions(selectedYear.sessions || []);
+        setMonths(selectedSession?.months || []);
 
         setSearchValue((prev) => ({
           ...prev,
-          yearId: activeFiscalYear.id || '',
-          sessionId: activeSession?.id || '',
-          monthId: activeMonth?.id || '',
+          yearId: selectedYear.id || '',
+          sessionId: selectedSession?.id || '',
+          monthId: selectedMonth?.id || '',
         }));
-
-        setSessions(activeFiscalYear.sessions || []);
-        setMonths(activeSession?.months || []);
       }
     }
-  }, [getAllFiscalYears, employeeData]);
+  }, [getAllFiscalYears]);
 
   useEffect(() => {
     if (payroll?.items.length > 0) {
@@ -110,21 +120,35 @@ const Filters: React.FC<FiltersProps> = ({
   };
 
   const handleSelectChange = (key: string, value: string) => {
-    // Get the current state first
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, [key]: value };
-      onSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
-
-    // Perform calculations outside of the setter
     if (key === 'yearId') {
       const selectedYear = fiscalYears.find((year) => year.id === value);
+      const isDifferentYear = searchValue.yearId !== value;
+
       setSessions(selectedYear?.sessions || []);
-      setMonths([]); // Reset months
+      setMonths([]);
+
+      setSearchValue((prev) => ({
+        ...prev,
+        yearId: value,
+        sessionId: isDifferentYear ? '' : prev.sessionId,
+        monthId: '',
+      }));
     } else if (key === 'sessionId') {
-      const selectedSession = sessions.find((session) => session.id === value);
+      const selectedSession = sessions.find((s: any) => s.id === value);
+      const isDifferentSession = searchValue.sessionId !== value;
+
       setMonths(selectedSession?.months || []);
+
+      setSearchValue((prev) => ({
+        ...prev,
+        sessionId: value,
+        monthId: isDifferentSession ? '' : prev.monthId,
+      }));
+    } else if (key === 'monthId') {
+      setSearchValue((prev) => ({
+        ...prev,
+        monthId: value,
+      }));
     }
   };
 
