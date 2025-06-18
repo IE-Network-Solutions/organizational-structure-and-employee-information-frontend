@@ -27,7 +27,7 @@ export const crudRequest = async ({
   const userId = useAuthenticationStore.getState().userId;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  headers = { ...headers, tenantId };
+  headers = { ...headers, requestedBy: userId, createdBy: userId, tenantId };
   try {
     const config: AxiosRequestConfig = {
       url,
@@ -37,8 +37,7 @@ export const crudRequest = async ({
     };
 
     if (data) {
-      const dataValue = { ...data, updatedBy: userId, createdBy: userId };
-      config.data = dataValue;
+      config.data = data;
     }
     const response = await axios(config);
     return response.data;

@@ -14,18 +14,18 @@ const importData = async (data: any) => {
     data,
   });
 };
-const logUserId = useAuthenticationStore.getState().userId;
+// const logUserId = useAuthenticationStore.getState().userId;
 
 const exportData = async (data: any) => {
   try {
-    const payload = {
-      ...data,
-      updatedBy: logUserId,
-      createdBy: logUserId,
-    };
+    // const payload = {
+    //   ...data,
+    //   updatedBy: logUserId,
+    //   createdBy: logUserId,
+    // };
     const response = await axios.post(
       `${INCENTIVE_URL}/incentives/export/incentive-data`,
-      payload,
+      data,
       {
         headers: {
           ...requestHeader(),
