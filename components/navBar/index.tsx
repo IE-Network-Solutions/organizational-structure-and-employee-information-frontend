@@ -18,7 +18,7 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -61,6 +61,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setActiveCalendar,
     setLoggedUserRole,
     setUserData,
+    setIs2FA,
+    setTwoFactorAuthEmail,
+    setUser2FA,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -88,6 +91,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // ===========> Fiscal Year Ended Section <=================
 
   const treeData: CustomMenuItem[] = [
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12">
+          <CiSettings
+            size={18}
+            className={expandedKeys.includes('/dashboard') ? 'text-blue' : ''}
+          />
+          <span>Dashboard</span>
+        </span>
+      ),
+      key: '/dashboard',
+      className: 'font-bold',
+      permissions: [],
+    },
     {
       title: (
         <span className="flex items-center gap-2 h-12">
@@ -123,7 +140,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <LuUsers2
+          <LuUsers
             size={18}
             className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
           />
@@ -278,9 +295,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className: 'font-bold',
           permissions: ['view_feedback_recognition'],
         },
-
         {
-          title: <span>Settings</span>,
+          title: 'Settings',
           key: '/feedback/settings',
           className: 'font-bold',
           permissions: ['manage_feedback_settings'],
@@ -575,12 +591,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      // First step: clear all state that might trigger queries
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
       setUserId('');
       setError('');
+      setIs2FA(false);
+      setTwoFactorAuthEmail('');
+      setLocalId('');
+      setTenantId('');
+      setToken('');
+      setUser2FA({ email: '', pass: '', recaptchaToken: '' });
 
       // Then remove cookies
       removeCookie('token');
@@ -593,7 +614,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setTenantId('');
       setLocalId('');
 
-      await router.push('/authentication/login');
+      router.push('/authentication/login');
     } catch (error) {}
   };
 

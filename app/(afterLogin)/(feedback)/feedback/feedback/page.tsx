@@ -14,7 +14,6 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
-import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
@@ -28,7 +27,6 @@ const Page = () => {
   const {
     setOpen,
     setVariantType,
-    setSelectedFeedbackRecord,
     variantType,
     setUserId,
     userId,
@@ -74,9 +72,6 @@ const Page = () => {
     userId,
   );
 
-  const editHandler = (record: any) => {
-    setSelectedFeedbackRecord(record);
-  };
   const handleDelete = (id: string) => {
     deleteFeedbackRecord(id, {
       onSuccess: () => {},
@@ -139,162 +134,154 @@ const Page = () => {
     },
   ];
 
-const columns = [
-  {
-    title: 'Issued To',
-    dataIndex: 'recipientId',
-    key: 'recipientId',
-    render: (notused: any, record: any) => {
-      const user = getAllUsers?.items?.find(
-        (item: any) => item.id === record.recipientId,
-      );
-      return user
-        ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-        : 'Unknown';
+  const columns = [
+    {
+      title: 'Issued To',
+      dataIndex: 'recipientId',
+      key: 'recipientId',
+      render: (notused: any, record: any) => {
+        const user = getAllUsers?.items?.find(
+          (item: any) => item.id === record.recipientId,
+        );
+        return user
+          ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
+          : 'Unknown';
+      },
     },
-  },
-  {
-    title: 'Given By',
-    dataIndex: 'issuerId',
-    key: 'issuerId',
-    render: (notused: any, record: any) => {
-      const user = getAllUsers?.items?.find(
-        (item: any) => item.id === record.issuerId,
-      );
-      return user
-        ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-        : 'Unknown';
+    {
+      title: 'Given By',
+      dataIndex: 'issuerId',
+      key: 'issuerId',
+      render: (notused: any, record: any) => {
+        const user = getAllUsers?.items?.find(
+          (item: any) => item.id === record.issuerId,
+        );
+        return user
+          ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
+          : 'Unknown';
+      },
     },
-  },
-  {
-    title: 'Type',
-    dataIndex: 'feedbackTypeId',
-    key: 'feedbackTypeId',
-    render: (notused: any, record: any) => {
-      const feedbackType = getAllFeedbackTypes?.items?.find(
-        (item: any) => item.id === record.feedbackTypeId,
-      );
-      return feedbackType?.category || 'Unknown';
+    {
+      title: 'Type',
+      dataIndex: 'feedbackTypeId',
+      key: 'feedbackTypeId',
+      render: (notused: any, record: any) => {
+        const feedbackType = getAllFeedbackTypes?.items?.find(
+          (item: any) => item.id === record.feedbackTypeId,
+        );
+        return feedbackType?.category || 'Unknown';
+      },
     },
-  },
-  {
-    title: 'Reason',
-    dataIndex: 'reason',
-    key: 'reason',
-    render: (notused: any, record: any) => {
-      return record.reason ? (
-        <Tooltip title={record?.reason}>
-          {record?.reason?.length >= 40
-            ? record?.reason?.slice(0, 40) + '....'
-            : record?.reason}
-        </Tooltip>
-      ) : (
-        'N/A'
-      );
+    {
+      title: 'Reason',
+      dataIndex: 'reason',
+      key: 'reason',
+      render: (notused: any, record: any) => {
+        return record.reason ? (
+          <Tooltip title={record?.reason}>
+            {record?.reason?.length >= 40
+              ? record?.reason?.slice(0, 40) + '....'
+              : record?.reason}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
     },
-  },
-  {
-    title: 'Objective',
-    dataIndex: 'objective',
-    key: 'objective',
-    render: (notused: any, record: any) => {
-      return record.feedbackVariant.name ? (
-        <Tooltip title={record?.feedbackVariant.name}>
-          {record?.feedbackVariant.name?.length >= 40
-            ? record?.feedbackVariant.name?.slice(0, 40) + '....'
-            : record?.feedbackVariant.name}
-        </Tooltip>
-      ) : (
-        'N/A'
-      );
+    {
+      title: 'Objective',
+      dataIndex: 'objective',
+      key: 'objective',
+      render: (notused: any, record: any) => {
+        return record.feedbackVariant.name ? (
+          <Tooltip title={record?.feedbackVariant.name}>
+            {record?.feedbackVariant.name?.length >= 40
+              ? record?.feedbackVariant.name?.slice(0, 40) + '....'
+              : record?.feedbackVariant.name}
+          </Tooltip>
+        ) : (
+          'N/A'
+        );
+      },
     },
-  },
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    render: (notused: any, record: any) => {
-      const data = EmployeeDepartment?.find(
-        (item: any) =>
-          item.id === record.feedbackVariant?.perspective?.departmentId,
-      );
-      return data?.name ? (
-        <Tooltip title={data?.name}>
-          {data?.name?.length >= 40
-            ? data?.name?.slice(0, 40) + '....'
-            : data?.name}
-        </Tooltip>
-      ) : (
-        '-'
-      );
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (notused: any, record: any) => {
+        const data = EmployeeDepartment?.find(
+          (item: any) =>
+            item.id === record.feedbackVariant?.perspective?.departmentId,
+        );
+        return data?.name ? (
+          <Tooltip title={data?.name}>
+            {data?.name?.length >= 40
+              ? data?.name?.slice(0, 40) + '....'
+              : data?.name}
+          </Tooltip>
+        ) : (
+          '-'
+        );
+      },
     },
-  },
 
-  ...(variantType !== 'appreciation'
-    ? [
-        {
-          title: 'Action To be Taken',
-          dataIndex: 'action',
-          key: 'actionToBeTaken',
-          render: (notused: any, record: any) => {
-            return record.action ? (
-              <Tooltip title={record?.action}>
-                {record?.action?.length >= 40
-                  ? record?.action?.slice(0, 40) + '....'
-                  : record?.action}
-              </Tooltip>
-            ) : (
-              'N/A'
-            );
+    ...(variantType !== 'appreciation'
+      ? [
+          {
+            title: 'Action To be Taken',
+            dataIndex: 'action',
+            key: 'actionToBeTaken',
+            render: (notused: any, record: any) => {
+              return record.action ? (
+                <Tooltip title={record?.action}>
+                  {record?.action?.length >= 40
+                    ? record?.action?.slice(0, 40) + '....'
+                    : record?.action}
+                </Tooltip>
+              ) : (
+                'N/A'
+              );
+            },
           },
-        },
-      ]
-    : []),
+        ]
+      : []),
 
-  {
-    title: 'Given Date',
-    dataIndex: 'createdAt',
-    key: 'createdAt',
-    render: (notused: any, record: any) => {
-      return record.createdAt
-        ? dayjs(record.createdAt).format('YYYY-MM-DD')
-        : 'N/A';
+    {
+      title: 'Given Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (notused: any, record: any) => {
+        return record.createdAt
+          ? dayjs(record.createdAt).format('YYYY-MM-DD')
+          : 'N/A';
+      },
     },
-  },
-  {
-    title: 'Action',
-    dataIndex: 'action',
-    key: 'actionButtons',
-    render: (notused: any, record: any) => {
-      return (
-        <div className="flex gap-2">
-          <Button
-            disabled={record.issuerId !== userIdData}
-            size="small"
-            onClick={() => editHandler(record)}
-            icon={<Edit2Icon className="w-4 h-4 text-xs" />}
-            type="primary"
-          />
-          <Popconfirm
-            title="Are you sure you want to delete?"
-            onConfirm={() => handleDelete(record?.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              disabled={record.issuerId !== userIdData}
-              size="small"
-              icon={<MdDeleteOutline />}
-              danger
-              type="primary"
-            />
-          </Popconfirm>
-        </div>
-      );
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'actionButtons',
+      render: (notused: any, record: any) => {
+        return (
+          <div className="flex gap-2">
+            <Popconfirm
+              title="Are you sure you want to delete?"
+              onConfirm={() => handleDelete(record?.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                disabled={record.issuerId !== userIdData}
+                size="small"
+                icon={<MdDeleteOutline />}
+                danger
+                type="primary"
+              />
+            </Popconfirm>
+          </div>
+        );
+      },
     },
-  },
-];
-
+  ];
 
   const searchField = [
     {

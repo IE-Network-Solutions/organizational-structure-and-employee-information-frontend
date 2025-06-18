@@ -6,12 +6,15 @@ import {
   AttendanceImportLogsBody,
   AttendanceRequestBody,
 } from '@/store/server/features/timesheet/attendance/interface';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import {
   AttendanceImport,
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
+import axios from 'axios';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (
   query: RequestCommonQueryData,
@@ -29,6 +32,51 @@ const getAttendances = async (
     params: query,
   });
 };
+const exportAttendanceData = async (data: any) => {
+  try {
+    const payload = {
+      ...data,
+      updatedBy: logUserId,
+      createdBy: logUserId,
+    };
+    const response = await axios.post(
+      `${TIME_AND_ATTENDANCE_URL}/attendance`,
+      payload,
+      {
+        headers: {
+          ...requestHeader(),
+        },
+        responseType: 'blob',
+      },
+    );
+
+    const blob = new Blob([response.data], {
+      type:
+        data.exportType === 'PDF'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const disposition = response.headers['content-disposition'];
+    let fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
+
+    if (disposition && disposition.includes('filename=')) {
+      fileName = disposition.split('filename=')[1].replace(/"/g, '');
+    }
+
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getSingleAttendances = async (id: string) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
@@ -77,6 +125,15 @@ export const useGetAttendances = (
       },
     },
   );
+};
+
+export const UseExportAttendanceData = () => {
+  const queryClient = useQueryClient();
+  return useMutation(exportAttendanceData, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('exportData');
+    },
+  });
 };
 
 export const useGetSingleAttendances = (id: string) => {

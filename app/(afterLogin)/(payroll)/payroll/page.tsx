@@ -43,6 +43,9 @@ import { LuSettings2 } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
 import GeneratePayrollModal, { Incentive } from './_components/modal';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,7 +53,6 @@ const Payroll = () => {
   const [bankLetter, setBankLetter] = useState(true);
   const [paySlip, setPaySlip] = useState(false);
   const [exportPayrollData, setExportPayrollData] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const {
     searchQuery,
     setSearchQuery,
@@ -59,15 +61,22 @@ const Payroll = () => {
     isPayrollModalOpen,
     setIsPayrollModalOpen,
   } = useEmployeeStore();
+
+  const { pageSize, currentPage, setCurrentPage, setPageSize } =
+    usePayrollStore();
+
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
-  const { data: payroll, refetch } = useGetActivePayroll(searchQuery);
+  const { data: payroll, refetch } = useGetActivePayroll(
+    searchQuery,
+    pageSize,
+    currentPage,
+  );
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
@@ -82,8 +91,8 @@ const Payroll = () => {
     useDeletePayroll();
 
   useEffect(() => {
-    if (payroll?.payrolls && allEmployees?.items) {
-      const mergedData = payroll?.payrolls.map((pay: any) => {
+    if (payroll?.items && allEmployees?.items) {
+      const mergedData = payroll?.items.map((pay: any) => {
         const employee = allEmployees.items.find(
           (emp: any) => emp.id === pay.employeeId,
         );
@@ -113,7 +122,7 @@ const Payroll = () => {
         Promise.resolve(handleBankLetter(payroll?.totalNetPayAmount)),
       );
 
-    if (exportTasks.length === 0) {
+    if (exportTasks?.length === 0) {
       notification.error({
         message: 'No Export Option Selected',
         description: 'Please select at least one option to export.',
@@ -161,14 +170,14 @@ const Payroll = () => {
     }
 
     const searchParams = queryParams.toString()
-      ? `?${queryParams.toString()}`
+      ? `&${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
     refetch();
   };
 
   const handleGeneratePayroll = async (data: Incentive) => {
-    if (!allActiveSalary || allActiveSalary.length === 0) {
+    if (!allActiveSalary || allActiveSalary?.length === 0) {
       notification.error({
         message: 'No Active Salaries',
         description:
@@ -230,7 +239,7 @@ const Payroll = () => {
     sendPaySlip({ values });
   };
   const handleDeductionExportPayroll = async () => {
-    if (!mergedPayroll || mergedPayroll.length === 0) {
+    if (!mergedPayroll || mergedPayroll?.length === 0) {
       NotificationMessage.error({
         message: 'No Data Available',
         description: 'There is no data available to export.',
@@ -414,14 +423,14 @@ const Payroll = () => {
         sheet.columns = headers.map((col) => ({
           header: col.header,
           key: col.key,
-          width: Math.max(col.header.length + 2, col.minWidth || 10),
+          width: Math.max(col.header?.length + 2, col.minWidth || 10),
         }));
 
         // **Add Data Rows**
         data.forEach((row) => sheet.addRow(row));
 
         // **Calculate and Add Total Row**
-        if (data.length > 0) {
+        if (data?.length > 0) {
           const totalRow: any = { fullName: 'Total' };
 
           // Calculate totals for each column
@@ -459,7 +468,7 @@ const Payroll = () => {
           });
 
           // Add the total row
-          // const totalRowIndex = data.length + 2; // +1 for header, +1 for 1-based index
+          // const totalRowIndex = data?.length + 2; // +1 for header, +1 for 1-based index
           const totalRowAdded = sheet.addRow(totalRow);
 
           // Style the total row
@@ -486,7 +495,7 @@ const Payroll = () => {
         });
 
         // **Style Data Rows**
-        for (let i = 2; i <= data.length + 1; i++) {
+        for (let i = 2; i <= data?.length + 1; i++) {
           sheet.getRow(i).eachCell((cell) => {
             if (Number(cell.col) > 1) {
               // Skip the Full Name column
@@ -534,7 +543,7 @@ const Payroll = () => {
   };
 
   const handleExportBank = async () => {
-    if (!employeeInfo || employeeInfo.length === 0) {
+    if (!employeeInfo || employeeInfo?.length === 0) {
       notification.error({
         message: 'No Data Available',
         description: 'There is no data available to export.',
@@ -596,7 +605,7 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      generateBankLetter(amount);
+      await generateBankLetter(amount);
     } catch (error) {
       notification.error({
         message: 'Error Generating Bank Letter',
@@ -760,7 +769,7 @@ const Payroll = () => {
       render: (key: string) => Number(key || 0)?.toLocaleString(),
     },
   ];
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
 
   const handleEmployeeSelect = (value: string) => {
     setSearchValue((prev) => {
@@ -776,6 +785,16 @@ const Payroll = () => {
       employeeData: emp,
     })) || [];
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setCurrentPage(1);
+  };
   return (
     <div
       className={isMobile ? 'pt-[16px] bg-gray-100' : 'pt-[16px] bg-white'}
@@ -806,10 +825,10 @@ const Payroll = () => {
                 title="Send Payslips"
                 description={
                   <div>
-                    {mergedPayroll.length > 0 ? (
-                      mergedPayroll.length < allEmployees?.items?.length ? (
+                    {mergedPayroll?.length > 0 ? (
+                      mergedPayroll?.length < allEmployees?.items?.length ? (
                         <p>
-                          This will send payslips to {mergedPayroll.length}{' '}
+                          This will send payslips to {mergedPayroll?.length}{' '}
                           selected employees (filtered from{' '}
                           {allEmployees?.items?.length} total).
                         </p>
@@ -824,8 +843,8 @@ const Payroll = () => {
                         No employees selected. Please adjust your filters.
                       </p>
                     )}
-                    {mergedPayroll.length > 0 &&
-                      mergedPayroll.length < allEmployees?.items?.length && (
+                    {mergedPayroll?.length > 0 &&
+                      mergedPayroll?.length < allEmployees?.items?.length && (
                         <p style={{ color: 'orange', marginTop: '8px' }}>
                           Note: You&apos;re sending to a filtered subset. Clear
                           filters to send to everyone.
@@ -834,28 +853,28 @@ const Payroll = () => {
                   </div>
                 }
                 okText={
-                  mergedPayroll.length === 0
+                  mergedPayroll?.length === 0
                     ? 'Cannot Send'
-                    : mergedPayroll.length < allEmployees?.items?.length
+                    : mergedPayroll?.length < allEmployees?.items?.length
                       ? 'Send to Filtered'
                       : 'Send to All'
                 }
                 cancelText="Cancel"
                 onConfirm={() => {
-                  if (mergedPayroll.length > 0) {
+                  if (mergedPayroll?.length > 0) {
                     sendingPaySlipHandler(mergedPayroll);
                   }
                 }}
                 okButtonProps={{
-                  disabled: mergedPayroll.length === 0,
+                  disabled: mergedPayroll?.length === 0,
                 }}
               >
                 <Tooltip
                   title={
-                    mergedPayroll.length === 0
+                    mergedPayroll?.length === 0
                       ? 'No employees selected. Please adjust your filters.'
-                      : mergedPayroll.length < allEmployees?.items?.length
-                        ? `Will send to ${mergedPayroll.length} filtered employee(s)`
+                      : mergedPayroll?.length < allEmployees?.items?.length
+                        ? `Will send to ${mergedPayroll?.length} filtered employee(s)`
                         : 'Will send to all employees'
                   }
                 >
@@ -866,7 +885,7 @@ const Payroll = () => {
                       type="default"
                       loading={sendingPaySlipLoading}
                       className="text-white bg-primary border-none p-5 flex flex-col items-start disabled:opacity-50"
-                      disabled={mergedPayroll.length === 0}
+                      disabled={mergedPayroll?.length === 0}
                     >
                       <span className="text-base font-semibold">
                         Send Payslip
@@ -879,14 +898,14 @@ const Payroll = () => {
           )}
           <Popconfirm
             title={
-              payroll?.payrolls.length
+              payroll?.items?.length
                 ? 'Are you sure you want to regenerate the payroll ?'
                 : 'Are you sure you want to generate the payroll ?'
             }
             onConfirm={handleDeletePayroll}
             okText="Yes"
             cancelText="No"
-            disabled={!(payroll?.payrolls.length > 0)}
+            disabled={!(payroll?.items?.length > 0)}
           >
             <AccessGuard
               permissions={[
@@ -896,7 +915,7 @@ const Payroll = () => {
             >
               <Tooltip
                 title={
-                  payroll?.payrolls.length > 0
+                  payroll?.items?.length > 0
                     ? 'Regenerate Payroll'
                     : 'Generate Payroll'
                 }
@@ -909,7 +928,7 @@ const Payroll = () => {
                 >
                   {isMobile ? (
                     <TbFileExport size={24} />
-                  ) : payroll?.payrolls.length > 0 ? (
+                  ) : payroll?.items?.length > 0 ? (
                     'Regenerate'
                   ) : (
                     'Generate'
@@ -1033,14 +1052,24 @@ const Payroll = () => {
           <Table
             dataSource={mergedPayroll || []}
             columns={columns}
-            pagination={{
-              current: currentPage,
-              pageSize: 6,
-              onChange: setCurrentPage,
-              simple: isMobile,
-              position: isMobile ? ['bottomCenter'] : ['bottomRight'],
-            }}
+            pagination={false}
           />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={payroll?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+            />
+          ) : (
+            <CustomPagination
+              current={currentPage}
+              total={payroll?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageSizeChange}
+            />
+          )}
         </div>
         <Modal
           title="Export for Bank"
@@ -1092,7 +1121,7 @@ const Payroll = () => {
             <div className="flex flex-col justify-between items-start gap-2 ">
               <span>Export Bank</span>
               <Switch
-                checked={bankLetter}
+                checked={exportBank}
                 onChange={() => setExportBank(!exportBank)}
               />
             </div>

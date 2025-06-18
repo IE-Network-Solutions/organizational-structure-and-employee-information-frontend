@@ -1,6 +1,6 @@
 import { Dispatch, FC, ReactNode, SetStateAction, useEffect } from 'react';
 import { RcFile, UploadProps } from 'antd/es/upload';
-import { fileUpload } from '@/utils/fileUpload';
+// import { fileUpload } from '@/utils/fileUpload';
 import { Button, Flex, Form, Input, Upload } from 'antd';
 import { classNames } from '@/utils/classNames';
 import { TbFileUpload } from 'react-icons/tb';
@@ -13,8 +13,11 @@ import {
 } from '@/helpers/formatTo';
 import FileButton from '@/components/common/fileButton';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
+import { fileUpload } from '@/utils/fileUpload';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface CustomUploadProps extends UploadProps {
+  uploadType?: string;
   children?: ReactNode;
   className?: string;
   mode?: 'default' | 'draggable' | 'dragWithLink';
@@ -38,10 +41,17 @@ const CustomUpload: FC<CustomUploadProps> = ({
   maxCount = 1, // Enforce single file for both video and attachment
   fileList: fList,
   targetState,
+  uploadType = '',
   ...otherProps
 }) => {
-  const { fileList, setFileList, fileAttachmentList, setFileAttachmentList } =
-    useTnaManagementCoursePageStore();
+  const {
+    fileList,
+    setFileList,
+    fileAttachmentList,
+    isFileUploadLoading,
+    setIsFileUploadLoading,
+    setFileAttachmentList,
+  } = useTnaManagementCoursePageStore();
   const [form] = Form.useForm();
   // const [internalFileList, setInternalFileList] = useState<UploadFile[]>([]);
 
@@ -91,8 +101,11 @@ const CustomUpload: FC<CustomUploadProps> = ({
   };
 
   const handleUpload = async (options: any): Promise<void> => {
+    const prevIsFileUploadLoading = isFileUploadLoading;
+    prevIsFileUploadLoading[uploadType] = true;
+    setIsFileUploadLoading(prevIsFileUploadLoading);
     if (setIsLoading) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
     const { file, onSuccess } = options;
     const rcFile = file as RcFile;
@@ -100,11 +113,15 @@ const CustomUpload: FC<CustomUploadProps> = ({
     try {
       const response = await fileUpload(rcFile);
       if (onSuccess && response) {
+        prevIsFileUploadLoading[uploadType] = false;
+        setIsFileUploadLoading(prevIsFileUploadLoading);
         onSuccess(response.data['viewImage']);
       }
     } finally {
       if (setIsLoading) {
-        setIsLoading(false);
+        // setIsLoading(false);
+        prevIsFileUploadLoading[uploadType] = false;
+        setIsFileUploadLoading(prevIsFileUploadLoading);
       }
     }
   };
@@ -159,6 +176,15 @@ const CustomUpload: FC<CustomUploadProps> = ({
             showUploadList={false}
             onChange={handleChange}
             maxCount={1} // Enforce single file
+            beforeUpload={(file) => {
+              const isUnder500MB = file?.size / 1024 / 1024 <= 500;
+              if (!isUnder500MB) {
+                NotificationMessage.warning({
+                  message: `${file?.name} is larger than 500MB.`,
+                });
+              }
+              return isUnder500MB || Upload.LIST_IGNORE;
+            }}
             {...otherProps}
           >
             <div className="flex flex-col items-center p-3 gap-1 h-max">

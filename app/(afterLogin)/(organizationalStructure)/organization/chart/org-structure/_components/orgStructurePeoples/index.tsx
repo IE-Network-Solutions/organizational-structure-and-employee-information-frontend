@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { v4 as uuidv4 } from 'uuid';
 import { Department } from '@/types/dashboard/organization';
@@ -25,6 +25,7 @@ import { useTransferStore } from '@/store/uistate/features/organizationStructure
 import { Form } from 'antd';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 import { useRouter } from 'next/navigation';
+import { useChartRef } from '../../../layout';
 
 const renderTreeNodes = (
   data: Department[],
@@ -79,7 +80,7 @@ const OrgChartComponent: React.FC = () => {
   } = useOrganizationStore();
   const { resetStore } = useTransferStore();
 
-  const chartRef = useRef<HTMLDivElement>(null);
+  const chartRef = useChartRef();
 
   const { data: orgStructureData, isLoading: orgStructureLoading } =
     useGetOrgCharts();

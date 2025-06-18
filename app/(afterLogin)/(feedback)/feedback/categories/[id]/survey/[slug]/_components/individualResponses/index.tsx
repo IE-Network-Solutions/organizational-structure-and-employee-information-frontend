@@ -1,36 +1,99 @@
-import React from 'react';
-import { Col, Form, Pagination, Row } from 'antd';
+import React, { useState } from 'react';
+import { Form, Pagination, Tag, Skeleton, Select } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
-import { useFetchedIndividualResponses } from '@/store/server/features/organization-development/categories/queries';
-
+import { useFetchedAllIndividualResponsesByFormId } from '@/store/server/features/organization-development/categories/queries';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { FieldType } from '@/types/enumTypes';
-import MultipleChoiceField from '../questions/multipleChoiceField';
-import ShortTextField from '../questions/shortTextField';
-import CheckboxField from '../questions/checkboxField';
-import ParagraphField from '../questions/paragraphField';
-import TimeField from '../questions/timeField';
-import DropdownField from '../questions/dropdownField';
-import RadioField from '../questions/radioField';
+import { Pie, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip as ChartTooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  ChartTooltip,
+  Legend,
+);
 
 interface Params {
   id: string;
 }
 
+const FIELD_TYPE_COLORS: Record<string, string> = {
+  [FieldType.MULTIPLE_CHOICE]: 'blue',
+  [FieldType.CHECKBOX]: 'green',
+  [FieldType.SHORT_TEXT]: 'gold',
+  [FieldType.PARAGRAPH]: 'orange',
+  [FieldType.TIME]: 'purple',
+  [FieldType.DROPDOWN]: 'cyan',
+  [FieldType.RADIO]: 'magenta',
+};
+
+function getBarData(question: any, responses: any[]) {
+  // Gather all response values (map by id if possible, else use value)
+  const allValues = responses.flat().map((r: any) => {
+    const opt = question.field.find((f: any) => f.id === r.value);
+    return opt ? opt.value : r.value;
+  });
+  // Count all unique values
+  const counts: Record<string, number> = {};
+  allValues.forEach((val: string) => {
+    counts[val] = (counts[val] || 0) + 1;
+  });
+  return {
+    labels: Object.keys(counts),
+    datasets: [
+      {
+        label: 'Responses',
+        data: Object.values(counts),
+        backgroundColor: [
+          '#36A2EB',
+          '#FF6384',
+          '#FFCE56',
+          '#4BC0C0',
+          '#9966FF',
+          '#FF9F40',
+        ],
+      },
+    ],
+  };
+}
+
 const IndividualResponses = ({ id }: Params) => {
-  const { setCurrent, current, pageSize, selectedUser, setPageSize } =
+  const { setCurrent, current, pageSize, setPageSize } =
     useOrganizationalDevelopment();
-  const { data: individualResponses } = useFetchedIndividualResponses(
-    id,
-    selectedUser,
-  );
+  const { data: individualResponses, isLoading } =
+    useFetchedAllIndividualResponsesByFormId(id);
+  const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrent(page);
     if (pageSize) {
       setPageSize(pageSize);
     }
   };
-  const data = individualResponses;
+  // Group responses by question
+  const grouped: Record<string, { question: any; responses: any[] }> = {};
+  if (individualResponses && Array.isArray(individualResponses)) {
+    individualResponses.forEach((resp: any) => {
+      const qid = resp.question.id;
+      if (!grouped[qid]) {
+        grouped[qid] = {
+          question: resp.question,
+          responses: [],
+        };
+      }
+      grouped[qid].responses.push(resp.responseDetail);
+    });
+  }
   return (
     <div>
       <Form
@@ -40,63 +103,123 @@ const IndividualResponses = ({ id }: Params) => {
         style={{ width: '100%' }}
       >
         <>
-          {data && data?.length !== 0 ? (
+          {isLoading ? (
+            <div className="space-y-5">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="p-4 bg-white shadow-md border border-gray-200 rounded-lg mb-5"
+                >
+                  <Skeleton active title paragraph={{ rows: 2 }} />
+                  <div className="mt-4 flex justify-center">
+                    <Skeleton.Input
+                      style={{ width: 120, height: 120, borderRadius: '50%' }}
+                      active
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : individualResponses && individualResponses.length !== 0 ? (
             <>
-              {data?.map((q: any) => (
-                <Row gutter={16} key={q.id}>
-                  <Col xs={24} sm={24}>
-                    <Form.Item
-                      label={q?.question?.question}
-                      key={q?.question?.id}
-                      required
-                      labelCol={{ span: 24 }} // Label spans full width
-                      wrapperCol={{ span: 24 }} // Wrapper spans full width (if needed)
+              {Object.values(grouped).map(({ question, responses }) => (
+                <div
+                  key={question.id}
+                  className="mb-5 p-4 bg-white shadow-md border border-gray-200 rounded-lg"
+                >
+                  <div className="font-bold text-xl mb-2">
+                    {question.question}
+                  </div>
+                  <div className="mb-5">
+                    <Tag
+                      color={FIELD_TYPE_COLORS[question.fieldType] || 'default'}
                     >
-                      {q?.question?.fieldType === FieldType.MULTIPLE_CHOICE && (
-                        <MultipleChoiceField
-                          choices={q?.question?.field}
-                          selectedAnswer={q?.responseDetail}
+                      {question.fieldType}
+                    </Tag>
+                  </div>
+                  {!(
+                    question.fieldType === FieldType.MULTIPLE_CHOICE ||
+                    question.fieldType === FieldType.CHECKBOX
+                  ) && (
+                    <div className="mb-2 bg-gray-100 p-2 rounded-md max-h-40 overflow-y-auto">
+                      {responses.map((resp, idx) => (
+                        <div key={idx} className="mb-1">
+                          {resp.map((r: any) => (
+                            <span
+                              key={r.id}
+                              className="inline-block bg-gray-100 px-2 py-1 rounded mr-2"
+                            >
+                              {r.value}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {(question.fieldType === FieldType.MULTIPLE_CHOICE ||
+                    question.fieldType === FieldType.CHECKBOX) && (
+                    <div className="w-full max-w-[800px]">
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="text-xs text-gray-500">
+                          Chart type:
+                        </span>
+                        <Select
+                          size="small"
+                          value={chartType}
+                          onChange={setChartType}
+                          style={{ width: 90 }}
+                          options={[
+                            { value: 'pie', label: 'Pie' },
+                            { value: 'bar', label: 'Bar' },
+                          ]}
                         />
-                      )}
-                      {q?.question?.fieldType === FieldType.SHORT_TEXT && (
-                        <ShortTextField value={q?.responseDetail[0]} />
-                      )}
-                      {q?.question?.fieldType === FieldType.CHECKBOX && (
-                        <CheckboxField
-                          options={q?.question?.field}
-                          selectedOptions={q?.responseDetail}
-                        />
-                      )}
-                      {q?.question?.fieldType === FieldType.PARAGRAPH && (
-                        <ParagraphField value={q?.responseDetail[0]} />
-                      )}
-                      {q?.question?.fieldType === FieldType.TIME && (
-                        <TimeField value={q?.responseDetail[0]} />
-                      )}
-                      {q?.question?.fieldType === FieldType.DROPDOWN && (
-                        <DropdownField
-                          options={q?.question?.field}
-                          selectedValue={q?.responseDetail[0]}
-                        />
-                      )}
-                      {q?.question?.fieldType === FieldType.RADIO && (
-                        <RadioField
-                          options={q?.question?.field}
-                          selectedValue={q?.responseDetail[0]}
-                        />
-                      )}
-                    </Form.Item>
-                  </Col>
-                </Row>
+                      </div>
+                      {(() => {
+                        const chartData = getBarData(question, responses);
+                        const hasChartData = chartData.datasets[0].data.some(
+                          (count: number) => count > 0,
+                        );
+                        return hasChartData ? (
+                          <div className="w-full max-w-[600px]">
+                            {chartType === 'pie' ? (
+                              <Pie
+                                data={chartData}
+                                width={200}
+                                height={200}
+                                options={{ maintainAspectRatio: false }}
+                              />
+                            ) : (
+                              <Bar
+                                data={chartData}
+                                width={200}
+                                height={200}
+                                options={{
+                                  maintainAspectRatio: false,
+                                  indexAxis: 'y',
+                                  plugins: { legend: { display: false } },
+                                  scales: { x: { beginAtZero: true } },
+                                }}
+                              />
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-gray-400 text-sm mt-2">
+                            No valid responses for chart
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
               ))}
               <Pagination
                 className="flex justify-end"
-                total={data?.meta?.totalItems} // Total number of items
-                current={current} // Current page number
-                pageSize={pageSize} // Number of items per page
-                showSizeChanger={true} // Show option to change page size
-                onChange={onPageChange} // Handler for page change
-                onShowSizeChange={onPageChange} // Handler for page size change
+                total={individualResponses?.meta?.totalItems}
+                current={current}
+                pageSize={pageSize}
+                showSizeChanger={true}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
               />
             </>
           ) : (

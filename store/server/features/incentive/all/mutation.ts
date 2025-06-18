@@ -1,5 +1,6 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { requestHeader } from '@/helpers/requestHeader';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
@@ -13,12 +14,18 @@ const importData = async (data: any) => {
     data,
   });
 };
+const logUserId = useAuthenticationStore.getState().userId;
 
 const exportData = async (data: any) => {
   try {
+    const payload = {
+      ...data,
+      updatedBy: logUserId,
+      createdBy: logUserId,
+    };
     const response = await axios.post(
       `${INCENTIVE_URL}/incentives/export/incentive-data`,
-      data,
+      payload,
       {
         headers: {
           ...requestHeader(),

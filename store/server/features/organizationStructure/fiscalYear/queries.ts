@@ -54,14 +54,16 @@ export const useGetFiscalYearById = (id: string) =>
 
 export const useGetActiveFiscalYears = () => {
   const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
-    enabled: !!token,
+    enabled: token.length > 0 && tenantId.length > 0,
   });
 };
 
 export const useGetActiveFiscalYearsData = () => {
   const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
-    enabled: !!token,
+    enabled: token.length > 0 && tenantId.length > 0,
   });
 };

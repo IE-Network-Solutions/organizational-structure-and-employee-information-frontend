@@ -3,11 +3,6 @@ import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allo
 import { Button, Col, Input, Modal, Row, Select } from 'antd';
 import React from 'react';
 import { LuSettings2 } from 'react-icons/lu';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-import { useApprovalStore } from '@/store/uistate/features/approval';
-import { useRouter } from 'next/navigation';
-import { FaPlus } from 'react-icons/fa';
 
 const ApprovalFilterComponent = ({
   searchParams,
@@ -33,17 +28,10 @@ const ApprovalFilterComponent = ({
   const { Option } = Select;
   const { isMobileFilterVisible, setIsMobileFilterVisible } =
     useAllAllowanceStore();
-  const { setApproverType } = useApprovalStore();
-
-  const router = useRouter();
-  const handleNavigation = () => {
-    router.push('/timesheet/settings/approvals/workFlow');
-    setApproverType('');
-  };
 
   return (
     <Row gutter={16} justify="space-between">
-      <Col xl={18} lg={18} md={18} sm={16} xs={16}>
+      <Col xl={16} lg={16} md={16} sm={16} xs={18}>
         <Input
           id={`inputEmployeeNames${searchParams.name}`}
           placeholder="Search workflow name"
@@ -53,7 +41,7 @@ const ApprovalFilterComponent = ({
         />
       </Col>
 
-      <Col xl={6} lg={6} md={6} sm={8} xs={4}>
+      <Col xl={8} lg={8} md={8} sm={8} xs={6}>
         <Select
           id={`selectDepartment${searchParams.entityType}`}
           placeholder="Applied For"
@@ -76,20 +64,7 @@ const ApprovalFilterComponent = ({
           />
         </div>
       </Col>
-      <Col xl={18} lg={18} md={18} sm={16} xs={4}>
-        <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
-          <Button
-            title="Set Approval"
-            id="createUserButton"
-            className="h-10 w-10 sm:w-auto sm:hidden"
-            icon={<FaPlus />}
-            onClick={handleNavigation}
-            type="primary"
-          >
-            <span className="hidden sm:inline">Set Approval</span>
-          </Button>
-        </AccessGuard>
-      </Col>
+
       {/* Mobile Filter Drawer */}
       <Modal
         title="Filter Options"

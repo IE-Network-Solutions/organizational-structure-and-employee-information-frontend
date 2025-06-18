@@ -22,7 +22,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
   } = CategoriesManagementStore();
 
   const { data: employees } = useFetchUsers(searchUserParams?.user_name);
-  const { mutate: updateForm } = useUpdateForm();
+  const { mutate: updateForm, isLoading } = useUpdateForm();
 
   const { data: formDataByID } = useGetFormsByID(selectedFormId);
   const handleSubmit = async () => {
@@ -39,8 +39,17 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
     delete updatedData.surveyStartDate;
     delete updatedData.surveyEndDate;
     delete updatedData.users;
-    updateForm({ data: updatedData, id: selectedFormId });
-    setIsEditModalVisible(false);
+    updateForm(
+      { data: updatedData, id: selectedFormId },
+      {
+        onSuccess: () => {
+          setIsEditModalVisible(false);
+        },
+        onError: () => {
+          setIsEditModalVisible(false);
+        },
+      },
+    );
   };
 
   useEffect(() => {
@@ -50,8 +59,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
       surveyStartDate: dayjs(formDataByID?.startDate),
       surveyEndDate: dayjs(formDataByID?.endDate),
       isAnonymous: formDataByID?.isAnonymous,
-      formPermissions:
-        formDataByID?.formPermissions?.map((p: any) => p.userId) || [],
+      users: formDataByID?.formPermissions?.map((p: any) => p.userId) || [],
     };
 
     formInstance.setFieldsValue(formValues);
@@ -98,11 +106,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
             suffixIcon={<CalendarOutlined />}
           />
         </Form.Item>
-        <Form.Item
-          name="users"
-          label="Users"
-          rules={[{ required: true, message: 'Please select users!' }]}
-        >
+        <Form.Item name="users" label="Users">
           <Select mode="multiple" placeholder="Select users">
             {employees?.items.map((employee: any) => (
               <Option key={employee.id} value={employee.id}>
@@ -119,7 +123,7 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
           <Switch />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={isLoading}>
             Update Form
           </Button>
         </Form.Item>

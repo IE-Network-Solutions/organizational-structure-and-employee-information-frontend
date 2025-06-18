@@ -243,15 +243,24 @@ Process (initiated through admin panel):
 
    **}**
 
-   **current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
+<<<<<<< HEAD
+**current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
 
-   **current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
+**current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
 
-   **new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
+# **new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
 
-   **new_cost_for_remaining_days = new_plan_cost_for_full_period \* period_share**
+**current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
 
-   **additional_cost = new_cost_for_remaining_days - current_cost_for_remaining_days**
+**current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
+
+**new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
+
+> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
+
+**new_cost_for_remaining_days = new_plan_cost_for_full_period \* period_share**
+
+**additional_cost = new_cost_for_remaining_days - current_cost_for_remaining_days**
 
 4. Creates invoice in `subscription_module.invoices`:
 
@@ -771,48 +780,58 @@ Process is essentially the same as for updating
 
      **}**
 
-     **extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
+<<<<<<< HEAD
+**extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
+=======
+**extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
 
-   - If no planned plan change:
-     **plan = get_plan(current_subscription.planId)**
+> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
 
-     **planPeriod = get_plan_period(current_subscription.planPeriodId)**
+- If no planned plan change:
+  **plan = get_plan(current_subscription.planId)**
 
-     **// Determine effective slot price**
+  **planPeriod = get_plan_period(current_subscription.planPeriodId)**
 
-     **if (planPeriod.periodSlotPrice IS NOT NULL) {**
+  **// Determine effective slot price**
 
-     **if (planPeriod.periodSlotDiscountPrice IS NOT NULL) {**
+  **if (planPeriod.periodSlotPrice IS NOT NULL) {**
 
-     **slot_price = planPeriod.periodSlotDiscountPrice**
+  **if (planPeriod.periodSlotDiscountPrice IS NOT NULL) {**
 
-     **} else if (planPeriod.discountPercentage IS NOT NULL) {**
+  **slot_price = planPeriod.periodSlotDiscountPrice**
 
-     **slot_price = planPeriod.periodSlotPrice \* (1 - planPeriod.discountPercentage / 100)**
+  **} else if (planPeriod.discountPercentage IS NOT NULL) {**
 
-     **} else {**
+  **slot_price = planPeriod.periodSlotPrice \* (1 - planPeriod.discountPercentage / 100)**
 
-     **slot_price = planPeriod.periodSlotPrice**
+  **} else {**
 
-     **}**
+  **slot_price = planPeriod.periodSlotPrice**
 
-     **} else {**
+  **}**
 
-     **slot_price = plan.slotDiscountPrice !== null**
+  **} else {**
 
-     **? plan.slotDiscountPrice**
+  **slot_price = plan.slotDiscountPrice !== null**
 
-     **: plan.slotPrice**
+  **? plan.slotDiscountPrice**
 
-     **if (planPeriod.discountPercentage IS NOT NULL) {**
+  **: plan.slotPrice**
 
-     **slot_price = slot_price \* (1 - planPeriod.discountPercentage / 100)**
+  **if (planPeriod.discountPercentage IS NOT NULL) {**
 
-     **}**
+  **slot_price = slot_price \* (1 - planPeriod.discountPercentage / 100)**
 
-     **}**
+  **}**
 
-     **extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
+  **}**
+
+<<<<<<< HEAD
+**extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
+=======
+**extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
+
+> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
 
 4. System creates invoice for extension:
    - `tenantId` = client ID

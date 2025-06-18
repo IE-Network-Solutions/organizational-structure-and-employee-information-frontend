@@ -5,11 +5,13 @@ import { useDebounce } from '@/utils/useDebounce';
 import { Checkbox, Col, Input, Row } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import React from 'react';
+
 interface RenderOptionsProps {
   type: string;
   field: Array<Record<string, string>>;
   questionId: string;
   form: any;
+  isAnonymous?: boolean;
 }
 
 const RenderOptions: React.FC<RenderOptionsProps> = ({
@@ -17,6 +19,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
   field,
   questionId,
   form,
+  isAnonymous = false,
 }) => {
   const userId = useAuthenticationStore.getState().userId || null;
 
@@ -24,7 +27,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
   const handleSelection = (choice: Record<string, string>[]) => {
     setSelectedAnswer({
       questionId,
-      respondentId: userId,
+      respondentId: isAnonymous ? null : userId,
       responseDetail: choice,
     });
     form.setFieldsValue({
@@ -33,28 +36,43 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
   };
   const onValuesChange = useDebounce(handleSelection, 1500);
 
+  // Helper function to check if an answer is selected
+  const isAnswerSelected = (choice: Record<string, string>) => {
+    if (!selectedAnswer) return false;
+
+    for (const answer of selectedAnswer) {
+      // For anonymous forms, only check questionId
+      if (isAnonymous) {
+        if (answer.questionId === questionId) {
+          for (const detail of answer.responseDetail) {
+            if (detail.value === choice.value) {
+              return true;
+            }
+          }
+        }
+      } else {
+        // For non-anonymous forms, check both questionId and respondentId
+        if (
+          answer.questionId === questionId &&
+          answer.respondentId === userId
+        ) {
+          for (const detail of answer.responseDetail) {
+            if (detail.value === choice.value) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  };
+
   return (
     <div key={questionId}>
       {type === 'multiple_choice' && (
         <Row key={questionId} gutter={16} className="ml-1 mt-2">
           {field?.map((choice, index) => {
-            let isSelected = false;
-            if (selectedAnswer) {
-              for (const answer of selectedAnswer) {
-                for (const detail of answer.responseDetail) {
-                  if (
-                    detail.value === choice.value &&
-                    answer.questionId === questionId
-                  ) {
-                    isSelected = true;
-                    break;
-                  }
-                }
-                if (isSelected) {
-                  break;
-                }
-              }
-            }
+            const isSelected = isAnswerSelected(choice);
 
             return (
               <>
@@ -102,9 +120,12 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
         >
           <Row>
             {field?.map((choice, index) => {
+              const isSelected = isAnswerSelected(choice);
               return (
                 <Col span={24} key={index}>
-                  <Checkbox value={choice.value}>{choice.value}</Checkbox>
+                  <Checkbox value={choice.value} checked={isSelected}>
+                    {choice.value}
+                  </Checkbox>
                 </Col>
               );
             })}
@@ -128,7 +149,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
           </Col>
         </Row>
       )}
-      {type === FieldType.MULTIPLE_CHOICE && (
+      {type === FieldType.PARAGRAPH && (
         <Input.TextArea
           key={questionId}
           rows={5}
