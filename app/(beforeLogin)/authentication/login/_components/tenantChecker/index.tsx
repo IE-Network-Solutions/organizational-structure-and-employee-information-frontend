@@ -13,7 +13,6 @@ export const useTenantChecker = () => {
 
   const domainName = hostname?.split('.')[0];
   const isPwa = domainName === 'pwa';
-  console.log(isPwa, 'isPWA');
 
   // Only run the query if isPwa is true
   const { data: tenantInfo, refetch } = useGetTenantByDomain({
