@@ -3,18 +3,16 @@ import { Button, Select, Empty, Spin } from 'antd';
 import { HiPlus } from 'react-icons/hi';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
-import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   useGetDepartmentChild,
   useGetWeeklyPriorities,
   useGetWeeks,
 } from '@/store/server/features/okrplanning/weeklyPriority/queries';
 import TaskCard from '../taskCard';
+import CustomPagination from '@/components/customPagination';
 
 const Department: React.FC = () => {
   const {
-    addNewCard,
     data,
     setData,
     departmentId,
@@ -22,10 +20,12 @@ const Department: React.FC = () => {
     setWeekIds,
     weekIds,
     activeTab,
+    pageSize,
+    currentPage,
+    setCurrentPage,
+    setPageSize,
+    setModalOpen,
   } = useWeeklyPriorityStore();
-  const { userId } = useAuthenticationStore();
-  const { data: userInfo } = useGetEmployee(userId);
-  const userDepartmentId = userInfo?.employeeJobInformation[0]?.departmentId;
   const { data: Departments } = useGetUserDepartment();
   const { data: departmentChild } = useGetDepartmentChild(departmentId || '');
   const departmentIds = Array.isArray(departmentChild)
@@ -38,11 +38,18 @@ const Department: React.FC = () => {
         : []
       : departmentIds;
   const { data: weeklyPriority, isLoading: weeklyLoading } =
-    useGetWeeklyPriorities(departIds || [], weekIds || []);
+    useGetWeeklyPriorities(
+      departIds || [],
+      weekIds || [],
+      pageSize,
+      currentPage,
+    );
   const { data: weeks } = useGetWeeks();
+
   useEffect(() => {
     setData(weeklyPriority?.items || []);
   }, [weeklyPriority, activeTab]);
+
   return (
     <div style={{ padding: 20 }}>
       <div className="flex justify-between mb-5">
@@ -94,7 +101,7 @@ const Department: React.FC = () => {
           </Select>
         </div>
         <Button
-          onClick={() => addNewCard(userId, userDepartmentId)}
+          onClick={() => setModalOpen(true)}
           type="primary"
           icon={<HiPlus />}
         >
@@ -107,7 +114,22 @@ const Department: React.FC = () => {
             <Spin size="large" tip="Loading..." />
           </div>
         ) : data?.length ? (
-          <TaskCard />
+          <>
+            <TaskCard />
+            <CustomPagination
+              current={weeklyPriority?.meta?.currentPage || 1}
+              total={weeklyPriority?.meta?.totalItems || 1}
+              pageSize={pageSize}
+              onChange={(page, pageSize) => {
+                setCurrentPage(page);
+                setPageSize(pageSize);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         ) : (
           <Empty description="There is no weekly priority" />
         )}
