@@ -13,7 +13,6 @@ import {
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
 import axios from 'axios';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 // const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (

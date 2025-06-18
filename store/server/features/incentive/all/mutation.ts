@@ -1,6 +1,5 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { requestHeader } from '@/helpers/requestHeader';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
