@@ -1,17 +1,22 @@
 {
   "name": "Selamnew Workspace",
   "short_name": "Selamnew",
-  "description": "Enterprise Management System",
+  "description": "Enterprise Management System - Complete HR, Payroll, and Organizational Management Solution",
   "lang": "en-US",
   "dir": "auto",
   "start_url": "/",
   "id": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#1890ff",
   "theme_color": "#1890ff",
   "orientation": "portrait-primary",
-  "iarc_rating_id": "",
+  "iarc_rating_id": "E",
   "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
   "launch_handler": {
     "client_mode": [
       "navigate-existing",
@@ -44,10 +49,50 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [],
+  "splash_pages": null,
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "360x640",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "categories": [
     "business",
     "productivity"
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Access your main dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Employees",
+      "short_name": "Employees",
+      "description": "Manage employee information",
+      "url": "/employees",
+      "icons": [
+        {
+          "src": "/icons/192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ],
   "share_target": {
     "action": "/shared-content-receiver",
@@ -62,6 +107,23 @@
     {
       "protocol": "web+selam",
       "url": "/protocol-handler?protocol=%s"
+    }
+  ],
+  "handle_links": "preferred",
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+        "text/csv": [".csv"]
+      }
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.selamnew.workspace",
+      "id": "com.selamnew.workspace"
     }
   ]
 } 

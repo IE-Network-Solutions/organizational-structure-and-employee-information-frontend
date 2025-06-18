@@ -808,3 +808,195 @@ h6 {
     display: none !important;
   }
 }
+
+/* PWA Full Screen Mode - Hide Navigation Bar */
+@media (display-mode: standalone) {
+  /* Ensure full viewport usage */
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* Hide any browser UI */
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Fix viewport for mobile standalone */
+  #__next {
+    min-height: 100vh;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Remove any margin/padding from main container */
+  main {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+  }
+
+  /* Hide address bar on mobile browsers */
+  body {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+  }
+
+  /* Override body for better mobile experience */
+  @supports (-webkit-touch-callout: none) {
+    body {
+      /* iOS specific fixes */
+      height: -webkit-fill-available;
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  /* Hide any potential browser chrome */
+  .pwa-viewport {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+}
+
+/* PWA-specific splash screen styles */
+@media (display-mode: standalone) {
+  .pwa-splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 50%, #0050b3 100%);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: splashFadeIn 0.5s ease-out;
+  }
+
+  .pwa-splash-container.exiting {
+    animation: splashFadeOut 0.5s ease-in forwards;
+  }
+
+  .pwa-logo-animation {
+    transform: scale(0);
+    animation: logoScale 1s ease-out 0.3s forwards;
+  }
+
+  .pwa-text-animation {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: textSlideUp 0.8s ease-out 1s forwards;
+  }
+
+  .pwa-loading-animation {
+    margin-top: 2rem;
+    opacity: 0;
+    animation: loadingFadeIn 0.4s ease-out 1.5s forwards;
+  }
+
+  .pwa-loading-dots {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .pwa-loading-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: dotBounce 1.4s infinite ease-in-out;
+  }
+
+  .pwa-loading-dot:nth-child(1) { animation-delay: -0.32s; }
+  .pwa-loading-dot:nth-child(2) { animation-delay: -0.16s; }
+  .pwa-loading-dot:nth-child(3) { animation-delay: 0s; }
+
+  @keyframes splashFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes splashFadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.95); }
+  }
+
+  @keyframes logoScale {
+    from { transform: scale(0) rotate(-180deg); }
+    50% { transform: scale(1.1) rotate(-90deg); }
+    to { transform: scale(1) rotate(0deg); }
+  }
+
+  @keyframes textSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes loadingFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes dotBounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+}
+
+/* Mobile PWA optimizations */
+@media (display-mode: standalone) and (max-width: 768px) {
+  /* Ensure no margin/padding on mobile */
+  * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Fix for iOS PWA viewport */
+  @supports (-webkit-touch-callout: none) {
+    .viewport-height {
+      height: -webkit-fill-available;
+    }
+    
+    body {
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  /* Hide scrollbars in PWA mode */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Ensure proper PWA status bar styling */
+@media (display-mode: standalone) {
+  /* Status bar area styling */
+  .status-bar-safe {
+    padding-top: env(safe-area-inset-top, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Fix for notched devices */
+  @supports (padding: max(0px)) {
+    .status-bar-safe {
+      padding-top: max(env(safe-area-inset-top, 0), 20px);
+    }
+  }
+}

@@ -152,13 +152,35 @@ export default function RootLayout({
         {/* PWA Meta Tags */}
         <meta name="application-name" content="Selamnew Workspace" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
         <meta name="apple-mobile-web-app-title" content="Selamnew Workspace" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
         <meta name="msapplication-TileColor" content="#1890ff" />
         <meta name="msapplication-tap-highlight" content="no" />
+
+        {/* Additional PWA Meta Tags for Full Screen */}
+        <meta name="apple-touch-fullscreen" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="HandheldFriendly" content="true" />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="screen-orientation" content="portrait" />
+        <meta name="x5-orientation" content="portrait" />
+        <meta name="full-screen" content="yes" />
+        <meta name="x5-fullscreen" content="true" />
+        <meta name="browsermode" content="application" />
+        <meta name="x5-page-mode" content="app" />
+
+        {/* Prevent zoom and scrolling issues */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        />
 
         {/* Splash Screens */}
         <link
@@ -203,20 +225,22 @@ export default function RootLayout({
           content="/icons/manifest-icon-144.png"
         />
       </head>
-      <body className={manrope.className}>
-        <PWAProvider>
-          {/* <AuthProvider> */}
-          <ReactQueryWrapper>
-            <AntdRegistry>
-              <AntdConfigProvider>
-                <RecaptchaProvider>
-                  <ConditionalNav>{children}</ConditionalNav>
-                </RecaptchaProvider>
-              </AntdConfigProvider>
-            </AntdRegistry>
-          </ReactQueryWrapper>
-          {/* </AuthProvider> */}
-        </PWAProvider>
+      <body className={`${manrope.className} pwa-viewport`}>
+        <div className="status-bar-safe">
+          <PWAProvider>
+            {/* <AuthProvider> */}
+            <ReactQueryWrapper>
+              <AntdRegistry>
+                <AntdConfigProvider>
+                  <RecaptchaProvider>
+                    <ConditionalNav>{children}</ConditionalNav>
+                  </RecaptchaProvider>
+                </AntdConfigProvider>
+              </AntdRegistry>
+            </ReactQueryWrapper>
+            {/* </AuthProvider> */}
+          </PWAProvider>
+        </div>
       </body>
     </html>
   );

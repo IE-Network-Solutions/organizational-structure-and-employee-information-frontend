@@ -11,15 +11,14 @@ interface AnimatedSplashScreenProps {
 }
 
 export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
-  duration = 3000,
+  duration = 2500, // Reduced duration for better UX
   onComplete,
 }) => {
   const { isStandalone } = usePWA();
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [animationPhase, setAnimationPhase] = useState<
-    'enter' | 'pulse' | 'exit'
-  >('enter');
+  const [isExiting, setIsExiting] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false); // Prevent replay
 
   // Prevent hydration issues
   useEffect(() => {
@@ -27,61 +26,70 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
   }, []);
 
   useEffect(() => {
-    // Only show splash screen for PWA (standalone mode) and after mounting
-    if (isStandalone && isMounted) {
+    // Only show splash screen for PWA (standalone mode) and if not already played
+    if (isStandalone && isMounted && !hasPlayed) {
       setIsVisible(true);
+      setHasPlayed(true); // Mark as played to prevent replaying
 
-      // Animation phases
-      const enterTimer = setTimeout(() => {
-        setAnimationPhase('pulse');
-      }, 500);
-
+      // Start exit animation
       const exitTimer = setTimeout(() => {
-        setAnimationPhase('exit');
-      }, duration - 500);
+        setIsExiting(true);
+      }, duration - 500); // Start exit 500ms before complete
 
+      // Complete and hide
       const completeTimer = setTimeout(() => {
         setIsVisible(false);
         onComplete?.();
       }, duration);
 
       return () => {
-        clearTimeout(enterTimer);
         clearTimeout(exitTimer);
         clearTimeout(completeTimer);
       };
     }
-  }, [isStandalone, isMounted, duration, onComplete]);
+  }, [isStandalone, isMounted, duration, onComplete, hasPlayed]);
 
-  // Don't render anything until mounted and in standalone mode
-  if (!isMounted || !isVisible || !isStandalone) {
+  // Don't render if not mounted, not standalone, already played, or not visible
+  if (!isMounted || !isStandalone || (hasPlayed && !isVisible) || !isVisible) {
     return null;
   }
 
   return (
-    <div className={`${styles.splashScreen} ${styles[animationPhase]}`}>
+    <div
+      className={`${styles.splashScreen} ${isExiting ? styles.exiting : ''}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 10000,
+      }}
+    >
+      {/* Floating background elements - no repeat */}
+      <div className={styles.floating} />
+      <div className={styles.floating} />
+      <div className={styles.floating} />
+      <div className={styles.floating} />
+
       <div className={styles.splashContent}>
+        {/* Logo with single play animation */}
         <div className={styles.logoContainer}>
           <SimpleLogo />
         </div>
-        <div className={styles.appName}>
-          <h1>Selamnew Workspace</h1>
-          <p>Redefining Work Culture</p>
-        </div>
-        <div className={styles.loadingIndicator}>
-          <div className={styles.loadingDots}>
-            <div className={styles.dot}></div>
-            <div className={styles.dot}></div>
-            <div className={styles.dot}></div>
-          </div>
-        </div>
-      </div>
 
-      {/* Background Animation */}
-      <div className={styles.splashBackground}>
-        <div className={`${styles.floatingCircle} ${styles.circle1}`}></div>
-        <div className={`${styles.floatingCircle} ${styles.circle2}`}></div>
-        <div className={`${styles.floatingCircle} ${styles.circle3}`}></div>
+        {/* App name with single play animation */}
+        <div className={styles.appName}>
+          <h1>Selamnew</h1>
+          <p>Workspace</p>
+        </div>
+
+        {/* Loading dots with single play animation */}
+        <div className={styles.loadingDots}>
+          <div className={styles.dot} />
+          <div className={styles.dot} />
+          <div className={styles.dot} />
+        </div>
       </div>
     </div>
   );
