@@ -12,6 +12,7 @@ type NewUserData = {
   balance: number | null;
   carriedOver: number | null;
   totalBalance: number | null;
+  utilizedLeave: number | null;
 };
 
 const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
@@ -41,10 +42,9 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
 };
 
 const LeaveBalanceTable: React.FC = () => {
-  const { userId, leaveTypeId } = useLeaveBalanceStore();
+  const { selectedUserId, leaveTypeId } = useLeaveBalanceStore();
   const { data: leaveBalanceData, isLoading: leaveBalanceIsLoading } =
-    useGetLeaveBalance(userId, leaveTypeId);
-
+    useGetLeaveBalance(selectedUserId, leaveTypeId);
   const columns: TableColumnsType<NewUserData> = [
     {
       title: 'Leave Name',
@@ -71,6 +71,11 @@ const LeaveBalanceTable: React.FC = () => {
       dataIndex: 'totalBalance',
       key: 'totalBalance',
     },
+    {
+      title: 'Utilized Leave',
+      dataIndex: 'utilizedLeave',
+      key: 'utilizedLeave',
+    },
   ];
 
   const dataSource =
@@ -81,6 +86,7 @@ const LeaveBalanceTable: React.FC = () => {
       balance: item?.balance || 0,
       carriedOver: item?.carriedOver || 0,
       totalBalance: item?.totalBalance || 0,
+      utilizedLeave: item?.utilizedLeave || 0,
     })) || [];
 
   return (
@@ -94,7 +100,7 @@ const LeaveBalanceTable: React.FC = () => {
         dataSource={dataSource}
         loading={leaveBalanceIsLoading}
         locale={{
-          emptyText: userId ? undefined : <h3>Please Select User</h3>,
+          emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
         }}
       />
     </>

@@ -8,7 +8,7 @@ import {
   FileImageFilled,
   FileDoneOutlined,
 } from '@ant-design/icons';
-import { Card, Checkbox, Skeleton, Tooltip } from 'antd';
+import { Button, Card, Checkbox, Skeleton, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -229,7 +229,10 @@ const AdminDashboard = () => {
     currenciesLoading ||
     subscriptionsLoading;
   const hasSelectedPlan = !!currentPlan;
-
+  const activeSubscriptionData = subscriptionsData?.items?.find(
+    (sub) => sub.isActive === true,
+  );
+  
   return (
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb
@@ -316,19 +319,21 @@ const AdminDashboard = () => {
             }}
           >
             {(plansWithSameCurrency ?? []).length > 0 ? (
-              (plansWithSameCurrency ?? []).map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`flex flex-col justify-between gap-2 rounded-lg p-4
-    ${plan.id === currentPlan?.id ? 'md:min-w-[335px]' : 'md:min-w-[435px]'}
-    min-h-[571px] w-full md:w-auto bg-white`}
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between text-lg font-extrabold mb-2">
-                      <span>{plan.name}</span>
-                      <div>
-                        {' '}
-                        {/* {plan.id === currentPlan?.id && (
+              (plansWithSameCurrency ?? [])
+                ?.filter((plan) => plan.isFree == false)
+                .map((plan) => (
+                  <div
+                    key={plan.id}
+                    className={`flex flex-col justify-between gap-2 rounded-lg p-4
+    ${plan.id === currentPlan?.id ? 'md:min-w-[542px]' : 'md:min-w-[435px] bg-white'}
+    min-h-[571px] w-full md:w-auto `}
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-between text-lg font-extrabold mb-2">
+                        <span>{plan.name}</span>
+                        <div>
+                          {' '}
+                          {/* {plan.id === currentPlan?.id && (
                             <div className="text-sm rounded-lg bg-white font-bold p-2">
                               Renews in{' '}
                               <span
@@ -342,147 +347,181 @@ const AdminDashboard = () => {
                               </span>
                             </div>
                           )} */}
-                        {activeSubscription && plan.id === currentPlan?.id && (
-                          <div className="text-sm rounded-lg bg-white font-bold p-2 ">
-                            Expires in{' '}
-                            <span
-                              className={
-                                new Date(
-                                  activeSubscription.trialEndAt &&
-                                  activeSubscription.isTrial
-                                    ? activeSubscription.trialEndAt
-                                    : activeSubscription.endAt,
-                                ).getTime() -
-                                  Date.now() <
-                                10 * 24 * 60 * 60 * 1000 // Less than 10 days
-                                  ? 'text-red-500'
-                                  : 'text-green-500'
-                              }
-                            >
-                              {Math.ceil(
-                                (new Date(
-                                  activeSubscription.trialEndAt &&
-                                  activeSubscription.isTrial
-                                    ? activeSubscription.trialEndAt
-                                    : activeSubscription.endAt,
-                                ).getTime() -
-                                  Date.now()) /
-                                  (24 * 60 * 60 * 1000),
-                              )}{' '}
-                              days
-                            </span>
+                          {activeSubscription &&
+                            plan.id === currentPlan?.id && (
+                              <div className="text-sm rounded-lg bg-white font-bold p-2 ">
+                                Expires in{' '}
+                                <span
+                                  className={
+                                    new Date(
+                                      activeSubscription.trialEndAt &&
+                                      activeSubscription.isTrial
+                                        ? activeSubscription.trialEndAt
+                                        : activeSubscription.endAt,
+                                    ).getTime() -
+                                      Date.now() <
+                                    10 * 24 * 60 * 60 * 1000 // Less than 10 days
+                                      ? 'text-red-500'
+                                      : 'text-green-500'
+                                  }
+                                >
+                                  {Math.ceil(
+                                    (new Date(
+                                      activeSubscription.trialEndAt &&
+                                      activeSubscription.isTrial
+                                        ? activeSubscription.trialEndAt
+                                        : activeSubscription.endAt,
+                                    ).getTime() -
+                                      Date.now()) /
+                                      (24 * 60 * 60 * 1000),
+                                  )}{' '}
+                                  days
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      </div>
+                      {!plan.isFree && (
+                        <div className="flex gap-5 items-center">
+                          <div>
+                            <div className="text-5xl font-bold">
+                              {plan.currency.symbol}
+                              {plan.id === currentPlan?.id
+                                ? plan.periods?.find(
+                                    (period) =>
+                                      period.id ==
+                                      activeSubscriptionData?.planPeriodId,
+                                  )?.periodSlotPrice
+                                : plan.slotPrice}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              per user billed annually
+                            </div>
                           </div>
-                        )}
+                          <div>
+                            {plan.periods
+                              ?.filter(
+                                (period) =>
+                                  period.id !=
+                                  activeSubscriptionData?.planPeriodId,
+                              )
+                              ?.map((period,index) => (
+                                <div
+                                  key={index}
+                                  className={`text-sm rounded-lg font-bold p-2 my-2  ${plan.id === currentPlan?.id ? 'bg-white' : 'bg-purple/10'} w-fit`}
+                                >
+                                  {plan.currency.symbol}
+                                  {period.periodSlotPrice}/
+                                  {period?.periodType?.code}
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="mt-8 mb-6 font-bold">
+                        Get in depth with our system
+                      </div>
+                      <div className="flex flex-col gap-5">
+                        {plan.planDetails &&
+                          plan.planDetails.map((detail, index) => (
+                            <div key={index} className="flex gap-2 font-bold">
+                              <Checkbox checked={true} />
+                              <span>{detail}</span>
+                            </div>
+                          ))}
                       </div>
                     </div>
-                    {!plan.isFree && (
-                      <>
-                        <div className="text-5xl font-bold">
-                          {plan.currency.symbol}
-                          {plan.slotPrice}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          per user billed annually
-                        </div>
-                      </>
-                    )}
-                    <div className="mt-8 mb-6 font-bold">
-                      Get in depth with our system
-                    </div>
-                    <div className="flex flex-col gap-5">
-                      {plan.planDetails &&
-                        plan.planDetails.map((detail, index) => (
-                          <div key={index} className="flex gap-2 font-bold">
-                            <Checkbox checked={true} />
-                            <span>{detail}</span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                  {plan.id === currentPlan?.id ? (
-                    <div className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
-                      {plan.isFree !== true && (
-                        <Tooltip
-                          title={
-                            !isLatestInvoicePaid() ? getDisabledTooltip() : ''
-                          }
-                          placement="bottom"
-                        >
-                          <span className="w-full md:w-auto">
-                            <CustomButton
-                              title="Update User Quota"
-                              onClick={() =>
-                                router.push('/admin/plan?source=quota')
-                              }
-                              className="text-center flex justify-center items-center w-full"
-                              type="default"
-                              disabled={!isLatestInvoicePaid()}
-                            />
-                          </span>
-                        </Tooltip>
-                      )}
-                      {plan.isFree !== true && (
-                        <Tooltip
-                          title={
-                            !isLatestInvoicePaid() ? getDisabledTooltip() : ''
-                          }
-                          placement="bottom"
-                        >
-                          <span className="w-full md:w-auto">
-                            <CustomButton
-                              title="Update Subscription Period"
-                              onClick={() =>
-                                router.push('/admin/plan?source=period&step=1')
-                              }
-                              className="text-center flex justify-center items-center w-full"
-                              type="default"
-                              disabled={!isLatestInvoicePaid()}
-                            />
-                          </span>
-                        </Tooltip>
-                      )}
-                      {plan.isFree !== true && (
-                        <CustomButton
-                          title="Pay Next Bill"
-                          onClick={() =>
-                            router.push(
-                              `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
-                            )
-                          }
-                          className="text-center flex justify-center items-center w-full md:w-auto"
-                          type="default"
-                        />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex justify-center mt-8">
-                      <Tooltip
-                        title={
-                          !isLatestInvoicePaid() ? getDisabledTooltip() : ''
-                        }
-                        placement="bottom"
-                      >
-                        <span className="w-full">
-                          <CustomButton
+                    {plan.id === currentPlan?.id ? (
+                      <div className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4">
+                        {plan.isFree !== true && (
+                          <Tooltip
                             title={
-                              hasSelectedPlan &&
-                              plan.slotPrice < Number(currentPlan?.slotPrice)
-                                ? 'Downgrade Plan'
-                                : 'Upgrade Plan'
+                              !isLatestInvoicePaid() ? getDisabledTooltip() : ''
                             }
-                            onClick={() =>
-                              router.push(`/admin/plan?planId=${plan.id}`)
+                            placement="bottom"
+                          >
+                            <span className="w-full md:w-auto">
+                              <Button
+                                onClick={() =>
+                                  router.push('/admin/plan?source=quota')
+                                }
+                                className="h-8 rounded-lg w-full px-2 h-8"
+                                type="default"
+                                disabled={!isLatestInvoicePaid()}
+                              >
+                                Update User Quota
+                              </Button>
+                            </span>
+                          </Tooltip>
+                        )}
+                        {plan.isFree !== true && (
+                          <Tooltip
+                            title={
+                              !isLatestInvoicePaid() ? getDisabledTooltip() : ''
                             }
-                            className="w-full text-center flex justify-center items-center"
-                            type="primary"
-                            disabled={!isLatestInvoicePaid()}
-                          />
-                        </span>
-                      </Tooltip>
-                    </div>
-                  )}
-                </div>
-              ))
+                            placement="bottom"
+                          >
+                            <span className="w-full md:w-auto">
+                              <Button
+                                onClick={() =>
+                                  router.push(
+                                    '/admin/plan?source=period&step=1',
+                                  )
+                                }
+                                className="h-8 rounded-lg w-full px-2 h-8"
+                                type="default"
+                                disabled={!isLatestInvoicePaid()}
+                              >
+                                Update Subscription Period
+                              </Button>
+                            </span>
+                          </Tooltip>
+                        )}
+                        {plan.isFree !== true && (
+                          <span className="w-full md:w-auto">
+                            <Button
+                              onClick={() =>
+                                router.push(
+                                  `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
+                                )
+                              }
+                              className="h-8 rounded-lg w-full px-2 h-8"
+                              type="default"
+                            >
+                              Pay Next Bill
+                            </Button>
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex justify-center mt-8">
+                        <Tooltip
+                          title={
+                            !isLatestInvoicePaid() ? getDisabledTooltip() : ''
+                          }
+                          placement="bottom"
+                        >
+                          <span className="w-full">
+                            <CustomButton
+                              title={
+                                hasSelectedPlan &&
+                                plan.slotPrice < Number(currentPlan?.slotPrice)
+                                  ? 'Downgrade Plan'
+                                  : 'Upgrade Plan'
+                              }
+                              onClick={() =>
+                                router.push(`/admin/plan?planId=${plan.id}`)
+                              }
+                              className="w-full text-center flex justify-center items-center"
+                              type="primary"
+                              disabled={!isLatestInvoicePaid()}
+                            />
+                          </span>
+                        </Tooltip>
+                      </div>
+                    )}
+                  </div>
+                ))
             ) : (
               <div className="w-full py-10 text-center">
                 <p className="text-gray-500 text-lg">

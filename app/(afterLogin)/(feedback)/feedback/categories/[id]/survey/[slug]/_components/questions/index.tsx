@@ -13,6 +13,11 @@ import { Pencil, Trash2 } from 'lucide-react';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import EditQuestion from './editQuestions';
 import { useDeleteQuestions } from '@/store/server/features/feedback/question/mutation';
+import CustomButton from '@/components/common/buttons/customButton';
+import { PlusOutlined } from '@ant-design/icons';
+import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import Question from '../../../../_components/questions';
 
 interface Params {
   id: string;
@@ -41,6 +46,9 @@ const FIELD_TYPE_COLORS: Record<string, string> = {
 };
 
 const Questions = ({ id }: Params) => {
+
+  const {setIsDrawerOpen} = useDynamicFormStore();
+  const {setSelectedFormId} = CategoriesManagementStore();
   const {
     current,
     setCurrent,
@@ -78,7 +86,10 @@ const Questions = ({ id }: Params) => {
     setIsDeleteModalOpen(false);
     deleteQuestion(deleteItemId);
   };
-
+  const showQuestionDrawer = (formId: string) => {
+    setIsDrawerOpen(true);
+    setSelectedFormId(formId);
+  };
   return (
     <div className="bg-white h-auto w-full p-4">
       <Form
@@ -88,6 +99,14 @@ const Questions = ({ id }: Params) => {
         style={{ width: '100%' }}
       >
         <>
+
+        <CustomButton
+            title="Create New Question"
+            id="createQuestionButton"
+            icon={<PlusOutlined className="mr-2" />}
+            onClick={()=>{showQuestionDrawer(id)}}
+            className="bg-blue-600 hover:bg-blue-700"
+          />  
           {questionsData && questionsData?.meta?.totalPages !== 0 ? (
             questionsData?.items?.map((q: QuestionsType) => (
               <Row gutter={16} key={q.id}>
@@ -206,6 +225,7 @@ const Questions = ({ id }: Params) => {
         onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
       />
+      <Question selectedFormId={id} onClose={() => setIsDrawerOpen(false)} />
     </div>
   );
 };
