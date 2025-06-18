@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { InstallPrompt } from '@/components/PWA/InstallPrompt';
 import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
+import { AnimatedSplashScreen } from '@/components/PWA/AnimatedSplashScreen';
 
 interface PWAProviderProps {
   children: React.ReactNode;
   enableInstallPrompt?: boolean;
   enableOfflineIndicator?: boolean;
   autoShowInstallPrompt?: boolean;
+  enableAnimatedSplash?: boolean;
+  splashDuration?: number;
 }
 
 export const PWAProvider: React.FC<PWAProviderProps> = ({
@@ -16,7 +19,11 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
   enableInstallPrompt = true,
   enableOfflineIndicator = true,
   autoShowInstallPrompt = true,
+  enableAnimatedSplash = true,
+  splashDuration = 3000,
 }) => {
+  const [showMainContent, setShowMainContent] = useState(false);
+
   useEffect(() => {
     // Register service worker (enable in both dev and production for PWA testing)
     if ('serviceWorker' in navigator) {
@@ -89,10 +96,18 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 
     document.addEventListener('touchend', preventZoom, { passive: false });
 
+    // Show main content immediately if not in standalone mode or splash is disabled
+    const isStandalone = window.matchMedia(
+      '(display-mode: standalone)',
+    ).matches;
+    if (!isStandalone || !enableAnimatedSplash) {
+      setShowMainContent(true);
+    }
+
     return () => {
       document.removeEventListener('touchend', preventZoom);
     };
-  }, []);
+  }, [enableAnimatedSplash]);
 
   // Handle beforeunload for desktop apps
   useEffect(() => {
@@ -137,9 +152,31 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleSplashComplete = () => {
+    setShowMainContent(true);
+  };
+
   return (
     <>
-      {children}
+      {/* Animated Splash Screen for PWA */}
+      {enableAnimatedSplash && (
+        <AnimatedSplashScreen
+          duration={splashDuration}
+          onComplete={handleSplashComplete}
+        />
+      )}
+
+      {/* Main App Content */}
+      <div
+        style={{
+          opacity: showMainContent ? 1 : 0,
+          transition: showMainContent ? 'opacity 0.3s ease-in' : 'none',
+        }}
+      >
+        {children}
+      </div>
+
+      {/* PWA Components */}
       {enableInstallPrompt && (
         <InstallPrompt autoShow={autoShowInstallPrompt} />
       )}
