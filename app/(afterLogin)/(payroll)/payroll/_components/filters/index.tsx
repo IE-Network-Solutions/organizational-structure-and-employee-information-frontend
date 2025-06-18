@@ -9,7 +9,7 @@ import {
 import dayjs from 'dayjs';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
 const { Option } = Select;
 
@@ -37,12 +37,16 @@ const Filters: React.FC<FiltersProps> = ({
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: departmentData } = useGetDepartments();
-
-  const { pageSize, currentPage } = usePayrollStore();
-  const { data: payroll } = useGetActivePayroll('', pageSize, currentPage);
+  const { searchQuery, pageSize, currentPage } = useEmployeeStore();
+  const { data: payroll } = useGetActivePayroll(
+    searchQuery,
+    pageSize,
+    currentPage,
+  );
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({
     ...defaultValues,
   });
+
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
