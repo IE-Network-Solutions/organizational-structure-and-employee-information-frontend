@@ -58,7 +58,7 @@ const PlanPage = () => {
     true,
     true,
   );
-
+  console.log({ currentPlan, activeSubscription, updatedQuota }, 'currentPlan');
   // Fetch plans
   const { data: plansData, isLoading: isPlansLoading } = useGetPlans(
     { filter: {} },
@@ -265,7 +265,7 @@ const PlanPage = () => {
       const dto: CalculateSubscriptionPriceDto = {
         planId: currentPlan.id,
         planPeriodId: selectedPlanPeriod.id,
-        slotTotal: updatedQuota,
+        slotTotal: updatedQuota - (activeSubscription?.slotTotal || 0),
         ...(activeSubscription
           ? { subscriptionId: activeSubscription.id }
           : {}),
@@ -896,13 +896,29 @@ const PlanPage = () => {
                     <span>{updatedPeriod || currentPeriodType?.code}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span>Number of User Quota</span>
+                    <span>Current User Quota</span>
+                    <span>{activeSubscription?.slotTotal || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
+                    <span>New User Quota</span>
+                    <span>
+                      {(updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
+                    <span>Number of Total User Quota</span>
                     <span>
                       {updatedQuota || activeSubscription?.slotTotal || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
-                    <span>Total Amount</span>
+                    <span>
+                      Total Amount for{' '}
+                      {(updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)}{' '}
+                      User Quota
+                    </span>
                     <span>
                       {calculationResult
                         ? `${currentPlan?.currency?.symbol || '$'}${calculationResult.totalAmount.toFixed(2)}`
