@@ -38,7 +38,6 @@ const Filters: React.FC<FiltersProps> = ({
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: departmentData } = useGetDepartments();
   const { searchQuery, pageSize, currentPage } = useEmployeeStore();
-
   const { data: payroll } = useGetActivePayroll(
     searchQuery,
     pageSize,
