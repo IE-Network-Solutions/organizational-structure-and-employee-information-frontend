@@ -7,7 +7,7 @@ import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const logUserId = useAuthenticationStore.getState().userId;
+// const logUserId = useAuthenticationStore.getState().userId;
 
 type DepartmentData = {
   id: string;
@@ -71,8 +71,8 @@ const getWeeklyPriority = async (
         weeklyPriorityWeekId: weeklyId,
         taskId: [],
         planId: [],
-        updatedBy: logUserId,
-        createdBy: logUserId,
+        // updatedBy: logUserId,
+        // createdBy: logUserId,
       }, // This is the request body
       {
         headers: {
