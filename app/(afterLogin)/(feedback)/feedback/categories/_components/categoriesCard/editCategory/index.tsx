@@ -10,7 +10,10 @@ interface EditCategoryModalProps {
 
 const { Option } = Select;
 
-const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
+
+const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
+  
+}) => {
   const [form] = Form.useForm();
   const {
     editModal,
@@ -24,8 +27,9 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
   const { data: users, isLoading: usersLoading } = useFetchUsers(
     searchParams?.category_name,
   );
-  const { mutateAsync: updateCategory, isLoading: isUpdatingCategory } =
-    useUpdateFormCategory();
+
+  const { mutateAsync: updateCategory, isLoading: isUpdatingCategory } = useUpdateFormCategory();
+
 
   React.useEffect(() => {
     if (editingCategory) {
@@ -47,37 +51,30 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
         ...values,
         users: selectedUsers,
       };
-      const editingCategory =
-        CategoriesManagementStore.getState().editingCategory;
-      if (editingCategory) {
-        updateCategory(
-          {
-            id: editingCategory.id,
-            data: {
-              name: adjustedValues.name,
-              description: adjustedValues.description,
-              users: adjustedValues.users,
-            },
-          },
-          {
-            onSuccess: () => {
-              form.resetFields();
-              setEditModal(false);
-              setEditingCategory(null);
-            },
-          },
-        );
-      }
+
+      const editingCategory = CategoriesManagementStore.getState().editingCategory;
+    if (editingCategory) {
+      updateCategory({
+        id: editingCategory.id,
+        data: {
+          name: adjustedValues.name,
+          description: adjustedValues.description,
+          users: adjustedValues.users,
+        },
+      }, {
+        onSuccess: () => {
+          form.resetFields();
+          setEditModal(false);
+          setEditingCategory(null);
+        },
+      });
+    }
     });
   };
 
   return (
-    <Modal
-      title="Edit Category"
-      open={editModal}
-      footer={null}
-      onCancel={handleCancel}
-    >
+
+    <Modal title="Edit Category" open={editModal} footer={null} onCancel={handleCancel}>
       <Form form={form} layout="vertical" initialValues={editingCategory}>
         <Form.Item
           name="name"
@@ -116,14 +113,8 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
           </Select>
         </Form.Item>
         <Form.Item className="flex justify-end w-full gap-3">
-          <Button onClick={handleCancel} className="mr-3">
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            loading={isUpdatingCategory}
-            onClick={handleOk}
-          >
+          <Button onClick={handleCancel} className='mr-3'>Cancel</Button>
+          <Button type="primary" loading={isUpdatingCategory} onClick={handleOk}>
             Submit
           </Button>
         </Form.Item>
