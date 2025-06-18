@@ -7,13 +7,27 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 
 export const usePasswordReset = () => {
   return useMutation(
-    async (email: string) => {
+    async ({
+      email,
+      loginTenantId,
+    }: {
+      email: string;
+      loginTenantId: string;
+    }) => {
       const domainName = window.location.hostname;
       const dynamicLink = `https://${domainName}/authentication/reset-password`;
+
+      if (!loginTenantId || loginTenantId.length <= 0) {
+        NotificationMessage.error({
+          message: 'This tenant is unknown.',
+        });
+        throw new Error('Missing tenant ID'); // Needed to prevent mutation from continuing
+      }
 
       const values = {
         email: email,
         url: dynamicLink,
+        loginTenantId: loginTenantId,
       };
 
       const response = await crudRequest({
