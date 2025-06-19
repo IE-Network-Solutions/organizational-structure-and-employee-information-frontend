@@ -16,7 +16,7 @@ import {
 } from '@/types/tna/tna';
 import {
   useCurrency,
-  useGetTna,
+  useGetTnaById,
 } from '@/store/server/features/tna/review/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
@@ -36,9 +36,10 @@ const TnaRequestSidebar = () => {
     monthId,
     sessionId,
     yearId,
-    searchQuery,
     setSearchQuery,
     tnaId,
+    tnaData,
+    setData,
     setTnaId,
   } = useTnaReviewStore();
   const { userId } = useAuthenticationStore();
@@ -48,7 +49,11 @@ const TnaRequestSidebar = () => {
 
   const { data: tnaCurrency } = useCurrency();
   const { data: tnaCategoryData } = useGetTnaCategory({});
-
+  const {
+    data: singleTnaData,
+    refetch: refetchSingleTna,
+    isFetching: isTnaFetching,
+  } = useGetTnaById(tnaId || '');
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
     useAllApproval(
       employeeData?.employeeJobInformation?.[0]?.departmentId || '',
@@ -70,36 +75,17 @@ const TnaRequestSidebar = () => {
   }, [userId]);
 
   const { mutate: setTna, isLoading } = useSetTna();
-  const {
-    data: tnaData,
-    isFetching,
-    refetch,
-  } = useGetTna(
-    {
-      page: 1,
-      limit: 1,
-    },
-    {
-      filter: {
-        id: tnaId ? [tnaId] : [],
-      },
-    },
-    searchQuery,
-    true,
-    true,
-  );
 
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (tnaId) {
-      refetch();
+      refetchSingleTna();
     }
   }, [tnaId]);
-
   useEffect(() => {
-    if (tnaData?.items?.[0] && tnaId !== null) {
-      const formData = tnaData.items[0];
+    if (singleTnaData && tnaId !== null) {
+      const formData = singleTnaData;
 
       const formattedData = {
         title: formData.title || '',
@@ -117,7 +103,7 @@ const TnaRequestSidebar = () => {
     } else {
       form.resetFields();
     }
-  }, [tnaData, form, fiscalYearData]);
+  }, [singleTnaData, fiscalYearData, tnaId]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -125,7 +111,7 @@ const TnaRequestSidebar = () => {
       key: 'cancel',
       className: 'h-12',
       size: 'large',
-      loading: isLoading || isFetching,
+      loading: isLoading || isTnaFetching,
       onClick: () => onClose(),
     },
     {
@@ -137,7 +123,7 @@ const TnaRequestSidebar = () => {
       className: 'h-12',
       type: 'primary',
       size: 'large',
-      loading: isLoading || isFetching,
+      loading: isLoading || isTnaFetching,
       onClick: () => form.submit(),
       disabled:
         approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
@@ -151,7 +137,7 @@ const TnaRequestSidebar = () => {
     const finalValues = { ...value, monthId, yearId, sessionId };
 
     // Extract `trainingNeedCategory`, keep `otherData`
-    const { ...otherData } = tnaData?.items?.[0] || {};
+    const { ...otherData } = singleTnaData || {};
 
     const dataValue: any = [
       {
@@ -161,8 +147,9 @@ const TnaRequestSidebar = () => {
         status: TrainingNeedAssessmentStatus.PENDING,
 
         assignedUserId: userId,
-        approvalWorkflowId:
-          approvalUserData?.length > 0
+        approvalWorkflowId: otherData?.approvalWorkflowId
+          ? otherData?.approvalWorkflowId
+          : approvalUserData?.length > 0
             ? approvalUserData[0]?.id
             : approvalDepartmentData?.[0]?.id,
       },
@@ -192,6 +179,7 @@ const TnaRequestSidebar = () => {
 
   const onClose = () => {
     setTnaId(null);
+    setData(null);
     form.resetFields();
     setIsShowTnaReviewSidebar(false);
   };
@@ -209,7 +197,7 @@ const TnaRequestSidebar = () => {
       ? `?${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
-    refetch();
+    refetchSingleTna();
   };
 
   return (
@@ -234,7 +222,7 @@ const TnaRequestSidebar = () => {
           layout="vertical"
           form={form}
           className="p-2"
-          disabled={isLoading || isFetching}
+          disabled={isLoading || isTnaFetching}
           onFinish={onFinish}
           requiredMark={CustomLabel}
         >
@@ -251,12 +239,12 @@ const TnaRequestSidebar = () => {
             onSearch={handleSearch}
             disable={['name', 'payPeriod']}
             defaultValues={
-              tnaData?.items?.[0]
+              tnaData
                 ? {
-                    yearId: tnaData.items[0].yearId,
-                    sessionId: tnaData.items[0].sessionId,
-                    monthId: tnaData.items[0].monthId,
-                    departmentId: tnaData.items[0].departmentId,
+                    yearId: tnaData?.yearId,
+                    sessionId: tnaData.sessionId,
+                    monthId: tnaData.monthId,
+                    departmentId: tnaData.departmentId,
                   }
                 : undefined
             }
