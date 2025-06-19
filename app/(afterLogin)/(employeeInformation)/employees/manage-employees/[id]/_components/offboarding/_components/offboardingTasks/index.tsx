@@ -13,10 +13,7 @@ import {
   useDeleteOffboardingItem,
   useUpdateOffboardingItem,
 } from '@/store/server/features/employees/offboarding/mutation';
-import {
-  useFetchOffboardingTasks,
-  useFetchUserTerminationByUserId,
-} from '@/store/server/features/employees/offboarding/queries';
+import { useFetchOffboardingTasks } from '@/store/server/features/employees/offboarding/queries';
 import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EmptyImage } from '@/components/emptyIndicator';
@@ -82,7 +79,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
 
   const { mutate: offboardingTaskDelete } = useDeleteOffboardingItem();
 
-  const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
   const {
     data: offboardingTasks,
     isLoading,
@@ -106,8 +102,8 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading tasks</div>;
 
-  const resignationSubmittedDate = employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
-
+  const resignationSubmittedDate =
+    employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
 
   return (
     <div className="p-2 max-h-[418px] overflow-y-scroll">

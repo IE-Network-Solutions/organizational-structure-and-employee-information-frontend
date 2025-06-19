@@ -14,9 +14,7 @@ import { useFetchUserTerminationByUserId } from '@/store/server/features/employe
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useRouter } from 'next/navigation';
-import { useAddOffboardingItem } from '@/store/server/features/employees/offboarding/mutation';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import dayjs from 'dayjs';
 import { useResignedEmployee } from '@/store/server/features/employees/offboarding/mutation';
 
 interface Params {
@@ -32,16 +30,11 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const { setIsEmploymentFormVisible } = useOffboardingStore();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
   const { data: employeeData } = useGetEmployee(id);
-  const { mutate: createOffboardingItem } = useAddOffboardingItem();
 
+  const { mutate: sendResignationID } = useResignedEmployee();
 
-const jobInformationId = employeeData?.employeeJobInformation[0]?.id;
-const { mutate: sendResignationID } = useResignedEmployee();
-console.log(employeeData,"employeeData");
-
- 
   const handleEndEmploymentClick = () => {
-    setIsEmploymentFormVisible(true)
+    setIsEmploymentFormVisible(true);
   };
 
   const handleConfirmResignation = (resignationId: string) => {
@@ -52,9 +45,8 @@ console.log(employeeData,"employeeData");
     });
   };
 
- 
-  const resignationSubmittedDate = employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
-
+  const resignationSubmittedDate =
+    employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
 
   const handleGoBack = () => {
     router.back();
@@ -106,48 +98,41 @@ console.log(employeeData,"employeeData");
           <BasicInfo id={id} />
           <AccessGuard permissions={[Permissions.EndEmployment]}>
             <div className="flex gap-3 justify-center mb-2">
-          {resignationSubmittedDate === null ? 
-          (
+              {resignationSubmittedDate === null ? (
                 employeeData?.employeeJobInformation.map((item: any) => (
                   <Popconfirm
-                title="Are you sure to initiate resignation?"
-                onConfirm={()=>handleConfirmResignation(item?.id)
-                
-
-                }
-                okText="Yes"
-                cancelText="No"
-              >
+                    key={item?.id}
+                    title="Are you sure to initiate resignation?"
+                    onConfirm={() => handleConfirmResignation(item?.id)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button
+                      type="primary"
+                      danger
+                      className="bg-red-500 hover:bg-red-600"
+                      htmlType="submit"
+                      value={'submit'}
+                      name="submit"
+                      disabled={offboardingTermination?.isActive}
+                    >
+                      Initiate Resignation
+                    </Button>
+                  </Popconfirm>
+                ))
+              ) : (
                 <Button
                   type="primary"
-                            danger
-                  className="bg-red-500 hover:bg-red-600"
-              
                   htmlType="submit"
+                  className="px-4"
+                  onClick={handleEndEmploymentClick}
                   value={'submit'}
                   name="submit"
                   disabled={offboardingTermination?.isActive}
                 >
-                  Initiate Resignation
+                  End Employment
                 </Button>
-              </Popconfirm>
-                ))
-              
-              ): (
-                
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        className="px-4"
-                        onClick={handleEndEmploymentClick}
-                        value={'submit'}
-                        name="submit"
-                        disabled={offboardingTermination?.isActive}
-                      >
-                        End Employment
-                      </Button>
-                    ) 
-            }
+              )}
             </div>
           </AccessGuard>
         </Col>

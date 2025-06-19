@@ -41,7 +41,7 @@ const resignedEmployee = async (jobId: string) => {
       tenantId: tenantId,
     },
   });
-}; 
+};
 const addTerminationTasks = async (values: EmployeeOffBoardingTasks[]) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-employee-tasks`,
@@ -92,7 +92,6 @@ const deleteOffboardingItem = async (id: string) => {
     },
   });
 };
-
 
 const deleteOffboardingTemplateTasksItem = async (id: string) => {
   return crudRequest({
