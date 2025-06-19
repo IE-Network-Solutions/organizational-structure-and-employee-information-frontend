@@ -20,6 +20,7 @@ import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/quer
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { Popconfirm } from 'antd';
+import CustomPagination from '@/components/customPagination';
 
 const { TextArea } = Input;
 
@@ -179,24 +180,19 @@ const Page = () => {
               </div>
             </Card>
           ))}
-          <div className="flex justify-end mt-4 mb-4">
-            <Pagination
-              current={page}
-              total={perspectiveData?.length || 0}
-              pageSize={pageSize}
-              onChange={(page, size) => {
-                setPage(page);
-                setPageSize(size);
-              }}
-              onShowSizeChange={(current, size) => {
-                setPageSize(size);
-                setPage(1);
-              }}
-              showSizeChanger={true}
-              showTotal={(total) => `Total ${total} items`}
-              pageSizeOptions={[5, 10, 20, 50]}
-            />
-          </div>
+          <CustomPagination
+            current={page}
+            total={perspectiveData?.length || 0}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
         </div>
       ),
     },

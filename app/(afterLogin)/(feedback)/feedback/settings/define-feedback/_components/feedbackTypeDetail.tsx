@@ -1,3 +1,4 @@
+import CustomPagination from '@/components/customPagination';
 import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { Button, Card, Popconfirm, Tabs, Pagination, Input } from 'antd';
@@ -113,15 +114,20 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
             </div>
           </Card>
         ))}
-        <div className="flex justify-center mt-4">
-          <Pagination
+        {filteredItems.length > pageSize && (
+          <CustomPagination
             current={page}
-            onChange={(page) => setPage(page)}
             total={filteredItems.length}
             pageSize={pageSize}
-            hideOnSinglePage
+            onChange={(page) => {
+              setPage(page);
+            }}
+            onShowSizeChange={(size) => {
+              // Optional: if you allow changing page size
+              setPage(1);
+            }}
           />
-        </div>
+        )}
       </>
     );
   };
