@@ -120,7 +120,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {openRecognitionType || openModal
+      {selectedRecognitionType === ''
         ? 'Add New Recognition'
         : 'Update Recognition'}
     </div>
@@ -312,13 +312,21 @@ const RecognitionForm: React.FC<PropsData> = ({
       onClose();
       setOpenRecognitionType(false);
       setOpenModal(false);
+      setOpen(false);
+      setParentRecognitionTypeId('');
+      setSelectedRecognitionType('');
       setSelectedCriteria([]);
       setTotalWeight(0);
+      setPendingNewCriteriaId(null);
+      setEditingCriteriaId(null);
+      setEditingCriteriaName('');
     };
 
     if (selectedRecognitionType === '') {
       createRecognitionType(finalValues, {
         onSuccess: () => {
+          // Reset state immediately to prevent switching to update mode
+          setSelectedRecognitionType('');
           handleClose();
         },
       });
@@ -328,6 +336,8 @@ const RecognitionForm: React.FC<PropsData> = ({
         { ...updatedValues, id: selectedRecognitionType },
         {
           onSuccess: () => {
+            // Reset state immediately to prevent switching to update mode
+            setSelectedRecognitionType('');
             handleClose();
           },
         },
