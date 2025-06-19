@@ -23,6 +23,7 @@ import { EmptyImage } from '@/components/emptyIndicator';
 import { OffBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
   task,
   onToggle,
@@ -87,6 +88,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     isLoading,
     error,
   } = useFetchOffboardingTasks(id);
+  const { data: employeeData } = useGetEmployee(id);
 
   const handleAddTaskClick = () => setIsAddTaskModalVisible(true);
   const handleTaskTemplate = () => setIsTaskTemplateVisible(true);
@@ -104,6 +106,9 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading tasks</div>;
 
+  const resignationSubmittedDate = employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
+
+
   return (
     <div className="p-2 max-h-[418px] overflow-y-scroll">
       <Card
@@ -115,7 +120,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleAddTaskClick}
-                disabled={!offboardingTermination}
+                disabled={resignationSubmittedDate === null}
               >
                 <span className="hidden sm:inline">Add Task</span>
               </Button>
@@ -128,7 +133,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   menu={{ items: menuItems }}
                   trigger={['click']}
                   placement="bottomRight"
-                  disabled={!offboardingTermination}
+                  disabled={resignationSubmittedDate === null}
                 >
                   <Button className="flex items-center">
                     <SettingOutlined className="mr-2 hidden sm:inline" />

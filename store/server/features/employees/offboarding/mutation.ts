@@ -31,6 +31,17 @@ const rehireTerminatedEmployee = async (values: any) => {
     },
   });
 };
+
+const resignedEmployee = async (jobId: string) => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/EmployeeJobInformation/resign/${jobId}`,
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+}; 
 const addTerminationTasks = async (values: EmployeeOffBoardingTasks[]) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-employee-tasks`,
@@ -82,6 +93,7 @@ const deleteOffboardingItem = async (id: string) => {
   });
 };
 
+
 const deleteOffboardingTemplateTasksItem = async (id: string) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-tasks-template/${id}`,
@@ -110,6 +122,25 @@ export const useAddOffboardingItem = () => {
     },
   });
 };
+export const useResignedEmployee = () => {
+  const queryClient = useQueryClient();
+  return useMutation(resignedEmployee, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('employee');
+      NotificationMessage.success({
+        message: 'Successfully Created',
+        description: 'Item successfully Created',
+      });
+    },
+    onError: () => {
+      NotificationMessage.error({
+        message: 'Creating Failed',
+        description: 'Item creation Failed',
+      });
+    },
+  });
+};
+
 export const useAddTerminationTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(addTerminationTasks, {
