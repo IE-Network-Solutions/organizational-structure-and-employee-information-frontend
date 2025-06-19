@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Form, Input, Select, Tabs, Pagination } from 'antd';
+import { Button, Card, Form, Input, Select, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';

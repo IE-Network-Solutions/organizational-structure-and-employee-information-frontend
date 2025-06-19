@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import {
-  Table,
-  Select,
-  Button,
-  Avatar,
-  Tooltip,
-  Popconfirm,
-  Pagination,
-} from 'antd';
+import { Table, Select, Button, Avatar, Tooltip, Popconfirm } from 'antd';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import {
   useGetAllUsers,

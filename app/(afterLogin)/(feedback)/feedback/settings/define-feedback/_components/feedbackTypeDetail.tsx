@@ -1,7 +1,7 @@
 import CustomPagination from '@/components/customPagination';
 import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { Button, Card, Popconfirm, Tabs, Pagination, Input } from 'antd';
+import { Button, Card, Popconfirm, Tabs, Input } from 'antd';
 import { Edit2Icon } from 'lucide-react';
 import React from 'react';
 import { BiPlus } from 'react-icons/bi';
@@ -122,8 +122,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
             onChange={(page) => {
               setPage(page);
             }}
-            onShowSizeChange={(size) => {
-              // Optional: if you allow changing page size
+            onShowSizeChange={() => {
               setPage(1);
             }}
           />
