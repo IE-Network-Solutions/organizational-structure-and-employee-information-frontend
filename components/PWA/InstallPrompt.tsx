@@ -26,13 +26,13 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
   onInstall,
   onDismiss,
 }) => {
-  const { 
-    isInstallable, 
-    isInstalled, 
-    installApp, 
-    deviceType, 
+  const {
+    isInstallable,
+    isInstalled,
+    installApp,
+    deviceType,
     isStandalone,
-    isCheckingInstallStatus 
+    isCheckingInstallStatus,
   } = usePWA();
 
   const [isVisible, setIsVisible] = useState(false);
@@ -68,7 +68,14 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       }, 1000); // Reduced from 3000ms to 1000ms
       return () => clearTimeout(timer);
     }
-  }, [autoShow, isInstallable, isInstalled, isDismissed, isStandalone, isCheckingInstallStatus]);
+  }, [
+    autoShow,
+    isInstallable,
+    isInstalled,
+    isDismissed,
+    isStandalone,
+    isCheckingInstallStatus,
+  ]);
 
   const handleInstall = async () => {
     try {
@@ -76,10 +83,11 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       setIsVisible(false);
       onInstall?.();
     } catch (error) {
-      console.error('Installation failed:', error);
       // Show more user-friendly error
       if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        alert('To install this app on iOS, tap the Share button at the bottom of your browser and select "Add to Home Screen"');
+        alert(
+          'To install this app on iOS, tap the Share button at the bottom of your browser and select "Add to Home Screen"',
+        );
       }
     }
   };
@@ -185,11 +193,7 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
   if (isCheckingInstallStatus) {
     if (showMinimal) {
       return (
-        <Button
-          loading
-          className="install-button-minimal"
-          disabled
-        >
+        <Button loading className="install-button-minimal" disabled>
           Checking...
         </Button>
       );
@@ -202,7 +206,7 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
     if (!isInstallable || isInstalled || isStandalone) {
       return null;
     }
-    
+
     return (
       <Button
         type="primary"

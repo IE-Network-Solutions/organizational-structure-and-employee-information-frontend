@@ -1,18 +1,12 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { Avatar, Menu, Dropdown, Layout, Button, Badge, Drawer, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Avatar, Menu, Dropdown, Layout, Button, Badge, Drawer } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { usePWA } from '@/hooks/usePWA';
-import {
-  BellOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  UserAddOutlined,
-  DownloadOutlined,
-} from '@ant-design/icons';
+import { BellOutlined, DownloadOutlined } from '@ant-design/icons';
 import NotificationBar from './notificationBar';
 
 const { Header } = Layout;
@@ -26,7 +20,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const router = useRouter();
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
-  const { setNotificationCount } = useNotificationStore();
+  const { notificationCount } = useNotificationStore();
   const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
@@ -38,7 +32,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
     try {
       await installApp();
     } catch (error) {
-      console.error('Installation failed:', error);
+      // Handle installation error silently
     }
   };
 
@@ -73,7 +67,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
             Install
           </Button>
         )}
-        
+
         {/* Mobile Install Button */}
         {isInstallable && !isInstalled && !isStandalone && (
           <Button
@@ -88,7 +82,7 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
 
         {/* Notification Bell */}
         <div className="relative">
-          <Badge count={setNotificationCount} size="small">
+          <Badge count={notificationCount} size="small">
             <Button
               type="text"
               icon={<BellOutlined />}
