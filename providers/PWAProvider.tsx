@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { InstallPrompt } from '@/components/PWA/InstallPrompt';
 import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
 import { AnimatedSplashScreen } from '@/components/PWA/AnimatedSplashScreen';
+import { useRouter } from 'next/navigation';
 
 interface PWAProviderProps {
   children: React.ReactNode;
@@ -23,6 +24,8 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
   splashDuration = 3000,
 }) => {
   const [showMainContent, setShowMainContent] = useState(false);
+  const [lastActiveTime, setLastActiveTime] = useState(Date.now());
+  const router = useRouter();
 
   useEffect(() => {
     // Register service worker (enable in both dev and production for PWA testing)
@@ -51,6 +54,61 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           console.log('Cache updated successfully');
         }
       });
+    }
+
+    // Enhanced App State Management - Detect when app is reopened
+    const handleAppFocus = () => {
+      const now = Date.now();
+      const timeDiff = now - lastActiveTime;
+      
+      // If app was inactive for more than 5 minutes, refresh the page
+      if (timeDiff > 5 * 60 * 1000) {
+        console.log('App reopened after long inactivity, refreshing data...');
+        
+        // Trigger data refresh by reloading the current page
+        window.location.reload();
+      } else {
+        // Just update the last active time for shorter inactive periods
+        setLastActiveTime(now);
+      }
+    };
+
+    const handleAppBlur = () => {
+      setLastActiveTime(Date.now());
+    };
+
+    // Listen for app focus/blur events
+    window.addEventListener('focus', handleAppFocus);
+    window.addEventListener('blur', handleAppBlur);
+    
+    // Listen for visibility change (more reliable on mobile)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        handleAppFocus();
+      } else {
+        handleAppBlur();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // PWA-specific app state management
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      // In PWA mode, also listen for page show event (handles back/forward navigation)
+      const handlePageShow = (event: PageTransitionEvent) => {
+        if (event.persisted) {
+          // Page was loaded from cache, refresh data
+          console.log('PWA page loaded from cache, refreshing...');
+          window.location.reload();
+        }
+      };
+      
+      window.addEventListener('pageshow', handlePageShow);
+      
+      // Cleanup
+      return () => {
+        window.removeEventListener('pageshow', handlePageShow);
+      };
     }
 
     // Handle file sharing (if app was opened via share target)
@@ -107,8 +165,11 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 
     return () => {
       document.removeEventListener('touchend', preventZoom);
+      window.removeEventListener('focus', handleAppFocus);
+      window.removeEventListener('blur', handleAppBlur);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [enableAnimatedSplash]);
+  }, [lastActiveTime, enableAnimatedSplash]);
 
   // Handle keyboard shortcuts for desktop
   useEffect(() => {

@@ -41,7 +41,15 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
   useEffect(() => {
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     if (dismissed) {
-      setIsDismissed(true);
+      const dismissedTime = parseInt(dismissed);
+      const now = Date.now();
+      // Reset dismissal after 24 hours
+      if (now - dismissedTime > 24 * 60 * 60 * 1000) {
+        localStorage.removeItem('pwa-install-dismissed');
+        setIsDismissed(false);
+      } else {
+        setIsDismissed(true);
+      }
     }
   }, []);
 
@@ -54,10 +62,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       !isStandalone &&
       !isCheckingInstallStatus
     ) {
-      // Show after a short delay to not interrupt user experience
+      // Show immediately to make it more visible
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, 3000);
+      }, 1000); // Reduced from 3000ms to 1000ms
       return () => clearTimeout(timer);
     }
   }, [autoShow, isInstallable, isInstalled, isDismissed, isStandalone, isCheckingInstallStatus]);
@@ -68,15 +76,49 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       setIsVisible(false);
       onInstall?.();
     } catch (error) {
-      // console.error('Installation failed:', error);
+      console.error('Installation failed:', error);
+      // Show more user-friendly error
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        alert('To install this app on iOS, tap the Share button at the bottom of your browser and select "Add to Home Screen"');
+      }
     }
   };
 
   const handleDismiss = () => {
     setIsVisible(false);
     setIsDismissed(true);
-    localStorage.setItem('pwa-install-dismissed', 'true');
+    // Store dismissal time instead of just a flag
+    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
     onDismiss?.();
+  };
+
+  // Show a permanent floating install button for better visibility
+  const renderFloatingInstallButton = () => {
+    if (isInstalled || isStandalone || !isInstallable || isDismissed) {
+      return null;
+    }
+
+    return (
+      <div className="fixed bottom-4 right-4 z-50 md:bottom-6 md:right-6">
+        <Button
+          type="primary"
+          size="large"
+          icon={<DownloadOutlined />}
+          onClick={handleInstall}
+          className="install-button-floating shadow-lg"
+          style={{
+            borderRadius: '50px',
+            height: '56px',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            fontSize: '16px',
+            fontWeight: '600',
+          }}
+        >
+          Install App
+        </Button>
+      </div>
+    );
   };
 
   const getInstallInstructions = () => {
@@ -155,12 +197,12 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
     return null; // Don't show modal while checking
   }
 
-  // Don't show if already installed or not installable
-  if (!isInstallable || isInstalled || isStandalone) {
-    return null;
-  }
-
+  // Don't show modal if already installed, but still show floating button
   if (showMinimal) {
+    if (!isInstallable || isInstalled || isStandalone) {
+      return null;
+    }
+    
     return (
       <Button
         type="primary"
@@ -175,6 +217,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
 
   return (
     <>
+      {/* Floating Install Button - Always visible when installable */}
+      {renderFloatingInstallButton()}
+
+      {/* Install Modal */}
       <Modal
         title={
           <div className="flex items-center gap-2">
@@ -224,6 +270,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <Text>Push notifications</Text>
                 </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <Text>Auto-refresh when reopened</Text>
+                </div>
               </div>
             </div>
 
@@ -231,7 +281,7 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
 
             <div className="mt-4">
               <Space className="w-full justify-end">
-                <Button onClick={handleDismiss}>Maybe Later</Button>
+                <Button onClick={handleDismiss}>Remind me later</Button>
                 {!/iPad|iPhone|iPod/.test(navigator.userAgent) && (
                   <Button
                     type="primary"

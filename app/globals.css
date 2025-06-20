@@ -410,6 +410,49 @@ h6 {
   border: none;
 }
 
+/* Enhanced Floating Install Button */
+.install-button-floating {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 1000 !important;
+  border-radius: 50px !important;
+  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4) !important;
+  border: none !important;
+  animation: floatPulse 3s ease-in-out infinite !important;
+  transition: all 0.3s ease !important;
+}
+
+.install-button-floating:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 32px rgba(24, 144, 255, 0.5) !important;
+}
+
+.install-button-floating:active {
+  transform: translateY(0) !important;
+}
+
+/* Floating button animation */
+@keyframes floatPulse {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(24, 144, 255, 0.6), 0 0 0 8px rgba(24, 144, 255, 0.1);
+  }
+}
+
+/* Mobile optimizations for install button */
+@media (max-width: 768px) {
+  .install-button-floating {
+    bottom: 16px !important;
+    right: 16px !important;
+    height: 48px !important;
+    font-size: 14px !important;
+    padding: 0 16px !important;
+  }
+}
+
 /* Standalone mode adjustments */
 @media (display-mode: standalone) {
   body {
@@ -421,6 +464,12 @@ h6 {
   ::-webkit-scrollbar {
     width: 0px;
     background: transparent;
+  }
+
+  /* Hide install buttons when in standalone mode */
+  .install-button-floating,
+  .install-button-minimal {
+    display: none !important;
   }
 
   /* Add safe area padding for devices with notches */
