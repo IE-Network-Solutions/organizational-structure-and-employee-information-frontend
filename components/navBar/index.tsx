@@ -100,6 +100,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/dashboard',
       permissions: [], // No permissions required
     },
+    {
+      key: '/',
+      permissions: [], // No permissions required
+    },
   ];
 
   const getRoutesAndPermissions = (
@@ -630,10 +634,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   useEffect(() => {
     const checkPermissions = async () => {
       setIsCheckingPermissions(true);
-      if (!checkPathnamePermissions(pathname)) {
-        router.push('/unauthorized');
+      if (pathname === '/') {
+        router.push('/dashboard');
+        setIsCheckingPermissions(false);
+      } else {
+        if (!checkPathnamePermissions(pathname)) {
+          router.push('/unauthorized');
+        }
+        setIsCheckingPermissions(false);
       }
-      setIsCheckingPermissions(false);
     };
 
     checkPermissions();
