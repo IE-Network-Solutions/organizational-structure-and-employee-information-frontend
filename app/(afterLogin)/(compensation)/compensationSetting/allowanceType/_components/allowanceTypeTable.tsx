@@ -13,6 +13,7 @@ import {
   useCompensationSettingStore,
   useCompensationTypeTablesStore,
 } from '@/store/uistate/features/compensation/settings';
+import CustomPagination from '@/components/customPagination';
 
 const AllowanceTypeTable = () => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -48,11 +49,6 @@ const AllowanceTypeTable = () => {
   const handleAllowanceEdit = (record: string) => {
     setSelectedAllowanceRecord(record);
     setIsAllowanceOpen(true);
-  };
-
-  const handleTableChange = (pagination: any) => {
-    setAllowanceCurrentPage(pagination.current);
-    setAllowancePageSize(pagination.pageSize);
   };
 
   const updateStatus = (id: string) => {
@@ -143,20 +139,31 @@ const AllowanceTypeTable = () => {
       ),
     },
   ];
+  const paginatedData = tableData.slice(
+    (allowanceCurrentPage - 1) * allowancePageSize,
+    allowanceCurrentPage * allowancePageSize,
+  );
 
   return (
     <Spin spinning={isLoading}>
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={tableData}
-        pagination={{
-          current: allowanceCurrentPage,
-          pageSize: allowancePageSize,
-          total: tableData.length,
-          showSizeChanger: true,
+        dataSource={paginatedData}
+        pagination={false}
+      />
+      <CustomPagination
+        current={allowanceCurrentPage}
+        total={tableData.length}
+        pageSize={allowancePageSize}
+        onChange={(page, size) => {
+          setAllowanceCurrentPage(page);
+          setAllowancePageSize(size);
         }}
-        onChange={handleTableChange}
+        onShowSizeChange={(size) => {
+          setAllowancePageSize(size);
+          setAllowanceCurrentPage(1);
+        }}
       />
     </Spin>
   );
