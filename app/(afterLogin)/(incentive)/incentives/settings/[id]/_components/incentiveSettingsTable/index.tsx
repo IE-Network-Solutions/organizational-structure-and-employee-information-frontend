@@ -74,7 +74,7 @@ const IncentiveSettingsTable: React.FC = () => {
               <div className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
                 <span
                   key={index}
-                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
+                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
                 >
                   {criterion?.criteria?.criteriaName || '--'}
                 </span>{' '}
