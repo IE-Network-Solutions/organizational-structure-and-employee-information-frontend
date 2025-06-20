@@ -7,12 +7,14 @@ import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBa
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 type NewUserData = {
+  key: number;
   leaveType: string;
   accrued: number | null;
   balance: number | null;
   carriedOver: number | null;
   totalBalance: number | null;
   utilizedLeave: number | null;
+  cashValue: number;
 };
 
 const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
@@ -76,18 +78,38 @@ const LeaveBalanceTable: React.FC = () => {
       dataIndex: 'utilizedLeave',
       key: 'utilizedLeave',
     },
+    {
+      title: 'Cash Value',
+      dataIndex: 'cashValue',
+      key: 'cashValue',
+    },
   ];
 
+  let itemsArray: any[] = [];
+  if (Array.isArray(leaveBalanceData?.items)) {
+    itemsArray = leaveBalanceData.items;
+  } else if (
+    leaveBalanceData?.items &&
+    typeof leaveBalanceData.items === 'object' &&
+    Array.isArray((leaveBalanceData.items as any)?.items)
+  ) {
+    itemsArray = (leaveBalanceData.items as any).items;
+  }
   const dataSource =
-    leaveBalanceData?.items?.map((item, index) => ({
-      key: index,
-      leaveType: item?.leaveType?.title || '-',
-      accrued: item?.accrued || 0,
-      balance: item?.balance || 0,
-      carriedOver: item?.carriedOver || 0,
-      totalBalance: item?.totalBalance || 0,
-      utilizedLeave: item?.utilizedLeave || 0,
-    })) || [];
+    itemsArray.map((item, index) => {
+      // Get cash value directly from the item
+      const cashValue = item?.cashValue || 0;
+      return {
+        key: index,
+        leaveType: item?.leaveType?.title || '-',
+        accrued: item?.accrued || 0,
+        balance: item?.balance || 0,
+        carriedOver: item?.carriedOver || 0,
+        totalBalance: item?.totalBalance || 0,
+        utilizedLeave: item?.utilizedLeave || 0,
+        cashValue,
+      };
+    });
 
   return (
     <>
