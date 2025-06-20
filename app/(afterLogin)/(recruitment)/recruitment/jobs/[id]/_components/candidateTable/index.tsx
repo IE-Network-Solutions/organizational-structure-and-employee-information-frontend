@@ -19,8 +19,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import DeleteCandidate from '../../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../../_components/modals/moveToTalentPool';
-import RecruitmentPagination from '../../../../_components';
 import { TableRowSelection } from 'antd/es/table/interface';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 interface TableProps {
   jobId: string;
@@ -51,6 +53,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setSelectedCandidateID(candidate?.id);
     setCandidateDetailDrawer(true);
   };
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: candidateList, isLoading: isResponseLoading } =
     useGetCandidates(
@@ -244,7 +247,10 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       );
     },
   };
-
+  const onSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
   return (
     <div>
       <Table
@@ -255,13 +261,23 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         scroll={{ x: 1000 }}
         rowSelection={rowSelection}
       />
-      <RecruitmentPagination
-        current={currentPage}
-        total={candidateList?.meta?.totalItems ?? 1}
-        pageSize={pageSize}
-        onChange={onPageChange}
-        onShowSizeChange={onPageChange}
-      />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
       <DeleteCandidate />
       <EditCandidate />
       <MoveToTalentPool />
