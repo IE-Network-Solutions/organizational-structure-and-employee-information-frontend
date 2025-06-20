@@ -26,8 +26,14 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
   onInstall,
   onDismiss,
 }) => {
-  const { isInstallable, isInstalled, installApp, deviceType, isStandalone } =
-    usePWA();
+  const { 
+    isInstallable, 
+    isInstalled, 
+    installApp, 
+    deviceType, 
+    isStandalone,
+    isCheckingInstallStatus 
+  } = usePWA();
 
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -45,7 +51,8 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       isInstallable &&
       !isInstalled &&
       !isDismissed &&
-      !isStandalone
+      !isStandalone &&
+      !isCheckingInstallStatus
     ) {
       // Show after a short delay to not interrupt user experience
       const timer = setTimeout(() => {
@@ -53,7 +60,7 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [autoShow, isInstallable, isInstalled, isDismissed, isStandalone]);
+  }, [autoShow, isInstallable, isInstalled, isDismissed, isStandalone, isCheckingInstallStatus]);
 
   const handleInstall = async () => {
     try {
@@ -132,6 +139,23 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
     }
   };
 
+  // Show loading state while checking installation status
+  if (isCheckingInstallStatus) {
+    if (showMinimal) {
+      return (
+        <Button
+          loading
+          className="install-button-minimal"
+          disabled
+        >
+          Checking...
+        </Button>
+      );
+    }
+    return null; // Don't show modal while checking
+  }
+
+  // Don't show if already installed or not installable
   if (!isInstallable || isInstalled || isStandalone) {
     return null;
   }

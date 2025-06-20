@@ -14,9 +14,8 @@ interface PWAHookReturn {
   isInstalled: boolean;
   isOnline: boolean;
   isStandalone: boolean;
-  isUpdateAvailable: boolean;
+  isCheckingInstallStatus: boolean;
   installApp: () => Promise<void>;
-  updateApp: () => void;
   shareApp: (data?: ShareData) => Promise<void>;
   canShare: boolean;
   deviceType: 'mobile' | 'tablet' | 'desktop';
@@ -31,7 +30,7 @@ export const usePWA = (): PWAHookReturn => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [isStandalone, setIsStandalone] = useState(false);
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  const [isCheckingInstallStatus, setIsCheckingInstallStatus] = useState(true);
   const [canShare, setCanShare] = useState(false);
   const [platform, setPlatform] = useState('');
   const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>(
@@ -65,9 +64,11 @@ export const usePWA = (): PWAHookReturn => {
     return () => window.removeEventListener('resize', detectDeviceType);
   }, []);
 
-  // Detect standalone mode
+  // Detect standalone mode and installation status
   useEffect(() => {
-    const checkStandalone = () => {
+    const checkInstallationStatus = () => {
+      setIsCheckingInstallStatus(true);
+      
       const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true ||
@@ -75,11 +76,19 @@ export const usePWA = (): PWAHookReturn => {
 
       setIsStandalone(isStandaloneMode);
       setIsInstalled(isStandaloneMode);
+      
+      // If app is installed/standalone, it's not installable
+      if (isStandaloneMode) {
+        setIsInstallable(false);
+        setDeferredPrompt(null);
+      }
+      
+      setIsCheckingInstallStatus(false);
     };
 
-    checkStandalone();
-    window.addEventListener('resize', checkStandalone);
-    return () => window.removeEventListener('resize', checkStandalone);
+    checkInstallationStatus();
+    window.addEventListener('resize', checkInstallationStatus);
+    return () => window.removeEventListener('resize', checkInstallationStatus);
   }, []);
 
   // Handle online/offline status
@@ -100,12 +109,17 @@ export const usePWA = (): PWAHookReturn => {
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as PWAInstallPrompt);
-      setIsInstallable(true);
+      
+      // Only set as installable if not already installed
+      if (!isInstalled && !isStandalone) {
+        setDeferredPrompt(e as PWAInstallPrompt);
+        setIsInstallable(true);
+      }
     };
 
     const handleAppInstalled = () => {
       setIsInstalled(true);
+      setIsStandalone(true);
       setIsInstallable(false);
       setDeferredPrompt(null);
     };
@@ -120,23 +134,7 @@ export const usePWA = (): PWAHookReturn => {
       );
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
-
-  // Handle service worker updates
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        setIsUpdateAvailable(true);
-      });
-
-      // Check for waiting service worker
-      navigator.serviceWorker.getRegistration().then((registration) => {
-        if (registration?.waiting) {
-          setIsUpdateAvailable(true);
-        }
-      });
-    }
-  }, []);
+  }, [isInstalled, isStandalone]);
 
   const installApp = useCallback(async (): Promise<void> => {
     if (!deferredPrompt) {
@@ -156,6 +154,7 @@ export const usePWA = (): PWAHookReturn => {
 
       if (choiceResult.outcome === 'accepted') {
         setIsInstalled(true);
+        setIsStandalone(true);
       }
 
       setDeferredPrompt(null);
@@ -164,17 +163,6 @@ export const usePWA = (): PWAHookReturn => {
       console.error('Error installing app:', error);
     }
   }, [deferredPrompt]);
-
-  const updateApp = useCallback(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then((registration) => {
-        if (registration?.waiting) {
-          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-        window.location.reload();
-      });
-    }
-  }, []);
 
   const shareApp = useCallback(async (data?: ShareData): Promise<void> => {
     const shareData: ShareData = {
@@ -204,9 +192,8 @@ export const usePWA = (): PWAHookReturn => {
     isInstalled,
     isOnline,
     isStandalone,
-    isUpdateAvailable,
+    isCheckingInstallStatus,
     installApp,
-    updateApp,
     shareApp,
     canShare,
     deviceType,

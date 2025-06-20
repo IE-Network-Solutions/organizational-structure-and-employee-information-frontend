@@ -28,36 +28,27 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
     // Register service worker (enable in both dev and production for PWA testing)
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('/sw.js')
+        .register('/sw.js', {
+          scope: '/',
+          updateViaCache: 'none' // Disable cache for service worker updates
+        })
         .then((registration) => {
           console.log('Service Worker registered successfully:', registration);
-
-          // Check for updates
-          registration.addEventListener('updatefound', () => {
-            const installingWorker = registration.installing;
-            if (installingWorker) {
-              installingWorker.addEventListener('statechange', () => {
-                if (installingWorker.state === 'installed') {
-                  if (navigator.serviceWorker.controller) {
-                    // New update available
-                    console.log('New version available');
-                  } else {
-                    // Content is cached for offline use
-                    console.log('Content is cached for offline use');
-                  }
-                }
-              });
-            }
-          });
+          
+          // Force immediate activation for better data persistence
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
         })
         .catch((error) => {
           console.log('Service Worker registration failed:', error);
         });
 
-      // Listen for messages from service worker
+      // Handle service worker messages for better app state management
       navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'SKIP_WAITING') {
-          window.location.reload();
+        if (event.data && event.data.type === 'CACHE_UPDATED') {
+          // App cache updated, no action needed
+          console.log('Cache updated successfully');
         }
       });
     }
@@ -104,25 +95,20 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       setShowMainContent(true);
     }
 
+    // Clear any potential navigation confirmations
+    const clearNavigationState = () => {
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        // Clear any pending navigation state
+        localStorage.removeItem('pendingNavigation');
+      }
+    };
+    
+    clearNavigationState();
+
     return () => {
       document.removeEventListener('touchend', preventZoom);
     };
   }, [enableAnimatedSplash]);
-
-  // Handle beforeunload for desktop apps
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Only show confirmation in standalone mode
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        e.preventDefault();
-        e.returnValue = '';
-        return '';
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
 
   // Handle keyboard shortcuts for desktop
   useEffect(() => {

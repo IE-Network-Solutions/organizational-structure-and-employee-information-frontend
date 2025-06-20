@@ -20,7 +20,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   position = 'top',
   className = '',
 }) => {
-  const { isOnline, isUpdateAvailable, updateApp } = usePWA();
+  const { isOnline } = usePWA();
   const [wasOffline, setWasOffline] = useState(false);
   const [showOfflineAlert, setShowOfflineAlert] = useState(false);
 
@@ -61,10 +61,6 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     window.location.reload();
   };
 
-  const handleUpdate = () => {
-    updateApp();
-  };
-
   const positionClass = position === 'top' ? 'top-4' : 'bottom-4';
 
   return (
@@ -93,31 +89,6 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           icon={<DisconnectOutlined />}
           closable
           onClose={() => setShowOfflineAlert(false)}
-          className="mb-2"
-        />
-      )}
-
-      {/* Update Available Alert */}
-      {isUpdateAvailable && (
-        <Alert
-          message="Update available"
-          description={
-            <div className="flex items-center justify-between">
-              <span>
-                A new version is available. Update now for the latest features.
-              </span>
-              <Button
-                size="small"
-                type="primary"
-                onClick={handleUpdate}
-                className="ml-2"
-              >
-                Update
-              </Button>
-            </div>
-          }
-          type="info"
-          showIcon
           className="mb-2"
         />
       )}

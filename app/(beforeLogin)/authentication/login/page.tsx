@@ -1,5 +1,5 @@
 'use client';
-import { FC, useState, useEffect, useCallback } from 'react';
+import { FC } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import {
   auth,
@@ -17,7 +17,6 @@ import TwoFactorAuth from './_components/2fa';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
 import { useGet2FACode } from '@/store/server/features/authentication/mutation';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { DownloadOutlined } from '@ant-design/icons';
 
 type FieldType = {
   email: string;
@@ -32,136 +31,6 @@ const Login: FC = () => {
     useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
   const { executeRecaptcha } = useGoogleReCaptcha();
-
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [installable, setInstallable] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string>('');
-
-  const checkPWACriteria = useCallback(() => {
-    const criteria = {
-      hasServiceWorker: 'serviceWorker' in navigator,
-      isSecure:
-        location.protocol === 'https:' || location.hostname === 'localhost',
-      hasManifest: document.querySelector('link[rel="manifest"]') !== null,
-      isStandalone: window.matchMedia('(display-mode: standalone)').matches,
-      hasInstallPrompt: !!deferredPrompt,
-    };
-
-    const issues = [];
-    if (!criteria.isSecure) issues.push('Not HTTPS/localhost');
-    if (!criteria.hasServiceWorker) issues.push('No Service Worker');
-    if (!criteria.hasManifest) issues.push('No Manifest');
-    if (criteria.isStandalone) issues.push('Already installed');
-
-    if (issues.length > 0) {
-      setDebugInfo(`Issues: ${issues.join(', ')}`);
-    } else if (!criteria.hasInstallPrompt) {
-      setDebugInfo('Waiting for install prompt...');
-    }
-  }, [deferredPrompt]);
-
-  useEffect(() => {
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setInstallable(true);
-      setDebugInfo('Install prompt available!');
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
-    window.addEventListener('appinstalled', () => {
-      setInstallable(false);
-      setDeferredPrompt(null);
-      setDebugInfo('App installed successfully!');
-    });
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then(() => {
-          setDebugInfo('Service worker registered');
-          setTimeout(() => {
-            checkPWACriteria();
-          }, 3000);
-        })
-        .catch((error) => {
-          setDebugInfo(`SW failed: ${error.message}`);
-        });
-    } else {
-      setDebugInfo('Service workers not supported');
-    }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-    };
-  }, [checkPWACriteria]);
-
-  const handleInstall = async () => {
-    const userAgent =
-      navigator.userAgent || navigator.vendor || (window as any).opera;
-
-    // iOS detection for Safari
-    if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-      alert(`To install this app on your iOS device, please follow these steps:
-
-1. Tap the "Share" button in the Safari toolbar.
-2. Scroll down and select "Add to Home Screen".`);
-      return;
-    }
-
-    // WebKit (Safari) on desktop
-    if (
-      /Safari/.test(userAgent) &&
-      !/Chrome/.test(userAgent) &&
-      !/CriOS/.test(userAgent) &&
-      !/FxiOS/.test(userAgent)
-    ) {
-      alert(`To install the app on Safari, you may need to do so from the File menu:
-
-1. Go to File > Add to Dock.
-If that option isn't available, this browser version may not support installation.`);
-      return;
-    }
-
-    if (deferredPrompt) {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setDebugInfo('App installed successfully!');
-      } else {
-        setDebugInfo('User dismissed the install prompt.');
-      }
-      setDeferredPrompt(null);
-      setInstallable(false);
-      return;
-    }
-
-    const isStandalone = window.matchMedia(
-      '(display-mode: standalone)',
-    ).matches;
-    if (isStandalone) {
-      alert('✅ App is already installed!');
-      return;
-    }
-
-    // Fallback for browsers that don't support deferredPrompt but might be installable
-    if (userAgent.toLowerCase().includes('chrome')) {
-      const msg = `🔍 LOOK FOR THE INSTALL ICON IN YOUR ADDRESS BAR:
-      
-1. 📍 Check the RIGHT SIDE of your address bar for a download/install icon (⬇️)
-2. 📍 Check the LEFT SIDE near the lock icon for an install icon
-3. 📍 Right-click anywhere on this page → "Install Selamnew Workspace"
-4. 📍 Chrome Menu (⋮) → "Install Selamnew Workspace"
-
-⚠️ If you don't see it, wait 30 seconds and check again.`;
-      alert(msg);
-    } else {
-      alert(
-        `For the best experience, please use Google Chrome. For other browsers, look for an "Install" or "Add to Home Screen" option in your browser's menu.`,
-      );
-    }
-  };
 
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
@@ -299,28 +168,6 @@ If that option isn't available, this browser version may not support installatio
           >
             Microsoft
           </Button>
-        </div>
-
-        {/* INSTALL APP BUTTON */}
-        <div className="mt-4">
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            onClick={handleInstall}
-            block
-            className={
-              installable
-                ? 'bg-green-600 hover:bg-green-700 border-green-600'
-                : 'bg-blue-600 hover:bg-blue-700 border-blue-600'
-            }
-          >
-            {installable ? '🎉 Install App Now!' : '📱 Install App'}
-          </Button>
-          {debugInfo && (
-            <div className="mt-2 text-xs text-gray-600 text-center">
-              Status: {debugInfo}
-            </div>
-          )}
         </div>
       </div>
       <div className="text-xs font-thin text-center">

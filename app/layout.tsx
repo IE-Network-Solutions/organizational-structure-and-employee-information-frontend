@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   keywords: [
     'enterprise',
     'management',
-    'HR',
+    'C',
     'payroll',
     'recruitment',
     'organizational',
@@ -212,6 +212,25 @@ export default function RootLayout({
                     }, 100);
                   }
                 }, 3000);
+
+                // PWA Navigation Enhancement - Prevent browser confirmations
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                  // Disable browser navigation confirmations in PWA mode
+                  window.addEventListener('beforeunload', function(e) {
+                    // In PWA mode, allow smooth navigation without confirmation
+                    delete e['returnValue'];
+                  });
+                  
+                  // Prevent right-click context menu in PWA mode
+                  document.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                  });
+                  
+                  // Handle back button navigation smoothly
+                  window.addEventListener('popstate', function(event) {
+                    // Allow normal navigation without confirmation
+                  });
+                }
               })();
             `,
           }}
