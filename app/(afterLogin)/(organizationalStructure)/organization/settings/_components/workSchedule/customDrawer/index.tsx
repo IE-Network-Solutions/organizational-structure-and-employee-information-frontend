@@ -6,7 +6,7 @@ import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/w
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useEffect } from 'react';
-import { Form, Input, TimePicker, Switch, Table, Button, message } from 'antd';
+import { Form, Input, TimePicker, Switch, Table, Button } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
