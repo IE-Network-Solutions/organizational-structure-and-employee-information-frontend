@@ -29,6 +29,7 @@ const Page = () => {
 
   const {
     setActiveTab,
+    activeTab,
     editingItem,
     setEditingItem,
     pageSize,
@@ -88,10 +89,10 @@ const Page = () => {
     }
   }, [editingItem]);
 
-  // const activeTabName =
-  //   getAllFeedbackTypes?.items?.find(
-  //     (item: FeedbackTypeItems) => item.id === activeTab,
-  //   )?.category || '';
+  const activeTabName =
+    getAllFeedbackTypes?.items?.find(
+      (item: FeedbackTypeItems) => item.id === activeTab,
+    )?.category || '';
 
   // const modalHeader = (
   //   <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -254,7 +255,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="30%"
       > */}
-      <CreateFeedback form={form} />
+      <CreateFeedback form={form} activeTabName={activeTabName} />
       {/* </CustomDrawerLayout> */}
       <CustomDrawerLayout
         open={addPerspectiveModal || editingItem?.id}
