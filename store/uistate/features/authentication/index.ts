@@ -39,6 +39,8 @@ interface StoreState {
   setCountdown: (value: number) => void;
   resetCountdown: () => void;
   decrementCountdown: () => void;
+  isCheckingPermissions: boolean;
+  setIsCheckingPermissions: (isCheckingPermissions: boolean) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -103,6 +105,9 @@ export const useAuthenticationStore = create<StoreState>()(
           set((state) => ({
             countdown: state.countdown > 0 ? state.countdown - 1 : 0,
           })),
+        isCheckingPermissions: true,
+        setIsCheckingPermissions: (isCheckingPermissions: boolean) =>
+          set({ isCheckingPermissions }),
       }),
       {
         name: 'authentications-storage', // Unique name for the storage
