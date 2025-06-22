@@ -2,6 +2,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import axios from 'axios';
 
 const getJobs = async (
   whatYouNeed: string,
@@ -51,6 +52,50 @@ const getDepartmentById = async (depId: string) => {
   });
 };
 
+const downloadJobCandidatesExcel = async (
+  jobId: string,
+  params: {
+    name?: string;
+    dateRange?: string;
+    jobInformationId?: string;
+    applicantStatusStageId?: string;
+    departmentId?: string;
+    limit?: number;
+    page?: number;
+  },
+) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+    requestedBy: userId,
+    createdBy: userId,
+  };
+
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      queryParams.append(key, value.toString());
+    }
+  });
+
+  const queryString = queryParams.toString();
+  const url = `${RECRUITMENT_URL}/job-candidate-information/job-information/${jobId}/export${queryString ? `?${queryString}` : ''}`;
+
+  const response = await axios({
+    url,
+    method: 'GET',
+    headers,
+    responseType: 'json', // Changed from 'blob' to 'json'
+  });
+
+  return response.data;
+};
+
 export const useGetJobs = (
   whatYouNeed: string,
   currentPage: number,
@@ -68,3 +113,16 @@ export const useGetJobsByID = (jobId: string) => {
 export const useGetDepartmentByID = (depId: string) => {
   return useQuery(['department', depId], () => getDepartmentById(depId));
 };
+
+export const useDownloadJobCandidatesExcel = () => {
+  return useQuery(
+    ['downloadJobCandidatesExcel'],
+    () => downloadJobCandidatesExcel('', {}),
+    {
+      enabled: false, // Don't run automatically, only when triggered
+    },
+  );
+};
+
+// Export the function for direct use
+export { downloadJobCandidatesExcel };
