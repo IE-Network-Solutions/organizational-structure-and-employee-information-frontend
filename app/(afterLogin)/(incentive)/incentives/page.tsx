@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Skeleton, Tabs } from 'antd';
+import { Button, Skeleton, Spin, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
@@ -33,7 +33,8 @@ const Page = () => {
     confirmationModal,
     setConfirmationModal,
   } = useIncentiveStore();
-  const { mutate: exportIncentiveData } = useExportIncentiveData();
+  const { mutate: exportIncentiveData, isLoading: exportIncentiveLoading } =
+    useExportIncentiveData();
 
   const { searchParams } = useIncentiveStore();
   const handleExport = (values: any, generateAll: boolean) => {
@@ -135,6 +136,16 @@ const Page = () => {
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
             />
+          ) : exportIncentiveLoading ? (
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 rounded-lg flex items-center justify-center"
+              disabled
+              id="createUserButton"
+            >
+              <span className="flex items-center justify-center w-full">
+                <Spin size="small" />
+              </span>
+            </Button>
           ) : (
             <CustomButton
               title={
@@ -147,6 +158,7 @@ const Page = () => {
               onClick={() => handleExport(searchParams, true)}
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
+              loading={exportIncentiveLoading}
             />
           )}
 
