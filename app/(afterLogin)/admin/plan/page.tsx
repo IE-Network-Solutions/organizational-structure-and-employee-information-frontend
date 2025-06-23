@@ -58,7 +58,6 @@ const PlanPage = () => {
     true,
     true,
   );
-
   // Fetch plans
   const { data: plansData, isLoading: isPlansLoading } = useGetPlans(
     { filter: {} },
@@ -665,16 +664,14 @@ const PlanPage = () => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className={`flex items-center gap-2 w-full text-center ${
-                index === currentStep
-                  ? 'text-black'
-                  : 'text-gray-400 opacity-50'
-              }`}
+              className={`flex items-center gap-2 w-full text-center ${index === currentStep
+                ? 'text-black'
+                : 'text-gray-400 opacity-50'
+                }`}
             >
               <span
-                className={`text-lg font-bold ${
-                  index === currentStep ? 'text-primary' : 'text-gray-400'
-                }`}
+                className={`text-lg font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'
+                  }`}
               >
                 {index + 1}
               </span>
@@ -897,13 +894,29 @@ const PlanPage = () => {
                     <span>{updatedPeriod || currentPeriodType?.code}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span>Number of User Quota</span>
+                    <span>Current User Quota</span>
+                    <span>{activeSubscription?.slotTotal || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
+                    <span>New User Quota</span>
+                    <span>
+                      {(updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
+                    <span>Number of Total User Quota</span>
                     <span>
                       {updatedQuota || activeSubscription?.slotTotal || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
-                    <span>Total Amount</span>
+                    <span>
+                      Total Amount for{' '}
+                      {(updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)}{' '}
+                      User Quota
+                    </span>
                     <span>
                       {calculationResult
                         ? `${currentPlan?.currency?.symbol || '$'}${calculationResult.totalAmount.toFixed(2)}`
@@ -1010,7 +1023,7 @@ const PlanPage = () => {
                         [
                           'Billing Period:',
                           updatedSubscriptionValue?.startAt &&
-                          updatedSubscriptionValue?.endAt
+                            updatedSubscriptionValue?.endAt
                             ? `${formatDate(updatedSubscriptionValue?.startAt)} - ${formatDate(updatedSubscriptionValue?.endAt)}`
                             : '-',
                         ],

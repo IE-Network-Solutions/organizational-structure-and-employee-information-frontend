@@ -95,21 +95,20 @@ const LeaveBalanceTable: React.FC = () => {
   ) {
     itemsArray = (leaveBalanceData.items as any).items;
   }
-  const dataSource =
-    itemsArray.map((item, index) => {
-      // Get cash value directly from the item
-      const cashValue = item?.cashValue || 0;
-      return {
-        key: index,
-        leaveType: item?.leaveType?.title || '-',
-        accrued: item?.accrued || 0,
-        balance: item?.balance || 0,
-        carriedOver: item?.carriedOver || 0,
-        totalBalance: item?.totalBalance || 0,
-        utilizedLeave: item?.utilizedLeave || 0,
-        cashValue,
-      };
-    });
+  const dataSource = itemsArray.map((item, index) => {
+    // Get cash value directly from the item
+    const cashValue = item?.cashValue || 0;
+    return {
+      key: index,
+      leaveType: item?.leaveType?.title || '-',
+      accrued: item?.accrued || 0,
+      balance: item?.balance || 0,
+      carriedOver: item?.carriedOver || 0,
+      totalBalance: item?.totalBalance || 0,
+      utilizedLeave: item?.utilizedLeave || 0,
+      cashValue,
+    };
+  });
 
   return (
     <>
