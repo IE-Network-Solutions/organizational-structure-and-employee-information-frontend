@@ -104,6 +104,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/',
       permissions: [], // No permissions required
     },
+    {
+      key: '/employees/manage-employees/[id]',
+      permissions: [], // No permissions required
+    },
   ];
 
   const getRoutesAndPermissions = (
@@ -578,6 +582,24 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
+  // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
+  const isRouteMatch = (routePattern: string, pathname: string) => {
+    // Match [id] to UUIDs (or any non-slash segment)
+    if (routePattern.includes('[id]')) {
+      // UUID regex: [0-9a-fA-F-]{36} (simple version)
+      const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    // Generic dynamic segment: [something] => [^/]+
+    if (routePattern.match(/\[.*?\]/g)) {
+      const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    return routePattern === pathname;
+  };
+
   const checkPathnamePermissions = (pathname: string): boolean => {
     // Get all routes and their permissions
     const routesWithPermissions = getRoutesAndPermissions(treeData);
@@ -588,18 +610,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return true;
     }
 
-    // First check if the pathname matches any defined route
+    // First check if the pathname matches any defined route (supporting dynamic segments)
     const matchingRoute = routesWithPermissions.find((route) => {
-      // Check for exact match
-      if (pathname === route.route) {
+      if (isRouteMatch(route.route, pathname)) {
         return true;
       }
-
       // Check for parent-child relationship - allow any level of nesting
       if (pathname.startsWith(route.route + '/')) {
         return true;
       }
-
       return false;
     });
 
@@ -612,8 +631,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       // Try to find a parent route that has permissions
       for (let i = pathParts.length - 1; i > 0; i--) {
         const parentPath = '/' + pathParts.slice(0, i).join('/');
-        const parentRoute = routesWithPermissions.find(
-          (route) => route.route === parentPath,
+        const parentRoute = routesWithPermissions.find((route) =>
+          isRouteMatch(route.route, parentPath),
         );
 
         if (parentRoute) {
@@ -621,10 +640,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           const userPermissions = userData?.userPermissions || [];
           const hasParentPermissions = parentRoute.permissions.every(
             (requiredPermission: any) => {
-              return userPermissions?.find(
+              const found = userPermissions?.find(
                 (permission: any) =>
                   permission.permission.slug === requiredPermission,
               );
+              return found;
             },
           );
 
@@ -649,10 +669,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     // Check if user has ALL required permissions for this route
     const hasAllPermissions = matchingRoute.permissions.every(
       (requiredPermission: any) => {
-        return userPermissions?.find(
+        const found = userPermissions?.find(
           (permission: any) =>
             permission.permission.slug === requiredPermission,
         );
+        return found;
       },
     );
 
