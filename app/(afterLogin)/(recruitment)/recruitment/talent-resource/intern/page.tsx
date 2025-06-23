@@ -1,3 +1,5 @@
+'use client';
+
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Button } from 'antd';
 import { FaPlus } from 'react-icons/fa';

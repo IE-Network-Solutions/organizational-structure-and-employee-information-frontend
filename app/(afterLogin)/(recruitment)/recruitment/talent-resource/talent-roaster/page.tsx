@@ -1,3 +1,5 @@
+'use client';
+
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Button } from 'antd';
 import { FaCopy, FaPlus } from 'react-icons/fa';
@@ -58,7 +60,7 @@ const TalentRoasterPage = () => {
   };
 
   const onCancel = () => {
-    () => setMoveToJobPipelineModal(false);
+    setMoveToJobPipelineModal(false);
   };
 
   const handleRemoveCandidate = (candidateId: string) => {
