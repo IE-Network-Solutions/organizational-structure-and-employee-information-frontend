@@ -69,7 +69,6 @@ interface InternState {
 
   itemToDelete: any;
   setItemToDelete: (data: any) => void;
-  
 }
 
 export const useInternStore = create<InternState>((set) => ({

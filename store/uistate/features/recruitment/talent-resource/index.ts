@@ -5,8 +5,6 @@ export const useTalentResourceStore = create<TalentResourceState>((set) => ({
   setActiveTab: (activeTab: number) => set({ activeTab }),
 }));
 
-
-
 export interface TalentResourceState {
   activeTab: number;
   setActiveTab: (activeTab: number) => void;

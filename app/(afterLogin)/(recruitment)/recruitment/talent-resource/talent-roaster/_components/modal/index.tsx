@@ -1,5 +1,4 @@
 import { Button, Modal, Form, Select, Input, Tag } from 'antd';
-import { useState } from 'react';
 import { CloseOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
@@ -31,12 +30,8 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
   const [form] = Form.useForm();
 
   const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-      onSubmit(values);
-    } catch (error) {
-      console.error('Form validation failed:', error);
-    }
+    const values = await form.validateFields();
+    onSubmit(values);
   };
 
   const handleCancel = () => {
@@ -63,7 +58,7 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
               Selected Applicants <span className="text-red-500">*</span>
             </label>
             <div className="flex flex-wrap gap-2">
-              {selectedCandidates.map((candidate) => (
+              {selectedCandidates?.map((candidate) => (
                 <Tag
                   key={candidate.id}
                   closable

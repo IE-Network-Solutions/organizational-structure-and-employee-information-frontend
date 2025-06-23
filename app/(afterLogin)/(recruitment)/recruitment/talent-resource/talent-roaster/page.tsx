@@ -1,4 +1,3 @@
-import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Button } from 'antd';
 import { FaCopy, FaPlus } from 'react-icons/fa';

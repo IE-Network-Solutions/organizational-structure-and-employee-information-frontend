@@ -72,8 +72,6 @@ interface TalentRoasterState {
 
   moveToJobPipelineModal: boolean;
   setMoveToJobPipelineModal: (value: boolean) => void;
-
-
 }
 
 export const useTalentRoasterStore = create<TalentRoasterState>((set) => ({
@@ -87,7 +85,8 @@ export const useTalentRoasterStore = create<TalentRoasterState>((set) => ({
     })),
 
   createTalentRoasterDrawer: false,
-  setCreateTalentRoasterDrawer: (value) => set({ createTalentRoasterDrawer: value }),
+  setCreateTalentRoasterDrawer: (value) =>
+    set({ createTalentRoasterDrawer: value }),
 
   searchParams: {
     fullName: '',
@@ -107,13 +106,15 @@ export const useTalentRoasterStore = create<TalentRoasterState>((set) => ({
   setPageSize: (value) => set({ pageSize: value }),
 
   talentRoasterDetailDrawer: false,
-  setTalentRoasterDetailDrawer: (value) => set({ talentRoasterDetailDrawer: value }),
+  setTalentRoasterDetailDrawer: (value) =>
+    set({ talentRoasterDetailDrawer: value }),
 
   selectedTalentRoaster: null,
   setSelectedTalentRoaster: (value) => set({ selectedTalentRoaster: value }),
 
   selectedTalentRoasterId: '',
-  setSelectedTalentRoasterID: (value) => set({ selectedTalentRoasterId: value }),
+  setSelectedTalentRoasterID: (value) =>
+    set({ selectedTalentRoasterId: value }),
 
   editTalentRoasterModal: false,
   setEditTalentRoasterModal: (value) => set({ editTalentRoasterModal: value }),
@@ -123,7 +124,8 @@ export const useTalentRoasterStore = create<TalentRoasterState>((set) => ({
   deleteTalentRoasterId: '',
   setDeleteTalentRoasterId: (value) => set({ deleteTalentRoasterId: value }),
   deleteTalentRoasterModal: false,
-  setDeleteTalentRoasterModal: (value) => set({ deleteTalentRoasterModal: value }),
+  setDeleteTalentRoasterModal: (value) =>
+    set({ deleteTalentRoasterModal: value }),
 
   isSmallScreen: false,
   setIsSmallScreen: (value) => set({ isSmallScreen: value }),

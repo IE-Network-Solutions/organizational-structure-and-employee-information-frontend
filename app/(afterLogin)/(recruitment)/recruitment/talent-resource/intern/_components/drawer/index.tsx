@@ -1,6 +1,5 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
-  Button,
   Col,
   Form,
   Image,
@@ -15,13 +14,14 @@ import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import cvUpload from '@/public/image/cvUpload.png';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useCreateIntern, useUpdateIntern } from "@/store/server/features/recruitment/intern/mutation";
+import {
+  useCreateIntern,
+  useUpdateIntern,
+} from '@/store/server/features/recruitment/intern/mutation';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { CustomDrawerFooterButtonProps } from '@/components/common/customDrawer/customDrawerFooterButton';
 import { useQueryClient } from 'react-query';
 import CustomDrawerFooterButton from '@/components/common/customDrawer/customDrawerFooterButton';
-
-
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -38,19 +38,18 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
   onClose,
   editData,
   isEdit = false,
-}: CreateInternApplicantsProps  ) => {
+}: CreateInternApplicantsProps) => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
-  const {
-    documentFileList,
-    setDocumentFileList,
-    removeDocument,
-  } = useInternStore();
+  const { documentFileList, setDocumentFileList, removeDocument } =
+    useInternStore();
 
-  const { data: EmployeeDepartment, isLoading: isDepartmentLoading,error } = useGetDepartments();
+  const { data: EmployeeDepartment } = useGetDepartments();
 
-  const { mutate: createIntern, isLoading: isCreateLoading } = useCreateIntern();
-  const { mutate: updateIntern, isLoading: isUpdateLoading } = useUpdateIntern();
+  const { mutate: createIntern, isLoading: isCreateLoading } =
+    useCreateIntern();
+  const { mutate: updateIntern, isLoading: isUpdateLoading } =
+    useUpdateIntern();
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -72,7 +71,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
         department: editData.departmentId,
         coverLetter: editData.coverLetter,
       });
-      
+
       // Handle resume file if it exists
       if (editData.resumeUrl) {
         const fileObj = {
@@ -90,80 +89,79 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
     }
   }, [isEdit, editData, open, form, setDocumentFileList]);
 
-
   const internApplicantsDrawerHeader = (
-      <div className=" text-xl font-extrabold text-gray-800 ">
-        {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}
-      </div>
-    );
+    <div className=" text-xl font-extrabold text-gray-800 ">
+      {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}
+    </div>
+  );
 
-    const footerModalItems: CustomDrawerFooterButtonProps[] = [
-      {
-        label: 'Cancel',
-        key: 'cancel',
-        className: 'h-[40px] text-base',
-        size: 'large',
-        onClick: onClose,
-      },
-      {
-        label: isEdit ? 'Update' : 'Create',
-        key: 'create',
-        className: 'h-[40px]  text-base',
-        size: 'large',
-        type: 'primary',
-        loading: isEdit ? isUpdateLoading : isCreateLoading,
-        onClick: () => form.submit(),
-      },
-    ];      
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Cancel',
+      key: 'cancel',
+      className: 'h-[40px] text-base',
+      size: 'large',
+      onClick: onClose,
+    },
+    {
+      label: isEdit ? 'Update' : 'Create',
+      key: 'create',
+      className: 'h-[40px]  text-base',
+      size: 'large',
+      type: 'primary',
+      loading: isEdit ? isUpdateLoading : isCreateLoading,
+      onClick: () => form.submit(),
+    },
+  ];
 
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
-// Determine resume URL - use new upload if available, otherwise keep existing
-let resumeUrl = '';
-if (documentFileList.length > 0) {
-  // New file uploaded
-  resumeUrl = documentFileList[0].name || documentFileList[0].url;
-} else if (isEdit && editData?.resumeUrl) {
-  // Keep existing resume URL when editing
-  resumeUrl = editData.resumeUrl;
-}
-
-const internData = {
-  fullName: formValues.fullName,
-  email: formValues.email,
-  phone: formValues.phone,
-  CGPA: formValues.CGPA,
-  graduateYear: formValues.yearOfGraduation, // Map yearOfGraduation to graduateYear
-  departmentId: formValues.department, // Map department to departmentId
-  coverLetter: formValues.coverLetter,
-  resumeUrl: resumeUrl,
-}
-
-if (isEdit && editData) {
-  // Update existing talent roaster
-  updateIntern(
-    { id: editData.id, data: internData },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('intern');
-        form.resetFields();
-        setDocumentFileList([]);
-        onClose();
-      },
+    // Determine resume URL - use new upload if available, otherwise keep existing
+    let resumeUrl = '';
+    if (documentFileList.length > 0) {
+      // New file uploaded
+      resumeUrl = documentFileList[0].name || documentFileList[0].url;
+    } else if (isEdit && editData?.resumeUrl) {
+      // Keep existing resume URL when editing
+      resumeUrl = editData.resumeUrl;
     }
-  );
-} else {
-  // Create new talent roaster
-  createIntern(internData, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('intern');
-      form.resetFields();
-      setDocumentFileList([]);
-      onClose();
-    },
-  });
-}
-};
+
+    const internData = {
+      fullName: formValues.fullName,
+      email: formValues.email,
+      phone: formValues.phone,
+      CGPA: formValues.CGPA,
+      graduateYear: formValues.yearOfGraduation, // Map yearOfGraduation to graduateYear
+      departmentId: formValues.department, // Map department to departmentId
+      coverLetter: formValues.coverLetter,
+      resumeUrl: resumeUrl,
+    };
+
+    if (isEdit && editData) {
+      // Update existing talent roaster
+      updateIntern(
+        { id: editData.id, data: internData },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries('intern');
+            form.resetFields();
+            setDocumentFileList([]);
+            onClose();
+          },
+        },
+      );
+    } else {
+      // Create new talent roaster
+      createIntern(internData, {
+        onSuccess: () => {
+          queryClient.invalidateQueries('intern');
+          form.resetFields();
+          setDocumentFileList([]);
+          onClose();
+        },
+      });
+    }
+  };
 
   return (
     <CustomDrawerLayout
@@ -172,11 +170,7 @@ if (isEdit && editData) {
       modalHeader={internApplicantsDrawerHeader}
       width="40%"
       customMobileHeight="75vh"
-      footer={
-        <CustomDrawerFooterButton
-          buttons={footerModalItems}
-        />
-      }
+      footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item
@@ -251,7 +245,6 @@ if (isEdit && editData) {
         </Row>
 
         <Row gutter={16}>
-         
           <Col xs={24} sm={24} lg={24} md={24} xl={24}>
             <Form.Item
               id="cgpaId"
@@ -294,7 +287,10 @@ if (isEdit && editData) {
             },
           ]}
         >
-          <Input placeholder="Year of Graduation" className="w-full h-10 text-sm" />
+          <Input
+            placeholder="Year of Graduation"
+            className="w-full h-10 text-sm"
+          />
         </Form.Item>
 
         <Form.Item
@@ -305,17 +301,14 @@ if (isEdit && editData) {
               Department
             </span>
           }
-          rules={[
-            { required: true, message: 'Please input department!' },
-           
-          ]}
+          rules={[{ required: true, message: 'Please input department!' }]}
         >
-          <Select placeholder="Department" className="w-full h-10 text-sm" >
-             {EmployeeDepartment?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
+          <Select placeholder="Department" className="w-full h-10 text-sm">
+            {EmployeeDepartment?.map((item: any) => (
+              <Option key={item?.id} value={item?.id}>
+                {item?.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
         <Form.Item
@@ -344,10 +337,14 @@ if (isEdit && editData) {
             </span>
           }
           rules={[
-            { 
-              required: !isEdit || (isEdit && !editData?.resumeUrl && documentFileList.length === 0), 
-              message: 'Please upload your CV' 
-            }
+            {
+              required:
+                !isEdit ||
+                (isEdit &&
+                  !editData?.resumeUrl &&
+                  documentFileList.length === 0),
+              message: 'Please upload your CV',
+            },
           ]}
         >
           <Dragger

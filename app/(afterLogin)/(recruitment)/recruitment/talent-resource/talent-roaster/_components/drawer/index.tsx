@@ -1,6 +1,5 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
-  Button,
   Col,
   Form,
   Image,
@@ -14,7 +13,10 @@ import { useEffect } from 'react';
 import TextArea from 'antd/es/input/TextArea';
 import { FaInfoCircle } from 'react-icons/fa';
 import cvUpload from '@/public/image/cvUpload.png';
-import { useCreateTalentRoaster, useUpdateTalentRoaster } from '@/store/server/features/recruitment/talent-roaster/mutation';
+import {
+  useCreateTalentRoaster,
+  useUpdateTalentRoaster,
+} from '@/store/server/features/recruitment/talent-roaster/mutation';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -41,16 +43,14 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  const {
-    documentFileList,
-    setDocumentFileList,
-    removeDocument,
-  } = useTalentRoasterStore();
+  const { documentFileList, setDocumentFileList, removeDocument } =
+    useTalentRoasterStore();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
 
-
-  const { mutate: createTalentRoaster, isLoading: isCreateLoading } = useCreateTalentRoaster();
-  const { mutate: updateTalentRoaster, isLoading: isUpdateLoading } = useUpdateTalentRoaster();
+  const { mutate: createTalentRoaster, isLoading: isCreateLoading } =
+    useCreateTalentRoaster();
+  const { mutate: updateTalentRoaster, isLoading: isUpdateLoading } =
+    useUpdateTalentRoaster();
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -72,7 +72,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
         department: editData.departmentId,
         coverLetter: editData.coverLetter,
       });
-      
+
       // Handle resume file if it exists
       if (editData.resumeUrl) {
         const fileObj = {
@@ -96,7 +96,6 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
     </div>
   );
 
- 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -118,7 +117,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
 
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
-    
+
     // Determine resume URL - use new upload if available, otherwise keep existing
     let resumeUrl = '';
     if (documentFileList.length > 0) {
@@ -128,7 +127,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       // Keep existing resume URL when editing
       resumeUrl = editData.resumeUrl;
     }
-    
+
     const talentRoasterData = {
       fullName: formValues.fullName,
       email: formValues.email,
@@ -138,7 +137,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       departmentId: formValues.department, // Map department to departmentId
       coverLetter: formValues.coverLetter,
       resumeUrl: resumeUrl,
-    }
+    };
 
     if (isEdit && editData) {
       // Update existing talent roaster
@@ -151,7 +150,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             setDocumentFileList([]);
             onClose();
           },
-        }
+        },
       );
     } else {
       // Create new talent roaster
@@ -248,7 +247,6 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
         </Row>
 
         <Row gutter={16}>
-         
           <Col xs={24} sm={24} lg={24} md={24} xl={24}>
             <Form.Item
               id="cgpaId"
@@ -291,7 +289,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             },
           ]}
         >
-          <Input placeholder="Year of Graduation" className="w-full h-10 text-sm" />
+          <Input
+            placeholder="Year of Graduation"
+            className="w-full h-10 text-sm"
+          />
         </Form.Item>
 
         <Form.Item
@@ -302,17 +303,14 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               Department
             </span>
           }
-          rules={[
-            { required: true, message: 'Please input department!' },
-           
-          ]}
+          rules={[{ required: true, message: 'Please input department!' }]}
         >
-          <Select placeholder="Department" className="w-full h-10 text-sm" >
-             {EmployeeDepartment?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
+          <Select placeholder="Department" className="w-full h-10 text-sm">
+            {EmployeeDepartment?.map((item: any) => (
+              <Option key={item?.id} value={item?.id}>
+                {item?.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
 
@@ -342,10 +340,14 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             </span>
           }
           rules={[
-            { 
-              required: !isEdit || (isEdit && !editData?.resumeUrl && documentFileList.length === 0), 
-              message: 'Please upload your CV' 
-            }
+            {
+              required:
+                !isEdit ||
+                (isEdit &&
+                  !editData?.resumeUrl &&
+                  documentFileList.length === 0),
+              message: 'Please upload your CV',
+            },
           ]}
         >
           <Dragger
