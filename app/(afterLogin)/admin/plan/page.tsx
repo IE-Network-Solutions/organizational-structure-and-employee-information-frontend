@@ -266,6 +266,7 @@ const PlanPage = () => {
         planId: currentPlan.id,
         planPeriodId: selectedPlanPeriod.id,
         slotTotal: updatedQuota,
+        newSlot: updatedQuota - (activeSubscription?.slotTotal ?? 0), // Use updatedQuota directly
         ...(activeSubscription
           ? { subscriptionId: activeSubscription.id }
           : {}),
@@ -1115,7 +1116,7 @@ const PlanPage = () => {
         return null;
     }
   };
-
+  console.log(activeSubscription,"activeSubscription")
   return (
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb

@@ -12,6 +12,7 @@ export interface CalculateSubscriptionPriceDto {
   planId: string;
   planPeriodId: string;
   slotTotal: number;
+  newSlot?: number;
 }
 
 export interface CalculateSubscriptionPriceResponse {
