@@ -25,7 +25,7 @@ export const transformData = (data: any) => {
     },
     createEmployeeInformationDto: {
       gender: data.employeeGender,
-      martialStatus: data.martialStatus,
+      maritalStatus: data.maritalStatus,
       dateOfBirth: formatDate(data.dateOfBirth),
       joinedDate: formatDate(data.effectiveStartDate),
       nationalityId: data.nationalityId,

@@ -45,7 +45,7 @@ const MyTimesheet = () => {
         <PageHeader title="My Attendance" description="Manage your Attendance">
           <CheckControl />
         </PageHeader>
-        <BlockWrapper className="mt-[-20px]">
+        <BlockWrapper className="mt-[20px]">
           <ApprovalTable />
         </BlockWrapper>
 

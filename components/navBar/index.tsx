@@ -108,6 +108,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees/manage-employees/[id]',
       permissions: [], // No permissions required
     },
+
   ];
 
   const getRoutesAndPermissions = (
@@ -551,7 +552,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <CiSettings size={18} />
+          <CiSettings
+            size={18}
+            className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
+          />
           <span>Admin</span>
         </span>
       ),
@@ -745,7 +749,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      // First step: clear all state that might trigger queries
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');

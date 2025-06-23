@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from 'react-query';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+// const logUserId = useAuthenticationStore.getState().userId;
 const createObjective = async (values: any) => {
   try {
     await crudRequest({
@@ -144,6 +145,11 @@ const updateKeyResults = async (data: any) => {
 };
 const downloadEmployeeOkrScore = async (data: any) => {
   try {
+    // const payload = {
+    //   ...data,
+    //   updatedBy: logUserId,
+    //   createdBy: logUserId,
+    // };
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
       data,

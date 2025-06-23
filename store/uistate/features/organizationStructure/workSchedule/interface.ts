@@ -11,6 +11,7 @@ export interface ScheduleState {
   id: string;
   detail: ScheduleDetail[];
   standardHours: number;
+  validationError: string;
   isOpen: boolean;
   isEditMode: boolean;
   scheduleName: string;
@@ -21,6 +22,8 @@ export interface ScheduleState {
   getSchedule: () => any;
   clearState: () => void;
   setStandardHours: (standardHours: number) => void;
+  setValidationError: (error: string) => void;
+  clearValidationError: () => void;
   toggleDrawer: () => void;
   closeDrawer: () => void;
   openDrawer: () => void;

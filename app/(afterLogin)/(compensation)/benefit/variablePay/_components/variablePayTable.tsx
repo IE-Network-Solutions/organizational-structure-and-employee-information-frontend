@@ -11,6 +11,7 @@ import {
 } from '@/store/server/features/payroll/payroll/queries';
 import VariablePayFilter from './variablePayFilter';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import CustomPagination from '@/components/customPagination';
 
 const VariablePayTable = () => {
   const { currentPage, pageSize, searchParams, setCurrentPage, setPageSize } =
@@ -49,10 +50,6 @@ const VariablePayTable = () => {
       ),
     })) || [];
 
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   const columns: TableColumnsType<any> = [
     {
@@ -105,6 +102,11 @@ const VariablePayTable = () => {
     false,
   );
 
+  const paginatedData = filteredDataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <>
       <VariablePayFilter tableData={tableData} />
@@ -113,14 +115,23 @@ const VariablePayTable = () => {
           <Table
             className="mt-6"
             columns={columns}
-            dataSource={filteredDataSource}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: tableData.length,
-            }}
-            onChange={handleTableChange}
+            dataSource={paginatedData}
+            pagination={false}
           />
+          <CustomPagination
+            current={currentPage}
+            total={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+
           <VariablePayModal data={filteredDataSource} />
         </Spin>
       </div>
