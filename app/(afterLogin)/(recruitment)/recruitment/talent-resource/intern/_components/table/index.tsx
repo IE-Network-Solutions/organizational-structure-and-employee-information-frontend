@@ -1,68 +1,222 @@
-import { CandidateData } from "@/store/uistate/features/recruitment/candidate";
-import { Select, Col, Row, Table, DatePicker, TableColumnsType, Modal, Button, Input } from "antd";
+import { Select, Col, Row, Table, DatePicker, TableColumnsType, Modal, Button, Input, Dropdown } from "antd";
 import { Option } from "antd/es/mentions";
-import { TableRowSelection } from "antd/es/table/interface";
-import { useState } from "react";
 import { VscSettings } from "react-icons/vsc";
+import dayjs from "dayjs";
+import { useGetIntern } from "@/store/server/features/recruitment/intern/query";
+import { useGetDepartments } from "@/store/server/features/employees/employeeManagment/department/queries";
+import { useGetDepartmentByID } from "@/store/server/features/recruitment/job/queries";
+import { LoadingOutlined } from "@ant-design/icons";
+import ActionButtons from "@/components/common/actionButton/actionButtons";
+import { useInternStore } from "@/store/uistate/features/recruitment/talent-resource/intern";
+import { useDeleteIntern } from "@/store/server/features/recruitment/intern/mutation";
 
-const InternTable = () => {
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    const [selectedCandidate, setSelectedCandidate] = useState<CandidateData[]>([]);
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useState } from "react";
+import { useDebounce } from "@/utils/useDebounce";
+import { useEmployeeDepartments } from "@/store/server/features/employees/employeeManagment/queries";
+interface InternTableProps {
+  onEdit?: (data: any) => void;
+}
+interface SearchParams {
+  fullName: string;
+  dateRange: string;
+  selectedDepartment: string;
+}
+const InternTable = ({ onEdit }: InternTableProps) => {
     const { RangePicker } = DatePicker;
-    const columns: TableColumnsType<any> = [
-        {
-          title: 'Name',
-          dataIndex: 'candidateName',
-          sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
-        },
-        
-        {
-          title: 'Phone Number',
-          dataIndex: 'phoneNumber',
-          ellipsis: true,
-        },
-        {
-          title: 'CGPA',
-          dataIndex: 'cgpa',
-          sorter: (a: any, b: any) => a.cgpa - b.cgpa,
-        },
-        {
-          title: 'Department',
-          dataIndex: 'department',
-          sorter: (a, b) => a.department.localeCompare(b.department),
-        },
-       
-        {
-          title: 'Application Date',
-          dataIndex: 'applicationDate',
-        },
-        {
-            title: 'CV',
-            dataIndex: 'cv',
-          },
-        {
-          title: 'Year of Graduation',
-          dataIndex: 'yearOfGraduation',
-        },
+    const { itemToDelete, setItemToDelete, searchParams, setSearchParams, currentPage, pageSize, 
+      showMobileFilter,
+      setShowMobileFilter } = useInternStore();
+
+   
     
-        
-        {
-          title: 'Action',
-          dataIndex: 'action',
-        },
-      ];
+    // Create query parameters from search params
+    const queryParams = {
+      fullName: searchParams.fullName || undefined,
+      dateRange: searchParams.dateRange || undefined,
+      selectedDepartment: searchParams.selectedDepartment || undefined,
+      page: currentPage,
+      pageSize: pageSize,
+    };
+    
+    const { data: intern, isLoading: isInternLoading } = useGetIntern(queryParams);
+    const { data: getAllDepartment, isLoading: isDepartmentLoading } = useGetDepartments();
+    const { mutate: deleteIntern, isLoading: isDeleteLoading } = useDeleteIntern();
+    const { data: EmployeeDepartment } = useEmployeeDepartments();
+
+    // Check if either query is still loading
+    const isLoading = isInternLoading || isDepartmentLoading;
+    const { isMobile, isTablet } = useIsMobile();
+
+      const { setCurrentPage, setPageSize } = useInternStore();
+
+    const onPageChange = (page: number, pageSize?: number) => {
+      setCurrentPage(page);
+      setPageSize(pageSize ?? 10);
+    };
+
+    const handleEdit = (data: any) => {
+      onEdit?.(data);
+    }
+   
+    const handleDelete = (item: any) => {
+      setItemToDelete(item);
+      deleteIntern(item.id, {
+        onSuccess: () => {
+          setItemToDelete(null);
+        }
+      });
+    }
+
+
+    const columns: TableColumnsType<any> = [
+      {
+        title: 'Name',
+        dataIndex: 'fullName',
+        sorter: (a, b) => a.fullName.localeCompare(b.fullName),
+      },
       
-    const rowSelection: TableRowSelection<any> = {
-        selectedRowKeys,
-        onChange: (newSelectedRowKeys, selectedRows) => {
-          setSelectedRowKeys(newSelectedRowKeys);
-          setSelectedCandidate(
-            []?.filter((item: any) =>
-              selectedRows.some((row: CandidateData) => row.id === item.id),
-            ) || [],
-          );
+      {
+        title: 'Phone Number',
+        dataIndex: 'phone',
+        ellipsis: true,
+      },
+      {
+        title: 'CGPA',
+        dataIndex: 'CGPA',
+        sorter: (a: any, b: any) => a.CGPA - b.CGPA,
+      },
+      {
+        title: 'Department',
+        dataIndex: 'departmentId',
+        sorter: (a, b) => a.departmentId.localeCompare(b.departmentId),
+      },
+     
+      {
+        title: 'Application Date',
+        dataIndex: 'createdAt',
+      },
+      {
+          title: 'CV',
+          dataIndex: 'resumeUrl',
         },
+      {
+        title: 'Year of Graduation',
+        dataIndex: 'graduateYear',
+      },
+  
+      
+      {
+        title: 'Action',
+        dataIndex: 'action',
+      },
+    ];
+
+    const data = intern?.items?.map((item: any, index: any) => {
+      const fileName = item?.resumeUrl?.split('/')?.pop();
+
+      const DepartmentDetail = ({
+        id,
+      }: {
+        id: string;
+      }) => {
+        const { data: getAllDepartment, isLoading: isDepartmentLoading,error } = useGetDepartmentByID(id);
+    
+        if (isDepartmentLoading)
+          return (
+            <>
+              <LoadingOutlined />
+            </>
+          );
+    
+        if (error || !getAllDepartment) return '-';
+    
+        const depName =
+          `${getAllDepartment?.name}`||
+          '-';
+        return (
+          <div className="flex gap-2 items-center">
+    
+            {<div>{depName}</div>}
+          </div>
+        );
       };
+
+  
+     
+     
+
+      return {
+        key: index,
+        id: item.id,
+        fullName: item?.fullName ?? '--',
+        phone: item?.phone ?? '--',
+        CGPA: item?.CGPA ?? '--',
+        departmentId: <DepartmentDetail id={item?.departmentId} />,
+        createdAt: item?.createdAt 
+        ? dayjs(item.createdAt).format('DD MMMM YYYY')
+        : '--',    
+        resumeUrl: (
+          <a
+          href={item?.resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
+          title={item?.documentName ?? 'CV.pdf'}
+        >
+          {item?.documentName?.length > 8
+            ? `${item.documentName.slice(0, 8)}...`
+            : (fileName ?? 'CV.pdf')}
+        </a>
+        ),
+  
+        graduateYear: item?.graduateYear
+          ? dayjs(item.graduateYear).format('DD MMMM YYYY')
+          : '--',
+       
+       
+          action: (
+            <ActionButtons
+            id={item?.id ?? null}
+            onEdit={() => handleEdit(item)}
+            onDelete={() => handleDelete(item)}
+          />
+          ),
+        };
+      });
+
+      const handleSearchCandidate = async (
+        value: string | boolean,
+        keyValue: keyof typeof searchParams,
+      ) => {
+        setSearchParams(keyValue, value);
+      };
+    
+      const onSelectChange = handleSearchCandidate;
+      const onSearchChange = useDebounce(handleSearchCandidate, 2000);
+    
+
+      const handleSearchByDateRange = (dates: [any, any] | null) => {
+        if (dates && dates.length === 2) {
+          const startDate = dayjs(dates[0]).format('YYYY-MM-DD');
+          const endDate = dayjs(dates[1]).format('YYYY-MM-DD');
+          const dateRange = `${startDate} to ${endDate}`;
+          setSearchParams('dateRange', dateRange);
+        } else {
+          setSearchParams('dateRange', '');
+        }
+        setCurrentPage(1); // Reset to first page when filtering
+      };
+    
+     
+    
+      const handleDepartmentChange = (value: string) => {
+        setSearchParams('selectedDepartment', value || '');
+        setCurrentPage(1); // Reset to first page when filtering
+      };
+
     return (
         <div> 
      <div>
@@ -76,27 +230,34 @@ const InternTable = () => {
           <Row gutter={8} align="middle">
             <Col xs={20} sm={20} flex="auto">
               <Input          
-                id={`inputEmployeeNames`}
-                placeholder="Search employee"
-                onChange={() => {}}
+                id={`inputInternNames`}
+                placeholder="Search intern"
+                value={searchParams.fullName}
+                onChange={(e) =>
+                  handleSearchCandidate(e.target.value, 'fullName')
+                }
                 className="w-full h-12 rounded-lg"
                 allowClear
               />
             </Col>
             <Col xs={4} sm={4} className="block sm:hidden">
               <div className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
-                  <VscSettings size={20} onClick={() => {}} />
+                  <VscSettings size={20} onClick={() => setShowMobileFilter(true)} />
               </div>
             </Col>
           </Row>
         </Col>
 
         <Col lg={14} className="hidden sm:block ">
-          <Row gutter={[8, 16]}>
+          <Row gutter={[8, 16]} align="middle">
             <Col lg={14} sm={12} xs={24}>
             <RangePicker
       id={`inputDateRange`}
-      onChange={(dates: any) => {}}
+      onChange={(dates: any) => handleSearchByDateRange(dates)}
+      value={searchParams.dateRange ? 
+        searchParams.dateRange.split(' to ').map((date: string) => dayjs(date)) as [any, any] : 
+        null
+      }
       className="w-full h-12"
       allowClear
       getPopupContainer={(triggerNode) =>
@@ -108,93 +269,101 @@ const InternTable = () => {
             <Select
       id={`selectDepartment`}
       placeholder="Select Department"
-      onChange={() => {}}
+      onChange={(value: string) => handleDepartmentChange(value)}
+      value={searchParams.selectedDepartment || undefined}
       allowClear
       className="w-full h-12"
     >
-      {[]?.map((item: any) => (
-        <Option key={item?.id} value={item?.id}>
-          {item?.name}
-        </Option>
-      ))}
+      {EmployeeDepartment?.map((item: any) => (
+                  <Option key={item?.id} value={item?.id}>
+                    {item?.name}
+                  </Option>
+                ))}
     </Select>
             </Col>
-            
+           
           </Row>
         </Col>
       </Row>
 
       <Modal
         centered
-        title="Filter Employees"
-        open={false}
+        title="Filter Interns"
+        open={showMobileFilter}
         width="85%"
         footer={
           <div className="flex justify-center items-center space-x-4">
             <Button
               type="default"
               className="px-3"
-              onClick={() => {}}
+              onClick={() => setShowMobileFilter(false)}
             >
               Cancel
             </Button>
             <Button
-              onClick={() => {}}
+              onClick={() => setShowMobileFilter(false)}
               type="primary"
               className="px-3"
             >
-              Filter
+              Apply Filter
             </Button>
           </div>
         }
       >
+        <RangePicker
+          id={`inputDateRangeMobile`}
+          onChange={(dates: any) => handleSearchByDateRange(dates)}
+          className="w-full mb-4"
+          allowClear
+          getPopupContainer={(triggerNode) =>
+            triggerNode.parentElement || document.body
+          }
+        />
+
         <Select
-          id={`selectBranches`}
-          placeholder="All Offices"
-          onChange={() => {}}
+          id={`selectDepartmentMobile`}
+          placeholder="Select Department"
+          onChange={(value: string) => handleDepartmentChange(value)}
           allowClear
           className="w-full mb-4"
+          value={searchParams.selectedDepartment || undefined}
         >
-          {[]?.map((item: any) => (
+          {EmployeeDepartment?.map((item: any) => (
             <Option key={item?.id} value={item?.id}>
               {item?.name}
             </Option>
           ))}
-        </Select>
-
-        <Select
-          id={`selectDepartment`}
-          placeholder="All Departments"
-          onChange={() => {}}
-          allowClear
-          className="w-full mb-4"
-        >
-          {[]?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
-              {item?.name}
-            </Option>
-          ))}
-        </Select>
-
-        <Select
-          id={`selectStatus`}
-          placeholder="Active"
-          allowClear
-          className="w-full"
-        >
-          {/* <Option value={activeStatusValue}>Active</Option>
-          <Option value={inactiveStatusValue}>Inactive</Option> */}
         </Select>
       </Modal>
     </div>
     <Table
   className="w-full"
   columns={columns}
-  dataSource={[]}
-  loading={false}
+  dataSource={data}
+  loading={isLoading}
+  pagination={false}
   scroll={{ x: 1000 }}
-  rowSelection={rowSelection} // Enable selection
-    /></div>    
+  />
+  {isMobile || isTablet ? (
+    <CustomMobilePagination
+      totalResults={intern?.meta?.totalItems ?? 0}
+      pageSize={pageSize}
+      onChange={onPageChange}
+      onShowSizeChange={onPageChange}
+    />
+  ) : (
+    <CustomPagination
+      current={currentPage}
+      total={intern?.meta?.totalItems ?? 0}
+      pageSize={pageSize}
+      onChange={onPageChange}
+      onShowSizeChange={(pageSize) => {
+        setPageSize(pageSize);
+        setCurrentPage(1);
+      }}
+    /> 
+    )}
+    </div>
     );
 };
 
