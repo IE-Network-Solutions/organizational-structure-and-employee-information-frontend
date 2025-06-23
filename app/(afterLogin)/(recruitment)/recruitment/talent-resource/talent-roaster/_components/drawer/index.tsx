@@ -1,3 +1,4 @@
+'use client';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   Col,
