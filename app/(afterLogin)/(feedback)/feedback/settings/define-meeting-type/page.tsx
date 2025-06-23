@@ -83,11 +83,11 @@ const DefineMeetingType = () => {
       ) : (
         <div className="p-4 rounded-2xl min-h-screen bg-white h-full ">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Meeting Types</h2>
+            <h2 className="text-xl font-semibold">Meeting Types</h2>
             {/* <AccessGuard permissions={[Permissions.CreateMeetingType]}> */}
             <Button
               type="primary"
-              className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
+              className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
               icon={<FaPlus className="text-xs" />}
               onClick={showDrawer}
             >
@@ -114,14 +114,14 @@ const DefineMeetingType = () => {
                   {/* <AccessGuard permissions={[Permissions.UpdateMeetingType]}> */}
                   <Button
                     icon={<GoPencil />}
-                    className="mr-2 bg-blue text-white border-none rounded-md"
+                    className="mr-2 bg-blue text-white border-none rounded-md h-8"
                     onClick={() => handleEditModal(item)}
                   />
                   {/* </AccessGuard> */}
                   {/* <AccessGuard permissions={[Permissions.DeleteMeetingType]}> */}
                   <Button
                     icon={<DeleteOutlined />}
-                    className="mr-2 bg-red-500 text-white border-none  rounded-md"
+                    className="mr-2 bg-red-500 text-white border-none rounded-md h-8"
                     onClick={() => showDeleteModal(item?.id as string)}
                   />
                   {/* </AccessGuard> */}
@@ -129,25 +129,27 @@ const DefineMeetingType = () => {
               </List.Item>
             )}
           />
-          <CustomPagination
-            current={
-              (meetingTypes as { meta?: { currentPage?: number } })?.meta
-                ?.currentPage || 1
-            }
-            total={
-              (meetingTypes as { meta?: { totalItems?: number } })?.meta
-                ?.totalItems || 1
-            }
-            pageSize={pageSizeType}
-            onChange={(page: number, pageSize: number) => {
-              setCurrentType(page);
-              setPagesizeType(pageSize);
-            }}
-            onShowSizeChange={(size: number) => {
-              setPagesizeType(size);
-              setCurrentType(1);
-            }}
-          />
+          {Array.isArray(meetingTypes) ? meetingTypes.length > 0 : meetingTypes?.items?.length > 0 && (
+            <CustomPagination
+              current={
+                (meetingTypes as { meta?: { currentPage?: number } })?.meta?.currentPage || 1
+              }
+              total={
+                (meetingTypes as { meta?: { totalItems?: number } })?.meta
+                  ?.totalItems || 1
+              }
+              pageSize={pageSizeType}
+              onChange={(page: number, pageSize: number) => {
+                setCurrentType(page);
+                setPagesizeType(pageSize);
+              }}
+              onShowSizeChange={(size: number) => {
+                setPagesizeType(size);
+                setCurrentType(1);
+              }}
+            />
+          )}
+
           <MeetingTypeDrawer
             meetType={meetingType}
             open={open}

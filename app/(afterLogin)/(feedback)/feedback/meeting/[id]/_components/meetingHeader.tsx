@@ -2,6 +2,7 @@
 import { Button, Card } from 'antd';
 import Link from 'next/link';
 import { IoIosArrowBack } from 'react-icons/io';
+import { FileTextOutlined } from '@ant-design/icons';
 
 interface MeetingHeaderProps {
   title: string;
@@ -23,7 +24,9 @@ export default function MeetingHeader({ title, loading }: MeetingHeaderProps) {
           <IoIosArrowBack size={20} />
           <span className="font-semibold  text-2xl">{title}</span>
         </Link>
-        <Button type="primary">MoM</Button>
+        <Button type="primary" icon={<FileTextOutlined />} className="h-10">
+          MoM
+        </Button>
       </div>
     </Card>
   );

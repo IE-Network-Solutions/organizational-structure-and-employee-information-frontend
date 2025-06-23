@@ -117,14 +117,14 @@ const MeetingList = () => {
   };
   return (
     <Spin spinning={meetingLoading} tip="Loading...">
-      <div className=" space-y-6">
+      <div className=" space-y-6 ">
         {/* Filters */}
-        <div className="grid grid-cols-12 gap-2 items-center">
+        <div className="grid grid-cols-12 gap-2 items-center mx-4">
           <Input
             allowClear
             onChange={(e) => handleSearchInput(e.target.value)}
             placeholder="Search Meeting"
-            className="col-span-3 h-12"
+            className="col-span-4 h-12"
           />
           <Select
             showSearch
@@ -135,7 +135,7 @@ const MeetingList = () => {
               (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
             options={meetingOptions}
-            className="col-span-3 h-12"
+            className="col-span-2 h-12"
             onChange={(value) => setMeetingTypeId(value)}
           />
 
@@ -149,7 +149,7 @@ const MeetingList = () => {
             mode="multiple"
             options={departmentOptions}
             maxTagCount={1}
-            className="col-span-3  h-12"
+            className="col-span-2 h-12"
             onChange={(value) => setDepartmentId(value)}
           />
 
@@ -157,13 +157,13 @@ const MeetingList = () => {
             value={[startAt, endAt]}
             onChange={handleChangeRange}
             format="DD MMM YYYY"
-            className="col-span-3  h-12"
+            className="col-span-4 h-12"
           />
         </div>
 
         {/* Meeting Cards */}
         {meetings?.items?.length !== 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-4">
             {meetings?.items?.map((meeting: any, index: number) => (
               <Link
                 key={index}
@@ -175,29 +175,29 @@ const MeetingList = () => {
                   bodyStyle={{ padding: 10 }}
                   title={
                     <div className="flex flex-col">
-                      {' '}
-                      <span className="text-md"> {meeting.title}</span>{' '}
-                      <span className="text-sm font-normal text-gray-500">
+                      <span className="text-base font-bold text-black"> {meeting.title}</span>
+                      <span className="text-sm font-normal text-black">
                         {meeting.meetingType?.name || '-'}
                       </span>
                     </div>
                   }
-                  className="shadow-md rounded-xl h-full"
+                  className="rounded-xl h-full border border-gray-200"
+                  headStyle={{ borderBottom: 'none' }}
                 >
-                  <div className="space-y-1 text-sm text-gray-600 ">
+                  <div className="space-y-2.5 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      <CalendarOutlined className="text-blue" />
+                      <CalendarOutlined className="text-blue text-2xl" />
                       <div className="flex flex-col">
-                        <span className="font-bold">Date</span>
+                        <span className="font-bold text-black">Date</span>
                         <span>
-                          {dayjs(meeting.createdAt).format('YYYY-MM-DD')}
+                          {dayjs(meeting.createdAt).format('YYYY-MM-DD HH:mm')}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <UserOutlined className="text-blue" />
+                      <UserOutlined className="text-blue text-2xl" />
                       <div className="flex flex-col">
-                        <span className="font-bold">Chair person:</span>
+                        <span className="font-bold text-black">Chair person</span>
                         <span>
                           <EmployeeDetails
                             type="all"
@@ -207,9 +207,9 @@ const MeetingList = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <UserOutlined className="text-blue" />
+                      <UserOutlined className="text-blue text-2xl" />
                       <div className="flex flex-col">
-                        <span className="font-bold">Facilitator:</span>
+                        <span className="font-bold text-black">Facilitator</span>
                         <span>
                           <EmployeeDetails
                             type="all"
@@ -219,9 +219,9 @@ const MeetingList = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <EnvironmentOutlined className="text-blue" />
+                      <EnvironmentOutlined className="text-blue text-2xl" />
                       <div className="flex flex-col">
-                        <span className="font-bold">Location</span>
+                        <span className="font-bold text-black">Location</span>
                         <span>
                           <span>
                             {meeting.locationType} •{' '}
@@ -236,9 +236,9 @@ const MeetingList = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <FiUsers className="text-blue" />
+                      <FiUsers className="text-blue text-2xl" />
                       <div className="flex flex-col">
-                        <div className="font-bold">Attendees</div>
+                        <div className="font-bold text-black">Attendees</div>
                         {meeting?.attendees?.length > 0 ? (
                           <Avatar.Group
                             maxCount={5}
@@ -270,23 +270,25 @@ const MeetingList = () => {
           </div>
         ) : (
           <div className="flex justify-center items-center h-64">
-            <p className=" text-2xl text-gray-500">You Have No Meetings</p>
+            <p className="text-2xl font-bold text-gray-500">You Have No Meetings</p>
           </div>
         )}
 
-        <CustomPagination
-          current={meetings?.meta?.currentPage || 1}
-          total={meetings?.meta?.totalItems || 1}
-          pageSize={pageSize}
-          onChange={(page, pageSize) => {
-            setCurrent(page);
-            setPagesize(pageSize);
-          }}
-          onShowSizeChange={(size) => {
-            setPagesize(size);
-            setCurrent(1);
-          }}
-        />
+        {meetings?.items?.length !== 0 && (
+          <CustomPagination
+            current={meetings?.meta?.currentPage || 1}
+            total={meetings?.meta?.totalItems || 1}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setCurrent(page);
+              setPagesize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPagesize(size);
+              setCurrent(1);
+            }}
+          />
+        )}
       </div>
     </Spin>
   );

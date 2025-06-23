@@ -39,12 +39,13 @@ export default function MeetingAgenda({ id, canEdit }: MeetingAgendaProps) {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center py-2">
-        <h2 className="text-lg font-semibold mb-2">Meeting Agenda</h2>
+        <h2 className="text-lg font-bold mb-2">Meeting Agenda</h2>
         {canEdit && (
           <Button
             icon={<FaPlus />}
             onClick={() => setOpenAddAgenda(true)}
             type="primary"
+            className="h-10"
           >
             Add New
           </Button>
@@ -62,7 +63,7 @@ export default function MeetingAgenda({ id, canEdit }: MeetingAgendaProps) {
               className="flex items-center justify-between border rounded-md p-3"
             >
               <span
-                className="cursor-pointer"
+                className="cursor-pointer font-bold"
                 onClick={() => handleMeetingDiscussion(i)}
               >
                 {i.agenda}
