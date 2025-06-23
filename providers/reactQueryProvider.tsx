@@ -1,5 +1,10 @@
 'use client';
-import { QueryCache, QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from 'react-query';
 import { ReactNode, Suspense } from 'react';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -75,7 +80,8 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
           }
         },
         onSuccess: (variables: any, context: any) => {
-          const method = context?.method?.toUpperCase() || variables?.method?.toUpperCase();
+          const method =
+            context?.method?.toUpperCase() || variables?.method?.toUpperCase();
           const customMessage = context?.customMessage || undefined;
           handleSuccessMessage(method, customMessage);
         },

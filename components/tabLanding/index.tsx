@@ -7,6 +7,7 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { FaPlus } from 'react-icons/fa';
 import { Button, Tooltip } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface TabLandingLayoutProps {
   title?: string | any;
@@ -36,6 +37,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   children,
   permissionsData = [],
 }) => {
+  const { isMobile } = useIsMobile();
+
   return (
     <div className="min-h-screen h-auto w-full bg-white p-4">
       <BlockWrapper className="bg-white ">
@@ -48,35 +51,55 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
             {!buttonDisabled
               ? buttonTitle && (
-                <AccessGuard permissions={permissionsData}>
-                  <CustomButton
-                    title={buttonTitle}
-                    id={`${id}-createButtonId`}
-                    icon={buttonIcon ?? <FaPlus />}
-                    onClick={onClickHandler}
-                    className="text-xs bg-blue-600 hover:bg-blue-700 h-14 w-5 sm:w-auto sm:px-5 px-6 py-6"
-                  />
-                </AccessGuard>
-              )
+                  <AccessGuard permissions={permissionsData}>
+                    {isMobile ? (
+                      <Button
+                        type="primary"
+                        id={`${id}-createButtonId`}
+                        icon={buttonIcon ?? <FaPlus />}
+                        onClick={onClickHandler}
+                        className="h-10 w-10 rounded-lg flex justify-center items-center bg-blue-600 hover:bg-blue-700"
+                      />
+                    ) : (
+                      <CustomButton
+                        title={buttonTitle}
+                        id={`${id}-createButtonId`}
+                        icon={buttonIcon ?? <FaPlus />}
+                        onClick={onClickHandler}
+                        className="text-xs bg-blue-600 hover:bg-blue-700 h-10 w-5 sm:w-auto sm:px-5 px-6 py-6"
+                      />
+                    )}
+                  </AccessGuard>
+                )
               : buttonTitle && (
-                <Tooltip
-                  title={disabledMessage ?? ''}
-                  placement="top"
-                  overlayClassName="custom-tooltip"
-                >
-                  <Button
-                    type="primary"
-                    disabled
-                    id={`${title}CustomButtonId`}
-                    icon={buttonIcon ?? <FaPlus />}
-                    className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700`}
+                  <Tooltip
+                    title={disabledMessage ?? ''}
+                    placement="top"
+                    overlayClassName="custom-tooltip"
                   >
-                    <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
-                      {buttonTitle}
-                    </div>
-                  </Button>
-                </Tooltip>
-              )}
+                    {isMobile ? (
+                      <Button
+                        type="primary"
+                        disabled
+                        id={`${title}CustomButtonId`}
+                        icon={buttonIcon ?? <FaPlus />}
+                        className="h-14 w-14 rounded-lg flex justify-center items-center bg-blue-600 hover:bg-blue-700"
+                      />
+                    ) : (
+                      <Button
+                        type="primary"
+                        disabled
+                        id={`${title}CustomButtonId`}
+                        icon={buttonIcon ?? <FaPlus />}
+                        className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700`}
+                      >
+                        <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
+                          {buttonTitle}
+                        </div>
+                      </Button>
+                    )}
+                  </Tooltip>
+                )}
             {/* {buttonTitle && (
               <CustomButton
                 title={buttonTitle}

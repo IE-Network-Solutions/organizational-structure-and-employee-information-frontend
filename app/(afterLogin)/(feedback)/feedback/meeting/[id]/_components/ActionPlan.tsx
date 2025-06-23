@@ -30,7 +30,11 @@ export default function ActionPlan({
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Action Plan</h2>
           {canEdit && (
-            <Button onClick={() => setOpenAddActionPlan(true)} type="default" className="h-10">
+            <Button
+              onClick={() => setOpenAddActionPlan(true)}
+              type="default"
+              className="h-10"
+            >
               + Add New
             </Button>
           )}

@@ -20,26 +20,26 @@ export default function PreviousMeeting({ meeting }: { meeting?: any }) {
     >
       {meetings?.items?.filter((ifm: any) => ifm?.id != meeting.id)?.length !=
         0 && (
-          <>
-            <div className="flex justify-between items-center py-2">
-              <h2 className="text-lg font-semibold mb-2">Previous Meeting</h2>
-            </div>
+        <>
+          <div className="flex justify-between items-center py-2">
+            <h2 className="text-lg font-semibold mb-2">Previous Meeting</h2>
+          </div>
 
-            <div className="flex flex-col gap-2">
-              {meetings?.items
-                ?.filter((ifm: any) => ifm?.id != meeting.id)
-                ?.map((i: any, index: number) => (
-                  <Link
-                    key={index}
-                    href={`/feedback/meeting/${i.id}`}
-                    className="flex items-center justify-between border rounded-md p-3 bg-gray-50"
-                  >
-                    <span className="font-semibold text-gray-400">{i.title}</span>
-                  </Link>
-                ))}
-            </div>
-          </>
-        )}
+          <div className="flex flex-col gap-2">
+            {meetings?.items
+              ?.filter((ifm: any) => ifm?.id != meeting.id)
+              ?.map((i: any, index: number) => (
+                <Link
+                  key={index}
+                  href={`/feedback/meeting/${i.id}`}
+                  className="flex items-center justify-between border rounded-md p-3 bg-gray-50"
+                >
+                  <span className="font-semibold text-gray-400">{i.title}</span>
+                </Link>
+              ))}
+          </div>
+        </>
+      )}
     </Card>
   );
 }

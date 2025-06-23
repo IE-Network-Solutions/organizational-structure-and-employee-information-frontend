@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Form, Input, Select, Button, DatePicker } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
@@ -77,17 +76,17 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
     {
       actionPlanData == null
         ? createMeetingActionPlan(finalValue, {
-          onSuccess() {
-            form.resetFields();
-            onClose();
-          },
-        })
+            onSuccess() {
+              form.resetFields();
+              onClose();
+            },
+          })
         : updateMeetingActionPlan(finalValueEdit, {
-          onSuccess() {
-            form.resetFields();
-            onClose();
-          },
-        });
+            onSuccess() {
+              form.resetFields();
+              onClose();
+            },
+          });
     }
     // Submit logic
   };
@@ -153,7 +152,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       { required: true, message: 'Please input the issue!' },
                     ]}
                   >
-                    <Input.TextArea placeholder="Input area" className="min-h-[54px]" />
+                    <Input.TextArea
+                      placeholder="Input area"
+                      className="min-h-[54px]"
+                    />
                   </Form.Item>
 
                   <Form.Item
@@ -167,7 +169,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       },
                     ]}
                   >
-                    <Input.TextArea placeholder="Something to be done" className="min-h-[54px]" />
+                    <Input.TextArea
+                      placeholder="Something to be done"
+                      className="min-h-[54px]"
+                    />
                   </Form.Item>
 
                   <Form.Item
@@ -193,6 +198,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                           .includes(input.toLowerCase())
                       }
                       options={peopleOptions}
+                      maxTagCount={3}
                     />
                   </Form.Item>
 
@@ -234,7 +240,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                     name={[name, 'deadline']}
                     rules={[{ required: true }]}
                   >
-                    <DatePicker format="YYYY-MM-DD" className="w-full h-[54px]" />
+                    <DatePicker
+                      format="YYYY-MM-DD"
+                      className="w-full h-[54px]"
+                    />
                   </Form.Item>
                 </div>
               ))}

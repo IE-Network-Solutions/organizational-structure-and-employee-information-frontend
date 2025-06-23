@@ -1,6 +1,5 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { MdClose } from 'react-icons/md';
 
@@ -124,11 +123,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
                 </div>
               ))}
               <Form.Item>
-                <Button
-                  type="primary"
-                  onClick={() => add()}
-                  block
-                >
+                <Button type="primary" onClick={() => add()} block>
                   Add agenda item
                 </Button>
               </Form.Item>

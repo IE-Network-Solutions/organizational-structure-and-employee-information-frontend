@@ -20,7 +20,6 @@ export default function Index() {
       buttonTitle={'Add New'}
       buttonIcon={<FaPlus />}
       onClickHandler={() => HandleOpen()}
-
     >
       <MeetingList />
       <AddNewMeetingForm />

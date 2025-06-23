@@ -129,26 +129,29 @@ const DefineMeetingType = () => {
               </List.Item>
             )}
           />
-          {Array.isArray(meetingTypes) ? meetingTypes.length > 0 : meetingTypes?.items?.length > 0 && (
-            <CustomPagination
-              current={
-                (meetingTypes as { meta?: { currentPage?: number } })?.meta?.currentPage || 1
-              }
-              total={
-                (meetingTypes as { meta?: { totalItems?: number } })?.meta
-                  ?.totalItems || 1
-              }
-              pageSize={pageSizeType}
-              onChange={(page: number, pageSize: number) => {
-                setCurrentType(page);
-                setPagesizeType(pageSize);
-              }}
-              onShowSizeChange={(size: number) => {
-                setPagesizeType(size);
-                setCurrentType(1);
-              }}
-            />
-          )}
+          {Array.isArray(meetingTypes)
+            ? meetingTypes.length > 0
+            : meetingTypes?.items?.length > 0 && (
+                <CustomPagination
+                  current={
+                    (meetingTypes as { meta?: { currentPage?: number } })?.meta
+                      ?.currentPage || 1
+                  }
+                  total={
+                    (meetingTypes as { meta?: { totalItems?: number } })?.meta
+                      ?.totalItems || 1
+                  }
+                  pageSize={pageSizeType}
+                  onChange={(page: number, pageSize: number) => {
+                    setCurrentType(page);
+                    setPagesizeType(pageSize);
+                  }}
+                  onShowSizeChange={(size: number) => {
+                    setPagesizeType(size);
+                    setCurrentType(1);
+                  }}
+                />
+              )}
 
           <MeetingTypeDrawer
             meetType={meetingType}

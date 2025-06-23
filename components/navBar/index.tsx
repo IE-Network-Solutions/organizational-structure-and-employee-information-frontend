@@ -626,8 +626,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         );
       },
     );
-   console.log(hasAllPermissions,"hasAllPermissions");
-    return true;
+    return hasAllPermissions;
   };
 
   // Add useEffect to check permissions on pathname change
@@ -638,7 +637,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         router.push('/dashboard');
         setIsCheckingPermissions(false);
       } else {
-        if (false) {
+        if (!checkPathnamePermissions(pathname)) {
           router.push('/unauthorized');
         }
         setIsCheckingPermissions(false);

@@ -170,50 +170,50 @@ export default function OtherDetails({
         {/* Physical Location */}
         {(meeting?.locationType === 'in-person' ||
           meeting?.locationType === 'hybrid') && (
-            <div className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3">
-              <EnvironmentOutlined />
-              {isEditing ? (
-                <Form.Item
-                  name="physicalLocation"
-                  style={{ flex: 1, marginBottom: 0 }}
-                >
-                  <Input placeholder="Physical Location" />
-                </Form.Item>
-              ) : (
-                <p
-                  className="w-full cursor-pointer"
-                  onClick={() => (canEdit ? setIsEditing(true) : null)}
-                  title="Click to edit physical location"
-                >
-                  {meeting?.physicalLocation || '-'}
-                </p>
-              )}
-            </div>
-          )}
+          <div className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3">
+            <EnvironmentOutlined />
+            {isEditing ? (
+              <Form.Item
+                name="physicalLocation"
+                style={{ flex: 1, marginBottom: 0 }}
+              >
+                <Input placeholder="Physical Location" />
+              </Form.Item>
+            ) : (
+              <p
+                className="w-full cursor-pointer"
+                onClick={() => (canEdit ? setIsEditing(true) : null)}
+                title="Click to edit physical location"
+              >
+                {meeting?.physicalLocation || '-'}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Virtual Link */}
         {(meeting?.locationType === 'virtual' ||
           meeting?.locationType === 'hybrid') && (
-            <div className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3">
-              <IoIosLink size={16} />
-              {isEditing ? (
-                <Form.Item
-                  name="virtualLink"
-                  style={{ flex: 1, marginBottom: 0 }}
-                >
-                  <Input placeholder="Virtual Link" />
-                </Form.Item>
-              ) : (
-                <p
-                  className="w-full cursor-pointer"
-                  onClick={() => (canEdit ? setIsEditing(true) : null)}
-                  title="Click to edit virtual link"
-                >
-                  {meeting?.virtualLink}
-                </p>
-              )}
-            </div>
-          )}
+          <div className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3">
+            <IoIosLink size={16} />
+            {isEditing ? (
+              <Form.Item
+                name="virtualLink"
+                style={{ flex: 1, marginBottom: 0 }}
+              >
+                <Input placeholder="Virtual Link" />
+              </Form.Item>
+            ) : (
+              <p
+                className="w-full cursor-pointer"
+                onClick={() => (canEdit ? setIsEditing(true) : null)}
+                title="Click to edit virtual link"
+              >
+                {meeting?.virtualLink}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Action Buttons */}
         {isEditing && (

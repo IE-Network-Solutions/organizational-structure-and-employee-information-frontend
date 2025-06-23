@@ -142,7 +142,7 @@ export default function AddNewMeetingForm() {
   const meetingTypeId = Form.useWatch('meetingTypeId', form);
 
   // You can now use meetingTypeId reactively anywhere in your component
-  useEffect(() => { }, [meetingTypeId]);
+  useEffect(() => {}, [meetingTypeId]);
   const { data: meetingAgendaTemplate } = useGetMeetingAgendaTemplate(
     meetingTypeId || '',
   );
@@ -286,13 +286,22 @@ export default function AddNewMeetingForm() {
               value={locationType}
               className="flex flex-col gap-2 w-full"
             >
-              <Radio value="in-person" className="w-full border p-3 rounded-md h-[54px] flex items-center">
+              <Radio
+                value="in-person"
+                className="w-full border p-3 rounded-md h-[54px] flex items-center"
+              >
                 <span className="ml-2">In-person</span>
               </Radio>
-              <Radio value="virtual" className="w-full border p-3 rounded-md h-[54px] flex items-center">
+              <Radio
+                value="virtual"
+                className="w-full border p-3 rounded-md h-[54px] flex items-center"
+              >
                 <span className="ml-2">Virtual</span>
               </Radio>
-              <Radio value="hybrid" className="w-full border p-3 rounded-md h-[54px] flex items-center">
+              <Radio
+                value="hybrid"
+                className="w-full border p-3 rounded-md h-[54px] flex items-center"
+              >
                 <span className="ml-2">Hybrid</span>
               </Radio>
             </Radio.Group>
@@ -352,7 +361,11 @@ export default function AddNewMeetingForm() {
               name="startAt"
               rules={[{ required: true, message: 'Please select start time' }]}
             >
-              <TimePicker format="hh:mm A" use12Hours className="w-full h-[54px]" />
+              <TimePicker
+                format="hh:mm A"
+                use12Hours
+                className="w-full h-[54px]"
+              />
             </Form.Item>
 
             <Form.Item
@@ -378,7 +391,11 @@ export default function AddNewMeetingForm() {
                 }),
               ]}
             >
-              <TimePicker format="hh:mm A" use12Hours className="w-full h-[54px]" />
+              <TimePicker
+                format="hh:mm A"
+                use12Hours
+                className="w-full h-[54px]"
+              />
             </Form.Item>
           </div>
 
@@ -450,7 +467,9 @@ export default function AddNewMeetingForm() {
                   if (e.target.checked) {
                     // Add a default guest field when checkbox is checked
                     const currentGuests = form.getFieldValue('guests') || [];
-                    form.setFieldsValue({ guests: [...currentGuests, { name: '', email: '' }] });
+                    form.setFieldsValue({
+                      guests: [...currentGuests, { name: '', email: '' }],
+                    });
                   } else {
                     // Clear all guests when checkbox is unchecked
                     form.setFieldsValue({ guests: [] });
@@ -467,9 +486,14 @@ export default function AddNewMeetingForm() {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="bg-gray-50 p-4 rounded-lg mb-3 border">
+                      <div
+                        key={key}
+                        className="bg-gray-50 p-4 rounded-lg mb-3 border"
+                      >
                         <div className="flex justify-between items-center mb-3">
-                          <span className="font-semibold text-gray-700">Guest {name + 1}</span>
+                          <span className="font-semibold text-gray-700">
+                            Guest {name + 1}
+                          </span>
                           <Button
                             icon={<MdClose />}
                             type="text"
@@ -519,7 +543,8 @@ export default function AddNewMeetingForm() {
                                     );
                                   }
 
-                                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                  const emailRegex =
+                                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                                   if (!emailRegex.test(value)) {
                                     return Promise.reject(
                                       new Error('Enter a valid email'),
@@ -547,13 +572,21 @@ export default function AddNewMeetingForm() {
                             ]}
                             className="w-full"
                           >
-                            <Input placeholder="Email" type="email" className="h-[54px]" />
+                            <Input
+                              placeholder="Email"
+                              type="email"
+                              className="h-[54px]"
+                            />
                           </Form.Item>
                         </div>
                       </div>
                     ))}
                     <div className="flex justify-end">
-                      <Button type="primary" onClick={() => add()} className="h-10">
+                      <Button
+                        type="primary"
+                        onClick={() => add()}
+                        className="h-10"
+                      >
                         Add Guest
                       </Button>
                     </div>
@@ -583,7 +616,7 @@ export default function AddNewMeetingForm() {
           <Form.Item
             label="Templates"
             name="template"
-          // rules={[{ required: true, message: 'Please select a template' }]}
+            // rules={[{ required: true, message: 'Please select a template' }]}
           >
             <Select
               showSearch
