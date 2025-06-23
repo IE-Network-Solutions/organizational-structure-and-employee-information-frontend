@@ -112,16 +112,16 @@ const MeetingTypeDetail: React.FC = () => {
 
   return (
     <Spin spinning={meetingAgendaTemplateLoading} className="">
-      <div className="bg-white p-4 rounded-lg mb-4 ">
-        <div className="flex gap-4 items-center ">
+      <div className="bg-white p-4 rounded-lg">
+        <div className="flex gap-2 items-center mb-2">
           <MdKeyboardArrowLeft
-            className="cursor-pointer"
+            className="cursor-pointer text-gray-600"
             onClick={() => handleClose()}
             size={24}
           />
           <span className="font-bold text-lg">Detail</span>
         </div>
-        <h2 className="text-lg font-bold mb-4">
+        <h2 className="text-lg font-bold mb-4 ml-6">
           {meetingTypeDetailData?.name}
         </h2>
         {meetingAgendaTemplate?.items.length > 0 ? (
@@ -147,7 +147,7 @@ const MeetingTypeDetail: React.FC = () => {
           </div>
         )}
         <div className="mt-6 text-center">
-          <Button type="primary" className="w-96" onClick={handleOpen}>
+          <Button type="primary" className="w-96 h-10" onClick={handleOpen}>
             Add new Template
           </Button>
         </div>

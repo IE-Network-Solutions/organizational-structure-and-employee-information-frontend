@@ -52,6 +52,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
+  const { userData } = useAuthenticationStore();
+
   const {
     setLocalId,
     setTenantId,
@@ -64,6 +66,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIs2FA,
     setTwoFactorAuthEmail,
     setUser2FA,
+    isCheckingPermissions,
+    setIsCheckingPermissions,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -90,21 +94,59 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   // ===========> Fiscal Year Ended Section <=================
 
-  const treeData: CustomMenuItem[] = [
+  // Separate array for routes that should be accessible but not shown in navigation
+  const hiddenRoutes: { key: string; permissions: string[] }[] = [
     {
-      title: (
-        <span className="flex items-center gap-2 h-12">
-          <CiSettings
-            size={18}
-            className={expandedKeys.includes('/dashboard') ? 'text-blue' : ''}
-          />
-          <span>Dashboard</span>
-        </span>
-      ),
       key: '/dashboard',
-      className: 'font-bold',
-      permissions: [],
+      permissions: [], // No permissions required
     },
+    {
+      key: '/',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/employees/manage-employees/[id]',
+      permissions: [], // No permissions required
+    },
+
+  ];
+
+  const getRoutesAndPermissions = (
+    menuItems: CustomMenuItem[],
+  ): { route: string; permissions: string[] }[] => {
+    const routes: { route: string; permissions: string[] }[] = [];
+
+    const traverse = (items: CustomMenuItem[]) => {
+      items.forEach((item) => {
+        if (item.key && item.permissions) {
+          routes.push({
+            route: item.key,
+            permissions: item.permissions,
+          });
+        }
+
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    // First add hidden routes
+    hiddenRoutes.forEach((route) => {
+      if (route.key && route.permissions) {
+        routes.push({
+          route: route.key,
+          permissions: route.permissions,
+        });
+      }
+    });
+
+    // Then add visible menu routes
+    traverse(menuItems);
+    return routes;
+  };
+
+  const treeData: CustomMenuItem[] = [
     {
       title: (
         <span className="flex items-center gap-2 h-12">
@@ -544,6 +586,121 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
+  // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
+  const isRouteMatch = (routePattern: string, pathname: string) => {
+    // Match [id] to UUIDs (or any non-slash segment)
+    if (routePattern.includes('[id]')) {
+      // UUID regex: [0-9a-fA-F-]{36} (simple version)
+      const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    // Generic dynamic segment: [something] => [^/]+
+    if (routePattern.match(/\[.*?\]/g)) {
+      const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    return routePattern === pathname;
+  };
+
+  const checkPathnamePermissions = (pathname: string): boolean => {
+    // Get all routes and their permissions
+    const routesWithPermissions = getRoutesAndPermissions(treeData);
+
+    // Check if user is owner - owners have access to all routes
+    const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
+    if (isOwner) {
+      return true;
+    }
+
+    // First check if the pathname matches any defined route (supporting dynamic segments)
+    const matchingRoute = routesWithPermissions.find((route) => {
+      if (isRouteMatch(route.route, pathname)) {
+        return true;
+      }
+      // Check for parent-child relationship - allow any level of nesting
+      if (pathname.startsWith(route.route + '/')) {
+        return true;
+      }
+      return false;
+    });
+
+    // If no matching route found, check if it's a deeply nested route
+    if (!matchingRoute) {
+      // For deeply nested routes without explicit permissions,
+      // check if any parent route exists and has permissions
+      const pathParts = pathname.split('/').filter(Boolean);
+
+      // Try to find a parent route that has permissions
+      for (let i = pathParts.length - 1; i > 0; i--) {
+        const parentPath = '/' + pathParts.slice(0, i).join('/');
+        const parentRoute = routesWithPermissions.find((route) =>
+          isRouteMatch(route.route, parentPath),
+        );
+
+        if (parentRoute) {
+          // Check if user has permissions for parent route
+          const userPermissions = userData?.userPermissions || [];
+          const hasParentPermissions = parentRoute.permissions.every(
+            (requiredPermission: any) => {
+              const found = userPermissions?.find(
+                (permission: any) =>
+                  permission.permission.slug === requiredPermission,
+              );
+              return found;
+            },
+          );
+
+          if (hasParentPermissions) {
+            return true;
+          }
+        }
+      }
+
+      // If no parent route found or no permissions, deny access
+      return false;
+    }
+
+    // If route exists but has no permissions, allow access
+    if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
+      return true;
+    }
+
+    // Get user's permissions from the authentication store
+    const userPermissions = userData?.userPermissions || [];
+
+    // Check if user has ALL required permissions for this route
+    const hasAllPermissions = matchingRoute.permissions.every(
+      (requiredPermission: any) => {
+        const found = userPermissions?.find(
+          (permission: any) =>
+            permission.permission.slug === requiredPermission,
+        );
+        return found;
+      },
+    );
+    return hasAllPermissions;
+  };
+
+  // Add useEffect to check permissions on pathname change
+  useEffect(() => {
+    const checkPermissions = async () => {
+      setIsCheckingPermissions(true);
+      if (pathname === '/') {
+        router.push('/dashboard');
+        setIsCheckingPermissions(false);
+      } else {
+        if (!checkPathnamePermissions(pathname)) {
+          router.push('/unauthorized');
+        }
+        setIsCheckingPermissions(false);
+      }
+    };
+
+    checkPermissions();
+  }, [pathname]);
+
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
     if (!selectedKey) return;
@@ -851,16 +1008,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             transition: 'padding-left 0.3s ease',
           }}
         >
-          <div
-            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-            style={{
-              borderRadius: borderRadiusLG,
-              marginTop: '94px',
-              marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-            }}
-          >
-            {children}
-          </div>
+          {isCheckingPermissions ? (
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton active />
+            </div>
+          ) : (
+            <div
+              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              style={{
+                borderRadius: borderRadiusLG,
+                marginTop: '94px',
+                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+              }}
+            >
+              {children}
+            </div>
+          )}
         </Content>
       </Layout>
     </Layout>

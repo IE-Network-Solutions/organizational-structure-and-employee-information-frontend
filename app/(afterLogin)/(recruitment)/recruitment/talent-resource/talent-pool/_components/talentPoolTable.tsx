@@ -135,6 +135,10 @@ const TalentPoolTable: React.FC<any> = () => {
       setPage(pageSize);
     }
   };
+  const onSizeChange = (size: number) => {
+    setPage(size);
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -171,7 +175,7 @@ const TalentPoolTable: React.FC<any> = () => {
           total={candidates?.meta?.totalItems ?? 1}
           pageSize={page}
           onChange={onPageChange}
-          onShowSizeChange={onPageChange}
+          onShowSizeChange={onSizeChange}
         />
       )}
       <TransferTalentPoolToCandidateModal
