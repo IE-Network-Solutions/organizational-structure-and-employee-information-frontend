@@ -582,6 +582,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     // Get all routes and their permissions
     const routesWithPermissions = getRoutesAndPermissions(treeData);
 
+    // Check if user is owner - owners have access to all routes
+    const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
+    if (isOwner) {
+      return true;
+    }
+
     // First check if the pathname matches any defined route
     const matchingRoute = routesWithPermissions.find((route) => {
       // Check for exact match
@@ -589,20 +595,46 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return true;
       }
 
-      // Check for parent-child relationship
-      // Only allow if the route is a direct parent (one level deep)
-      const pathParts = pathname.split('/').filter(Boolean);
-      const routeParts = route.route.split('/').filter(Boolean);
-
-      if (pathParts.length === routeParts.length + 1) {
-        return pathname.startsWith(route.route + '/');
+      // Check for parent-child relationship - allow any level of nesting
+      if (pathname.startsWith(route.route + '/')) {
+        return true;
       }
 
       return false;
     });
 
-    // If no matching route found, deny access by default
+    // If no matching route found, check if it's a deeply nested route
     if (!matchingRoute) {
+      // For deeply nested routes without explicit permissions,
+      // check if any parent route exists and has permissions
+      const pathParts = pathname.split('/').filter(Boolean);
+
+      // Try to find a parent route that has permissions
+      for (let i = pathParts.length - 1; i > 0; i--) {
+        const parentPath = '/' + pathParts.slice(0, i).join('/');
+        const parentRoute = routesWithPermissions.find(
+          (route) => route.route === parentPath,
+        );
+
+        if (parentRoute) {
+          // Check if user has permissions for parent route
+          const userPermissions = userData?.userPermissions || [];
+          const hasParentPermissions = parentRoute.permissions.every(
+            (requiredPermission: any) => {
+              return userPermissions?.find(
+                (permission: any) =>
+                  permission.permission.slug === requiredPermission,
+              );
+            },
+          );
+
+          if (hasParentPermissions) {
+            return true;
+          }
+        }
+      }
+
+      // If no parent route found or no permissions, deny access
       return false;
     }
 
