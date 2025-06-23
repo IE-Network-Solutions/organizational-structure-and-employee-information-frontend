@@ -228,10 +228,10 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 rules={[
                   { required: true, message: 'Please enter an initial value' },
                   {
-                  type: 'number',
-                  min: 0,
-                  message: 'Value must be greater than or equal to 0',
-                },
+                    type: 'number',
+                    min: 0,
+                    message: 'Value must be greater than or equal to 0',
+                  },
                 ]}
                 id={`initial-value-${index}`}
               >

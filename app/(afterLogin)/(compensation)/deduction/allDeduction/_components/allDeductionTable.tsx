@@ -53,7 +53,6 @@ const AllDeductionTable = () => {
     return dataRow;
   });
 
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',

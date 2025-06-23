@@ -56,7 +56,6 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       )
     : dataSource;
 
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',

@@ -50,7 +50,6 @@ const VariablePayTable = () => {
       ),
     })) || [];
 
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',

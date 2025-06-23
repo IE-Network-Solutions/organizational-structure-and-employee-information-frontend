@@ -680,7 +680,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return found;
       },
     );
-
     return hasAllPermissions;
   };
 

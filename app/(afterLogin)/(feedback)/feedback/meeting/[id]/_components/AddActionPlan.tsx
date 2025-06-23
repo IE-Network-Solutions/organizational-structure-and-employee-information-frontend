@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Form, Input, Select, Button, DatePicker } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
@@ -100,7 +99,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
 
   const footer = (
     <div className="w-full flex justify-center items-center gap-4 pt-8">
-      <Button loading={loading} onClick={handleClose}>
+      <Button loading={loading} onClick={handleClose} className="h-10">
         Cancel
       </Button>
       <Button
@@ -108,6 +107,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
         type="primary"
         htmlType="submit"
         onClick={() => form.submit()}
+        className="h-10"
       >
         Submit
       </Button>
@@ -135,7 +135,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <div key={key} className="mb-4 border-b  relative ">
+                <div key={key} className="mb-4 relative ">
                   {fields.length > 1 && (
                     <MdClose
                       size={18}
@@ -152,7 +152,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       { required: true, message: 'Please input the issue!' },
                     ]}
                   >
-                    <Input.TextArea placeholder="Input area" />
+                    <Input.TextArea
+                      placeholder="Input area"
+                      className="min-h-[54px]"
+                    />
                   </Form.Item>
 
                   <Form.Item
@@ -166,7 +169,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       },
                     ]}
                   >
-                    <Input.TextArea placeholder="Something to be done" />
+                    <Input.TextArea
+                      placeholder="Something to be done"
+                      className="min-h-[54px]"
+                    />
                   </Form.Item>
 
                   <Form.Item
@@ -185,12 +191,14 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       placeholder="Select person"
                       allowClear
                       mode="multiple"
+                      className="h-[54px]"
                       filterOption={(input: any, option: any) =>
                         (option?.label ?? '')
                           ?.toLowerCase()
                           .includes(input.toLowerCase())
                       }
                       options={peopleOptions}
+                      maxTagCount={3}
                     />
                   </Form.Item>
 
@@ -202,7 +210,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                       { required: true, message: 'Please select a priority!' },
                     ]}
                   >
-                    <Select placeholder="Select priority">
+                    <Select placeholder="Select priority" className="h-[54px]">
                       <Option value="High">High</Option>
                       <Option value="Medium">Medium</Option>
                       <Option value="Low">Low</Option>
@@ -217,7 +225,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                         { required: true, message: 'Please select a status!' },
                       ]}
                     >
-                      <Select placeholder="Select status">
+                      <Select placeholder="Select status" className="h-[54px]">
                         <Option value="Pending">Pending</Option>
                         <Option value="In_Progress">In progress </Option>
                         <Option value="Completed">Completed </Option>
@@ -232,7 +240,10 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                     name={[name, 'deadline']}
                     rules={[{ required: true }]}
                   >
-                    <DatePicker format="YYYY-MM-DD" className="w-full" />
+                    <DatePicker
+                      format="YYYY-MM-DD"
+                      className="w-full h-[54px]"
+                    />
                   </Form.Item>
                 </div>
               ))}
@@ -242,7 +253,7 @@ const AddActionPlanDrawer: React.FC<AddActionPlanDrawerProps> = ({
                     type="primary"
                     onClick={() => add()}
                     block
-                    icon={<PlusOutlined />}
+                    className="h-10"
                   >
                     Add New Action Plan
                   </Button>

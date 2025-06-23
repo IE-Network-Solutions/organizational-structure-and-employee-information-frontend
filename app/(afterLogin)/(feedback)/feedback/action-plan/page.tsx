@@ -1,7 +1,17 @@
 // app/action-plans/page.tsx
 'use client';
 
-import { Table, Select, DatePicker, Tag, Avatar, Tooltip, Form } from 'antd';
+import {
+  Table,
+  Select,
+  DatePicker,
+  Tag,
+  Avatar,
+  Tooltip,
+  Form,
+  Modal,
+  Button,
+} from 'antd';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -10,6 +20,9 @@ import CustomPagination from '@/components/customPagination';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useState } from 'react';
+import { VscSettings } from 'react-icons/vsc';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -175,6 +188,9 @@ export default function ActionPlansPage() {
     responsible: item.responsibleUsers.map((ru: any) => ru.responsibleId),
   }));
 
+  const { isMobile } = useIsMobile();
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+
   return (
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
@@ -182,6 +198,16 @@ export default function ActionPlansPage() {
           <h2 className="text-2xl font-semibold">Action Plans</h2>
           <p className="text-sm text-gray-500">View all action plans</p>
         </div>
+        {isMobile && (
+          <div className="flex justify-end items-center gap-2">
+            <div className="flex items-center justify-center w-10 h-10 text-black border border-gray-300 rounded-lg">
+              <VscSettings
+                size={20}
+                onClick={() => setIsFilterModalOpen(true)}
+              />
+            </div>
+          </div>
+        )}
       </div>
       <Form
         form={form}
@@ -193,8 +219,13 @@ export default function ActionPlansPage() {
           dateRange: null,
         }}
       >
-        <div className="grid grid-cols-12 gap-2 items-center">
-          <Form.Item name="empId" className="col-span-3 my-2">
+        <div
+          className={`grid gap-4 items-center ${isMobile ? 'hidden' : 'grid-cols-12'}`}
+        >
+          <Form.Item
+            name="empId"
+            className={isMobile ? 'col-span-12' : 'col-span-3 my-2'}
+          >
             <Select
               showSearch
               allowClear
@@ -210,14 +241,20 @@ export default function ActionPlansPage() {
             />
           </Form.Item>
 
-          <Form.Item name="priority" className="col-span-3 m-0">
+          <Form.Item
+            name="priority"
+            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
+          >
             <Select allowClear className="h-12" placeholder="Select priority">
               <Option value="High">High</Option>
               <Option value="Medium">Medium</Option>
               <Option value="Low">Low</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="status" className="col-span-3 m-0">
+          <Form.Item
+            name="status"
+            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
+          >
             <Select allowClear className="h-12" placeholder="Select status">
               <Option value="Pending">Pending</Option>
               <Option value="In_Progress">In progress </Option>
@@ -225,7 +262,10 @@ export default function ActionPlansPage() {
             </Select>
           </Form.Item>
 
-          <Form.Item name="dateRange" className="col-span-3 m-0">
+          <Form.Item
+            name="dateRange"
+            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
+          >
             <RangePicker
               allowClear
               className="w-full h-12"
@@ -256,6 +296,81 @@ export default function ActionPlansPage() {
           setCurrentAction(1);
         }}
       />
+
+      <Modal
+        title="Filters"
+        open={isFilterModalOpen}
+        onCancel={() => setIsFilterModalOpen(false)}
+        footer={
+          <div className="flex justify-end items-center gap-2">
+            <Button key="cancel" onClick={() => setIsFilterModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              key="apply"
+              type="primary"
+              onClick={() => setIsFilterModalOpen(false)}
+            >
+              Apply Filters
+            </Button>
+          </div>
+        }
+        width={isMobile ? '95%' : '50%'}
+        centered
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{
+            search: '',
+            meetingType: null,
+            departments: [],
+            dateRange: null,
+          }}
+        >
+          <div className="space-y-4">
+            <Form.Item name="empId" label="Employee">
+              <Select
+                showSearch
+                allowClear
+                maxTagCount={1}
+                placeholder="Select Employee"
+                options={peopleOptions}
+                filterOption={(input: any, option: any) =>
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                className="h-12"
+              />
+            </Form.Item>
+
+            <Form.Item name="priority" label="Priority">
+              <Select allowClear className="h-12" placeholder="Select priority">
+                <Option value="High">High</Option>
+                <Option value="Medium">Medium</Option>
+                <Option value="Low">Low</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item name="status" label="Status">
+              <Select allowClear className="h-12" placeholder="Select status">
+                <Option value="Pending">Pending</Option>
+                <Option value="In_Progress">In progress </Option>
+                <Option value="Completed">Completed </Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item name="dateRange" label="Date Range">
+              <RangePicker
+                allowClear
+                className="w-full h-12"
+                format="DD MMM YYYY"
+              />
+            </Form.Item>
+          </div>
+        </Form>
+      </Modal>
     </div>
   );
 }
