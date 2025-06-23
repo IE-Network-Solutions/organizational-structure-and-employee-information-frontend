@@ -663,14 +663,16 @@ const PlanPage = () => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className={`flex items-center gap-2 w-full text-center ${index === currentStep
-                ? 'text-black'
-                : 'text-gray-400 opacity-50'
-                }`}
+              className={`flex items-center gap-2 w-full text-center ${
+                index === currentStep
+                  ? 'text-black'
+                  : 'text-gray-400 opacity-50'
+              }`}
             >
               <span
-                className={`text-lg font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'
-                  }`}
+                className={`text-lg font-bold ${
+                  index === currentStep ? 'text-primary' : 'text-gray-400'
+                }`}
               >
                 {index + 1}
               </span>
@@ -1022,7 +1024,7 @@ const PlanPage = () => {
                         [
                           'Billing Period:',
                           updatedSubscriptionValue?.startAt &&
-                            updatedSubscriptionValue?.endAt
+                          updatedSubscriptionValue?.endAt
                             ? `${formatDate(updatedSubscriptionValue?.startAt)} - ${formatDate(updatedSubscriptionValue?.endAt)}`
                             : '-',
                         ],
