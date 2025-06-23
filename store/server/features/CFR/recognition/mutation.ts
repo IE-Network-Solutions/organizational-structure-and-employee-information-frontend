@@ -244,3 +244,47 @@ export const useDeleteCriteria = () => {
     },
   });
 };
+
+const downloadCertificate = async ({
+  recognitionId,
+  tenantId,
+}: {
+  recognitionId: string;
+  tenantId?: string;
+}) => {
+  const token = useAuthenticationStore.getState().token;
+  const headers = {
+    ...(tenantId ? { tenantId: tenantId } : {}),
+    Authorization: `Bearer ${token}`,
+  };
+
+  const response = await fetch(
+    `${ORG_DEV_URL}/recognition/${recognitionId}/certificate`,
+    {
+      method: 'GET',
+      headers,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch certificate');
+  }
+
+  return await response.blob();
+};
+
+export const useDownloadCertificate = () => {
+  return useMutation({
+    mutationFn: downloadCertificate,
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `certificate-of-recognition.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    },
+  });
+};

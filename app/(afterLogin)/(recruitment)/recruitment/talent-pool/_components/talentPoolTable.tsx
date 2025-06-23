@@ -10,7 +10,9 @@ import TransferTalentPoolToCandidateModal from './transferModal';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import RecruitmentPagination from '../../_components';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
@@ -29,6 +31,7 @@ const TalentPoolTable: React.FC<any> = () => {
   const { mutate: moveTalentPoolMutation } = useMoveTalentPoolToCandidates();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
+  const { isMobile, isTablet } = useIsMobile();
 
   const showModal = (record: any) => {
     setSelectedCandidate(record);
@@ -132,6 +135,10 @@ const TalentPoolTable: React.FC<any> = () => {
       setPage(pageSize);
     }
   };
+  const onSizeChange = (size: number) => {
+    setPage(size);
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -154,13 +161,23 @@ const TalentPoolTable: React.FC<any> = () => {
           scroll={{ x: 1000 }}
         />
       )}
-      <RecruitmentPagination
-        current={currentPage}
-        total={candidates?.meta?.totalItems ?? 1}
-        pageSize={page}
-        onChange={onPageChange}
-        onShowSizeChange={onPageChange}
-      />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={candidates?.meta?.totalItems ?? 1}
+          pageSize={page}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={candidates?.meta?.totalItems ?? 1}
+          pageSize={page}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
       <TransferTalentPoolToCandidateModal
         visible={isModalVisible}
         onConfirm={handleOk}

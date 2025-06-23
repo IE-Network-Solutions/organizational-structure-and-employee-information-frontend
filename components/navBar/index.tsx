@@ -52,6 +52,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
+  const { userData } = useAuthenticationStore();
+
   const {
     setLocalId,
     setTenantId,
@@ -64,6 +66,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIs2FA,
     setTwoFactorAuthEmail,
     setUser2FA,
+    isCheckingPermissions,
+    setIsCheckingPermissions,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -89,6 +93,53 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     new Date(activeFiscalYear?.endDate) <= new Date();
 
   // ===========> Fiscal Year Ended Section <=================
+
+  // Separate array for routes that should be accessible but not shown in navigation
+  const hiddenRoutes: { key: string; permissions: string[] }[] = [
+    {
+      key: '/dashboard',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/',
+      permissions: [], // No permissions required
+    },
+  ];
+
+  const getRoutesAndPermissions = (
+    menuItems: CustomMenuItem[],
+  ): { route: string; permissions: string[] }[] => {
+    const routes: { route: string; permissions: string[] }[] = [];
+
+    const traverse = (items: CustomMenuItem[]) => {
+      items.forEach((item) => {
+        if (item.key && item.permissions) {
+          routes.push({
+            route: item.key,
+            permissions: item.permissions,
+          });
+        }
+
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    // First add hidden routes
+    hiddenRoutes.forEach((route) => {
+      if (route.key && route.permissions) {
+        routes.push({
+          route: route.key,
+          permissions: route.permissions,
+        });
+      }
+    });
+
+    // Then add visible menu routes
+    traverse(menuItems);
+    return routes;
+  };
 
   const treeData: CustomMenuItem[] = [
     {
@@ -496,7 +547,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <CiSettings size={18} />
+          <CiSettings
+            size={18}
+            className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
+          />
           <span>Admin</span>
         </span>
       ),
@@ -526,6 +580,73 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
   ];
+
+  const checkPathnamePermissions = (pathname: string): boolean => {
+    // Get all routes and their permissions
+    const routesWithPermissions = getRoutesAndPermissions(treeData);
+
+    // First check if the pathname matches any defined route
+    const matchingRoute = routesWithPermissions.find((route) => {
+      // Check for exact match
+      if (pathname === route.route) {
+        return true;
+      }
+
+      // Check for parent-child relationship
+      // Only allow if the route is a direct parent (one level deep)
+      const pathParts = pathname.split('/').filter(Boolean);
+      const routeParts = route.route.split('/').filter(Boolean);
+
+      if (pathParts.length === routeParts.length + 1) {
+        return pathname.startsWith(route.route + '/');
+      }
+
+      return false;
+    });
+
+    // If no matching route found, deny access by default
+    if (!matchingRoute) {
+      return false;
+    }
+
+    // If route exists but has no permissions, allow access
+    if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
+      return true;
+    }
+
+    // Get user's permissions from the authentication store
+    const userPermissions = userData?.userPermissions || [];
+
+    // Check if user has ALL required permissions for this route
+    const hasAllPermissions = matchingRoute.permissions.every(
+      (requiredPermission: any) => {
+        return userPermissions?.find(
+          (permission: any) =>
+            permission.permission.slug === requiredPermission,
+        );
+      },
+    );
+
+    return hasAllPermissions;
+  };
+
+  // Add useEffect to check permissions on pathname change
+  useEffect(() => {
+    const checkPermissions = async () => {
+      setIsCheckingPermissions(true);
+      if (pathname === '/') {
+        router.push('/dashboard');
+        setIsCheckingPermissions(false);
+      } else {
+        if (!checkPathnamePermissions(pathname)) {
+          router.push('/unauthorized');
+        }
+        setIsCheckingPermissions(false);
+      }
+    };
+
+    checkPermissions();
+  }, [pathname]);
 
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
@@ -574,7 +695,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      // First step: clear all state that might trigger queries
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
@@ -835,16 +955,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             transition: 'padding-left 0.3s ease',
           }}
         >
-          <div
-            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-            style={{
-              borderRadius: borderRadiusLG,
-              marginTop: '94px',
-              marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-            }}
-          >
-            {children}
-          </div>
+          {isCheckingPermissions ? (
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton active />
+            </div>
+          ) : (
+            <div
+              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              style={{
+                borderRadius: borderRadiusLG,
+                marginTop: '94px',
+                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+              }}
+            >
+              {children}
+            </div>
+          )}
         </Content>
       </Layout>
     </Layout>
