@@ -24,14 +24,62 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
-interface InternTableProps {
-  onEdit?: (data: any) => void;
+
+// Type definitions
+interface Department {
+  id: string;
+  name: string;
+  description?: string;
 }
-interface SearchParams {
+
+interface InternRecord {
+  id: string;
   fullName: string;
-  dateRange: string;
-  selectedDepartment: string;
+  phone: string;
+  CGPA: number;
+  departmentId: string;
+  createdAt: string;
+  resumeUrl: string;
+  documentName?: string;
+  graduateYear: string;
 }
+
+interface InternApiResponse {
+  meta: {
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+  items: InternRecord[];
+}
+
+interface InternTableData {
+  key: number;
+  id: string;
+  fullName: string;
+  phone: string;
+  CGPA: number;
+  departmentId: React.ReactNode;
+  createdAt: string;
+  resumeUrl: React.ReactNode;
+  graduateYear: string;
+  action: React.ReactNode;
+}
+
+interface InternTableProps {
+  onEdit?: (data: InternRecord) => void;
+}
+
+interface QueryParams {
+  fullName?: string;
+  dateRange?: string;
+  selectedDepartment?: string;
+  page: number;
+  pageSize: number;
+}
+
 const InternTable = ({ onEdit }: InternTableProps) => {
   const { RangePicker } = DatePicker;
   const {
@@ -45,7 +93,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
   } = useInternStore();
 
   // Create query parameters from search params
-  const queryParams = {
+  const queryParams: QueryParams = {
     fullName: searchParams.fullName || undefined,
     dateRange: searchParams.dateRange || undefined,
     selectedDepartment: searchParams.selectedDepartment || undefined,
@@ -53,8 +101,9 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     pageSize: pageSize,
   };
 
-  const { data: intern, isLoading: isInternLoading } =
-    useGetIntern(queryParams);
+  const { data: intern, isLoading: isInternLoading } = useGetIntern(
+    queryParams,
+  ) as { data: InternApiResponse | undefined; isLoading: boolean };
   const { isLoading: isDepartmentLoading } = useGetDepartments();
   const { mutate: deleteIntern } = useDeleteIntern();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
@@ -70,11 +119,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     setPageSize(pageSize ?? 10);
   };
 
-  const handleEdit = (data: any) => {
+  const handleEdit = (data: InternRecord) => {
     onEdit?.(data);
   };
 
-  const handleDelete = (item: any) => {
+  const handleDelete = (item: InternRecord) => {
     setItemToDelete(item);
     deleteIntern(item.id, {
       onSuccess: () => {
@@ -83,7 +132,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     });
   };
 
-  const columns: TableColumnsType<any> = [
+  const columns: TableColumnsType<InternTableData> = [
     {
       title: 'Name',
       dataIndex: 'fullName',
@@ -98,12 +147,12 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     {
       title: 'CGPA',
       dataIndex: 'CGPA',
-      sorter: (a: any, b: any) => a.CGPA - b.CGPA,
+      sorter: (a: InternTableData, b: InternTableData) => a.CGPA - b.CGPA,
     },
     {
       title: 'Department',
       dataIndex: 'departmentId',
-      sorter: (a, b) => a.departmentId.localeCompare(b.departmentId),
+      sorter: false,
     },
 
     {
@@ -125,68 +174,70 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     },
   ];
 
-  const data = intern?.items?.map((item: any, index: any) => {
-    const fileName = item?.resumeUrl?.split('/')?.pop();
+  const data = intern?.items?.map(
+    (item: InternRecord, index: number): InternTableData => {
+      const fileName = item?.resumeUrl?.split('/')?.pop();
 
-    const DepartmentDetail = ({ id }: { id: string }) => {
-      const {
-        data: getAllDepartment,
-        isLoading: isDepartmentLoading,
-        error,
-      } = useGetDepartmentByID(id);
+      const DepartmentDetail = ({ id }: { id: string }) => {
+        const {
+          data: getAllDepartment,
+          isLoading: isDepartmentLoading,
+          error,
+        } = useGetDepartmentByID(id);
 
-      if (isDepartmentLoading)
+        if (isDepartmentLoading)
+          return (
+            <>
+              <LoadingOutlined />
+            </>
+          );
+
+        if (error || !getAllDepartment) return '-';
+
+        const depName = `${getAllDepartment?.name}` || '-';
         return (
-          <>
-            <LoadingOutlined />
-          </>
+          <div className="flex gap-2 items-center">{<div>{depName}</div>}</div>
         );
+      };
 
-      if (error || !getAllDepartment) return '-';
+      return {
+        key: index,
+        id: item.id,
+        fullName: item?.fullName ?? '--',
+        phone: item?.phone ?? '--',
+        CGPA: item?.CGPA ?? '--',
+        departmentId: <DepartmentDetail id={item?.departmentId} />,
+        createdAt: item?.createdAt
+          ? dayjs(item.createdAt).format('DD MMMM YYYY')
+          : '--',
+        resumeUrl: (
+          <a
+            href={item?.resumeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-semibold cursor-pointer flex items-center gap-2"
+            title={item?.documentName ?? 'CV.pdf'}
+          >
+            {item?.documentName && item.documentName.length > 8
+              ? `${item.documentName.slice(0, 8)}...`
+              : (fileName ?? 'CV.pdf')}
+          </a>
+        ),
 
-      const depName = `${getAllDepartment?.name}` || '-';
-      return (
-        <div className="flex gap-2 items-center">{<div>{depName}</div>}</div>
-      );
-    };
+        graduateYear: item?.graduateYear
+          ? dayjs(item.graduateYear).format('DD MMMM YYYY')
+          : '--',
 
-    return {
-      key: index,
-      id: item.id,
-      fullName: item?.fullName ?? '--',
-      phone: item?.phone ?? '--',
-      CGPA: item?.CGPA ?? '--',
-      departmentId: <DepartmentDetail id={item?.departmentId} />,
-      createdAt: item?.createdAt
-        ? dayjs(item.createdAt).format('DD MMMM YYYY')
-        : '--',
-      resumeUrl: (
-        <a
-          href={item?.resumeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
-          title={item?.documentName ?? 'CV.pdf'}
-        >
-          {item?.documentName?.length > 8
-            ? `${item.documentName.slice(0, 8)}...`
-            : (fileName ?? 'CV.pdf')}
-        </a>
-      ),
-
-      graduateYear: item?.graduateYear
-        ? dayjs(item.graduateYear).format('DD MMMM YYYY')
-        : '--',
-
-      action: (
-        <ActionButtons
-          id={item?.id ?? null}
-          onEdit={() => handleEdit(item)}
-          onDelete={() => handleDelete(item)}
-        />
-      ),
-    };
-  });
+        action: (
+          <ActionButtons
+            id={item?.id ?? null}
+            onEdit={() => handleEdit(item)}
+            onDelete={() => handleDelete(item)}
+          />
+        ),
+      };
+    },
+  );
 
   const handleSearchCandidate = async (
     value: string | boolean,
@@ -195,7 +246,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     setSearchParams(keyValue, value);
   };
 
-  const handleSearchByDateRange = (dates: [any, any] | null) => {
+  const handleSearchByDateRange = (dates: any) => {
     if (dates && dates.length === 2) {
       const startDate = dayjs(dates[0]).format('YYYY-MM-DD');
       const endDate = dayjs(dates[1]).format('YYYY-MM-DD');
@@ -251,12 +302,12 @@ const InternTable = ({ onEdit }: InternTableProps) => {
               <Col lg={14} sm={12} xs={24}>
                 <RangePicker
                   id={`inputDateRange`}
-                  onChange={(dates: any) => handleSearchByDateRange(dates)}
+                  onChange={(dates) => handleSearchByDateRange(dates)}
                   value={
                     searchParams.dateRange
                       ? (searchParams.dateRange
                           .split(' to ')
-                          .map((date: string) => dayjs(date)) as [any, any])
+                          .map((date: string) => dayjs(date)) as any)
                       : null
                   }
                   className="w-full h-12"
@@ -275,7 +326,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                   allowClear
                   className="w-full h-12"
                 >
-                  {EmployeeDepartment?.map((item: any) => (
+                  {EmployeeDepartment?.map((item: Department) => (
                     <Option key={item?.id} value={item?.id}>
                       {item?.name}
                     </Option>
@@ -312,7 +363,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         >
           <RangePicker
             id={`inputDateRangeMobile`}
-            onChange={(dates: any) => handleSearchByDateRange(dates)}
+            onChange={(dates) => handleSearchByDateRange(dates)}
             className="w-full mb-4"
             allowClear
             getPopupContainer={(triggerNode) =>
@@ -328,7 +379,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             className="w-full mb-4"
             value={searchParams.selectedDepartment || undefined}
           >
-            {EmployeeDepartment?.map((item: any) => (
+            {EmployeeDepartment?.map((item: Department) => (
               <Option key={item?.id} value={item?.id}>
                 {item?.name}
               </Option>

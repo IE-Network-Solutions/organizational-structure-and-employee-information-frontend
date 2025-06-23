@@ -8,7 +8,9 @@ import {
   Row,
   Select,
   Upload,
+  UploadFile,
 } from 'antd';
+import { UploadChangeParam } from 'antd/es/upload';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
@@ -26,10 +28,30 @@ import CustomDrawerFooterButton from '@/components/common/customDrawer/customDra
 const { Dragger } = Upload;
 const { Option } = Select;
 
+// Define interfaces for type safety
+interface InternEditData {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  CGPA: number;
+  graduateYear: string;
+  departmentId: string;
+  coverLetter: string;
+  resumeUrl?: string;
+}
+
+interface DepartmentData {
+  id: string;
+  name: string;
+  description?: string;
+  branchId?: string;
+}
+
 interface CreateInternApplicantsProps {
   open: boolean;
   onClose: () => boolean;
-  editData?: any; // Data to be edited
+  editData?: InternEditData; // Replace any with proper interface
   isEdit?: boolean; // Flag to determine if we're in edit mode
 }
 
@@ -51,11 +73,11 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
   const { mutate: updateIntern, isLoading: isUpdateLoading } =
     useUpdateIntern();
 
-  const handleDocumentChange = (info: any) => {
+  const handleDocumentChange = (info: UploadChangeParam<UploadFile>) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
     setDocumentFileList(fileList);
   };
-  const handleDocumentRemove = (file: any) => {
+  const handleDocumentRemove = (file: UploadFile) => {
     removeDocument(file.uid);
   };
 
@@ -74,7 +96,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
 
       // Handle resume file if it exists
       if (editData.resumeUrl) {
-        const fileObj = {
+        const fileObj: UploadFile = {
           uid: '-1',
           name: editData.resumeUrl,
           status: 'done',
@@ -304,7 +326,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           rules={[{ required: true, message: 'Please input department!' }]}
         >
           <Select placeholder="Department" className="w-full h-10 text-sm">
-            {EmployeeDepartment?.map((item: any) => (
+            {EmployeeDepartment?.map((item: DepartmentData) => (
               <Option key={item?.id} value={item?.id}>
                 {item?.name}
               </Option>

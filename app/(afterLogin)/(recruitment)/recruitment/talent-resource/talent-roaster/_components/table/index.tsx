@@ -22,12 +22,57 @@ import { useTalentRoasterStore } from '@/store/uistate/features/recruitment/tale
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useDebounce } from '@/utils/useDebounce';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRouter } from 'next/navigation';
 
+// Define proper interfaces for talent roaster data
+interface TalentRoasterItem {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  CGPA: number;
+  departmentId: string;
+  createdAt: string;
+  resumeUrl: string;
+  documentName?: string;
+  graduateYear: string;
+  coverLetter?: string;
+}
+
+interface TalentRoasterResponse {
+  items: TalentRoasterItem[];
+  meta: {
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+}
+
+interface DepartmentData {
+  id: string;
+  name: string;
+  description?: string;
+  branchId?: string;
+}
+
+interface TableDataItem {
+  key: string;
+  id: string;
+  fullName: string;
+  phone: string;
+  CGPA: string | number;
+  departmentId: React.ReactNode;
+  createdAt: string;
+  resumeUrl: React.ReactNode;
+  graduateYear: string;
+  action: React.ReactNode;
+}
+
 interface TalentRoasterTableProps {
-  onEdit?: (data: any) => void;
+  onEdit?: (data: TalentRoasterItem) => void;
 }
 
 const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
@@ -55,9 +100,12 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       selectedDepartment: searchParams.selectedDepartment?.trim() || undefined,
       pageSize,
       page: currentPage,
-    });
+    }) as { data: TalentRoasterResponse | undefined; isLoading: boolean };
+
   const { mutate: deleteTalentRoaster } = useDeleteTalentRoaster();
-  const { data: EmployeeDepartment } = useEmployeeDepartments();
+  const { data: EmployeeDepartment } = useEmployeeDepartments() as {
+    data: DepartmentData[] | undefined;
+  };
 
   // Check if either query is still loading
   const isLoading = isTalentRoasterLoading;
@@ -69,11 +117,11 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
     setPageSize(pageSize ?? 10);
   };
 
-  const handleEdit = (data: any) => {
+  const handleEdit = (data: TalentRoasterItem) => {
     onEdit?.(data);
   };
 
-  const handleDelete = (item: any) => {
+  const handleDelete = (item: TalentRoasterItem) => {
     setItemToDelete(item);
     if (itemToDelete) {
       deleteTalentRoaster(itemToDelete.id, {
@@ -84,7 +132,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
     }
   };
 
-  const columns: TableColumnsType<any> = [
+  const columns: TableColumnsType<TableDataItem> = [
     {
       title: 'Name',
       dataIndex: 'fullName',
@@ -99,12 +147,26 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
     {
       title: 'CGPA',
       dataIndex: 'CGPA',
-      sorter: (a: any, b: any) => a.CGPA - b.CGPA,
+      sorter: (a: TableDataItem, b: TableDataItem) => {
+        const aVal =
+          typeof a.CGPA === 'number'
+            ? a.CGPA
+            : parseFloat(a.CGPA as string) || 0;
+        const bVal =
+          typeof b.CGPA === 'number'
+            ? b.CGPA
+            : parseFloat(b.CGPA as string) || 0;
+        return aVal - bVal;
+      },
     },
     {
       title: 'Department',
       dataIndex: 'departmentId',
-      sorter: (a, b) => a.departmentId.localeCompare(b.departmentId),
+      sorter: (a, b) => {
+        const aText = typeof a.departmentId === 'string' ? a.departmentId : '';
+        const bText = typeof b.departmentId === 'string' ? b.departmentId : '';
+        return aText.localeCompare(bText);
+      },
     },
 
     {
@@ -125,76 +187,82 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       dataIndex: 'action',
     },
   ];
-  const data = talentRoaster?.items?.map((item: any) => {
-    const fileName = item?.resumeUrl?.split('/')?.pop();
 
-    const DepartmentDetail = ({ id }: { id: string }) => {
-      const {
-        data: getAllDepartment,
-        isLoading: isDepartmentLoading,
-        error,
-      } = useGetDepartmentByID(id);
+  const data: TableDataItem[] =
+    talentRoaster?.items?.map((item: TalentRoasterItem) => {
+      const fileName = item?.resumeUrl?.split('/')?.pop();
 
-      if (isDepartmentLoading)
+      const DepartmentDetail = ({ id }: { id: string }) => {
+        const {
+          data: getAllDepartment,
+          isLoading: isDepartmentLoading,
+          error,
+        } = useGetDepartmentByID(id) as {
+          data: DepartmentData | undefined;
+          isLoading: boolean;
+          error: unknown;
+        };
+
+        if (isDepartmentLoading)
+          return (
+            <>
+              <LoadingOutlined />
+            </>
+          );
+
+        if (error || !getAllDepartment) return '-';
+
+        const depName = `${getAllDepartment?.name}` || '-';
         return (
-          <>
-            <LoadingOutlined />
-          </>
+          <div className="flex gap-2 items-center">{<div>{depName}</div>}</div>
         );
+      };
 
-      if (error || !getAllDepartment) return '-';
+      return {
+        key: item.id,
+        id: item.id,
+        fullName: item?.fullName ?? '--',
+        phone: item?.phone ?? '--',
+        CGPA: item?.CGPA ?? '--',
+        departmentId: <DepartmentDetail id={item?.departmentId} />,
+        createdAt: item?.createdAt
+          ? dayjs(item.createdAt).format('DD MMMM YYYY')
+          : '--',
+        resumeUrl: (
+          <a
+            href={item?.resumeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-semibold cursor-pointer flex items-center gap-2"
+            title={item?.documentName ?? 'CV.pdf'}
+          >
+            {item?.documentName && item.documentName.length > 8
+              ? `${item.documentName.slice(0, 8)}...`
+              : (fileName ?? 'CV.pdf')}
+          </a>
+        ),
 
-      const depName = `${getAllDepartment?.name}` || '-';
-      return (
-        <div className="flex gap-2 items-center">{<div>{depName}</div>}</div>
-      );
-    };
+        graduateYear: item?.graduateYear
+          ? dayjs(item.graduateYear).format('DD MMMM YYYY')
+          : '--',
 
-    return {
-      key: item.id,
-      id: item.id,
-      fullName: item?.fullName ?? '--',
-      phone: item?.phone ?? '--',
-      CGPA: item?.CGPA ?? '--',
-      departmentId: <DepartmentDetail id={item?.departmentId} />,
-      createdAt: item?.createdAt
-        ? dayjs(item.createdAt).format('DD MMMM YYYY')
-        : '--',
-      resumeUrl: (
-        <a
-          href={item?.resumeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
-          title={item?.documentName ?? 'CV.pdf'}
-        >
-          {item?.documentName?.length > 8
-            ? `${item.documentName.slice(0, 8)}...`
-            : (fileName ?? 'CV.pdf')}
-        </a>
-      ),
+        action: (
+          <ActionButtons
+            id={item?.id ?? null}
+            onEdit={() => handleEdit(item)}
+            onDelete={() => handleDelete(item)}
+          />
+        ),
+      };
+    }) || [];
 
-      graduateYear: item?.graduateYear
-        ? dayjs(item.graduateYear).format('DD MMMM YYYY')
-        : '--',
-
-      action: (
-        <ActionButtons
-          id={item?.id ?? null}
-          onEdit={() => handleEdit(item)}
-          onDelete={() => handleDelete(item)}
-        />
-      ),
-    };
-  });
-
-  const rowSelection: TableRowSelection<any> = {
+  const rowSelection: TableRowSelection<TableDataItem> = {
     selectedRowKeys: selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
       setSelectedRowKeys(newSelectedRowKeys);
       setSelectedTalentRoaster(
-        talentRoaster?.items?.filter((item: any) =>
-          selectedRows.some((row: any) => row.id === item.id),
+        talentRoaster?.items?.filter((item: TalentRoasterItem) =>
+          selectedRows.some((row: TableDataItem) => row.id === item.id),
         ) || [],
       );
     },
@@ -208,7 +276,9 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
     clearSelectedRowKeys(); // Clear selections when searching
   };
 
-  const handleSearchByDateRange = (dates: [any, any] | null) => {
+  const handleSearchByDateRange = (
+    dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null,
+  ) => {
     if (dates && dates.length === 2) {
       const startDate = dayjs(dates[0]).format('YYYY-MM-DD');
       const endDate = dayjs(dates[1]).format('YYYY-MM-DD');
@@ -266,12 +336,15 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
               <Col lg={14} sm={12} xs={24}>
                 <RangePicker
                   id={`inputDateRange`}
-                  onChange={(dates: any) => handleSearchByDateRange(dates)}
+                  onChange={(dates) => handleSearchByDateRange(dates)}
                   value={
                     searchParams.dateRange
                       ? (searchParams.dateRange
                           .split(' to ')
-                          .map((date: string) => dayjs(date)) as [any, any])
+                          .map((date: string) => dayjs(date)) as [
+                          dayjs.Dayjs | null,
+                          dayjs.Dayjs | null,
+                        ])
                       : null
                   }
                   className="w-full h-12"
@@ -290,7 +363,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                   allowClear
                   className="w-full h-12"
                 >
-                  {EmployeeDepartment?.map((item: any) => (
+                  {EmployeeDepartment?.map((item: DepartmentData) => (
                     <Option key={item?.id} value={item?.id}>
                       {item?.name}
                     </Option>
@@ -327,12 +400,15 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         >
           <RangePicker
             id={`inputDateRangeMobile`}
-            onChange={(dates: any) => handleSearchByDateRange(dates)}
+            onChange={(dates) => handleSearchByDateRange(dates)}
             value={
               searchParams.dateRange
                 ? (searchParams.dateRange
                     .split(' to ')
-                    .map((date: string) => dayjs(date)) as [any, any])
+                    .map((date: string) => dayjs(date)) as [
+                    dayjs.Dayjs | null,
+                    dayjs.Dayjs | null,
+                  ])
                 : null
             }
             className="w-full mb-4"
@@ -350,7 +426,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             allowClear
             className="w-full mb-4"
           >
-            {EmployeeDepartment?.map((item: any) => (
+            {EmployeeDepartment?.map((item: DepartmentData) => (
               <Option key={item?.id} value={item?.id}>
                 {item?.name}
               </Option>

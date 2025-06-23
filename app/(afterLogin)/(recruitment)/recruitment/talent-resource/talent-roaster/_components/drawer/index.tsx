@@ -8,7 +8,9 @@ import {
   Row,
   Select,
   Upload,
+  UploadFile,
 } from 'antd';
+import { UploadChangeParam } from 'antd/es/upload/interface';
 import { useEffect } from 'react';
 import TextArea from 'antd/es/input/TextArea';
 import { FaInfoCircle } from 'react-icons/fa';
@@ -27,11 +29,31 @@ import { useQueryClient } from 'react-query';
 const { Dragger } = Upload;
 const { Option } = Select;
 
+// Define interfaces for proper typing
+interface TalentRoasterItem {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  CGPA: number;
+  departmentId: string;
+  graduateYear: string;
+  coverLetter?: string;
+  resumeUrl?: string;
+}
+
+interface DepartmentData {
+  id: string;
+  name: string;
+  description?: string;
+  branchId?: string;
+}
+
 interface CreateTalentRoasterProps {
   open: boolean;
   onClose: () => boolean;
-  editData?: any; // Data to be edited
-  isEdit?: boolean; // Flag to determine if we're in edit mode
+  editData?: TalentRoasterItem;
+  isEdit?: boolean;
 }
 
 const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
@@ -45,18 +67,21 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
 
   const { documentFileList, setDocumentFileList, removeDocument } =
     useTalentRoasterStore();
-  const { data: EmployeeDepartment } = useEmployeeDepartments();
+  const { data: EmployeeDepartment } = useEmployeeDepartments() as {
+    data: DepartmentData[] | undefined;
+  };
 
   const { mutate: createTalentRoaster, isLoading: isCreateLoading } =
     useCreateTalentRoaster();
   const { mutate: updateTalentRoaster, isLoading: isUpdateLoading } =
     useUpdateTalentRoaster();
 
-  const handleDocumentChange = (info: any) => {
+  const handleDocumentChange = (info: UploadChangeParam<UploadFile>) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
     setDocumentFileList(fileList);
   };
-  const handleDocumentRemove = (file: any) => {
+
+  const handleDocumentRemove = (file: UploadFile) => {
     removeDocument(file.uid);
   };
 
@@ -75,7 +100,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
 
       // Handle resume file if it exists
       if (editData.resumeUrl) {
-        const fileObj = {
+        const fileObj: UploadFile = {
           uid: '-1',
           name: editData.resumeUrl,
           status: 'done',
@@ -306,7 +331,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           rules={[{ required: true, message: 'Please input department!' }]}
         >
           <Select placeholder="Department" className="w-full h-10 text-sm">
-            {EmployeeDepartment?.map((item: any) => (
+            {EmployeeDepartment?.map((item: DepartmentData) => (
               <Option key={item?.id} value={item?.id}>
                 {item?.name}
               </Option>

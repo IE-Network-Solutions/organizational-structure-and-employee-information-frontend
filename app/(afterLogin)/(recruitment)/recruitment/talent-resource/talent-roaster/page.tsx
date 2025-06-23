@@ -9,6 +9,21 @@ import { IoIosShareAlt } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AddToJobPipeline from './_components/modal';
 
+// Define the interface that matches the table data structure
+interface TalentRoasterItem {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  CGPA: number;
+  departmentId: string;
+  createdAt: string;
+  resumeUrl: string;
+  documentName?: string;
+  graduateYear: string;
+  coverLetter?: string;
+}
+
 const TalentRoasterPage = () => {
   const {
     createTalentRoasterDrawer,
@@ -21,7 +36,7 @@ const TalentRoasterPage = () => {
     setSelectedTalentRoaster,
   } = useTalentRoasterStore();
   const { isMobile, isTablet } = useIsMobile();
-  const handleEdit = (data: any) => {
+  const handleEdit = (data: TalentRoasterItem) => {
     setCreateTalentRoasterDrawer(true);
     setEditData(data);
   };
@@ -49,7 +64,7 @@ const TalentRoasterPage = () => {
   const handleRemoveCandidate = (candidateId: string) => {
     const updatedCandidates =
       selectedTalentRoaster?.filter(
-        (candidate: any) => candidate.id !== candidateId,
+        (candidate: TalentRoasterItem) => candidate.id !== candidateId,
       ) || [];
     setSelectedTalentRoaster(updatedCandidates);
   };
