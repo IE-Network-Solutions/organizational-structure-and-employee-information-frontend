@@ -320,8 +320,8 @@ const AdminDashboard = () => {
                 <div
                   key={plan.id}
                   className={`flex flex-col justify-between gap-2 rounded-lg p-4
-    ${plan.id === currentPlan?.id ? 'md:min-w-[335px]' : 'md:min-w-[435px]'}
-    min-h-[571px] w-full md:w-auto bg-white`}
+    ${plan.id === currentPlan?.id ? 'md:min-w-[435px] ' : 'md:min-w-[335px] bg-white'}
+    min-h-[571px] w-full md:w-auto`}
                 >
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between text-lg font-extrabold mb-2">
