@@ -7,6 +7,7 @@ import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/ta
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import TextArea from 'antd/es/input/TextArea';
+import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
 
 interface AddCandidateProps {
   open: boolean;
@@ -15,8 +16,12 @@ interface AddCandidateProps {
 /* eslint-enable @typescript-eslint/naming-convention */
 const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
   const [form] = Form.useForm();
+  const { pageSize, currentPage } = useTalentPoolSettingsStore();
   const { data: candidates } = useGetCandidates();
-  const { data: talentPoolCategory } = useGetTalentPoolCategory();
+  const { data: talentPoolCategory } = useGetTalentPoolCategory(
+    pageSize,
+    currentPage,
+  );
   const { userId } = useAuthenticationStore();
   const createCandidateMutation = useCreateTalentPoolCandidate();
   const onSubmit = () => {
