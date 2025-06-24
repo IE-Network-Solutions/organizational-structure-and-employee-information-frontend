@@ -111,35 +111,38 @@ export default function FiscalYearForm({ form }: { form: FormInstance }) {
               />
             </Form.Item>
 
-           <Form.Item
-  label="Fiscal Year End Date"
-  name="endDate"
-  rules={[
-    { required: true, message: 'Select fiscal year end date' },
-    ({ getFieldValue }) => ({
-      validator(notused, value) {
-        const start = getFieldValue('startDate');
-        if (!start || !value) return Promise.resolve();
+            <Form.Item
+              label="Fiscal Year End Date"
+              name="endDate"
+              rules={[
+                { required: true, message: 'Select fiscal year end date' },
+                ({ getFieldValue }) => ({
+                  validator(notused, value) {
+                    const start = getFieldValue('startDate');
+                    if (!start || !value) return Promise.resolve();
 
-        const diff = value.diff(start, 'day');
+                    const diff = value.diff(start, 'day');
 
-        if (diff === 364 || diff === 365) {
-          return Promise.resolve();
-        }
+                    if (diff === 364 || diff === 365) {
+                      return Promise.resolve();
+                    }
 
-        return Promise.reject(
-          new Error('The fiscal year must be exactly 12 months (1 year) long.')
-        );
-      },
-    }),
-  ]}
->
-  <DatePicker
-    onChange={() => breakdown !== null && onBreakdownChange(breakdown)}
-    className="w-full h-10"
-  />
-</Form.Item>
-
+                    return Promise.reject(
+                      new Error(
+                        'The fiscal year must be exactly 12 months (1 year) long.',
+                      ),
+                    );
+                  },
+                }),
+              ]}
+            >
+              <DatePicker
+                onChange={() =>
+                  breakdown !== null && onBreakdownChange(breakdown)
+                }
+                className="w-full h-10"
+              />
+            </Form.Item>
           </div>
 
           <Form.Item
