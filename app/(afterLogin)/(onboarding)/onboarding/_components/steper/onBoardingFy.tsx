@@ -117,7 +117,7 @@ export default function FiscalYearForm({ form }: { form: FormInstance }) {
   rules={[
     { required: true, message: 'Select fiscal year end date' },
     ({ getFieldValue }) => ({
-      validator(_, value) {
+      validator(notused, value) {
         const start = getFieldValue('startDate');
         if (!start || !value) return Promise.resolve();
 
