@@ -1,3 +1,4 @@
+'use client';
 import { GlobalStateStore } from '@/store/uistate/features/global';
 import { useEffect } from 'react';
 

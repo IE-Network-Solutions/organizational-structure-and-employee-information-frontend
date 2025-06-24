@@ -108,7 +108,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees/manage-employees/[id]',
       permissions: [], // No permissions required
     },
-
   ];
 
   const getRoutesAndPermissions = (
@@ -242,8 +241,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_recruitment_candidates'],
         },
         {
-          title: <span>Talent Pool</span>,
-          key: '/recruitment/talent-pool',
+          title: <span>Talent Resource</span>,
+          key: '/recruitment/talent-resource',
           className: 'font-bold',
           permissions: ['manage_recruitment_talent_pool'],
         },
