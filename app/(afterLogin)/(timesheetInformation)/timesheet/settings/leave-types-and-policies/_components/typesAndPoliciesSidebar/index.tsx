@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -37,7 +37,6 @@ const TypesAndPoliciesSidebar = () => {
     setIsShowTypeAndPoliciesSidebar: setIsShow,
     setIsFixed,
     isFixed,
-   
   } = useTimesheetSettingsStore();
 
   const { data: carryOverData } = useGetCarryOverRules();
@@ -85,16 +84,16 @@ const TypesAndPoliciesSidebar = () => {
       ? formatToOptions(accrualRulesData.items, 'title', 'id')
       : [];
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     form.resetFields();
     setIsShow(false);
-  };
+  }, [form, setIsShow]);
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
-  }, [isSuccess]);
+  }, [isSuccess, onClose]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -113,8 +112,8 @@ const TypesAndPoliciesSidebar = () => {
       ...(value.isIncremental && {
         incrementalYear: value.incrementalYear,
         incrementAmount: value.incrementAmount,
-      }),        convertableToCash: value?.convertableToCash ?? false,
-
+      }),
+      convertableToCash: value?.convertableToCash ?? false,
     });
     setIsFixed(false);
   };
@@ -432,7 +431,9 @@ const TypesAndPoliciesSidebar = () => {
                   <Popover
                     content={
                       <div style={{ maxWidth: 300 }}>
-                        This leave balance can be converted into cash based on your company's policy.<br />
+                        This leave balance can be converted into cash based on
+                        your company&apos;s policy.
+                        <br />
                         The amount is calculated daily.
                       </div>
                     }
