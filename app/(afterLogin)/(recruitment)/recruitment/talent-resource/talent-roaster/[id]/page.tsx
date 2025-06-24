@@ -119,9 +119,7 @@ const TalentRoasterDetails = () => {
             <InfoRow
               label="Year of Graduation"
               value={
-                talentData?.graduateYear
-                  ? talentData?.graduateYear
-                  : 'N/A'
+                talentData?.graduateYear ? talentData?.graduateYear : 'N/A'
               }
             />
             <InfoRow label="CGPA" value={talentData?.CGPA || 'N/A'} />

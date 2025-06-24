@@ -78,7 +78,6 @@ interface TalentRoasterTableProps {
 
 const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
   const {
-    itemToDelete,
     setItemToDelete,
     searchParams,
     setSearchParams,
