@@ -25,6 +25,7 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
+import { useRouter } from 'next/navigation';
 
 // Type definitions
 interface Department {
@@ -92,7 +93,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     showMobileFilter,
     setShowMobileFilter,
   } = useInternStore();
-
+  const router = useRouter();
   // Create query parameters from search params
   const queryParams: QueryParams = {
     fullName: searchParams.fullName || undefined,
@@ -395,6 +396,19 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         loading={isLoading}
         pagination={false}
         scroll={{ x: 1000 }}
+        onRow={(record) => ({
+          onClick: (event) => {
+            // Only navigate if the click is not on a checkbox, button, or link
+            const target = event.target as HTMLElement;
+            const isInteractiveElement = target.closest(
+              'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox',
+            );
+
+            if (!isInteractiveElement) {
+              router.push(`/recruitment/talent-resource/intern/${record?.id}`);
+            }
+          },
+        })}
       />
       {isMobile || isTablet ? (
         <CustomMobilePagination
