@@ -59,7 +59,6 @@ const OnboaringSteper: React.FC = () => {
   const [form3] = Form.useForm();
   const [form4] = Form.useForm();
   const forms = [form1, form2, form3, form4];
-
   const { data: departments } = useGetDepartments();
   const router = useRouter();
   useEffect(() => {

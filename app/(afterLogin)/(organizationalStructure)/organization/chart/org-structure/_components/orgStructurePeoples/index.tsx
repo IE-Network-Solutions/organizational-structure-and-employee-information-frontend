@@ -157,7 +157,7 @@ const OrgChartComponent: React.FC = () => {
   const { reset } = useDepartmentStore();
 
   useEffect(() => {
-    if (departments?.length < 1) {
+    if (departments?.length === 0) {
       router.push('/onboarding');
     } else if (
       employeeData &&

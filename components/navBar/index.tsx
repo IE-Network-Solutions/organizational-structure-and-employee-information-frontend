@@ -26,6 +26,7 @@ import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -681,24 +682,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
+  const { data: departments } = useGetDepartments();
 
-  // Add useEffect to check permissions on pathname change
+  useEffect(() => {
+    if (departments?.length === 0) {
+      router.push('/onboarding');
+    }
+  }, [departments?.length, pathname, router]);
+
+  // ✅ Check permission on pathname change
   useEffect(() => {
     const checkPermissions = async () => {
       setIsCheckingPermissions(true);
+
       if (pathname === '/') {
         router.push('/dashboard');
-        setIsCheckingPermissions(false);
-      } else {
-        if (!checkPathnamePermissions(pathname)) {
-          router.push('/unauthorized');
-        }
-        setIsCheckingPermissions(false);
+      } else if (!checkPathnamePermissions(pathname)) {
+        router.push('/unauthorized');
       }
+
+      setIsCheckingPermissions(false);
     };
 
     checkPermissions();
-  }, [pathname]);
+  }, [pathname, router]);
 
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
