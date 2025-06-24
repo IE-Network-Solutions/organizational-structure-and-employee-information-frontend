@@ -1,15 +1,14 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const getRecruitmentStatuses = async () => {
+const getRecruitmentStatuses = async (
+  pageSize: number,
+  currentPage: number,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const statusCurrentPage =
-    useRecruitmentStatusStore.getState().statusCurrentPage;
-  const statusPageSize = useRecruitmentStatusStore.getState().statusPageSize;
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -17,12 +16,17 @@ const getRecruitmentStatuses = async () => {
   };
 
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/applicant-status-stages?limit=${statusPageSize}&&page=${statusCurrentPage}`,
+    url: `${RECRUITMENT_URL}/applicant-status-stages?limit=${pageSize}&&page=${currentPage}`,
     method: 'GET',
     headers,
   });
 };
 
-export const useGetRecruitmentStatuses = () => {
-  return useQuery('recruitmentStatuses', getRecruitmentStatuses);
+export const useGetRecruitmentStatuses = (
+  pageSize: number,
+  currentPage: number,
+) => {
+  return useQuery(['recruitmentStatuses', pageSize, currentPage], () =>
+    getRecruitmentStatuses(pageSize, currentPage),
+  );
 };

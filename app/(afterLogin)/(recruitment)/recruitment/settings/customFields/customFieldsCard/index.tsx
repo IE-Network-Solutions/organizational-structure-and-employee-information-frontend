@@ -9,7 +9,9 @@ import React from 'react';
 import CustomFieldsDrawer from '../customFieldsDrawer';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import RecruitmentPagination from '../../../_components';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const CustomFieldsCard: React.FC = () => {
   const {
@@ -27,8 +29,10 @@ const CustomFieldsCard: React.FC = () => {
     setTemplatePageSize,
   } = useRecruitmentSettingsStore();
 
+  const { isMobile, isTablet } = useIsMobile();
+
   const { data: customFields, isLoading: isCustomFieldsLoading } =
-    useGetCustomFieldsTemplate();
+    useGetCustomFieldsTemplate(templatePageSize, templateCurrentPage);
 
   const { mutate: deleteCustomField } = useDeleteCustomFieldsTemplate();
   const handleCustomFieldsModalOpen = (question: any) => {
@@ -56,6 +60,17 @@ const CustomFieldsCard: React.FC = () => {
         <Spin size="large" />
       </div>
     );
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setTemplateCurrentPage(page);
+    if (pageSize) {
+      setTemplatePageSize(pageSize);
+    }
+  };
+  const onSizeChange = (size: number) => {
+    setTemplatePageSize(size);
+    setTemplateCurrentPage(1);
+  };
 
   return (
     <>
@@ -103,7 +118,24 @@ const CustomFieldsCard: React.FC = () => {
           isEdit={editCustomFieldsModalOpen}
         />
       )}
-      <RecruitmentPagination
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={customFields?.meta?.totalItems ?? 1}
+          pageSize={templatePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={templateCurrentPage}
+          total={customFields?.meta?.totalItems ?? 1}
+          pageSize={templatePageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
+      {/* <RecruitmentPagination
         current={templateCurrentPage}
         total={customFields?.meta?.totalItems ?? 1}
         pageSize={templatePageSize}
@@ -115,7 +147,7 @@ const CustomFieldsCard: React.FC = () => {
           setTemplatePageSize(size);
           setTemplateCurrentPage(1);
         }}
-      />
+      /> */}
     </>
   );
 };
