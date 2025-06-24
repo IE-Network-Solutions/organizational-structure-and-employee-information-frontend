@@ -142,6 +142,7 @@ export interface LeaveType extends DateInfo {
   incrementalYear?: number;
   incrementAmount?: number;
   leaveBalance?: any;
+  convertableToCash?: boolean;
 }
 
 export interface AccrualRule extends DateInfo {
