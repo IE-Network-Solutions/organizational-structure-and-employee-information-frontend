@@ -37,6 +37,7 @@ const TypesAndPoliciesSidebar = () => {
     setIsShowTypeAndPoliciesSidebar: setIsShow,
     setIsFixed,
     isFixed,
+   
   } = useTimesheetSettingsStore();
 
   const { data: carryOverData } = useGetCarryOverRules();
@@ -112,7 +113,8 @@ const TypesAndPoliciesSidebar = () => {
       ...(value.isIncremental && {
         incrementalYear: value.incrementalYear,
         incrementAmount: value.incrementAmount,
-      }),
+      }),        convertableToCash: value?.convertableToCash ?? false,
+
     });
     setIsFixed(false);
   };
@@ -422,6 +424,29 @@ const TypesAndPoliciesSidebar = () => {
                 placeholder="Input description"
                 rows={6}
               />
+            </Form.Item>
+            <Form.Item
+              label={
+                <span>
+                  Convertible to cash
+                  <Popover
+                    content={
+                      <div style={{ maxWidth: 300 }}>
+                        This leave balance can be converted into cash based on your company's policy.<br />
+                        The amount is calculated daily.
+                      </div>
+                    }
+                  >
+                    <span style={{ marginLeft: 6, cursor: 'pointer' }}>
+                      <InfoCircleOutlined style={{ color: '#888' }} />
+                    </span>
+                  </Popover>
+                </span>
+              }
+              id="TypesAndPoliciesConvertibleToCashFieldId"
+              name="convertableToCash"
+            >
+              <Switch defaultChecked={false} />
             </Form.Item>
           </Space.Compact>
         </Form>

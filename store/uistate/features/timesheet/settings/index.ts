@@ -25,6 +25,8 @@ type TimesheetSettingsState = {
   isTo: boolean;
   isLoading: boolean;
   isFixed: boolean;
+
+  
 };
 
 type TimesheetSettingsStateAction = {
