@@ -31,6 +31,7 @@ const PlanPage = () => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [updatedQuota, setUpdatedQuota] = useState<number | null>(null);
   const [updatedPeriod, setUpdatedPeriod] = useState<string | null>(null);
+  const [updatedSubscription, setUpdatedSubscription] = useState<Subscription | null>(null);
   const [selectedPeriodType, setSelectedPeriodType] =
     useState<PeriodType | null>(null);
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
@@ -265,7 +266,7 @@ const PlanPage = () => {
         planId: currentPlan.id,
         planPeriodId: selectedPlanPeriod.id,
         slotTotal: updatedQuota,
-        newSlot: updatedQuota - (activeSubscription?.slotTotal ?? 0), // Use updatedQuota directly
+        newSlotTotal: updatedQuota - (activeSubscription?.slotTotal ?? 0), // Use updatedQuota directly
         ...(activeSubscription
           ? { subscriptionId: activeSubscription.id }
           : {}),
@@ -534,11 +535,16 @@ const PlanPage = () => {
           subscriptionId: activeSubscription.id,
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slotTotal: updatedQuota,
+          slots: updatedQuota,
+          newSlots: updatedQuota - (activeSubscription?.slotTotal ?? 0),
           tenantId: DEFAULT_TENANT_ID,
         };
 
-        response = await upgradeSubscriptionMutation.mutateAsync(upgradeData);
+        response = await upgradeSubscriptionMutation.mutateAsync(upgradeData, {
+          onSuccess: (data) => {
+            setUpdatedSubscription(data)
+          }
+        });
       }
 
       if (response && (response.id || response.data?.id)) {
@@ -566,8 +572,8 @@ const PlanPage = () => {
     }
   };
 
-  const updatedSubscriptionValue = subscriptionsData?.items[0];
-
+  const updatedSubscriptionValue = updatedSubscription;
+  console.log(updatedSubscriptionValue, "updatedSubscriptionValue")
   // PDF download handler
   const handleDownloadPdf = async () => {
     // Check if we have an invoice ID
@@ -1129,8 +1135,9 @@ const PlanPage = () => {
         return null;
     }
   };
-  console.log(activeSubscription,"activeSubscription")
+  console.log(updatedSubscriptionValue, "updatedSubscriptionValue")
   return (
+
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb
         title="Plan Management"
