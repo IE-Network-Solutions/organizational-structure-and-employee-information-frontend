@@ -124,13 +124,11 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
 
   const handleDelete = (item: TalentRoasterItem) => {
     setItemToDelete(item);
-    if (itemToDelete) {
-      deleteTalentRoaster(itemToDelete.id, {
-        onSuccess: () => {
-          setItemToDelete(null);
-        },
-      });
-    }
+    deleteTalentRoaster(item?.id, {
+      onSuccess: () => {
+        setItemToDelete(null);
+      },
+    });
   };
 
   const columns: TableColumnsType<TableDataItem> = [

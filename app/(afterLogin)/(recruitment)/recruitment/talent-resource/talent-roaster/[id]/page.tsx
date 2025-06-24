@@ -117,10 +117,10 @@ const TalentRoasterDetails = () => {
           </Col>
           <Col xs={24} md={12}>
             <InfoRow
-              label="Expected Graduation Year"
+              label="Year of Graduation"
               value={
                 talentData?.graduateYear
-                  ? dayjs(talentData.graduateYear).format('DD MMM YYYY')
+                  ? talentData?.graduateYear
                   : 'N/A'
               }
             />
@@ -180,7 +180,7 @@ const TalentRoasterDetails = () => {
 
           <div>
             <Text className="text-gray-600">
-              Why are you interested in this internship
+              Why are you interested in this Company?
             </Text>
             <div className="mt-2 p-3 bg-gray-50 rounded-lg">
               <Text>{talentData?.whyInterested || 'No response provided'}</Text>
