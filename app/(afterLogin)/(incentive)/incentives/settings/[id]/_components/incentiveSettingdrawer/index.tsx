@@ -55,8 +55,9 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   const { mutate: createFormula, isLoading: createLoading } =
     useSetIncentiveFormula();
 
-  const { data: formulaById } =
-    useIncentiveFormulaByRecognitionId(recognitionId);
+  const { data: formulaById } = useIncentiveFormulaByRecognitionId(
+    recognitionId ?? recognitionData?.id,
+  );
   //   ===========> Functions <============
 
   const handleClose = () => {
@@ -100,7 +101,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             .join(' ')
         : '';
     const formdata = {
-      recognitionTypeId: recognitionId,
+      recognitionTypeId: recognitionId ?? recognitionData?.id,
       expression: value === 'Fixed' ? null : JSON.stringify(cleanedExpression),
       isComputed: value === 'Fixed' ? false : true,
       monetizedValue: value === 'Fixed' ? formValues?.fixedAmount : 0,
@@ -306,11 +307,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             onClick={handleSubmit}
             loading={updateLoading || createLoading}
           >
-            {formulaById?.expression === null ? (
-              <span>Create</span>
-            ) : (
-              <span>Edit</span>
-            )}
+            {!formulaById ? <span>Create</span> : <span>Edit</span>}
           </Button>
         </div>
       }

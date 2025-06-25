@@ -63,6 +63,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
+      pageSize,
+      currentPage,
     );
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -260,6 +262,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
         rowSelection={rowSelection}
+        pagination={false}
       />
 
       {isMobile || isTablet ? (

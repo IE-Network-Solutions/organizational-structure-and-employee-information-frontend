@@ -27,11 +27,13 @@ import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+
 
 interface CustomMenuItem {
   key: string;
@@ -706,6 +708,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setEmployeeJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router]);
+
 
   // ✅ Check permission on pathname change
   useEffect(() => {
