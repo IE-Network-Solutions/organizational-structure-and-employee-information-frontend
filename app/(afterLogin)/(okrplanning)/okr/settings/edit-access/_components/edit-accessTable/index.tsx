@@ -119,9 +119,9 @@ const EditAccessTable: React.FC = () => {
               <Avatar size={20} src={item?.profileImage} />
             ) : (
               <Avatar size={20}>
-                {item?.firstName[0]?.toUpperCase()}
-                {item?.middleName[0]?.toUpperCase()}
-                {item?.lastName[0]?.toUpperCase()}
+                {item?.firstName[0]?.toUpperCase() || "-"}
+                {item?.middleName[0]?.toUpperCase() || "-"}
+                {item?.lastName[0]?.toUpperCase() || "-"}
               </Avatar>
             )}
           </div>
