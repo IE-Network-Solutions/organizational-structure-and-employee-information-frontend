@@ -52,6 +52,20 @@ export const useUpdateProfileImage = () => {
 };
 
 // Mutation function
+const createEmployeeMutation = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information`,
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: values,
+  });
+};
 const updateEmployeeMutation = async (id: string, values: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -184,6 +198,22 @@ export const useUpdateEmployee = () => {
   return useMutation(
     ({ id, values }: { id: string; values: any }) =>
       updateEmployeeMutation(id, values),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee');
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Employee successfully updated',
+        });
+      },
+    },
+  );
+};
+export const useCreateEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ values }: { values: any }) => createEmployeeMutation(values),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');
