@@ -136,16 +136,6 @@ const Page = () => {
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
             />
-          ) : exportIncentiveLoading ? (
-            <Button
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 rounded-lg flex items-center justify-center"
-              disabled
-              id="createUserButton"
-            >
-              <span className="flex items-center justify-center w-full">
-                <Spin size="small" />
-              </span>
-            </Button>
           ) : (
             <CustomButton
               title={
@@ -159,6 +149,7 @@ const Page = () => {
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
               loading={exportIncentiveLoading}
+              disabled={exportIncentiveLoading}
             />
           )}
 
@@ -230,6 +221,10 @@ const Page = () => {
     setIsPayrollView,
     selectedRowKeys,
     isMobile,
+    isTablet,
+    exportIncentiveLoading,
+    searchParams,
+    handleExport,
   ]);
 
   const handleTabChange = (key: string) => {
