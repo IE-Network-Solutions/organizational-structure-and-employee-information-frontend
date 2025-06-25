@@ -159,13 +159,7 @@ const OrgChartComponent: React.FC = () => {
   useEffect(() => {
     if (departments?.length < 1) {
       router.push('/onboarding');
-    } else if (
-      employeeData &&
-      employeeData?.employeeJobInformation?.length < 1
-    ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
-    }
+    } 
     if (isSuccess) {
       closeDrawer();
       resetStore();
