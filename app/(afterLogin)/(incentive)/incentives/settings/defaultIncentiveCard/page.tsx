@@ -3,6 +3,7 @@ import React from 'react';
 import DefaultIncentiveSettingsTable from './_components/incentiveSettingsTable';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { useAllChildrenRecognition } from '@/store/server/features/incentive/other/queries';
+import IncentiveSettingsDrawer from '../[id]/_components/incentiveSettingdrawer';
 
 const DefaultIncentiveSettingCard: React.FC = () => {
   const { data: recognitionData, isLoading: responseLoading } =
@@ -20,6 +21,7 @@ const DefaultIncentiveSettingCard: React.FC = () => {
         recognitionData={recognitionData}
         responseLoading={responseLoading}
       />
+      <IncentiveSettingsDrawer recognitionData={recognitionData?.[0]} />
     </div>
   );
 };

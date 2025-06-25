@@ -1,12 +1,17 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Button, Spin } from 'antd';
+import { Button, Spin, Form } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+
+// UI‑state stores
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
-import WorkSchedule from './workSchedule';
-import OrgChartComponent from './orgChartComponent';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
+// Server mutations & queries
 import {
   useCreateFiscalYear,
   useDeleteFiscalYear,
@@ -23,47 +28,54 @@ import {
   useCreateCompanyInfo,
   useDeleteCompanyInfo,
 } from '@/store/server/features/organizationStructure/companyInfo/mutation';
-// import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-// import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
-import { Form } from 'antd';
-import CompanyProfile from './companyProfile';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { showValidationErrors } from '@/utils/showValidationErrors';
-import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useRouter } from 'next/navigation';
-import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
-import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
-import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import {
-  useGetCompanyProfileByTenantId,
-  // useUpdateCompanyProfile,
   useUpdateCompanyProfileWithStamp,
+  useGetCompanyProfileByTenantId,
 } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import FiscalYearForm from './onBoardingFy';
-import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useCreateBranch,
   useDeleteBranch,
 } from '@/store/server/features/organizationStructure/branchs/mutation';
+import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
 import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
 import {
   useCreateRecruitmentStatus,
   useDeleteRecruitmentStatus,
 } from '@/store/server/features/recruitment/settings/status/mutation';
 
-const OnboaringSteper: React.FC = () => {
-  const [form1] = Form.useForm();
-  const [form2] = Form.useForm();
-  const [form3] = Form.useForm();
-  const [form4] = Form.useForm();
-  const forms = [form1, form2, form3, form4];
+
+// Components
+import WorkSchedule from './workSchedule';
+import OrgChartComponent from './orgChartComponent';
+import CompanyProfile from './companyProfile';
+import FiscalYearForm from './onBoardingFy';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { showValidationErrors } from '@/utils/showValidationErrors';
+import { useRouter } from 'next/navigation';
+import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
+import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
+
+/**
+ * Onboarding multi‑step wizard component
+ */
+const OnboardingSteper: React.FC = () => {
+  /* -------------------------------------------------------------------------- */
+  /*                               form instances                               */
+  /* -------------------------------------------------------------------------- */
+  const [formCompany] = Form.useForm();
+  const [formFiscal] = Form.useForm();
+  const [formSchedule] = Form.useForm();
+  const forms = [formCompany, formFiscal, formSchedule];
+
+  /* -------------------------------------------------------------------------- */
+  /*                               external data                                */
+  /* -------------------------------------------------------------------------- */
 
   const { data: departments } = useGetDepartments();
   const router = useRouter();
   useEffect(() => {
-    if (departments?.length > 0) {
+    if (departments?.length) {
       router.push('/dashboard');
     }
   }, [departments?.length]);
@@ -76,40 +88,45 @@ const OnboaringSteper: React.FC = () => {
     toggleLoading,
     isModalVisible,
     togleIsModalVisible,
-  } = useStepStore((state) => state);
-
+  } = useStepStore();
   const { createWorkSchedule, detail } = useScheduleStore();
+  const { orgData } = useOrganizationStore();
+  const { fiscalYearPayLoad } = useFiscalYearDrawerStore();
+  const { companyName, companyProfileImage, companyStamp } =
+    useCompanyProfile();
+
   const { data: branches } = useGetBranches();
+  const { data: timeZoneRow } = useGetTimeZone();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
-
   const { data: companyInformation } = useGetCompanyProfileByTenantId(tenantId);
-  const { orgData } = useOrganizationStore();
-  // const { getFiscalYear } = useFiscalYearStore();
-  const { data } = useGetTimeZone();
+
+  /* -------------------------------------------------------------------------- */
+  /*                             helper: time‑zone                              */
+  /* -------------------------------------------------------------------------- */
   const [detectedTimeZone, setDetectedTimeZone] = useState<string>('');
-  function getBrowserGMTOffset(): string {
+  useEffect(() => {
     const offsetMinutes = new Date().getTimezoneOffset();
     const totalMinutes = -offsetMinutes;
-
     const sign = totalMinutes >= 0 ? '+' : '-';
     const absMinutes = Math.abs(totalMinutes);
     const hours = Math.floor(absMinutes / 60)
       .toString()
       .padStart(2, '0');
     const minutes = (absMinutes % 60).toString().padStart(2, '0');
-    return `${sign}${hours}:${minutes}`;
-  }
-  useEffect(() => {
-    setDetectedTimeZone(getBrowserGMTOffset());
-  }, [getBrowserGMTOffset()]);
+    setDetectedTimeZone(`${sign}${hours}:${minutes}`);
+  }, []);
+
+  /* -------------------------------------------------------------------------- */
+  /*                              static payloads                              */
+  /* -------------------------------------------------------------------------- */
+  const schedulePayload = {
+    name: 'Full‑time Schedule',
+    detail,
+  };
   const timeZonePayload = {
     timezone: detectedTimeZone,
-    id: data ? data.id : '',
-  };
-  const schedulePayload = {
-    name: 'Full-time Schedule',
-    detail,
+    id: timeZoneRow ? timeZoneRow.id : '',
   };
   const branchPayload = {
     name: 'HQ',
@@ -119,16 +136,15 @@ const OnboaringSteper: React.FC = () => {
     contactEmail: companyInformation?.contactPersonEmail,
   };
   const applicantStatusPayload = {
-    title: 'Initial Stage ',
-    description: 'Initial Stage ',
+    title: 'Initial Stage',
+    description: 'Initial Stage',
     createdBy: userId,
   };
-  const { fiscalYearPayLoad } = useFiscalYearDrawerStore();
-  const { companyName, companyProfileImage, companyStamp } =
-    useCompanyProfile();
 
+  /* -------------------------------------------------------------------------- */
+  /*                              server actions                                */
+  /* -------------------------------------------------------------------------- */
   const createFiscalYear = useCreateFiscalYear();
-
   const deleteFiscalYear = useDeleteFiscalYear();
   const createSchedule = useCreateSchedule();
   const deleteSchedule = useDeleteSchedule();
@@ -141,19 +157,19 @@ const OnboaringSteper: React.FC = () => {
   const updateTimeZone = useUpdateTimeZone();
   const createApplicantStatus = useCreateRecruitmentStatus();
   const deleteApplicantStatus = useDeleteRecruitmentStatus();
-  const companyInfoPayload = form1.getFieldsValue();
-  // const updateCompanyProfile = useUpdateCompanyProfile();
-  const updateComapnyImageWithStamp = useUpdateCompanyProfileWithStamp();
+  const updateCompanyImageWithStamp = useUpdateCompanyProfileWithStamp();
 
+  /* -------------------------------------------------------------------------- */
+  /*                        generator for sequential calls                      */
+  /* -------------------------------------------------------------------------- */
   function* createResourcesGenerator(
     fiscalYear: any,
     schedule: any,
     orgData: any,
     companyInfo: any,
-    companyProfileImage: any,
     timeZone: any,
     branch: any,
-    applicantStatusPayload: any,
+    applicantStatus: any,
   ) {
     yield {
       createFn: createFiscalYear.mutateAsync,
@@ -176,18 +192,15 @@ const OnboaringSteper: React.FC = () => {
       data: companyInfo,
     };
     yield {
-      createFn: updateComapnyImageWithStamp.mutateAsync,
+      createFn: updateCompanyImageWithStamp.mutateAsync,
       data: {
         id: tenantId,
         updateClientDto: { companyName },
         companyProfileImage: companyProfileImage?.companyProfileImage,
-        companyStamp: companyProfileImage?.companyStamp,
+        companyStamp: companyStamp?.companyStamp,
       },
     };
-    yield {
-      createFn: updateTimeZone.mutateAsync,
-      data: timeZone,
-    };
+    yield { createFn: updateTimeZone.mutateAsync, data: timeZone };
     yield {
       createFn: createBranch.mutateAsync,
       deleteFn: deleteBranch.mutateAsync,
@@ -196,23 +209,39 @@ const OnboaringSteper: React.FC = () => {
     yield {
       createFn: createApplicantStatus.mutateAsync,
       deleteFn: deleteApplicantStatus.mutateAsync,
-      data: applicantStatusPayload,
+      data: applicantStatus,
     };
   }
 
+  /* -------------------------------------------------------------------------- */
+  /*                              submit handler                                */
+  /* -------------------------------------------------------------------------- */
   const onSubmitOnboarding = async () => {
+    // 1. validate all forms
+    try {
+      await Promise.all(forms.map((f) => f.validateFields()));
+    } catch (error: any) {
+      showValidationErrors(error?.errorFields);
+      return;
+    }
+
+    // 2. gather payload after validation
+    const companyInfoPayload = formCompany.getFieldsValue();
+
     toggleLoading();
     createWorkSchedule();
+
+    /* keep track of successful requests so that we can roll back on error */
     const successfulRequests: {
-      id: string;
-      deleteFn: (id: string) => Promise<any>;
+      deletePayload: any;
+      deleteFn: (payload: any) => Promise<any>;
     }[] = [];
-    const generator: any = createResourcesGenerator(
+
+    const generator = createResourcesGenerator(
       fiscalYearPayLoad,
       schedulePayload,
       orgData,
       companyInfoPayload,
-      { companyProfileImage, companyStamp },
       timeZonePayload,
       branchPayload,
       applicantStatusPayload,
@@ -221,205 +250,226 @@ const OnboaringSteper: React.FC = () => {
     try {
       for (const { createFn, deleteFn, data } of generator) {
         const response = await createFn(data);
-        const id = response.id;
-
-        if (deleteFn) {
-          successfulRequests.push({ id, deleteFn });
-        } else {
-          togleIsModalVisible();
+        // For rollback, use the same payload as was used for creation, or adapt as needed
+        if (deleteFn && response) {
+          // If the delete function expects a different payload, adapt here as needed
+          successfulRequests.push({
+            deletePayload: response?.id ?? data,
+            deleteFn,
+          });
         }
       }
+
       NotificationMessage.success({
         message: 'Success',
-        description: `All Requests Successfully Created`,
+        description: 'All Requests Successfully Created',
       });
-    } catch (error: any) {
+      togleIsModalVisible();
+    } catch (err) {
+      // rollback
       await Promise.all(
-        successfulRequests.map(({ id, deleteFn }) => deleteFn(id)),
+        successfulRequests.map(({ deletePayload, deleteFn }) =>
+          deleteFn(deletePayload),
+        ),
       );
+      NotificationMessage.error({
+        message: 'Error',
+        description:
+          'An error occurred while processing onboarding. Rolled back changes.',
+      });
     }
+
     toggleLoading();
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                         next/previous step handler                         */
+  /* -------------------------------------------------------------------------- */
   const handleNextStep = () => {
-    if (currentStep >= 4) {
-      branches && branches?.items?.length >= 1
-        ? nextStep()
-        : NotificationMessage.warning({
-            message: 'Branch Is not created Error',
-            description: 'You have to create at least one branch',
-          });
-    } else {
+    // last index = steps.length - 1 (3)
+    if (currentStep >= 3) {
+      // on the review step… just make sure at least one branch exists
+      if (branches && branches.items?.length) {
+        nextStep();
+      } else {
+        NotificationMessage.warning({
+          message: 'Branch not created',
+          description: 'You have to create at least one branch',
+        });
+      }
+      return;
+    }
+
+    // validate only the current form before moving on
+    if (currentStep < forms.length) {
       forms[currentStep]
         .validateFields()
-        .then(() => {
-          nextStep();
-        })
-        .catch((errorInfo: any) => {
-          showValidationErrors(errorInfo?.errorFields);
-        });
+        .then(() => nextStep())
+        .catch((e) => showValidationErrors([e?.errorFields[0]]));
+    } else {
+      nextStep();
     }
   };
 
+  /* -------------------------------------------------------------------------- */
+  /*                                    UI                                      */
+  /* -------------------------------------------------------------------------- */
   const steps = [
-    {
-      title: 'Step 1',
-      content: <CompanyProfile form={form1} />,
-    },
-    {
-      title: 'Step 1',
-      content: <FiscalYearForm form={form2} />,
-    },
-    {
-      title: 'Step 2',
-      content: <WorkSchedule form={form4} />,
-    },
-
-    {
-      title: 'Step 3',
-      content: <OrgChartComponent />,
-    },
+    { title: 'Step 1', content: <CompanyProfile form={formCompany} /> },
+    { title: 'Step 2', content: <FiscalYearForm form={formFiscal} /> },
+    { title: 'Step 3', content: <WorkSchedule form={formSchedule} /> },
+    { title: 'Step 4', content: <OrgChartComponent /> },
   ];
 
-  const handleClose = () => {
-    togleIsModalVisible();
-  };
+  const handleCloseModal = () => togleIsModalVisible();
+
   return (
     <div className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12">
-      <div
-        className="
-      bg-white 
-      w-full
-      rounded-lg
-      flex flex-col 
-      p-4
-      mobile-sm:p-2
-      mobile-md:p-2
-      mobile-lg:p-2 
-      tablet-md:p-4  
-      lg:p-4
-      lg:flex-row-reverse 
-      lg:space-x-2
-      items-center
-      md:items-center lg:items-center
-      tablet-md:px-2
-      gap-10
-      "
-      >
-        {/* Left Section */}
-        <div className="mx-auto">
-          <div className="pr-0 tablet-md:pr-0 mb-4 md:mb-0 w-full ">
-            <div className="flex items-center mb-4 md:mb-8">
-              <div className="flex items-center">
-                {/*eslint-disable @typescript-eslint/naming-convention */}
-                {steps.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-6 h-5 rounded mr-2 ${currentStep >= index ? 'bg-blue' : 'bg-gray-300'}`}
-                  />
-                ))}
-                {/*eslint-enable @typescript-eslint/naming-convention */}
-              </div>
-            </div>
-            <div className="text-xl font-bold text-gray-600 mb-8">
-              STEP {currentStep + 1} OF {steps.length}
-            </div>
-            <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-              {currentStep + 1 == 1
-                ? 'Personalize your experience and ensure smooth setup'
-                : currentStep + 1 == 2
-                  ? 'Please define fiscal year for Your organization'
-                  : currentStep + 1 == 3
-                    ? 'Define the work schedule for your organization '
-                    : currentStep + 1 == 4
-                      ? 'Create and define your organizational structure'
-                      : ''}
-            </h2>
-            <p className="text-gray-600 mb-10">
-              {currentStep + 1 == 1
-                ? 'This will help us configure the system to better align with your organizations operation '
-                : currentStep + 1 == 2
-                  ? 'This will help us ensure accurate reporting and data alignment.'
-                  : currentStep + 1 == 3
-                    ? 'Specify working days and hours to ensure proper planning and resource management.'
-                    : currentStep + 1 == 4
-                      ? 'Add departments, roles, and reporting hierarchies to ensure clear communication and streamlined workflows.'
-                      : ''}
-            </p>
+      <div className="bg-white w-full rounded-lg flex flex-col p-4 lg:flex-row-reverse items-center gap-10">
+        {/* Left section: copy, progress & buttons */}
+        <div className="mx-auto pr-0 w-full">
+          {/* progress dots */}
+          <div className="flex items-center mb-8">
+            {steps.map((notused, index) => (
+              <div
+                key={index}
+                className={`w-6 h-5 rounded mr-2 ${currentStep >= index ? 'bg-blue' : 'bg-gray-300'}`}
+              />
+            ))}
+          </div>
 
-            {currentStep == 5 && (
-              <div className="overflow-x-auto my-8">
-                {steps[currentStep].content}
-              </div>
-            )}
+          <div className="text-xl font-bold text-gray-600 mb-8">
+            STEP {currentStep + 1} OF {steps.length}
+          </div>
 
-            <div className="hidden tablet-md:flex space-x-2 md:space-x-4 justify-start items-center">
-              {currentStep > 0 && (
-                <Button
-                  onClick={prevStep}
-                  icon={<ArrowLeftOutlined />}
-                  className="w-36 h-16"
-                  size="large"
-                  id="goBackButton"
-                  disabled={currentStep === 0}
-                >
-                  Go Back
-                </Button>
-              )}
+          {/* dynamic heading/description */}
+          {(() => {
+            switch (currentStep) {
+              case 0:
+                return (
+                  <>
+                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                      Personalize your experience and ensure smooth setup
+                    </h2>
+                    <p className="text-gray-600 mb-10">
+                      This will help us configure the system to better align
+                      with your organizations operation.
+                    </p>
+                  </>
+                );
+              case 1:
+                return (
+                  <>
+                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                      Define fiscal year for your organisation
+                    </h2>
+                    <p className="text-gray-600 mb-10">
+                      This will help us ensure accurate reporting and data
+                      alignment.
+                    </p>
+                  </>
+                );
+              case 2:
+                return (
+                  <>
+                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                      Define the work schedule for your organisation
+                    </h2>
+                    <p className="text-gray-600 mb-10">
+                      Specify working days and hours to ensure proper planning
+                      and resource management.
+                    </p>
+                  </>
+                );
+              case 3:
+                return (
+                  <>
+                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+                      Create and define your organisational structure
+                    </h2>
+                    <p className="text-gray-600 mb-10">
+                      Add departments, roles, and reporting hierarchies to
+                      ensure clear communication and streamlined workflows.
+                    </p>
+                  </>
+                );
+              default:
+                return null;
+            }
+          })()}
+
+          {/* buttons (desktop) */}
+          <div className="hidden tablet-md:flex space-x-4 items-center">
+            {currentStep > 0 && (
               <Button
-                onClick={
-                  currentStep === steps.length - 1
-                    ? onSubmitOnboarding
-                    : handleNextStep
-                }
-                type="primary"
+                onClick={prevStep}
+                icon={<ArrowLeftOutlined />}
+                className="w-36 h-16"
                 size="large"
-                className="w-36 h-16 bg-blue disabled:bg-blue"
-                id={
-                  currentStep === steps.length - 1
-                    ? 'finishButton'
-                    : 'continueButton'
-                }
-                disabled={loading}
+                id="goBackButton"
+                disabled={currentStep === 0}
               >
-                {loading ? (
-                  <Spin
-                    size="large"
-                    style={{ color: 'white' }}
-                    className="text-white"
-                  />
-                ) : currentStep === steps.length - 1 ? (
-                  'Submit'
-                ) : (
-                  'Continue'
-                )}
+                Go Back
               </Button>
-            </div>
+            )}
+            <Button
+              onClick={
+                currentStep === steps.length - 1
+                  ? onSubmitOnboarding
+                  : handleNextStep
+              }
+              type="primary"
+              size="large"
+              className="w-36 h-16 bg-blue disabled:bg-blue"
+              id={
+                currentStep === steps.length - 1
+                  ? 'finishButton'
+                  : 'continueButton'
+              }
+              disabled={loading}
+            >
+              {loading ? (
+                <Spin size="large" style={{ color: 'white' }} />
+              ) : currentStep === steps.length - 1 ? (
+                'Submit'
+              ) : (
+                'Continue'
+              )}
+            </Button>
           </div>
         </div>
 
-        {/* Right Section */}
-        {currentStep !== 5 && (
-          <div className="w-full  mt-8 md:mt-0">
-            {steps.map((step, idx) => (
-              <div
-                key={idx}
-                style={{ display: idx === currentStep ? 'block' : 'none' }}
-              >
-                {step.content}
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Right section: actual step content (desktop) */}
+        <div className="w-full mt-8 md:mt-0 tablet-md:block hidden">
+          {steps.map((step, idx) => (
+            <div
+              key={idx}
+              style={{ display: idx === currentStep ? 'block' : 'none' }}
+            >
+              {step.content}
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <div className="flex space-x-2 md:space-x-4 justify-start items-center tablet-md:hidden ">
+      {/* buttons + step content for mobile */}
+      <div className="tablet-md:hidden w-full mt-8">
+        {steps.map((step, idx) => (
+          <div
+            key={idx}
+            style={{ display: idx === currentStep ? 'block' : 'none' }}
+          >
+            {step.content}
+          </div>
+        ))}
+        <div className="flex space-x-4 mt-6 items-center">
           {currentStep > 0 && (
             <Button
               onClick={prevStep}
               icon={<ArrowLeftOutlined />}
               className="w-36 h-16"
               size="large"
-              id="goBackButton"
+              id="goBackButtonMobile"
               disabled={currentStep === 0}
             >
               Go Back
@@ -436,17 +486,13 @@ const OnboaringSteper: React.FC = () => {
             className="w-36 h-16 bg-blue disabled:bg-blue"
             id={
               currentStep === steps.length - 1
-                ? 'finishButton'
-                : 'continueButton'
+                ? 'finishButtonMobile'
+                : 'continueButtonMobile'
             }
             disabled={loading}
           >
             {loading ? (
-              <Spin
-                size="large"
-                style={{ color: 'white' }}
-                className="text-white"
-              />
+              <Spin size="large" style={{ color: 'white' }} />
             ) : currentStep === steps.length - 1 ? (
               'Submit'
             ) : (
@@ -454,26 +500,17 @@ const OnboaringSteper: React.FC = () => {
             )}
           </Button>
         </div>
-        {/* Mobile/Tablet Step Content */}
-        <div className="tablet-md:hidden w-full mt-8 md:mt-0">
-          {steps.map((step, idx) => (
-            <div
-              key={idx}
-              style={{ display: idx === currentStep ? 'block' : 'none' }}
-            >
-              {step.content}
-            </div>
-          ))}
-        </div>
       </div>
+
+      {/* Success modal */}
       <CustomModal
         visible={isModalVisible}
-        onClose={handleClose}
-        text="You have successfully finished onboarding process"
-        route={`/dashboard`}
+        onClose={handleCloseModal}
+        text="You have successfully finished the onboarding process"
+        route="/dashboard"
       />
     </div>
   );
 };
 
-export default OnboaringSteper;
+export default OnboardingSteper;
