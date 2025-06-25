@@ -1,6 +1,6 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Skeleton, Spin, Tabs } from 'antd';
+import { Skeleton, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import PayRoleView from './payroll-detail';
 import { useEffect, useMemo } from 'react';
