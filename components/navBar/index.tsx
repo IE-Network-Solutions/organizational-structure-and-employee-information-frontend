@@ -28,6 +28,13 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+import dayjs from 'dayjs';
+import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+
+
 interface CustomMenuItem {
   key: string;
   icon?: React.ReactNode;
@@ -54,7 +61,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-
+  const {
+    mutate: updateEmployeeInformation,
+  } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -683,12 +692,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return hasAllPermissions;
   };
   const { data: departments } = useGetDepartments();
-
+  const { data: employeeData } = useGetEmployee(userId);
+  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
+    useEmployeeManagementStore();
   useEffect(() => {
-    if (departments?.length === 0) {
+    if (!departments || !employeeData) return;
+
+    if (departments.length === 0) {
       router.push('/onboarding');
+    } else if (
+      !employeeData.employeeJobInformation ||
+      employeeData.employeeJobInformation.length === 0
+    ) {
+      setIsAddEmployeeJobInfoModalVisible(true);
+      setEmployeeJobInfoModalWidth('100%');
     }
-  }, [departments?.length, pathname, router]);
+  }, [departments, employeeData, router]);
+
 
   // ✅ Check permission on pathname change
   useEffect(() => {
@@ -879,6 +899,38 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       };
     });
   };
+  const { mutate: employeeInfo } = useCreateEmployee();
+  const handleUserInfoUpdate = () => {
+    const fullName = employeeData?.firstName?.split(' ') || [];
+    const payloadUser = {
+      firstName: fullName[0] || '-',
+      middleName: fullName[1] || '-',
+      lastName: fullName[2] || '-',
+    };
+    const payloadEmp = {
+      joinedDate: employeeData?.createdAt
+        ? new Date(employeeData?.createdAt).toISOString()
+        : new Date().toISOString(),
+      dateOfBirth: dayjs().subtract(30, 'year'),
+      employeeAttendanceId: 1,
+      gender: 'male',
+      maritalStatus: 'SINGLE',
+      addresses: {},
+      additionalInformation: {},
+      bankInformation: {},
+      userId: userId,
+    };
+
+    updateEmployeeInformation({
+      id: userId,
+      values: payloadUser,
+    });
+    employeeInfo({
+      values: payloadEmp,
+    });
+  };
+
+  // Render the component with the layout and navigation on the left
 
   return (
     <Layout>
@@ -1030,6 +1082,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               {children}
             </div>
           )}
+          <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
+            }}
+            id={userId}
+          />
         </Content>
       </Layout>
     </Layout>
