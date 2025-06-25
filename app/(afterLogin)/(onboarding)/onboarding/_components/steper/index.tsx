@@ -44,6 +44,7 @@ import {
   useDeleteRecruitmentStatus,
 } from '@/store/server/features/recruitment/settings/status/mutation';
 
+
 // Components
 import WorkSchedule from './workSchedule';
 import OrgChartComponent from './orgChartComponent';
@@ -70,6 +71,7 @@ const OnboardingSteper: React.FC = () => {
   /* -------------------------------------------------------------------------- */
   /*                               external data                                */
   /* -------------------------------------------------------------------------- */
+
   const { data: departments } = useGetDepartments();
   const router = useRouter();
   useEffect(() => {
