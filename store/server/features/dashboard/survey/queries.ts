@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
+import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
@@ -41,6 +42,33 @@ const getSurvey = async (start: string, end: string): Promise<ResponseData> => {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }
 };
+const getSchedule = async (date?: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+
+  if (!token || !tenantId) {
+    throw new Error('Missing authentication information.');
+  }
+
+  const params = date ? { date } : {};
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
+
+    return await crudRequest({
+      url: `${ORG_DEV_URL}/my-meetings/${userId}`,
+      method: 'GET',
+      headers,
+      params,
+    });
+  } catch (error: any) {
+    throw new Error(`Error fetching schedule: ${error.message || error}`);
+  }
+};
 
 /**
  * Custom hook to get the applicant summary
@@ -50,6 +78,14 @@ export const useGetSurvey = (start: string, end: string) =>
   useQuery<ResponseData>(
     ['survey', start, end], // Use id as part of the query key
     () => getSurvey(start, end), // Pass function reference to useQuery
+    {
+      keepPreviousData: true,
+    },
+  );
+export const useGetSchedule = (date?: string) =>
+  useQuery<ResponseData>(
+    ['schedule'], // Use id as part of the query key
+    () => getSchedule(date), // Pass function reference to useQuery
     {
       keepPreviousData: true,
     },

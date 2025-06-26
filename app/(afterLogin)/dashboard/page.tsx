@@ -1,14 +1,13 @@
 'use client';
 import Header from './_components/header';
-import NewCourses from './_components/new-course';
-import JobSummary from './_components/job-summary';
-import AccessGuard from '@/utils/permissionGuard';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { Skeleton } from 'antd';
 import LeftBar from './_components/leftBar';
 import RightBar from './_components/rightBar';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 export default function Home() {
+  const userData = useAuthenticationStore.getState().userData;
   const { data: activeCalender, isLoading: isResponseLoading } =
     useGetActiveFiscalYears();
 
@@ -19,13 +18,20 @@ export default function Home() {
 
   const mainLayout = (
     <div className="min-h-screen bg-gray-100 p-4">
-      {/* Main Grid */} <Header />
+      {userData?.firstName ? (
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Hi, {userData?.firstName}
+          </h1>
+        </div>
+      ) : (
+        ''
+      )}
+      <Header />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left Section */}
         <div className="col-span-12 lg:col-span-8">
           <LeftBar />
         </div>
-        {/* Right Section */}
         <div className="col-span-12 lg:col-span-4 ">
           <RightBar />
         </div>

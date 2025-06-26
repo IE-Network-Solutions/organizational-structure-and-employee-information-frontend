@@ -11,12 +11,12 @@ const Header = () => {
 
   return (
     <>
-      <div className="grid grid-cols-5 gap-4 w-full max-h-36 mb-4 ">
+      <div className="  w-full mb-4 flex overflow-x-auto grid-cols-none  lg:grid lg:grid-cols-5 gap-4 ">
         <Card
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -52,7 +52,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -90,7 +90,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -130,7 +130,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -171,7 +171,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">

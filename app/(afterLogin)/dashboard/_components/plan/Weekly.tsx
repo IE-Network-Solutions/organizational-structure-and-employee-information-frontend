@@ -1,12 +1,22 @@
+import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import { useDefaultPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useDashboardPlanStore } from '@/store/uistate/features/dashboard/plan';
+import { Checkbox } from 'antd';
 import React from 'react';
 import { BsKey } from 'react-icons/bs';
-import { MdOutlineRadioButtonChecked } from 'react-icons/md';
 
 const Weekly = ({
   allPlannedTaskForReport,
 }: {
   allPlannedTaskForReport: any[];
 }) => {
+  const { mutate: updateStatus } = useUpdateStatus();
+  const { planType } = useDashboardPlanStore();
+
+  const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
+  const activePlanPeriod = defaultPlanningPeriods?.items?.find(
+    (item: any) => item?.name === planType,
+  );
   function groupByKeyResultIdToArray(data: any) {
     const map = new Map();
 
@@ -28,28 +38,44 @@ const Weekly = ({
     allPlannedTaskForReport &&
     groupByKeyResultIdToArray(allPlannedTaskForReport);
 
+  const onChange = (
+    id: string,
+    status: string | null,
+    planningPeriodId: string,
+  ) => {
+    updateStatus({
+      id: id,
+      status: status == 'pre-achieved' ? 'pending' : 'pre-achieved',
+      planningPeriodId: planningPeriodId,
+    });
+  };
   return (
     <div className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none">
       {planTaskArray?.length > 0 ? (
         planTaskArray?.map((item: any) => (
           <div key={item?.keyResultId} className="flex flex-col gap-2  p-2">
-            <div className="text-sm font-semibold flex gap-3 items-center ">
+            <div className="text-base font-bold flex gap-3 items-center ">
               <BsKey className="text-primary" />
               {item?.task?.[0]?.keyResult?.title}
             </div>
             <div className="">
-              {item?.task?.map((item: any) => (
-                <div className=" flex gap-2">
-                  <MdOutlineRadioButtonChecked className="text-primary" />
-
+              {item?.task?.map((task: any) => (
+                <Checkbox
+                  key={task?.id}
+                  checked={task?.status == 'pre-achieved'}
+                  onChange={() =>
+                    onChange(task?.id, task?.status, activePlanPeriod?.id)
+                  }
+                  disabled={task?.status == 'completed'}
+                >
                   <div
-                    className={`text-sm text-gray-500 ${
-                      item?.checked ? 'line-through text-gray-400' : ''
+                    className={`text-base font-medium text-gray-500 ${
+                      task?.checked ? 'line-through text-gray-400' : ''
                     }`}
                   >
-                    {item?.task}
+                    {task?.task}
                   </div>
-                </div>
+                </Checkbox>
               ))}
             </div>
           </div>

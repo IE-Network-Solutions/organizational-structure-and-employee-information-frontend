@@ -7,7 +7,6 @@ import { BsLightningCharge } from 'react-icons/bs';
 import { TbAward } from 'react-icons/tb';
 
 const SuperStart = () => {
-  // const user = {};
   const user = {
     profileImage:
       'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
@@ -20,13 +19,13 @@ const SuperStart = () => {
   };
 
   return (
-    <div className="bg-white flex flex-col rounded-lg p-1 gap-3">
-      <div className="text-xl font-semibold gap-3 flex items-center justify-center  ">
+    <div className="bg-white flex flex-col rounded-lg p-1  gap-5">
+      <div className="text-xl font-bold gap-10 flex items-center justify-center  ">
         <LuCrown className="text-primary" /> Achievement Unlocked
         <LuCrown className="text-primary" />
       </div>
       {user?.firstName ? (
-        <div>
+        <div className="flex flex-col justify-between gap-5">
           <div className="flex flex-col items-center gap-2 min-w-28">
             {user?.profileImage ? (
               <Avatar
@@ -40,30 +39,32 @@ const SuperStart = () => {
                 className="w-16 h-16 rounded-full"
               />
             )}
-            <p className="font-normal text-center text-sm   ">
+            <p className="font-medium text-center text-base   ">
               {`${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`}
             </p>
           </div>
           <div className="flex items-center justify-center  ">
-            <div className="rounded-full bg-green-100 text-green-600 px-4 py-1 font-semibold text-base">
+            <div className="rounded-full bg-green-100 text-green-600 px-4 py-1 font-medium text-base">
               Super Start Of The Quarter
             </div>
           </div>
-          <div className="flex items-center justify-center  ">
-            <div className=" text-base font-bold"> Achievement Unlocked</div>
-          </div>
-          <div className="flex items-center justify-center gap-2  ">
-            <div className=" flex flex-col gap-3 justify-center items-center ">
-              <GoGoal className="text-2xl text-green-600" />
-              <div className="text-xs font-light">Goal Achieved</div>
+          <div className=" flex flex-col items-center justify-center gap-5">
+            <div className="flex items-center justify-center  ">
+              <div className=" text-base font-bold"> Achievement Unlocked</div>
             </div>
-            <div className=" flex flex-col gap-3 justify-center items-center ">
-              <BsLightningCharge className="text-2xl text-sky-600" />
-              <div className="text-xs font-light">Team Energizer</div>
-            </div>
-            <div className=" flex flex-col gap-3 justify-center items-center ">
-              <TbAward className="text-2xl text-indigo-700" />
-              <div className="text-xs font-light">Most Valuable Player</div>
+            <div className="flex items-center justify-center gap-2  ">
+              <div className=" flex flex-col gap-3 justify-center items-center ">
+                <GoGoal className="text-3xl text-green-600" />
+                <div className="text-xs font-thin">Goal Achieved</div>
+              </div>
+              <div className=" flex flex-col gap-3 justify-center items-center ">
+                <BsLightningCharge className="text-3xl text-sky-600" />
+                <div className="text-xs font-thin">Team Energizer</div>
+              </div>
+              <div className=" flex flex-col gap-3 justify-center items-center ">
+                <TbAward className="text-3xl text-indigo-700" />
+                <div className="text-xs font-thin">Most Valuable Player</div>
+              </div>
             </div>
           </div>
         </div>

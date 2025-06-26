@@ -1,6 +1,6 @@
 // components/CardList.tsx
 import { FC, useState } from 'react';
-import { Avatar, Button, Card, Empty } from 'antd';
+import { Avatar, Button } from 'antd';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { BirthDayData } from '@/store/server/features/dashboard/birthday/queries';
 import { WorkAnniversaryData } from '@/store/server/features/dashboard/work-anniversary/queries';
@@ -12,7 +12,7 @@ interface CardListProps {
   loading: boolean;
   type: string;
 }
-const CardList: FC<CardListProps> = ({ title, people, loading, type }) => {
+const CardList: FC<CardListProps> = ({ title, people, type }) => {
   const [currentPersonIndex, setCurrentPersonIndex] = useState(0);
   const cardsPerPage = 3;
 
@@ -33,7 +33,7 @@ const CardList: FC<CardListProps> = ({ title, people, loading, type }) => {
   );
   return (
     <div className="bg-white rounded-lg p-1 h-[150px]">
-      <div className="text-2xl font-bold gap-3 flex items-center px-3  ">
+      <div className="text-lg font-bold gap-3 flex items-center px-3  ">
         <span className="mr-2 text-2xl">🎉 </span>
         {title}
       </div>

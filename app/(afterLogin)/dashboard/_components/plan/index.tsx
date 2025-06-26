@@ -38,7 +38,7 @@ const Plan = () => {
       className="bg-white  rounded-lg p-1 "
     >
       <div className="flex justify-between p-2 items-center ">
-        <div className="text-lg  font-bold text-gray-400">My Plane</div>
+        <div className="text-lg  font-bold ">My Plan</div>
         <div className="pl-2 ">
           <Select
             defaultValue={planType}

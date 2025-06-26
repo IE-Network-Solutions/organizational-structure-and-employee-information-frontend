@@ -1,6 +1,6 @@
 // components/ApprovalStatus.tsx
 import { FC } from 'react';
-import { Empty, Select } from 'antd';
+import { Select } from 'antd';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
@@ -35,7 +35,7 @@ const ApprovalStatus: FC = () => {
   return (
     <div className="bg-white p-3 rounded-lg w-full">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-2xl font-bold">Approval Status</h4>
+        <h4 className="text-lg font-bold">Approval Status</h4>
         <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
           <Select
             placeholder="select"

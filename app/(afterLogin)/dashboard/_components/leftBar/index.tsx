@@ -7,9 +7,9 @@ import Plan from '../plan';
 import SelfAttendance from '../self-attendance';
 import EmploymentStats from '../employee-status';
 import CoursePermitted from '../course-permitted';
-import { Applicants } from '../applicants';
-import AccessGuard from '@/utils/permissionGuard';
+
 import Appreciation from '../../appreciation';
+import Incentive from '../incentive';
 
 const LeftBar = () => {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
@@ -41,9 +41,10 @@ const LeftBar = () => {
         </div>
       </div>
       <div className="col-span-12 xl:col-span-4">
-        <AccessGuard roles={['user']}>
-          <CoursePermitted />
-        </AccessGuard>
+        <Incentive />
+      </div>
+      <div className="col-span-12 xl:col-span-4">
+        <CoursePermitted />
       </div>
     </div>
   );

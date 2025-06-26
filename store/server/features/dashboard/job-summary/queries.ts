@@ -20,7 +20,7 @@ const getJobSummary = async (status: string) => {
       tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await axios.get(
-      `${RECRUITMENT_URL}/job-information/status/job?type=${status}`,
+      `${RECRUITMENT_URL}/job-information/job/status?type=${status}`,
       {
         headers,
       },
