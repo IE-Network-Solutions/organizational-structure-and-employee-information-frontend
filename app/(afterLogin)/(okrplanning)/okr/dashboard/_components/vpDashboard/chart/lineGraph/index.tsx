@@ -5,11 +5,12 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   useGetVPLineGraphData,
   useGetAllMonth,
@@ -23,6 +24,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -85,14 +87,34 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
     );
   }
 
+  // Legend color references
+  const legendItems = [
+    { color: '#4C4CFF', label: 'Highest Average Score' },
+    { color: '#A5A6F6', label: 'Average Score' },
+    { color: '#E9E9FF', label: 'Low Average Score' },
+  ];
+
+  // Find highest and lowest values
+  const scores = dataValue?.map((item: any) => item?.vpScore) || [];
+  const highest = Math.max(...scores);
+  const lowest = Math.min(...scores);
+
+  // Assign colors: first bar is #4C4CFF (Highest), last bar is #E9E9FF (Lowest), all others are #A5A6F6 (Average)
+  const barColors = scores.map((score: number, idx: number) => {
+    if (idx === 0) return '#4C4CFF'; // Highest (first bar)
+    if (idx === scores.length - 1) return '#E9E9FF'; // Lowest (last bar)
+    return '#A5A6F6'; // Average
+  });
+
   const data = {
     labels: dataValue?.map((item: any) => item?.monthRange),
     datasets: [
       {
         label: 'Score Data',
-        data: dataValue?.map((item: any) => item?.vpScore),
-        borderColor: '#3636f0',
-        backgroundColor: '#3636f0',
+        data: scores,
+        backgroundColor: barColors,
+        borderColor: '#fff',
+        borderWidth: 1,
         fill: false,
       },
     ],
@@ -100,7 +122,48 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
 
   return (
     <div>
-      <Line options={options} data={data} />
+      <Bar options={options} data={data} />
+      <div className="flex items-center justify-between mt-4 w-full">
+        <div className="flex items-center gap-4">
+          <span
+            className="inline-block rounded-full"
+            style={{
+              width: 18,
+              height: 12,
+              backgroundColor: legendItems[0].color,
+            }}
+          />
+          <span className="text-sm text-gray-500 font-normal">
+            {legendItems[0].label}
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span
+            className="inline-block rounded-full"
+            style={{
+              width: 18,
+              height: 12,
+              backgroundColor: legendItems[1].color,
+            }}
+          />
+          <span className="text-sm text-gray-500 font-normal">
+            {legendItems[1].label}
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span
+            className="inline-block rounded-full"
+            style={{
+              width: 18,
+              height: 12,
+              backgroundColor: legendItems[2].color,
+            }}
+          />
+          <span className="text-sm text-gray-500 font-normal">
+            {legendItems[2].label}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
