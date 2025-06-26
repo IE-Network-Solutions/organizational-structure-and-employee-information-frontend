@@ -191,42 +191,53 @@ const JobCard: React.FC = () => {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Department/Location and Closing Date - Mobile: Stack vertically, Desktop: Side by side */}
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-sm text-gray-500">
                             {getDepartmentName(job?.departmentId)}
                           </p>
-                          {getDepartmentName(job?.departmentId) && job?.jobLocation && (
-                            <span className="text-gray-300">•</span>
-                          )}
+                          {getDepartmentName(job?.departmentId) &&
+                            job?.jobLocation && (
+                              <span className="text-gray-300">•</span>
+                            )}
                           <p className="text-sm text-gray-500">
                             {job?.jobLocation}
                           </p>
                         </div>
                         <div className="hidden sm:block">
-                          <span className="text-gray-700 font-medium">Closing Date: </span>
-                          {job?.jobDeadline 
-                            ? <span className='text-gray-500'>{dayjs(job.jobDeadline).format(DATE_FORMAT)}</span>
-                            : <span className='text-gray-500'>Not set</span>
-                          }
+                          <span className="text-gray-700 font-medium">
+                            Closing Date:{' '}
+                          </span>
+                          {job?.jobDeadline ? (
+                            <span className="text-gray-500">
+                              {dayjs(job.jobDeadline).format(DATE_FORMAT)}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">Not set</span>
+                          )}
                         </div>
                       </div>
-                      
+
                       {/* Mobile Closing Date - Only show on mobile */}
                       <div className="block sm:hidden mb-3">
                         <div className="text-sm">
-                          <span className="text-gray-700 font-medium">Closing Date: </span>
-                          {job?.jobDeadline 
-                            ? <span className='text-gray-500'>{dayjs(job.jobDeadline).format(DATE_FORMAT)}</span>
-                            : <span className='text-gray-500'>Not set</span>
-                          }
+                          <span className="text-gray-700 font-medium">
+                            Closing Date:{' '}
+                          </span>
+                          {job?.jobDeadline ? (
+                            <span className="text-gray-500">
+                              {dayjs(job.jobDeadline).format(DATE_FORMAT)}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">Not set</span>
+                          )}
                         </div>
                       </div>
-                      
+
                       {/* Candidates and Created Date - Mobile: Stack vertically, Desktop: Side by side */}
-                      <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3'>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                         <div className="flex items-center gap-2">
                           {job?.jobCandidate?.length > 0 ? (
                             <Avatar.Group
@@ -237,24 +248,26 @@ const JobCard: React.FC = () => {
                               }}
                               size="small"
                             >
-                              {job.jobCandidate.slice(0, 3).map((member: any) => (
-                                <Tooltip
-                                  title={
-                                    <div className="flex justify-start items-center gap-4">
-                                      {member?.name ?? '-'}
-                                    </div>
-                                  }
-                                  key={member?.id}
-                                >
-                                  <Image
-                                    src={AvatarImage}
-                                    alt="Profile pic"
-                                    width={20}
-                                    height={20}
-                                    className="rounded-full object-cover"
-                                  />
-                                </Tooltip>
-                              ))}
+                              {job.jobCandidate
+                                .slice(0, 3)
+                                .map((member: any) => (
+                                  <Tooltip
+                                    title={
+                                      <div className="flex justify-start items-center gap-4">
+                                        {member?.name ?? '-'}
+                                      </div>
+                                    }
+                                    key={member?.id}
+                                  >
+                                    <Image
+                                      src={AvatarImage}
+                                      alt="Profile pic"
+                                      width={20}
+                                      height={20}
+                                      className="rounded-full object-cover"
+                                    />
+                                  </Tooltip>
+                                ))}
                             </Avatar.Group>
                           ) : (
                             <Image
@@ -275,23 +288,27 @@ const JobCard: React.FC = () => {
 
                         <div className="hidden sm:block">
                           <div className="text-sm text-gray-500">
-                            Created {job?.createdAt ? dayjs(job.createdAt).fromNow() : 'Unknown'}
+                            Created{' '}
+                            {job?.createdAt
+                              ? dayjs(job.createdAt).fromNow()
+                              : 'Unknown'}
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Mobile Created Date - Only show on mobile */}
                       <div className="block sm:hidden mt-3">
                         <div className="text-sm text-gray-500">
-                          Created {job?.createdAt ? dayjs(job.createdAt).fromNow() : 'Unknown'}
+                          Created{' '}
+                          {job?.createdAt
+                            ? dayjs(job.createdAt).fromNow()
+                            : 'Unknown'}
                         </div>
                       </div>
-
                     </div>
                   </Link>
 
                   {/* Date information - shown at bottom */}
-                 
                 </div>
               </div>
             </Card>

@@ -88,10 +88,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
         },
         ticks: {
           stepSize: 20,
-          callback: function (
-            tickValue: string | number,
-
-          ) {
+          callback: function (tickValue: string | number) {
             return tickValue;
           },
         },

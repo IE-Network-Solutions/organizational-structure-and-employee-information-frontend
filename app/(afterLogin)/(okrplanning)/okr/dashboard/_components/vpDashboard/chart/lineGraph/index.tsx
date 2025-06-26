@@ -97,7 +97,6 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   // Find highest and lowest values
   const scores = dataValue?.map((item: any) => item?.vpScore) || [];
 
-
   // Assign colors: first bar is #4C4CFF (Highest), last bar is #E9E9FF (Lowest), all others are #A5A6F6 (Average)
   const barColors = scores.map((score: number, idx: number) => {
     if (idx === 0) return '#4C4CFF'; // Highest (first bar)
