@@ -9,7 +9,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { MdCheckBoxOutlineBlank } from 'react-icons/md';
 import { useGetPerformance } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 
 ChartJS.register(
@@ -26,6 +25,12 @@ interface PerformanceChartProps {
   userId: string;
 }
 
+const legendItems = [
+  { color: '#4C4CFF', label: 'Highest Average Score' },
+  { color: '#A5A6F6', label: 'Average Score' },
+  { color: '#E9E9FF', label: 'Low Average Score' },
+];
+
 const PerformanceChart: React.FC<PerformanceChartProps> = ({
   selectedPeriodId,
   userId,
@@ -36,8 +41,13 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
     const scoresArray = scores?.map((score: any) => score?.totalscore) || [];
     return scoresArray.length > 0 ? Math.max(...scoresArray) : 0;
   };
+  const getLowestScore = () => {
+    const scoresArray = scores?.map((score: any) => score?.totalscore) || [];
+    return scoresArray.length > 0 ? Math.min(...scoresArray) : 0;
+  };
 
   const highestScore = getHighestScore();
+  const lowestScore = getLowestScore();
   const data = {
     labels: scores?.map((score: any) =>
       score?.weeknumber
@@ -48,15 +58,18 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
             ? `Day ${score.day}`
             : '',
     ),
-
     datasets: [
       {
-        data: scores?.map((score: any) => score?.totalscore),
-        backgroundColor: scores?.map((score: any) =>
-          score.totalscore === highestScore
-            ? 'rgba(34, 69, 255, 1)'
-            : 'rgb(233, 233, 255)',
-        ),
+        data: scores?.map((score: any) => {
+          if (score.totalscore === highestScore) return score.totalscore;
+          if (score.totalscore === lowestScore) return score.totalscore;
+          return score.totalscore;
+        }),
+        backgroundColor: scores?.map((score: any) => {
+          if (score.totalscore === highestScore) return '#4C4CFF';
+          if (score.totalscore === lowestScore) return '#E9E9FF';
+          return '#A5A6F6';
+        }),
         borderRadius: 10,
         barThickness: 50,
       },
@@ -65,9 +78,28 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
       y: {
         max: 100,
+        min: 0,
+        grid: {
+          color: '#E5E7EB',
+        },
+        ticks: {
+          stepSize: 20,
+          callback: function (
+            tickValue: string | number,
+
+          ) {
+            return tickValue;
+          },
+        },
+      },
+      x: {
+        grid: {
+          display: false,
+        },
       },
     },
     plugins: {
@@ -80,17 +112,20 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
     },
   };
   return (
-    <div className="mb-10">
-      <Bar data={data} options={options} />
-      <div className="flex items-center justify-start mt-4 gap-4">
-        <div className="flex justify-center items-center gap-1">
-          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-md bg-[#4C4CFF] text-[#4C4CFF]" />
-          <span>Highest Average Score</span>
-        </div>
-        <div className="flex justify-center items-center gap-1">
-          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-md bg-[#E9E9FF] text-[#E9E9FF]" />
-          <span>Average Score</span>
-        </div>
+    <div className="bg-white rounded-xl border border-[#F3F4F6] p-2 mb-2">
+      <Bar data={data} options={options} height={100} />
+      <div className="flex items-center justify-start mt-1 gap-8">
+        {legendItems.map((item) => (
+          <div key={item.label} className="flex items-center gap-2">
+            <span
+              className="inline-block rounded-full"
+              style={{ width: 18, height: 12, backgroundColor: item.color }}
+            />
+            <span className="text-sm text-gray-500 font-normal">
+              {item.label}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

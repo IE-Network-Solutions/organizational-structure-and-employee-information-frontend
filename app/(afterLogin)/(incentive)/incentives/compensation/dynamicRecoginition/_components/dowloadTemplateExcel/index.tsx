@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ExcelJS from 'exceljs';
 import { Button, Popover } from 'antd';
 import { useExcelHeaders } from '@/store/server/features/incentive/all/queries';
@@ -22,6 +22,53 @@ const DownloadExcelButton: React.FC = () => {
   const { data: childRecognitionData, isLoading: responseLoading } =
     useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
 
+  const warningTimeout = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (selectedRecognitionTypeId) {
+      setLoadingItems({ ...loadingItems, [selectedRecognitionTypeId]: true });
+    }
+  }, [selectedRecognitionTypeId]);
+
+  useEffect(() => {
+    // Clear any previous timeout
+    if (warningTimeout.current) {
+      clearTimeout(warningTimeout.current);
+    }
+
+    // Only run if loading is active for the current recognition type
+    if (selectedRecognitionTypeId && loadingItems[selectedRecognitionTypeId]) {
+      // Set a timeout to check for headers after 5 seconds
+      warningTimeout.current = setTimeout(() => {
+        if (!excelHeaders || excelHeaders.length === 0) {
+          setLoadingItems((prev) => ({
+            ...prev,
+            [selectedRecognitionTypeId]: false,
+          }));
+          NotificationMessage.warning({
+            message: 'No headers found. Please try again.',
+          });
+        }
+      }, 5000); // 5 seconds
+    }
+
+    // If headers arrive and are non-empty, clear loading
+    if (selectedRecognitionTypeId && excelHeaders && excelHeaders.length > 0) {
+      setLoadingItems((prev) => ({
+        ...prev,
+        [selectedRecognitionTypeId]: false,
+      }));
+      if (warningTimeout.current) {
+        clearTimeout(warningTimeout.current);
+      }
+    }
+
+    // Cleanup on unmount or change
+    return () => {
+      if (warningTimeout.current) {
+        clearTimeout(warningTimeout.current);
+      }
+    };
+  }, [excelHeaders, selectedRecognitionTypeId, templateResponseLoading]);
   const handleTemplateDownload = async (recognitionId: string) => {
     // Set loading state for this specific item
     setLoadingItems({ ...loadingItems, [recognitionId]: true });
@@ -102,7 +149,11 @@ const DownloadExcelButton: React.FC = () => {
       }
     }
   };
-
+  useEffect(() => {
+    if (selectedRecognitionTypeId) {
+      handleTemplateDownload(selectedRecognitionTypeId);
+    }
+  }, [selectedRecognitionTypeId]);
   // Check if the current recognition type is loading
   const isCurrentRecognitionLoading = loadingItems[selectedRecognitionTypeId];
 
