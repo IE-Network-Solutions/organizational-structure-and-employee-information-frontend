@@ -14,7 +14,6 @@ import {
 } from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
-import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { UseExportAttendanceData } from '@/store/server/features/timesheet/attendance/queries';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
@@ -36,9 +35,7 @@ const EmployeeAttendance = () => {
   const [isExportLoading, setIsExportLoading] = useState(false);
   const [exportType, setExportType] = useState<'EXCEL' | 'PDF' | null>(null);
   const [file, setFile] = useState<any>();
-  const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>({
-    filter: {}, // Initialize with empty filter
-  });
+
   const { mutate: exportAttendanceData } = UseExportAttendanceData();
 
   const {
