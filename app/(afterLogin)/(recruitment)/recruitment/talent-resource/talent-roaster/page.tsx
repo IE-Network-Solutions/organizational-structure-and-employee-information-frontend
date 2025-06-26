@@ -1,7 +1,7 @@
 'use client';
 
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { FaCopy, FaPlus } from 'react-icons/fa';
 import TalentRoasterTable from './_components/table';
 import CreateTalentRoaster from './_components/drawer';
@@ -10,6 +10,8 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { IoIosShareAlt } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AddToJobPipeline from './_components/modal';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { PUBLIC_DOMAIN } from '@/utils/constants';
 
 // Define the interface that matches the table data structure
 interface TalentRoasterItem {
@@ -38,6 +40,8 @@ const TalentRoasterPage = () => {
     setSelectedTalentRoaster,
   } = useTalentRoasterStore();
   const { isMobile, isTablet } = useIsMobile();
+  const { tenantId } = useAuthenticationStore();
+
   const handleEdit = (data: TalentRoasterItem) => {
     setCreateTalentRoasterDrawer(true);
     setEditData(data);
@@ -69,6 +73,37 @@ const TalentRoasterPage = () => {
         (candidate: TalentRoasterItem) => candidate.id !== candidateId,
       ) || [];
     setSelectedTalentRoaster(updatedCandidates);
+  };
+
+  const handleCopyLink = () => {
+    if (!tenantId) {
+      message.error('Unable to generate link. Please try again.');
+      return;
+    }
+
+    const publicLink = `${PUBLIC_DOMAIN}/talent-roster/${tenantId}`;
+
+    navigator.clipboard
+      .writeText(publicLink)
+      .then(() => {
+        message.success('Public application link copied to clipboard!');
+      })
+      .catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = publicLink;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          message.success('Public application link copied to clipboard!');
+        } catch (err) {
+          message.error(
+            'Failed to copy link. Please copy manually: ' + publicLink,
+          );
+        }
+        document.body.removeChild(textArea);
+      });
   };
 
   return (
@@ -111,9 +146,11 @@ const TalentRoasterPage = () => {
           </Button>
           <Button
             type="primary"
-            id="createUserButton"
+            id="copyLinkButton"
             className="h-10 w-10 sm:w-auto"
             icon={<FaCopy />}
+            onClick={handleCopyLink}
+            title="Copy public application link"
           >
             <span className="hidden sm:inline">Copy Link</span>
           </Button>
