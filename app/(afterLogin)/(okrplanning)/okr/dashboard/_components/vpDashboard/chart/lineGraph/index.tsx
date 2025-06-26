@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line, Bar } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import {
   useGetVPLineGraphData,
   useGetAllMonth,
@@ -96,8 +96,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
 
   // Find highest and lowest values
   const scores = dataValue?.map((item: any) => item?.vpScore) || [];
-  const highest = Math.max(...scores);
-  const lowest = Math.min(...scores);
+
 
   // Assign colors: first bar is #4C4CFF (Highest), last bar is #E9E9FF (Lowest), all others are #A5A6F6 (Average)
   const barColors = scores.map((score: number, idx: number) => {

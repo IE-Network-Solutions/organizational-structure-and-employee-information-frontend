@@ -23,11 +23,6 @@ ChartJS.register(
   Legend,
 );
 
-const periodTypeMap = {
-  Daily: 'Daily',
-  Weekly: 'Weekly',
-  Monthly: 'Monthly',
-};
 
 const Performance: React.FC = () => {
   const { userId } = useAuthenticationStore();
@@ -64,8 +59,6 @@ const Performance: React.FC = () => {
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
   let filteredItems = reportData?.items || [];
   if (selectedPeriod === 'Daily') {

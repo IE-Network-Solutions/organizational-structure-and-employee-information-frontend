@@ -166,7 +166,7 @@ const DueSoonKeyResultList: React.FC = () => {
         <div className="bg-white border rounded-xl overflow-hidden">
           {/* Scrollable container for all parent-child groups */}
           <div className="max-h-64 overflow-y-auto scrollbar-hide">
-            {objectivesWithKeyResults.map((objective, objectiveIndex) => (
+            {objectivesWithKeyResults.map((objective) => (
               <div key={objective.id}>
                 {/* Parent Objective */}
                 <div className="flex items-center px-4 py-3 border-b bg-[#F8F9FB]">
@@ -179,7 +179,7 @@ const DueSoonKeyResultList: React.FC = () => {
                   </div>
                 </div>
                 {/* Children Key Results */}
-                {objective.keyResults.map((keyResult, keyResultIndex) => {
+                {objective.keyResults.map((keyResult) => {
                   const daysLeft = dayjs(keyResult.deadline).diff(
                     dayjs(),
                     'day',
