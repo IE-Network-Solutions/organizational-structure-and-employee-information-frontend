@@ -110,6 +110,8 @@ const AllCandidateTable: React.FC = () => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
+      pageSize,
+      currentPage,
     );
 
   const onPageChange = (page: number, pageSize?: number) => {
