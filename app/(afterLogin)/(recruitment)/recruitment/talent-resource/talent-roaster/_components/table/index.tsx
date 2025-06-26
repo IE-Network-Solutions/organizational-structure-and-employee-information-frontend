@@ -114,7 +114,14 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
-    setPageSize(pageSize ?? 10);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
+  const onSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
   };
 
   const handleEdit = (data: TalentRoasterItem) => {
@@ -309,7 +316,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
               <Col xs={20} sm={20} flex="auto">
                 <Input
                   id={`inputTalentRoasterNames`}
-                  placeholder="Search talent roaster"
+                  placeholder="Search talent roster"
                   value={searchParams.fullName}
                   onChange={(e) =>
                     handleSearchCandidate(e.target.value, 'fullName')
@@ -374,7 +381,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
 
         <Modal
           centered
-          title="Filter Talent Roaster"
+          title="Filter Talent Roster"
           open={showMobileFilter}
           width="85%"
           footer={
@@ -459,7 +466,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       />
       {isMobile || isTablet ? (
         <CustomMobilePagination
-          totalResults={talentRoaster?.meta?.totalItems ?? 0}
+          totalResults={talentRoaster?.meta?.totalItems ?? 1}
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onPageChange}
@@ -467,13 +474,10 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       ) : (
         <CustomPagination
           current={currentPage}
-          total={talentRoaster?.meta?.totalItems ?? 0}
+          total={talentRoaster?.meta?.totalItems ?? 1}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={(pageSize) => {
-            setPageSize(pageSize);
-            setCurrentPage(1);
-          }}
+          onShowSizeChange={onSizeChange}
         />
       )}
     </div>
