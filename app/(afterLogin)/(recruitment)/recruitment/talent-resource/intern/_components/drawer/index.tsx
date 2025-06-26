@@ -61,7 +61,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
   onClose,
   editData,
   isEdit = false,
-}: CreateInternApplicantsProps) => {
+}) => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
   const { documentFileList, setDocumentFileList, removeDocument } =
@@ -139,31 +139,34 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
 
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
-    // Determine resume URL - use new upload if available, otherwise keep existing
-    let resumeUrl = '';
-    if (documentFileList.length > 0) {
-      // New file uploaded
-      resumeUrl = documentFileList[0].name || documentFileList[0].url;
-    } else if (isEdit && editData?.resumeUrl) {
-      // Keep existing resume URL when editing
-      resumeUrl = editData.resumeUrl;
+    const formData = new FormData();
+
+    const resumeUrl = formValues.resumeUrl as
+      | {
+          file?: { originFileObj?: File };
+        }
+      | undefined;
+
+    if (resumeUrl?.file?.originFileObj) {
+      formData.append('documentName', resumeUrl.file.originFileObj);
     }
+    delete formValues?.resumeUrl;
 
     const internData = {
-      fullName: formValues.fullName,
-      email: formValues.email,
-      phone: formValues.phone,
-      CGPA: formValues.CGPA,
-      graduateYear: formValues.yearOfGraduation, // Map yearOfGraduation to graduateYear
-      departmentId: formValues.department, // Map department to departmentId
-      coverLetter: formValues.coverLetter,
-      resumeUrl: resumeUrl,
+      ...formValues,
+      graduateYear: formValues.yearOfGraduation, // Map the field name to match database
+      departmentId: formValues.department,
     };
 
+    // Remove the original field name to avoid duplication
+    delete internData.yearOfGraduation;
+    delete internData.department;
+    formData.append('newFormData', JSON.stringify(internData));
+
     if (isEdit && editData) {
-      // Update existing talent roaster
+      // Update existing intern
       updateIntern(
-        { id: editData.id, data: internData },
+        { id: editData.id, data: formData },
         {
           onSuccess: () => {
             queryClient.invalidateQueries('intern');
@@ -174,8 +177,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
         },
       );
     } else {
-      // Create new talent roaster
-      createIntern(internData, {
+      // Create new intern
+      createIntern(formData, {
         onSuccess: () => {
           queryClient.invalidateQueries('intern');
           form.resetFields();
@@ -280,6 +283,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               rules={[{ required: true, message: 'Please input CGPA' }]}
             >
               <InputNumber
+                type="number"
                 min={0}
                 max={4}
                 step={0.01}
@@ -299,7 +303,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           name="yearOfGraduation"
           label={
             <span className="text-md font-semibold text-gray-700">
-              Year of Graduation
+              Expected Year of Graduation
             </span>
           }
           rules={[
@@ -311,7 +315,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           ]}
         >
           <Input
-            placeholder="Year of Graduation"
+            placeholder="Expected Year of Graduation"
             className="w-full h-10 text-sm"
           />
         </Form.Item>
