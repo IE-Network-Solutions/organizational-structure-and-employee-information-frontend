@@ -34,7 +34,7 @@ const getTalentRoaster = async (params?: {
     searchParams.append('page', params.page.toString());
   }
   if (params?.pageSize) {
-    searchParams.append('pageSize', params.pageSize.toString());
+    searchParams.append('limit', params.pageSize.toString());
   }
 
   const queryString = searchParams.toString();

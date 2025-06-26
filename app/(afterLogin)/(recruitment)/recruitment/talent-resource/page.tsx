@@ -39,7 +39,7 @@ const TalentResourcePage = () => {
               }
             >
               <span className="text-xs sm:text-sm text-nowrap">
-                Talent Roaster
+                Talent Roster
               </span>
             </button>
             <button
