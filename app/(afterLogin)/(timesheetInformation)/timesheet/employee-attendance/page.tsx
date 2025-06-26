@@ -2,11 +2,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { Button, Col, Dropdown, Menu, Popover, Row, Space } from 'antd';
+import {
+  Button,
+  Col,
+  Dropdown,
+  Menu,
+  Popover,
+  Row,
+  Space,
+  message,
+} from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
-import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import {
+  UseExportAttendanceData,
+  useGetAttendances,
+} from '@/store/server/features/timesheet/attendance/queries';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
@@ -19,6 +31,7 @@ import { HiOutlineTemplate } from 'react-icons/hi';
 import { useMediaQuery } from 'react-responsive';
 
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
+import { LuBookmark } from 'react-icons/lu';
 const EmployeeAttendance = () => {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
 
@@ -36,6 +49,7 @@ const EmployeeAttendance = () => {
     true,
     true,
   );
+  const { mutate: exportAttendanceData } = UseExportAttendanceData();
   // Log the current state of data and request
   useEffect(() => {
     if (bodyRequest.exportType) {
@@ -52,30 +66,55 @@ const EmployeeAttendance = () => {
   const { setIsShowBreakAttendanceImportSidebar, filter } =
     useEmployeeAttendanceStore();
 
-  useEffect(() => {
-    if (data && data.file) {
-      const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
+  const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
-      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
-
-      const fileUrl = `${url}${filePath}`;
-      // Open the file in a new window
-      window.open(fileUrl, '_blank');
-
-      // Create a temporary link to trigger the download
-      // const link = document.createElement('a');
-      // link.href = fileUrl;
-      // link.download = `attendance_${new Date().toISOString().split('T')[0]}`;
-      // document.body.appendChild(link);
-      // link.click();
-      // document.body.removeChild(link);
-
+  const onExport = async (type: 'PDF' | 'EXCEL') => {
+    try {
+      exportAttendanceData({
+        exportType: type,
+        filter: filter || null,
+      });
+    } catch (error) {
+      message.error('Failed to export. Please try again.');
       setIsExportLoading(false);
       setExportType(null);
       setBodyRequest((prev) => ({
         ...prev,
         exportType: undefined,
       }));
+    }
+  };
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reset export state when data is received
+  useEffect(() => {
+    if (data && data.file) {
+      const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
+      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
+      const fileUrl = `${url}${filePath}`;
+
+      window.open(fileUrl, '_blank');
+
+      // Reset all export states
+      setIsExportLoading(false);
+      setExportType(null);
+      setBodyRequest((prev) => ({
+        ...prev,
+        exportType: undefined,
+      }));
+
+      // Clear the timeout
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
     }
   }, [data, isFetching]);
 
@@ -89,31 +128,6 @@ const EmployeeAttendance = () => {
       });
     }
   }, [file]);
-
-  const onExport = async (type: 'PDF' | 'EXCEL') => {
-    try {
-      setExportType(type);
-      setIsExportLoading(true);
-      if (!data?.items?.length) {
-        return;
-      }
-      // Create a new request object with export type and filter
-      const exportRequest: AttendanceRequestBody = {
-        exportType: type,
-        filter: filter,
-      };
-      // Set the request
-      setBodyRequest(exportRequest);
-    } catch (error) {
-      // You might want to show an error message to the user here
-      setIsExportLoading(false);
-      setExportType(null);
-      setBodyRequest((prev) => ({
-        ...prev,
-        exportType: undefined,
-      }));
-    }
-  };
 
   // Dropdown Menu for Import Buttons
   const importMenu = (
@@ -256,30 +270,28 @@ const EmployeeAttendance = () => {
                   placement="bottomRight"
                   title={
                     <div className="text-base text-gray-900 font-bold">
-                      What file you want to export?
+                      Export Format
                     </div>
                   }
                   content={
                     <div className="pt-4">
-                      <Row gutter={20}>
-                        <Col span={24}>
+                      <Row gutter={[8, 8]}>
+                        <Col span={12}>
                           <Button
                             size="small"
-                            className="w-full"
+                            className="w-full flex items-center justify-center gap-1"
                             type="primary"
                             icon={<TbLayoutList size={16} />}
-                            onClick={() => {
-                              onExport('EXCEL');
-                            }}
+                            onClick={() => onExport('EXCEL')}
                             loading={isExportLoading && exportType === 'EXCEL'}
                           >
                             Excel
                           </Button>
                         </Col>
-                        {/* <Col span={12}>
+                        <Col span={12}>
                           <Button
                             size="small"
-                            className="w-full"
+                            className="w-full flex items-center justify-center gap-1"
                             type="primary"
                             icon={<LuBookmark size={16} />}
                             onClick={() => onExport('PDF')}
@@ -287,7 +299,7 @@ const EmployeeAttendance = () => {
                           >
                             PDF
                           </Button>
-                        </Col> */}
+                        </Col>
                       </Row>
                     </div>
                   }
@@ -297,9 +309,9 @@ const EmployeeAttendance = () => {
                     size="large"
                     type="primary"
                     loading={isExportLoading}
-                    className="w-full sm:w-auto mt-2 sm:mt-0 p-4"
+                    className="w-full sm:w-auto mt-2 sm:mt-0 flex items-center gap-2"
                   >
-                    {!isSmallScreen ? 'Export' : ''}
+                    {!isSmallScreen ? 'Export Data' : ''}
                   </Button>
                 </Popover>
               </PermissionWrapper>

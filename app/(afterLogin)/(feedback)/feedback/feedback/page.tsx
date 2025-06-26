@@ -22,6 +22,7 @@ import { FeedbackService } from './_components/feedbackAnalytics';
 import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import CustomPagination from '@/components/customPagination';
 
 const Page = () => {
   const {
@@ -430,7 +431,7 @@ const Page = () => {
           permissionsData={[Permissions.CreateFeedback]}
         >
           <EmployeeSearchComponent fields={searchField} />
-          <div className="flex  overflow-x-auto scrollbar-none  w-full">
+          <div className="flex overflow-x-auto scrollbar-none w-full">
             <Table
               loading={getFeedbackRecordLoading}
               dataSource={getAllFeedbackRecord?.items}
@@ -438,23 +439,23 @@ const Page = () => {
               rowClassName={() => 'h-[60px]'}
               scroll={{ x: 'max-content' }}
               className="w-full"
-              pagination={{
-                current: page,
-                pageSize: pageSize,
-                showSizeChanger: true, // Enables "page size" dropdown
-                showQuickJumper: true, // Enables jumping to a specific page
-                pageSizeOptions: ['10', '20', '50', '100'], // Page size options
-                defaultPageSize: 10, // Default page size
-                total: getAllFeedbackRecord?.meta?.totalItems, // Total number of items
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
-                onChange: (page, pageSize) => {
-                  setPage(page);
-                  setPageSize(pageSize);
-                },
-              }}
+              pagination={false} // ✅ Disable AntD built-in pagination
             />
           </div>
+
+          <CustomPagination
+            current={page}
+            total={getAllFeedbackRecord?.meta?.totalItems || 0}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size: number) => {
+              setPageSize(size);
+              setPage(1); // Reset to first page on page size change
+            }}
+          />
         </TabLandingLayout>
       </div>
       <div>

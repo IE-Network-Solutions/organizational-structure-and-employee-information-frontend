@@ -25,38 +25,43 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
     useCreateMeetingAgendaBulk();
   const { mutate: updateMeetingAgenda, isLoading: updateLoading } =
     useUpdateMeetingAgenda();
+
   const [form] = Form.useForm();
   const { setMeetingAgenda } = useMeetingStore();
+
   const handleClose = () => {
     setMeetingAgenda(null);
     form.resetFields();
     onClose();
   };
-  function onFinish(values: any) {
-    const finalValue = (values.agendaItems || []).map((i: any) => ({
-      ...i,
+
+  const onFinish = (values: any) => {
+    const finalValue = (values.agendaItems || []).map((item: any) => ({
+      ...item,
       meetingId,
     }));
-    const finalValueEdit = { ...values?.agendaItems[0], meetingId };
+
+    const finalEditValue = { ...values?.agendaItems[0], meetingId };
+
     if (meetingAgenda == null) {
       createMeetingAgenda(finalValue, {
-        onSuccess() {
-          handleClose();
-        },
+        onSuccess: handleClose,
       });
     } else {
-      updateMeetingAgenda(finalValueEdit, {
-        onSuccess() {
-          handleClose();
-        },
+      updateMeetingAgenda(finalEditValue, {
+        onSuccess: handleClose,
       });
     }
-  }
+  };
 
   useEffect(() => {
     if (meetingAgenda) {
       form.setFieldsValue({
         agendaItems: [meetingAgenda],
+      });
+    } else {
+      form.setFieldsValue({
+        agendaItems: [{ agenda: '' }],
       });
     }
   }, [meetingAgenda]);
@@ -66,9 +71,10 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
   return (
     <Modal
       title="Agenda items"
-      visible={visible}
+      open={visible}
       onCancel={handleClose}
       footer={null}
+      closeIcon={null}
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.List name="agendaItems">
@@ -82,29 +88,26 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
                     fieldKey={[fieldKey ?? 0, 'agenda']}
                     rules={[{ required: true, message: 'Agenda is required' }]}
                     className="w-full"
-                    label={'Agenda'}
+                    label="Agenda"
                   >
-                    <Input placeholder="Agenda" />
+                    <Input
+                      placeholder="Agenda"
+                      suffix={
+                        meetingAgenda == null &&
+                        fields.length > 1 && (
+                          <MdClose
+                            className="cursor-pointer text-gray-500 hover:text-red-500"
+                            onClick={() => remove(name)}
+                          />
+                        )
+                      }
+                    />
                   </Form.Item>
-                  {meetingAgenda == null && (
-                    <Button
-                      className="text-black mt-2"
-                      type="link"
-                      onClick={() => remove(name)}
-                    >
-                      <MdClose size={16} />
-                    </Button>
-                  )}
                 </div>
               ))}
               {meetingAgenda == null && (
-                <div className="flex justify-end">
-                  <Button
-                    className="w-24"
-                    type="primary"
-                    onClick={() => add()}
-                    block
-                  >
+                <div className="flex justify-end mb-2">
+                  <Button className="w-24" type="primary" onClick={() => add()}>
                     Add
                   </Button>
                 </div>
@@ -113,11 +116,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
           )}
         </Form.List>
         <div className="flex justify-center gap-4 mt-4">
-          <Button
-            loading={loading}
-            className="w-48"
-            onClick={() => handleClose()}
-          >
+          <Button loading={loading} className="w-48" onClick={handleClose}>
             Cancel
           </Button>
           <Button

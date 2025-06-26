@@ -23,7 +23,7 @@ const TalentPoolPage = () => {
   //const { setOpen } = useEmployeeManagementStore();
 
   return (
-    <div className="p-6 ">
+    <div className="h-auto w-full bg-white">
       <div className="flex justify-between items-center">
         <CustomBreadcrumb
           title="Talent Pool"

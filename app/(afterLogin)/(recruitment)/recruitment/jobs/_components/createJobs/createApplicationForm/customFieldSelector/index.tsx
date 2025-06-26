@@ -4,13 +4,16 @@ import ParagraphField from '@/app/(afterLogin)/(feedback)/feedback/categories/[i
 import ShortTextField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/shortTextField';
 import { useGetCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/queries';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
+import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 import { FieldType } from '@/types/enumTypes';
 import { Checkbox, Collapse, Spin } from 'antd';
 import React, { useEffect } from 'react';
 
 const CustomFieldsSelector: React.FC = () => {
+  const { templateCurrentPage, templatePageSize } =
+    useRecruitmentSettingsStore();
   const { data: customFields, isLoading: isCustomFieldLoading } =
-    useGetCustomFieldsTemplate();
+    useGetCustomFieldsTemplate(templatePageSize, templateCurrentPage);
 
   const { selectedQuestions, setSelectedQuestions, setFilteredQuestions } =
     useJobState();

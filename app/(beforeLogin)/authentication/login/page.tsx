@@ -7,7 +7,7 @@ import {
   microsoftProvider,
 } from '@/utils/firebaseConfig';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -16,6 +16,7 @@ import Link from 'next/link';
 import TwoFactorAuth from './_components/2fa';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
 import { useGet2FACode } from '@/store/server/features/authentication/mutation';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 type FieldType = {
   email: string;
@@ -29,15 +30,26 @@ const Login: FC = () => {
   const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
     useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {
+    if (!executeRecaptcha) {
+      message.error('reCAPTCHA not yet available');
+      return;
+    }
+    const recaptchaToken = await executeRecaptcha('login');
+    if (!recaptchaToken) {
+      message.error('reCAPTCHA verification failed. Please try again.');
+      return;
+    }
     get2FACode(
       {
         values: {
           email: values.email,
           pass: values.password,
+          recaptchaToken,
         },
       },
       {
@@ -45,6 +57,7 @@ const Login: FC = () => {
           setUser2FA({
             email: values.email,
             pass: values.password,
+            recaptchaToken,
           });
           setLocalId(data?.uid);
           setIs2FA(true);
@@ -60,6 +73,7 @@ const Login: FC = () => {
   const handleMicrosoftSignIn = async () => {
     await handleSignIn(() => signInWithPopup(auth, microsoftProvider));
   };
+
   return is2FA ? (
     <TwoFactorAuth />
   ) : (
