@@ -143,32 +143,36 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
 
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
+    const formData = new FormData();
 
-    // Determine resume URL - use new upload if available, otherwise keep existing
-    let resumeUrl = '';
-    if (documentFileList.length > 0) {
-      // New file uploaded
-      resumeUrl = documentFileList[0].name || documentFileList[0].url;
-    } else if (isEdit && editData?.resumeUrl) {
-      // Keep existing resume URL when editing
-      resumeUrl = editData.resumeUrl;
-    }
+    const resumeUrl = formValues.resumeUrl as
+    | {
+        file?: { originFileObj?: File };
+      }
+    | undefined;
+
+  if (resumeUrl?.file?.originFileObj) {
+    formData.append('documentName', resumeUrl.file.originFileObj);
+  }
+  delete formValues?.resumeUrl;
 
     const talentRoasterData = {
-      fullName: formValues.fullName,
-      email: formValues.email,
-      phone: formValues.phone,
-      CGPA: formValues.CGPA,
-      graduateYear: formValues.yearOfGraduation, // Map yearOfGraduation to graduateYear
-      departmentId: formValues.department, // Map department to departmentId
-      coverLetter: formValues.coverLetter,
-      resumeUrl: resumeUrl,
+      ...formValues,
+      graduateYear: formValues.yearOfGraduation, // Map the field name to match database
+      departmentId: formValues.department,
     };
+    
+    // Remove the original field name to avoid duplication
+    delete talentRoasterData.yearOfGraduation;
+    delete talentRoasterData.department;
+
+    formData.append('newFormData', JSON.stringify(talentRoasterData));
+
 
     if (isEdit && editData) {
       // Update existing talent roaster
       updateTalentRoaster(
-        { id: editData.id, data: talentRoasterData },
+        { id: editData.id, data: formData },
         {
           onSuccess: () => {
             queryClient.invalidateQueries('talentRoaster');
@@ -180,7 +184,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       );
     } else {
       // Create new talent roaster
-      createTalentRoaster(talentRoasterData, {
+      createTalentRoaster(formData, {
         onSuccess: () => {
           queryClient.invalidateQueries('talentRoaster');
           form.resetFields();
@@ -285,6 +289,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               rules={[{ required: true, message: 'Please input CGPA' }]}
             >
               <InputNumber
+                type="number"
                 min={0}
                 max={4}
                 step={0.01}
