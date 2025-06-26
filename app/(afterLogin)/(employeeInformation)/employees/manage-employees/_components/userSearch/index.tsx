@@ -7,8 +7,6 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { useDebounce } from '@/utils/useDebounce';
 import { Button, Col, Input, Row, Select, DatePicker, Radio } from 'antd';
 import { Modal } from 'antd';
-import { VscSettings } from 'react-icons/vsc';
-import dayjs from 'dayjs';
 
 const { Option } = Select;
 
