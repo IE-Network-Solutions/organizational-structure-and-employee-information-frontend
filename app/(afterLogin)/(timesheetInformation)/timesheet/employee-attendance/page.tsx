@@ -78,10 +78,6 @@ const EmployeeAttendance = () => {
       message.error('Failed to export. Please try again.');
       setIsExportLoading(false);
       setExportType(null);
-      setBodyRequest((prev) => ({
-        ...prev,
-        exportType: undefined,
-      }));
     }
   };
 
