@@ -57,7 +57,7 @@ const LeaveRequestManagementSidebar = () => {
     {
       label: 'Close',
       key: 'close',
-      className: 'h-[56px] text-base ',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => {
         onClose();
@@ -86,10 +86,15 @@ const LeaveRequestManagementSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader>Leave Request Details</CustomDrawerHeader>
+          <CustomDrawerHeader>Leave Request Management</CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="40%"
+        customMobileHeight="90vh"
       >
         {!leaveData ? (
           <div className="flex justify-center py-10">

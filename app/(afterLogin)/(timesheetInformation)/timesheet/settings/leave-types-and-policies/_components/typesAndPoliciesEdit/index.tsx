@@ -14,11 +14,16 @@ import {
   Switch,
   Select,
   Spin,
+  Popover,
 } from 'antd';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  CloseOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 import { useGetLeaveTypeById } from '@/store/server/features/timesheet/leaveType/queries';
 import CustomRadio from '@/components/form/customRadio';
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -35,6 +40,8 @@ const TypesAndPoliciesEdit = () => {
     isShowTypeAndPoliciesSidebarEdit: isShow,
     setIsErrorPlan,
     setIsShowTypeAndPoliciesSidebarEdit: setIsShow,
+    setIsFixed,
+    isFixed,
   } = useTimesheetSettingsStore();
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[54px] w-full';
@@ -50,7 +57,7 @@ const TypesAndPoliciesEdit = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -58,7 +65,7 @@ const TypesAndPoliciesEdit = () => {
     {
       label: 'Update',
       key: 'update',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -85,31 +92,53 @@ const TypesAndPoliciesEdit = () => {
         title: getLeaveTypeById.items[0].title,
         plan: getLeaveTypeById.items[0].isPaid ? 'paid' : 'unpaid',
         entitled: getLeaveTypeById.items[0].entitledDaysPerYear,
-        isDeductible: getLeaveTypeById.items[0].isDeductible,
+        isDeductible: !!getLeaveTypeById.items[0].isDeductible,
+        isIncremental: !!getLeaveTypeById.items[0].isIncremental,
+        isFixed: !!getLeaveTypeById.items[0].isFixed,
         min: getLeaveTypeById.items[0].minimumNotifyingDays,
         max: getLeaveTypeById.items[0].maximumAllowedConsecutiveDays,
         accrualRule: getLeaveTypeById.items[0].accrualRuleId,
         carryOverRule: getLeaveTypeById.items[0].carryOverRuleId,
         description: getLeaveTypeById.items[0].description,
+        ...(getLeaveTypeById.items[0].isIncremental && {
+          incrementalYear: getLeaveTypeById.items[0].incrementalYear,
+          incrementAmount: getLeaveTypeById.items[0].incrementAmount,
+        }),
       });
+      setIsFixed(!!getLeaveTypeById.items[0].isFixed);
     }
   }, [getLeaveTypeById, form]);
 
+  const onFieldChange = () => {
+    setIsErrorPlan(!!form.getFieldError('plan').length);
+  };
+
+  const isIncremental = Form.useWatch('isIncremental', form);
+  const incrementalYear = Form.useWatch('incrementalYear', form);
+  const incrementAmount = Form.useWatch('incrementAmount', form);
+
   const onFinish = (values: any) => {
+    const payload: any = {
+      title: values.title,
+      isPaid: values.plan === 'paid',
+      entitledDaysPerYear: values.entitled,
+      isDeductible: !!values.isDeductible,
+      isIncremental: !!values.isIncremental,
+      isFixed: !!values.isFixed,
+      minimumNotifyingDays: values.min,
+      maximumAllowedConsecutiveDays: values.max,
+      accrualRule: values.accrualRule,
+      carryOverRule: values.carryOverRule,
+      description: values.description,
+    };
+    if (values.isIncremental) {
+      payload.incrementalYear = values.incrementalYear;
+      payload.incrementAmount = values.incrementAmount;
+    }
     updateLeaveType(
       {
         id: leaveTypeId ?? '',
-        values: {
-          title: values.title,
-          isPaid: values.plan === 'paid',
-          entitledDaysPerYear: values.entitled,
-          isDeductible: !!values.isDeductible,
-          minimumNotifyingDays: values.min,
-          maximumAllowedConsecutiveDays: values.max,
-          accrualRule: values.accrualRule,
-          carryOverRule: values.carryOverRule,
-          description: values.description,
-        },
+        values: payload,
       },
       {
         onSuccess: () => {
@@ -117,13 +146,10 @@ const TypesAndPoliciesEdit = () => {
         },
       },
     );
+    setIsFixed(false);
   };
 
   const onFinishFailed = () => {
-    setIsErrorPlan(!!form.getFieldError('plan').length);
-  };
-
-  const onFieldChange = () => {
     setIsErrorPlan(!!form.getFieldError('plan').length);
   };
 
@@ -133,7 +159,11 @@ const TypesAndPoliciesEdit = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={<CustomDrawerHeader>Leave Type Edit</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Spin spinning={getIsLoading}>
@@ -194,22 +224,135 @@ const TypesAndPoliciesEdit = () => {
                 />
               </Form.Item>
 
-              <div className="h-[54px] w-full flex items-center gap-2.5 border rounded-[10px] pl-[11px]">
-                <Form.Item
-                  id={`TypesAndPoliciesIsDeductableFieldId`}
-                  name="isDeductible"
-                  className="m-0"
-                >
-                  <Switch
-                    checkedChildren={<CheckOutlined />}
-                    unCheckedChildren={<CloseOutlined />}
-                  />
-                </Form.Item>
-                <span className="text-sm text-gray-900 font-medium">
-                  Is deductible ?
-                </span>
+              <div className="flex justify-between gap-2">
+                <div className="h-[54px] w-full flex items-center gap-1">
+                  <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                    <Popover
+                      content={
+                        <div className="w-72">
+                          Fixed leaves are granted upfront or as needed without
+                          accumulation, while non-fixed leaves build up over
+                          time.
+                        </div>
+                      }
+                    >
+                      <InfoCircleOutlined className="text-gray-500" />
+                    </Popover>
+                    Fixed
+                  </span>
+                  <Form.Item
+                    id={`TypesAndPoliciesIsDeductableFieldId`}
+                    name="isFixed"
+                    className="m-0"
+                  >
+                    <Switch
+                      size="small"
+                      checkedChildren={<CheckOutlined />}
+                      unCheckedChildren={<CloseOutlined />}
+                      onChange={(checked) => {
+                        setIsFixed(checked);
+                        form.setFieldsValue({
+                          accrualRule: undefined,
+                          carryOverRule: undefined,
+                          isIncremental: false,
+                        });
+                      }}
+                    />
+                  </Form.Item>
+                </div>
+                <div className="h-[54px] w-full flex items-center gap-1">
+                  <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                    <Popover
+                      content={
+                        <div className="w-72">
+                          Deductible leaves reduce an employee&apos;s leave
+                          balance when taken (like vacation days), while
+                          non-deductible leaves do not affect the balance.
+                        </div>
+                      }
+                    >
+                      <InfoCircleOutlined className="text-gray-500" />
+                    </Popover>
+                    Deductable
+                  </span>
+                  <Form.Item
+                    id={`TypesAndPoliciesIsDeductableFieldId`}
+                    name="isDeductible"
+                    className="m-0"
+                  >
+                    <Switch
+                      size="small"
+                      checkedChildren={<CheckOutlined />}
+                      unCheckedChildren={<CloseOutlined />}
+                    />
+                  </Form.Item>
+                </div>
+                <div className="h-[54px] w-full flex items-center gap-1">
+                  <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                    <Popover
+                      content={
+                        <div className="w-72">
+                          Annual Leave can be calculated increamentally per
+                          year. for example per{' '}
+                          <span className="font-bold">2</span> years of
+                          employement, <span className="font-bold">1</span> more
+                          day of leave is added.
+                        </div>
+                      }
+                    >
+                      <InfoCircleOutlined className="text-gray-500" />
+                    </Popover>
+                    Incremental
+                  </span>
+                  <Form.Item
+                    id={`TypesAndPoliciesIsDeductableFieldId`}
+                    name="isIncremental"
+                    className="m-0"
+                  >
+                    <Switch
+                      size="small"
+                      disabled={isFixed}
+                      checkedChildren={<CheckOutlined />}
+                      unCheckedChildren={<CloseOutlined />}
+                    />
+                  </Form.Item>
+                </div>
               </div>
-
+              <div>
+                {isIncremental && (
+                  <div className="flex gap-2 mt-2 w-full">
+                    <Form.Item
+                      name="incrementalYear"
+                      rules={[{ required: isIncremental, message: 'Required' }]}
+                      className="m-0"
+                    >
+                      <InputNumber
+                        min={1}
+                        placeholder="Year"
+                        className="h-[40px] w-full"
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="incrementAmount"
+                      rules={[{ required: isIncremental, message: 'Required' }]}
+                      className="m-0"
+                    >
+                      <InputNumber
+                        min={1}
+                        placeholder="Entitled Days"
+                        className="h-[40px] w-full"
+                      />
+                    </Form.Item>
+                  </div>
+                )}
+                {isIncremental && (
+                  <div className="text-[11px] text-gray-500 mt-1 mb-4 flex items-center gap-1">
+                    <InfoCircleOutlined className="text-gray-500" />
+                    Every <b>{incrementalYear || '__'}</b> years add{' '}
+                    <b>{incrementAmount || '__'}</b> additional day(s)
+                  </div>
+                )}
+              </div>
               <Form.Item
                 id={`TypesAndPoliciesMinAllowedDaysFieldId`}
                 label="Minimum notifying period(days)"
@@ -237,12 +380,17 @@ const TypesAndPoliciesEdit = () => {
               <Form.Item
                 label="Accrual Rule"
                 id={`TypesAndPoliciesActualRuleFieldId`}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[
+                  {
+                    required: !isFixed,
+                    message: 'Required',
+                  },
+                ]}
                 name="accrualRule"
               >
                 <Select
+                  disabled={isFixed}
                   className={controlClass}
-                  disabled
                   suffixIcon={
                     <MdKeyboardArrowDown size={16} className="text-gray-900" />
                   }
@@ -252,12 +400,17 @@ const TypesAndPoliciesEdit = () => {
               <Form.Item
                 label="Carry-Over Rule"
                 id={`TypesAndPoliciesRuleCarryOverFieldldId`}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[
+                  {
+                    required: !isFixed,
+                    message: 'Required',
+                  },
+                ]}
                 name="carryOverRule"
               >
                 <Select
+                  disabled={isFixed}
                   className={controlClass}
-                  disabled
                   options={carryOverRuleOptions()}
                   suffixIcon={
                     <MdKeyboardArrowDown size={16} className="text-gray-900" />

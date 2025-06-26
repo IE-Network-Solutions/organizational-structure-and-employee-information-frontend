@@ -17,9 +17,10 @@ import { useEffect, useRef } from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
+  useGetPayrollHistory,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import PayrollDetails from './_components/PayrollDetails';
 import html2canvas from 'html2canvas';
@@ -31,6 +32,11 @@ import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { EmptyImage } from '@/components/emptyIndicator';
+import { IoChevronBackSharp } from 'react-icons/io5';
+import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -38,6 +44,7 @@ const { TabPane } = Tabs;
 const EmployeeProfile = () => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { profileFileList } = useEmployeeManagementStore();
+  const router = useRouter();
 
   const openPayPeriods = payPeriodData?.filter(
     (period: any) => period.status === 'OPEN',
@@ -46,10 +53,11 @@ const EmployeeProfile = () => {
   const empId = id as string;
 
   const { data: employee, isLoading } = useGetEmployee(empId);
-  const { data: payroll } = useGetActivePayroll();
+  const { pageSize, currentPage } = usePayrollStore();
+  const { data: payroll } = useGetActivePayroll('', pageSize, currentPage);
+  const { data: payrollHistory } = useGetPayrollHistory(empId);
 
   const {
-    mergedPayroll,
     activeMergedPayroll,
     activePayPeriod,
     setMergedPayroll,
@@ -80,15 +88,16 @@ const EmployeeProfile = () => {
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
       const currentPayPeriod = payPeriodData.find(
-        (payPeriod: any) => payPeriod.id === activeMergedPayroll.payPeriodId,
+        (payPeriod: PayPeriod) =>
+          payPeriod.id === activeMergedPayroll.payPeriodId,
       );
       setActivePayPeriod(currentPayPeriod);
     }
   }, [activeMergedPayroll, payPeriodData]);
 
   useEffect(() => {
-    if (payroll?.payrolls && employee) {
-      const mergedData = payroll.payrolls
+    if (payroll?.index && employee) {
+      const mergedData = payroll.index
         .filter((pay: any) => pay.employeeId === employee.id)
         .map((pay: any) => ({
           ...pay,
@@ -131,9 +140,25 @@ const EmployeeProfile = () => {
     return '';
   };
 
+  const { isMobile } = useIsMobile();
+
   return (
-    <div style={{ padding: '24px' }}>
-      <Card>
+    <div style={{ padding: isMobile ? '2px' : '24px' }}>
+      <Card
+        title={
+          isMobile && (
+            <span
+              onClick={() => router.back()}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <IoChevronBackSharp />
+              <span className="text-lg font-bold">Detail Employee</span>
+            </span>
+          )
+        }
+        className={isMobile ? 'p-0' : 'p-4'}
+        bordered={false}
+      >
         <Row gutter={[32, 32]}>
           <Col lg={8} md={10} xs={24}>
             <Card loading={isLoading} className="mb-3">
@@ -219,37 +244,51 @@ const EmployeeProfile = () => {
               <TabPane
                 tab="Information"
                 key="1"
-                className="border border-solid rounded-xl p-4"
+                className={isMobile ? 'border border-solid rounded-xl p-4' : ''}
               >
                 <div>
                   <Title level={4}>Payroll Information</Title>
-                  <div className="flex gap-6 w-full">
-                    <div className="flex flex-col gap-4 w-1/3">
-                      <Text>Base Salary:</Text>
-                      <Text>Bank Information:</Text>
-                      <Text>Branch:</Text>
-                      <Text>Account Number:</Text>
-                    </div>
-                    <div className="flex flex-col gap-4 font-bold">
-                      <Text>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 16,
+                    }}
+                  >
+                    {/* Base Salary Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Base Salary:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo?.basicSalaries[0]
                             ?.basicSalary
                         }
                       </Text>
-                      <Text>
+                    </div>
+                    {/* Bank Information Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Bank Information:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo?.employeeInformation
                             ?.bankInformation?.bankName
                         }
                       </Text>
-                      <Text>
+                    </div>
+                    {/* Branch Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Branch:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo
                             ?.employeeJobInformation[0]?.branch?.name
                         }
                       </Text>
-                      <Text>
+                    </div>
+                    {/* Account Number Row */}
+                    <div className="flex flex-col md:flex-row gap-2">
+                      <Text className="min-w-[120px]">Account Number:</Text>
+                      <Text strong>
                         {
                           activeMergedPayroll?.employeeInfo?.employeeInformation
                             ?.bankInformation?.accountNumber
@@ -405,7 +444,9 @@ const EmployeeProfile = () => {
                         </div>
 
                         <div className=" pl-4 flex justify-between  items-center my-2 pr-10">
-                          <Text className="text-purple">Total Allowance:</Text>
+                          <Text className="text-purple">
+                            Entitled Allowance:
+                          </Text>
                           <Text className="text-purple">
                             {totalAmount(
                               activeMergedPayroll?.breakdown?.allowances || [],
@@ -458,7 +499,9 @@ const EmployeeProfile = () => {
                         </div>
 
                         <div className=" pl-4 flex justify-between  items-center my-2">
-                          <Text className="text-purple ">Total Benefit:</Text>
+                          <Text className="text-purple ">
+                            Entitled Benefit:
+                          </Text>
                           <Text className="text-purple pr-10">
                             {totalAmount([
                               ...(activeMergedPayroll?.breakdown?.merits || []),
@@ -538,7 +581,6 @@ const EmployeeProfile = () => {
                     </div>
 
                     <Divider className="my-2" />
-                    {/* Gross Earning & Net Pay */}
                     <header className=" border-b pb-2 mb-2">
                       <h2 className="text-xl font-semibold">
                         Employee Bank Information
@@ -577,49 +619,59 @@ const EmployeeProfile = () => {
 
               <TabPane tab="Payroll History" key="2">
                 <>
-                  {payPeriodData
-                    ?.filter(
-                      (period: any) =>
-                        mergedPayroll.some(
+                  {payPeriodData ? (
+                    payPeriodData
+                      ?.filter(
+                        (period: PayPeriod) =>
+                          payrollHistory?.some(
+                            (pay: any) => pay.payPeriodId === period.id,
+                          ), // Filter only periods with merged data
+                      )
+                      .map((period: any, index: any) => {
+                        const activeMergedPayroll = payrollHistory?.find(
                           (pay: any) => pay.payPeriodId === period.id,
-                        ), // Filter only periods with merged data
-                    )
-                    .map((period: any, index: any) => {
-                      const activeMergedPayroll = mergedPayroll.find(
-                        (pay: any) => pay.payPeriodId === period.id,
-                      );
+                        );
 
-                      return (
-                        <Collapse size="large" className="p-4" key={index}>
-                          <Collapse.Panel
-                            key={period.id}
-                            header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
+                        return (
+                          <Collapse
+                            size="large"
+                            className="p-4 m-2"
+                            key={index}
                           >
-                            <div className="flex gap-6 w-full m-4">
-                              <div className="flex flex-col gap-4 w-1/3">
-                                <Text className=" text-gray-600">
-                                  Salary Period
-                                </Text>
-                                <Text className=" text-gray-600">Pay Date</Text>
+                            <Collapse.Panel
+                              key={period.id}
+                              header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
+                            >
+                              <div className="flex gap-6 w-full m-4">
+                                <div className="flex flex-col gap-4 w-1/3">
+                                  <Text className=" text-gray-600">
+                                    Salary Period
+                                  </Text>
+                                  <Text className=" text-gray-600">
+                                    Pay Date
+                                  </Text>
+                                </div>
+                                <div className="flex flex-col gap-4 font-bold">
+                                  <Text>
+                                    {dayjs(period.startDate).format('MMM-YYYY')}
+                                  </Text>
+                                  <Text>
+                                    {dayjs(period.updatedAt).format(
+                                      'MMM-DD-YYYY',
+                                    )}
+                                  </Text>
+                                </div>
                               </div>
-                              <div className="flex flex-col gap-4 font-bold">
-                                <Text>
-                                  {dayjs(period.startDate).format('MMM-YYYY')}
-                                </Text>
-                                <Text>
-                                  {dayjs(period.updatedAt).format(
-                                    'MMM-DD-YYYY',
-                                  )}
-                                </Text>
-                              </div>
-                            </div>
-                            <PayrollDetails
-                              activeMergedPayroll={activeMergedPayroll}
-                            />
-                          </Collapse.Panel>
-                        </Collapse>
-                      );
-                    })}
+                              <PayrollDetails
+                                activeMergedPayroll={activeMergedPayroll}
+                              />
+                            </Collapse.Panel>
+                          </Collapse>
+                        );
+                      })
+                  ) : (
+                    <EmptyImage />
+                  )}
                 </>
               </TabPane>
               <TabPane tab="Settlement Tracking" key="3">

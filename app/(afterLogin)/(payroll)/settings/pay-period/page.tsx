@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Table, Button, Space, Typography, Switch, Spin, Tooltip } from 'antd';
+import { Table, Button, Space, Switch, Spin, Tooltip } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
@@ -13,7 +13,9 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomDrawer from './_components/customDrawer';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import { FaPlus } from 'react-icons/fa';
-const { Title } = Typography;
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 interface DataSource {
   key: string;
   id: string;
@@ -39,6 +41,7 @@ const PayPeriod = () => {
   const { data: payPeriods, isLoading } = useFetchActiveFiscalYearPayPeriods(
     activeFiscalYear?.id,
   );
+  const { isMobile, isTablet } = useIsMobile();
 
   const handleAddPayPeriod = () => {
     setIsPayPeriodSidebarVisible(true);
@@ -52,11 +55,6 @@ const PayPeriod = () => {
     setStartDate(record.startDate);
     setEndDate(record.endDate);
     setVisible(true);
-  };
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
   };
 
   const onStatusChange = (record: any) => {
@@ -123,14 +121,30 @@ const PayPeriod = () => {
       ),
     },
   ];
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setCurrentPage(1);
+  };
+
+  const paginatedData = dataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   return (
-    <div className="p-10 rounded-2xl bg-white">
-      <div className="flex justify-between items-center">
-        <Title level={3}>Pay Period</Title>
+    <div className="p-5 rounded-2xl bg-white">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-lg text-bold">Pay Period</h1>
         <AccessGuard permissions={[Permissions.CreatePayPeriod]}>
           <Button
             type="primary"
+            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
             style={{ marginBottom: '20px' }}
             onClick={handleAddPayPeriod}
@@ -146,17 +160,29 @@ const PayPeriod = () => {
       </div>
       <Spin spinning={isLoading}>
         <div className="flex overflow-x-auto scrollbar-none w-full ">
-          <Table
-            dataSource={dataSource}
-            columns={columns}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: dataSource.length,
-              showSizeChanger: true,
-            }}
-            onChange={handleTableChange}
-          />
+          <div className="w-full">
+            <Table
+              dataSource={paginatedData}
+              columns={columns}
+              pagination={false}
+            />
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={dataSource?.length || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            ) : (
+              <CustomPagination
+                current={currentPage}
+                total={dataSource?.length || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            )}
+          </div>
         </div>
       </Spin>
       <PayPeriodSideBar />

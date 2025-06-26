@@ -42,7 +42,6 @@ function BoardCardForm({
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
   const { setClickStatus } = useClickStatus();
-
   return (
     <Form.List name={`board-${name}`}>
       {(subfields, { remove: removeSub }) => (
@@ -123,6 +122,13 @@ function BoardCardForm({
                           if (isNaN(numericValue)) {
                             return Promise.reject(
                               new Error('Please enter a valid number.'),
+                            );
+                          }
+                          if (numericValue < 0) {
+                            return Promise.reject(
+                              new Error(
+                                "Your target value shouldn't be negative.",
+                              ),
                             );
                           }
 

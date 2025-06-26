@@ -109,7 +109,7 @@ const BenefitypeSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: false,
       onClick: () => onClose(),
@@ -117,7 +117,7 @@ const BenefitypeSideBar = () => {
     {
       label: selectedBenefitRecord ? <span>Update</span> : <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading,
@@ -140,7 +140,12 @@ const BenefitypeSideBar = () => {
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="30%"
       >
         <Spin spinning={isLoading}>
@@ -159,7 +164,7 @@ const BenefitypeSideBar = () => {
               <Input
                 className="control"
                 placeholder="Benefit Name"
-                style={{ height: '32px', padding: '4px 8px' }}
+                style={{ height: '40px', padding: '4px 8px' }}
               />
             </Form.Item>
             <Form.Item

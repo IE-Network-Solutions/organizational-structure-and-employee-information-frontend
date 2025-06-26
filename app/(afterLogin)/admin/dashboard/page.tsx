@@ -8,7 +8,7 @@ import {
   FileImageFilled,
   FileDoneOutlined,
 } from '@ant-design/icons';
-import { Card, Checkbox, Skeleton, Tooltip } from 'antd';
+import { Button, Card, Checkbox, Skeleton, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -34,7 +34,6 @@ const AdminDashboard = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [activeSubscription, setActiveSubscription] =
     useState<Subscription | null>(null);
-  const [paymentCurrency, setPaymentCurrency] = useState('USD');
 
   const [lastInvoice, setLastInvoice] = useState<Invoice | null>(null);
   const router = useRouter();
@@ -55,6 +54,13 @@ const AdminDashboard = () => {
     true,
     true,
     'ASC',
+  );
+
+  const currentCurrencyId = currentPlan?.currencyId;
+
+  const plansWithSameCurrency = plansData?.items?.filter(
+    (plan: { currencyId: string | undefined }) =>
+      plan.currencyId === currentCurrencyId,
   );
 
   const { data: currenciesData, isLoading: currenciesLoading } =
@@ -217,16 +223,15 @@ const AdminDashboard = () => {
 
   const dashboardValues = getDashboardValues();
 
-  const allPlans = plans
-    .filter((plan: any) => plan.isPublic)
-    .sort((a: any, b: any) => a.slotPrice - b.slotPrice);
-
   const isLoading =
     isInvoicesLoading ||
     plansLoading ||
     currenciesLoading ||
     subscriptionsLoading;
   const hasSelectedPlan = !!currentPlan;
+  const activeSubscriptionData = subscriptionsData?.items?.find(
+    (sub) => sub.isActive === true,
+  );
 
   return (
     <div className="h-auto w-auto px-6 py-6">
@@ -306,23 +311,6 @@ const AdminDashboard = () => {
         </div>
       ) : (
         <>
-          <div className="flex items-center bg-gray-200 shadow-md rounded-lg w-36 h-12 p-1">
-            {currenciesData?.items &&
-              currenciesData.items.length > 0 &&
-              currenciesData.items.map((currency, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPaymentCurrency(currency?.code)}
-                  className={`w-1/2 h-full ${
-                    paymentCurrency === currency.code
-                      ? 'bg-white text-black shadow-sm'
-                      : 'bg-transparent text-black'
-                  } text-sm rounded-md transition-all duration-300 ease-in-out`}
-                >
-                  {currency.code}
-                </button>
-              ))}
-          </div>
           <div
             className="flex flex-col mb-[35px] mt-[25px] md:flex-row justify-between items-center gap-4 bg-purple/10 rounded-lg p-4"
             style={{
@@ -330,20 +318,15 @@ const AdminDashboard = () => {
               overflowX: 'auto',
             }}
           >
-            {allPlans.length > 0 ? (
-              allPlans
-                .filter(
-                  (p) =>
-                    p.currency.code === paymentCurrency ||
-                    p.id === currentPlan?.id,
-                )
+            {(plansWithSameCurrency ?? []).length > 0 ? (
+              (plansWithSameCurrency ?? [])
+                ?.filter((plan) => plan.isFree == false)
                 .map((plan) => (
                   <div
                     key={plan.id}
                     className={`flex flex-col justify-between gap-2 rounded-lg p-4
-                                  ${plan.id === currentPlan?.id ? 'w-full' : 'bg-white'}
-                                  ${allPlans.length > 2 && plan.id !== currentPlan?.id ? 'md:min-w-[335px]' : 'md:min-w-[435px]'}
-                                  min-h-[571px] w-full md:w-auto`}
+    ${plan.id === currentPlan?.id ? 'md:min-w-[542px]' : 'md:min-w-[435px] bg-white'}
+    min-h-[571px] w-full md:w-auto `}
                   >
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between text-lg font-extrabold mb-2">
@@ -399,15 +382,41 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       {!plan.isFree && (
-                        <>
-                          <div className="text-5xl font-bold">
-                            {plan.currency.symbol}
-                            {plan.slotPrice}
+                        <div className="flex gap-5 items-center">
+                          <div>
+                            <div className="text-5xl font-bold">
+                              {plan.currency.symbol}
+                              {plan.id === currentPlan?.id
+                                ? plan.periods?.find(
+                                    (period) =>
+                                      period.id ==
+                                      activeSubscriptionData?.planPeriodId,
+                                  )?.periodSlotPrice
+                                : plan.slotPrice}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              per user billed annually
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-500">
-                            per user billed annually
+                          <div>
+                            {plan.periods
+                              ?.filter(
+                                (period) =>
+                                  period.id !=
+                                  activeSubscriptionData?.planPeriodId,
+                              )
+                              ?.map((period, index) => (
+                                <div
+                                  key={index}
+                                  className={`text-sm rounded-lg font-bold p-2 my-2  ${plan.id === currentPlan?.id ? 'bg-white' : 'bg-purple/10'} w-fit`}
+                                >
+                                  {plan.currency.symbol}
+                                  {period.periodSlotPrice}/
+                                  {period?.periodType?.code}
+                                </div>
+                              ))}
                           </div>
-                        </>
+                        </div>
                       )}
                       <div className="mt-8 mb-6 font-bold">
                         Get in depth with our system
@@ -432,15 +441,16 @@ const AdminDashboard = () => {
                             placement="bottom"
                           >
                             <span className="w-full md:w-auto">
-                              <CustomButton
-                                title="Update User Quota"
+                              <Button
                                 onClick={() =>
                                   router.push('/admin/plan?source=quota')
                                 }
-                                className="text-center flex justify-center items-center w-full"
+                                className="h-8 rounded-lg w-full px-2 h-8"
                                 type="default"
                                 disabled={!isLatestInvoicePaid()}
-                              />
+                              >
+                                Update User Quota
+                              </Button>
                             </span>
                           </Tooltip>
                         )}
@@ -452,31 +462,35 @@ const AdminDashboard = () => {
                             placement="bottom"
                           >
                             <span className="w-full md:w-auto">
-                              <CustomButton
-                                title="Update Subscription Period"
+                              <Button
                                 onClick={() =>
                                   router.push(
                                     '/admin/plan?source=period&step=1',
                                   )
                                 }
-                                className="text-center flex justify-center items-center w-full"
+                                className="h-8 rounded-lg w-full px-2 h-8"
                                 type="default"
                                 disabled={!isLatestInvoicePaid()}
-                              />
+                              >
+                                Update Subscription Period
+                              </Button>
                             </span>
                           </Tooltip>
                         )}
                         {plan.isFree !== true && (
-                          <CustomButton
-                            title="Pay Next Bill"
-                            onClick={() =>
-                              router.push(
-                                `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
-                              )
-                            }
-                            className="text-center flex justify-center items-center w-full md:w-auto"
-                            type="default"
-                          />
+                          <span className="w-full md:w-auto">
+                            <Button
+                              onClick={() =>
+                                router.push(
+                                  `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
+                                )
+                              }
+                              className="h-8 rounded-lg w-full px-2 h-8"
+                              type="default"
+                            >
+                              Pay Next Bill
+                            </Button>
+                          </span>
                         )}
                       </div>
                     ) : (

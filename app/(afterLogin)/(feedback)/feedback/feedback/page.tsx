@@ -14,7 +14,6 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
-import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
@@ -23,12 +22,12 @@ import { FeedbackService } from './_components/feedbackAnalytics';
 import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import CustomPagination from '@/components/customPagination';
 
 const Page = () => {
   const {
     setOpen,
     setVariantType,
-    setSelectedFeedbackRecord,
     variantType,
     setUserId,
     userId,
@@ -74,9 +73,6 @@ const Page = () => {
     userId,
   );
 
-  const editHandler = (record: any) => {
-    setSelectedFeedbackRecord(record);
-  };
   const handleDelete = (id: string) => {
     deleteFeedbackRecord(id, {
       onSuccess: () => {},
@@ -150,7 +146,7 @@ const Page = () => {
         );
         return user
           ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-          : 'Unknown'; // Return full name or fallback
+          : 'Unknown';
       },
     },
     {
@@ -161,10 +157,9 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
-
         return user
           ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-          : 'Unknown'; // Return full name or fallback
+          : 'Unknown';
       },
     },
     {
@@ -175,50 +170,47 @@ const Page = () => {
         const feedbackType = getAllFeedbackTypes?.items?.find(
           (item: any) => item.id === record.feedbackTypeId,
         );
-        return feedbackType?.category || 'Unknown'; // Return the category or a fallback value
+        return feedbackType?.category || 'Unknown';
       },
     },
     {
       title: 'Reason',
       dataIndex: 'reason',
+      key: 'reason',
       render: (notused: any, record: any) => {
         return record.reason ? (
           <Tooltip title={record?.reason}>
             {record?.reason?.length >= 40
               ? record?.reason?.slice(0, 40) + '....'
-              : record?.reason}{' '}
+              : record?.reason}
           </Tooltip>
         ) : (
           'N/A'
         );
       },
-
-      key: 'reason',
     },
-
     {
       title: 'Objective',
       dataIndex: 'objective',
+      key: 'objective',
       render: (notused: any, record: any) => {
         return record.feedbackVariant.name ? (
           <Tooltip title={record?.feedbackVariant.name}>
             {record?.feedbackVariant.name?.length >= 40
               ? record?.feedbackVariant.name?.slice(0, 40) + '....'
-              : record?.feedbackVariant.name}{' '}
+              : record?.feedbackVariant.name}
           </Tooltip>
         ) : (
           'N/A'
         );
       },
-
-      key: 'objective',
     },
-
     {
       title: 'Name',
       dataIndex: 'name',
+      key: 'name',
       render: (notused: any, record: any) => {
-        const data = EmployeeDepartment.find(
+        const data = EmployeeDepartment?.find(
           (item: any) =>
             item.id === record.feedbackVariant?.perspective?.departmentId,
         );
@@ -232,26 +224,29 @@ const Page = () => {
           '-'
         );
       },
-
-      key: 'name',
     },
-    {
-      title: 'Action To be Taken',
-      dataIndex: 'action',
-      render: (notused: any, record: any) => {
-        return record.action ? (
-          <Tooltip title={record?.action}>
-            {record?.action?.length >= 40
-              ? record?.action?.slice(0, 40) + '....'
-              : record?.action}{' '}
-          </Tooltip>
-        ) : (
-          'N/A'
-        );
-      },
 
-      key: 'reason',
-    },
+    ...(variantType !== 'appreciation'
+      ? [
+          {
+            title: 'Action To be Taken',
+            dataIndex: 'action',
+            key: 'actionToBeTaken',
+            render: (notused: any, record: any) => {
+              return record.action ? (
+                <Tooltip title={record?.action}>
+                  {record?.action?.length >= 40
+                    ? record?.action?.slice(0, 40) + '....'
+                    : record?.action}
+                </Tooltip>
+              ) : (
+                'N/A'
+              );
+            },
+          },
+        ]
+      : []),
+
     {
       title: 'Given Date',
       dataIndex: 'createdAt',
@@ -265,17 +260,10 @@ const Page = () => {
     {
       title: 'Action',
       dataIndex: 'action',
-      key: 'action',
+      key: 'actionButtons',
       render: (notused: any, record: any) => {
         return (
           <div className="flex gap-2">
-            <Button
-              disabled={record.issuerId !== userIdData}
-              size="small"
-              onClick={() => editHandler(record)}
-              icon={<Edit2Icon className="w-4 h-4 text-xs" />}
-              type="primary"
-            />
             <Popconfirm
               title="Are you sure you want to delete?"
               onConfirm={() => handleDelete(record?.id)}
@@ -331,7 +319,7 @@ const Page = () => {
       subtitle="Manage your Feedback"
       allowSearch={false}
     >
-      <div className="flex justify-end">
+      <div className="flex justify-center sm:justify-end ">
         <Tabs
           defaultActiveKey="personal"
           items={items}
@@ -339,74 +327,98 @@ const Page = () => {
         />
       </div>
       {getFeedbackCardDataLoading ? (
-        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((notused, index) => (
-            <FeedbackCardSkeleton key={index} />
+        <div className="flex overflow-x-auto gap-4 p-4 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-x-visible scrollbar-none sm:flex-none">
+          {Array.from({ length: 4 }).map((nonused, index) => (
+            <div key={index} className="min-w-[90%] flex-shrink-0 sm:min-w-0">
+              <FeedbackCardSkeleton />
+            </div>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          <FeedbackCard
-            appreciationPercentage={
-              feedbackAnaliytics?.appreciationStats?.issued
-            }
-            total={feedbackAnaliytics?.appreciationStats?.totalIssued}
-            contributorCount={
-              feedbackAnaliytics?.appreciationStats?.totalIssued
-            }
-            type="appreciation"
-            textType="appreciationIssued"
-          />
-          <FeedbackCard
-            appreciationPercentage={
-              feedbackAnaliytics?.appreciationStats?.received
-            }
-            total={feedbackAnaliytics?.appreciationStats?.totalReceived}
-            contributorCount={
-              feedbackAnaliytics?.appreciationStats?.totalReceived
-            }
-            type="appreciation"
-            textType="appreciationReceived"
-          />
-          <FeedbackCard
-            appreciationPercentage={feedbackAnaliytics?.reprimandStats?.issued}
-            total={feedbackAnaliytics?.reprimandStats?.totalIssued}
-            contributorCount={feedbackAnaliytics?.reprimandStats?.totalIssued}
-            type="reprimand"
-            textType="reprimandIssued"
-          />
-          <FeedbackCard
-            appreciationPercentage={
-              feedbackAnaliytics?.reprimandStats?.received
-            }
-            total={feedbackAnaliytics?.reprimandStats?.totalReceived}
-            contributorCount={feedbackAnaliytics?.reprimandStats?.totalReceived}
-            type="reprimand"
-            textType="reprimandReceived"
-          />
+        <div className="flex overflow-x-auto gap-4  sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-x-visible scrollbar-none sm:flex-none">
+          <div className="min-w-[90%] flex-shrink-0 sm:min-w-0">
+            <FeedbackCard
+              appreciationPercentage={
+                feedbackAnaliytics?.appreciationStats?.issued
+              }
+              total={feedbackAnaliytics?.appreciationStats?.totalIssued}
+              contributorCount={
+                feedbackAnaliytics?.appreciationStats?.totalIssued
+              }
+              type="appreciation"
+              textType="appreciationIssued"
+            />
+          </div>
+          <div className="min-w-[90%] flex-shrink-0 sm:min-w-0">
+            <FeedbackCard
+              appreciationPercentage={
+                feedbackAnaliytics?.appreciationStats?.received
+              }
+              total={feedbackAnaliytics?.appreciationStats?.totalReceived}
+              contributorCount={
+                feedbackAnaliytics?.appreciationStats?.totalReceived
+              }
+              type="appreciation"
+              textType="appreciationReceived"
+            />
+          </div>
+          <div className="min-w-[90%] flex-shrink-0 sm:min-w-0">
+            <FeedbackCard
+              appreciationPercentage={
+                feedbackAnaliytics?.reprimandStats?.issued
+              }
+              total={feedbackAnaliytics?.reprimandStats?.totalIssued}
+              contributorCount={feedbackAnaliytics?.reprimandStats?.totalIssued}
+              type="reprimand"
+              textType="reprimandIssued"
+            />
+          </div>
+          <div className="min-w-[90%] flex-shrink-0 sm:min-w-0">
+            <FeedbackCard
+              appreciationPercentage={
+                feedbackAnaliytics?.reprimandStats?.received
+              }
+              total={feedbackAnaliytics?.reprimandStats?.totalReceived}
+              contributorCount={
+                feedbackAnaliytics?.reprimandStats?.totalReceived
+              }
+              type="reprimand"
+              textType="reprimandReceived"
+            />
+          </div>
         </div>
       )}
+
       <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
-        <Tabs
-          className="max-w-[850px]"
-          defaultActiveKey={activeTab}
-          items={getAllFeedbackTypes?.items?.map((item: FeedbackTypeItems) => ({
-            key: item?.id,
-            label: item?.category,
-          }))}
-          onChange={onChangeFeedbackType}
-        />
+        <div className="flex justify-start pl-2 ">
+          <Tabs
+            className="max-w-[850px]"
+            defaultActiveKey={activeTab}
+            items={getAllFeedbackTypes?.items?.map(
+              (item: FeedbackTypeItems) => ({
+                key: item?.id,
+                label: item?.category,
+              }),
+            )}
+            onChange={onChangeFeedbackType}
+          />
+        </div>
       </Spin>
 
-      <Tabs
-        defaultActiveKey="appreciation"
-        items={variantTypeItems}
-        onChange={onChange}
-      />
-      <div className="-mx-12 -mt-10">
+      <div className="flex justify-end sm:justify-start p-2 ">
+        <Tabs
+          defaultActiveKey="appreciation"
+          items={variantTypeItems}
+          onChange={onChange}
+        />
+      </div>
+
+      <div className=" -mt-10">
         <TabLandingLayout
-          buttonTitle={<div className="text-sm">{variantType}</div>}
-          buttonIcon={<PiPlus />}
+          buttonTitle={
+            <div className="text-sm hidden sm:block">{variantType}</div>
+          }
+          buttonIcon={<PiPlus className="text-2xl font-bold ml-2" />} // making the icon bold
           id="conversationLayoutId"
           onClickHandler={() => setOpen(true)}
           disabledMessage="Please select a feedback type"
@@ -419,24 +431,29 @@ const Page = () => {
           permissionsData={[Permissions.CreateFeedback]}
         >
           <EmployeeSearchComponent fields={searchField} />
-          <Table
-            loading={getFeedbackRecordLoading}
-            dataSource={getAllFeedbackRecord?.items}
-            columns={columns}
-            pagination={{
-              current: page,
-              pageSize: pageSize,
-              showSizeChanger: true, // Enables "page size" dropdown
-              showQuickJumper: true, // Enables jumping to a specific page
-              pageSizeOptions: ['10', '20', '50', '100'], // Page size options
-              defaultPageSize: 10, // Default page size
-              total: getAllFeedbackRecord?.meta?.totalItems, // Total number of items
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
-              onChange: (page, pageSize) => {
-                setPage(page);
-                setPageSize(pageSize);
-              },
+          <div className="flex overflow-x-auto scrollbar-none w-full">
+            <Table
+              loading={getFeedbackRecordLoading}
+              dataSource={getAllFeedbackRecord?.items}
+              columns={columns}
+              rowClassName={() => 'h-[60px]'}
+              scroll={{ x: 'max-content' }}
+              className="w-full"
+              pagination={false} // ✅ Disable AntD built-in pagination
+            />
+          </div>
+
+          <CustomPagination
+            current={page}
+            total={getAllFeedbackRecord?.meta?.totalItems || 0}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size: number) => {
+              setPageSize(size);
+              setPage(1); // Reset to first page on page size change
             }}
           />
         </TabLandingLayout>

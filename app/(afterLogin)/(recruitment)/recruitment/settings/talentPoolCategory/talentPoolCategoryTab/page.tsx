@@ -10,14 +10,28 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { Pencil, Trash2 } from 'lucide-react';
 import TalentPoolDrawer from '../customDrawer';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const { Title } = Typography;
 
 function TalentPoolCategoryTab() {
-  const { data: talentPoolCateories, isLoading: fetchLoading } =
-    useGetTalentPoolCategory();
-  const { openDrawer, setEditMode, setDeleteMode, setSelectedTalentPool } =
-    useTalentPoolSettingsStore();
+  const {
+    openDrawer,
+    setEditMode,
+    setDeleteMode,
+    setSelectedTalentPool,
+    setCurrentPage,
+    setPage,
+    pageSize,
+    currentPage,
+  } = useTalentPoolSettingsStore();
+
+  const { isMobile, isTablet } = useIsMobile();
+
+  const { data: talentPoolCategories, isLoading: fetchLoading } =
+    useGetTalentPoolCategory(pageSize, currentPage);
 
   const handleEditTalentPoolCategory = (data: any) => {
     openDrawer();
@@ -30,30 +44,33 @@ function TalentPoolCategoryTab() {
     setDeleteMode(true);
   };
 
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPage(pageSize);
+    }
+  };
+  const onSizeChange = (size: number) => {
+    setPage(size);
+    setCurrentPage(1);
+  };
   return (
-    <div className="p-6">
+    <div className="p-5 rounded-2xl bg-white h-full">
       {/* Header section */}
       <div className="flex justify-between items-center mb-4">
         <Title level={5}>Talent Pool Category</Title>
         <AccessGuard permissions={[Permissions.CreateTalentPool]}>
-          {/* <CustomButton
-            title=" New Talent Pool Category"
-            id="createTalentPoolButton"
-            icon={<FaPlus size={13} className="mr-2" />}
-            onClick={openDrawer}
-            className="bg-blue-600 hover:bg-blue-700 h-12 py-5 text-medium font-semibold"
-          /> */}
           <Button
             type="primary"
             id="createTalentPoolButton"
             onClick={openDrawer}
+            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
           >
             <span className="hidden lg:inline"> Talent Pool Category</span>
           </Button>
         </AccessGuard>
       </div>
-
       <div className="space-y-4 w-full">
         {fetchLoading ? (
           <>
@@ -65,7 +82,7 @@ function TalentPoolCategoryTab() {
             />
           </>
         ) : (
-          talentPoolCateories?.items?.map((talentPool: any, index: number) => (
+          talentPoolCategories?.items?.map((talentPool: any, index: number) => (
             <div
               key={index}
               className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
@@ -102,6 +119,22 @@ function TalentPoolCategoryTab() {
       </div>
       <TalentPoolDrawer />
       <CustomDeleteTalentPool />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={talentPoolCategories?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={talentPoolCategories?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
     </div>
   );
 }

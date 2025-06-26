@@ -19,13 +19,20 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import RecruitmentPagination from '../../../_components';
+import { FaLinkedin } from 'react-icons/fa';
+import { SiGmail } from 'react-icons/si';
+import { TableRowSelection } from 'antd/es/table/interface';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
 
   const userId = useAuthenticationStore.getState().userId;
+
+  const { isMobile, isTablet } = useIsMobile();
 
   const handleStageChange = (value: string, id: any) => {
     const selectedStage = statusStage?.items?.find(
@@ -46,15 +53,15 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'candidateName',
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
     },
-    {
-      title: 'AI score',
-      dataIndex: 'score',
-      render: () => (
-        <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
-          90%
-        </span>
-      ),
-    },
+    // {
+    //   title: 'AI score',
+    //   dataIndex: 'score',
+    //   render: () => (
+    //     <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
+    //       90%
+    //     </span>
+    //   ),
+    // },
     {
       title: 'Phone Number',
       dataIndex: 'phoneNumber',
@@ -66,7 +73,7 @@ const AllCandidateTable: React.FC = () => {
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
     },
     {
-      title: 'Internal/External',
+      title: 'Internal/ External',
       dataIndex: 'internal_external',
       sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
     },
@@ -75,8 +82,17 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'cv',
     },
     {
-      title: 'Created Date',
+      title: 'Applied/ Created Date',
       dataIndex: 'createdAt',
+    },
+    {
+      title: 'Date of Graduation',
+      dataIndex: 'graduateYear',
+    },
+
+    {
+      title: 'Social profile',
+      dataIndex: 'LinkedInURL',
     },
     {
       title: 'Stages',
@@ -100,6 +116,8 @@ const AllCandidateTable: React.FC = () => {
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
+    selectedRowKeys,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const { data: candidateList, isLoading: isResponseLoading } =
@@ -109,6 +127,8 @@ const AllCandidateTable: React.FC = () => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
+      pageSize,
+      currentPage,
     );
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -182,13 +202,32 @@ const AllCandidateTable: React.FC = () => {
       ),
 
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
+      graduateYear: item?.graduateYear
+        ? dayjs(item.graduateYear).format('DD MMMM YYYY')
+        : '--',
+      LinkedInURL: (
+        <div className="flex justify-around">
+          <a
+            href={item?.LinkedInURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="LinkedIn"
+          >
+            <FaLinkedin size={20} />
+          </a>
+          <a href={item?.email} title="Email">
+            <SiGmail size={20} />
+          </a>
+        </div>
+      ),
       stages: (
         <div>
           <Select
             defaultValue={item?.jobCandidate?.map(
               (e: any) => e?.applicantStatusStage?.title ?? '--',
             )}
-            style={{ width: 120 }}
+            // style={{ width: 120 }}
+            className="w-full"
             onChange={(value) =>
               handleStageChange(
                 value,
@@ -209,7 +248,7 @@ const AllCandidateTable: React.FC = () => {
           <Button
             id={`editUserButton${item?.id}`}
             disabled={item?.deletedAt !== null}
-            className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
+            className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
             onClick={() => handleCandidateDetail(item)}
           >
             <FaEye />
@@ -232,6 +271,22 @@ const AllCandidateTable: React.FC = () => {
     };
   });
 
+  const rowSelection: TableRowSelection<CandidateData> = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+      setSelectedCandidate(
+        candidateList?.items?.filter((item: CandidateData) =>
+          selectedRows.some((row: CandidateData) => row.id === item.id),
+        ) || [],
+      );
+    },
+  };
+
+  const onSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
   return (
     <div>
       <Table
@@ -239,15 +294,27 @@ const AllCandidateTable: React.FC = () => {
         columns={columns}
         dataSource={data}
         loading={isResponseLoading}
+        pagination={false}
         scroll={{ x: 1000 }}
+        rowSelection={rowSelection} // Enable selection
       />
-      <RecruitmentPagination
-        current={currentPage}
-        total={candidateList?.meta?.totalItems ?? 1}
-        pageSize={pageSize}
-        onChange={onPageChange}
-        onShowSizeChange={onPageChange}
-      />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
       <CandidateDetail />
       <DeleteCandidate />
       <EditCandidate />

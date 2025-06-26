@@ -141,9 +141,9 @@ export const useFetchedIndividualResponses = (
   return useQuery<any>(
     ['individualResponses', formId, userId],
     () => fetchIndividualResponses(formId, userId),
-    // {
-    //   enabled: !!userId, // Only run the query when userId is not null or undefined
-    // },
+    {
+      enabled: !!userId, // Only run the query when userId is not null or undefined
+    },
   );
 };
 

@@ -11,16 +11,20 @@ import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/qu
 import { useEffect, useState } from 'react';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
-import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import LeaveRequestSidebar from '../../my-timesheet/_components/leaveRequestSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { useMediaQuery } from 'react-responsive';
+import { useSetAllLeaveRequestNotification } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { MdMarkEmailRead } from 'react-icons/md';
 
 const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
     {} as LeaveRequestBody,
   );
   const { setLeaveTypes } = useMyTimesheetStore();
+  const { mutate: sendNotification, isLoading } =
+    useSetAllLeaveRequestNotification();
+
   const { data: leaveTypesData } = useGetLeaveTypes();
   const {
     data: leaveRequestData,
@@ -37,10 +41,27 @@ const LeaveManagement = () => {
 
   useEffect(() => {
     if (leaveRequestData && leaveRequestData.file) {
-      const url = new URL(TIME_AND_ATTENDANCE_URL!);
-      window.open(`${url.origin}/${leaveRequestData.file}`, '_blank');
+      downloadFile(
+        leaveRequestData.file,
+        leaveRequestData.file.split('/').pop() || 'downloaded_file.xlsx',
+      );
     }
   }, [leaveRequestData]);
+
+  const downloadFile = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+  };
 
   useEffect(() => {
     if (bodyRequest.exportType) {
@@ -62,10 +83,18 @@ const LeaveManagement = () => {
 
   return (
     <>
-      <div className="h-auto w-auto pb-6">
+      <div className="h-auto w-auto pb-6 bg-[#fafafa]">
         <BlockWrapper>
           <PageHeader title="Leave Management">
             <Space size={20}>
+              <CustomButton
+                title={!isSmallScreen ? 'Email Reminder' : ' '} // Hide text on small screens
+                id="emailNotification"
+                className={isSmallScreen ? 'w-[65px]' : ''}
+                icon={<MdMarkEmailRead size={20} />}
+                onClick={() => sendNotification()}
+                loading={isLoading}
+              />
               <Popover
                 trigger="click"
                 placement="bottomRight"

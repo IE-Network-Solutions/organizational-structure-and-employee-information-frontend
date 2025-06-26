@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button, List, Dropdown, Menu } from 'antd';
+import { Card, Button, List, Dropdown, Menu, Form } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import {
@@ -20,9 +20,8 @@ const Branches = () => {
   const { mutate: createBranch, isLoading: createLoading } = useCreateBranch();
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
   const { mutate: deleteBranch, isLoading: deleteLoading } = useDeleteBranch();
-
+  const [form] = Form.useForm();
   const {
-    formOpen,
     editingBranch,
     deleteModalVisible,
     branchToDelete,
@@ -140,10 +139,9 @@ const Branches = () => {
       <BranchForm
         loading={editingBranch ? updateLoading : createLoading}
         onClose={() => setFormOpen(false)}
-        open={formOpen}
         submitAction={handleFormSubmit}
-        branchData={editingBranch || undefined}
         title={editingBranch ? 'Edit Branch' : 'Create Branch'}
+        form={form}
       />
       <DeleteModal
         open={deleteModalVisible}

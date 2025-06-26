@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Form, Input, Select, Tabs, Pagination } from 'antd';
+import { Button, Card, Form, Input, Select, Tabs } from 'antd';
 import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { ConversationStore } from '@/store/uistate/features/conversation';
@@ -20,6 +20,7 @@ import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/quer
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { Popconfirm } from 'antd';
+import CustomPagination from '@/components/customPagination';
 
 const { TextArea } = Input;
 
@@ -28,6 +29,7 @@ const Page = () => {
 
   const {
     setActiveTab,
+    activeTab,
     editingItem,
     setEditingItem,
     pageSize,
@@ -87,10 +89,10 @@ const Page = () => {
     }
   }, [editingItem]);
 
-  // const activeTabName =
-  //   getAllFeedbackTypes?.items?.find(
-  //     (item: FeedbackTypeItems) => item.id === activeTab,
-  //   )?.category || '';
+  const activeTabName =
+    getAllFeedbackTypes?.items?.find(
+      (item: FeedbackTypeItems) => item.id === activeTab,
+    )?.category || '';
 
   // const modalHeader = (
   //   <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -179,24 +181,19 @@ const Page = () => {
               </div>
             </Card>
           ))}
-          <div className="flex justify-end mt-4 mb-4">
-            <Pagination
-              current={page}
-              total={perspectiveData?.length || 0}
-              pageSize={pageSize}
-              onChange={(page, size) => {
-                setPage(page);
-                setPageSize(size);
-              }}
-              onShowSizeChange={(current, size) => {
-                setPageSize(size);
-                setPage(1);
-              }}
-              showSizeChanger={true}
-              showTotal={(total) => `Total ${total} items`}
-              pageSizeOptions={[5, 10, 20, 50]}
-            />
-          </div>
+          <CustomPagination
+            current={page}
+            total={perspectiveData?.length || 0}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
         </div>
       ),
     },
@@ -239,8 +236,8 @@ const Page = () => {
   };
 
   return (
-    <div>
-      <div className="flex flex-col gap-10">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex flex-col gap-10 ">
         <span className="font-bold text-lg">Feedback</span>
 
         <div className="mt-5">
@@ -258,7 +255,7 @@ const Page = () => {
         modalHeader={modalHeader}
         width="30%"
       > */}
-      <CreateFeedback form={form} />
+      <CreateFeedback form={form} activeTabName={activeTabName} />
       {/* </CustomDrawerLayout> */}
       <CustomDrawerLayout
         open={addPerspectiveModal || editingItem?.id}

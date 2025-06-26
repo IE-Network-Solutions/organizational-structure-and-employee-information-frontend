@@ -12,6 +12,7 @@ const nextConfig = {
     ORG_AND_EMP_URL: process.env.ORG_AND_EMP_URL,
     ORG_DEV_URL: process.env.ORG_DEV_URL,
     TENANT_MGMT_URL: process.env.TENANT_MGMT_URL,
+    TENANT_BASE_URL: process.env.TENANT_BASE_URL,
     PAYROLL_URL: process.env.PAYROLL_URL,
     NOTIFICATION_URL: process.env.NOTIFICATION_URL,
     RECRUITMENT_URL: process.env.RECRUITMENT_URL,
@@ -23,6 +24,8 @@ const nextConfig = {
     EMAIL_URL: process.env.EMAIL_URL,
     INCENTIVE_URL: process.env.INCENTIVE_URL,
     PAYROLL_URL: process.env.PAYROLL_URL,
+    TENANT_BASE_URL:process.env.TENANT_BASE_URL,
+    TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
   },
 };
 

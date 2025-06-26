@@ -11,7 +11,7 @@ import { useAllChildrenRecognition } from '@/store/server/features/incentive/oth
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { CiCalendarDate } from 'react-icons/ci';
 import { Skeleton } from 'antd';
-import { useMediaQuery } from 'react-responsive';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface IncentiveSettingsLayoutProps {
   children: ReactNode;
@@ -25,7 +25,8 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
     useIncentiveStore();
   const { data: recognitionData, isLoading: responseLoading } =
     useAllChildrenRecognition();
-  const isMobile = useMediaQuery({ maxWidth: 1024 });
+
+  const { isMobile } = useIsMobile();
 
   useEffect(() => {
     if (recognitionData && recognitionData?.length > 0) {
@@ -39,19 +40,22 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             <CiCalendarDate
               size={16}
               className={
-                currentItem === 'defaultIncentiveCard' || firstItem?.id
+                currentItem === 'defaultIncentiveCard' ||
+                currentItem === firstItem?.id
                   ? 'text-[#4DAEF0]'
                   : 'text-gray-500'
               }
             />
           ) : null,
+
           label: (
             <p className="menu-item-label">
               {firstItem?.name ?? 'Default Incentive '}
             </p>
           ),
           className:
-            currentItem === 'defaultIncentiveCard' || firstItem?.id
+            currentItem === 'defaultIncentiveCard' ||
+            currentItem === firstItem?.id
               ? 'px-6'
               : 'px-1',
         },
@@ -91,10 +95,10 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   const incentiveSidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-gray-100 p-0 rounded-lg  ">
+    <div className="min-h-screen bg-[#fafafa] p-3">
       <PageHeader title="Settings" description="Incentive Settings" />
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-8 ">
+      <div className="flex flex-col lg:flex-row gap-6 mt-3 ">
         {responseLoading ? (
           <div className="w-64">
             <Skeleton active paragraph={{ rows: 6 }} />
@@ -102,7 +106,9 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
         ) : (
           <SidebarMenu menuItems={incentiveSidebarMenuItems} />
         )}
-        <BlockWrapper className="flex-1 h-full">{children}</BlockWrapper>
+        <BlockWrapper className="flex-1 h-full bg-[#fafafa] p-0 ">
+          {children}
+        </BlockWrapper>
       </div>
     </div>
   );

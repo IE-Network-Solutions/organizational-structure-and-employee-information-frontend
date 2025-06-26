@@ -16,13 +16,12 @@ import {
   useSetFinalApproveLeaveRequest,
   useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
-import PermissionWrapper from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { UserOutlined } from '@ant-design/icons';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
+import dayjs from 'dayjs';
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } =
@@ -95,6 +94,9 @@ const ApprovalTable = () => {
   const allFilterData = data?.items?.map((item: any, index: number) => {
     return {
       key: index,
+      createdAt: item?.createdAt
+        ? dayjs(item?.createdAt).format('YYYY-MM-DD')
+        : '-',
       userId: item?.userId,
       startAt: item?.startAt,
       endAt: item?.endAt,
@@ -103,9 +105,7 @@ const ApprovalTable = () => {
       status: item?.status,
       action: (
         <div className="flex gap-4 ">
-          <PermissionWrapper
-            permissions={[Permissions.ApproveEmployeeLeaveRequest]}
-          >
+          {item?.nextApprover?.[0]?.userId === userId && (
             <Popconfirm
               title="Approve Request"
               description="Are you sure to approve this leave request?"
@@ -126,47 +126,43 @@ const ApprovalTable = () => {
             >
               <Button type="primary">Approve</Button>
             </Popconfirm>
-          </PermissionWrapper>
-          <PermissionWrapper
-            permissions={[Permissions.DeclineEmployeeLeaveRequest]}
-          >
-            <Popconfirm
-              title="Reject Request"
-              description={
-                <>
-                  <p>Are you sure you want to reject this leave request?</p>
-                  <Input
-                    placeholder="Add a comment"
-                    value={rejectComment}
-                    onChange={(e) => setRejectComment(e.target.value)}
-                    style={{ marginTop: 8 }}
-                  />
-                </>
-              }
-              onConfirm={() => {
-                reject({
-                  approvalWorkflowId: item?.approvalWorkflowId,
-                  stepOrder: item?.nextApprover?.[0]?.stepOrder,
-                  requestId: item?.id,
-                  approvedUserId: userId,
-                  approverRoleId: userRollId,
-                  action: 'Rejected',
+          )}
+          <Popconfirm
+            title="Reject Request"
+            description={
+              <>
+                <p>Are you sure you want to reject this leave request?</p>
+                <Input
+                  placeholder="Add a comment"
+                  value={rejectComment}
+                  onChange={(e) => setRejectComment(e.target.value)}
+                  style={{ marginTop: 8 }}
+                />
+              </>
+            }
+            onConfirm={() => {
+              reject({
+                approvalWorkflowId: item?.approvalWorkflowId,
+                stepOrder: item?.nextApprover?.[0]?.stepOrder,
+                requestId: item?.id,
+                approvedUserId: userId,
+                approverRoleId: userRollId,
+                action: 'Rejected',
+                tenantId: tenantId,
+                comment: {
+                  comment: rejectComment,
+                  commentedBy: userId,
                   tenantId: tenantId,
-                  comment: {
-                    comment: rejectComment,
-                    commentedBy: userId,
-                    tenantId: tenantId,
-                  },
-                });
-              }}
-              onCancel={cancel}
-              okText="Reject"
-              cancelText="Cancel"
-              okButtonProps={{ disabled: !rejectComment }}
-            >
-              <Button danger>Reject</Button>
-            </Popconfirm>
-          </PermissionWrapper>
+                },
+              });
+            }}
+            onCancel={cancel}
+            okText="Reject"
+            cancelText="Cancel"
+            okButtonProps={{ disabled: !rejectComment }}
+          >
+            <Button danger>Reject</Button>
+          </Popconfirm>
         </div>
       ),
     };
@@ -207,6 +203,10 @@ const ApprovalTable = () => {
       dataIndex: 'userId',
       key: 'createdBy',
       render: (text: string) => <EmpRender userId={text} />,
+    },
+    {
+      title: 'Requested At',
+      dataIndex: 'createdAt',
     },
     {
       title: 'From',

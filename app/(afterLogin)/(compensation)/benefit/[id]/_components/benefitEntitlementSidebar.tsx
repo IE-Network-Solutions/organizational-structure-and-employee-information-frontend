@@ -4,76 +4,104 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Select, Spin } from 'antd';
-// import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useCreateBenefitEntitlement } from '@/store/server/features/compensation/benefit/mutations';
+import { Form, Input, InputNumber, Select, Spin, Table } from 'antd';
+import { useCreateBenefitEntitlementSettlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchBenefit } from '@/store/server/features/compensation/benefit/queries';
+import { useEffect, useState } from 'react';
+import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
-const BenefitEntitlementSideBar = () => {
+dayjs.extend(isBetween);
+
+const { Option } = Select;
+
+type BenefitEntitlementProps = {
+  title: string;
+};
+
+const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   const {
-    // departmentUsers,
-    // setDepartmentUsers,
-    benefitMode,
+    setDepartmentUsers,
     isBenefitEntitlementSidebarOpen,
-    // selectedDepartment,
-    // setSelectedDepartment,
+    setSelectedDepartment,
     resetStore,
-    benefitDefaultAmount,
   } = useBenefitEntitlementStore();
-  const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
-    useCreateBenefitEntitlement();
-  const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
 
-  // const { data: departments, isLoading } = useGetDepartmentsWithUsers();
+  const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
+    useCreateBenefitEntitlementSettlement();
+  const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
+  const { data: departments, isLoading: depLoading } =
+    useGetDepartmentsWithUsers();
   const { id } = useParams();
   const [form] = Form.useForm();
+  const { TextArea } = Input;
+
+  const { data: benefitDatas } = useFetchBenefit(id);
+  const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
+
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [settlementPeriod, setSettlementPeriod] = useState<number>(0);
+  const [data, setData] = useState<any[]>([]);
 
   const onClose = () => {
     form.resetFields();
     resetStore();
   };
-  const { data: benefitData } = useFetchBenefit(id);
+
   const onFormSubmit = (formValues: any) => {
-    createBenefitEntitlement(
-      {
-        compensationItemId: id,
-        employeeIds: formValues.employees,
-        totalAmount:
-          benefitMode == 'CREDIT'
-            ? Number(benefitDefaultAmount)
-            : Number(formValues.amount),
-        settlementPeriod: Number(formValues.settlementPeriod),
-        isRate: benefitData?.isRate,
-      },
-      {
-        onSuccess: () => {
-          form.resetFields();
-          onClose();
-        },
-      },
+    const paymentAmount = formValues.payments.reduce(
+      (acc: number, item: { amount?: number }) =>
+        acc + Number(item.amount || 0),
+      0,
     );
+    const totalAmountChecker = totalAmount == paymentAmount;
+    if (totalAmountChecker == false) {
+      NotificationMessage.warning({
+        message: `Total Amount should be equal to the sum of all payments. total amount ${totalAmount} and payment amount ${paymentAmount}`,
+      });
+    } else {
+      createBenefitEntitlement(
+        {
+          ...formValues,
+          compensationItemId: id,
+          employeeIds: formValues.employeeIds,
+          totalAmount: formValues.totalAmount,
+          settlementPeriod: Number(formValues.settlementPeriod),
+          isRate: benefitDatas?.isRate,
+        },
+        {
+          onSuccess: () => {
+            form.resetFields();
+            onClose();
+          },
+        },
+      );
+    }
   };
 
-  // const handleDepartmentChange = (value: string) => {
-  //   setSelectedDepartment(value);
-  //   const department = departments.find((dept: any) => dept.name === value);
-  //   if (department) {
-  //     setDepartmentUsers(department.users);
-  //     form.setFieldsValue({
-  //       employees: department.users.map((user: any) => user.id),
-  //     });
-  //   }
-  // };
+  const handleDepartmentChange = (value: string) => {
+    setSelectedDepartment(value);
+    const department = departments.find((dept: any) => dept.name === value);
+    if (department) {
+      setDepartmentUsers(department.users);
+      form.setFieldsValue({
+        employeeIds: department.users.map((user: any) => user.id),
+      });
+    }
+  };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: createBenefitLoading,
       onClick: () => onClose(),
@@ -81,11 +109,113 @@ const BenefitEntitlementSideBar = () => {
     {
       label: <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: createBenefitLoading,
       onClick: () => form.submit(),
+    },
+  ];
+
+  useEffect(() => {
+    if (!payPeriods?.length) return;
+
+    const now = dayjs();
+    const nextMonth = now.add(1, 'month');
+
+    const validPayPeriods = payPeriods.filter((period: any) => {
+      const start = dayjs(period.startDate);
+      const end = dayjs(period.endDate);
+      return (
+        start.isSame(now, 'month') ||
+        end.isSame(now, 'month') ||
+        start.isSame(nextMonth, 'month') ||
+        end.isSame(nextMonth, 'month')
+      );
+    });
+
+    const amountPerPeriod =
+      totalAmount && settlementPeriod ? totalAmount / settlementPeriod : 0;
+
+    const newData = Array.from({ length: settlementPeriod }, (notused, i) => {
+      const paymentDate = dayjs().add(i, 'month');
+
+      const matchedPeriod = validPayPeriods.find((period: any) => {
+        const start = dayjs(period.startDate);
+        const end = dayjs(period.endDate);
+        return dayjs(paymentDate).isBetween(start, end, 'day', '[]'); // FIX HERE
+      });
+
+      return {
+        key: i,
+        amount: Number(amountPerPeriod).toFixed(2),
+        payPeriodId: matchedPeriod?.id ?? null,
+      };
+    });
+
+    setData(newData);
+    form.setFieldsValue({ payments: newData });
+  }, [totalAmount, settlementPeriod, payPeriods]);
+  const columns = [
+    {
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (notused: any, notuseds: any, index: number) => (
+        <Form.Item
+          label={'Amount'}
+          name={['payments', index, 'amount']}
+          className="mb-0"
+        >
+          <InputNumber className="w-full" />
+        </Form.Item>
+      ),
+    },
+    {
+      dataIndex: 'payPeriodId',
+      key: 'payPeriodId',
+      render: (notused: any, notuseds: any, index: number) => (
+        <Form.Item
+          label={'Pay Period'}
+          required
+          name={['payments', index, 'payPeriodId']}
+          className="mb-0"
+          rules={[{ required: true, message: 'Pay Period is required' }]}
+        >
+          <Select placeholder="Pay Period" allowClear className="w-full">
+            {payPeriods
+              ?.filter((period: any) => {
+                const start = dayjs(period.startDate);
+                const end = dayjs(period.endDate);
+                return (
+                  start.isSame(dayjs(), 'month') ||
+                  end.isSame(dayjs(), 'month') ||
+                  start.isSame(dayjs().add(1, 'month'), 'month') ||
+                  end.isSame(dayjs().add(1, 'month'), 'month')
+                );
+              })
+              .map((period: any) => (
+                <Option key={period.id} value={period.id}>
+                  {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
+                  {dayjs(period.endDate).format('MMM DD, YYYY')}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
+      ),
+    },
+    {
+      dataIndex: 'reason',
+      key: 'reason',
+      render: (notused: any, notuseds: any, index: number) => (
+        <Form.Item
+          label="Reason"
+          required
+          name={['payments', index, 'reason']}
+          className="mb-0"
+        >
+          <TextArea placeholder="Reason" autoSize />
+        </Form.Item>
+      ),
     },
   ];
 
@@ -96,21 +226,84 @@ const BenefitEntitlementSideBar = () => {
         onClose={onClose}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            <span>Add Benefit Entitlement</span>
+            <span className="text-2xl">{title}</span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="600px"
       >
-        <Spin spinning={allUserLoading}>
+        <Spin spinning={allUserLoading || payLoading}>
           <Form
             layout="vertical"
+            className="p-2"
             form={form}
-            onFinish={(values) => onFormSubmit(values)}
+            onFinish={onFormSubmit}
             requiredMark={CustomLabel}
           >
+            <div className="grid grid-cols-2 gap-4">
+              <Form.Item required name="totalAmount" label="Total Amount">
+                <InputNumber
+                  className="w-full h-10 mt-2"
+                  value={totalAmount}
+                  onChange={(value) => setTotalAmount(value || 0)}
+                />
+              </Form.Item>
+              <Form.Item
+                required
+                name="settlementPeriod"
+                label="Settlement Period"
+              >
+                <InputNumber
+                  className="w-full h-10 mt-2"
+                  value={settlementPeriod}
+                  onChange={(value) => setSettlementPeriod(value || 0)}
+                />
+              </Form.Item>
+            </div>
+
+            {data.length > 0 && (
+              <Table
+                columns={columns}
+                dataSource={data}
+                bordered={false}
+                className="mb-4"
+                pagination={false}
+              />
+            )}
+
             <Form.Item
-              name="employees"
+              name="department"
+              label="Select Department"
+              className="form-item min-h-10"
+            >
+              <Select
+                loading={depLoading}
+                placeholder="Select a department"
+                className="w-full h-10 mt-2"
+                allowClear
+                showSearch
+                onChange={(value) => handleDepartmentChange(value)}
+                filterOption={(input, option) =>
+                  (option?.children as any)
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                {departments?.map((dept: any) => (
+                  <Option key={dept.id} value={dept.name}>
+                    {dept.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="employeeIds"
               label="Select Employees"
               rules={[{ required: true, message: 'Please select employees' }]}
             >
@@ -118,7 +311,7 @@ const BenefitEntitlementSideBar = () => {
                 showSearch
                 placeholder="Select a person"
                 mode="multiple"
-                className="w-full h-14"
+                className="w-full h-10 mt-2"
                 allowClear
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')
@@ -128,82 +321,16 @@ const BenefitEntitlementSideBar = () => {
                 options={allUsers?.items?.map((item: any) => ({
                   ...item,
                   value: item?.id,
-                  label: item?.firstName + ' ' + item?.lastName,
+                  label:
+                    item?.firstName +
+                    ' ' +
+                    item?.middleName +
+                    ' ' +
+                    item?.lastName,
                 }))}
                 loading={allUserLoading}
               />
             </Form.Item>
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <Form.Item
-                name="amount"
-                label={'Total Amount'}
-                rules={[
-                  {
-                    required: benefitMode != 'CREDIT',
-                    message: 'Total amount is required!',
-                  },
-                ]}
-                className="form-item"
-              >
-                <Input
-                  className="control"
-                  type="number"
-                  placeholder={
-                    benefitMode == 'DEBIT'
-                      ? 'Total Ammount'
-                      : benefitDefaultAmount.toString()
-                  }
-                  style={{ height: '32px', padding: '4px 8px' }}
-                  disabled={benefitMode == 'CREDIT'}
-                />
-              </Form.Item>
-              <Form.Item
-                name="settlementPeriod"
-                label={
-                  benefitMode == 'DEBIT'
-                    ? 'Settlement Period'
-                    : 'Number of Pay Period'
-                }
-                rules={[
-                  {
-                    required: true,
-                    message:
-                      benefitMode == 'DEBIT'
-                        ? 'settlement period is required!'
-                        : 'Number of Pay Period is required!',
-                  },
-                ]}
-                className="form-item"
-              >
-                <Input
-                  className="control"
-                  type="number"
-                  placeholder={
-                    benefitMode == 'DEBIT'
-                      ? 'settlement Period'
-                      : 'Number of Pay Period'
-                  }
-                  style={{ height: '32px', padding: '4px 8px' }}
-                />
-              </Form.Item>
-            </div>
-            {/* <Form.Item
-              name="department"
-              label="Select Department"
-              rules={[{ required: true, message: 'Department is required!' }]}
-              className="form-item"
-            >
-              <Select
-                placeholder="Select a department"
-                onChange={handleDepartmentChange}
-              >
-                {departments?.map((department: any) => (
-                  <Select.Option key={department.id} value={department.name}>
-                    {department.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item> */}
           </Form>
         </Spin>
       </CustomDrawerLayout>

@@ -7,13 +7,12 @@ import {
   Col,
   Dropdown,
   Menu,
-  Pagination,
   Row,
   Spin,
   Tooltip,
   Typography,
 } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
 import {
@@ -43,6 +42,9 @@ import KeyResultTasks from '../planning/KeyResultTasks';
 import { FiCheckCircle } from 'react-icons/fi';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
 
 const { Title } = Typography;
 
@@ -57,6 +59,7 @@ function Reporting() {
     pageReporting,
     setPageReporting,
     pageSizeReporting,
+    activePlanPeriodId,
     setPageSizeReporting,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
@@ -64,7 +67,7 @@ function Reporting() {
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
-
+  const { isMobile, isTablet } = useIsMobile();
   const hasPermission = AccessGuard.checkAccess({
     permissions: [
       Permissions.ViewDailyPlan,
@@ -73,16 +76,22 @@ function Reporting() {
     ],
   });
 
-  const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
+  // const planningPeriod = [...(planningPeriods?.items ?? [])].reverse();
 
   // const { mutate: handleDeleteReport, isLoading: loadingDeleteReport } =
   //   useDeleteReportById();
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
-  const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
-  const userPlanningPeriodId =
-    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  // const planningPeriodId = planningPeriod?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId =
+    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+
+  // const userPlanningPeriodId =
+  //   userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId;
+  const userPlanningPeriodId = userPlanningPeriods?.find(
+    (item) => item?.planningPeriodId === planningPeriodId,
+  )?.planningPeriodId;
 
   const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
     useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
@@ -92,12 +101,25 @@ function Reporting() {
     pageReporting,
     pageSizeReporting,
   });
+  const getPlanningPeriodDetail = (id: string) => {
+    const planningPeriodDetail = planningPeriods?.items?.find(
+      (period: any) => period?.id === id,
+    );
+    return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+  };
   // const { data: allUnReportedPlanningTask } = useGetUnReportedPlanning(
   //   planningPeriodId ?? '',
   //   activeTab,
   // );
 
-  const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  // const activeTabName = planningPeriod?.[activePlanPeriod - 1]?.name;
+  const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+
+  useEffect(() => {
+    setPageReporting(1);
+    setPageSizeReporting(10);
+  }, [activeTab, setPageReporting, setPageSizeReporting]);
+
   const getEmployeeData = (id: string) => {
     const employeeDataDetail = employeeData?.items?.find(
       (emp: any) => emp?.id === id,
@@ -283,9 +305,9 @@ function Reporting() {
                         >
                           <Col>
                             <div
-                              className={` py-1 px-1 text-white rounded-full ${dataItem?.isValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
+                              className={` py-1 px-1 text-white rounded-full ${dataItem?.plan?.isReportValidated ? 'bg-green-300' : 'bg-yellow-300'}`}
                             >
-                              {dataItem?.isValidated ? (
+                              {dataItem?.plan?.isReportValidated ? (
                                 <FiCheckCircle />
                               ) : (
                                 <MdOutlinePending size={16} />
@@ -294,7 +316,9 @@ function Reporting() {
                           </Col>
                           <div className="flex flex-col text-xs ml-2">
                             <span className="mr-4">
-                              {dataItem?.isValidated ? 'Closed' : 'Open'}
+                              {dataItem?.plan?.isReportValidated
+                                ? 'Closed'
+                                : 'Open'}
                             </span>
                             <span className="mr-4 text-gray-500">
                               {dayjs(dataItem?.createdAt).format(
@@ -393,19 +417,34 @@ function Reporting() {
             </Card>
           </>
         ))}
-        <Pagination
-          disabled={!allReporting?.items?.length} // Ensures no crash if items is undefined
-          className="flex justify-end"
-          total={allReporting?.items?.meta?.totalItems} // Ensures total count instead of pages
-          current={pageReporting}
-          pageSize={pageSizeReporting} // Dynamically control page size
-          showSizeChanger // Allows user to change page size
-          onChange={(page, pageSize) => {
-            setPageReporting(page);
-            setPageSizeReporting(pageSize); // Ensure page size updates dynamically
-          }}
-          pageSizeOptions={['10', '20', '50', '100']}
-        />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={allReporting?.meta?.totalItems ?? 0}
+            pageSize={pageSizeReporting}
+            onChange={(page, pageSize) => {
+              setPageReporting(page);
+              setPageSizeReporting(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSizeReporting(size);
+              setPageReporting(1);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            total={allReporting?.meta?.totalItems}
+            current={pageReporting}
+            pageSize={pageSizeReporting}
+            onShowSizeChange={(size) => {
+              setPageSizeReporting(size);
+              setPageReporting(1);
+            }}
+            onChange={(page, pageSize) => {
+              setPageReporting(page);
+              setPageSizeReporting(pageSize);
+            }}
+          />
+        )}
         {allReporting?.items?.length <= 0 && (
           <div className="flex justify-center">
             <div>

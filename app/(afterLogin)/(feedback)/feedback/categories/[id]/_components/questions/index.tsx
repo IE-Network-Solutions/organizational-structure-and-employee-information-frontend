@@ -10,6 +10,7 @@ import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
 import CustomQuestionTemplate from './customQuestionTemplate';
 import { FieldType } from '@/types/enumTypes';
+import { useFetchedQuestionsByFormId } from '@/store/server/features/organization-development/categories/queries';
 
 const { Option } = Select;
 interface Props {
@@ -19,8 +20,12 @@ interface Props {
 
 const Question: React.FC<Props> = (props) => {
   const [form] = Form.useForm();
-
-  const { mutate: AddQuestion } = useCreateQuestion();
+  const { refetch: refetchQuestions } = useFetchedQuestionsByFormId(
+    props?.selectedFormId,
+    '',
+  );
+  const { mutate: AddQuestion, isLoading: addQuestionLoading } =
+    useCreateQuestion();
   const {
     isDrawerOpen,
     questions,
@@ -40,7 +45,7 @@ const Question: React.FC<Props> = (props) => {
             return {
               ...e,
               order: i + 1,
-              required: e.required,
+              required: !!e.required,
               field: e.field.map((value: any) => {
                 return {
                   value,
@@ -54,14 +59,18 @@ const Question: React.FC<Props> = (props) => {
               return {
                 ...e,
                 order: questions.length + i + 1,
-                required: e.required,
+                required: !!e.required,
               };
             },
           ),
         ],
       };
-      AddQuestion(formattedValues);
-      setIsDrawerOpen(false);
+      AddQuestion(formattedValues, {
+        onSuccess: () => {
+          setIsDrawerOpen(false);
+          refetchQuestions();
+        },
+      });
     } catch (error) {
       NotificationMessage.error({
         message: 'Publish Failed',
@@ -171,6 +180,13 @@ const Question: React.FC<Props> = (props) => {
                               <Form.Item
                                 {...restField}
                                 name={[name, 'fieldType']}
+                                required
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: 'Please select a question type',
+                                  },
+                                ]}
                               >
                                 <Select placeholder="Select type" allowClear>
                                   <Option value="multiple_choice">
@@ -300,12 +316,12 @@ const Question: React.FC<Props> = (props) => {
                     </>
                   ))}
                   <Form.Item>
-                    <div className="flex flex-col items-center justify-center my-8">
+                    <div className="flex flex-col items-center justify-center my-8 ">
                       <div
-                        className="rounded-full bg-primary w-8 h-8 flex items-center justify-center"
+                        className="rounded-full bg-primary w-8 h-8 flex items-center justify-center cursor-pointer"
                         onClick={() => add()}
                       >
-                        <PlusOutlined size={50} className="text-white" />
+                        <PlusOutlined size={50} className="text-white " />
                       </div>
                       <p className="text-md font-normal mt-2 text-gray-400">
                         Add Question
@@ -326,6 +342,7 @@ const Question: React.FC<Props> = (props) => {
                 <Button
                   htmlType="submit"
                   className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                  loading={addQuestionLoading}
                 >
                   Create
                 </Button>

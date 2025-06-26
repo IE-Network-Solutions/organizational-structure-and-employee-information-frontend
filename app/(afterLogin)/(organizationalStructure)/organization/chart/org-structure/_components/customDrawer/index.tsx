@@ -23,13 +23,13 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   drawerContent,
   footerButtonText,
   onSubmit,
-  width = '30%',
+  width = '40%',
   form,
 }) => {
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'transfer':
-        return <TransferForm />;
+        return <TransferForm form={form} />;
       case 'merge':
         return <MergeForm form={form} />;
       case 'delete':
@@ -43,31 +43,28 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       open={visible}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4 ">
+        <div className="flex justify-start text-xl font-extrabold text-gray-800 ">
           {title}
         </div>
       }
       width={width}
       footer={
-        <div className="w-full absolute  flex justify-center space-x-5">
-          <Button type="default" onClick={onClose}>
+        <div className="w-full flex justify-center space-x-5 p-4 ">
+          <Button
+            className="h-[40px] text-base px-10"
+            type="default"
+            onClick={onClose}
+          >
             Cancel
           </Button>
-          <Button type="primary" onClick={onSubmit} loading={loading}>
-            {footerButtonText}
-          </Button>
-          {/* <CustomButton
-            type="default"
-            title="Cancel"
-            onClick={onClose}
-            style={{ marginRight: 8 }}
-          />
-          <CustomButton
-            title={footerButtonText}
+          <Button
+            className="h-[40px] text-base px-10"
             type="primary"
             onClick={onSubmit}
             loading={loading}
-          /> */}
+          >
+            {footerButtonText}
+          </Button>
         </div>
       }
     >

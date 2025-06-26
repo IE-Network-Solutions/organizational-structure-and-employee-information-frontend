@@ -22,7 +22,9 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'firstName']}
-            label="First Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">First Name</span>
+            }
             id="emergencyContactFirstName"
             rules={[
               {
@@ -43,7 +45,9 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'middleName']}
-            label="Middle Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">Middle Name</span>
+            }
             id="emergencyContactMiddleName"
             rules={[
               {
@@ -63,7 +67,9 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'lastName']}
-            label="Last Name"
+            label={
+              <span className="mb-1 font-semibold text-xs">Last Name</span>
+            }
             id="emergencyContactLastName"
             rules={[
               {
@@ -86,7 +92,9 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'phoneNumber']}
-            label="Phone Number"
+            label={
+              <span className="mb-1 font-semibold text-xs">Phone Number</span>
+            }
             id="phoneNumber"
             rules={[
               {
@@ -107,7 +115,7 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'gender']}
-            label="Gender"
+            label={<span className="mb-1 font-semibold text-xs">Gender</span>}
             id="emergencyContactGender"
             rules={[{ required: true }]}
           >
@@ -123,7 +131,9 @@ const EmergencyContactForm = () => {
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'nationality']}
-            label="Nationality"
+            label={
+              <span className="mb-1 font-semibold text-xs">Nationality</span>
+            }
             id="emergencyContactNationality"
             rules={[{ required: true }]}
           >

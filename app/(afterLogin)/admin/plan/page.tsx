@@ -35,9 +35,6 @@ const PlanPage = () => {
     useState<PeriodType | null>(null);
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
   const [quotaError, setQuotaError] = useState<string | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    'chapa' | 'stripe' | null
-  >(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
@@ -61,7 +58,6 @@ const PlanPage = () => {
     true,
     true,
   );
-
   // Fetch plans
   const { data: plansData, isLoading: isPlansLoading } = useGetPlans(
     { filter: {} },
@@ -268,7 +264,7 @@ const PlanPage = () => {
       const dto: CalculateSubscriptionPriceDto = {
         planId: currentPlan.id,
         planPeriodId: selectedPlanPeriod.id,
-        slotTotal: updatedQuota,
+        slotTotal: updatedQuota - (activeSubscription?.slotTotal || 0),
         ...(activeSubscription
           ? { subscriptionId: activeSubscription.id }
           : {}),
@@ -383,17 +379,16 @@ const PlanPage = () => {
   const isLoading =
     isSubscriptionsLoading || isPlansLoading || isPeriodTypesLoading;
 
-  // Handle payment method selection
-  const handlePaymentMethodSelect = (method: 'chapa' | 'stripe') => {
-    if (selectedPaymentMethod === method) {
-      setSelectedPaymentMethod(null);
-    } else {
-      setSelectedPaymentMethod(method);
-    }
-  };
-
   // Handle payment
   const handlePayment = async () => {
+    const paymentCurrency = currentPlan?.currency?.code;
+
+    const selectedPaymentMethod =
+      paymentCurrency === 'ETB'
+        ? 'chapa'
+        : paymentCurrency === 'USD'
+          ? 'stripe'
+          : null;
     if (!selectedPaymentMethod || !updatedSubscriptionValue?.invoices[0]?.id) {
       notification.error({
         message: 'Payment Error',
@@ -519,30 +514,26 @@ const PlanPage = () => {
       if (!selectedPlanPeriod) {
         throw new Error('Selected period not found in plan');
       }
-
       let response;
 
       if (!activeSubscription) {
-        // Creating a new subscription - exactly match the format from another project
         const createData = {
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slotTotal: updatedQuota, // Use slots instead of slots
+          slotTotal: updatedQuota,
           tenantId: DEFAULT_TENANT_ID,
-          currencyId: currentPlan.currency?.id, // Add currencyId
-          subscriptionPrice: calculationResult.totalAmount, // Use the calculated amount
-          subscriptionStatus: 'pending' as any, // Explicit type casting to solve the problem
-          isActive: false, // Default inactive until payment
+          currencyId: currentPlan.currency?.id,
+          subscriptionPrice: calculationResult.totalAmount,
+          subscriptionStatus: 'pending' as any,
+          isActive: false,
         };
-
         response = await createSubscriptionMutation.mutateAsync(createData);
       } else {
-        // Updating an existing subscription
         const upgradeData = {
           subscriptionId: activeSubscription.id,
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slotTotal: updatedQuota, // Use slot instead of slots
+          slotTotal: updatedQuota,
           tenantId: DEFAULT_TENANT_ID,
         };
 
@@ -663,7 +654,7 @@ const PlanPage = () => {
       { title: 'Number of User Quota' },
       { title: 'Subscription Period' },
       { title: 'Confirmation' },
-      { title: 'Payment Method' },
+      { title: 'Payment' },
     ];
 
     const renderHeader = () => (
@@ -904,13 +895,29 @@ const PlanPage = () => {
                     <span>{updatedPeriod || currentPeriodType?.code}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
-                    <span>Number of User Quota</span>
+                    <span>Current User Quota</span>
+                    <span>{activeSubscription?.slotTotal || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
+                    <span>New User Quota</span>
+                    <span>
+                      {(updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-2 text-md font-bold">
+                    <span>Number of Total User Quota</span>
                     <span>
                       {updatedQuota || activeSubscription?.slotTotal || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
-                    <span>Total Amount</span>
+                    <span>
+                      Total Amount for{' '}
+                      {(updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)}{' '}
+                      User Quota
+                    </span>
                     <span>
                       {calculationResult
                         ? `${currentPlan?.currency?.symbol || '$'}${calculationResult.totalAmount.toFixed(2)}`
@@ -1094,72 +1101,29 @@ const PlanPage = () => {
                   </div>
 
                   <div className="flex flex-col gap-2 mt-6 mb-2 pb-6 px-8">
-                    <span className="text-2xl font-bold">Pay with</span>
-                    <div className="flex justify-around gap-2 mt-4">
-                      <div className="flex flex-col gap-2">
-                        <div
-                          className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                            selectedPaymentMethod === 'chapa'
-                              ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
-                              : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
-                          }`}
-                          onClick={() => handlePaymentMethodSelect('chapa')}
-                        >
-                          <Image
-                            src="/icons/chapa-pay.svg"
-                            alt="Chapa Payment"
-                            width={108}
-                            height={40}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <div
-                          className={`flex items-center justify-center px-3 py-2 border rounded-lg md:max-h-none max-h-[40px] cursor-pointer transition-all duration-300 ${
-                            selectedPaymentMethod === 'stripe'
-                              ? 'border-primary bg-blue-50 shadow-[0_2px_6px_0_#4e4ef1]'
-                              : 'border-gray-200 hover:shadow-[0_2px_4px_0_#4e4ef1]'
-                          }`}
-                          onClick={() => handlePaymentMethodSelect('stripe')}
-                        >
-                          <Image
-                            src="/icons/stripe-pay.svg"
-                            alt="Stripe Payment"
-                            width={108}
-                            height={40}
-                          />
-                        </div>
-                      </div>
+                    <span className="text-2xl font-bold">Pay</span>
+                    <div className="flex justify-center gap-4 mt-8">
+                      <Button
+                        onClick={() => router.push('/admin/dashboard')}
+                        className="text-center flex justify-center items-center"
+                        type="default"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handlePayment}
+                        className="text-center flex justify-center items-center"
+                        type="primary"
+                        disabled={isLoading || isProcessingPayment}
+                        icon={isProcessingPayment ? <LoadingOutlined /> : null}
+                      >
+                        {isProcessingPayment ? 'Processing...' : 'Pay Now'}
+                      </Button>
                     </div>
-                    {!selectedPaymentMethod && (
-                      <div className="text-center text-gray-500 text-sm mt-4">
-                        Please select a payment method to continue
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
             )}
-            <div className="flex justify-center gap-4 mt-8">
-              <Button
-                onClick={() => router.push('/admin/dashboard')}
-                className="text-center flex justify-center items-center"
-                type="default"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handlePayment}
-                className="text-center flex justify-center items-center"
-                type="primary"
-                disabled={
-                  isLoading || !selectedPaymentMethod || isProcessingPayment
-                }
-                icon={isProcessingPayment ? <LoadingOutlined /> : null}
-              >
-                {isProcessingPayment ? 'Processing...' : 'Pay Now'}
-              </Button>
-            </div>
           </div>
         );
       default:

@@ -7,6 +7,10 @@ export enum FieldType {
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
 }
+export enum ActionPlanStatus {
+  SOLVED = 'solved',
+  PENDING = 'pending',
+}
 
 export const PlanningType = [
   { key: 'myPlan', value: 'my plan' },
@@ -83,16 +87,18 @@ export enum APPROVALTYPES {
 
 // Enum for aggregate operators
 export enum AggregateOperator {
-  ADDITION = 'ADDITION',
-  SUBTRACTION = 'SUBTRACTION',
+  ADDITION = '+',
+  SUBTRACTION = '-',
 }
 
 // Enum for condition operators
 export enum ConditionOperator {
-  EQUALS = 'EQUALS',
-  GREATER_THAN = 'GREATER_THAN',
-  LESS_THAN = 'LESS_THAN',
+  EQUALS = '=',
+  GREATER_THAN = '>',
+  LESS_THAN = '<',
   RANGE = 'RANGE',
+  GREATER_THAN_Or_Equal_To = '>=',
+  LESS_THAN_Or_Equal_To = '<=',
 }
 export const JobActionStatus = [
   { id: 'New', name: 'New' },

@@ -1,10 +1,16 @@
 import { create, StateCreator } from 'zustand';
 import { TrainingNeedCategory } from '@/types/tna/tna';
-
+type TnaDataType = {
+  yearId: string;
+  sessionId: string;
+  monthId: string;
+  departmentId: string;
+};
 type TnaReviewState = {
   isShowTnaReviewSidebar: boolean;
   isShowTnaUpdateSidebar: boolean;
   tnaId: string | null;
+  tnaData: TnaDataType | null;
   tnaCategory: TrainingNeedCategory[];
   userCurrentPage: number;
   pageSize: number;
@@ -14,9 +20,16 @@ type TnaReviewAction = {
   setIsShowTnaReviewSidebar: (isShowTnaReviewSidebar: boolean) => void;
   setIsShowTnaUpdateSidebar: (isShowTnaUpdateSidebar: boolean) => void;
   setTnaId: (tnaId: string | null) => void;
+  setData: (tnaData: TnaDataType | null) => void;
   setTnaCategory: (tnaCategory: TrainingNeedCategory[]) => void;
   setUserCurrentPage: (userCurrentPage: number) => void;
   setPageSize: (pageSize: number) => void;
+
+  currentPage: number;
+  setCurrentPage: (currentPage: number) => void;
+
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
@@ -44,11 +57,26 @@ const tnaReviewSlice: StateCreator<TnaReviewState & TnaReviewAction> = (
     set({ isShowTnaUpdateSidebar });
   },
 
+  currentPage: 1,
+  setCurrentPage: (currentPage) => {
+    set({ currentPage });
+  },
+
+  loading: false,
+  setLoading: (loading) => {
+    set({ loading });
+  },
+
   searchQuery: '',
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   tnaId: null,
   setTnaId: (tnaId) => {
     set({ tnaId });
+  },
+
+  tnaData: null,
+  setData: (tnaData) => {
+    set({ tnaData });
   },
 
   tnaCategory: [],

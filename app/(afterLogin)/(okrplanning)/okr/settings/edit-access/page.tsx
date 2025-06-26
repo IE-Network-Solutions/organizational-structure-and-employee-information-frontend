@@ -5,7 +5,7 @@ import EditAccessTable from './_components/edit-accessTable';
 
 const OKREditAccess: React.FC = () => {
   return (
-    <div className="p-10 rounded-2xl bg-white">
+    <div className="p-5 rounded-2xl bg-white">
       <CustomBreadcrumb title="Objective Edit Access" subtitle="" />
       <SearchEmployee />
       <EditAccessTable />
