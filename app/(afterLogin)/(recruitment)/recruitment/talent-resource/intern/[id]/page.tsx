@@ -119,9 +119,7 @@ const InternDetails = () => {
             <InfoRow
               label="Expected Graduation Year"
               value={
-                internData?.graduateYear
-                  ? internData?.graduateYear
-                  : 'N/A'
+                internData?.graduateYear ? internData?.graduateYear : 'N/A'
               }
             />
             <InfoRow label="CGPA" value={internData?.CGPA || 'N/A'} />

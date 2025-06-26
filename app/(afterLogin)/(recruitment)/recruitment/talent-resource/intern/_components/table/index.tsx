@@ -430,10 +430,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           total={intern?.meta?.totalItems ?? 1}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={(pageSize) => {
-            setPageSize(pageSize);
-            setCurrentPage(1);
-          }}
+          onShowSizeChange={onSizeChange}
         />
       )}
     </div>
