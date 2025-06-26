@@ -118,7 +118,14 @@ const InternTable = ({ onEdit }: InternTableProps) => {
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
-    setPageSize(pageSize ?? 10);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
+  const onSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
   };
 
   const handleEdit = (data: InternRecord) => {
@@ -412,7 +419,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       />
       {isMobile || isTablet ? (
         <CustomMobilePagination
-          totalResults={intern?.meta?.totalItems ?? 0}
+          totalResults={intern?.meta?.totalItems ?? 1}
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onPageChange}
@@ -420,7 +427,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       ) : (
         <CustomPagination
           current={currentPage}
-          total={intern?.meta?.totalItems ?? 0}
+          total={intern?.meta?.totalItems ?? 1}
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={(pageSize) => {
