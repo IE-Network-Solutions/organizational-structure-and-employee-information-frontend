@@ -14,7 +14,12 @@ import {
 } from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
 import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
-import { UseExportAttendanceData } from '@/store/server/features/timesheet/attendance/queries';
+import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+import {
+  UseExportAttendanceData,
+  useGetAttendances,
+} from '@/store/server/features/timesheet/attendance/queries';
+import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { useAttendanceImport } from '@/store/server/features/timesheet/attendance/mutation';
 import { fileUpload } from '@/utils/fileUpload';
 import PermissionWrapper from '@/utils/permissionGuard';
@@ -35,8 +40,22 @@ const EmployeeAttendance = () => {
   const [isExportLoading, setIsExportLoading] = useState(false);
   const [exportType, setExportType] = useState<'EXCEL' | 'PDF' | null>(null);
   const [file, setFile] = useState<any>();
-
+  const [bodyRequest, setBodyRequest] = useState<AttendanceRequestBody>({
+    filter: {}, // Initialize with empty filter
+  });
+  const { data, isFetching, refetch } = useGetAttendances(
+    {},
+    bodyRequest,
+    true,
+    true,
+  );
   const { mutate: exportAttendanceData } = UseExportAttendanceData();
+  // Log the current state of data and request
+  useEffect(() => {
+    if (bodyRequest.exportType) {
+      refetch();
+    }
+  }, [bodyRequest]);
 
   const {
     mutate: uploadImport,
@@ -47,39 +66,57 @@ const EmployeeAttendance = () => {
   const { setIsShowBreakAttendanceImportSidebar, filter } =
     useEmployeeAttendanceStore();
 
+  const exportTimeoutRef = useRef<NodeJS.Timeout>();
+
   const onExport = async (type: 'PDF' | 'EXCEL') => {
     try {
-      setIsExportLoading(true);
-      setExportType(type);
-      exportAttendanceData(
-        {
-          exportType: type,
-          filter: filter || null,
-        },
-        {
-          onSuccess: () => {
-            // Export completed successfully
-            setIsExportLoading(false);
-            setExportType(null);
-            message.success('Export completed successfully!');
-          },
-          onError: (error: any) => {
-            // Export failed
-            setIsExportLoading(false);
-            setExportType(null);
-            const errorMessage =
-              error?.response?.data?.message ||
-              'Failed to export. Please try again.';
-            message.error(errorMessage);
-          },
-        },
-      );
+      exportAttendanceData({
+        exportType: type,
+        filter: filter || null,
+      });
     } catch (error) {
       message.error('Failed to export. Please try again.');
       setIsExportLoading(false);
       setExportType(null);
+      setBodyRequest((prev) => ({
+        ...prev,
+        exportType: undefined,
+      }));
     }
   };
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reset export state when data is received
+  useEffect(() => {
+    if (data && data.file) {
+      const filePath = data.file.startsWith('/') ? data.file : `/${data.file}`;
+      const url = TIME_AND_ATTENDANCE_URL?.replace('/api/v1', '');
+      const fileUrl = `${url}${filePath}`;
+
+      window.open(fileUrl, '_blank');
+
+      // Reset all export states
+      setIsExportLoading(false);
+      setExportType(null);
+      setBodyRequest((prev) => ({
+        ...prev,
+        exportType: undefined,
+      }));
+
+      // Clear the timeout
+      if (exportTimeoutRef.current) {
+        clearTimeout(exportTimeoutRef.current);
+      }
+    }
+  }, [data, isFetching]);
 
   useEffect(() => {
     if (file) {
