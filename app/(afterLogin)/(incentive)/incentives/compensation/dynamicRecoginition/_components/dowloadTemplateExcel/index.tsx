@@ -139,7 +139,7 @@ const DownloadExcelButton: React.FC = () => {
         return;
       }
 
-      // ...proceed with ExcelJS logic using headers
+      // ....proceed with ExcelJS logic using headers
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('My Sheet');
       const columns = headers.map((header: any) => ({
