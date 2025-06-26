@@ -34,7 +34,6 @@ import { useCreateEmployee } from '@/store/server/features/employees/employeeDet
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 
-
 interface CustomMenuItem {
   key: string;
   icon?: React.ReactNode;
@@ -61,9 +60,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-  const {
-    mutate: updateEmployeeInformation,
-  } = useUpdateEmployeeInformation();
+  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -708,7 +705,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setEmployeeJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router]);
-
 
   // ✅ Check permission on pathname change
   useEffect(() => {

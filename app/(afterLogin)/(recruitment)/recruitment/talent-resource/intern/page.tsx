@@ -10,7 +10,6 @@ import { useInternStore } from '@/store/uistate/features/recruitment/talent-reso
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PUBLIC_DOMAIN } from '@/utils/constants';
 
-
 const InternPage = () => {
   const {
     createInternDrawer,
@@ -19,7 +18,6 @@ const InternPage = () => {
     editInternData,
   } = useInternStore();
   const { tenantId } = useAuthenticationStore();
-
 
   const onClose = () => {
     setCreateInternDrawer(false);
@@ -44,8 +42,9 @@ const InternPage = () => {
     }
 
     const publicLink = `${PUBLIC_DOMAIN}/internship/${tenantId}`;
-    
-    navigator.clipboard.writeText(publicLink)
+
+    navigator.clipboard
+      .writeText(publicLink)
       .then(() => {
         message.success('Public application link copied to clipboard!');
       })
@@ -59,7 +58,9 @@ const InternPage = () => {
           document.execCommand('copy');
           message.success('Public application link copied to clipboard!');
         } catch (err) {
-          message.error('Failed to copy link. Please copy manually: ' + publicLink);
+          message.error(
+            'Failed to copy link. Please copy manually: ' + publicLink,
+          );
         }
         document.body.removeChild(textArea);
       });

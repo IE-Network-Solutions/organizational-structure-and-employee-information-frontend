@@ -77,13 +77,14 @@ const TalentRoasterPage = () => {
 
   const handleCopyLink = () => {
     if (!tenantId) {
-      message.error('Unable to generate link. Please try again.'); 
+      message.error('Unable to generate link. Please try again.');
       return;
     }
 
     const publicLink = `${PUBLIC_DOMAIN}/talent-roster/${tenantId}`;
-    
-    navigator.clipboard.writeText(publicLink)
+
+    navigator.clipboard
+      .writeText(publicLink)
       .then(() => {
         message.success('Public application link copied to clipboard!');
       })
@@ -97,7 +98,9 @@ const TalentRoasterPage = () => {
           document.execCommand('copy');
           message.success('Public application link copied to clipboard!');
         } catch (err) {
-          message.error('Failed to copy link. Please copy manually: ' + publicLink);
+          message.error(
+            'Failed to copy link. Please copy manually: ' + publicLink,
+          );
         }
         document.body.removeChild(textArea);
       });

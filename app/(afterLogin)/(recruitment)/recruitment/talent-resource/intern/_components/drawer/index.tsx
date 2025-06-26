@@ -142,10 +142,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
     const formData = new FormData();
 
     const resumeUrl = formValues.resumeUrl as
-    | {
-        file?: { originFileObj?: File };
-      }
-    | undefined;
+      | {
+          file?: { originFileObj?: File };
+        }
+      | undefined;
 
     if (resumeUrl?.file?.originFileObj) {
       formData.append('documentName', resumeUrl.file.originFileObj);
@@ -157,7 +157,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       graduateYear: formValues.yearOfGraduation, // Map the field name to match database
       departmentId: formValues.department,
     };
-    
+
     // Remove the original field name to avoid duplication
     delete internData.yearOfGraduation;
     delete internData.department;

@@ -146,28 +146,27 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
     const formData = new FormData();
 
     const resumeUrl = formValues.resumeUrl as
-    | {
-        file?: { originFileObj?: File };
-      }
-    | undefined;
+      | {
+          file?: { originFileObj?: File };
+        }
+      | undefined;
 
-  if (resumeUrl?.file?.originFileObj) {
-    formData.append('documentName', resumeUrl.file.originFileObj);
-  }
-  delete formValues?.resumeUrl;
+    if (resumeUrl?.file?.originFileObj) {
+      formData.append('documentName', resumeUrl.file.originFileObj);
+    }
+    delete formValues?.resumeUrl;
 
     const talentRoasterData = {
       ...formValues,
       graduateYear: formValues.yearOfGraduation, // Map the field name to match database
       departmentId: formValues.department,
     };
-    
+
     // Remove the original field name to avoid duplication
     delete talentRoasterData.yearOfGraduation;
     delete talentRoasterData.department;
 
     formData.append('newFormData', JSON.stringify(talentRoasterData));
-
 
     if (isEdit && editData) {
       // Update existing talent roaster
