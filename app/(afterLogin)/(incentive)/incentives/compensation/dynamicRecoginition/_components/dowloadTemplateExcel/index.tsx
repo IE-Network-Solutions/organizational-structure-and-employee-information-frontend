@@ -6,15 +6,18 @@ import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive'
 import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
 import { capitalizeInitials } from '@/helpers/capitalizeInitals';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { fetchExcelHeaders } from '@/store/server/features/incentive/all/queries';
 
 const DownloadExcelButton: React.FC = () => {
-  const { selectedRecognitionTypeId, activeKey, setSelectedRecognitionTypeId } =
-    useIncentiveStore();
+  const { selectedRecognitionTypeId, activeKey } = useIncentiveStore();
 
   const [loadingItems, setLoadingItems] = useState<{ [key: string]: boolean }>(
     {},
   );
   const [popoverVisible, setPopoverVisible] = useState(false);
+  const [pendingDownloadId, setPendingDownloadId] = useState<string | null>(
+    null,
+  );
 
   const { data: excelHeaders, isLoading: templateResponseLoading } =
     useExcelHeaders(selectedRecognitionTypeId);
@@ -23,11 +26,6 @@ const DownloadExcelButton: React.FC = () => {
     useRecognitionByParentId(activeKey !== '1' ? activeKey : '');
 
   const warningTimeout = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => {
-    if (selectedRecognitionTypeId) {
-      setLoadingItems({ ...loadingItems, [selectedRecognitionTypeId]: true });
-    }
-  }, [selectedRecognitionTypeId]);
 
   useEffect(() => {
     // Clear any previous timeout
@@ -69,57 +67,91 @@ const DownloadExcelButton: React.FC = () => {
       }
     };
   }, [excelHeaders, selectedRecognitionTypeId, templateResponseLoading]);
+
+  // Download logic in useEffect, triggered when headers for pendingDownloadId are available
+  useEffect(() => {
+    const doDownload = async () => {
+      if (
+        pendingDownloadId &&
+        selectedRecognitionTypeId === pendingDownloadId &&
+        excelHeaders &&
+        excelHeaders.length > 0
+      ) {
+        try {
+          // Create a new workbook and worksheet
+          const workbook = new ExcelJS.Workbook();
+          const worksheet = workbook.addWorksheet('My Sheet');
+
+          // Define Excel headers dynamically from props
+          const columns = excelHeaders.map((header: any) => ({
+            header: capitalizeInitials(header?.criterionKey),
+            key: header?.id,
+            width: 20,
+          }));
+
+          worksheet.columns = columns || [];
+          const buffer = await workbook.xlsx.writeBuffer();
+
+          // Create a Blob and download using native APIs
+          const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
+
+          // Generate a download link and programmatically click it
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'IncentiveImportTemplate.xlsx';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+
+          // Close the popover after successful download
+          setPopoverVisible(false);
+
+          NotificationMessage.success({
+            message: 'Template downloaded successfully!',
+          });
+        } catch (error) {
+          NotificationMessage.error({
+            message: 'Failed to download template. Please try again.',
+          });
+        } finally {
+          setPendingDownloadId(null);
+        }
+      }
+    };
+    doDownload();
+  }, [excelHeaders, pendingDownloadId, selectedRecognitionTypeId]);
+
   const handleTemplateDownload = async (recognitionId: string) => {
-    // Set loading state for this specific item
     setLoadingItems({ ...loadingItems, [recognitionId]: true });
 
-    // Set the recognition type ID first
-    setSelectedRecognitionTypeId(recognitionId);
-
     try {
-      // Wait for headers to be loaded with a timeout
-      let attempts = 0;
-      const maxAttempts = 50; // 5 seconds with 100ms intervals
+      const headers = await fetchExcelHeaders(recognitionId);
 
-      while (!excelHeaders?.length && attempts < maxAttempts) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        attempts++;
-      }
-
-      // If headers are still not loaded after waiting, keep spinning
-      // The loading state will remain until headers are loaded or user tries again
-      if (!excelHeaders?.length) {
-        // Don't clear loading state - keep spinning until headers load
+      if (!headers || headers.length === 0) {
+        NotificationMessage.warning({
+          message: 'No headers found. Please try again.',
+        });
+        setLoadingItems({ ...loadingItems, [recognitionId]: false });
         return;
       }
 
-      // Create a new workbook and worksheet
+      // ...proceed with ExcelJS logic using headers
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('My Sheet');
-
-      // Define Excel headers dynamically from props
-      const columns = excelHeaders?.map((header: any) => {
-        return {
-          header: capitalizeInitials(header?.criterionKey),
-          key: header?.id,
-          width: 20,
-        };
-      });
-
-      if (columns) {
-        worksheet.columns = columns;
-      } else {
-        worksheet.columns = [];
-      }
-
+      const columns = headers.map((header: any) => ({
+        header: capitalizeInitials(header?.criterionKey),
+        key: header?.id,
+        width: 20,
+      }));
+      worksheet.columns = columns || [];
       const buffer = await workbook.xlsx.writeBuffer();
-
-      // Create a Blob and download using native APIs
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-
-      // Generate a download link and programmatically click it
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -129,7 +161,6 @@ const DownloadExcelButton: React.FC = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      // Close the popover after successful download
       setPopoverVisible(false);
 
       NotificationMessage.success({
@@ -139,21 +170,11 @@ const DownloadExcelButton: React.FC = () => {
       NotificationMessage.error({
         message: 'Failed to download template. Please try again.',
       });
-      // Clear loading state on error
-      setLoadingItems({ ...loadingItems, [recognitionId]: false });
     } finally {
-      // Only clear loading state if we actually completed the download
-      // If headers are still not loaded, keep the loading state
-      if (excelHeaders?.length) {
-        setLoadingItems({ ...loadingItems, [recognitionId]: false });
-      }
+      setLoadingItems({ ...loadingItems, [recognitionId]: false });
     }
   };
-  useEffect(() => {
-    if (selectedRecognitionTypeId) {
-      handleTemplateDownload(selectedRecognitionTypeId);
-    }
-  }, [selectedRecognitionTypeId]);
+
   // Check if the current recognition type is loading
   const isCurrentRecognitionLoading = loadingItems[selectedRecognitionTypeId];
 
