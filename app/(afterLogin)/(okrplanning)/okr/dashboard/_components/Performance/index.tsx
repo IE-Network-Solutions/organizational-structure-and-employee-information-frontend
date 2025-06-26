@@ -23,7 +23,6 @@ ChartJS.register(
   Legend,
 );
 
-
 const Performance: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: assignedPeriods } = useGetAssignedPlanningPeriodForUserId();
