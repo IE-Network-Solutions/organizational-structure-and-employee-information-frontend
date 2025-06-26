@@ -1,5 +1,5 @@
 import { Card, Progress, Spin } from 'antd';
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -11,13 +11,11 @@ import { TbCalendarX, TbCalendarTime } from 'react-icons/tb';
 
 const SummaryCardsRow: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
-  const { pageSize, currentPage } = useOKRStore();
+  const { pageSize, currentPage, selectedCard, setSelectedCard } =
+    useOKRStore();
   const { data, isLoading } = useGetUserObjectiveDashboard(userId);
   const { data: objectivesData, isLoading: objectivesLoading } =
     useGetUserObjective(userId, pageSize, currentPage, '');
-
-  // Track which card is selected
-  const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
   if (isLoading || objectivesLoading) {
     return (
