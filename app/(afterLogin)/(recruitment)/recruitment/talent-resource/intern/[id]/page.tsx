@@ -120,7 +120,7 @@ const InternDetails = () => {
               label="Expected Graduation Year"
               value={
                 internData?.graduateYear
-                  ? dayjs(internData.graduateYear).format('DD MMM YYYY')
+                  ? internData?.graduateYear
                   : 'N/A'
               }
             />
