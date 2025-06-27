@@ -1,5 +1,5 @@
 import { Card } from 'antd';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   useDefaultPlanningPeriods,
   useGetPlanning,
@@ -7,16 +7,31 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { create } from 'zustand';
 
 const normalize = (str: string) => str?.toLowerCase().replace(/s$/, '');
+
+// Zustand store for Awaiting Approvals filter
+type AwaitingApprovalsFilter = 'all' | 'plan' | 'report';
+interface AwaitingApprovalsState {
+  selectedFilter: AwaitingApprovalsFilter;
+  setSelectedFilter: (filter: AwaitingApprovalsFilter) => void;
+}
+export const useAwaitingApprovalsStore = create<AwaitingApprovalsState>(
+  (set) => ({
+    selectedFilter: 'all',
+    setSelectedFilter: (filter) => set({ selectedFilter: filter }),
+  }),
+);
 
 const AwaitingApprovalsList: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: employeeData } = useGetAllUsers();
-  const [selectedFilter, setSelectedFilter] = useState<
-    'all' | 'plan' | 'report'
-  >('all');
+  const selectedFilter = useAwaitingApprovalsStore((s) => s.selectedFilter);
+  const setSelectedFilter = useAwaitingApprovalsStore(
+    (s) => s.setSelectedFilter,
+  );
 
   // Check if user has subordinates
   const subordinates =
