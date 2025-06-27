@@ -1,9 +1,6 @@
 import React, { FC } from 'react';
 import { Col, DatePicker, Form, Row, Select, Dropdown, Menu } from 'antd';
-import {
-  AttendanceRecordType,
-  attendanceRecordTypeOption,
-} from '@/types/timesheet/attendance';
+import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -22,8 +19,6 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const { data: employeeData } = useGetAllUsers();
   const { isShowMobileFilters, setIsShowMobileFilters } =
     useEmployeeAttendanceStore();
-
-
 
   const employeeOptions =
     employeeData?.items?.map((employee: any) => ({
