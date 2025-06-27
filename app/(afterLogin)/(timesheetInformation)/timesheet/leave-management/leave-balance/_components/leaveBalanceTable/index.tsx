@@ -79,7 +79,7 @@ const LeaveBalanceTable: React.FC = () => {
   ];
 
   const dataSource =
-    leaveBalanceData?.items?.map((item:any, index:number) => ({
+    leaveBalanceData?.items?.items?.map((item:any, index:number) => ({
       key: index,
       leaveType: item?.leaveType?.title || '-',
       accrued: item?.accrued || 0,
