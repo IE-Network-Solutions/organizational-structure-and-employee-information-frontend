@@ -781,7 +781,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                 height={16}
                 onClick={() => {
                   const updatedCriteria = selectedCriteria.filter(
-                    (_: any, i: number) => i !== index,
+                    (nonUsed: any, i: number) => i !== index,
                   );
                   setSelectedCriteria(updatedCriteria);
                   setTotalWeight(calculateTotalWeight(updatedCriteria));
