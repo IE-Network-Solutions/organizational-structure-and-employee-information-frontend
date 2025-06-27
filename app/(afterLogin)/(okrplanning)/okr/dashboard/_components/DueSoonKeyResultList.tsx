@@ -88,10 +88,7 @@ const DueSoonKeyResultList: React.FC = () => {
   };
 
   const objectivesWithKeyResults = processDueSoonData();
-  const totalKeyResults = objectivesWithKeyResults.reduce(
-    (sum, obj) => sum + obj.keyResults.length,
-    0,
-  );
+
 
   // Helper function to get color classes based on progress and days left
   const getColorClasses = (progress: number, deadline: string) => {

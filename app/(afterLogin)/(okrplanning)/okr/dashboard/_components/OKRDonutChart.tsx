@@ -72,6 +72,7 @@ const OKRDonutChart: React.FC = () => {
     cutout: '60%',
     plugins: {
       legend: { display: false },
+      tooltip: { enabled: false },
     },
     elements: {
       arc: { borderWidth: 0 },
@@ -87,10 +88,10 @@ const OKRDonutChart: React.FC = () => {
             <Spin />
           </div>
         ) : (
-          <div className="flex items-center justify-center relative w-[180px] h-[180px] px-4 overflow-visible">
+          <div className="relative flex items-center justify-center w-[180px] h-[180px] px-4 overflow-visible z-10">
             <Doughnut data={data} options={options} />
             <div
-              className="absolute flex flex-col items-center justify-center left-1/2 top-1/2"
+              className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
               style={{ transform: 'translate(-50%, -50%)' }}
             >
               <div
