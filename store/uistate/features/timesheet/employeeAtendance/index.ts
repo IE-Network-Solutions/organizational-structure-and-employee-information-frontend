@@ -6,6 +6,7 @@ type EmployeeAttendanceState = {
   employeeAttendanceId: string | '';
   employeeId: string;
   isShowBreakAttendanceImportSidebar: boolean;
+  isShowMobileFilters: boolean;
 };
 
 type EmployeeAttendanceStateAction = {
@@ -20,6 +21,7 @@ type EmployeeAttendanceStateAction = {
   ) => void;
   filter: any;
   setFilter: (filter: any) => void;
+  setIsShowMobileFilters: (isShowMobileFilters: boolean) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -51,6 +53,10 @@ const employeeAttendanceSlice: StateCreator<
     isShowBreakAttendanceImportSidebar: boolean,
   ) => {
     set({ isShowBreakAttendanceImportSidebar });
+  },
+  isShowMobileFilters: false,
+  setIsShowMobileFilters: (isShowMobileFilters: boolean) => {
+    set({ isShowMobileFilters });
   },
 });
 

@@ -89,7 +89,6 @@ const DueSoonKeyResultList: React.FC = () => {
 
   const objectivesWithKeyResults = processDueSoonData();
 
-
   // Helper function to get color classes based on progress and days left
   const getColorClasses = (progress: number, deadline: string) => {
     const daysLeft = dayjs(deadline).diff(dayjs(), 'day');

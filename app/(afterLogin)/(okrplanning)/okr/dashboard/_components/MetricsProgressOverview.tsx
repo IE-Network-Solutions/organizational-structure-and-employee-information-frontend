@@ -31,18 +31,21 @@ const MetricsProgressOverview: React.FC = () => {
   // Calculate percent achieved for each metric type dynamically
   const metrics = useMemo(() => {
     const counts: Record<string, { total: number; achieved: number }> = {};
-    
+
     if (objectivesData?.items) {
       objectivesData.items.forEach((obj: any) => {
         (obj.keyResults || []).forEach((kr: any) => {
-          const metricTypeName = (kr.metricType?.name || kr.key_type || 'Unknown')
-            .trim();
+          const metricTypeName = (
+            kr.metricType?.name ||
+            kr.key_type ||
+            'Unknown'
+          ).trim();
           const progress = Number(kr.progress || 0);
-          
+
           if (!counts[metricTypeName]) {
             counts[metricTypeName] = { total: 0, achieved: 0 };
           }
-          
+
           counts[metricTypeName].total++;
           if (progress >= 100) {
             counts[metricTypeName].achieved++;
@@ -54,9 +57,12 @@ const MetricsProgressOverview: React.FC = () => {
     // Create metrics array with colors
     return Object.keys(counts).map((metricType, index) => ({
       label: metricType,
-      percent: counts[metricType].total > 0
-        ? Math.round((counts[metricType].achieved / counts[metricType].total) * 100)
-        : 0,
+      percent:
+        counts[metricType].total > 0
+          ? Math.round(
+              (counts[metricType].achieved / counts[metricType].total) * 100,
+            )
+          : 0,
       color: colorPalette[index % colorPalette.length],
     }));
   }, [objectivesData]);
