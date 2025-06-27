@@ -9,7 +9,6 @@ import {
   Menu,
   Popover,
   Row,
-  Space,
   message,
 } from 'antd';
 import { TbFileDownload, TbFileUpload, TbLayoutList } from 'react-icons/tb';
@@ -148,7 +147,7 @@ const EmployeeAttendance = () => {
         icon={<TbFileUpload />}
         onClick={() => setIsShowBreakAttendanceImportSidebar(true)}
       >
-        Import Break Attendance
+        Break Import
       </Menu.Item>
       <Menu.Item key="3" icon={<HiOutlineTemplate />}>
         <a href="/Attendance_Template.xlsx" download>
@@ -160,165 +159,104 @@ const EmployeeAttendance = () => {
 
   return (
     <>
-      <div className="h-auto w-auto bg-gray-100 sm:bg-white pr-3 pb-6 pl-6 sm:pl-3">
-        <PageHeader
-          title="Employee Attendance"
-          description="Manage your Team Attendance"
-        >
-          <Space
-            direction="vertical"
-            className="w-full md:flex-row flex flex-col justify-between items-start"
-          >
-            <Space className="w-full justify-between md:flex-row items-start">
-              {/* Import Dropdown for Small Screens */}
-              {isSmallScreen ? (
-                <PermissionWrapper
-                  permissions={[
-                    Permissions.ImportEmployeeAttendanceInformation,
-                  ]}
+      <div className="bg-[#fafafa] min-h-screen">
+        {/* Header Section */}
+        <div className="flex md:flex-row md:justify-between md:items-start gap-4 mb-6">
+          <PageHeader
+            title="Employee Attendance"
+            description="Manage your Team Attendance"
+          />
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 md:min-w-fit">
+            {/* Import Button */}
+            <PermissionWrapper
+              permissions={[Permissions.ImportEmployeeAttendanceInformation]}
+            >
+              <Dropdown overlay={importMenu} trigger={['click']}>
+                <Button
+                  icon={<TbFileUpload />}
+                  size="large"
+                  loading={isLoading || isLoadingImport}
+                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : 'px-10 h-10'}`}
                 >
-                  <Dropdown overlay={importMenu} trigger={['click']}>
-                    <Button
-                      icon={<TbFileUpload size={18} />}
-                      size="large"
-                      loading={isLoading || isLoadingImport}
-                      className="w-full sm:w-auto mt-2 sm:mt-0 flex justify-between items-center"
-                    >
-                      {/* Display only icons in small screens */}
-                      <span className="sr-only">Import</span>
-                    </Button>
-                  </Dropdown>
-                </PermissionWrapper>
-              ) : (
-                // Regular import buttons for larger screens
-                <>
-                  <PermissionWrapper
-                    permissions={[
-                      Permissions.ImportEmployeeAttendanceInformation,
-                    ]}
-                  >
-                    <Button
-                      icon={<TbFileUpload size={18} />}
-                      size="large"
-                      loading={isLoading || isLoadingImport}
-                      onClick={() => {
-                        if (importAttendance) {
-                          importAttendance.current?.click();
-                        }
-                      }}
-                      className="w-full sm:w-auto mt-2 sm:mt-0"
-                    >
-                      Import Attendance
-                    </Button>
-                  </PermissionWrapper>
+                  {!isSmallScreen && 'Import'}
+                </Button>
+              </Dropdown>
+            </PermissionWrapper>
 
-                  <PermissionWrapper
-                    permissions={[
-                      Permissions.ImportEmployeeAttendanceInformation,
-                    ]}
-                  >
-                    <Button
-                      icon={<TbFileUpload size={18} />}
-                      size="large"
-                      loading={isLoading || isLoadingImport}
-                      onClick={() =>
-                        setIsShowBreakAttendanceImportSidebar(true)
-                      }
-                      className="w-full sm:w-auto mt-2 sm:mt-0"
-                    >
-                      Break Import
-                    </Button>
-                  </PermissionWrapper>
-
-                  <PermissionWrapper
-                    permissions={[
-                      Permissions.ImportEmployeeAttendanceInformation,
-                    ]}
-                  >
-                    <a href="/Attendance_Template.xlsx" download>
-                      <Button
-                        icon={<HiOutlineTemplate size={18} />}
-                        size="large"
-                        className="w-full sm:w-auto mt-2 sm:mt-0"
-                      >
-                        Attendance Template
-                      </Button>
-                    </a>
-                  </PermissionWrapper>
-                </>
-              )}
-
-              {/* Hidden File Input */}
-              <input
-                type="file"
-                ref={importAttendance}
-                accept=".xlsx, .xls"
-                onChange={(e) => {
-                  if (e.target.files?.length) {
-                    setFile(e.target.files[0]);
-                  }
-                }}
-                hidden
-              />
-
-              {/* Export Button with Popover */}
-              <PermissionWrapper
-                permissions={[Permissions.ExportEmployeeAttendanceInformation]}
+            {/* Export Button */}
+            <PermissionWrapper
+              permissions={[Permissions.ExportEmployeeAttendanceInformation]}
+            >
+              <Popover
+                trigger="click"
+                placement={isSmallScreen ? 'bottomLeft' : 'bottomRight'}
+                title={
+                  <div className="text-base text-gray-900 font-bold">
+                    Export Format
+                  </div>
+                }
+                content={
+                  <div className="pt-4">
+                    <Row gutter={[8, 8]}>
+                      <Col span={12}>
+                        <Button
+                          size="small"
+                          className="w-full flex items-center justify-center gap-1"
+                          type="primary"
+                          icon={<TbLayoutList size={16} />}
+                          onClick={() => onExport('EXCEL')}
+                          loading={isExportLoading && exportType === 'EXCEL'}
+                        >
+                          Excel
+                        </Button>
+                      </Col>
+                      <Col span={12}>
+                        <Button
+                          size="small"
+                          className="w-full flex items-center justify-center gap-1"
+                          type="primary"
+                          icon={<LuBookmark size={16} />}
+                          onClick={() => onExport('PDF')}
+                          loading={isExportLoading && exportType === 'PDF'}
+                        >
+                          PDF
+                        </Button>
+                      </Col>
+                    </Row>
+                  </div>
+                }
               >
-                <Popover
-                  trigger="click"
-                  placement="bottomRight"
-                  title={
-                    <div className="text-base text-gray-900 font-bold">
-                      Export Format
-                    </div>
-                  }
-                  content={
-                    <div className="pt-4">
-                      <Row gutter={[8, 8]}>
-                        <Col span={12}>
-                          <Button
-                            size="small"
-                            className="w-full flex items-center justify-center gap-1"
-                            type="primary"
-                            icon={<TbLayoutList size={16} />}
-                            onClick={() => onExport('EXCEL')}
-                            loading={isExportLoading && exportType === 'EXCEL'}
-                          >
-                            Excel
-                          </Button>
-                        </Col>
-                        <Col span={12}>
-                          <Button
-                            size="small"
-                            className="w-full flex items-center justify-center gap-1"
-                            type="primary"
-                            icon={<LuBookmark size={16} />}
-                            onClick={() => onExport('PDF')}
-                            loading={isExportLoading && exportType === 'PDF'}
-                          >
-                            PDF
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
-                  }
+                <Button
+                  icon={<TbFileDownload />}
+                  size="large"
+                  type="primary"
+                  loading={isExportLoading}
+                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : 'px-10 h-10'}`}
                 >
-                  <Button
-                    icon={<TbFileDownload size={18} />}
-                    size="large"
-                    type="primary"
-                    loading={isExportLoading}
-                    className="w-full sm:w-auto mt-2 sm:mt-0 flex items-center gap-2"
-                  >
-                    {!isSmallScreen ? 'Export Data' : ''}
-                  </Button>
-                </Popover>
-              </PermissionWrapper>
-            </Space>
-          </Space>
-        </PageHeader>
-        <BlockWrapper className="mt-8">
+                  {!isSmallScreen && 'Export'}
+                </Button>
+              </Popover>
+            </PermissionWrapper>
+          </div>
+        </div>
+
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          ref={importAttendance}
+          accept=".xlsx, .xls"
+          onChange={(e) => {
+            if (e.target.files?.length) {
+              setFile(e.target.files[0]);
+            }
+          }}
+          hidden
+        />
+
+        {/* Table Section */}
+        <BlockWrapper className="p-4 bg-white">
           <EmployeeAttendanceTable
             setBodyRequest={setBodyRequest}
             isImport={isSuccess}
