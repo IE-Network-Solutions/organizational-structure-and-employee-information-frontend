@@ -156,11 +156,6 @@ const DueSoonKeyResultList: React.FC = () => {
     <Card className="w-full bg-white rounded-xl shadow-md p-0">
       <div className="font-bold text-lg text-gray-900 pb-2">
         Due Soon Key Result
-        {totalKeyResults > 0 && (
-          <span className="ml-2 text-sm font-normal text-gray-500">
-            ({totalKeyResults})
-          </span>
-        )}
       </div>
       <div>
         <div className="bg-white border rounded-xl overflow-hidden">
@@ -173,9 +168,6 @@ const DueSoonKeyResultList: React.FC = () => {
                   <TbTargetArrow className="text-lg text-[#7152F3] mr-2" />
                   <div className="flex flex-col font-bold text-gray-900">
                     <span className="truncate max-w-xs">{objective.title}</span>
-                    <span className="text-xs text-gray-400 font-normal">
-                      {dayjs(objective.deadline).format('MM/DD/YYYY')}
-                    </span>
                   </div>
                 </div>
                 {/* Children Key Results */}
@@ -192,20 +184,23 @@ const DueSoonKeyResultList: React.FC = () => {
                   return (
                     <div
                       key={keyResult.id}
-                      className="flex items-center justify-between px-8 py-3 mb-1"
+                      className="flex items-center justify-between px-2 sm:px-8 py-3 mb-1"
                     >
                       <div className="flex items-center gap-3">
                         <BsKey className="text-lg text-[#7152F3] opacity-70" />
                         <div className="flex flex-col font-medium text-gray-800">
-                          <span className="truncate max-w-xs">
+                          <span className="truncate max-w-[80px] sm:max-w-xs">
                             {keyResult.title}
                           </span>
                           <span className="text-xs text-gray-400 font-normal">
-                            {dayjs(keyResult.deadline).format('MM/DD/YYYY')}
+                            {dayjs(objective.deadline).isValid() &&
+                            dayjs(keyResult.deadline).isValid()
+                              ? `${dayjs(objective.deadline).format('MM/DD/YYYY')} - ${dayjs(keyResult.deadline).format('MM/DD/YYYY')}`
+                              : ''}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 min-w-[120px] justify-end">
+                      <div className="flex items-center gap-2 min-w-[90px] sm:min-w-[120px] justify-end">
                         <span
                           className={`px-2 py-1 rounded-md text-xs font-semibold ${daysColor}`}
                         >

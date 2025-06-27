@@ -8,18 +8,18 @@ import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/obj
 
 Chart.register(ArcElement, Tooltip, ChartLegend);
 
-const donutColors = [
-  '#3636F0', // Milestone
-  '#4F8CFF', // Currency
-  '#3EC3FF', // Numeric
-  '#D1D5DB', // Achieved or Not
-];
-
-const legend = [
-  { color: donutColors[0], label: 'Milestone' },
-  { color: donutColors[1], label: 'Currency' },
-  { color: donutColors[2], label: 'Numeric' },
-  { color: donutColors[3], label: 'Achieved or Not' },
+// Color palette for dynamic metric types
+const colorPalette = [
+  '#3636F0', // Primary blue
+  '#4F8CFF', // Light blue
+  '#3EC3FF', // Cyan
+  '#22C55E', // Green
+  '#FACC15', // Yellow
+  '#EF4444', // Red
+  '#8B5CF6', // Purple
+  '#F97316', // Orange
+  '#06B6D4', // Teal
+  '#84CC16', // Lime
 ];
 
 const OKRDonutChart: React.FC = () => {
@@ -32,71 +32,76 @@ const OKRDonutChart: React.FC = () => {
     '',
   );
 
-  // Aggregate key results by metric type
-  const metricCounts = useMemo(() => {
-    const counts = {
-      Milestone: 0,
-      Currency: 0,
-      Numeric: 0,
-      'Achieved or Not': 0,
-    };
-    if (!objectivesData?.items) return counts;
-    objectivesData.items.forEach((obj: any) => {
-      (obj.keyResults || []).forEach((kr: any) => {
-        const type = kr.metricType?.name || kr.key_type;
-        if (type === 'Milestone') counts.Milestone++;
-        else if (type === 'Currency') counts.Currency++;
-        else if (type === 'Numeric') counts.Numeric++;
-        else if (type === 'Achieve' || type === 'Achieved or Not')
-          counts['Achieved or Not']++;
+  // Dynamically extract metric types and their counts
+  const { metricCounts, legend } = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    if (objectivesData?.items) {
+      objectivesData.items.forEach((obj: any) => {
+        (obj.keyResults || []).forEach((kr: any) => {
+          const type = kr.metricType?.name || kr.key_type || 'Unknown';
+          counts[type] = (counts[type] || 0) + 1;
+        });
       });
-    });
-    return counts;
+    }
+
+    // Create legend with colors
+    const legend = Object.keys(counts).map((metricType, index) => ({
+      color: colorPalette[index % colorPalette.length],
+      label: metricType,
+    }));
+
+    return { metricCounts: counts, legend };
   }, [objectivesData]);
 
   const data = {
     labels: legend.map((l) => l.label),
     datasets: [
       {
-        data: [
-          metricCounts.Milestone,
-          metricCounts.Currency,
-          metricCounts.Numeric,
-          metricCounts['Achieved or Not'],
-        ],
-        backgroundColor: donutColors,
-        borderWidth: 2,
+        data: legend.map((l) => metricCounts[l.label]),
+        backgroundColor: legend.map((l) => l.color),
+        borderWidth: 5,
+        hoverOffset: 8,
       },
     ],
   };
+
   const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+
   const options = {
     cutout: '60%',
     plugins: {
       legend: { display: false },
     },
     elements: {
-      arc: { borderWidth: 2 },
+      arc: { borderWidth: 0 },
     },
   };
 
   return (
-    <Card className="w-full h-full shadow-md rounded-xl flex flex-col">
-      <div className="font-bold text-lg text-gray-900 mb-2">OKR Metrics</div>
-      <div className="flex flex-row items-center justify-between flex-1 p-2">
+    <Card className="w-full h-full shadow-md rounded-xl flex flex-col pb-4">
+      <div className="font-bold text-lg text-gray-900">OKR Metrics</div>
+      <div className="flex flex-row items-center justify-between flex-1">
         {isLoading ? (
           <div className="flex items-center justify-center w-[140px] h-[140px]">
             <Spin />
           </div>
         ) : (
-          <div className="flex items-center justify-center relative w-[140px] h-[140px]">
+          <div className="flex items-center justify-center relative w-[180px] h-[180px] px-4 overflow-visible">
             <Doughnut data={data} options={options} />
             <div
               className="absolute flex flex-col items-center justify-center left-1/2 top-1/2"
               style={{ transform: 'translate(-50%, -50%)' }}
             >
-              <span className="font-bold text-2xl text-gray-900">{total}</span>
-              <span className="text-sm text-gray-400">Total</span>
+              <div
+                className="bg-white border border-gray-200 shadow-md rounded-full flex flex-col items-center justify-center"
+                style={{ width: 60, height: 60 }}
+              >
+                <span className="font-bold text-2xl text-gray-900">
+                  {total}
+                </span>
+                <span className="text-sm text-gray-400">Total</span>
+              </div>
             </div>
           </div>
         )}

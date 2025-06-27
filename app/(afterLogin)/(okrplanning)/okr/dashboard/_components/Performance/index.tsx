@@ -162,7 +162,7 @@ const Performance: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 w-full min-h-[420px] flex flex-col justify-between">
+    <div className="bg-white rounded-xl shadow-md p-6 w-full h-full min-h-[420px] flex flex-col pb-4">
       <div className="flex justify-between items-center mb-2">
         <div className="text-xl font-bold text-gray-800">Performance</div>
         <Select
