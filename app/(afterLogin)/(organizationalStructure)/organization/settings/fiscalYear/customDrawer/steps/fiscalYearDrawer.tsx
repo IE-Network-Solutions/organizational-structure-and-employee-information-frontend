@@ -12,7 +12,6 @@ import {
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import dayjs from 'dayjs';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
