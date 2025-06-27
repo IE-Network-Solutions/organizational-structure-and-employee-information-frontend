@@ -39,7 +39,6 @@ const FiscalYearForm: React.FC = () => {
   } = useFiscalYearDrawerStore();
 
   const { data: activeCalendar } = useGetActiveFiscalYears();
-  const { data: departments } = useGetDepartments();
 
   const validateStartDate = (nonused: any, value: any) => {
     // Skip active calendar validation in edit mode

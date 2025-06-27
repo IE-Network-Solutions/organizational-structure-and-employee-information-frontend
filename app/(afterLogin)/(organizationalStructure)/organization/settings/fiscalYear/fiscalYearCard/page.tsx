@@ -76,8 +76,6 @@ const FiscalYearListCard: React.FC = () => {
     setOpenFiscalYearDrawer(true);
   };
 
-  console.log(fiscalYears, 'fiscalYears');
-
   return (
     <div className="p-5 rounded-2xl bg-white h-full">
       <div className="flex justify-between items-center mb-4">
