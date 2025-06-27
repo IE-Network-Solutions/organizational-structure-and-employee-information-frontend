@@ -305,6 +305,14 @@ const RecognitionForm: React.FC<PropsData> = ({
         parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
           ? parentRecognitionTypeId
           : undefined,
+      recognitionCriteria: selectedCriteria.map((criteria: any) => ({
+        criteriaId: criteria.criteriaId || criteria.id,
+        weight: criteria.weight,
+        operator: criteria.operator || Object.values(AggregateOperator)[0],
+        condition: criteria.condition || Object.values(ConditionOperator)[0],
+        value: criteria.value,
+        active: criteria.active !== undefined ? criteria.active : true,
+      })),
     };
 
     const handleClose = () => {
@@ -333,7 +341,11 @@ const RecognitionForm: React.FC<PropsData> = ({
     } else {
       const { ...updatedValues } = finalValues;
       updateRecognitionWithCriteria(
-        { ...updatedValues, id: selectedRecognitionType },
+        {
+          ...updatedValues,
+          id: selectedRecognitionType,
+          recognitionCriteria: finalValues.recognitionCriteria,
+        },
         {
           onSuccess: () => {
             // Reset state immediately to prevent switching to update mode
