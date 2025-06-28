@@ -1,3 +1,4 @@
+'use client';
 import { FC, useEffect } from 'react';
 import { Form, Input, TimePicker, Switch, Table } from 'antd';
 import dayjs from 'dayjs';
@@ -18,9 +19,38 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
   }));
 
   useEffect(() => {
+    const defaultStart = '8:00 AM';
+    const defaultEnd = '5:00 PM';
+    const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+    const updatedDetail = detail.map((item) => {
+      if (weekdays.includes(item.dayOfWeek)) {
+        return {
+          ...item,
+          status: true,
+          startTime: defaultStart,
+          endTime: defaultEnd,
+        };
+      }
+      return {
+        ...item,
+        status: false,
+        startTime: '',
+        endTime: '',
+      };
+    });
+
+    updatedDetail.forEach((item) => {
+      setDetail(item.dayOfWeek, {
+        status: item.status,
+        startTime: item.startTime,
+        endTime: item.endTime,
+      });
+    });
+
     const fieldValues: Record<string, any> = {
-      scheduleName,
-      ...detail.reduce(
+      scheduleName: scheduleName || 'Full-time Schedule',
+      ...updatedDetail.reduce(
         (acc, item) => {
           acc[`${item.dayOfWeek}-working`] = item.status;
           acc[`${item.dayOfWeek}-start`] = item.startTime
@@ -34,15 +64,20 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
         {} as Record<string, any>,
       ),
     };
-    form.setFieldsValue(fieldValues);
-  }, [form, scheduleName, detail]);
 
-  const handleValuesChange = (s: any, allValues: any) => {
+    form.setFieldsValue(fieldValues);
+  }, [form]);
+
+  const handleValuesChange = (changed: any, allValues: any) => {
+    if ('scheduleName' in changed) {
+      setScheduleName(changed.scheduleName);
+    }
+
     let totalHours = 0;
     detail.forEach((item) => {
       const start = allValues[`${item.dayOfWeek}-start`];
       const end = allValues[`${item.dayOfWeek}-end`];
-      if (start && end && item.status) {
+      if (start && end && allValues[`${item.dayOfWeek}-working`]) {
         const duration = dayjs(end).diff(dayjs(start), 'hour', true);
         totalHours += duration;
       }
@@ -55,7 +90,7 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
       title: 'Working Day',
       dataIndex: 'dayOfWeek',
       key: 'dayOfWeek',
-      render: (s, record) => (
+      render: (notused, record) => (
         <Form.Item
           name={`${record.dayOfWeek}-working`}
           valuePropName="checked"
@@ -63,7 +98,6 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
         >
           <div className="flex gap-2 md:gap-4 justify-start items-center">
             <Switch
-              id={`${record.dayOfWeek}SwitchId`}
               checked={record.status}
               onChange={(checked) => {
                 setDetail(record.dayOfWeek, { status: checked });
@@ -78,14 +112,14 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
       title: 'Starting Time',
       dataIndex: 'startTime',
       key: 'startTime',
-      render: (s, record) => (
+      render: (notused, record) => (
         <Form.Item
           name={`${record.dayOfWeek}-start`}
           noStyle
           rules={[
             {
               required: record.status,
-              message: 'Start time is required when the status is checked.',
+              message: 'Start time is required.',
             },
           ]}
         >
@@ -107,26 +141,23 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
       title: 'End Time',
       dataIndex: 'endTime',
       key: 'endTime',
-      render: (s, record) => (
+      render: (notused, record) => (
         <Form.Item
           name={`${record.dayOfWeek}-end`}
           noStyle
           rules={[
             {
               required: record.status,
-              message: 'End time is required when the status is checked.',
+              message: 'End time is required.',
             },
             ({ getFieldValue }) => ({
-              validator(s, value) {
-                const startTime = getFieldValue(`${record.dayOfWeek}-start`);
-                if (
-                  !value ||
-                  (startTime && dayjs(value).isAfter(dayjs(startTime)))
-                ) {
+              validator(notused, value) {
+                const start = getFieldValue(`${record.dayOfWeek}-start`);
+                if (!value || (start && dayjs(value).isAfter(dayjs(start)))) {
                   return Promise.resolve();
                 }
                 return Promise.reject(
-                  new Error('End time must be greater than start time.'),
+                  new Error('End time must be after start time.'),
                 );
               },
             }),
@@ -150,18 +181,8 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
       title: 'Duration',
       dataIndex: 'hours',
       key: 'hours',
-      render: (s, record) => (
-        <Form.Item
-          shouldUpdate={(prevValues, currentValues) => {
-            return (
-              prevValues[`${record.dayOfWeek}-start`] !=
-                currentValues[`${record.dayOfWeek}-start`] ||
-              prevValues[`${record.dayOfWeek}-end`] !=
-                currentValues[`${record.dayOfWeek}-end`]
-            );
-          }}
-          noStyle
-        >
+      render: (notused, record) => (
+        <Form.Item shouldUpdate noStyle>
           {({ getFieldValue }) => {
             const start = getFieldValue(`${record.dayOfWeek}-start`);
             const end = getFieldValue(`${record.dayOfWeek}-end`);
@@ -169,11 +190,9 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
               start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
             return (
               <span>
-                {record.status
-                  ? duration !== 0
-                    ? duration.toFixed(1)
-                    : record.hours.toFixed(1)
-                  : ''}
+                {record.status && duration
+                  ? duration.toFixed(1)
+                  : record.hours.toFixed(1)}
                 h
               </span>
             );
@@ -205,12 +224,9 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
               size="large"
               className="mt-2 w-full font-normal text-sm md:text-base"
               placeholder="Enter your schedule name"
-              value={scheduleName}
-              onChange={(e) => {
-                setScheduleName(e.target.value);
-              }}
             />
           </Form.Item>
+
           <div className="overflow-x-auto">
             <Table
               columns={columns}
@@ -218,6 +234,7 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
               pagination={false}
               className="mt-6 md:mt-12 w-full"
               scroll={{ x: '100%' }}
+              rowKey="dayOfWeek"
             />
           </div>
         </Form>

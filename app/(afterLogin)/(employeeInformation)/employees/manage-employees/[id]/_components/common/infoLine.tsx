@@ -8,7 +8,7 @@ interface InfoLineType {
 
 export const InfoLine = ({ title, value }: InfoLineType) => (
   <Row className="my-3">
-    <Col xs={24} md={12}>
+    <Col xs={24} md={12} className="mb-1 md:mb-0">
       <p className="font-light">{title}</p>
     </Col>
     <Col xs={24} md={12}>

@@ -25,13 +25,17 @@ import {
 } from '@/store/server/features/tna/review/mutation';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
 
 const TnaApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalTNAStore();
-  const { pageSize, userCurrentPage, setUserCurrentPage } = useTnaReviewStore();
+  const { pageSize, setPageSize, userCurrentPage, setUserCurrentPage } =
+    useTnaReviewStore();
   const { data: currentApproverData, isFetching: currentApproverIsFetching } =
     useGetApprovalTNARequest(userId, userCurrentPage, pageSize);
   const { mutate: allApprover, isLoading: allApproveIsLoading } =
@@ -42,9 +46,18 @@ const TnaApprovalTable = () => {
   const { mutate: finalApprover } = useSetFinalApproveTnaRequest();
   const { mutate: finalAllApproval } = useSetAllFinalApproveTnaRequest();
   const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
-  const onPageChange = (page: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setUserCurrentPage(1);
+  };
+  const { isMobile, isTablet } = useIsMobile();
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Title',
@@ -352,6 +365,22 @@ const TnaApprovalTable = () => {
             }}
             scroll={{ x: 'min-content' }}
           />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={currentApproverData?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+            />
+          ) : (
+            <CustomPagination
+              current={userCurrentPage}
+              total={currentApproverData?.meta?.totalItems || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageSizeChange}
+            />
+          )}
         </>
       ) : (
         ''

@@ -9,6 +9,10 @@ export const useTalentPoolSettingsStore = create<TalentPoolSettingsDrawerState>(
     isEditMode: false,
     isDeleteMode: false,
     talentPoolName: '',
+    pageSize: 5,
+    currentPage: 1,
+    setPage: (pageSize) => set({ pageSize }),
+    setCurrentPage: (currentPage) => set({ currentPage }),
 
     toggleDrawer: () => set((state) => ({ isOpen: !state.isOpen })),
 

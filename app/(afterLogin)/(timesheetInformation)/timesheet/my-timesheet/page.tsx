@@ -38,14 +38,14 @@ const MyTimesheet = () => {
 
   const { isMobile } = useIsMobile();
   return (
-    <>
+    <div className="bg-[#f5f5f5]">
       <div
-        className={`${isMobile ? 'h-auto' : 'h-full w-auto pr-0 pb-6 pl-3'} bg-gray-100`}
+      // className={`${isMobile ? 'h-auto' : 'h-full w-auto pr-0 pb-6 pl-3'} `}
       >
         <PageHeader title="My Attendance" description="Manage your Attendance">
           <CheckControl />
         </PageHeader>
-        <BlockWrapper className="mt-[-20px]">
+        <BlockWrapper className="mt-[20px]">
           <ApprovalTable />
         </BlockWrapper>
 
@@ -66,7 +66,7 @@ const MyTimesheet = () => {
       <LeaveRequestSidebar />
       <LeaveRequestDetail />
       <CheckOutSidebar />
-    </>
+    </div>
   );
 };
 

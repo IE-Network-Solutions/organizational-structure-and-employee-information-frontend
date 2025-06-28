@@ -67,7 +67,7 @@ const LocationSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -75,7 +75,7 @@ const LocationSidebar = () => {
     {
       label: allowedAreaId ? 'Edit' : 'Create',
       key: 'create',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isFetching || isLoading,
@@ -103,7 +103,7 @@ const LocationSidebar = () => {
   };
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
   return (
     isShow && (
@@ -111,11 +111,17 @@ const LocationSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader>
-            {allowedAreaId ? 'Edit' : 'New'} Location
-          </CustomDrawerHeader>
+          <div className="px-2">
+            <CustomDrawerHeader>
+              {allowedAreaId ? 'Edit' : 'New'} Location
+            </CustomDrawerHeader>
+          </div>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Spin spinning={isFetching || isLoading}>
@@ -127,7 +133,11 @@ const LocationSidebar = () => {
             form={form}
             onFinish={onFinish}
           >
-            <Space direction="vertical" className="w-full" size={24}>
+            <Space.Compact
+              direction="vertical"
+              className="w-full px-3 sm:px-0 "
+            >
+              {' '}
               <Form.Item
                 id="nameOfLocatioInputFieldId"
                 label="Name of Location"
@@ -143,7 +153,7 @@ const LocationSidebar = () => {
                 name="latitude"
               >
                 <InputNumber
-                  className="w-full py-[11px] mt-2.5"
+                  className={controlClass}
                   placeholder="Enter latitude"
                 />
               </Form.Item>
@@ -154,7 +164,7 @@ const LocationSidebar = () => {
                 name="longitude"
               >
                 <InputNumber
-                  className="w-full py-[11px] mt-2.5"
+                  className={controlClass}
                   placeholder="Enter longitude"
                 />
               </Form.Item>
@@ -166,7 +176,7 @@ const LocationSidebar = () => {
               >
                 <InputNumber
                   min={0.1}
-                  className="w-full py-[11px] mt-2.5"
+                  className={controlClass}
                   placeholder="Enter radius in km"
                 />
               </Form.Item>
@@ -199,7 +209,7 @@ const LocationSidebar = () => {
                   />
                 </Form.Item>
               )}
-            </Space>
+            </Space.Compact>
           </Form>
         </Spin>
       </CustomDrawerLayout>

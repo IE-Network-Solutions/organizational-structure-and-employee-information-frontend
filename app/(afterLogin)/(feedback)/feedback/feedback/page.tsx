@@ -14,7 +14,6 @@ import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedb
 import CreateFeedbackForm from './_components/createFeedback';
 import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
-import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
@@ -23,12 +22,12 @@ import { FeedbackService } from './_components/feedbackAnalytics';
 import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import CustomPagination from '@/components/customPagination';
 
 const Page = () => {
   const {
     setOpen,
     setVariantType,
-    setSelectedFeedbackRecord,
     variantType,
     setUserId,
     userId,
@@ -74,9 +73,6 @@ const Page = () => {
     userId,
   );
 
-  const editHandler = (record: any) => {
-    setSelectedFeedbackRecord(record);
-  };
   const handleDelete = (id: string) => {
     deleteFeedbackRecord(id, {
       onSuccess: () => {},
@@ -150,7 +146,7 @@ const Page = () => {
         );
         return user
           ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-          : 'Unknown'; // Return full name or fallback
+          : 'Unknown';
       },
     },
     {
@@ -161,10 +157,9 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
-
         return user
           ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-          : 'Unknown'; // Return full name or fallback
+          : 'Unknown';
       },
     },
     {
@@ -175,48 +170,45 @@ const Page = () => {
         const feedbackType = getAllFeedbackTypes?.items?.find(
           (item: any) => item.id === record.feedbackTypeId,
         );
-        return feedbackType?.category || 'Unknown'; // Return the category or a fallback value
+        return feedbackType?.category || 'Unknown';
       },
     },
     {
       title: 'Reason',
       dataIndex: 'reason',
+      key: 'reason',
       render: (notused: any, record: any) => {
         return record.reason ? (
           <Tooltip title={record?.reason}>
             {record?.reason?.length >= 40
               ? record?.reason?.slice(0, 40) + '....'
-              : record?.reason}{' '}
+              : record?.reason}
           </Tooltip>
         ) : (
           'N/A'
         );
       },
-
-      key: 'reason',
     },
-
     {
       title: 'Objective',
       dataIndex: 'objective',
+      key: 'objective',
       render: (notused: any, record: any) => {
         return record.feedbackVariant.name ? (
           <Tooltip title={record?.feedbackVariant.name}>
             {record?.feedbackVariant.name?.length >= 40
               ? record?.feedbackVariant.name?.slice(0, 40) + '....'
-              : record?.feedbackVariant.name}{' '}
+              : record?.feedbackVariant.name}
           </Tooltip>
         ) : (
           'N/A'
         );
       },
-
-      key: 'objective',
     },
-
     {
       title: 'Name',
       dataIndex: 'name',
+      key: 'name',
       render: (notused: any, record: any) => {
         const data = EmployeeDepartment?.find(
           (item: any) =>
@@ -232,26 +224,29 @@ const Page = () => {
           '-'
         );
       },
-
-      key: 'name',
     },
-    {
-      title: 'Action To be Taken',
-      dataIndex: 'action',
-      render: (notused: any, record: any) => {
-        return record.action ? (
-          <Tooltip title={record?.action}>
-            {record?.action?.length >= 40
-              ? record?.action?.slice(0, 40) + '....'
-              : record?.action}{' '}
-          </Tooltip>
-        ) : (
-          'N/A'
-        );
-      },
 
-      key: 'reason',
-    },
+    ...(variantType !== 'appreciation'
+      ? [
+          {
+            title: 'Action To be Taken',
+            dataIndex: 'action',
+            key: 'actionToBeTaken',
+            render: (notused: any, record: any) => {
+              return record.action ? (
+                <Tooltip title={record?.action}>
+                  {record?.action?.length >= 40
+                    ? record?.action?.slice(0, 40) + '....'
+                    : record?.action}
+                </Tooltip>
+              ) : (
+                'N/A'
+              );
+            },
+          },
+        ]
+      : []),
+
     {
       title: 'Given Date',
       dataIndex: 'createdAt',
@@ -265,17 +260,10 @@ const Page = () => {
     {
       title: 'Action',
       dataIndex: 'action',
-      key: 'action',
+      key: 'actionButtons',
       render: (notused: any, record: any) => {
         return (
           <div className="flex gap-2">
-            <Button
-              disabled={record.issuerId !== userIdData}
-              size="small"
-              onClick={() => editHandler(record)}
-              icon={<Edit2Icon className="w-4 h-4 text-xs" />}
-              type="primary"
-            />
             <Popconfirm
               title="Are you sure you want to delete?"
               onConfirm={() => handleDelete(record?.id)}
@@ -402,7 +390,7 @@ const Page = () => {
       )}
 
       <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
-        <div className="flex justify-start ">
+        <div className="flex justify-start pl-2 ">
           <Tabs
             className="max-w-[850px]"
             defaultActiveKey={activeTab}
@@ -417,7 +405,7 @@ const Page = () => {
         </div>
       </Spin>
 
-      <div className="flex justify-end sm:justify-start ">
+      <div className="flex justify-end sm:justify-start p-2 ">
         <Tabs
           defaultActiveKey="appreciation"
           items={variantTypeItems}
@@ -425,7 +413,7 @@ const Page = () => {
         />
       </div>
 
-      <div className="-mx-6 -mt-10">
+      <div className=" -mt-10">
         <TabLandingLayout
           buttonTitle={
             <div className="text-sm hidden sm:block">{variantType}</div>
@@ -443,7 +431,7 @@ const Page = () => {
           permissionsData={[Permissions.CreateFeedback]}
         >
           <EmployeeSearchComponent fields={searchField} />
-          <div className="flex  overflow-x-auto scrollbar-none  w-full">
+          <div className="flex overflow-x-auto scrollbar-none w-full">
             <Table
               loading={getFeedbackRecordLoading}
               dataSource={getAllFeedbackRecord?.items}
@@ -451,23 +439,23 @@ const Page = () => {
               rowClassName={() => 'h-[60px]'}
               scroll={{ x: 'max-content' }}
               className="w-full"
-              pagination={{
-                current: page,
-                pageSize: pageSize,
-                showSizeChanger: true, // Enables "page size" dropdown
-                showQuickJumper: true, // Enables jumping to a specific page
-                pageSizeOptions: ['10', '20', '50', '100'], // Page size options
-                defaultPageSize: 10, // Default page size
-                total: getAllFeedbackRecord?.meta?.totalItems, // Total number of items
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`, // Display pagination info
-                onChange: (page, pageSize) => {
-                  setPage(page);
-                  setPageSize(pageSize);
-                },
-              }}
+              pagination={false} // ✅ Disable AntD built-in pagination
             />
           </div>
+
+          <CustomPagination
+            current={page}
+            total={getAllFeedbackRecord?.meta?.totalItems || 0}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size: number) => {
+              setPageSize(size);
+              setPage(1); // Reset to first page on page size change
+            }}
+          />
         </TabLandingLayout>
       </div>
       <div>

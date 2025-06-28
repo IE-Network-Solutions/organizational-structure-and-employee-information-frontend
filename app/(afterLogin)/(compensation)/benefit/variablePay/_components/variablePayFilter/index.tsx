@@ -7,7 +7,7 @@ import { useDebounce } from '@/utils/useDebounce';
 import { Button, Col, Modal, Row, Select, Spin } from 'antd';
 import React from 'react';
 import { AiOutlineReload } from 'react-icons/ai';
-import { IoMdSwitch } from 'react-icons/io';
+import { LuSettings2 } from 'react-icons/lu';
 import { MdOutlineUploadFile } from 'react-icons/md';
 
 const { Option } = Select;
@@ -119,7 +119,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           />
 
           {/* Toggle filter icon */}
-          <IoMdSwitch
+          <LuSettings2
             className="cursor-pointer w-10 h-10 rounded-md border-gray-100 border-2"
             onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
           />

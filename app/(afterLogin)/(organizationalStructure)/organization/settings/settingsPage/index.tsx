@@ -2,9 +2,9 @@
 import { Card, Form, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
-import { PiBuildingOfficeLight } from 'react-icons/pi';
+import { PiBuildingsLight } from 'react-icons/pi';
 import { BsSafe } from 'react-icons/bs';
-import { PiCalendarDot } from 'react-icons/pi';
+import { PiCalendar } from 'react-icons/pi';
 import WorkScheduleTab from '../_components/workSchedule/workSchduleComponent';
 import FiscalYearListCard from '../_components/fiscalYear/fiscalYearCard';
 import Branches from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/branches';
@@ -41,7 +41,7 @@ function SettingsPage() {
       key: '1',
       label: (
         <span className="flex gap-2 mt-4">
-          <PiBuildingOfficeLight className="mt-1" />{' '}
+          <PiBuildingsLight className="mt-1" />{' '}
           <p className="font-semibold">Branches </p>
         </span>
       ),
@@ -61,7 +61,7 @@ function SettingsPage() {
       key: '3',
       label: (
         <span className="flex gap-2 mt-4">
-          <PiCalendarDot className="mt-1" />
+          <PiCalendar className="mt-1" />
           <p className="font-semibold">Work Schedule </p>
         </span>
       ),

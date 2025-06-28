@@ -23,9 +23,9 @@ const CourseLesson = () => {
 
   return (
     <div>
-      {course?.courseLessons?.map((lesson) => (
-        <LessonCard key={lesson.id} lesson={lesson} />
-      ))}
+      {course?.courseLessons
+        ?.sort((a, b) => (a.order || 0) - (b.order || 0))
+        .map((lesson) => <LessonCard key={lesson.id} lesson={lesson} />)}
 
       <div className="flex flex-col justify-center items-center gap-2.5">
         <Button

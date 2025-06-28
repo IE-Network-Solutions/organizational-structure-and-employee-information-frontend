@@ -1,11 +1,14 @@
-import { useRecognitionById } from '@/store/server/features/incentive/other/queries';
+import {
+  useIncentiveFormulaByRecognitionId,
+  useRecognitionById,
+} from '@/store/server/features/incentive/other/queries';
 import {
   IncentiveRecognitionParams,
   IncentiveSettingParams,
   RecognitionCriteria,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Table, TableColumnsType } from 'antd';
+import { Skeleton, Table, TableColumnsType } from 'antd';
 import { Pencil } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React from 'react';
@@ -52,7 +55,8 @@ const IncentiveSettingsTable: React.FC = () => {
 
   const { data: recognitionData, isLoading: responseLoading } =
     useRecognitionById(recognitionId);
-
+  const { data: formulaById } =
+    useIncentiveFormulaByRecognitionId(recognitionId);
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
     setOpenIncentiveDrawer(true);
@@ -62,16 +66,28 @@ const IncentiveSettingsTable: React.FC = () => {
   const incentiveTableData = {
     id: recognitionData?.id,
     name: recognitionData?.name,
-    recognition_criteria: recognitionData?.recognitionCriteria?.map(
-      (criterion: RecognitionCriteria, index: string) => (
-        <span
-          key={index}
-          className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
-        >
-          {criterion?.criteria?.criteriaName || '--'}
-        </span>
+    recognition_criteria:
+      formulaById?.expression !== null ? (
+        recognitionData?.recognitionCriteria?.map(
+          (criterion: RecognitionCriteria, index: string) => (
+            <Skeleton active loading={responseLoading} key={index}>
+              <div className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
+                <span
+                  key={index}
+                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
+                >
+                  {criterion?.criteria?.criteriaName || '--'}
+                </span>{' '}
+              </div>
+            </Skeleton>
+          ),
+        )
+      ) : (
+        <Skeleton active loading={responseLoading}>
+          {' '}
+          <>-</>
+        </Skeleton>
       ),
-    ),
     action: (
       <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
         <Pencil

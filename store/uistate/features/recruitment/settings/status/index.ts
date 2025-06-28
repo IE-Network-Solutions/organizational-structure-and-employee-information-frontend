@@ -18,6 +18,12 @@ interface RecruitmentStatusStore {
 
   statusPageSize: number;
   setStatusPageSize: (value: number) => void;
+
+  currentPage: number;
+  setCurrentPage: (value: number) => void;
+
+  pageSize: number;
+  setPage: (value: number) => void;
 }
 
 export const useRecruitmentStatusStore = create<RecruitmentStatusStore>(
@@ -39,5 +45,11 @@ export const useRecruitmentStatusStore = create<RecruitmentStatusStore>(
 
     statusPageSize: 4,
     setStatusPageSize: (value) => set({ statusPageSize: value }),
+
+    currentPage: 1,
+    setCurrentPage: (value) => set({ currentPage: value }),
+
+    pageSize: 4,
+    setPage: (value) => set({ pageSize: value }),
   }),
 );

@@ -11,7 +11,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 
 const Page = () => {
-  const { setOpen, setOpenRecognitionType } = ConversationStore();
+  const { setOpen, setOpenRecognitionType, openRecognitionType } =
+    ConversationStore();
 
   // const { data: recognitionType } = useGetAllRecognitionType();
   const { data: recognitionType, isLoading } =
@@ -41,30 +42,37 @@ const Page = () => {
       })) || []),
   ];
 
+  const CategoryButton = (
+    <AccessGuard permissions={[Permissions.CreateRecognition]}>
+      <Button
+        onClick={() => setOpenRecognitionType(true)}
+        icon={<FaPlus />}
+        type="primary"
+        className="col-span-2 flex gap-2 w-10 sm:w-auto h-10"
+      >
+        <span className="hidden sm:inline">Category</span>
+      </Button>
+    </AccessGuard>
+  );
   return (
     <div className="p-5 rounded-2xl bg-white h-full">
       <Spin spinning={isLoading}>
-        <div className="flex md:flex-row flex-col-reverse justify-between">
-          <Tabs
-            className="max-w-full overflow-x-auto "
-            defaultActiveKey="1"
-            items={items}
-            onChange={onChange}
-          />
-          <AccessGuard permissions={[Permissions.CreateRecognition]}>
-            <Button
-              onClick={() => setOpenRecognitionType(true)}
-              icon={<FaPlus />}
-              type="primary"
-              className="flex gap-2 ml-2 mt-3"
-            >
-              Category
-            </Button>
-          </AccessGuard>
+        <div className="grid grid-cols-12 flex-col-reverse justify-between">
+          <div className="col-span-12 ">
+            <Tabs
+              defaultActiveKey="1"
+              items={items}
+              onChange={onChange}
+              size="small"
+              tabBarExtraContent={CategoryButton}
+            />
+          </div>
         </div>
       </Spin>
-
-      <RecognitionForm onClose={() => setOpen(false)} />
+      <RecognitionForm
+        createCategory={openRecognitionType}
+        onClose={() => setOpen(false)}
+      />
     </div>
   );
 };

@@ -40,7 +40,8 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             <CiCalendarDate
               size={16}
               className={
-                currentItem === 'defaultIncentiveCard' || firstItem?.id
+                currentItem === 'defaultIncentiveCard' ||
+                currentItem === firstItem?.id
                   ? 'text-[#4DAEF0]'
                   : 'text-gray-500'
               }
@@ -53,7 +54,8 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             </p>
           ),
           className:
-            currentItem === 'defaultIncentiveCard' || firstItem?.id
+            currentItem === 'defaultIncentiveCard' ||
+            currentItem === firstItem?.id
               ? 'px-6'
               : 'px-1',
         },

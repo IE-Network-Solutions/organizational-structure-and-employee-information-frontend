@@ -107,7 +107,14 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
 
                     <div className="flex flex-wrap items-center justify-between mt-3">
                       <span className="text-[16px] font-semibold text-[#687588]">
-                        {items?.totalAmount || 0} ETB
+                        {Number(items?.totalAmount || 0).toLocaleString(
+                          undefined,
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          },
+                        )}{' '}
+                        ETB
                       </span>
                       <span className="text-sm font-normal text-[#687588]">
                         {items?.totalEmployees || 0}{' '}

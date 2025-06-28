@@ -79,7 +79,7 @@ const ViewAttendanceSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => onClose(),
     },
@@ -141,15 +141,17 @@ const ViewAttendanceSidebar = () => {
           </CustomDrawerHeader>
         }
         footer={
-          <CustomDrawerFooterButton
-            className="w-1/2 mx-auto"
-            buttons={footerModalItems}
-          />
+          <div className="p-6 sm:p-0">
+            <CustomDrawerFooterButton
+              className="w-1/2 mx-auto"
+              buttons={footerModalItems}
+            />
+          </div>
         }
         width="40%"
       >
         {!(data && attendance) || isFetching ? (
-          <div className="flex items-center justify-center py-10">
+          <div className="flex items-center justify-center py-20 ">
             <Spin />
           </div>
         ) : (
@@ -188,13 +190,13 @@ const ViewAttendanceSidebar = () => {
                 />
               </Col>
               <Col span={12}>
-                <div className="text-sm text-gray-900 font-medium mb-2.5">
+                <div className="text-xs text-gray-900 font-medium mb-2.5">
                   Clock-In
                 </div>
                 {lateInfo(attendance)}
               </Col>
               <Col span={12}>
-                <div className="text-sm text-gray-900 font-medium mb-2.5">
+                <div className="text-xs text-gray-900 font-medium mb-2.5">
                   Clock-Out
                 </div>
                 {earlyInfo(attendance)}
@@ -217,14 +219,14 @@ const ViewAttendanceSidebar = () => {
                 </React.Fragment>
               ))}
             </Row>
-            <div className="mt-12 mb-6">
+            <div className="mt-6 mb-3">
               <div className="text-sm text-gray-900 font-medium mb-2.5">
                 Status
               </div>
               <Space>
                 {formatToAttendanceStatuses(attendance).map((status) => (
                   <StatusBadge
-                    className="w-[155px]"
+                    className="w-[154px] px-4 py-1 border-spacing-2"
                     theme={AttendanceRecordTypeBadgeTheme[status?.status]}
                     key={status.status}
                   >

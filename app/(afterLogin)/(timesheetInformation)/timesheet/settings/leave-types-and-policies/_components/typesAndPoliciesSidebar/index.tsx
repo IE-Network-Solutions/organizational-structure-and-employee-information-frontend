@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -54,7 +54,7 @@ const TypesAndPoliciesSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -62,7 +62,7 @@ const TypesAndPoliciesSidebar = () => {
     {
       label: 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -73,8 +73,8 @@ const TypesAndPoliciesSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
-  const inputNumberClass = 'w-full py-[11px] mt-2.5';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+  const inputNumberClass = 'w-full h-[40px] mt-2.5';
 
   const carryOverRuleOptions = () =>
     carryOverData ? formatToOptions(carryOverData.items, 'title', 'id') : [];
@@ -84,16 +84,16 @@ const TypesAndPoliciesSidebar = () => {
       ? formatToOptions(accrualRulesData.items, 'title', 'id')
       : [];
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     form.resetFields();
     setIsShow(false);
-  };
+  }, [form, setIsShow]);
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
-  }, [isSuccess]);
+  }, [isSuccess, onClose]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -109,6 +109,11 @@ const TypesAndPoliciesSidebar = () => {
       accrualRule: value.accrualRule,
       carryOverRule: value.carryOverRule,
       description: value.description,
+      ...(value.isIncremental && {
+        incrementalYear: value.incrementalYear,
+        incrementAmount: value.incrementAmount,
+      }),
+      convertableToCash: value?.convertableToCash ?? false,
     });
     setIsFixed(false);
   };
@@ -121,13 +126,25 @@ const TypesAndPoliciesSidebar = () => {
     setIsErrorPlan(!!form.getFieldError('plan').length);
   };
 
+  const isIncremental = Form.useWatch('isIncremental', form);
+  const incrementalYear = Form.useWatch('incrementalYear', form);
+  const incrementalDays = Form.useWatch('incrementAmount', form);
+
   return (
     isShow && (
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Leave Type</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Leave Type</CustomDrawerHeader>
+          </div>
+        }
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Form
@@ -140,7 +157,7 @@ const TypesAndPoliciesSidebar = () => {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
-          <Space direction="vertical" className="w-full" size={12}>
+          <Space.Compact direction="vertical" className="w-full px-3 sm:px-0 ">
             <Form.Item
               id={`TypesAndPoliciesTitleFieldId`}
               label="Type Name"
@@ -155,7 +172,7 @@ const TypesAndPoliciesSidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               name="plan"
             >
-              <Radio.Group className="w-full mt-2.5">
+              <Radio.Group className={controlClass}>
                 <Row gutter={16}>
                   <Col span={12}>
                     <CustomRadio
@@ -178,15 +195,15 @@ const TypesAndPoliciesSidebar = () => {
               label="Entitled Days/year"
               id={`TypesAndPoliciesEntitledDaysYearFieldId`}
               rules={[{ required: true, message: 'Required' }]}
+              className="mt-2"
               name="entitled"
             >
               <InputNumber
                 min={1}
-                className={inputNumberClass}
+                className={controlClass}
                 placeholder="Input entitled days"
               />
             </Form.Item>
-
             <div className="flex justify-between gap-2">
               <div className="h-[54px] w-full flex items-center gap-1">
                 <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
@@ -280,6 +297,41 @@ const TypesAndPoliciesSidebar = () => {
                 </Form.Item>
               </div>
             </div>
+            <div>
+              {isIncremental && (
+                <div className="flex gap-4 mt-2 w-full">
+                  <Form.Item
+                    name="incrementalYear"
+                    rules={[{ required: isIncremental, message: 'Required' }]}
+                    className="m-0"
+                  >
+                    <InputNumber
+                      min={1}
+                      placeholder="Year"
+                      className="h-[40px] w-full"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name="incrementAmount"
+                    rules={[{ required: true, message: 'Required' }]}
+                    className="m-0"
+                  >
+                    <InputNumber
+                      min={1}
+                      placeholder="Entitled Days"
+                      className="h-[40px] w-full"
+                    />
+                  </Form.Item>
+                </div>
+              )}
+              {isIncremental && (
+                <div className="text-[11px] text-gray-500 mt-1 mb-4 flex items-center gap-1">
+                  <InfoCircleOutlined className="text-gray-500" />
+                  Every <b>{incrementalYear || '__'}</b> years add{' '}
+                  <b>{incrementalDays || '__'}</b> additional day(s)
+                </div>
+              )}
+            </div>
             <Form.Item
               id={`TypesAndPoliciesMinAllowedDaysFieldId`}
               label="Minimum notifying period(days)"
@@ -295,7 +347,23 @@ const TypesAndPoliciesSidebar = () => {
             <Form.Item
               id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`}
               label="Maximum allowed consecutive days"
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[
+                { required: true, message: 'Required' },
+                {
+                  /* eslint-disable @typescript-eslint/naming-convention */
+                  validator: (_, value) => {
+                    /* eslint-enable @typescript-eslint/naming-convention */
+
+                    const entitledDays = form.getFieldValue('entitled');
+                    if (value > entitledDays) {
+                      return Promise.reject(
+                        'Maximum consecutive days cannot exceed entitled days',
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
               name="max"
             >
               <InputNumber
@@ -351,12 +419,37 @@ const TypesAndPoliciesSidebar = () => {
               name="description"
             >
               <Input.TextArea
-                className="w-full py-4 px-5 mt-2.5"
+                className="w-full h-36 px-5 mt-2.5"
                 placeholder="Input description"
                 rows={6}
               />
             </Form.Item>
-          </Space>
+            <Form.Item
+              label={
+                <span>
+                  Convertible to cash
+                  <Popover
+                    content={
+                      <div style={{ maxWidth: 300 }}>
+                        This leave balance can be converted into cash based on
+                        your company&apos;s policy.
+                        <br />
+                        The amount is calculated daily.
+                      </div>
+                    }
+                  >
+                    <span style={{ marginLeft: 6, cursor: 'pointer' }}>
+                      <InfoCircleOutlined style={{ color: '#888' }} />
+                    </span>
+                  </Popover>
+                </span>
+              }
+              id="TypesAndPoliciesConvertibleToCashFieldId"
+              name="convertableToCash"
+            >
+              <Switch defaultChecked={false} />
+            </Form.Item>
+          </Space.Compact>
         </Form>
       </CustomDrawerLayout>
     )

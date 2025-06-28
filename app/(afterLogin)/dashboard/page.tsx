@@ -40,7 +40,7 @@ export default function Home() {
   );
 
   return (
-    <div className=" py-6">
+    <div>
       {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
       {hasEndedFiscalYear && (
         <div className="bg-[#323B49] p-2 rounded-lg h-12 flex items-center justify-start text-lg">

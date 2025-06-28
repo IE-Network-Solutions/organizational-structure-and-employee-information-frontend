@@ -7,19 +7,29 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
+import { usePathname } from 'next/navigation';
 
 interface SettingsLayoutProps {
   children: ReactNode;
 }
 
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
+  const pathname = usePathname();
   // Sidebar Menu Items
   const menuItems = new SidebarMenuItem([
     {
       item: {
         key: 'employementType',
-        icon: <FaUser className="hidden lg:block" />,
-        label: <p>Employment Type</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/employementType') ? 'lg:ml-4' : ''}`}
+          >
+            <FaUser
+              className={`hidden lg:block ${pathname.includes('/employees/settings/employementType') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p>Employment Type</p>
+          </div>
+        ),
       },
       link: '/employees/settings/employementType',
     },
@@ -27,24 +37,48 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     {
       item: {
         key: 'rolePermission',
-        icon: <IoMdSettings className="hidden lg:block" />,
-        label: 'Role Permission',
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/rolePermission') ? 'lg:ml-4' : ''}`}
+          >
+            <IoMdSettings
+              className={`hidden lg:block ${pathname.includes('/employees/settings/rolePermission') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p>Role Permission</p>
+          </div>
+        ),
       },
       link: '/employees/settings/rolePermission',
     },
     {
       item: {
         key: 'positions',
-        icon: <IoMdSettings className="hidden lg:block" />,
-        label: 'Positions',
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/positions') ? 'lg:ml-4' : ''}`}
+          >
+            <IoMdSettings
+              className={`hidden lg:block ${pathname.includes('/employees/settings/positions') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p>Positions</p>
+          </div>
+        ),
       },
       link: '/employees/settings/positions',
     },
     {
       item: {
         key: 'approvals',
-        icon: <IoMdSettings className="hidden lg:block" />,
-        label: 'Approvals',
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/employees/settings/approvals') ? 'lg:ml-4' : ''}`}
+          >
+            <IoMdSettings
+              className={`hidden lg:block ${pathname.includes('/employees/settings/approvals') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p>Approval Workflow</p>
+          </div>
+        ),
       },
       link: '/employees/settings/approvals',
     },
@@ -63,9 +97,12 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           description="Manage your system settings here"
         />
 
-        <div className="flex  flex-col lg:flex-row gap-6 mt-3">
+        <div className="flex  flex-col lg:flex-row gap-6  mt-1 sm:mt-3">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="bg-[#fafafa] flex-1 h-max overflow-x-auto p-0">
+          <BlockWrapper
+            padding="0px"
+            className="bg-[#fafafa] flex-1 h-max overflow-x-auto p-0"
+          >
             {children}
           </BlockWrapper>
         </div>

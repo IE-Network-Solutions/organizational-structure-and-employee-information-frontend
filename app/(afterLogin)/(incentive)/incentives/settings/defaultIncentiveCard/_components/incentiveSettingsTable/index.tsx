@@ -1,3 +1,4 @@
+import { useAllChildrenRecognition } from '@/store/server/features/incentive/other/queries';
 import {
   IncentiveRecognitionParams,
   IncentiveSettingParams,
@@ -47,6 +48,7 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
 }) => {
   const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
     useIncentiveStore();
+  const { data: recognitionDataIndexed } = useAllChildrenRecognition();
 
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
@@ -72,7 +74,9 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
         <Pencil
           size={15}
           className="text-white cursor-pointer"
-          onClick={() => handleProjectIncentiveEdit(recognitionData)}
+          onClick={() =>
+            handleProjectIncentiveEdit(recognitionDataIndexed?.[0])
+          }
         />
       </div>
     ),

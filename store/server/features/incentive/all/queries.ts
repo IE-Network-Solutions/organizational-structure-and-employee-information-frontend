@@ -1,4 +1,5 @@
 import { requestHeader } from '@/helpers/requestHeader';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
@@ -11,11 +12,17 @@ const fetchIncentiveCards = async () => {
   });
 };
 
-const fetchExcelHeaders = async (recognitionsTypeId: string) => {
+export const fetchExcelHeaders = async (recognitionsTypeId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-criterias/import/template/${recognitionsTypeId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers,
   });
 };
 const fetchIncentiveUserDetails = async (userId: string) => {

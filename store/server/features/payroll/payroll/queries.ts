@@ -34,11 +34,15 @@ const getAllActiveBasicSalary = async () => {
 export const useGetAllActiveBasicSalary = () =>
   useQuery('allBasicSalary', getAllActiveBasicSalary);
 
-const getActivePayroll = async (searchParams = '') => {
+const getActivePayroll = async (
+  searchParams = '',
+  limit: number,
+  page: number,
+) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${PAYROLL_URL}/payroll/find-all-payroll-by-pay-period${searchParams}`,
+    url: `${PAYROLL_URL}/payroll/find-all-payroll-by-pay-period?limit=${limit}&page=${page}${searchParams}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -46,10 +50,18 @@ const getActivePayroll = async (searchParams = '') => {
     },
   });
 };
-export const useGetActivePayroll = (searchParams = '') =>
-  useQuery(['payroll', searchParams], () => getActivePayroll(searchParams), {
-    enabled: true,
-  });
+export const useGetActivePayroll = (
+  searchParams = '',
+  limit: number,
+  page: number,
+) =>
+  useQuery(
+    ['payroll', searchParams, limit, page],
+    () => getActivePayroll(searchParams, limit, page),
+    {
+      enabled: true,
+    },
+  );
 
 const getPayrollHistory = async (id = '') => {
   const token = useAuthenticationStore.getState().token;

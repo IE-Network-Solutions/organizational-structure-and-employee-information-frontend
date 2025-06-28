@@ -8,37 +8,37 @@ import {
   Input,
   Row,
   Switch,
-  Collapse,
-  Checkbox,
+  Select,
+  Spin,
 } from 'antd';
 import React from 'react';
 import { CalendarOutlined } from '@ant-design/icons';
 import {
-  useEmployeeDepartments,
+  useFetchUsers,
   useGetFormCategories,
 } from '@/store/server/features/feedback/category/queries';
 import { useAddForm } from '@/store/server/features/feedback/form/mutation';
 import TextArea from 'antd/es/input/TextArea';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { useGetFormsByCategoryID } from '@/store/server/features/feedback/form/queries';
 
 function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
+  const { current, pageSize, searchFormParams } = CategoriesManagementStore();
   const { data: formCategories } = useGetFormCategories(id);
-  const { data: departments } = useEmployeeDepartments();
-  const { mutate: addForm } = useAddForm();
+  const { mutate: addForm, isLoading: addFormLoading } = useAddForm();
   const { isAddOpen, setIsAddOpen, clearSelectedUsers } = useDynamicFormStore();
+  const { data: employees, isLoading: isEmployeesLoading } = useFetchUsers('');
+  const { refetch: refetchForms } = useGetFormsByCategoryID(
+    id,
+    searchFormParams?.form_name || '',
+    searchFormParams?.form_description || '',
+    searchFormParams?.createdBy || '',
+    pageSize,
+    current,
+  );
 
-  const {
-    selectedUsers,
-    selectAllUsers,
-    isAllSelected,
-    selectedDepartmentIds,
-    deselectAllUsers,
-    toggleUserSelection,
-    toggleDepartmentSelection,
-  } = CategoriesManagementStore();
+  const { selectedUsers, setSelectedUsers } = CategoriesManagementStore();
 
   const [form] = Form.useForm();
 
@@ -53,20 +53,6 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     form.resetFields();
     clearSelectedUsers();
   };
-  const handleSelectAll = () => {
-    if (isAllSelected) {
-      deselectAllUsers();
-    } else {
-      selectAllUsers(
-        departments?.flatMap(
-          (department: any) =>
-            department?.users?.map((user: any) => ({
-              userId: user?.id,
-            })) || [],
-        ) || [],
-      );
-    }
-  };
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
@@ -75,18 +61,25 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     const startDate = surveyStartDate.toISOString();
     const endDate = surveyEndDate.toISOString();
 
-    addForm({
-      name,
-      description,
-      formPermissions: selectedUsers,
-      startDate,
-      endDate,
-      isAnonymous: Select ?? false,
-      formCategoryId: id,
-      status: 'published',
-    });
-    handleCloseDrawer();
-    form.resetFields();
+    addForm(
+      {
+        name,
+        description,
+        formPermissions: selectedUsers,
+        startDate,
+        endDate,
+        isAnonymous: Select ?? false,
+        formCategoryId: id,
+        status: 'published',
+      },
+      {
+        onSuccess: () => {
+          refetchForms();
+          handleCloseDrawer();
+          form.resetFields();
+        },
+      },
+    );
   };
 
   return (
@@ -176,6 +169,22 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                   className="w-full h-10"
                   rules={[
                     { required: true, message: 'Please select end date' },
+                    ({ getFieldValue }) => ({
+                      /* eslint-disable-next-line @typescript-eslint/naming-convention */
+                      validator(_, value) {
+                        /* eslint-enable-next-line @typescript-eslint/naming-convention */
+                        if (
+                          !value ||
+                          !getFieldValue('surveyStartDate') ||
+                          value.isAfter(getFieldValue('surveyStartDate'))
+                        ) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error('End date must be after start date'),
+                        );
+                      },
+                    }),
                   ]}
                 >
                   <DatePicker
@@ -189,15 +198,55 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
               </Col>
             </Row>
             <Form.Item
+              name="isAnonymous"
               label={
                 <span className="text-md my-2 font-semibold text-gray-700">
-                  Permitted Employees
+                  Allow to be anonymous
                 </span>
               }
-              required
-              rules={[{ required: true, message: 'Please select employees' }]}
+              valuePropName="checked"
+              initialValue={false}
             >
-              <Collapse>
+              <Switch size="small" />
+            </Form.Item>
+            <Form.Item
+              label={
+                <span className="text-md my-2 font-semibold text-gray-700">
+                  Permitted Employees to view results
+                </span>
+              }
+            >
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="Select users"
+                // value={selectedUsers.map(user => user.userId)}
+                showSearch
+                filterOption={(input, option) => {
+                  return (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase());
+                }}
+                onChange={(userIds: string[]) =>
+                  setSelectedUsers(userIds.map((id) => ({ userId: id })))
+                }
+              >
+                {employees?.items.map((employee: any) => (
+                  <Select.Option key={employee.id} value={employee.id}>
+                    {isEmployeesLoading ? (
+                      <Spin size="small" />
+                    ) : (
+                      employee.firstName +
+                      ' ' +
+                      (employee?.middleName || '') +
+                      ' ' +
+                      employee.lastName
+                    )}
+                  </Select.Option>
+                ))}
+              </Select>
+              {/* <Collapse>
                 <Collapse.Panel header="Select employees" key="0">
                   <div className="flex flex-col justify-center ">
                     <div className="flex items-center justify-start gap-2 border border-gray-200 rounded-md p-2 mb-2">
@@ -267,20 +316,9 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                     ))}
                   </div>
                 </Collapse.Panel>
-              </Collapse>
+              </Collapse> */}
             </Form.Item>
-            <Form.Item
-              name="isAnonymous"
-              label={
-                <span className="text-md my-2 font-semibold text-gray-700">
-                  Allow to be anonymous
-                </span>
-              }
-              valuePropName="checked"
-              initialValue={false}
-            >
-              <Switch size="small" />
-            </Form.Item>
+
             <Form.Item>
               <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8">
                 <Button
@@ -292,6 +330,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                 <Button
                   onClick={handleSubmit}
                   className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                  loading={addFormLoading}
                 >
                   Submit
                 </Button>
