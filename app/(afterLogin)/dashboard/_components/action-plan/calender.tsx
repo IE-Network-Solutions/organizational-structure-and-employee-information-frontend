@@ -2,13 +2,18 @@ import React from 'react';
 import type { BadgeProps, CalendarProps } from 'antd';
 import { Badge, Calendar } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useDelegationState } from '@/store/uistate/features/dashboard/delegation';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { useGetSchedule } from '@/store/server/features/dashboard/survey/queries';
 
+// Extend dayjs with necessary plugins
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 const Calender = () => {
   const { data: scheduleData } = useGetSchedule();
-
   const { setSelectedDate } = useDelegationState();
 
   // Convert category to badge type
@@ -29,21 +34,23 @@ const Calender = () => {
   const addCategory = (items: any[] | undefined | null, category: string) =>
     Array.isArray(items) ? items.map((item) => ({ ...item, category })) : [];
 
-  // Combine all events with proper fallback
+  // Combine all events
   const allEvents = [
     ...addCategory(scheduleData?.meetings ?? [], 'meetings'),
     ...addCategory(scheduleData?.surveys ?? [], 'surveys'),
     ...addCategory(scheduleData?.actionPlans ?? [], 'actionPlans'),
   ];
 
-  // Filter events by date
+  // Filter events by date range (startAt to endAt)
   const getListData = (value: Dayjs) => {
-    const formatted = value.format('YYYY-MM-DD');
+    const current = value.startOf('day');
 
     return allEvents
-      .filter(
-        (event) => dayjs(event.startAt).format('YYYY-MM-DD') === formatted,
-      )
+      .filter((event) => {
+        const start = dayjs(event.startAt).startOf('day');
+        const end = event.endAt ? dayjs(event.endAt).endOf('day') : start;
+        return current.isSameOrAfter(start) && current.isSameOrBefore(end);
+      })
       .map((event) => ({
         type: getBadgeType(event.category),
       }));
@@ -66,7 +73,9 @@ const Calender = () => {
 
   const handleDateChange = (value: Dayjs) => {
     setSelectedDate(value);
+    console.log('@@@@ selected ', value);
   };
+
   const headerRender = ({ value, onChange }: any) => {
     const current = dayjs(value);
 

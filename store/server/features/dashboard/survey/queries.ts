@@ -42,7 +42,7 @@ const getSurvey = async (start: string, end: string): Promise<ResponseData> => {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }
 };
-const getSchedule = async (date?: string) => {
+const getSchedule = async () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
@@ -50,8 +50,6 @@ const getSchedule = async (date?: string) => {
   if (!token || !tenantId) {
     throw new Error('Missing authentication information.');
   }
-
-  const params = date ? { date } : {};
 
   try {
     const headers = {
@@ -61,6 +59,32 @@ const getSchedule = async (date?: string) => {
 
     return await crudRequest({
       url: `${ORG_DEV_URL}/my-meetings/${userId}`,
+      method: 'GET',
+      headers,
+    });
+  } catch (error: any) {
+    throw new Error(`Error fetching schedule: ${error.message || error}`);
+  }
+};
+const getScheduleByDate = async (date: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+
+  if (!token || !tenantId) {
+    throw new Error('Missing authentication information.');
+  }
+
+  const params = { date: date };
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
+
+    return await crudRequest({
+      url: `${ORG_DEV_URL}/my-meetings/${userId}/by-date`,
       method: 'GET',
       headers,
       params,
@@ -82,10 +106,18 @@ export const useGetSurvey = (start: string, end: string) =>
       keepPreviousData: true,
     },
   );
-export const useGetSchedule = (date?: string) =>
+export const useGetSchedule = () =>
   useQuery<ResponseData>(
     ['schedule'], // Use id as part of the query key
-    () => getSchedule(date), // Pass function reference to useQuery
+    () => getSchedule(), // Pass function reference to useQuery
+    {
+      keepPreviousData: true,
+    },
+  );
+export const useGetScheduleByDate = (date: string) =>
+  useQuery<ResponseData>(
+    ['scheduleByDate'], // Use id as part of the query key
+    () => getScheduleByDate(date), // Pass function reference to useQuery
     {
       keepPreviousData: true,
     },
