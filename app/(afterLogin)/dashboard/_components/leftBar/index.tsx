@@ -10,17 +10,19 @@ import CoursePermitted from '../course-permitted';
 
 import Appreciation from '../../appreciation';
 import Incentive from '../incentive';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const LeftBar = () => {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
   const { data: workAnniversary, isLoading: workLoading } =
     useGetWorkAnniversary();
+  const { isMobile, isTablet } = useIsMobile();
 
   return (
     <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
       <Plan />
       <Appreciation />
-      <SelfAttendance />
+      {isMobile || isTablet ? null : <SelfAttendance />}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
           <EmploymentStats />

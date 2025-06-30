@@ -60,22 +60,25 @@ const Weekly = ({
             </div>
             <div className="">
               {item?.task?.map((task: any) => (
-                <Checkbox
-                  key={task?.id}
-                  checked={task?.status == 'pre-achieved'}
-                  onChange={() =>
-                    onChange(task?.id, task?.status, activePlanPeriod?.id)
-                  }
-                  disabled={task?.status == 'completed'}
-                >
-                  <div
-                    className={`text-base font-medium text-gray-500 ${
-                      task?.checked ? 'line-through text-gray-400' : ''
-                    }`}
+                <div className="" key={task?.id}>
+                  <Checkbox
+                    checked={task?.status == 'pre-achieved'}
+                    onChange={() =>
+                      onChange(task?.id, task?.status, activePlanPeriod?.id)
+                    }
+                    disabled={task?.status == 'completed'}
                   >
-                    {task?.task}
-                  </div>
-                </Checkbox>
+                    <div
+                      className={`text-base font-medium text-gray-500 ${
+                        task?.status == 'pre-achieved'
+                          ? 'line-through text-gray-400'
+                          : ''
+                      }`}
+                    >
+                      {task?.task}
+                    </div>
+                  </Checkbox>
+                </div>
               ))}
             </div>
           </div>

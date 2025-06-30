@@ -25,7 +25,6 @@ const Lists = () => {
         : `${isoString}T00:00:00`;
       const date = new Date(normalized);
 
-      console.log('normalized', normalized);
       return date.toISOString().substring(11, 16);
     };
 

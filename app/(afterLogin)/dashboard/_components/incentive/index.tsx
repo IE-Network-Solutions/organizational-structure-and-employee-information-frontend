@@ -3,7 +3,6 @@ import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/r
 import { useGetIncentiveSummery } from '@/store/server/features/dashboard/incentive/queries';
 import { useDashboardIncentiveStore } from '@/store/uistate/features/dashboard/incentive';
 import { Card, Select, TabsProps } from 'antd';
-import { ChartOptions } from 'chart.js';
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 const { Option } = Select;

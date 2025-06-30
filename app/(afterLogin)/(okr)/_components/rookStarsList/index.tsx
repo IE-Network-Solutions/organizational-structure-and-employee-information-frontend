@@ -1,5 +1,4 @@
 'use client';
-import { useGetRockStars } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { RookStarsListProps } from '@/types/dashboard/okr';
 import { Avatar, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
@@ -7,105 +6,102 @@ import { LuCrown } from 'react-icons/lu';
 import { useState } from 'react';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 
-const RookStarsList: React.FC<RookStarsListProps> = ({
-  title,
-  planningPeriodId,
-}) => {
-  const dameData: any = [
-    {
-      report_reportScore: '85%',
-      user: {
-        profileImage:
-          'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
-        firstName: 'Alice',
-        middleName: 'Johnson',
-        role: {
-          name: 'Developer',
-        },
-      },
-    },
-    {
-      report_reportScore: '42%',
-      user: {
-        profileImage:
-          'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/msg303358723-356583.jpg',
-        firstName: 'Charlie',
-        middleName: 'puth',
-        role: {
-          name: 'tester',
-        },
-      },
-    },
-    {
-      report_reportScore: '92%',
-      user: {
-        profileImage:
-          'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
-        firstName: 'Bob',
-        middleName: 'Smith',
-        role: {
-          name: 'Project Manager',
-        },
-      },
-    },
+const RookStarsList: React.FC<RookStarsListProps> = ({ title }) => {
+  // const dameData: any = [
+  //   {
+  //     report_reportScore: '85%',
+  //     user: {
+  //       profileImage:
+  //         'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
+  //       firstName: 'Alice',
+  //       middleName: 'Johnson',
+  //       role: {
+  //         name: 'Developer',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     report_reportScore: '42%',
+  //     user: {
+  //       profileImage:
+  //         'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/msg303358723-356583.jpg',
+  //       firstName: 'Charlie',
+  //       middleName: 'puth',
+  //       role: {
+  //         name: 'tester',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     report_reportScore: '92%',
+  //     user: {
+  //       profileImage:
+  //         'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
+  //       firstName: 'Bob',
+  //       middleName: 'Smith',
+  //       role: {
+  //         name: 'Project Manager',
+  //       },
+  //     },
+  //   },
 
-    {
-      report_reportScore: '78%',
-      user: {
-        profileImage: null,
-        firstName: 'new',
-        middleName: 'test',
-        role: {
-          name: 'BI',
-        },
-      },
-    },
-    {
-      report_reportScore: '78%',
-      user: {
-        profileImage: null,
-        firstName: 'new',
-        middleName: 'test',
-        role: {
-          name: 'BI',
-        },
-      },
-    },
-    {
-      report_reportScore: '78%',
-      user: {
-        profileImage: null,
-        firstName: 'new',
-        middleName: 'test',
-        role: {
-          name: 'BI',
-        },
-      },
-    },
-    {
-      report_reportScore: '78%',
-      user: {
-        profileImage: null,
-        firstName: 'new',
-        middleName: 'test',
-        role: {
-          name: 'BI',
-        },
-      },
-    },
-    {
-      report_reportScore: '78%',
-      user: {
-        profileImage: null,
-        firstName: 'new',
-        middleName: 'test',
-        role: {
-          name: 'BI',
-        },
-      },
-    },
-  ];
-
+  //   {
+  //     report_reportScore: '78%',
+  //     user: {
+  //       profileImage: null,
+  //       firstName: 'new',
+  //       middleName: 'test',
+  //       role: {
+  //         name: 'BI',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     report_reportScore: '78%',
+  //     user: {
+  //       profileImage: null,
+  //       firstName: 'new',
+  //       middleName: 'test',
+  //       role: {
+  //         name: 'BI',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     report_reportScore: '78%',
+  //     user: {
+  //       profileImage: null,
+  //       firstName: 'new',
+  //       middleName: 'test',
+  //       role: {
+  //         name: 'BI',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     report_reportScore: '78%',
+  //     user: {
+  //       profileImage: null,
+  //       firstName: 'new',
+  //       middleName: 'test',
+  //       role: {
+  //         name: 'BI',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     report_reportScore: '78%',
+  //     user: {
+  //       profileImage: null,
+  //       firstName: 'new',
+  //       middleName: 'test',
+  //       role: {
+  //         name: 'BI',
+  //       },
+  //     },
+  //   },
+  // ];
+  const dameData: any = [];
   const [currentPersonIndex, setCurrentPersonIndex] = useState(0);
   const cardsPerPage = 3;
 
@@ -178,8 +174,8 @@ const RookStarsList: React.FC<RookStarsListProps> = ({
             )}
           </div>
         ) : (
-          <div className="text-sm font-light flex h-full justify-center items-center ">
-            No rockstar {title} of the Week
+          <div className="text-sm font-light flex min-h-24 justify-center items-center ">
+            <div className=""> No rockstar {title} of the Week</div>
           </div>
         )}
       </div>

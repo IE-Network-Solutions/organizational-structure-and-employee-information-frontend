@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Empty, Select } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
+import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import { useEmployeeStatusDashboardStateStore } from '@/store/uistate/features/dashboard/employee-status';
 

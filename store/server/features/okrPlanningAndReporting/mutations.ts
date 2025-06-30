@@ -64,7 +64,9 @@ const deleteReportById = async (id: any) => {
 };
 const createReportForUnReportedtasks = async (
   values: any,
+  /* eslint-disable @typescript-eslint/naming-convention */
   planningPeriodId: string,
+  /* eslint-enable @typescript-eslint/naming-convention */
   planId?: string,
 ) => {
   const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
@@ -224,7 +226,8 @@ export const useUpdateStatus = () => {
     ({
       id,
       status,
-      planningPeriodId,
+      /* eslint-disable @typescript-eslint/naming-convention */ planningPeriodId,
+      /* eslint-enable @typescript-eslint/naming-convention */
     }: {
       id: string;
       status: string;

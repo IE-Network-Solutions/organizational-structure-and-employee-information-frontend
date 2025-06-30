@@ -73,7 +73,6 @@ const Calender = () => {
 
   const handleDateChange = (value: Dayjs) => {
     setSelectedDate(value);
-    console.log('@@@@ selected ', value);
   };
 
   const headerRender = ({ value, onChange }: any) => {
