@@ -64,9 +64,7 @@ const deleteReportById = async (id: any) => {
 };
 const createReportForUnReportedtasks = async (
   values: any,
-  /* eslint-disable @typescript-eslint/naming-convention */
   planningPeriodId: string,
-  /* eslint-enable @typescript-eslint/naming-convention */
   planId?: string,
 ) => {
   const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
@@ -226,15 +224,20 @@ export const useUpdateStatus = () => {
     ({
       id,
       status,
-      /* eslint-disable @typescript-eslint/naming-convention */ planningPeriodId,
-      /* eslint-enable @typescript-eslint/naming-convention */
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      planningPeriodId,
+      // eslint-enable-next-line @typescript-eslint/no-unused-vars
     }: {
       id: string;
       status: string;
-      planningPeriodId: string;
+      planningPeriodId?: string;
     }) => updateStatus(id, status),
     {
-      onSuccess: (_data, variables) => {
+      onSuccess: (
+        /* eslint-disable-next-line @typescript-eslint/naming-convention */
+        _data /* eslint-enable-next-line @typescript-eslint/naming-convention */,
+        variables,
+      ) => {
         const { planningPeriodId } = variables;
         queryClient.invalidateQueries('defaultPlanningPeriods');
         queryClient.invalidateQueries('okrPlan');

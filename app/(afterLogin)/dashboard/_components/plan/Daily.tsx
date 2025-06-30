@@ -42,7 +42,7 @@ const Daily = ({
   const onChange = (
     id: string,
     status: string | null,
-    planningPeriodId: string,
+    planningPeriodId?: string,
   ) => {
     updateStatus({
       id: id,
