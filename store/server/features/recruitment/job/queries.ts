@@ -23,6 +23,35 @@ const getJobs = async (
     headers,
   });
 };
+const getAllJobs = async (
+  whatYouNeed?: string,
+  currentPage?: number,
+  pageSize?: number
+) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId,
+  };
+
+  const queryParams = new URLSearchParams();
+
+  if (whatYouNeed) queryParams.append('jobTitle', whatYouNeed);
+  if (pageSize) queryParams.append('limit', pageSize.toString());
+  if (currentPage) queryParams.append('page', currentPage.toString());
+
+  const queryString = queryParams.toString();
+  const url = `${RECRUITMENT_URL}/job-information${queryString ? `?${queryString}` : ''}`;
+
+  return await crudRequest({
+    url,
+    method: 'GET',
+    headers,
+  });
+};
+
 
 const getJobsByID = async (jobId: string) => {
   const token = useAuthenticationStore.getState().token;
@@ -103,6 +132,15 @@ export const useGetJobs = (
 ) => {
   return useQuery(['jobs', whatYouNeed, currentPage, pageSize], () =>
     getJobs(whatYouNeed, currentPage, pageSize),
+  );
+};
+export const useGetAllJobs = (
+  whatYouNeed: string,
+  currentPage?: number,
+  pageSize?: number,
+) => {
+  return useQuery(['jobs', whatYouNeed, currentPage, pageSize], () =>
+    getAllJobs(whatYouNeed, currentPage, pageSize),
   );
 };
 
