@@ -15,7 +15,7 @@ const ApprovalStatus: FC = () => {
     4,
     1,
   );
-
+  console.log('LeaveTransferData', LeaveTransferData);
   const { approverType, setApproverType } = useDashboardApprovalStore();
 
   const requests = [

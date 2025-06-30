@@ -39,13 +39,13 @@ const Lists = () => {
       ...(input?.surveys ?? []).map((item: any) => ({
         time: formatTime(item?.startAt),
         type: 'Survey',
-        title: item?.title,
+        title: item?.name,
         id: item?.id,
       })),
       ...(input?.actionPlans ?? []).map((item: any) => ({
         time: formatTime(item?.startAt),
         type: 'Action Plan',
-        title: item?.title,
+        title: item?.issue,
         id: item?.id,
       })),
     ];
@@ -55,46 +55,43 @@ const Lists = () => {
       router.push(`/feedback/meeting/${id}`);
     } else if (type == 'survey') {
       router.push(`/feedback/meeting/${id}`);
-    } else if (type == 'actionplan') {
+    } else if (type == 'action plan') {
       router.push(`/feedback/action-plan`);
     }
   };
   const transformedData: any = scheduleData ? transformData(scheduleData) : [];
-  console.log('transformedData', transformedData);
   return (
     <div className="py-3 max-h-52 overflow-y-auto scrollbar-none">
       {transformedData?.length > 0
         ? transformedData?.map((item: any, index: number) => (
             <div key={index} className="flex items-center py-1">
               <div className="flex items-center gap-4">
-                <div className="text-[10px] font-bold w-6">
-                  {item?.type == 'meeting' ? item.time : '     '}
+                <div className="text-[10px] font-bold w-3">
+                  {item?.type == 'Meeting' ? item.time : '     '}
                 </div>
                 <div
                   className={`bg-gradient-to-b ${
-                    item?.type?.toLowerCase().replace(/\s+/g, '') == 'meeting'
+                    item?.type?.toLowerCase() == 'meeting'
                       ? 'from-green-600 to-transparent'
-                      : item?.type?.toLowerCase().replace(/\s+/g, '') ==
-                          'survey'
+                      : item?.type?.toLowerCase() == 'survey'
                         ? 'from-yellow-400 to-transparent'
-                        : item?.type?.toLowerCase().replace(/\s+/g, '') ==
-                            'delegatedAction'
+                        : item?.type?.toLowerCase() == 'action plan'
                           ? 'from-red-600 to-transparent'
                           : 'from-blue to-transparent'
                   } h-10 w-[3px] rounded inline-block mx-4`}
                 />
                 <div className="flex flex-col gap-1 p-2">
                   <Tooltip title={item?.type}>
-                    <div className="text-xs">
-                      {item?.type?.length >= 70
-                        ? item?.type?.slice(0, 70) + '...'
+                    <div className="text-xs font-medium">
+                      {item?.type?.length >= 20
+                        ? item?.type?.slice(0, 20) + '...'
                         : item?.type}
                     </div>
                   </Tooltip>
                   <Tooltip title={item?.title}>
-                    <div className="text-sm">
-                      {item?.title?.length >= 70
-                        ? item?.title?.slice(0, 70) + '...'
+                    <div className="text-base font-bold">
+                      {item?.title?.length >= 10
+                        ? item?.title?.slice(0, 10) + '...'
                         : item?.title}
                     </div>
                   </Tooltip>
@@ -104,12 +101,7 @@ const Lists = () => {
                 className="text-[10px] ml-auto"
                 type="primary"
                 size="small"
-                onClick={() =>
-                  onDetail(
-                    item?.id,
-                    item?.type?.toLowerCase().replace(/\s+/g, ''),
-                  )
-                }
+                onClick={() => onDetail(item?.id, item?.type?.toLowerCase())}
               >
                 Detail
               </Button>

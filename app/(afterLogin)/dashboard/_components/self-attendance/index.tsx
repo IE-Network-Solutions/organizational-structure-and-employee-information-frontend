@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import { Card } from 'antd';
 import { useGetAnnualAttendance } from '@/store/server/features/dashboard/self-attendance/queries';
+import ChartDataLabels, { Context } from 'chartjs-plugin-datalabels';
 
 ChartJS.register(
   CategoryScale,
@@ -19,6 +20,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  ChartDataLabels,
 );
 
 const SelfAttendance = () => {
@@ -57,27 +59,45 @@ const SelfAttendance = () => {
 
   const options = {
     responsive: true,
+
     scales: {
       x: {
-        stacked: false,
-        barPercentage: 1.0, // increases bar width within each group
-        categoryPercentage: 0.8, // controls spacing between groups
+        grid: { display: false },
+        ticks: { font: { family: 'inherit', size: 14 } },
       },
       y: {
         max: 30,
+        ticks: { stepSize: 10 },
+        beginAtZero: true,
+        grid: { color: '#9ca3af' },
       },
     },
+
     plugins: {
       legend: {
         position: 'bottom',
         labels: {
           usePointStyle: true,
-          pointStyle: 'circle', // 'circle' | 'rect' | 'line' | etc.
-          boxWidth: 10, // smaller size
+          pointStyle: 'rect', // 'circle' | 'rect' | 'line' | etc.
+          boxWidth: 14,
         },
       },
       title: {
         display: false,
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'top',
+        color: (context: Context): string | undefined => {
+          return context.dataset.backgroundColor as string;
+        },
+        font: {
+          weight: 'bold',
+          size: 12,
+        },
+        formatter: (value: number | string): string => {
+          return value === 0 ? '' : String(value);
+        },
       },
     },
   };

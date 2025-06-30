@@ -46,13 +46,13 @@ const IssuedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
           </div>
         </div>
         <div className="flex items-center justify-center gap-6 text-primary">
-          <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 p-2 border rounded-lg">
+          <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-2 px-4 border rounded-lg">
             <div className="text-2xl font-extrabold">{kpi}</div>
-            <div className="text-sm">KPI</div>
+            <div className="text-sm font-bold">KPI</div>
           </div>
-          <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 p-2 border rounded-lg">
+          <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-2 px-4 border rounded-lg">
             <div className="text-2xl font-extrabold">{engagement}</div>
-            <div className="text-sm">Engagement</div>
+            <div className="text-sm font-bold">Engagement</div>
           </div>
         </div>
       </div>

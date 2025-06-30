@@ -11,7 +11,7 @@ const Header = () => {
 
   return (
     <>
-      <div className="  w-full mb-4 flex overflow-x-auto grid-cols-none  lg:grid lg:grid-cols-5 gap-4 ">
+      <div className="  w-full mb-4 flex overflow-x-auto grid-cols-none  lg:grid lg:grid-cols-5 gap-4 scrollbar-none">
         <Card
           loading={isLoading}
           bordered={false}
