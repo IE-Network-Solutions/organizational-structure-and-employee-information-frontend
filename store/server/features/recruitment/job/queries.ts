@@ -26,7 +26,7 @@ const getJobs = async (
 const getAllJobs = async (
   whatYouNeed?: string,
   currentPage?: number,
-  pageSize?: number
+  pageSize?: number,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -51,7 +51,6 @@ const getAllJobs = async (
     headers,
   });
 };
-
 
 const getJobsByID = async (jobId: string) => {
   const token = useAuthenticationStore.getState().token;

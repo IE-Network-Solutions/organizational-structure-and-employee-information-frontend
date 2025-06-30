@@ -12,7 +12,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import AddToJobPipeline from './_components/modal';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PUBLIC_DOMAIN } from '@/utils/constants';
-import { useGetAllJobs, useGetJobs } from '@/store/server/features/recruitment/job/queries';
+import { useGetAllJobs } from '@/store/server/features/recruitment/job/queries';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
@@ -47,7 +47,6 @@ const TalentRoasterPage = () => {
 
   const { searchParams } = useCandidateState();
 
-  
   const { isMobile, isTablet } = useIsMobile();
   const { tenantId } = useAuthenticationStore();
 
@@ -115,44 +114,43 @@ const TalentRoasterPage = () => {
       });
   };
 
-  
-  const { data: jobList } = useGetAllJobs(
-    searchParams?.whatYouNeed || '');
+  const { data: jobList } = useGetAllJobs(searchParams?.whatYouNeed || '');
   const { mutate: createCandidate } = useCreateCandidate();
-  const {mutate:deleteTalentRoaster}=useDeleteTalentRoaster()
+  const { mutate: deleteTalentRoaster } = useDeleteTalentRoaster();
   const { data: statusStage } = useGetStages();
 
   // ==========> Initial Stage Id <=========
 
-  const handleMoveHandler=(values:Record<string,string>)=>{
-
+  const handleMoveHandler = (values: Record<string, string>) => {
     // ==========> Initial Stage Id <=========
     const titleToFind = 'Initial Stage';
     const foundStage = statusStage?.items?.find(
       (stage: any) => stage.title === titleToFind,
     );
-  
+
     const stageId = foundStage ? foundStage.id : '';
     const formattedValues = {
       isExternal: false,
       jobInformationId: values?.jobId,
       applicantStatusStageId: stageId,
-      createdBy:selectedTalentRoaster?.[0]?.id,
-      email:selectedTalentRoaster?.[0]?.email, 
-      phone:selectedTalentRoaster?.[0]?.phone,
-      fullName:selectedTalentRoaster?.[0]?.fullName,
-      resumeUrl:selectedTalentRoaster?.[0]?.resumeUrl,
-      coverLetter:selectedTalentRoaster?.[0]?.coverLetter,
+      createdBy: selectedTalentRoaster?.[0]?.id,
+      email: selectedTalentRoaster?.[0]?.email,
+      phone: selectedTalentRoaster?.[0]?.phone,
+      fullName: selectedTalentRoaster?.[0]?.fullName,
+      resumeUrl: selectedTalentRoaster?.[0]?.resumeUrl,
+      coverLetter: selectedTalentRoaster?.[0]?.coverLetter,
     };
 
     // formData.append('newFormData', JSON.stringify(formattedValues));
-    createCandidate({newFormData:formattedValues}, {
-      onSuccess: () => {
-        deleteTalentRoaster(selectedTalentRoaster?.[0]?.id)
+    createCandidate(
+      { newFormData: formattedValues },
+      {
+        onSuccess: () => {
+          deleteTalentRoaster(selectedTalentRoaster?.[0]?.id);
+        },
       },
-    });
-     
-  }
+    );
+  };
   const today = new Date();
 
   const isNotExpired = (job: any) => {
