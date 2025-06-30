@@ -7,13 +7,31 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { create } from 'zustand';
 
 const normalize = (str: string) => str?.toLowerCase().replace(/s$/, '');
+
+// Zustand store for Awaiting Approvals filter
+type AwaitingApprovalsFilter = 'all' | 'plan' | 'report';
+interface AwaitingApprovalsState {
+  selectedFilter: AwaitingApprovalsFilter;
+  setSelectedFilter: (filter: AwaitingApprovalsFilter) => void;
+}
+export const useAwaitingApprovalsStore = create<AwaitingApprovalsState>(
+  (set) => ({
+    selectedFilter: 'all',
+    setSelectedFilter: (filter) => set({ selectedFilter: filter }),
+  }),
+);
 
 const AwaitingApprovalsList: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: employeeData } = useGetAllUsers();
+  const selectedFilter = useAwaitingApprovalsStore((s) => s.selectedFilter);
+  const setSelectedFilter = useAwaitingApprovalsStore(
+    (s) => s.setSelectedFilter,
+  );
 
   // Check if user has subordinates
   const subordinates =
@@ -177,47 +195,73 @@ const AwaitingApprovalsList: React.FC = () => {
         <span className="font-bold text-lg text-gray-900">
           Awaiting Approvals
         </span>
-        <span className="text-sm font-medium text-[#4F8CFF] cursor-pointer">
-          {planCount} Plans{' '}
-          <span className="text-gray-400 ml-2">{reportCount} Reports</span>
+        <span className="text-sm font-medium flex gap-2">
+          <span
+            className={`cursor-pointer px-1 ${selectedFilter === 'plan' ? 'text-[#4F8CFF] font-bold' : 'text-gray-400'}`}
+            onClick={() =>
+              setSelectedFilter(selectedFilter === 'plan' ? 'all' : 'plan')
+            }
+          >
+            {planCount} Plans
+          </span>
+          <span
+            className={`cursor-pointer px-1 ${selectedFilter === 'report' ? 'text-[#4F8CFF] font-bold' : 'text-gray-400'}`}
+            onClick={() =>
+              setSelectedFilter(selectedFilter === 'report' ? 'all' : 'report')
+            }
+          >
+            {reportCount} Reports
+          </span>
         </span>
       </div>
       <div className="flex-1">
         <div className="bg-white border rounded-xl overflow-hidden h-full">
           <div className="max-h-64 overflow-y-auto scrollbar-hide">
-            {['Daily', 'Weekly', 'Monthly'].map((label) =>
-              grouped[label].length > 0 ? (
-                <div key={label} className="bg-white border rounded-xl mb-4">
-                  <div className="bg-[#F5F5F5] rounded-t-xl px-4 py-2 text-lg font-semibold text-gray-900 border-b">
-                    {label}
-                  </div>
-                  <div className="flex flex-col gap-3 px-4 py-4 bg-white">
-                    {grouped[label].map(({ type, item, employee }, idx) => (
-                      <div
-                        key={item.id || idx}
-                        className="flex items-center justify-between bg-white rounded-xl border border-[#E5E7EB] px-4 py-3"
-                      >
-                        <div className="flex flex-col">
-                          <span className="text-gray-500 text-base font-normal">
-                            {formatDate(item.createdAt)}
-                          </span>
-                          {subordinates.length > 0 && (
-                            <span className="text-xs text-gray-400 mt-1">
-                              {formatEmployeeName(employee)}
-                            </span>
-                          )}
-                        </div>
-                        <span
-                          className={`px-4 py-1 rounded-full text-base font-semibold bg-[#F5F5F5] text-gray-900`}
+            {['Daily', 'Weekly', 'Monthly'].map((label) => {
+              // Filter items by selectedFilter
+              const filtered =
+                selectedFilter === 'all'
+                  ? grouped[label]
+                  : grouped[label].filter((entry) =>
+                      selectedFilter === 'plan'
+                        ? entry.type === 'Plan'
+                        : entry.type === 'Report',
+                    );
+              if (filtered.length > 0) {
+                return (
+                  <div key={label} className="bg-white border rounded-xl mb-4">
+                    <div className="bg-[#F5F5F5] rounded-t-xl px-4 py-2 text-lg font-semibold text-gray-900 border-b">
+                      {label}
+                    </div>
+                    <div className="flex flex-col gap-3 px-4 py-4 bg-white">
+                      {filtered.map(({ type, item, employee }, idx) => (
+                        <div
+                          key={item.id || idx}
+                          className="flex items-center justify-between bg-white rounded-xl border border-[#E5E7EB] px-4 py-3"
                         >
-                          {type}
-                        </span>
-                      </div>
-                    ))}
+                          <div className="flex flex-col">
+                            <span className="text-gray-500 text-base font-normal">
+                              {formatDate(item.createdAt)}
+                            </span>
+                            {subordinates.length > 0 && (
+                              <span className="text-xs text-gray-400 mt-1">
+                                {formatEmployeeName(employee)}
+                              </span>
+                            )}
+                          </div>
+                          <span
+                            className={`px-4 py-1 rounded-full text-base font-semibold text-gray-900`}
+                          >
+                            {type}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : null,
-            )}
+                );
+              }
+              return null;
+            })}
           </div>
         </div>
       </div>

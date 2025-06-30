@@ -176,7 +176,7 @@ const SummaryCardsRow: React.FC = () => {
             <div className="flex flex-row items-center justify-between w-full">
               <div className="flex flex-col justify-between h-full">
                 <span className="text-lg font-bold text-gray-800 leading-none">
-                  {userOkr.toFixed(2)}
+                  {userOkr.toFixed(2)}%
                 </span>
                 <span className="text-xs text-gray-500 font-medium mt-1">
                   My OKR
@@ -203,7 +203,7 @@ const SummaryCardsRow: React.FC = () => {
             <div className="flex flex-row items-center justify-between w-full">
               <div className="flex flex-col justify-between h-full">
                 <span className="text-lg font-bold text-gray-800 leading-none">
-                  {companyOkr.toFixed(2)}
+                  {companyOkr.toFixed(2)}%
                 </span>
                 <span className="text-xs text-gray-500 font-medium mt-1">
                   Company OKR
@@ -258,7 +258,7 @@ const SummaryCardsRow: React.FC = () => {
                       percent={getCategoryPercentOfTotal(completedObjectives)}
                       size="default"
                       showInfo={false}
-                      strokeColor="#22C55E"
+                      strokeColor="#3636F0"
                       trailColor="#E5E7EB"
                       className="!h-2 !rounded-full w-3/4"
                     />
@@ -304,7 +304,7 @@ const SummaryCardsRow: React.FC = () => {
                       percent={getCategoryPercentOfTotal(onProgressObjectives)}
                       size="default"
                       showInfo={false}
-                      strokeColor="#FACC15"
+                      strokeColor="#3636F0"
                       trailColor="#E5E7EB"
                       className="!h-2 !rounded-full w-3/4"
                     />
@@ -350,7 +350,7 @@ const SummaryCardsRow: React.FC = () => {
                       percent={getCategoryPercentOfTotal(overdueObjectives)}
                       size="default"
                       showInfo={false}
-                      strokeColor="#EF4444"
+                      strokeColor="#3636F0"
                       trailColor="#E5E7EB"
                       className="!h-2 !rounded-full w-3/4"
                     />
@@ -396,7 +396,7 @@ const SummaryCardsRow: React.FC = () => {
                       percent={getCategoryPercentOfTotal(notStartedObjectives)}
                       size="default"
                       showInfo={false}
-                      strokeColor="#E5E7EB"
+                      strokeColor="#3636F0"
                       trailColor="#E5E7EB"
                       className="!h-2 !rounded-full w-3/4"
                     />
