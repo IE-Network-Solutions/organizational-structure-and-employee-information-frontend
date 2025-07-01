@@ -116,18 +116,18 @@ function Page() {
   return (
     <div>
       <div className="h-full min-h-screen w-auto p-4">
-        <div className="flex flex-wrap justify-between items-center">
+        <div className="flex flex-col md:flex-row md:justify-between">
           <CustomBreadcrumb
             className="text-sm"
             title="Planning & Reporting"
             subtitle="OKR setting"
           />
-          <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3">
+          <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] mx-auto border-1">
             <button
               onClick={() => setActiveTab(1)}
               className={
                 activeTab === 1
-                  ? ' px-4  h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
+                  ? ' px-4  h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm border-1'
                   : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >
@@ -137,7 +137,7 @@ function Page() {
               onClick={() => setActiveTab(2)}
               className={
                 activeTab === 2
-                  ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm'
+                  ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm border-1'
                   : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >
@@ -145,8 +145,9 @@ function Page() {
             </button>
           </div>
         </div>
-        <div className="w-full h-auto space-y-4">
+        <div className="w-full h-auto mt-4">
           <Tabs
+          tabBarGutter={50}
             defaultActiveKey={selectedTab?.id}
             onChange={(key: any) => setActivePlanPeriod(key)}
             centered

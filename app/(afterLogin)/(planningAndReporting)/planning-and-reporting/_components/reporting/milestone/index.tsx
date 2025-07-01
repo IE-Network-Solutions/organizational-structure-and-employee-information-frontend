@@ -79,7 +79,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             <Text type="secondary" className="text-[10px] mr-2">
               <span className="text-xl" style={{ color: 'blue' }}>
                 &bull;
-              </span>{' '}
+              </span>
               Priority
             </Text>
             <Tag
@@ -100,7 +100,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                   <Text type="secondary" className="text-[10px] mr-2">
                     <span className="text-xl" style={{ color: 'blue' }}>
                       &bull;
-                    </span>{' '}
+                    </span>
                     Actual
                   </Text>
                   <Tag
