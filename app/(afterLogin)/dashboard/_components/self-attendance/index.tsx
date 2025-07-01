@@ -75,7 +75,7 @@ const SelfAttendance = () => {
 
     plugins: {
       legend: {
-        position: 'bottom',
+        position: 'bottom' as const,
         labels: {
           usePointStyle: true,
           pointStyle: 'rect', // 'circle' | 'rect' | 'line' | etc.
@@ -86,13 +86,13 @@ const SelfAttendance = () => {
         display: false,
       },
       datalabels: {
-        anchor: 'end',
-        align: 'top',
-        color: (context: Context): string | undefined => {
+        anchor: 'end' as const,
+        align: 'top' as const,
+        color: (context: Context): string => {
           return context.dataset.backgroundColor as string;
         },
         font: {
-          weight: 'bold',
+          weight: 'bold' as const,
           size: 12,
         },
         formatter: (value: number | string): string => {
