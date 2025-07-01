@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Empty, Select } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
+import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import { useEmployeeStatusDashboardStateStore } from '@/store/uistate/features/dashboard/employee-status';
 
@@ -40,49 +40,23 @@ const EmploymentStats: React.FC = () => {
     ],
   };
 
-  const options: ChartOptions<'doughnut'> = {
+  const options = {
     cutout: '60%',
     plugins: {
-      legend: {
-        display: false,
-        position: 'right',
-        labels: {
-          color: '#333',
-          font: {
-            size: 14,
-            weight: 'bold',
-          },
-          padding: 20,
-          generateLabels: (chart: any) => {
-            const data = chart.data;
-            const labels = data.labels || [];
-            const datasets = data.datasets || [];
-            return labels.map((label: string, i: number) => {
-              const dataset = datasets[0];
-              const backgroundColor = dataset.backgroundColor[i];
-              return {
-                text: label,
-                fillStyle: backgroundColor,
-                strokeStyle: backgroundColor,
-                lineWidth: 2,
-                hidden: !chart.getDatasetMeta(0).data[i].hidden,
-                index: i,
-              };
-            });
-          },
-        },
-      },
+      legend: { display: false },
+      tooltip: { enabled: true },
     },
     elements: {
-      arc: {
-        borderWidth: 2,
-      },
+      arc: { borderWidth: 0 },
     },
   };
 
   return (
-    <Card loading={isLoading} className="w-full mx-auto ">
-      <div className="flex justify-between items-center mb-2">
+    <Card
+      loading={isLoading}
+      className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col"
+    >
+      <div className="flex justify-between items-center mb-2 h-[20%] ">
         <h3 className="text-gray-700 font-semibold text-lg">Employee Stat</h3>
         <Select
           bordered={false}
@@ -98,30 +72,24 @@ const EmploymentStats: React.FC = () => {
           ))}
         </Select>
       </div>
+
       {employeeStatus?.length ? (
-        <div className="flex items-center">
-          <div
-            style={{
-              position: 'relative',
-              maxWidth: '130px',
-              maxHeight: '130px',
-              margin: '0 auto',
-            }}
-          >
+        <div className="flex-1 flex items-center justify-between h-[80%] mt-10">
+          <div className="relative flex items-center justify-center w-[180px] h-[180px] px-4 overflow-visible z-10">
+            <Doughnut data={data} options={options} />
             <div
-              className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
-              style={{
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: '-1',
-              }}
+              className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
+              style={{ transform: 'translate(-50%, -50%)' }}
             >
-              <div className="font-bold text-xl">{totalCount}</div>
-              <div className="font-light text-[8px]">Total Emp</div>
-            </div>
-            <div style={{ position: 'relative', zIndex: '1' }}>
-              <Doughnut data={data} options={options} />
+              <div
+                className="bg-white border border-gray-200 shadow-md rounded-full flex flex-col items-center justify-center"
+                style={{ width: 60, height: 60 }}
+              >
+                <span className="font-bold text-2xl text-gray-900">
+                  {totalCount?.toLocaleString()}
+                </span>
+                <span className="text-sm text-gray-400">Total</span>
+              </div>
             </div>
           </div>
           <div style={{ marginLeft: '20px' }}>
