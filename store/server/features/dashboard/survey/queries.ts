@@ -11,9 +11,14 @@ interface SurveyData {
   name: string;
   formCategory: { name: string };
 }
-
+interface AllMeeting {
+  meetings: [];
+  surveys: [];
+  actionPlans: [];
+}
 // Define the ResponseData type as an array of OKRDashboard
 type ResponseData = SurveyData[];
+type AllMeetingResponseData = AllMeeting;
 
 /**
  * Function to fetch applicant summary by sending a GET request to the API
@@ -107,7 +112,7 @@ export const useGetSurvey = (start: string, end: string) =>
     },
   );
 export const useGetSchedule = () =>
-  useQuery<ResponseData>(
+  useQuery<AllMeetingResponseData>(
     ['schedule'], // Use id as part of the query key
     () => getSchedule(), // Pass function reference to useQuery
     {
@@ -115,7 +120,7 @@ export const useGetSchedule = () =>
     },
   );
 export const useGetScheduleByDate = (date: string) =>
-  useQuery<ResponseData>(
+  useQuery<AllMeetingResponseData>(
     ['scheduleByDate'], // Use id as part of the query key
     () => getScheduleByDate(date), // Pass function reference to useQuery
     {
