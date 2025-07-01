@@ -10,10 +10,16 @@ import { Applicants } from './_components/applicants';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { Skeleton } from 'antd';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useFiscalYearRedirect } from '@/hooks/useFiscalYearRedirect';
 
 export default function Home() {
+  useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
+
   const { data: activeCalender, isLoading: isResponseLoading } =
-    useGetActiveFiscalYears();
+    useGetActiveFiscalYears({
+      refetchInterval: 30000, // Keep polling for banner display
+    });
 
   const hasEndedFiscalYear =
     activeCalender?.isActive &&
@@ -70,14 +76,36 @@ export default function Home() {
     <div>
       {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
       {hasEndedFiscalYear && (
-        <div className="bg-[#323B49] p-2 rounded-lg h-12 flex items-center justify-start text-lg">
-          <span className="text-[#FFDE65] px-2">
-            Your fiscal year has ended
-          </span>
-          <span className="text-white">
-            Please contact your system admin for more information
-          </span>
-        </div>
+        <AccessGuard permissions={[Permissions.CreateCalendar]}>
+          <div
+            className="bg-[#323B49] p-2 rounded-lg h-12 flex items-center justify-start text-md gap-2 cursor-pointer hover:bg-[#3a4354] transition"
+            onClick={() => {
+              window.location.href =
+                '/organization/settings/fiscalYear/fiscalYearCard';
+            }}
+            title="Go to Fiscal Year Settings"
+          >
+            <span className="text-[#FFDE65] px-2">
+              Your fiscal year has ended
+            </span>
+            <span className="text-white">
+              Please contact your system admin for more information
+            </span>
+          </div>
+        </AccessGuard>
+      )}
+      {/* If user does not have permission, show non-clickable banner */}
+      {hasEndedFiscalYear && (
+        <AccessGuard permissions={[]}>
+          <div className="bg-[#323B49] p-2 rounded-lg h-12 flex items-center justify-start text-md gap-2">
+            <span className="text-[#FFDE65] px-2">
+              Your fiscal year has ended
+            </span>
+            <span className="text-white">
+              Please contact your system admin for more information
+            </span>
+          </div>
+        </AccessGuard>
       )}
       {mainLayout}
     </div>
