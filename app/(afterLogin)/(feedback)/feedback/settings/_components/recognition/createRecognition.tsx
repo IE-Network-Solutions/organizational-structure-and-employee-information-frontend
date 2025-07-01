@@ -137,28 +137,24 @@ const RecognitionForm: React.FC<PropsData> = ({
   const handleCriteriaChange = (value: string[]) => {
     const noCriterion = value.length;
 
-    const updatedCriteria = value.map((criterion) => {
-      const existingCriterion = selectedCriteria.find(
-        (item: any) => item.criterionKey === criterion,
+    const updatedCriteria = value.map((id) => {
+      // Try to find the existing object in selectedCriteria
+      const existing = selectedCriteria.find(
+        (item: any) => (item.criteriaId || item.id) === id,
       );
-      const criteriaName = criteria.find(
-        (item: any) => item.id === criterion,
-      )?.criteriaName;
-      const weight = parseFloat((1 / noCriterion).toFixed(2));
-
-      return existingCriterion
-        ? {
-            ...existingCriterion,
-            weight, // Update weight but preserve other values
-          }
-        : {
-            criterionKey: criteriaName,
-            id: criterion,
-            weight,
-            operator: null,
-            condition: null,
-            value: 0,
-          };
+      if (existing) return { ...existing };
+      // Otherwise, build a new object from the criteria list
+      const criteriaObj = criteria.find((item: any) => item.id === id);
+      return {
+        criterionKey: criteriaObj?.criteriaName || '',
+        id,
+        criteriaId: id,
+        weight: parseFloat((1 / noCriterion).toFixed(2)),
+        operator: null,
+        condition: null,
+        value: 0,
+        active: true,
+      };
     });
 
     setSelectedCriteria(updatedCriteria);
@@ -172,14 +168,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
     // Update form fields while preserving existing values
     form.setFieldsValue({
-      recognitionCriteria: updatedCriteria.map((criteria) => ({
-        criteriaId: criteria.id || null, // Ensure ID is preserved if present
-        criterionKey: criteria.criterionKey,
-        weight: criteria.weight,
-        operator: criteria.operator, // Preserve operator
-        condition: criteria.condition, // Preserve condition
-        value: criteria.value, // Preserve value
-      })),
+      recognitionCriteria: updatedCriteria,
     });
   };
 
@@ -305,6 +294,20 @@ const RecognitionForm: React.FC<PropsData> = ({
         parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
           ? parentRecognitionTypeId
           : undefined,
+      recognitionCriteria: selectedCriteria.map((criteria: any) => ({
+        criteriaId: criteria.criteriaId || criteria.id,
+        weight: criteria.weight,
+        operator:
+          criteria.operator && criteria.operator !== ''
+            ? criteria.operator
+            : Object.values(AggregateOperator)[0],
+        condition:
+          criteria.condition && criteria.condition !== ''
+            ? criteria.condition
+            : Object.values(ConditionOperator)[0],
+        value: criteria.value,
+        active: criteria.active !== undefined ? criteria.active : true,
+      })),
     };
 
     const handleClose = () => {
@@ -333,7 +336,11 @@ const RecognitionForm: React.FC<PropsData> = ({
     } else {
       const { ...updatedValues } = finalValues;
       updateRecognitionWithCriteria(
-        { ...updatedValues, id: selectedRecognitionType },
+        {
+          ...updatedValues,
+          id: selectedRecognitionType,
+          recognitionCriteria: finalValues.recognitionCriteria,
+        },
         {
           onSuccess: () => {
             // Reset state immediately to prevent switching to update mode
@@ -703,7 +710,15 @@ const RecognitionForm: React.FC<PropsData> = ({
                 initialValue={criteria.operator}
                 rules={[{ required: true, message: 'Please enter operator' }]}
               >
-                <Select placeholder="Select operator" className={commonClass}>
+                <Select
+                  placeholder="Select operator"
+                  className={commonClass}
+                  onChange={(value) => {
+                    const updated = [...selectedCriteria];
+                    updated[index].operator = value;
+                    setSelectedCriteria(updated);
+                  }}
+                >
                   {Object.values(AggregateOperator).map((operator, opIndex) => (
                     <Select.Option
                       key={`operator-${operator}-${opIndex}`}
@@ -723,7 +738,15 @@ const RecognitionForm: React.FC<PropsData> = ({
                 initialValue={criteria.condition}
                 rules={[{ required: true, message: 'Please enter condition' }]}
               >
-                <Select placeholder="Select condition" className={commonClass}>
+                <Select
+                  placeholder="Select condition"
+                  className={commonClass}
+                  onChange={(value) => {
+                    const updated = [...selectedCriteria];
+                    updated[index].condition = value;
+                    setSelectedCriteria(updated);
+                  }}
+                >
                   {Object.values(ConditionOperator).map(
                     (operator, condIndex) => (
                       <Select.Option
@@ -758,14 +781,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                 height={16}
                 onClick={() => {
                   const updatedCriteria = selectedCriteria.filter(
-                    /* eslint-disable @typescript-eslint/naming-convention */
-                    (_: any, i: number) => i !== index,
-                    /* eslint-enable @typescript-eslint/naming-convention */
+                    (nonUsed: any, i: number) => i !== index,
                   );
                   setSelectedCriteria(updatedCriteria);
                   setTotalWeight(calculateTotalWeight(updatedCriteria));
+                  // Reset the form field for recognitionCriteria to avoid stale state
+                  form.resetFields(['recognitionCriteria']);
                   form.setFieldsValue({
-                    criteria: updatedCriteria.map((c: any) => c.id),
+                    criteria: updatedCriteria.map(
+                      (c: any) => c.criteriaId || c.id,
+                    ),
                     recognitionCriteria: updatedCriteria,
                   });
                 }}

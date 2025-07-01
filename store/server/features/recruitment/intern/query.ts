@@ -33,9 +33,8 @@ const getIntern = async (params?: {
     searchParams.append('page', params.page.toString());
   }
   if (params?.pageSize) {
-    searchParams.append('pageSize', params.pageSize.toString());
+    searchParams.append('limit', params.pageSize.toString());
   }
-
   const queryString = searchParams.toString();
   const url = queryString
     ? `${RECRUITMENT_URL}/intern?${queryString}`

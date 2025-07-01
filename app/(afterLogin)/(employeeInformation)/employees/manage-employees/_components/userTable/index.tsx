@@ -103,6 +103,9 @@ const UserTable = () => {
     searchParams.allJobs ? searchParams.allJobs : '',
     searchParams.employee_name,
     searchParams.allStatus ? searchParams.allStatus : '',
+    searchParams.gender ? searchParams.gender : '',
+    searchParams.joinedDate ? searchParams.joinedDate : '',
+    searchParams.joinedDateType || 'after',
   );
   const { mutate: employeeDeleteMuation } = useDeleteEmployee();
   const { mutate: rehireEmployee, isLoading: rehireLoading } =

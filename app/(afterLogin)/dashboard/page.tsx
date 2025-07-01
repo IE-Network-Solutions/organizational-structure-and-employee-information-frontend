@@ -1,17 +1,15 @@
 'use client';
-import ActionPlans from './_components/action-plan';
-import CoursePermitted from './_components/course-permitted';
 import Header from './_components/header';
-import NewCourses from './_components/new-course';
-import SelfAttendance from './_components/self-attendance';
-import EmploymentStats from './_components/employee-status';
-import JobSummary from './_components/job-summary';
-import { Applicants } from './_components/applicants';
-import AccessGuard from '@/utils/permissionGuard';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { Skeleton } from 'antd';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFiscalYearRedirect } from '@/hooks/useFiscalYearRedirect';
+import LeftBar from './_components/leftBar';
+import RightBar from './_components/rightBar';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useDashboardStore } from '@/store/uistate/features/dashboard';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import AccessGuard from '@/utils/permissionGuard';
 
 export default function Home() {
   useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
@@ -21,54 +19,68 @@ export default function Home() {
       refetchInterval: 30000, // Keep polling for banner display
     });
 
+  const userData = useAuthenticationStore.getState().userData;
+
+  const { isOpen, setIsOpen } = useDashboardStore();
+  const { isMobile, isTablet } = useIsMobile();
+
   const hasEndedFiscalYear =
     activeCalender?.isActive &&
     activeCalender?.endDate &&
     new Date(activeCalender?.endDate) < new Date();
+  const showAnnouncements = () => {
+    setIsOpen(!isOpen);
+  };
 
   const mainLayout = (
     <div className="min-h-screen bg-gray-100 p-4">
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left Section */}
-        <div className="col-span-12 lg:col-span-8">
-          <Header />
+      <div className=" flex justify-between items-center">
+        <div className="">
+          {' '}
+          {userData?.firstName ? (
+            <div className="mb-4">
+              <h1 className="text-2xl font-bold text-gray-800">
+                Hi, {userData?.firstName}
+              </h1>
+            </div>
+          ) : (
+            ''
+          )}
         </div>
-        {/* Right Section */}
-        <div className="col-span-12 lg:col-span-4">
-          <ActionPlans />
-        </div>
+        {isMobile || isTablet ? (
+          <div
+            className=" text-primary text-base font-bold"
+            onClick={() => showAnnouncements()}
+          >
+            Announcements
+          </div>
+        ) : (
+          ''
+        )}
       </div>
-
-      <AccessGuard roles={['user']}>
-        <NewCourses />
-      </AccessGuard>
-
-      {/* Second Grid Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
-        <div className="col-span-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-12 gap-4">
-            {/* Employment and Job Summary */}
-            <div className="col-span-12 xl:col-span-8">
-              <div className="flex flex-col sm:flex-row gap-3 mb-3">
-                <EmploymentStats />
-                <JobSummary />
-              </div>
-              <SelfAttendance />
+      {isMobile || isTablet ? isOpen ? null : <Header /> : <Header />}
+      {isMobile || isTablet ? (
+        <div className="grid grid-cols-1 ">
+          {isOpen ? (
+            <div className="col-span-12 ">
+              <RightBar />
             </div>
-
-            {/* Course Permitted and Applicants */}
-            <div className="col-span-12 xl:col-span-4">
-              <AccessGuard roles={['user']}>
-                <CoursePermitted />
-              </AccessGuard>
-              <AccessGuard roles={['admin', 'owner']}>
-                <Applicants />
-              </AccessGuard>
+          ) : (
+            <div className="col-span-12  ">
+              <LeftBar />
             </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-8">
+            <LeftBar />
+          </div>
+          <div className="col-span-4 ">
+            <RightBar />
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
