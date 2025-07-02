@@ -20,7 +20,6 @@ const LeaveBalance = () => {
   if (!data) {
     return '';
   }
-
   return (
     <>
       <div
@@ -66,9 +65,9 @@ const LeaveBalance = () => {
                 setSwiper(swiper);
               }}
             >
-              {data.items
-                .filter((item) => item.leaveType)
-                .map((item) => (
+              {data.items?.items
+                .filter((item:any) => item.leaveType)
+                .map((item:any) => (
                   <SwiperSlide key={item.id}>
                     <LeaveBalanceCard
                       title={item?.leaveType?.title ?? ''}
@@ -78,7 +77,7 @@ const LeaveBalance = () => {
                 ))}
             </Swiper>
           </div>
-          {data.items.length > 1 && (
+          {data.items?.items?.length > 1 && (
             <Button
               className="absolute right-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
