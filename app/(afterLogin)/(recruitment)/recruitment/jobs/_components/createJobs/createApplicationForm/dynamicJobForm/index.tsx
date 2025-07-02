@@ -36,7 +36,7 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
         initialValue={[
           {
             id: '',
-            fieldType: '',
+            fieldType: undefined,
             question: '',
             required: false,
             field: [],
@@ -56,7 +56,7 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                 </div>
 
                 <Row gutter={12} key={key}>
-                  <Col lg={16} md={10} xs={24}>
+                  <Col lg={14} md={14} xs={24} sm={14} xl={14}>
                     <Form.Item
                       label=""
                       name={[name, 'question']}
@@ -75,10 +75,19 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                       </div>
                     </Form.Item>
                   </Col>
-                  <Col lg={8} md={10} xs={24}>
-                    <Row>
-                      <Col lg={16} sm={12} xs={24}>
-                        <Form.Item {...restField} name={[name, 'fieldType']}>
+                  <Col lg={10} md={10} xs={24} sm={10} xl={10}>
+                    <Row gutter={[8, 8]} justify="space-between">
+                      <Col lg={18} sm={18} xs={24} md={18} xl={18}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'fieldType']}
+                          rules={[
+                            {
+                              required: true,
+                              message: 'Please select a field type',
+                            },
+                          ]}
+                        >
                           <Select placeholder="Select type" allowClear>
                             <Option value="multiple_choice">
                               Multiple Choice
@@ -89,7 +98,7 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
                           </Select>
                         </Form.Item>
                       </Col>
-                      <Col lg={8} sm={12} xs={24}>
+                      <Col lg={4} sm={4} xs={24} md={4} xl={4}>
                         <MinusCircleOutlined
                           onClick={() => remove(name)}
                           className="flex items-center justify-center"
