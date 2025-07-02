@@ -836,7 +836,6 @@ const Payroll = () => {
     setCurrentPage(1);
   };
 
-  // Utility function to fetch all payroll data for export
   const fetchAllPayrollForExport = async () => {
     try {
       const result = await refetchAllPayroll();
@@ -847,7 +846,6 @@ const Payroll = () => {
     }
   };
 
-  // Utility function to merge payroll data with employee data
   const mergePayrollWithEmployees = (payrollItems: any[]) => {
     return payrollItems.map((pay: any) => {
       const employee = allEmployees?.items?.find(
@@ -860,7 +858,6 @@ const Payroll = () => {
     });
   };
 
-  // Utility function to validate payroll data
   const validatePayrollData = (payroll: any, errorMessage: string) => {
     if (!payroll?.items || payroll?.items?.length === 0) {
       NotificationMessage.error({
