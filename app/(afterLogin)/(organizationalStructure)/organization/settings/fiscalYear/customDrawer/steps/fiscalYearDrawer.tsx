@@ -267,6 +267,20 @@ const FiscalYearForm: React.FC = () => {
     }
   }, [formValidation, setIsFormValid, calendarType, form]);
 
+  // Always sync form values to store so month drawer gets latest values
+  useEffect(() => {
+    const values = form.getFieldsValue();
+    if (values.fiscalYearStartDate)
+      setFiscalYearStart(values.fiscalYearStartDate);
+    if (values.fiscalYearEndDate) setFiscalYearEnd(values.fiscalYearEndDate);
+    if (values.fiscalYearCalenderId)
+      setCalendarType(values.fiscalYearCalenderId);
+  }, [
+    form.getFieldValue('fiscalYearStartDate'),
+    form.getFieldValue('fiscalYearEndDate'),
+    form.getFieldValue('fiscalYearCalenderId'),
+  ]);
+
   return (
     <div className="flex flex-col h-[calc(50vh)] md:h-[calc(100vh-100px)]">
       <Form
@@ -401,6 +415,7 @@ const FiscalYearForm: React.FC = () => {
                   className="h-12 w-full font-normal text-xl mt-2"
                   onChange={(value) => handleValuesChange(value)}
                   value={isEditMode ? calendarType : undefined}
+                  disabled={isEditMode}
                 >
                   <Select.Option value="Quarter">Quarter</Select.Option>
                   <Select.Option value="Semester">Semester</Select.Option>
