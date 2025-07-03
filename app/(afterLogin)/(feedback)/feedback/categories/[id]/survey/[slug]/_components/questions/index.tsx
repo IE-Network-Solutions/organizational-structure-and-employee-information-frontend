@@ -46,9 +46,8 @@ const FIELD_TYPE_COLORS: Record<string, string> = {
 };
 
 const Questions = ({ id }: Params) => {
-
-  const {setIsDrawerOpen} = useDynamicFormStore();
-  const {setSelectedFormId} = CategoriesManagementStore();
+  const { setIsDrawerOpen } = useDynamicFormStore();
+  const { setSelectedFormId } = CategoriesManagementStore();
   const {
     current,
     setCurrent,
@@ -99,14 +98,15 @@ const Questions = ({ id }: Params) => {
         style={{ width: '100%' }}
       >
         <>
-
-        <CustomButton
+          <CustomButton
             title="Create New Question"
             id="createQuestionButton"
             icon={<PlusOutlined className="mr-2" />}
-            onClick={()=>{showQuestionDrawer(id)}}
+            onClick={() => {
+              showQuestionDrawer(id);
+            }}
             className="bg-blue-600 hover:bg-blue-700"
-          />  
+          />
           {questionsData && questionsData?.meta?.totalPages !== 0 ? (
             questionsData?.items?.map((q: QuestionsType) => (
               <Row gutter={16} key={q.id}>
