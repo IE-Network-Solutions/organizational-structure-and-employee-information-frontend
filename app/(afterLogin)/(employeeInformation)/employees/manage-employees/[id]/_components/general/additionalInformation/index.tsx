@@ -31,21 +31,33 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
     );
   };
 
+  // Filter custom fields for additionalInformation section
+  const additionalInformationFields = mergedFields?.filter(
+    (field: any) => field?.formTitle === 'additionalInformation'
+  ) || [];
+
+  // Merge existing employee data with custom fields
+  const existingData = employeeData?.employeeInformation?.additionalInformation || {};
+  const allFields = { ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  additionalInformationFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
+
   const AdditionalInformationForm = () => {
     return (
       <Form
         form={form}
         layout="vertical"
-        initialValues={
-          employeeData?.employeeInformation?.additionalInformation || {}
-        }
+        initialValues={allFields}
         onFinish={(values) =>
           handleSaveChanges('additionalInformation', values)
         }
       >
-        {Object.entries(
-          employeeData?.employeeInformation?.additionalInformation || {},
-        ).map(([key, val]) => (
+        {Object.entries(allFields).map(([key, val]) => (
           <Form.Item
             key={key}
             name={key}
@@ -74,7 +86,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                         fieldValidation = 'any'; // You can change to 'text' if stricter validation is needed
                         break;
                       default:
-                        fieldValidation = 'any'; // fallback function
+                        fieldValidation = getFieldValidation(key) || 'any'; // fallback function
                     }
                   }
 
@@ -173,15 +185,16 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       ) : (
         <Row gutter={[16, 24]}>
           <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.additionalInformation || {},
-            ).map(([key, val]) => {
+            {Object.entries(allFields).map(([key, val]) => {
               const displayValue =
                 key === 'nationality'
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              const title = titleMap[key] || key;
+              const title = titleMap[key] || key
+                .split('_')
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
               return <InfoLine key={key} title={title} value={displayValue} />;
             })}
           </Col>

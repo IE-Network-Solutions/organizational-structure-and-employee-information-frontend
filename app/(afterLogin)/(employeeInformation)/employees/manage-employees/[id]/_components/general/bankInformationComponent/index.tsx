@@ -23,9 +23,33 @@ const BankInformationComponent = ({
 
   const getFieldValidation = (fieldName: string) => {
     return (
-      mergedFields?.find((field: any) => field?.name === fieldName) ?? null
+      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+        ?.fieldValidation ?? null
     );
   };
+
+  // Filter custom fields for bankInformation section
+  const bankInformationFields = mergedFields?.filter(
+    (field: any) => field?.formTitle === 'bankInformation'
+  ) || [];
+
+  // Merge existing employee data with custom fields
+  const existingData = employeeData?.employeeInformation?.bankInformation || {};
+  const defaultFields = {
+    bankName: '',
+    branch: '',
+    accountName: '',
+    accountNumber: '',
+  };
+  const allFields = { ...defaultFields, ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  bankInformationFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
+
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
@@ -58,24 +82,18 @@ const BankInformationComponent = ({
           onFinish={(values) => handleSaveChanges('bankInformation', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
-          initialValues={
-            employeeData?.employeeInformation?.bankInformation || {}
-          }
+          initialValues={allFields}
         >
           <Row gutter={[16, 24]}>
             <Col lg={16}>
-              {Object.entries(
-                employeeData?.employeeInformation?.bankInformation || {
-                  bankName: '',
-                  branch: '',
-                  accountName: '',
-                  accountNumber: '',
-                },
-              ).map(([key, val]) => (
+              {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
-                  label={key}
+                  label={titleMap[key] || key
+                    .split('_')
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')}
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -94,7 +112,7 @@ const BankInformationComponent = ({
                             fieldValidation = 'text';
                             break;
                           default:
-                            fieldValidation = getFieldValidation(key);
+                            fieldValidation = getFieldValidation(key) || 'any';
                         }
 
                         const validationError = validateField(
@@ -114,7 +132,7 @@ const BankInformationComponent = ({
                   //     : []
                   // }
                 >
-                  <Input placeholder={key} defaultValue={val?.toString()} />
+                  <Input placeholder={key.replace(/_/g, ' ')} defaultValue={val?.toString()} />
                 </Form.Item>
               ))}
             </Col>
@@ -130,12 +148,13 @@ const BankInformationComponent = ({
       ) : (
         <Row gutter={[16, 24]}>
           <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.bankInformation || {},
-            ).map(([key, val]) => (
+            {Object.entries(allFields).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={titleMap[key] || key}
+                title={titleMap[key] || key
+                  .split('_')
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ')}
                 value={val?.toString() || '-'}
               />
             ))}
