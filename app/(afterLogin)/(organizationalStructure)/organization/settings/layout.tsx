@@ -90,7 +90,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     <div className="min-h-screen ">
       {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
       {hasEndedFiscalYear && (
-        <div className="bg-[#323B49] h-12 flex items-center justify-start text-lg p-2 rounded-lg shadow-none ">
+        <div className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none ">
           <span className="text-[#FFDE65] px-2">
             Your Have Finished Your Fiscal Year
           </span>
