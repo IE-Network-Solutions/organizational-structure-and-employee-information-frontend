@@ -79,12 +79,7 @@ const Payroll = () => {
   const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
 
-  // Add the export hook for fetching all payroll data without pagination
-  const {
-    data: allPayrollData,
-    refetch: refetchAllPayroll,
-    isLoading: isLoadingAllPayroll,
-  } = useGetAllPayrollForExport(searchQuery);
+  const { refetch: refetchAllPayroll } = useGetAllPayrollForExport(searchQuery);
 
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
@@ -841,7 +836,6 @@ const Payroll = () => {
       const result = await refetchAllPayroll();
       return result.data;
     } catch (error) {
-      console.error('Error fetching payroll data for export:', error);
       throw new Error('Failed to fetch payroll data for export');
     }
   };
