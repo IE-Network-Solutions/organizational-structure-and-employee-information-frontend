@@ -17,6 +17,7 @@ interface ChartData {
     data: number[];
     backgroundColor: string[];
     borderWidth: number;
+    hoverOffset: number;
   }[];
 }
 
@@ -34,17 +35,30 @@ const EmploymentStats: React.FC = () => {
     datasets: [
       {
         data: dataValues || [], // Sample data for full-time, part-time, and others
-        backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
-        borderWidth: 2,
+        backgroundColor: [
+          '#3636F0', // Primary blue
+          '#4F8CFF', // Light blue
+          '#3EC3FF', // Cyan
+          '#22C55E', // Green
+          '#FACC15', // Yellow
+          '#EF4444', // Red
+          '#8B5CF6', // Purple
+          '#F97316', // Orange
+          '#06B6D4', // Teal
+          '#84CC16', // Lime
+        ],
+        borderWidth: 4,
+        hoverOffset: 10,
       },
     ],
   };
 
   const options = {
-    cutout: '60%',
+    cutout: '70%',
     plugins: {
       legend: { display: false },
       tooltip: { enabled: true },
+      datalabels: { display: false },
     },
     elements: {
       arc: { borderWidth: 0 },
@@ -76,7 +90,7 @@ const EmploymentStats: React.FC = () => {
       {employeeStatus?.length ? (
         <div className="flex-1 flex items-center justify-between h-[80%] mt-10">
           <div className="relative flex items-center justify-center w-[180px] h-[180px] px-4 overflow-visible z-10">
-            <Doughnut data={data} options={options} />
+            <Doughnut data={data} options={options} className="z-20" />
             <div
               className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
               style={{ transform: 'translate(-50%, -50%)' }}
