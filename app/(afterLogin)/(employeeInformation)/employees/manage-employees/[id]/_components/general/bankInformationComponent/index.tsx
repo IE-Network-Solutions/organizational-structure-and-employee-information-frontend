@@ -29,9 +29,10 @@ const BankInformationComponent = ({
   };
 
   // Filter custom fields for bankInformation section
-  const bankInformationFields = mergedFields?.filter(
-    (field: any) => field?.formTitle === 'bankInformation'
-  ) || [];
+  const bankInformationFields =
+    mergedFields?.filter(
+      (field: any) => field?.formTitle === 'bankInformation',
+    ) || [];
 
   // Merge existing employee data with custom fields
   const existingData = employeeData?.employeeInformation?.bankInformation || {};
@@ -90,10 +91,15 @@ const BankInformationComponent = ({
                 <Form.Item
                   key={key}
                   name={key}
-                  label={titleMap[key] || key
-                    .split('_')
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ')}
+                  label={
+                    titleMap[key] ||
+                    key
+                      .split('_')
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(' ')
+                  }
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -132,7 +138,10 @@ const BankInformationComponent = ({
                   //     : []
                   // }
                 >
-                  <Input placeholder={key.replace(/_/g, ' ')} defaultValue={val?.toString()} />
+                  <Input
+                    placeholder={key.replace(/_/g, ' ')}
+                    defaultValue={val?.toString()}
+                  />
                 </Form.Item>
               ))}
             </Col>
@@ -151,10 +160,13 @@ const BankInformationComponent = ({
             {Object.entries(allFields).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={titleMap[key] || key
-                  .split('_')
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ')}
+                title={
+                  titleMap[key] ||
+                  key
+                    .split('_')
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')
+                }
                 value={val?.toString() || '-'}
               />
             ))}

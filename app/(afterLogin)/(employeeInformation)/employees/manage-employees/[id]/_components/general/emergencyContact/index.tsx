@@ -32,12 +32,14 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
   };
 
   // Filter custom fields for emergencyContact section
-  const emergencyContactFields = mergedFields?.filter(
-    (field: any) => field?.formTitle === 'emergencyContact'
-  ) || [];
+  const emergencyContactFields =
+    mergedFields?.filter(
+      (field: any) => field?.formTitle === 'emergencyContact',
+    ) || [];
 
   // Merge existing employee data with custom fields
-  const existingData = employeeData?.employeeInformation?.emergencyContact || {};
+  const existingData =
+    employeeData?.employeeInformation?.emergencyContact || {};
   const defaultFields = {
     firstName: '',
     middleName: '',
@@ -96,10 +98,15 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                 <Form.Item
                   key={key}
                   name={key}
-                  label={titleMap[key] || key
-                    .split('_')
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ')}
+                  label={
+                    titleMap[key] ||
+                    key
+                      .split('_')
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(' ')
+                  }
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -160,7 +167,10 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                       )}
                     </Select>
                   ) : (
-                    <Input placeholder={key.replace(/_/g, ' ')} defaultValue={val?.toString()} />
+                    <Input
+                      placeholder={key.replace(/_/g, ' ')}
+                      defaultValue={val?.toString()}
+                    />
                   )}
                 </Form.Item>
               ))}
@@ -183,10 +193,12 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              const title = titleMap[key] || key
-                .split('_')
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
+              const title =
+                titleMap[key] ||
+                key
+                  .split('_')
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
               return <InfoLine key={key} title={title} value={displayValue} />;
             })}
           </Col>

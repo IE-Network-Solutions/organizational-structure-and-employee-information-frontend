@@ -32,12 +32,14 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
   };
 
   // Filter custom fields for additionalInformation section
-  const additionalInformationFields = mergedFields?.filter(
-    (field: any) => field?.formTitle === 'additionalInformation'
-  ) || [];
+  const additionalInformationFields =
+    mergedFields?.filter(
+      (field: any) => field?.formTitle === 'additionalInformation',
+    ) || [];
 
   // Merge existing employee data with custom fields
-  const existingData = employeeData?.employeeInformation?.additionalInformation || {};
+  const existingData =
+    employeeData?.employeeInformation?.additionalInformation || {};
   const allFields = { ...existingData };
 
   // Add custom fields to allFields if they don't exist
@@ -191,10 +193,12 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              const title = titleMap[key] || key
-                .split('_')
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
+              const title =
+                titleMap[key] ||
+                key
+                  .split('_')
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
               return <InfoLine key={key} title={title} value={displayValue} />;
             })}
           </Col>
