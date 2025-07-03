@@ -30,6 +30,33 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
         ?.fieldValidation ?? null
     );
   };
+
+  // Filter custom fields for emergencyContact section
+  const emergencyContactFields =
+    mergedFields?.filter(
+      (field: any) => field?.formTitle === 'emergencyContact',
+    ) || [];
+
+  // Merge existing employee data with custom fields
+  const existingData =
+    employeeData?.employeeInformation?.emergencyContact || {};
+  const defaultFields = {
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    phoneNumber: '',
+    gender: '',
+    nationality: '',
+  };
+  const allFields = { ...defaultFields, ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  emergencyContactFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
+
   const titleMap: Record<string, string> = {
     firstName: 'First Name',
     middleName: 'Middle Name',
@@ -63,26 +90,23 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           onFinish={(values) => handleSaveChanges('emergencyContact', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }}
-          initialValues={
-            employeeData?.employeeInformation?.emergencyContact || {}
-          }
+          initialValues={allFields}
         >
           <Row gutter={[16, 24]}>
             <Col lg={16}>
-              {Object.entries(
-                employeeData?.employeeInformation?.emergencyContact || {
-                  firstName: '',
-                  middleName: '',
-                  lastName: '',
-                  phoneNumber: '',
-                  gender: '',
-                  nationality: '',
-                },
-              ).map(([key, val]) => (
+              {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
-                  label={key}
+                  label={
+                    titleMap[key] ||
+                    key
+                      .split('_')
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(' ')
+                  }
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -104,7 +128,7 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                             fieldValidation = 'any'; // Assuming nationality should be text-based
                             break;
                           default:
-                            fieldValidation = getFieldValidation(key);
+                            fieldValidation = getFieldValidation(key) || 'any';
                         }
 
                         const validationError = validateField(
@@ -143,7 +167,10 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                       )}
                     </Select>
                   ) : (
-                    <Input placeholder={key} defaultValue={val?.toString()} />
+                    <Input
+                      placeholder={key.replace(/_/g, ' ')}
+                      defaultValue={val?.toString()}
+                    />
                   )}
                 </Form.Item>
               ))}
@@ -160,15 +187,18 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
       ) : (
         <Row gutter={[16, 24]}>
           <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.emergencyContact || {},
-            ).map(([key, val]) => {
+            {Object.entries(allFields).map(([key, val]) => {
               const displayValue =
                 key === 'nationality'
                   ? nationalities?.items?.find((item) => item.id === val)
                       ?.name || '-'
                   : val?.toString() || '-';
-              const title = titleMap[key] || key;
+              const title =
+                titleMap[key] ||
+                key
+                  .split('_')
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
               return <InfoLine key={key} title={title} value={displayValue} />;
             })}
           </Col>
