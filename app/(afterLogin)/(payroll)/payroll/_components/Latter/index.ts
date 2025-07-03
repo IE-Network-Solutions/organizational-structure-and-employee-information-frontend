@@ -19,7 +19,7 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
     if (!url) {
       return IE_LOGO_BASE64;
     }
-    
+
     // If it's already base64 data, return it
     if (url.startsWith('data:image/')) {
       return url.split(',')[1]; // Return just the base64 part without the data URI prefix
