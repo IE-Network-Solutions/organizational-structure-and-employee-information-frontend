@@ -52,9 +52,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
     fiscalYearStart,
     fiscalYearEnd,
     calendarType,
-    selectedFiscalYear,
     isEditMode,
-    setCalendarType,
     setMonthRangeFormValues,
   } = useFiscalYearDrawerStore();
 
@@ -68,6 +66,8 @@ const MonthDrawer: React.FC<DrawerProps> = ({
   const endMonth = fiscalEnd.getMonth() + 1;
 
   const groupedMonths = classifyMonths(startMonth, endMonth, calendarType);
+
+  // Debug logs
 
   const generateMonthName = (section: number, index: number) => {
     if (calendarType === 'Quarter') {
@@ -90,83 +90,54 @@ const MonthDrawer: React.FC<DrawerProps> = ({
   };
 
   useEffect(() => {
-    if (selectedFiscalYear && isEditMode) {
-      const sessions = selectedFiscalYear?.sessions || [];
-      const inferredCalendarType =
-        sessions.length >= 4
-          ? 'Quarter'
-          : sessions.length === 2
-            ? 'Semester'
-            : sessions.length === 1
-              ? 'Year'
-              : '';
-
-      setCalendarType(inferredCalendarType);
-
-      let updatedMonthData: Array<any> = [];
-
-      if (inferredCalendarType === 'Year') {
-        updatedMonthData = sessions.flatMap(
-          (session: any) =>
-            session?.months?.map((month: any) => {
-              return {
-                monthName: month?.name || '',
-                monthStartDate: month?.startDate
-                  ? dayjs(month?.startDate)
-                  : null,
-                monthEndDate: month?.endDate ? dayjs(month?.endDate) : null,
-                monthDescription: month?.description || '',
-              };
-            }) || [],
-        );
-      } else if (['Semester', 'Quarter'].includes(inferredCalendarType)) {
-        updatedMonthData = sessions.flatMap(
-          (session: any, sessionIndex: number) =>
-            session?.months?.map((month: any, monthIndex: number) => ({
-              monthName: `Month ${monthIndex + 1} (${
-                inferredCalendarType === 'Quarter'
-                  ? `Q${sessionIndex + 1}`
-                  : `S${sessionIndex + 1}`
-              })`,
-              monthStartDate: month?.startDate ? dayjs(month?.startDate) : null,
-              monthEndDate: month?.endDate ? dayjs(month?.endDate) : null,
-              monthDescription: month?.description || '',
-            })) || [],
-        );
-      }
-
-      if (updatedMonthData?.length > 0) {
-        const fieldsToUpdate = updatedMonthData.reduce((acc, month, index) => {
-          acc[`monthName_${index}`] = month.monthName;
-          acc[`monthStartDate_${index}`] = month.monthStartDate;
-          acc[`monthEndDate_${index}`] = month.monthEndDate;
-          acc[`monthDescription_${index}`] = month.monthDescription;
-          return acc;
-        }, {});
-
-        form?.resetFields(Object.keys(fieldsToUpdate));
-      }
-    }
-  }, [selectedFiscalYear, isEditMode, form]);
-
-  useEffect(() => {
-    const transformedData = Object.entries(groupedMonths).flatMap(
-      ([section, months]) =>
-        months?.map((month, index) => ({
-          monthName: generateMonthName(Number(section), index),
-          monthStartDate: getMonthStartEndDates(month).startDate,
-          monthEndDate: getMonthStartEndDates(month).endDate,
-          monthDescription: '',
-        })),
-    );
-
-    if (
-      JSON.stringify(transformedData) !==
-      JSON.stringify(useFiscalYearDrawerStore.getState().monthRangeValues)
-    ) {
+    if (calendarType && fiscalYearStart && fiscalYearEnd) {
+      const groupedMonths = classifyMonths(
+        fiscalYearStart.toDate().getMonth() + 1,
+        fiscalYearEnd.toDate().getMonth() + 1,
+        calendarType,
+      );
+      const transformedData = Object.entries(groupedMonths).flatMap(
+        ([section, months]) =>
+          months?.map((month, index) => ({
+            monthNumber: month,
+            monthName: generateMonthName(Number(section), index),
+            monthStartDate: getMonthStartEndDates(month).startDate,
+            monthEndDate: getMonthStartEndDates(month).endDate,
+            monthDescription: '',
+          })),
+      );
       setMonthRangeFormValues(transformedData);
+      if (form) {
+        // Reset only the month-related fields
+        const fieldNames = transformedData.flatMap((month) => [
+          `monthName_${month.monthNumber}`,
+          `monthStartDate_${month.monthNumber}`,
+          `monthEndDate_${month.monthNumber}`,
+          `monthDescription_${month.monthNumber}`,
+        ]);
+        form.resetFields(fieldNames);
+        const fieldsToUpdate = transformedData.reduce(
+          (acc: Record<string, any>, month) => {
+            const key = month.monthNumber;
+
+            acc[`monthName_${key}`] = month.monthName;
+            acc[`monthStartDate_${key}`] = month.monthStartDate;
+            acc[`monthEndDate_${key}`] = month.monthEndDate;
+            acc[`monthDescription_${key}`] = month.monthDescription;
+            return acc;
+          },
+          {} as Record<string, any>,
+        );
+        form.setFieldsValue(fieldsToUpdate);
+      }
     }
-  }, []);
+  }, [
+    calendarType,
+    fiscalYearStart,
+    fiscalYearEnd,
+    setMonthRangeFormValues,
+    form,
+  ]);
 
   return (
     <>
@@ -185,6 +156,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                 const monthName =
                   generateMonthName(Number(section), index).split(' (')[0] ||
                   'Month';
+
                 return (
                   <React.Fragment key={month}>
                     <Form.Item
