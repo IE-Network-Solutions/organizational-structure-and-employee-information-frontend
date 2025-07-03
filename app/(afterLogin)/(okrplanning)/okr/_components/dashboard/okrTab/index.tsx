@@ -27,7 +27,7 @@ const DynamicTabs = dynamic(() => Promise.resolve(Tabs), { ssr: false });
 export default function OkrTab() {
   const [isMounted, setIsMounted] = useState(false);
   const { userId } = useAuthenticationStore();
-  // const { data: departments } = useGetUserDepartment();
+  const { data: departments } = useGetUserDepartment();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
   const departmentId = userData?.employeeJobInformation[0]?.departmentId;
@@ -42,8 +42,8 @@ export default function OkrTab() {
     currentPage,
     setCurrentPage,
     searchObjParams,
-    // setTeamCurrentPage,
-    // setTeamPageSize,
+    setTeamCurrentPage,
+    setTeamPageSize,
     teamCurrentPage,
     teamPageSize,
     setCompanyCurrentPage,
