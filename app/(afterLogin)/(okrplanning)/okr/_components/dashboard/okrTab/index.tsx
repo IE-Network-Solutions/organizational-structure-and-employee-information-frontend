@@ -69,8 +69,8 @@ export default function OkrTab() {
     searchObjParams?.metricTypeId,
   );
   const {
-    // data: teamObjective,
-    // isLoading: teamLoading,
+    data: teamObjective,
+    isLoading: teamLoading,
     refetch,
   } = useGetTeamObjective(
     teamPageSize,
