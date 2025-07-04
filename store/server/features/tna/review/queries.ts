@@ -34,6 +34,13 @@ const getTnaByUser = async (
     params: query,
   });
 };
+const singleTna = async (id: string) => {
+  return await crudRequest({
+    url: `${TNA_URL}/tna/${id}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+};
 export const currency = async () => {
   const response = await crudRequest({
     url: `${TNA_URL}/currency`,
@@ -74,6 +81,14 @@ export const useGetTna = (
     },
   );
 };
+
+export const useGetTnaById = (id: string) => {
+  return useQuery<any>(['singleTna'], () => singleTna(id), {
+    keepPreviousData: true,
+    enabled: !!id,
+  });
+};
+
 export const useGetTnaByUser = (
   query: Partial<RequestCommonQueryData>,
   data: Partial<TnaRequestBody>,
@@ -89,11 +104,13 @@ export const useGetTnaByUser = (
     },
   );
 };
+
 export const useCurrency = () => {
   return useQuery<any>(['currency'], () => currency(), {
     keepPreviousData: true,
   });
 };
+
 export const useSingleCurrency = (id: string) => {
   return useQuery<any>(['singleCurrency'], () => singleCurrency(id), {
     keepPreviousData: true,
