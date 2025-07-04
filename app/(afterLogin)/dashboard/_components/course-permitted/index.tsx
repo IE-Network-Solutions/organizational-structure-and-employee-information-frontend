@@ -1,132 +1,83 @@
 import React from 'react';
-import { Card } from 'antd';
-import { Doughnut } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js'; // Import required elements
+import { Card, Collapse, Divider } from 'antd';
 import { useGetCoursePermitted } from '@/store/server/features/dashboard/courses-permitted/queries';
 
 // Register the chart.js components
-Chart.register(ArcElement, Tooltip, Legend);
 
-interface ChartData {
-  labels: string[];
-  datasets: {
-    data: number[];
-    backgroundColor: string[];
-    borderWidth: number;
-  }[];
-}
 const CoursePermitted: React.FC = () => {
   const { data: coursePermitted, isLoading } = useGetCoursePermitted();
 
-  const data: ChartData = {
-    labels: coursePermitted?.map((i) => i.categoryName) || [],
-    datasets: [
-      {
-        data: coursePermitted?.map((i) => i.courseCount) || [], // Sample data for full-time, part-time, and others
-        backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const options: ChartOptions<'doughnut'> = {
-    cutout: '60%',
-    plugins: {
-      legend: {
-        display: false,
-        position: 'right',
-        labels: {
-          color: '#333',
-          font: {
-            size: 12,
-            weight: 'bold',
-          },
-          padding: 20,
-          generateLabels: (chart: any) => {
-            const data = chart.data;
-            const labels = data.labels || [];
-            const datasets = data.datasets || [];
-            return labels.map((label: string, i: number) => {
-              const dataset = datasets[0];
-              const backgroundColor = dataset.backgroundColor[i];
-              return {
-                text: label,
-                fillStyle: backgroundColor,
-                strokeStyle: backgroundColor,
-                lineWidth: 2,
-                hidden: !chart.getDatasetMeta(0).data[i].hidden,
-                index: i,
-              };
-            });
-          },
-        },
-      },
-    },
-    elements: {
-      arc: {
-        borderWidth: 2,
-      },
-    },
-  };
-  const totalCourseCount = coursePermitted?.reduce(
-    (acc, curr) => acc + (Number(curr?.courseCount) || 0),
-    0,
-  );
   return (
     <Card loading={isLoading} className="w-full mx-auto">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className=" text-gray-700 font-semibold text-lg">
-          Course Permitted
-        </h3>
-      </div>
+      <div className="flex justify-between items-center mb-2"></div>
 
       <div className="grid items-center">
-        <div
-          style={{
-            position: 'relative',
-            maxWidth: '130px',
-            maxHeight: '130px',
-            margin: '0 auto',
-          }}
-        >
-          <Doughnut data={data} options={options} />
-          <div
-            className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
-            style={{
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: '-1',
-            }}
-          >
-            <div className="font-bold text-2xl">{totalCourseCount}</div>
-            <div className="font-light text-xs ">Total</div>
-          </div>
-        </div>
         <div style={{ marginTop: '2 0px' }}>
-          {data.labels.map((label, i) => (
-            <div key={i} className="flex justify-between">
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '10px',
-                }}
-              >
-                <div
-                  style={{
-                    width: '15px',
-                    height: '15px',
-                    borderRadius: '50%',
-                    backgroundColor: data.datasets[0].backgroundColor[i],
-                    marginRight: '10px',
-                  }}
-                />
-                <span>{label}</span>
-              </div>
-              <span>{data.datasets[0].data[i]}</span>
-            </div>
-          ))}
+          <Collapse
+            size="large"
+            bordered={false}
+            expandIcon={() => null} // hides the expand icon
+            items={[
+              {
+                key: '1',
+
+                label: (
+                  <div className="flex justify-between items-center">
+                    <div className="">
+                      <div className="  font-bold text-lg">
+                        Course Permitted
+                      </div>{' '}
+                      <div className="font-medium text-sm">
+                        Latest permitted courses
+                      </div>
+                    </div>
+                    <div>
+                      {coursePermitted && coursePermitted?.length > 0 ? (
+                        <div className="p-2 bg-green-300 text-green-800 rounded-lg">
+                          {coursePermitted?.length} Courses
+                        </div>
+                      ) : (
+                        <div className="p-1 bg-red-100 text-error rounded-lg">
+                          No Courses
+                        </div>
+                      )}{' '}
+                    </div>
+                  </div>
+                ),
+                children: (
+                  <div>
+                    {coursePermitted && coursePermitted?.length > 0 ? (
+                      <Divider />
+                    ) : (
+                      ''
+                    )}
+
+                    {coursePermitted &&
+                      coursePermitted?.map((item: any, index: number) => (
+                        <Card key={index} className="mb-4 pb-2 shadow-md">
+                          <div className="flex justify-between items-center mb-1">
+                            <div className="">
+                              <div className="text-gray-700 font-semibold">
+                                {item.title}
+                              </div>
+                              <div className="text-gray-600 text-sm mb-1">
+                                {item.description}
+                              </div>
+                              <div className="text-gray-500 text-xs">
+                                {item.date}
+                              </div>
+                            </div>
+                            <div className="text-sm p-3 bg-primary rounded-lg text-white">
+                              {item.team}
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                  </div>
+                ),
+              },
+            ]}
+          />
         </div>
       </div>
     </Card>

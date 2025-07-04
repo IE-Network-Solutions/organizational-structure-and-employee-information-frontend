@@ -83,6 +83,19 @@ const getAllRecognitionTypesWithOutCriteria = async () => {
     },
   });
 };
+const getPersonalRecognition = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId;
+  return crudRequest({
+    url: `${ORG_DEV_URL}/feedback-stats/${userId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 const getAllRecognitions = async ({
   searchValue,
   current,
@@ -169,6 +182,9 @@ export const useGetAllRecognitionTypeWithOutCriteria = () => {
     'recognitionTypesWithOutCriteria',
     getAllRecognitionTypesWithOutCriteria,
   );
+};
+export const useGetPersonalRecognition = () => {
+  return useQuery<any>('personalRecognition', getPersonalRecognition);
 };
 
 export const useGetRecognitionById = (id: string) => {

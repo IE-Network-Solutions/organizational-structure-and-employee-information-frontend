@@ -3,9 +3,7 @@ import React from 'react';
 import { Spin } from 'antd';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { useFetchCategories } from '@/store/server/features/feedback/category/queries';
-import {
-  useDeleteFormCategory,
-} from '@/store/server/features/feedback/category/mutation';
+import { useDeleteFormCategory } from '@/store/server/features/feedback/category/mutation';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import CategoryCard from './categoryCard';
 import EditCategoryModal from './editCategory';
@@ -70,7 +68,6 @@ const CategoriesCard: React.FC = () => {
     }
   };
 
-
   const handleDelete = () => {
     deleteCategory.mutate(CategoriesManagementStore.getState().deletedItem);
     setDeleteModal(false);
@@ -107,7 +104,7 @@ const CategoriesCard: React.FC = () => {
         )}
       </div>
 
-      <EditCategoryModal  userOptions={userOptions} />
+      <EditCategoryModal userOptions={userOptions} />
       <DeleteModal
         open={deleteModal}
         onCancel={() => setDeleteModal(false)}

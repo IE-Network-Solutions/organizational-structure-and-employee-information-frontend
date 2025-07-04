@@ -232,7 +232,7 @@ const AdminDashboard = () => {
   const activeSubscriptionData = subscriptionsData?.items?.find(
     (sub) => sub.isActive === true,
   );
-  
+
   return (
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb
@@ -405,7 +405,7 @@ const AdminDashboard = () => {
                                   period.id !=
                                   activeSubscriptionData?.planPeriodId,
                               )
-                              ?.map((period,index) => (
+                              ?.map((period, index) => (
                                 <div
                                   key={index}
                                   className={`text-sm rounded-lg font-bold p-2 my-2  ${plan.id === currentPlan?.id ? 'bg-white' : 'bg-purple/10'} w-fit`}
