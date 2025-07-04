@@ -642,7 +642,6 @@ const Payroll = () => {
     try {
       await generateBankLetter(amount);
     } catch (error: any) {
-      console.error('Bank letter generation error:', error?.message);
       notification.error({
         message: 'Error Generating Bank Letter',
         description: error + '',
