@@ -641,10 +641,11 @@ const Payroll = () => {
     setLoading(true);
     try {
       await generateBankLetter(amount);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Bank letter generation error:', error?.message);
       notification.error({
         message: 'Error Generating Bank Letter',
-        description: 'An error occurred while generating the bank letter.',
+        description: error + '',
       });
     } finally {
       setLoading(false);
