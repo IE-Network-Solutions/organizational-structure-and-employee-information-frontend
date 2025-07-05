@@ -91,7 +91,8 @@ const EditWorkFLow = () => {
         onError: (error: any) => {
           NotificationMessage.error({
             message: 'Error',
-            description: error?.response?.data?.message ?? 'Something went wrong',
+            description:
+              error?.response?.data?.message ?? 'Something went wrong',
           });
         },
       },

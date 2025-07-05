@@ -9,6 +9,7 @@ const fetchAllIncentiveData = async (
   year: string,
   session: string | string[],
   month: string,
+  recognitionTypeId: string,
   page: number,
   current: number,
 ) => {
@@ -27,6 +28,7 @@ const fetchAllIncentiveData = async (
       year: year,
       sessionId: session,
       monthId: month,
+      recognitionTypeId: recognitionTypeId,
     },
   });
 };
@@ -37,6 +39,7 @@ const fetchProjectIncentiveData = async (
   year: string,
   session: string | string[],
   month: string,
+  recognitionTypeId: string,
   page: number,
   current: number,
 ) => {
@@ -49,6 +52,7 @@ const fetchProjectIncentiveData = async (
       year: year,
       sessionId: session ?? [],
       monthId: month,
+      recognitionTypeId: recognitionTypeId,
     },
   });
 };
@@ -155,6 +159,7 @@ export const useGetIncentiveDataByRecognitionId = (
   year: string,
   session: string,
   month: string,
+  recognitionTypeId: string,
   page: number,
   current: number,
 ) => {
@@ -166,6 +171,7 @@ export const useGetIncentiveDataByRecognitionId = (
       year,
       session,
       month,
+      recognitionTypeId,
       page,
       current,
     ],
@@ -176,6 +182,7 @@ export const useGetIncentiveDataByRecognitionId = (
         year,
         session,
         month,
+        recognitionTypeId,
         page,
         current,
       ),
@@ -186,12 +193,30 @@ export const useGetAllIncentiveData = (
   year: string,
   session: string,
   month: string,
+  recognitionTypeId: string,
   page: number,
   current: number,
 ) => {
   return useQuery<any>(
-    ['getAllIncentiveData', employeeName, year, session, month, page, current],
+    [
+      'getAllIncentiveData',
+      employeeName,
+      year,
+      session,
+      month,
+      recognitionTypeId,
+      page,
+      current,
+    ],
     () =>
-      fetchAllIncentiveData(employeeName, year, session, month, page, current),
+      fetchAllIncentiveData(
+        employeeName,
+        year,
+        session,
+        month,
+        recognitionTypeId,
+        page,
+        current,
+      ),
   );
 };

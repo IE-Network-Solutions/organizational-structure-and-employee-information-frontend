@@ -71,6 +71,7 @@ const AllIncentiveTable: React.FC = () => {
       searchParams?.byYear || ' ',
       searchParams?.bySession,
       searchParams?.byMonth || '',
+      searchParams?.byRecognition || '',
       pageSize,
       currentPage,
     );
