@@ -9,7 +9,6 @@ const fetchAllIncentiveData = async (
   year: string,
   session: string | string[],
   month: string,
-  recognitionTypeId: string,
   page: number,
   current: number,
 ) => {
@@ -28,7 +27,6 @@ const fetchAllIncentiveData = async (
       year: year,
       sessionId: session,
       monthId: month,
-      recognitionTypeId: recognitionTypeId,
     },
   });
 };
@@ -193,7 +191,6 @@ export const useGetAllIncentiveData = (
   year: string,
   session: string,
   month: string,
-  recognitionTypeId: string,
   page: number,
   current: number,
 ) => {
@@ -204,7 +201,6 @@ export const useGetAllIncentiveData = (
       year,
       session,
       month,
-      recognitionTypeId,
       page,
       current,
     ],
@@ -214,7 +210,6 @@ export const useGetAllIncentiveData = (
         year,
         session,
         month,
-        recognitionTypeId,
         page,
         current,
       ),
