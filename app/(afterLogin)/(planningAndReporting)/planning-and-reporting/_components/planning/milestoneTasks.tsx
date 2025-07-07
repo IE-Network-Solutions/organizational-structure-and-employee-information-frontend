@@ -23,7 +23,7 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
   <Row
     align="middle"
     justify="space-between"
-    className={`w-full ${parent ? 'ml-5 mb-1' : 'ml-5 mb-1'}`}
+    className={`w-full `}
   >
     <Col>
       <Text className="text-xs flex items-center gap-1">
@@ -48,7 +48,7 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
     </Col>
     <Col>
       {/* Priority Section */}
-      <Text type="secondary" className="text-[10px] mr-2">
+      <Text type="secondary" className="text-[10px] ">
         <span className="text-xl text-blue">&bull;</span> Priority
       </Text>
       <Tag
@@ -59,7 +59,7 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
       </Tag>
 
       {/* Weight Section */}
-      <Text type="secondary" className="text-[10px] mr-2">
+      <Text type="secondary" className="text-[10px] ">
         <span className="text-xl text-blue">&bull;</span> Weight:
       </Text>
       <Tag
