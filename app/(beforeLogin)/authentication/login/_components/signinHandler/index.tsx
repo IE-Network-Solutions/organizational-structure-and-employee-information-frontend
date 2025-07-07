@@ -15,21 +15,26 @@ export const useHandleSignIn = () => {
     setToken,
     setUserId,
     token,
+    tenantId,
     setLocalId,
     setTenantId,
     setUserData,
     setActiveCalendar,
+    setLoggedUserRole,
   } = useAuthenticationStore();
 
   const { refetch: fetchTenantId } = useGetTenantId();
-  const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
+  const { refetch: refetchFiscalYear } = useGetActiveFiscalYearsData();
 
   const router = useRouter();
   const { tenant } = useTenantChecker();
 
   useEffect(() => {
-    refetch();
-  }, [token]);
+    //also check tenantId
+    if (token.length > 0 && tenantId.length > 0) {
+      refetchFiscalYear();
+    }
+  }, [token, tenantId]);
 
   const handleSignIn = async (signInMethod: () => Promise<any>) => {
     setLoading(true);
@@ -43,51 +48,73 @@ export const useHandleSignIn = () => {
       setToken(token);
       setLocalId(uid);
 
-      if (activeFiscalYear) {
-        setActiveCalendar(activeFiscalYear?.endDate);
-      }
-      const fetchedData = await fetchTenantId();
+      const fetchedData = await fetchTenantId(token);
 
       if (fetchedData.isError) {
         message.error('Failed to fetch user data. Please try again.');
         setToken('');
-        setLocalId('');
+        // setLocalId('');
       } else {
         if (tenant?.id !== fetchedData?.data?.tenantId) {
           message.error(
             'This user does not belong to this tenant. Please contact your administrator.',
           );
           setToken('');
-          setLocalId('');
+          // setLocalId('');
           return;
         }
         setTenantId(fetchedData?.data?.tenantId);
         setUserId(fetchedData?.data?.id);
         setUserData(fetchedData?.data);
+        setLoggedUserRole(fetchedData?.data?.role?.slug || '');
+
+        const fiscalYearData = await refetchFiscalYear();
+        if (fiscalYearData?.data) {
+          setActiveCalendar(fiscalYearData?.data?.endDate);
+        }
+
         message.success('Welcome!');
         message.loading({ content: 'Redirecting...', key: 'redirect' });
-        const redirectPath =
-          sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
         sessionStorage.removeItem('redirectAfterLogin');
 
         if (fetchedData?.data?.hasCompany === false) {
           router.push('/onboarding');
-        } else if (redirectPath) {
-          router.push(redirectPath);
         } else if (fetchedData?.data?.hasChangedPassword === false) {
           router.push('/authentication/new-password');
         } else if (
           fetchedData?.data?.hasCompany === true &&
           fetchedData?.data?.hasChangedPassword === true &&
-          activeFiscalYear?.endDate &&
-          new Date(activeFiscalYear?.endDate) > new Date()
+          fiscalYearData?.data?.endDate &&
+          new Date(fiscalYearData?.data?.endDate) > new Date()
         ) {
           router.push('/dashboard');
-        } else if (
-          activeFiscalYear?.endDate &&
-          new Date(activeFiscalYear.endDate) < new Date()
-        ) {
-          router.push('/fiscal-ended');
+        } else {
+          const userRole = fetchedData?.data?.role?.slug;
+
+          if (userRole === 'owner' || userRole === 'admin') {
+            // For owners and admins, check fiscal year status
+            if (
+              fiscalYearData?.data?.endDate &&
+              new Date(fiscalYearData?.data?.endDate) < new Date()
+            ) {
+              router.push('/organization/settings/fiscalYear/fiscalYearCard');
+              message.warning(
+                'Your active fiscal year has ended. Please set a new one.',
+              );
+            } else if (redirectPath) {
+              router.push(redirectPath);
+            } else {
+              router.push('/organization/settings/fiscalYear/fiscalYearCard');
+            }
+          } else {
+            // For other roles, go to dashboard
+            if (redirectPath) {
+              router.push(redirectPath);
+            } else {
+              router.push('/dashboard');
+            }
+          }
         }
       }
     } catch (err: any) {

@@ -25,6 +25,7 @@ import Logo from '../common/logo';
 import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -33,6 +34,7 @@ interface CustomMenuItem {
   className?: string;
   permissions?: string[];
   children?: CustomMenuItem[];
+  disabled?: boolean;
 }
 
 interface MyComponentProps {
@@ -50,8 +52,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
-  const { setLocalId, setTenantId, setToken, setUserId, setError } =
-    useAuthenticationStore();
+  const {
+    setLocalId,
+    setTenantId,
+    setToken,
+    setUserId,
+    setError,
+    setActiveCalendar,
+    setLoggedUserRole,
+    setUserData,
+    setIs2FA,
+    setTwoFactorAuthEmail,
+    setUser2FA,
+  } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
   const [expandedKeys, setExpandedKeys] = useState<
@@ -60,6 +73,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [selectedKeys, setSelectedKeys] = useState<
     (string | number | bigint)[]
   >([pathname]);
+
+  // ===========> Fiscal Year Ended Section <=================
+
+  const { token } = useAuthenticationStore();
+  const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
+
+  useEffect(() => {
+    refetch();
+  }, [token]);
+
+  const hasEndedFiscalYear =
+    !!activeFiscalYear?.isActive &&
+    !!activeFiscalYear?.endDate &&
+    new Date(activeFiscalYear?.endDate) <= new Date();
+
+  // ===========> Fiscal Year Ended Section <=================
 
   const treeData: CustomMenuItem[] = [
     {
@@ -77,12 +106,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/organization',
       className: 'font-bold',
       permissions: ['view_organization'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Org Structure</span>,
           key: '/organization/chart',
           className: 'font-bold',
           permissions: ['view_organization_chart'],
+          disabled: hasEndedFiscalYear,
         },
         {
           title: <span>Settings</span>,
@@ -105,6 +136,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees',
       className: 'font-bold',
       permissions: ['view_employees'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Manage Employees</span>,
@@ -139,6 +171,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/recruitment',
       className: 'font-bold',
       permissions: ['view_recruitment'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Jobs</span>,
@@ -179,6 +212,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'okr-menu',
       className: 'font-bold',
       permissions: ['view_okr'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Dashboard</span>,
@@ -227,6 +261,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'feedback-menu',
       className: 'font-bold',
       permissions: ['view_feedback'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Conversation</span>,
@@ -247,7 +282,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['view_feedback_recognition'],
         },
         {
-          title: <span>Settings</span>,
+          title: 'Settings',
           key: '/feedback/settings',
           className: 'font-bold',
           permissions: ['manage_feedback_settings'],
@@ -267,6 +302,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'tna-menu',
       className: 'font-bold',
       permissions: ['view_learning_growth'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>My-TNA</span>,
@@ -306,6 +342,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: 'payroll-menu',
       className: 'font-bold',
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Employee Information</span>,
@@ -348,6 +385,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'timesheet-menu',
       className: 'font-bold',
       permissions: ['view_timesheet'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>My Timesheet</span>,
@@ -390,6 +428,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'compensation-menu',
       className: 'font-bold',
       permissions: ['view_compensation'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Allowance</span>,
@@ -432,6 +471,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'incentive-menu',
       className: 'font-bold',
       permissions: ['view_incentive'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Incentive</span>,
@@ -463,6 +503,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: 'admin-menu',
       className: 'font-bold',
       permissions: ['view_admin_configuration'],
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Dashboard</span>,
@@ -531,17 +572,35 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setMobileCollapsed(!mobileCollapsed);
   };
 
-  const handleLogout = () => {
-    setToken('');
-    setTenantId('');
-    setLocalId('');
-    removeCookie('token');
-    router.push(`/authentication/login`);
-    setUserId('');
-    setLocalId('');
-    setError('');
-    removeCookie('tenantId');
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      // First step: clear all state that might trigger queries
+      setUserData({});
+      setLoggedUserRole('');
+      setActiveCalendar('');
+      setUserId('');
+      setError('');
+      setIs2FA(false);
+      setTwoFactorAuthEmail('');
+      setLocalId('');
+      setTenantId('');
+      setToken('');
+      setUser2FA({ email: '', pass: '' });
+
+
+      // Then remove cookies
+      removeCookie('token');
+      removeCookie('tenantId');
+      removeCookie('activeCalendar');
+      removeCookie('loggedUserRole');
+
+      // Finally clear the remaining state
+      setToken('');
+      setTenantId('');
+      setLocalId('');
+
+      router.push('/authentication/login');
+    } catch (error) {}
   };
 
   const filteredMenuItems = treeData
@@ -700,7 +759,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         )}
 
         <div className="relative">
-          <div className="absolute left-2 top-0 w-[10px] h-full bg-white z-10"></div>
+          <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
           {isLoading ? (
             <div className="px-5 w-full h-full flex justify-center items-center my-5">
               <Skeleton active />{' '}
@@ -714,7 +773,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               selectedKeys={selectedKeys}
               onSelect={handleSelect}
               onDoubleClick={handleDoubleClick}
-              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]:!shadow-lg [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
+              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
               switcherIcon={null}
             />
           )}
@@ -781,8 +840,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
             style={{
               borderRadius: borderRadiusLG,
-              marginTop: '3rem',
-              marginRight: `${isMobile ? 0 : !isAdminPage ? '1.3rem' : ''}`,
+              marginTop: '94px',
+              marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
             }}
           >
             {children}

@@ -42,7 +42,7 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
         const mdWidth = `md:w-${Math.round(field.widthRatio)}/12`;
 
         return (
-          <div key={field.key} className={`${baseWidth} ${mdWidth} p-2`}>
+          <div key={field.key} className={`${baseWidth} ${mdWidth}`}>
             {isDateField ? (
               <>
                 {/* Show modal button on small screens */}
@@ -89,7 +89,7 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
                     </div>
                   </Modal>
                 </div>
-                <div className="hidden md:block">
+                <div className="hidden md:block pb-2 pl-2">
                   <RangePicker
                     onChange={(dates, dateStrings) => {
                       onChange?.({ key: field?.key, value: dateStrings });
@@ -108,7 +108,7 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
                 }}
                 allowClear
                 showSearch
-                className="w-full h-14"
+                className="w-full h-14 "
                 optionFilterProp="children"
                 filterOption={(input: any, option: any) =>
                   option?.children

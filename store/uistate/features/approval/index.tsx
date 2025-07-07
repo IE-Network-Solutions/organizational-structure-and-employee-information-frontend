@@ -43,6 +43,9 @@ interface UserState {
   workflowApplies: string | null;
   setWorkflowApplies: (workflowApplies: string | null) => void;
 
+  workflowUserId: string | null;
+  setWorkflowUserId: (workflowUserId: string | null) => void;
+
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string) => void;
 
@@ -119,6 +122,10 @@ export const useApprovalStore = create<UserState>()(
         workflowApplies: null,
         setWorkflowApplies: (workflowApplies: string | null) =>
           set({ workflowApplies }),
+
+        workflowUserId: null,
+        setWorkflowUserId: (workflowUserId: string | null) =>
+          set({ workflowUserId }),
 
         searchParams: {
           name: '',

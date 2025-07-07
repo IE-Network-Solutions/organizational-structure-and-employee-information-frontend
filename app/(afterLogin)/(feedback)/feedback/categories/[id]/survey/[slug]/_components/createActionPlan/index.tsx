@@ -10,7 +10,10 @@ import {
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TiDeleteOutline } from 'react-icons/ti';
 import Image from 'next/image';
-import { useGetActionPlanById } from '@/store/server/features/organization-development/categories/queries';
+import {
+  useGetActionPlanById,
+  useGetAllActionPlan,
+} from '@/store/server/features/organization-development/categories/queries';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 
 const { Option } = Select;
@@ -25,12 +28,15 @@ const CreateActionPlan = (props: any) => {
     open,
     setOpen,
   } = useOrganizationalDevelopment();
-  const { mutate: createActionPlanData, isLoading } = useCreateActionPlan();
-  const { mutate: updateActionPlanData } = useUpdateActionPlan();
+  const { mutate: createActionPlanData, isLoading: createActionPlanLoading } =
+    useCreateActionPlan();
+  const { mutate: updateActionPlanData, isLoading: updateActionPlanLoading } =
+    useUpdateActionPlan();
   const { data: singleActionPlanData } = useGetActionPlanById(
     selectedEditActionPlan || '',
   );
   const { data: employeeData, isLoading: userLoading } = useGetAllUsers();
+  const { refetch: refetchActionPlan } = useGetAllActionPlan(props?.id);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -49,11 +55,12 @@ const CreateActionPlan = (props: any) => {
   const handleOnFinishActionPlan = (values: any) => {
     const arrayOfObjects = Object.keys(values).map((key: any) => values[key]);
     createActionPlanData(
-      { formId: props?.id, values: arrayOfObjects }, // Pass both formId and values together
+      { formId: props?.id, values: arrayOfObjects },
       {
         onSuccess: () => {
-          form.resetFields(); // Resets the form after successful creation
-          setOpen(false); // Closes the modal or form
+          form.resetFields();
+          setOpen(false);
+          refetchActionPlan();
         },
       },
     );
@@ -73,12 +80,13 @@ const CreateActionPlan = (props: any) => {
 
   const handleOnUpdateActionPlan = (values: any) => {
     updateActionPlanData(
-      { actionPlanId: selectedEditActionPlan, values: values[0] }, // Pass both formId and values together
+      { actionPlanId: selectedEditActionPlan, values: values[0] },
       {
         onSuccess: () => {
           form.resetFields();
-          setSelectedEditActionPlan(null); // Resets the selected action plan after successful update
-          setOpen(false); // Closes the modal or form
+          setSelectedEditActionPlan(null);
+          setOpen(false);
+          refetchActionPlan();
         },
       },
     );
@@ -163,13 +171,26 @@ const CreateActionPlan = (props: any) => {
                   >
                     <Select
                       id={`selectStatusChartType`}
+                      mode="multiple"
                       placeholder="Responsible Person"
                       allowClear
                       loading={userLoading}
                       className="w-full my-4"
+                      optionLabelProp="label"
+                      optionFilterProp="label"
                     >
                       {employeeData?.items?.map((item: any) => (
-                        <Option key="active" value={item.id}>
+                        <Option
+                          key="active"
+                          value={item.id}
+                          label={
+                            item.firstName +
+                            ' ' +
+                            item.middleName +
+                            ' ' +
+                            item.lastName
+                          }
+                        >
                           <div className="flex space-x-3 p-1 rounded">
                             <Image
                               src={item?.profileImage ?? Avatar}
@@ -179,7 +200,11 @@ const CreateActionPlan = (props: any) => {
                               height={15}
                             />
                             <span className="flex justify-center items-center">
-                              {item?.firstName + ' ' + ' ' + item?.middleName}
+                              {item?.firstName +
+                                ' ' +
+                                item?.middleName +
+                                ' ' +
+                                item?.lastName}
                             </span>
                           </div>
                         </Option>
@@ -195,12 +220,8 @@ const CreateActionPlan = (props: any) => {
                     name={[`${index}`, 'status']}
                     label={`Status`}
                     id={`statusId${index + 1}`}
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Status required',
-                      },
-                    ]}
+                    hidden={true}
+                    initialValue={'pending'}
                   >
                     <Select
                       id={`selectStatusChartType`}
@@ -243,7 +264,7 @@ const CreateActionPlan = (props: any) => {
             </Col>
             <Col xs={24} sm={12}>
               <Button
-                loading={isLoading}
+                loading={createActionPlanLoading || updateActionPlanLoading}
                 htmlType="submit"
                 name="createActionButton"
                 id="createActionButtonId"

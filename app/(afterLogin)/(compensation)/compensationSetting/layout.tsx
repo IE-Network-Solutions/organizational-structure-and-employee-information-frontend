@@ -5,6 +5,7 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
+import { usePathname } from 'next/navigation';
 
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
@@ -13,12 +14,21 @@ interface TimesheetSettingsLayoutProps {
 const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
   children,
 }) => {
+  const pathname = usePathname();
   const menuItems = new SidebarMenuItem([
     {
       item: {
         key: 'allowanceType',
-        icon: <CiCalendarDate className="hidden lg:inline" />,
-        label: <p className="menu-item-label">Allowance Type</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/allowanceType') ? 'lg:ml-4' : ''}`}
+          >
+            <CiCalendarDate
+              className={`hidden lg:inline ${pathname.includes('/compensationSetting/allowanceType') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label">Allowance Type</p>
+          </div>
+        ),
         className: 'px-1',
       },
       link: '/compensationSetting/allowanceType',
@@ -26,8 +36,16 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'benefitType',
-        icon: <CiCalendarDate className="hidden lg:inline" />,
-        label: <p className="menu-item-label">Benefit Type</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/benefitType') ? 'lg:ml-4' : ''}`}
+          >
+            <CiCalendarDate
+              className={`hidden lg:inline ${pathname.includes('/compensationSetting/benefitType') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label">Benefit Type</p>
+          </div>
+        ),
         className: 'px-1',
       },
       link: '/compensationSetting/benefitType',
@@ -35,8 +53,16 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
     {
       item: {
         key: 'deductionType',
-        icon: <CiCalendarDate className="hidden lg:inline" />,
-        label: <p className="menu-item-label">Deduction Type</p>,
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/deductionType') ? 'lg:ml-4' : ''}`}
+          >
+            <CiCalendarDate
+              className={`hidden lg:inline ${pathname.includes('/compensationSetting/deductionType') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label">Deduction Type</p>
+          </div>
+        ),
         className: 'px-1',
       },
       link: '/compensationSetting/deductionType',
@@ -44,15 +70,15 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+    <div className="min-h-screen bg-[#fafafa] p-3">
+      <div className="h-auto w-auto ">
         <PageHeader
           title="Settings"
           description="Compensation Settings"
         ></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-6 mt-3">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0">
             {children}
           </BlockWrapper>
         </div>

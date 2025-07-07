@@ -24,10 +24,11 @@ const Workflow = () => {
           <Button
             type="primary"
             id="createUserButton"
+            className="hidden sm:flex h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
             onClick={handleNavigation}
           >
-            <span className="hidden lg:inline">Set Approval</span>
+            <span className="hidden sm:inline">Set Approval</span>
           </Button>
         </AccessGuard>
       </div>

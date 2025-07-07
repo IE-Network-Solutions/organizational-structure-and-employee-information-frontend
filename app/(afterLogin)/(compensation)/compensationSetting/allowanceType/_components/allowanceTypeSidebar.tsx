@@ -92,7 +92,7 @@ const AllowanceTypeSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: false,
       onClick: () => onClose(),
@@ -104,7 +104,7 @@ const AllowanceTypeSideBar = () => {
         <span>Create</span>
       ),
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading,
@@ -127,8 +127,14 @@ const AllowanceTypeSideBar = () => {
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="30%"
+        customMobileHeight="70vh"
       >
         <Spin spinning={isLoading}>
           <Form
@@ -146,7 +152,7 @@ const AllowanceTypeSideBar = () => {
               <Input
                 className="control"
                 placeholder="Allowance Name"
-                style={{ height: '32px', padding: '4px 8px' }}
+                style={{ height: '40px', padding: '4px 8px' }}
               />
             </Form.Item>
             <Form.Item
@@ -214,7 +220,7 @@ const AllowanceTypeSideBar = () => {
                 type="number"
                 min={0}
                 placeholder="Enter Allowance Ammount"
-                style={{ height: '32px', padding: '4px 8px' }}
+                style={{ height: '40px', padding: '4px 8px' }}
               />
             </Form.Item>
             {!isAllEmployee && !selectedAllowanceRecord && (

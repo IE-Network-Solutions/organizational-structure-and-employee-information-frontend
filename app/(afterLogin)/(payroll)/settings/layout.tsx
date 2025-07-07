@@ -53,7 +53,13 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900">Tax Rule</p>,
+        label: (
+          <p
+            className={`font-bold text-sm ${isMobile ? (currentItem === 'tax-rule' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
+          >
+            Tax Rule
+          </p>
+        ),
         className: currentItem === 'tax-rule' ? 'px-4' : 'px-1',
       },
       link: '/settings/tax-rule',
@@ -68,8 +74,14 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900">Pension</p>,
-        className: currentItem === 'planning-assignation' ? 'px-4' : 'px-1',
+        label: (
+          <p
+            className={`font-bold text-sm ${isMobile ? (currentItem === 'pension' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
+          >
+            Pension
+          </p>
+        ),
+        className: currentItem === 'pension' ? 'px-4' : 'px-1',
       },
       link: '/settings/pension',
     },
@@ -80,11 +92,17 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         icon: !isMobile ? (
           <MdOutlinePayments
             className={
-              currentItem === 'pey-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
+              currentItem === 'pay-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
         ) : null,
-        label: <p className="font-bold text-sm text-gray-900">Pay Period</p>,
+        label: (
+          <p
+            className={`font-bold text-sm ${isMobile ? (currentItem === 'pay-period' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
+          >
+            Pay Period
+          </p>
+        ),
         className: currentItem === 'pay-period' ? 'px-4' : 'px-1',
       },
       link: '/settings/pay-period',
@@ -119,38 +137,15 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
   // };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="p-4 md:p-6 lg:p-8 w-full h-auto">
+    <div className="min-h-screen bg-[#fafafa] p-3">
+      <div className="w-full h-auto">
         <PageHeader
           title="Settings"
           description="Payroll Settings"
         ></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
-          {/* <ConfigProvider
-            theme={{
-              components: {
-                Menu: {
-                  itemHeight: 56,
-                  itemPaddingInline: 0,
-                  itemMarginInline: 0,
-                  itemMarginBlock: 16,
-                  itemActiveBg: '#F8F8F8',
-                  itemHoverBg: 'rgba(248,248,248,0.92)',
-                },
-              },
-            }}
-          >
-            <Menu
-              className="w-full md:w-[250px] lg:w-[300px] rounded-2xl py-2 px-6 h-max border border-gray-300"
-              items={menuItems.onlyItems}
-              mode="inline"
-              selectedKeys={[currentItem]}
-              onClick={onMenuClick}
-            />
-          </ConfigProvider> */}
+        <div className="flex  flex-col lg:flex-row gap-6 mt-3">
           <SidebarMenu menuItems={menuItems} />
-
-          <div className="w-full border border-gray-300 rounded-2xl">
+          <div className="w-full  rounded-2xl overflow-x-auto bg-[#fafafa]">
             {children}
           </div>
         </div>

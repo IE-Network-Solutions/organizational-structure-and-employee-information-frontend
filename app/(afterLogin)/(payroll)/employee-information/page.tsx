@@ -11,6 +11,9 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 interface Employee {
   id: string;
@@ -64,7 +67,8 @@ interface AllowanceMap {
 const EmployeeInformation = () => {
   const router = useRouter();
   const { searchValue } = useEmployeeManagementStore();
-
+  const { pageSize, currentPage, setCurrentPage, setPageSize } =
+    usePayrollStore();
   const {
     openDrawer,
     setSelectedPayrollData,
@@ -85,7 +89,6 @@ const EmployeeInformation = () => {
     openDrawer();
     setIsEditMode(true);
   };
-
   const employeeIds = EmployeeData?.map((item: Employee) => item.id) ?? [];
 
   const allowanceMap: AllowanceMap = (AllowanceData ?? [])
@@ -233,7 +236,28 @@ const EmployeeInformation = () => {
     refetch();
   };
 
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
+
+  const filteredData = dataSource.filter((item) =>
+    searchValue ? item.key === searchValue : true,
+  );
+
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setCurrentPage(1);
+  };
+
   return (
     <div className={isMobile ? 'p-1' : 'p-5'}>
       <div className="flex justify-start items-center bg-gray-100 -mx-1">
@@ -245,24 +269,31 @@ const EmployeeInformation = () => {
 
       <Spin spinning={responseLoading || Loading}>
         <Table
-          dataSource={dataSource.filter((item) =>
-            searchValue ? item.key === searchValue : true,
-          )}
+          dataSource={paginatedData}
           columns={columns}
           onRow={(record) => ({
             onClick: () => handleDetail(record),
             style: { cursor: 'pointer' },
           })}
-          pagination={{
-            position: ['bottomCenter'],
-            pageSize: isMobile ? 7 : 10,
-            showSizeChanger: false,
-            showQuickJumper: false,
-            showTotal: () => null, // Hide AntD's total display
-            simple: true, // Only prev / next / current
-          }}
+          pagination={false}
           scroll={{ x: 'max-content' }}
         />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={filteredData?.length || 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageSizeChange}
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={filteredData?.length || 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageSizeChange}
+          />
+        )}
       </Spin>
       <Drawer />
     </div>

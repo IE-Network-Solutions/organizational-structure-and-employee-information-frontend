@@ -40,17 +40,25 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
         open={isOpen}
         onClose={props?.onClose}
         modalHeader={
-          <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+          <div className="flex justify-start text-base font-extrabold text-gray-800">
             Add Employee Type
           </div>
         }
-        width="30%"
+        width="40%"
         footer={
-          <div className=" w-full bg-[#fff]  flex justify-center space-x-5">
-            <Button type="default" onClick={handleCloseDrawer}>
+          <div className=" w-full bg-[#fff]  flex justify-center space-x-5  p-4">
+            <Button
+              className="h-[40px] sm:h-[56px] text-base px-10"
+              type="default"
+              onClick={handleCloseDrawer}
+            >
               Cancel
             </Button>
-            <Button type="primary" onClick={handleSubmit}>
+            <Button
+              className="h-[40px] sm:h-[56px] text-base px-10"
+              type="primary"
+              onClick={handleSubmit}
+            >
               Submit
             </Button>
           </div>
@@ -76,7 +84,7 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
               allowClear
               size="large"
               placeholder="Enter EmployeType name"
-              className="text-sm w-full h-14"
+              className="text-sm w-full h-10"
             />
           </Form.Item>
           <Form.Item
@@ -95,6 +103,7 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
             ]}
           >
             <TextArea
+              className="h-36"
               allowClear
               rows={4}
               placeholder="Enter employetype description"

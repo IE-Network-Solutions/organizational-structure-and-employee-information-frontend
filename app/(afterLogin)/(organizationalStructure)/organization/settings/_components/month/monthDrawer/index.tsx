@@ -5,6 +5,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface DrawerProps {
   form: FormInstance<any> | undefined;
@@ -61,6 +62,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
 
   const fiscalStart = fiscalYearStart ? fiscalYearStart.toDate() : new Date();
   const fiscalEnd = fiscalYearEnd ? fiscalYearEnd.toDate() : new Date();
+  const { isMobile } = useIsMobile();
 
   const startMonth = fiscalStart.getMonth() + 1;
   const endMonth = fiscalEnd.getMonth() + 1;
@@ -91,7 +93,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
     if (selectedFiscalYear && isEditMode) {
       const sessions = selectedFiscalYear?.sessions || [];
       const inferredCalendarType =
-        sessions.length === 4
+        sessions.length >= 4
           ? 'Quarter'
           : sessions.length === 2
             ? 'Semester'
@@ -169,18 +171,20 @@ const MonthDrawer: React.FC<DrawerProps> = ({
   return (
     <>
       <div
-        className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full`}
+        className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0 items-center w-full h-full`}
       >
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-4">
+        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2">
           Set up Month
         </div>
 
         {Object.entries(groupedMonths).map(([section, months]) => {
           return (
-            <div key={section} className="mb-6">
+            <div key={section} className="px-3 sm:px-0">
               {months.map((month, index) => {
                 const { startDate, endDate } = getMonthStartEndDates(month);
-                const monthName = `Month-${month}`;
+                const monthName =
+                  generateMonthName(Number(section), index).split(' (')[0] ||
+                  'Month';
                 return (
                   <React.Fragment key={month}>
                     <Form.Item
@@ -202,7 +206,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                       <Input
                         size="large"
                         className="w-full text-sm"
-                        placeholder={`Enter name for month ${month}`}
+                        placeholder={`Enter name for ${monthName}`}
                       />
                     </Form.Item>
 
@@ -249,7 +253,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                       label={<span className="font-medium">Description</span>}
                     >
                       <TextArea
-                        placeholder={`Enter description for month ${month}`}
+                        placeholder={`Enter description for ${monthName}`}
                         className={'h-32 font-normal text-sm mt-2'}
                         size="large"
                       />
@@ -261,22 +265,26 @@ const MonthDrawer: React.FC<DrawerProps> = ({
           );
         })}
 
-        <Form.Item>
-          <div className="flex justify-center w-full px-6 py-6 gap-8">
+        <Form.Item className="mb-0">
+          <div
+            className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+          >
             <Button
+              type="default"
               onClick={() => setCurrent(1)}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
             >
               Previous
             </Button>
             <Button
+              type="primary"
               htmlType={departments?.length > 0 ? 'submit' : 'button'}
               onClick={() => {
                 if (!departments?.length && onNextStep) {
                   onNextStep();
                 }
               }}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <div>

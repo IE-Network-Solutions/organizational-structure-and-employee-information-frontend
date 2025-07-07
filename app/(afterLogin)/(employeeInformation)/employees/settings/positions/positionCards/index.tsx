@@ -5,13 +5,15 @@ import { useGetPositions } from '@/store/server/features/employees/positions/que
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
 import PositionsEdit from '../positionEdit';
-import RecruitmentPagination from '@/app/(afterLogin)/(recruitment)/recruitment/_components';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const PositionCards: React.FC = () => {
   const { mutate: deletePosition } = useDeletePosition();
-
+  const { isMobile, isTablet } = useIsMobile();
   const {
     currentPage,
     pageSize,
@@ -46,6 +48,12 @@ const PositionCards: React.FC = () => {
   useEffect(() => {
     refetch();
   }, [currentPage, pageSize]);
+
+  const onPageChange = (page: number, pageSize: number) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+  };
+
   return (
     <>
       {positions?.items && positions?.items?.length > 0 ? (
@@ -86,26 +94,23 @@ const PositionCards: React.FC = () => {
         onConfirm={handleDelete}
       />
       {editModal && <PositionsEdit />}
-      {/* <Pagination 
-            align="end" 
-            defaultCurrent={currentPage} 
-            onChange={(page: number, pageSize: number)=>{setPageSize(pageSize); setCurrentPage(page)}}
-            total={positions?.meta.totalItems}
-          /> */}
 
-      <RecruitmentPagination
-        current={currentPage}
-        total={positions?.meta?.totalItems ?? 1}
-        pageSize={pageSize}
-        onChange={(page: number, pageSize: number) => {
-          setCurrentPage(page);
-          setPageSize(pageSize);
-        }}
-        onShowSizeChange={(size: number) => {
-          setPageSize(size);
-          setCurrentPage(pageSize);
-        }}
-      />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={positions?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={positions?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={(pageSize) => setPageSize(pageSize)}
+        />
+      )}
     </>
   );
 };

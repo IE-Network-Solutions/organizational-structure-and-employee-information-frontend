@@ -40,7 +40,8 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             <CiCalendarDate
               size={16}
               className={
-                currentItem === 'defaultIncentiveCard' || firstItem?.id
+                currentItem === 'defaultIncentiveCard' ||
+                currentItem === firstItem?.id
                   ? 'text-[#4DAEF0]'
                   : 'text-gray-500'
               }
@@ -53,7 +54,8 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             </p>
           ),
           className:
-            currentItem === 'defaultIncentiveCard' || firstItem?.id
+            currentItem === 'defaultIncentiveCard' ||
+            currentItem === firstItem?.id
               ? 'px-6'
               : 'px-1',
         },
@@ -93,10 +95,10 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   const incentiveSidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-gray-100 p-0 rounded-lg  ">
+    <div className="min-h-screen bg-[#fafafa] p-3">
       <PageHeader title="Settings" description="Incentive Settings" />
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-8 ">
+      <div className="flex flex-col lg:flex-row gap-6 mt-3 ">
         {responseLoading ? (
           <div className="w-64">
             <Skeleton active paragraph={{ rows: 6 }} />
@@ -104,7 +106,9 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
         ) : (
           <SidebarMenu menuItems={incentiveSidebarMenuItems} />
         )}
-        <BlockWrapper className="flex-1 h-full">{children}</BlockWrapper>
+        <BlockWrapper className="flex-1 h-full bg-[#fafafa] p-0 ">
+          {children}
+        </BlockWrapper>
       </div>
     </div>
   );

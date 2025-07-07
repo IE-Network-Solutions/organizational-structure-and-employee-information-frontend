@@ -89,7 +89,11 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
             className="font-semibold text-xs"
             name="workScheduleId"
             id="workScheduleId"
-            label="Work Schedule Category"
+            label={
+              <span className="mb-1 font-semibold text-xs">
+                Work Schedule Category
+              </span>
+            }
             rules={[
               { required: true, message: 'Please select a work schedule!' },
             ]}
@@ -99,6 +103,7 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
               onChange={workscheduleChangeHandler}
               allowClear
               value={workSchedule}
+              className="bg-white"
             >
               {workSchedules?.items.map((schedule) => (
                 <Option key={schedule?.id} value={schedule?.id}>

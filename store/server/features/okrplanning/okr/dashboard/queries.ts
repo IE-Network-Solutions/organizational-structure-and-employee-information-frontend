@@ -85,11 +85,13 @@ const getVariablePay = async (monthIds: string[]) => {
 };
 
 export const useGetUserObjectiveDashboard = (postId: number | string) => {
+  const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<ResponseData>(
     ['ObjectiveDashboard', postId],
     () => getObjectiveDashboardByUser(postId),
     {
       keepPreviousData: true,
+      enabled: !!tenantId,
     },
   );
 };

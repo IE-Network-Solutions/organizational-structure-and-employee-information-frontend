@@ -60,6 +60,7 @@ const Status: React.FC = () => {
             type="primary"
             id="createStatusButton"
             onClick={handleOpen}
+            className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
           >
             <span className="hidden lg:inline">Define New Status</span>

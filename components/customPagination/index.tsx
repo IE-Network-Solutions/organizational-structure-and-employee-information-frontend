@@ -40,10 +40,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center rounded-lg ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
               current === i
-                ? 'bg-gray-100 text-gray-700 '
-                : 'text-gray-600  hover:bg-gray-100'
+                ? 'bg-[#F8F8F8] text-[#111827] '
+                : 'bg-white text-[#111827]'
             }`}
           >
             {i}
@@ -51,19 +51,36 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
     } else {
-      const leftSide = Math.max(1, current - 1);
-      const rightSide = Math.min(totalPages, current + 1);
+      // Always show first page
+      pageNumbers.push(
+        <button
+          key={1}
+          onClick={() => handlePageChange(1)}
+          className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
+            current === 1
+              ? 'bg-[#F8F8F8] text-[#111827]'
+              : 'bg-white text-[#111827]'
+          }`}
+        >
+          1
+        </button>,
+      );
 
-      if (leftSide > 2) {
-        pageNumbers.push(
-          <button
-            key={1}
-            onClick={() => handlePageChange(1)}
-            className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
-          >
-            1
-          </button>,
-        );
+      // Calculate the range of pages to show around current page
+      let startPage = Math.max(2, current - 1);
+      let endPage = Math.min(totalPages - 1, current + 1);
+
+      // Adjust if we're near the start
+      if (current <= 3) {
+        endPage = Math.min(4, totalPages - 1);
+      }
+      // Adjust if we're near the end
+      if (current >= totalPages - 2) {
+        startPage = Math.max(2, totalPages - 3);
+      }
+
+      // Add ellipsis after first page if needed
+      if (startPage > 2) {
         pageNumbers.push(
           <span key="leftEllipsis" className="px-2">
             ...
@@ -71,15 +88,16 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
 
-      for (let i = leftSide; i <= rightSide; i++) {
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center border rounded ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
               current === i
-                ? 'bg-gray-100 text-gray-700 border-gray-300'
-                : 'text-gray-600 border-gray-300 hover:bg-gray-100'
+                ? 'bg-[#F8F8F8] text-[#111827] '
+                : 'bg-white text-[#111827] '
             }`}
           >
             {i}
@@ -87,22 +105,29 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
 
-      if (rightSide < totalPages - 1) {
+      // Add ellipsis before last page if needed
+      if (endPage < totalPages - 1) {
         pageNumbers.push(
           <span key="rightEllipsis" className="px-2">
             ...
           </span>,
         );
-        pageNumbers.push(
-          <button
-            key={totalPages}
-            onClick={() => handlePageChange(totalPages)}
-            className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
-          >
-            {totalPages}
-          </button>,
-        );
       }
+
+      // Always show last page
+      pageNumbers.push(
+        <button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          className={`w-8 h-8 flex items-center justify-center  rounded-[10px] ${
+            current === totalPages
+              ? 'bg-[#F8F8F8] text-[#111827] '
+              : 'bg-white text-[#111827]  hover:bg-gray-100'
+          }`}
+        >
+          {totalPages}
+        </button>,
+      );
     }
 
     return pageNumbers;
@@ -110,15 +135,15 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   const { isMobile } = useIsMobile();
   return (
-    <div className="flex justify-between items-center py-6 mx-2">
+    <div className="flex justify-between items-center py-6 px-4  bg-white">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
-          className={`w-8 h-8 flex items-center justify-center border rounded ${
+          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === 1
-              ? 'text-gray-300 border-gray-200'
-              : 'text-gray-600 border-gray-300 hover:bg-gray-100'
+              ? 'text-[#111827] border-gray-200'
+              : 'text-[#111827] border-gray-300 hover:bg-gray-100'
           }`}
         >
           <LeftOutlined />
@@ -127,10 +152,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
-          className={`w-8 h-8 flex items-center justify-center border rounded ${
+          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
             current === totalPages
-              ? 'text-gray-300 border-gray-200'
-              : 'text-gray-600 border-gray-300 hover:bg-gray-100'
+              ? 'text-[#111827] border-gray-200'
+              : 'text-[#111827] border-gray-300 hover:bg-gray-100'
           }`}
         >
           <RightOutlined />
@@ -138,19 +163,34 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       </div>
       <div className="flex items-center">
         {!isMobile && (
-          <span className="mr-2 text-sm text-gray-400">
+          <span className="mr-2 text-xs text-[#718096]">
             Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
             {Math.min(total, current * pageSize)} out of {total} entries
           </span>
         )}
         <Select
           value={pageSize}
-          className="w-24"
+          className="w-24 h-8"
           onChange={(value) => handleSizeChange(value)}
         >
-          <Option value={4}>Show 4</Option>
-          <Option value={10}>Show 10</Option>
-          <Option value={25}>Show 25</Option>
+          <Option value={4}>
+            <span className="text-xs text-[#111827]">Show 4</span>
+          </Option>
+          <Option value={10}>
+            <span className="text-xs text-[#111827]">Show 10</span>
+          </Option>
+          <Option value={25}>
+            <span className="text-xs text-[#111827]">Show 25</span>
+          </Option>
+          <Option value={50}>
+            <span className="text-xs text-[#111827]">Show 50</span>
+          </Option>
+          <Option value={75}>
+            <span className="text-xs text-[#111827]">Show 75</span>
+          </Option>
+          <Option value={100}>
+            <span className="text-xs text-[#111827]">Show 100</span>
+          </Option>
         </Select>
       </div>
     </div>

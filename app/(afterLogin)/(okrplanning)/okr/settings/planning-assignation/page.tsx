@@ -23,6 +23,9 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { FaPlus } from 'react-icons/fa';
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
 
 // Define columns with correct type
 
@@ -44,7 +47,7 @@ const PlanAssignment: React.FC = () => {
   const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
   const { data: employeeData, isLoading: employeeDataLoading } =
     useGetAllUsers();
-
+  const { isMobile, isTablet } = useIsMobile();
   const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
     (acc: GroupedUser[], item: PlanningPeriodUser) => {
       let group = acc.find((group) => group.userId === item.userId);
@@ -227,6 +230,23 @@ const PlanAssignment: React.FC = () => {
     <div className="p-5 rounded-2xl shadow-md bg-white h-full">
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-semibold">Plan Assignation</h2>
+      </div>
+      <div className="flex justify-between">
+        <Form.Item id="filterByLeaveRequestUserIds" name="userIds">
+          <Select
+            placeholder="Select a person"
+            showSearch
+            className="mb-4 w-60 sm:w-80 h-10"
+            allowClear
+            optionFilterProp="label"
+            onChange={onChange}
+            options={employeeData?.items?.map((list: any) => ({
+              value: list?.id,
+              label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+            }))}
+            loading={employeeDataLoading}
+          />
+        </Form.Item>
         <AccessGuard permissions={[Permissions.AssignPlanningPeriod]}>
           <Button
             icon={<FaPlus />}
@@ -239,39 +259,41 @@ const PlanAssignment: React.FC = () => {
         </AccessGuard>
       </div>
 
-      <Form.Item id="filterByLeaveRequestUserIds" name="userIds">
-        <Select
-          placeholder="Select a person"
-          showSearch
-          className="mb-4 w-full"
-          allowClear
-          optionFilterProp="label"
-          onChange={onChange}
-          options={employeeData?.items?.map((list: any) => ({
-            value: list?.id,
-            label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-          }))}
-          loading={employeeDataLoading}
-        />
-      </Form.Item>
-
       <div className="overflow-x-auto scrollbar-none w-full">
         <Table
           loading={allUserPlanningPeriodLoading}
           dataSource={dataSources}
           columns={columns}
-          pagination={{
-            pageSize: allUserWithPlanningPeriod?.meta.itemsPerPage, // Set the page size from your meta data
-            current: allUserWithPlanningPeriod?.meta.currentPage, // Current page number
-            total: allUserWithPlanningPeriod?.meta.totalItems, // Total number of items
-
-            showSizeChanger: true, // Optional: Allow users to change page size
-            onChange: (page, pageSize) => {
+          pagination={false}
+        />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={allUserWithPlanningPeriod?.meta.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
               setPage(page);
               setPageSize(pageSize);
-            },
-          }}
-        />
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={allUserWithPlanningPeriod?.meta.currentPage || 1}
+            total={allUserWithPlanningPeriod?.meta.totalItems || 1}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        )}
       </div>
 
       <PlanningAssignationDrawer open={open} onClose={onClose} />

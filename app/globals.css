@@ -11,6 +11,10 @@
   src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 }
 
+.ant-popconfirm-message {
+  display: block !important;
+}
+
 html,
 body {
   margin: 0;
@@ -63,6 +67,7 @@ h6 {
       margin-bottom: 0.25em;
     }
   }
+
   ul {
     list-style-type: disc;
   }
@@ -233,31 +238,49 @@ h6 {
 }
 
 .ant-tree-treenode .ant-tree-title {
-  height: 2.25rem !important; /* h-9 */
-  width: 14rem !important; /* w-60 */
+  height: 2.25rem !important;
+  /* h-9 */
+  width: 14rem !important;
+  /* w-60 */
   display: flex;
   align-items: center;
   justify-content: start;
 }
 
 .ant-tree-treenode-selected .ant-tree-title {
-  background-color: #f5f5f5 !important; /* Slightly darker for selection */
+  background-color: #f5f5f5 !important;
+  /* Slightly darker for selection */
 }
 
 .ant-tree-treenode:hover .ant-tree-title {
-  background-color: #f5f5f5 !important; /* Light grey on hover */
+  background-color: #f5f5f5 !important;
+  /* Light grey on hover */
 }
 
 .ant-tree-treenode .ant-tree-title {
   transition: background-color 0.2s ease-in-out;
 }
 
+/* Quill Editor styles */
+.quill-editor-container {
+  min-height: 200px;
+}
 .my-custom-datepicker {
   max-width: 90vw;
   font-size: 14px;
 }
+
 .ant-tree-treenode .ant-tree-title {
   width: 100% !important;
+}
+
+.custom-dragger .ant-upload {
+  height: 80px !important;
+  min-height: 80px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
 }
 
 @layer components {
@@ -267,4 +290,88 @@ h6 {
       @apply text-primary;
     }
   }
+}
+
+.quill-editor-container .ql-container {
+  min-height: 150px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ql-editor {
+  min-height: 150px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+}
+
+.ql-toolbar.ql-snow {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.ql-container.ql-snow {
+  border: 1px solid #e2e8f0 !important;
+  border-top: none !important;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  font-family: 'Manrope', sans-serif;
+  @apply text-gray-900 font-medium text-sm;
+}
+
+.ql-container.ql-snow h3 {
+  font-size: 24px !important;
+}
+
+.ql-container .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: rgba(0, 0, 0, 0.35);
+  @apply font-medium text-sm;
+}
+
+/* Mention styles */
+.ql-mention-list-container {
+  z-index: 9999;
+}
+
+.ql-mention-list {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ql-mention-list-item {
+  padding: 8px 12px;
+  font-family: 'Manrope', sans-serif;
+}
+
+.ql-mention-list-item.selected {
+  background-color: #e9f5ff;
+}
+.mention {
+  color: black;
+  font-weight: bold;
+  font-size: 10px;
+}
+.ProseMirror {
+  min-height: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+.ProseMirror:focus {
+  outline: none !important;
+}
+.ProseMirror p.is-empty::before {
+  content: attr(data-placeholder);
+  color: #999;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.custom-timepicker .ant-picker-input input {
+  font-size: 12px !important;
+}
+
+.custom-timepicker .ant-picker-suffix {
+  font-size: 12px !important;
 }
