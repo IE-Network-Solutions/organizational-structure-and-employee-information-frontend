@@ -1,7 +1,6 @@
 import React from 'react';
 import { Form, InputNumber, DatePicker, Select, Input } from 'antd';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
-import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
@@ -12,25 +11,12 @@ const PercentageForm: React.FC<OKRFormProps> = ({
   index,
   updateKeyResult,
   removeKeyResult,
-  addKeyResultValue,
 }) => {
   const { Option } = Select;
   const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
-  const { setKeyResult, objectiveValue } = useOKRStore();
+  const { objectiveValue } = useOKRStore();
   const { data: metrics } = useGetMetrics();
-
-  const handleAddKeyResult = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        addKeyResultValue(values);
-        setKeyResult([]);
-      })
-      .catch((info) => {
-        showValidationErrors(info.errorFields);
-      });
-  };
 
   return (
     <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">

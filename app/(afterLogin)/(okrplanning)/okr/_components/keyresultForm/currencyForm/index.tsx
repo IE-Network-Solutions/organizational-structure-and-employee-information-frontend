@@ -1,19 +1,6 @@
 import React from 'react';
-import {
-  Button,
-  Form,
-  InputNumber,
-  DatePicker,
-  Select,
-  Input,
-  Row,
-  Col,
-} from 'antd';
-import { GoPlus } from 'react-icons/go';
-import { CiDollar } from 'react-icons/ci';
-import { IoIosCloseCircleOutline } from 'react-icons/io';
+import { Form, InputNumber, DatePicker, Select, Input } from 'antd';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
-import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
@@ -24,42 +11,12 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   index,
   updateKeyResult,
   removeKeyResult,
-  addKeyResultValue,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult, objectiveValue } = useOKRStore();
+  const { objectiveValue } = useOKRStore();
   const { isMobile } = useIsMobile();
   const { data: metrics } = useGetMetrics();
-
-  const handleAddKeyResult = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        addKeyResultValue(values);
-        setKeyResult([]);
-      })
-      .catch((info) => {
-        showValidationErrors(info.errorFields);
-      });
-  };
-
-  const validateName = (
-    key: string,
-    name: string,
-    isRequire?: boolean,
-  ): string | null => {
-    if (isRequire === false) {
-      return '';
-    }
-    if (!name) {
-      return `${key} is required.`;
-    }
-    if (name.length < 3) {
-      return `${key} must be greater than 3 characters long.`;
-    }
-    return null;
-  };
 
   return (
     <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">

@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Row,
-  Col,
-} from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Select } from 'antd';
 import { GoPlus } from 'react-icons/go';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
-import cancelIcon from '../../../../../../../public/image/Button.svg';
-import Image from 'next/image';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const MilestoneForm: React.FC<OKRFormProps> = ({
@@ -23,11 +12,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   index,
   updateKeyResult,
   removeKeyResult,
-  addKeyResultValue,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult, objectiveValue } = useOKRStore();
+  const { objectiveValue } = useOKRStore();
   const { data: metrics } = useGetMetrics();
   const [milestones, setMilestones] = useState(
     keyItem.milestones && keyItem.milestones.length > 0
@@ -35,29 +23,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
       : [{ title: '', weight: 0 }],
   );
 
-  const metricTypeId = metrics?.items?.find(
-    (i: any) => i.name == 'Milestone',
-  )?.id;
-
   useEffect(() => {
     // Sync milestones with parent keyItem
     updateKeyResult(index, 'milestones', milestones);
     // eslint-disable-next-line
   }, [milestones]);
-
-  const handleAddKeyResult = () => {
-    form
-      .validateFields()
-      .then((keyItem) => {
-        const NewValue = {
-          ...keyItem,
-          metricTypeId: metricTypeId,
-        };
-        addKeyResultValue(NewValue);
-        setKeyResult([]);
-      })
-      .catch(() => {});
-  };
 
   const handleAddMilestone = () => {
     setMilestones([...milestones, { title: '', weight: 0 }]);
@@ -71,7 +41,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   };
 
   const handleRemoveMilestone = (mIndex: number) => {
-    setMilestones(milestones.filter((_, i) => i !== mIndex));
+    setMilestones(milestones.filter((noneUsed, i) => i !== mIndex));
   };
 
   const { isMobile } = useIsMobile();

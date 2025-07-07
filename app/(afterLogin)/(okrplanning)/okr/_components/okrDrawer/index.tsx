@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   DatePicker,
@@ -8,14 +8,12 @@ import {
   Row,
   Col,
   Select,
-  Checkbox,
   Dropdown,
   Menu,
   Modal,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
 import KeyResultForm from '../keyresultForm';
-import KeyResultView from '../keyresultView';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -42,8 +40,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     updateKeyResult,
     removeKeyResult,
     addKeyResultValue,
-    setAlignment,
-    alignment,
     setObjective,
   } = useOKRStore();
 
@@ -79,17 +75,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     setObjectiveValue(defaultObjective); // Reset the objectiveValue state
     setObjective(defaultObjective); // Reset the objective state (which contains keyResults)
     props?.onClose(); // Close the drawer
-  };
-  const handleAlignment = () => {
-    const updatedAlignment = !alignment;
-    setAlignment(updatedAlignment);
-
-    if (!updatedAlignment) {
-      setObjectiveValue({
-        ...objectiveValue,
-        allignedKeyResultId: null,
-      });
-    }
   };
   const handleObjectiveChange = (value: any, field: string) => {
     const newObjectiveName = value;
@@ -247,8 +232,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     { label: 'Achieved or Not', value: 'Achieved' },
   ];
 
-  const [addingKeyResult, setAddingKeyResult] = useState(false);
-
   const { data: metrics } = useGetMetrics();
 
   const handleAddKeyResultType = ({ key }: { key: string }) => {
@@ -269,7 +252,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
     // Add key result with the correct metricTypeId
     addKeyResult(key, metricTypeId);
-    setAddingKeyResult(false);
   };
 
   const keyResultMenu = (
