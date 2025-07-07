@@ -1,6 +1,5 @@
 'use client';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   DatePicker,
@@ -10,6 +9,9 @@ import {
   Col,
   Select,
   Checkbox,
+  Dropdown,
+  Menu,
+  Modal,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
 import KeyResultForm from '../keyresultForm';
@@ -21,6 +23,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useCreateObjective } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -41,14 +44,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     addKeyResultValue,
     setAlignment,
     alignment,
+    setObjective,
   } = useOKRStore();
 
   const [form] = Form.useForm();
   const { mutate: createObjective, isLoading } = useCreateObjective();
   const { isMobile } = useIsMobile();
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {isMobile ? 'Set Objective' : 'Objective'}
+    <div className="flex justify-center text-2xl font-extrabold text-gray-800 p-4">
+      OKR
     </div>
   );
 
@@ -72,7 +76,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   }, [objectiveTitle, form]);
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
-    setObjectiveValue(defaultObjective); // Reset the objective state
+    setObjectiveValue(defaultObjective); // Reset the objectiveValue state
+    setObjective(defaultObjective); // Reset the objective state (which contains keyResults)
     props?.onClose(); // Close the drawer
   };
   const handleAlignment = () => {
@@ -98,15 +103,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     form
       .validateFields()
       .then(() => {
-        const keyResults = objectiveValue?.keyResults;
-        const keyResultSum = keyResults?.reduce(
+        const keyResults = objective?.keyResults || [];
+        const keyResultSum = keyResults.reduce(
           (sum: number, keyResult: Record<string, number>) =>
-            sum + keyResult.weight,
+            sum + (keyResult?.weight || 0),
           0,
         );
         if (keyResultSum !== 100) {
           NotificationMessage.warning({
-            message: `The sum of key result should equal to 100.`,
+            message: `The sum of key result should equal to 100. Current sum: ${keyResultSum}`,
           });
           return; // Stop submission if the sum is not 100
         }
@@ -127,7 +132,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             }
             if (keyType === 'Milestone') {
               // Check if at least one milestone is added
-              if (!keyResult.milestones || keyResult.milestones.length === 0) {
+              if (
+                !keyResult?.milestones ||
+                !Array.isArray(keyResult.milestones) ||
+                keyResult.milestones.length === 0
+              ) {
                 NotificationMessage.warning({
                   message: `On Number: ${index + 1} Title:${keyResult.title} Please add at least one milestone`,
                 });
@@ -137,17 +146,16 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               // Calculate the sum of milestone values
               const milestoneSum = keyResult.milestones.reduce(
                 (sum: number, milestone: Record<string, number>) =>
-                  sum + milestone.weight,
+                  sum + (milestone?.weight || 0),
                 0,
               );
 
-              // Check if the sum of milestone values equals 100
-
-              if (milestoneSum !== 100) {
+              // Check if the sum of milestone values equals the key result weight
+              if (milestoneSum !== keyResult.weight) {
                 NotificationMessage.warning({
-                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100.`,
+                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to ${keyResult.weight}. Current sum: ${milestoneSum}`,
                 });
-                return; // Stop submission if the sum is not 100
+                return; // Stop submission if the sum is not equal to key result weight
               }
             }
             if (
@@ -165,7 +173,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               }
             }
           }
-          const modifiedObjectiveValue = { ...objectiveValue };
+
+          // Transfer key results from objective to objectiveValue for submission
+          const modifiedObjectiveValue = {
+            ...objectiveValue,
+            keyResults: keyResults,
+          };
+
           if (
             modifiedObjectiveValue?.allignedKeyResultId === '' ||
             modifiedObjectiveValue?.allignedKeyResultId === null
@@ -190,8 +204,25 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       });
   };
 
+  // Calculate total weight (sum of key result weights only)
+  const calculateTotalWeight = () => {
+    const keyResults = objective?.keyResults || [];
+    let totalWeight = 0;
+
+    if (Array.isArray(keyResults)) {
+      keyResults.forEach((keyResult: any) => {
+        // Add key result weight only
+        totalWeight += keyResult?.weight || 0;
+      });
+    }
+
+    return totalWeight;
+  };
+
+  const totalWeight = calculateTotalWeight();
+
   const footer = (
-    <div className="w-full flex justify-center items-center  pt-2  bottom-8  space-x-5 ">
+    <div className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5">
       <CustomButton
         id="cancel-button"
         type="default"
@@ -201,21 +232,66 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       />
       <CustomButton
         id="save-button"
-        title={'Save'}
+        title={'Add'}
         type="primary"
         onClick={onSubmit}
         loading={isLoading}
       />
     </div>
   );
+
+  const keyResultTypes = [
+    { label: 'Milestone', value: 'Milestone' },
+    { label: 'Currency', value: 'Currency' },
+    { label: 'Numerics', value: 'Numeric' },
+    { label: 'Achieved or Not', value: 'Achieved' },
+  ];
+
+  const [addingKeyResult, setAddingKeyResult] = useState(false);
+
+  const { data: metrics } = useGetMetrics();
+
+  const handleAddKeyResultType = ({ key }: { key: string }) => {
+    // Create a mapping for the dropdown values to actual metric names
+    const metricNameMapping: { [key: string]: string } = {
+      Milestone: 'Milestone',
+      Currency: 'Currency',
+      Numeric: 'Numeric',
+      Achieved: 'Achieve', // Map "Achieved" to "Achieve"
+    };
+
+    // Find the metric type ID for the selected key type
+    const actualMetricName = metricNameMapping[key] || key;
+    const metricType = metrics?.items?.find(
+      (metric: any) => metric.name === actualMetricName,
+    );
+    const metricTypeId = metricType?.id || '';
+
+    // Add key result with the correct metricTypeId
+    addKeyResult(key, metricTypeId);
+    setAddingKeyResult(false);
+  };
+
+  const keyResultMenu = (
+    <Menu onClick={handleAddKeyResultType}>
+      {keyResultTypes.map((type) => (
+        <Menu.Item key={type.value}>{type.label}</Menu.Item>
+      ))}
+    </Menu>
+  );
+
   return (
-    <CustomDrawerLayout
+    <Modal
       open={props.open}
-      onClose={handleDrawerClose}
-      modalHeader={modalHeader}
+      onCancel={handleDrawerClose}
       footer={footer}
-      width={isMobile ? '100%' : '50%'}
-      paddingBottom={10}
+      title={modalHeader}
+      centered
+      width={isMobile ? '100vw' : 900}
+      bodyStyle={{ padding: isMobile ? 12 : 32, minHeight: 400 }}
+      style={{ top: isMobile ? 0 : 32, padding: 0 }}
+      maskClosable={false}
+      destroyOnClose
     >
       <Form
         id="okr-form"
@@ -224,84 +300,119 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         initialValues={objectiveValue}
         className="w-full"
       >
-        <Row gutter={[16, isMobile ? 12 : 16]} className="w-full">
-          {!isMobile && (
-            <Col xs={24} sm={12} md={16}>
-              <Checkbox checked={alignment} onChange={() => handleAlignment()}>
-                Change Objective Name
-              </Checkbox>
-            </Col>
-          )}
-          <Col xs={24} sm={12} md={16}>
+        {isMobile ? (
+          <div className="flex flex-col w-full">
             <Form.Item
-              id="alignment-select"
-              className="font-bold"
-              name="allignedKeyResultId"
-              label="Supervisor Key Result"
+              id="title-input"
+              className="h-11 mb-10"
+              name="title"
+              label="Objective"
               rules={[
                 {
-                  required: reportsToId ? true : false,
+                  required: true,
                   message: 'Please enter the Objective name',
                 },
               ]}
             >
-              <Select
-                id="alignment-select-dropdown"
-                showSearch
-                placeholder="Search and select a Key Result"
-                value={objectiveValue?.allignedKeyResultId}
-                onChange={(value) =>
-                  handleObjectiveChange(value, 'allignedKeyResultId')
-                }
-                filterOption={(input: string, option: any) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-                style={{ fontSize: isMobile ? '14px' : '12px' }}
-              >
-                {keyResultByUser?.items.map((keyResult: any) => (
-                  <Select.Option key={keyResult.id} value={keyResult.id}>
-                    {keyResult.title}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-
-          <Col xs={24} sm={12} md={8}>
-            <Form.Item
-              id="deadline-picker"
-              className="font-bold"
-              name="ObjectiveDeadline"
-              label="Objective Deadline"
-              rules={[{ required: true, message: 'Please select a deadline' }]}
-            >
-              <DatePicker
-                id="deadline-picker-field"
-                value={
-                  objectiveValue.deadline
-                    ? dayjs(objectiveValue.deadline)
-                    : null
-                }
-                onChange={(date) => {
-                  handleObjectiveChange(date?.format('YYYY-MM-DD'), 'deadline');
+              <Input
+                id="title-input-field"
+                allowClear
+                className="h-11"
+                onChange={(e) => {
+                  handleObjectiveChange(e.target.value, 'title');
                 }}
-                className="w-full"
-                format="YYYY-MM-DD"
-                disabledDate={(current) =>
-                  current && current < dayjs().startOf('day')
-                }
-                style={{ fontSize: isMobile ? '14px' : '12px' }}
+                style={{ fontSize: '14px', height: '44px' }}
               />
             </Form.Item>
-          </Col>
-
-          {alignment && (
-            <Col xs={24} sm={24} md={16}>
+            <div className="flex w-full gap-4 mb-10">
+              <Form.Item
+                id="alignment-select"
+                className="h-11 w-1/2 mb-0"
+                name="allignedKeyResultId"
+                label="Alignment"
+                rules={[
+                  {
+                    required: reportsToId ? true : false,
+                    message: 'Please enter the Objective name',
+                  },
+                ]}
+              >
+                <Select
+                  id="alignment-select-dropdown"
+                  className="h-11"
+                  showSearch
+                  placeholder="Search and select a Key Result"
+                  value={objectiveValue?.allignedKeyResultId}
+                  onChange={(value) =>
+                    handleObjectiveChange(value, 'allignedKeyResultId')
+                  }
+                  filterOption={(input: string, option: any) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  style={{ fontSize: '14px', height: '44px' }}
+                >
+                  {keyResultByUser?.items?.map((keyResult: any) => (
+                    <Select.Option key={keyResult.id} value={keyResult.id}>
+                      {keyResult.title}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                id="deadline-picker"
+                className="h-11 w-1/2 mb-0"
+                name="ObjectiveDeadline"
+                label="Objective Deadline"
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
+              >
+                <DatePicker
+                  id="deadline-picker-field"
+                  value={
+                    objectiveValue.deadline
+                      ? dayjs(objectiveValue.deadline)
+                      : null
+                  }
+                  onChange={(date) => {
+                    handleObjectiveChange(
+                      date?.format('YYYY-MM-DD'),
+                      'deadline',
+                    );
+                  }}
+                  className="w-full h-11"
+                  format="YYYY-MM-DD"
+                  disabledDate={(current) =>
+                    current && current < dayjs().startOf('day')
+                  }
+                  style={{ fontSize: '14px', height: '44px' }}
+                />
+              </Form.Item>
+            </div>
+            <div className="w-full flex justify-end mb-10">
+              <Dropdown
+                overlay={keyResultMenu}
+                trigger={['click']}
+                className=""
+              >
+                <Button
+                  type="default"
+                  id="add-keyresult-button"
+                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
+                  icon={<GoPlus size={24} />}
+                  aria-label="Add Key Result"
+                />
+              </Dropdown>
+            </div>
+          </div>
+        ) : (
+          <Row gutter={[16, 16]} className="w-full">
+            <Col xs={24} sm={8} md={8}>
               <Form.Item
                 id="title-input"
-                className="font-bold"
+                className="h-11 mb-10"
                 name="title"
-                label="Objective Title"
+                label="Objective"
                 rules={[
                   {
                     required: true,
@@ -312,61 +423,136 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 <Input
                   id="title-input-field"
                   allowClear
+                  className="h-11"
                   onChange={(e) => {
                     handleObjectiveChange(e.target.value, 'title');
                   }}
-                  style={{ fontSize: isMobile ? '14px' : '12px' }}
+                  style={{
+                    fontSize: isMobile ? '14px' : '12px',
+                    height: '44px',
+                  }}
                 />
               </Form.Item>
             </Col>
-          )}
-        </Row>
+            <Col xs={24} sm={8} md={8}>
+              <Form.Item
+                id="alignment-select"
+                className="h-11 mb-10"
+                name="allignedKeyResultId"
+                label="Alignment"
+                rules={[
+                  {
+                    required: reportsToId ? true : false,
+                    message: 'Please enter the Objective name',
+                  },
+                ]}
+              >
+                <Select
+                  id="alignment-select-dropdown"
+                  className="h-11"
+                  showSearch
+                  placeholder="Search and select a Key Result"
+                  value={objectiveValue?.allignedKeyResultId}
+                  onChange={(value) =>
+                    handleObjectiveChange(value, 'allignedKeyResultId')
+                  }
+                  filterOption={(input: string, option: any) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  style={{
+                    fontSize: isMobile ? '14px' : '12px',
+                    height: '44px',
+                  }}
+                >
+                  {keyResultByUser?.items?.map((keyResult: any) => (
+                    <Select.Option key={keyResult.id} value={keyResult.id}>
+                      {keyResult.title}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={8} md={8}>
+              <Form.Item
+                id="deadline-picker"
+                className="h-11 mb-10"
+                name="ObjectiveDeadline"
+                label="Objective Deadline"
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
+              >
+                <DatePicker
+                  id="deadline-picker-field"
+                  value={
+                    objectiveValue.deadline
+                      ? dayjs(objectiveValue.deadline)
+                      : null
+                  }
+                  onChange={(date) => {
+                    handleObjectiveChange(
+                      date?.format('YYYY-MM-DD'),
+                      'deadline',
+                    );
+                  }}
+                  className="w-full h-11"
+                  format="YYYY-MM-DD"
+                  disabledDate={(current) =>
+                    current && current < dayjs().startOf('day')
+                  }
+                  style={{
+                    fontSize: isMobile ? '14px' : '12px',
+                    height: '44px',
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} className="flex justify-end items-center mb-10">
+              <Dropdown overlay={keyResultMenu} trigger={['click']}>
+                <Button
+                  type="default"
+                  id="add-keyresult-button"
+                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center text-sm"
+                  icon={<GoPlus size={18} />}
+                  aria-label="Add Key Result"
+                >
+                  Key Result
+                </Button>
+              </Dropdown>
+            </Col>
+          </Row>
+        )}
 
-        <div
-          className={`rounded-lg mt-5 w-full ${
-            isMobile ? '' : 'border border-gray-300'
-          }`}
-        >
-          <div className="flex justify-between items-center mb-4">
-            <p className={`font-bold ${isMobile ? 'text-sm' : 'text-xs'} h-6`}>
-              Set Key Result
-            </p>
-            <Button
-              id="add-keyresult-button"
-              disabled={objective?.keyResults?.length === 1}
-              onClick={addKeyResult}
-              className={`border-none shadow-none bg-none flex items-center ${
-                isMobile ? 'text-sm' : 'text-xs'
-              }`}
-              icon={<GoPlus size={isMobile ? 18 : 16} />}
-              aria-label="Add Key Result"
-            >
-              Add Key Result
-            </Button>
-          </div>
-          {objectiveValue?.keyResults?.map((keyValue: any, index: number) => (
-            <KeyResultView
-              key={index}
-              objective={objectiveValue}
-              keyValue={keyValue}
-              index={index}
-              isEdit={false}
-              form={form}
-            />
-          ))}
-          {objective?.keyResults.map((keyItem: any, index: number) => (
-            <KeyResultForm
-              key={index}
-              keyItem={keyItem}
-              index={index}
-              updateKeyResult={updateKeyResult}
-              removeKeyResult={removeKeyResult}
-              addKeyResultValue={addKeyResultValue}
-            />
-          ))}
+        <div className={`rounded-lg mt-5 w-full`}>
+          {/* Show forms for key results */}
+          {objective?.keyResults?.length > 0 &&
+            objective?.keyResults.map((keyItem: any, index: number) => (
+              <KeyResultForm
+                key={index}
+                keyItem={keyItem}
+                index={index}
+                updateKeyResult={updateKeyResult}
+                removeKeyResult={removeKeyResult}
+                addKeyResultValue={addKeyResultValue}
+              />
+            ))}
+
+          {/* Total Weight Display */}
+          {objective?.keyResults?.length > 0 && (
+            <div className="flex justify-end mt-4">
+              <div className="text-sm text-gray-600 font-medium">
+                Total Weight:{' '}
+                <span
+                  className={`font-bold ${totalWeight === 100 ? 'text-green-600' : 'text-red-600'}`}
+                >
+                  {totalWeight}%
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
