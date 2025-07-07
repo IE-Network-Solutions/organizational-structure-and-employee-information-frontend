@@ -67,7 +67,6 @@ const BenefitTracking = () => {
   const latestEnd = endDates.length
     ? new Date(Math.max(...endDates)).toLocaleDateString()
     : '';
-
   return (
     <Card
       bodyStyle={{ padding: 0 }}
@@ -202,6 +201,16 @@ const BenefitTracking = () => {
                           </Option>
                         ))}
                       </Select>
+                    </Form.Item>
+                  ),
+                },
+                {
+                  title: 'Reason',
+                  dataIndex: 'reason',
+                  key: 'reason',
+                  render: (notused, notuseds, index) => (
+                    <Form.Item name={[index, 'reason']} className="mb-0">
+                      <span>{paginatedTracking?.[index]?.reason || '-'}</span>
                     </Form.Item>
                   ),
                 },
