@@ -6,7 +6,13 @@ import { useGetMeetingComments } from '@/store/server/features/CFR/meeting/queri
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 
-export default function CommentsSection({ meetingId,canEditComment }: { meetingId: string,canEditComment:boolean }) {
+export default function CommentsSection({
+  meetingId,
+  canEditComment,
+}: {
+  meetingId: string;
+  canEditComment: boolean;
+}) {
   const { showComments, setShowComments } = useMeetingStore();
   const { data: comments } = useGetMeetingComments(meetingId);
   function handleOpenCloseComment() {
@@ -74,7 +80,11 @@ export default function CommentsSection({ meetingId,canEditComment }: { meetingI
         </span>
       </div>
       {showComments && (
-        <CommentComponent canEditComment={canEditComment} commentData={comments} meetingId={meetingId} />
+        <CommentComponent
+          canEditComment={canEditComment}
+          commentData={comments}
+          meetingId={meetingId}
+        />
       )}
       {/* <Input.TextArea rows={3} placeholder="[[Comment by the person]]" /> */}
     </div>

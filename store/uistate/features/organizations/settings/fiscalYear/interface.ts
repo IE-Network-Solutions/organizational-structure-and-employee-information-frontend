@@ -20,9 +20,9 @@ export interface DrawerState {
   formData: Record<string, any>;
   setFormData: (newData: Record<string, any>) => void;
   fiscalYearEnd: Dayjs | null;
-  setFiscalYearEnd: (fiscalYearEndDate: Dayjs) => void;
+  setFiscalYearEnd: (fiscalYearEndDate: Dayjs | null) => void;
   fiscalYearStart: Dayjs | null;
-  setFiscalYearStart: (fiscalYearStartDate: Dayjs) => void;
+  setFiscalYearStart: (fiscalYearStartDate: Dayjs | null) => void;
   clearFormData: () => void;
   setSelectedYear: (year: number) => void;
   setCurrentPage: (currentPage: number) => void;
@@ -44,6 +44,8 @@ export interface DrawerState {
 
   fiscalYearFormValues: Record<string, any>;
   setFiscalYearFormValues: (newData: Record<string, any>) => void;
+  fiscalYearPayLoad: any;
+  setFiscalYearPayLoad: (newData: Record<string, any>) => void;
 
   sessionFormValues: Record<string, any>;
   setSessionFormValues: (newData: Record<string, any>) => void;

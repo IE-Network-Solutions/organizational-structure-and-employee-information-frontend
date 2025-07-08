@@ -8,7 +8,6 @@ import React, { useEffect } from 'react';
 import SessionDrawer from '../../session/sessionDrawer';
 import MonthDrawer from '../../month/monthDrawer';
 import { FormInstance } from 'antd/lib';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
 import {
   Month,
@@ -44,7 +43,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     openfiscalYearDrawer,
     setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
-  const { data: departments } = useGetDepartments();
 
   useEffect(() => {
     const formValues = form3?.getFieldsValue();
@@ -140,7 +138,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       monthFormValues,
       sessionFormValues,
     );
-
     const fiscalYearPayload = {
       name: fiscalYearFormValues?.fiscalYearName,
       startDate: fiscalYearFormValues?.fiscalYearStartDate,
@@ -220,7 +217,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   return (
     <>
-      {(!departments?.length || openfiscalYearDrawer) && (
+      {/* !departments?.length || oenfiscalYearDrawer */}
+      {true && (
         <CustomDrawerLayout
           modalHeader={
             <h1 className="flex justify-start text-base font-bold text-gray-800">
@@ -236,7 +234,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           {formContent}
         </CustomDrawerLayout>
       )}
-      {!departments?.length && !openfiscalYearDrawer && formContent}
+      {/* {!departments?.length && !openfiscalYearDrawer && formContent} */}
+      {formContent}
     </>
   );
 };

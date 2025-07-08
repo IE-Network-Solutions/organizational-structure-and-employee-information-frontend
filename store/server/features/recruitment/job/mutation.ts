@@ -112,7 +112,7 @@ export const useDeleteJobs = () => {
   const queryClient = useQueryClient();
   return useMutation((id: string) => deleteJob(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries('jobs');
+      queryClient.invalidateQueries({ queryKey: ['jobs'], exact: false });
       NotificationMessage.success({
         message: 'Job deleted successfully!',
         description: 'Job has been successfully deleted',

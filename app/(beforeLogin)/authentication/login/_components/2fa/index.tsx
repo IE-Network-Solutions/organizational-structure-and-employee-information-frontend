@@ -17,7 +17,7 @@ const TwoFactorAuth = () => {
     useVerify2FACode();
   const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
     useGet2FACode();
-    const { handleSignIn } = useHandleSignIn();
+  const { handleSignIn } = useHandleSignIn();
 
   const {
     localId,
@@ -27,7 +27,7 @@ const TwoFactorAuth = () => {
     resetCountdown,
     setIs2FA,
     user2FA,
-    loading
+    loading,
   } = useAuthenticationStore();
 
   useEffect(() => {
@@ -68,6 +68,7 @@ const TwoFactorAuth = () => {
         values: {
           email: user2FA.email,
           pass: user2FA.pass,
+          recaptchaToken: user2FA.recaptchaToken,
         },
       },
       {

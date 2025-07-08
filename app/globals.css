@@ -11,6 +11,16 @@
   src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 }
 
+/* Hide scrollbar while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
 .ant-popconfirm-message {
   display: block !important;
 }
@@ -374,4 +384,18 @@ h6 {
 
 .custom-timepicker .ant-picker-suffix {
   font-size: 12px !important;
+}
+
+/* Hide the selected checkmark icon in Select dropdown */
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  display: none;
+}
+
+.ql-container {
+  border: none !important;
+  box-shadow: none !important;
+}
+.ql-editor {
+  border: none !important;
 }

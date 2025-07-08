@@ -61,13 +61,13 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
 type CommentComponentProps = {
   meetingId: string;
   commentData: any;
-  canEditComment:boolean
+  canEditComment: boolean;
 };
 
 const CommentComponent: React.FC<CommentComponentProps> = ({
   meetingId,
   commentData,
-  canEditComment
+  canEditComment,
 }) => {
   const [form] = Form.useForm();
   const { comments, setComments, commentUpdate, setCommentUpdate } =
@@ -87,33 +87,38 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
 
   const handleSubmit = () => {
     if (commentUpdate) {
-     if(comments=="" || comments=="<p></p>"){
-          NotificationMessage.warning({message:"Warning",description:"Please add Comment first"})
-       }else{
-      updateComment(
-        { comments: comments, userId, id: commentUpdate.id },
-        {
-          onSuccess() {
-            setComments('');
-            setCommentUpdate(null);
+      if (comments == '' || comments == '<p></p>') {
+        NotificationMessage.warning({
+          message: 'Warning',
+          description: 'Please add Comment first',
+        });
+      } else {
+        updateComment(
+          { comments: comments, userId, id: commentUpdate.id },
+          {
+            onSuccess() {
+              setComments('');
+              setCommentUpdate(null);
+            },
           },
-        },
-      );
-    }
+        );
+      }
     } else {
-       if(comments=="" || comments=="<p></p>"){
-          NotificationMessage.warning({message:"Warning",description:"Please add Comment first"})
-       }else{
-         createComment(
-        { meetingId, comments: comments, userId },
-        {
-          onSuccess() {
-            setComments('');
+      if (comments == '' || comments == '<p></p>') {
+        NotificationMessage.warning({
+          message: 'Warning',
+          description: 'Please add Comment first',
+        });
+      } else {
+        createComment(
+          { meetingId, comments: comments, userId },
+          {
+            onSuccess() {
+              setComments('');
+            },
           },
-        },
-      );
-       }
-     
+        );
+      }
     }
   };
 
@@ -222,31 +227,32 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
           </div>
         </Row>
       ))}
-      {canEditComment &&
-      <Form
-        form={form}
-        layout="inline"
-        className="w-full mt-4"
-        // onFinish={handleSubmit}
-      >
-        <div className="w-full flex flex-col gap-2">
-          <EditorContent
-            className="min-h-20 border rounded-md px-2 py-1 focus:outline-none"
-            editor={editor}
-          />
+      {canEditComment && (
+        <Form
+          form={form}
+          layout="inline"
+          className="w-full mt-4"
+          // onFinish={handleSubmit}
+        >
+          <div className="w-full flex flex-col gap-2">
+            <EditorContent
+              className="min-h-20 border rounded-md px-2 py-1 focus:outline-none"
+              editor={editor}
+            />
 
-          <div className="flex  justify-end mr-0">
-            <Button
-              loading={createLoading || updateLoading}
-              type="primary"
-              onClick={() => handleSubmit()}
-              className="w-24"
-            >
-              Send
-            </Button>
+            <div className="flex  justify-end mr-0">
+              <Button
+                loading={createLoading || updateLoading}
+                type="primary"
+                onClick={() => handleSubmit()}
+                className="w-24"
+              >
+                Send
+              </Button>
+            </div>
           </div>
-        </div>
-      </Form>}
+        </Form>
+      )}
     </div>
   );
 };
