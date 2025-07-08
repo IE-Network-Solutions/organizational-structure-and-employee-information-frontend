@@ -20,9 +20,7 @@ interface FiscalYearDrawerProps {
   form?: FormInstance;
   handleNextStep?: () => void;
 }
-const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
-  handleNextStep,
-}) => {
+const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({}) => {
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
@@ -90,49 +88,29 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   };
 
   React.useEffect(() => {
-    if (isEditMode && selectedFiscalYear) {
-      // Populate sessionData with IDs
-      const sessionsWithIds =
-        selectedFiscalYear.sessions?.map((session: any) => ({
-          id: session.id,
-          sessionName: session.name,
-          sessionDescription: session.description,
-          sessionStartDate: session.startDate,
-          sessionEndDate: session.endDate,
-          months: session.months?.map((month: any) => ({
-            id: month.id,
-            monthName: month.name,
-            monthDescription: month.description,
-            monthStartDate: month.startDate,
-            monthEndDate: month.endDate,
-          })),
-        })) || [];
-
-      setSessionData(sessionsWithIds);
-
-      // Optionally, also populate monthRangeValues with IDs
-      const monthsWithIds = sessionsWithIds.flatMap(
-        (session: any) =>
-          session.months?.map((month: any) => ({
-            id: month.id,
-            name: month.monthName,
-            description: month.monthDescription,
-            startDate: month.monthStartDate,
-            endDate: month.monthEndDate,
-          })) || [],
-      );
-      setMonthRangeFormValues(monthsWithIds);
-
-      // Set form fields as before
+    if (
+      isEditMode &&
+      selectedFiscalYear &&
+      Array.isArray(monthRangeValues) &&
+      monthRangeValues.length > 0
+    ) {
       form1.setFieldsValue(fiscalYearFormValues);
       form2.setFieldsValue(sessionFormValues);
-      form3.setFieldsValue(monthRangeValues);
-    } else {
-      form1.resetFields();
-      form2.resetFields();
-      form3.resetFields();
+      form3.setFieldsValue(
+        monthRangeValues.reduce(
+          (acc, month) => {
+            const key = month.monthNumber;
+            acc[`monthName_${key}`] = month.monthName;
+            acc[`monthStartDate_${key}`] = month.monthStartDate;
+            acc[`monthEndDate_${key}`] = month.monthEndDate;
+            acc[`monthDescription_${key}`] = month.monthDescription;
+            return acc;
+          },
+          {} as Record<string, any>,
+        ),
+      );
     }
-  }, [isEditMode, selectedFiscalYear]);
+  }, [isEditMode, selectedFiscalYear, monthRangeValues]);
 
   const getTransformedFiscalYear = (
     monthFormValues: any,
@@ -281,8 +259,10 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   };
 
   const formContent = (
-    <Form layout="vertical" onFinish={handleSubmit}>
-      {current === 0 && <FiscalYearForm />}
+    <
+      // Form layout="vertical" onFinish={handleSubmit}
+    >
+      {current === 0 && <FiscalYearForm form={form1} />}
       {current === 1 && (
         <SessionDrawer
           form={form2}
@@ -296,11 +276,12 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           form={form3}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
-          onNextStep={handleNextStep}
+          onSubmit={handleSubmit} // <-- pass the handler
           isFiscalYear={true}
+          open={openfiscalYearDrawer} // <-- add this
         />
       )}
-    </Form>
+    </>
   );
 
   return (
