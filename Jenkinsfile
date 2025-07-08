@@ -8,6 +8,7 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
                         string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD'),
+			string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
                         env.BRANCH_NAME = branchName
@@ -27,6 +28,10 @@ pipeline {
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
                             env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/staging'
+                        } else if (branchName.contains('preview')) {
+                            env.REMOTE_SERVER_2 = REMOTE_SERVER_PROD2
+                            env.SECRETS_PATH = '/home/ubuntu/preview-secrets/.osei-front-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/preview'
                         }
                     }
                 }
@@ -34,89 +39,222 @@ pipeline {
         }
 
         stage('Fetch Environment Variables') {
-            steps {
-                script {
-                    sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                        def secretsPath = env.SECRETS_PATH
-                        env.REPO_URL = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_URL ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
-                            returnStdout: true
-                        ).trim()
-
-                        env.BRANCH_NAME = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep BRANCH_NAME ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
-                            returnStdout: true
-                        ).trim()
-
-                        env.REPO_DIR = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_DIR ${secretsPath} | cut -d= -f2 | tr -d \"\\r\"'",
-                            returnStdout: true
-                        ).trim()
+            parallel {
+                stage('Fetch Variables from Server 1') {
+                    when {
+                        expression { env.REMOTE_SERVER_1 != null }
+                    }
+                    steps {
+                        script {
+                            sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                                def secretsPath = env.SECRETS_PATH
+                                env.REPO_URL = sh(script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_URL ${secretsPath} | cut -d= -f2'", returnStdout: true).trim()
+                                env.BRANCH_NAME = sh(script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep BRANCH_NAME ${secretsPath} | cut -d= -f2'", returnStdout: true).trim()
+                                env.REPO_DIR = sh(script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'grep REPO_DIR ${secretsPath} | cut -d= -f2'", returnStdout: true).trim()
+                            }
+                        }
+                    }
+                }
+                stage('Fetch Variables from Server 2') {
+                    when {
+                        expression { env.REMOTE_SERVER_2 != null }
+                    }
+                    steps {
+                        script {
+                            withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
+                                def secretsPath = env.SECRETS_PATH
+                                env.REPO_URL = sh(script: "sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'grep REPO_URL ${secretsPath} | cut -d= -f2'", returnStdout: true).trim()
+                                env.BRANCH_NAME = sh(script: "sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'grep BRANCH_NAME ${secretsPath} | cut -d= -f2'", returnStdout: true).trim()
+                                env.REPO_DIR = sh(script: "sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'grep REPO_DIR ${secretsPath} | cut -d= -f2'", returnStdout: true).trim()
+                            }
+                        }
                     }
                 }
             }
         }
 
+
         stage('Prepare Repository') {
-            steps {
-                sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
-                        if [ -d "$REPO_DIR" ]; then
-                            sudo chown -R \$USER:\$USER $REPO_DIR
-                            sudo chmod -R 755 $REPO_DIR
-                        fi'
-                    """
+            parallel {
+                stage('Prepare Repository on Server 1') {
+                    when {
+                        expression { env.REMOTE_SERVER_1 != null }
+                    }
+                    steps {
+                        sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
+                                if [ -d "$REPO_DIR" ]; then
+                                    sudo chown -R \$USER:\$USER $REPO_DIR
+                                    sudo chmod -R 755 $REPO_DIR
+                                fi'
+                            """
+                        }
+                    }
+                }
+                stage('Prepare Repository on Server 2') {
+                    when {
+                        expression { env.REMOTE_SERVER_2 != null }
+                    }
+                    steps {
+                        withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
+                            sh """
+                                sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} '
+                                if [ -d "$REPO_DIR" ]; then
+                                    sudo chown -R \$USER:\$USER $REPO_DIR
+                                    sudo chmod -R 755 $REPO_DIR
+                                fi'
+                            """
+                        }
+                    }
                 }
             }
         }
 
         stage('Pull Latest Changes') {
-            steps {
-                sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
-                        if [ ! -d "$REPO_DIR/.git" ]; then
-                            git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
-                        else
-                            cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
-                        fi'
-                    """
+            parallel {
+                stage('Pull Latest Changes to Server 1') {
+                    when {
+                        expression { env.REMOTE_SERVER_1 != null }
+                    }
+                    steps {
+                        sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
+                                if [ ! -d "$REPO_DIR/.git" ]; then
+                                    git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
+                                else
+                                    cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
+                                fi'
+                            """
+                        }
+                    }
+                }
+                stage('Pull Latest Changes to Server 2') {
+                    when {
+                        expression { env.REMOTE_SERVER_2 != null }
+                    }
+                    steps {
+                        withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
+                            sh """
+                                sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} '
+                                if [ ! -d "$REPO_DIR/.git" ]; then
+                                    git clone $REPO_URL -b $BRANCH_NAME $REPO_DIR
+                                else
+                                    cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
+                                fi'
+                            """
+                        }
+                    }
                 }
             }
         }
 
         stage('Install Dependencies') {
-            steps {
-                script {
-                    def envPath = env.FRONTEND_ENV_PATH
-
-                    sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
-                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm install'
-                        """
+            parallel {
+                stage('Install Dependencies on Server 1') {
+                    when {
+                        expression { env.REMOTE_SERVER_1 != null }
+                    }
+                    steps {
+                        script {
+                            def envPath = env.FRONTEND_ENV_PATH
+                            sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                                sh """
+                                    ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
+                                    ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm install'
+                                """
+                            }
+                        }
+                    }
+                }
+                stage('Install Dependencies on Server 2') {
+                    when {
+                        expression { env.REMOTE_SERVER_2 != null }
+                    }
+                    steps {
+                        script {
+                            def envPath = env.FRONTEND_ENV_PATH
+                            withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
+                                sh """
+                                    sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
+                                    sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'cd ~/$REPO_DIR && npm install'
+                                """
+                            }
+                        }
                     }
                 }
             }
         }
 
         stage('Format Repo') {
-            steps {
-                sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run format'
-                    """
+            parallel {
+                stage('Format Repo on Server 1') {
+                    when {
+                        expression { env.REMOTE_SERVER_1 != null }
+                    }
+                    steps {
+                        script {
+                            sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                                sh """
+                                   ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run format'
+
+                                """
+                            }
+                        }
+                    }
+                }
+                stage('Format Repo on Server 2') {
+                    when {
+                        expression { env.REMOTE_SERVER_2 != null }
+                    }
+                    steps {
+                        script {
+                            withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
+                                sh """
+                                    sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'cd ~/$REPO_DIR && npm run format'
+
+                                """
+                            }
+                        }
+                    }
                 }
             }
         }
 
         stage('Build App') {
-            steps {
-                sshagent([env.SSH_CREDENTIALS_ID_1]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
-                    """
+            parallel {
+                stage('Build App on Server 1') {
+                    when {
+                        expression { env.REMOTE_SERVER_1 != null }
+                    }
+                    steps {
+                        script {
+                            sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                                sh """
+                                   ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && npm run build'
+
+
+                                """
+                            }
+                        }
+                    }
+                }
+                stage('Build App on Server 2') {
+                    when {
+                        expression { env.REMOTE_SERVER_2 != null }
+                    }
+                    steps {
+                        script {
+                            withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
+                                sh """
+                                    sshpass -p '$SERVER_PASSWORD'  ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} 'cd ~/$REPO_DIR && npm run build'
+
+
+                                """
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -135,6 +273,25 @@ pipeline {
                                         cd ~/$REPO_DIR &&
                                         sudo pm2 delete osei-front-app || true &&
                                         sudo pm2 start ecosystem.config.js --env production
+                                    '
+                                """
+                            }
+                        }
+                    }
+                }
+
+ 	stage('Deploy to Preview') {
+                    when {
+                        expression { env.BRANCH_NAME.contains('preview') }
+                    }
+                    steps {
+                        script {
+                             withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
+                                sh """
+                                     sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} '
+                                        cd ~/$REPO_DIR &&
+                                        sudo pm2 delete osei-front-app-preview || true &&
+                                        sudo pm2 start preview-ecosystem.config.js --env production
                                     '
                                 """
                             }
