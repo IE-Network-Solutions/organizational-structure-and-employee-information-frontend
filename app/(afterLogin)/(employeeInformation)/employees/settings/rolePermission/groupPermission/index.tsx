@@ -1,11 +1,15 @@
-import { Card, Empty, Pagination, Spin } from 'antd';
+import { Card, Empty, Spin } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const GroupPermissionComponent = () => {
+  const { isMobile, isTablet } = useIsMobile();
   const {
     pageSize,
     permissonGroupCurrentPage,
@@ -46,17 +50,26 @@ const GroupPermissionComponent = () => {
               </div>
             ))}
           </div>
-          <div className="flex justify-end">
-            <Pagination
-              current={permissonGroupCurrentPage}
-              pageSize={pageSize}
-              total={groupPermissionData?.meta?.totalPages}
-              onChange={(page, pageSize) => onPageChange(page, pageSize)}
-              showSizeChanger
-              onShowSizeChange={(page, pageSize) =>
-                onPageChange(page, pageSize)
-              }
-            />
+          <div>
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={groupPermissionData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+              />
+            ) : (
+              <CustomPagination
+                current={permissonGroupCurrentPage}
+                total={groupPermissionData?.meta?.totalItems ?? 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={(pageSize) => {
+                  setPageSize(pageSize);
+                  setPermissionGroupCurrentPage(1);
+                }}
+              />
+            )}
           </div>
         </>
       ) : (

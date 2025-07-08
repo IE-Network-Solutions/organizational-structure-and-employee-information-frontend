@@ -18,6 +18,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeOKRTable from '../EmployeeOkr';
 import CustomPagination from '@/components/customPagination';
 import dynamic from 'next/dynamic';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 // Dynamically import Tabs with no SSR to avoid hydration issues
 const DynamicTabs = dynamic(() => Promise.resolve(Tabs), { ssr: false });
@@ -50,6 +52,7 @@ export default function OkrTab() {
     companyPageSize,
     setOkrTab,
   } = useOKRStore();
+  const { isMobile, isTablet } = useIsMobile();
   const usersInDepartment =
     departmentUsers
       ?.find((i: any) => i.id == searchObjParams?.departmentId)
@@ -155,19 +158,34 @@ export default function OkrTab() {
                         objective={obj}
                       />
                     ))}
-                    <CustomPagination
-                      current={userObjectives?.meta?.currentPage || 1}
-                      total={userObjectives?.meta?.totalItems || 1}
-                      pageSize={pageSize}
-                      onChange={(page, pageSize) => {
-                        setCurrentPage(page);
-                        setPageSize(pageSize);
-                      }}
-                      onShowSizeChange={(size) => {
-                        setPageSize(size);
-                        setCurrentPage(1);
-                      }}
-                    />
+                    {isMobile || isTablet ? (
+                      <CustomMobilePagination
+                        totalResults={userObjectives?.meta?.totalItems ?? 0}
+                        pageSize={pageSize}
+                        onChange={(page, pageSize) => {
+                          setCurrentPage(page);
+                          setPageSize(pageSize);
+                        }}
+                        onShowSizeChange={(size) => {
+                          setPageSize(size);
+                          setCurrentPage(1);
+                        }}
+                      />
+                    ) : (
+                      <CustomPagination
+                        current={userObjectives?.meta?.currentPage || 1}
+                        total={userObjectives?.meta?.totalItems || 1}
+                        pageSize={pageSize}
+                        onChange={(page, pageSize) => {
+                          setCurrentPage(page);
+                          setPageSize(pageSize);
+                        }}
+                        onShowSizeChange={(size) => {
+                          setPageSize(size);
+                          setCurrentPage(1);
+                        }}
+                      />
+                    )}
                   </div>
                 )}
                 {userObjectives?.items?.length === 0 && (
@@ -251,19 +269,36 @@ export default function OkrTab() {
                               objective={obj}
                             />
                           ))}
-                          <CustomPagination
-                            current={companyObjective?.meta?.currentPage || 1}
-                            total={companyObjective?.meta?.totalItems || 1}
-                            pageSize={companyPageSize}
-                            onChange={(page, pageSize) => {
-                              setCompanyCurrentPage(page);
-                              setCompanyPageSize(pageSize);
-                            }}
-                            onShowSizeChange={(size) => {
-                              setCompanyPageSize(size);
-                              setCompanyCurrentPage(1);
-                            }}
-                          />
+                          {isMobile || isTablet ? (
+                            <CustomMobilePagination
+                              totalResults={
+                                companyObjective?.meta?.totalItems ?? 0
+                              }
+                              pageSize={companyPageSize}
+                              onChange={(page, pageSize) => {
+                                setCompanyCurrentPage(page);
+                                setCompanyPageSize(pageSize);
+                              }}
+                              onShowSizeChange={(size) => {
+                                setCompanyPageSize(size);
+                                setCompanyCurrentPage(1);
+                              }}
+                            />
+                          ) : (
+                            <CustomPagination
+                              current={companyObjective?.meta?.currentPage || 1}
+                              total={companyObjective?.meta?.totalItems || 1}
+                              pageSize={companyPageSize}
+                              onChange={(page, pageSize) => {
+                                setCompanyCurrentPage(page);
+                                setCompanyPageSize(pageSize);
+                              }}
+                              onShowSizeChange={(size) => {
+                                setCompanyPageSize(size);
+                                setCompanyCurrentPage(1);
+                              }}
+                            />
+                          )}
                         </div>
                       )}
                       {companyObjective?.items?.length === 0 && (

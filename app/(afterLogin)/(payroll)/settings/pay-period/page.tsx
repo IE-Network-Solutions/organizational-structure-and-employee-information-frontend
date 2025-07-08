@@ -13,6 +13,9 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomDrawer from './_components/customDrawer';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import { FaPlus } from 'react-icons/fa';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 interface DataSource {
   key: string;
   id: string;
@@ -38,6 +41,7 @@ const PayPeriod = () => {
   const { data: payPeriods, isLoading } = useFetchActiveFiscalYearPayPeriods(
     activeFiscalYear?.id,
   );
+  const { isMobile, isTablet } = useIsMobile();
 
   const handleAddPayPeriod = () => {
     setIsPayPeriodSidebarVisible(true);
@@ -51,11 +55,6 @@ const PayPeriod = () => {
     setStartDate(record.startDate);
     setEndDate(record.endDate);
     setVisible(true);
-  };
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
   };
 
   const onStatusChange = (record: any) => {
@@ -122,6 +121,21 @@ const PayPeriod = () => {
       ),
     },
   ];
+  const onPageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+    setCurrentPage(1);
+  };
+
+  const paginatedData = dataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   return (
     <div className="p-5 rounded-2xl bg-white">
@@ -148,16 +162,26 @@ const PayPeriod = () => {
         <div className="flex overflow-x-auto scrollbar-none w-full ">
           <div className="w-full">
             <Table
-              dataSource={dataSource}
+              dataSource={paginatedData}
               columns={columns}
-              pagination={{
-                current: currentPage,
-                pageSize,
-                total: dataSource.length,
-                showSizeChanger: true,
-              }}
-              onChange={handleTableChange}
+              pagination={false}
             />
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={dataSource?.length || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            ) : (
+              <CustomPagination
+                current={currentPage}
+                total={dataSource?.length || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            )}
           </div>
         </div>
       </Spin>
