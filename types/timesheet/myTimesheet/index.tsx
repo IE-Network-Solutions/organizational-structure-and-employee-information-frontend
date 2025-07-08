@@ -11,7 +11,6 @@ export interface LeaveBalance extends DateInfo {
   balance: number;
   accrued: number;
   carriedOver: number;
-  utilizedLeave: number;
   activatedAt: string;
   accrualPeriodStartAt: string;
   accrualPeriodEndAt: string;

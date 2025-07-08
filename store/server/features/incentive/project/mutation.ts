@@ -29,11 +29,5 @@ export const useGenerateIncentive = () => {
         description: 'Incentive has been successfully generated',
       });
     },
-    onError: () => {
-      NotificationMessage.error({
-        message: 'Incentive generation failed!',
-        description: 'Incentive generation failed',
-      });
-    },
   });
 };

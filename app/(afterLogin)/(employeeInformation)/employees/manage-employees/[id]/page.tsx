@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Card, Col, Row, Tabs, Button, Popconfirm } from 'antd';
+import { Card, Col, Row, Tabs, Button } from 'antd';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
 import BasicInfo from './_components/basicInfo';
 import General from './_components/general';
@@ -14,8 +14,6 @@ import { useFetchUserTerminationByUserId } from '@/store/server/features/employe
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useRouter } from 'next/navigation';
-import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useResignedEmployee } from '@/store/server/features/employees/offboarding/mutation';
 
 interface Params {
   id: string;
@@ -25,28 +23,13 @@ interface EmployeeDetailsProps {
 }
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState('1');
 
   const { setIsEmploymentFormVisible } = useOffboardingStore();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
-  const { data: employeeData } = useGetEmployee(id);
-
-  const { mutate: sendResignationID } = useResignedEmployee();
 
   const handleEndEmploymentClick = () => {
     setIsEmploymentFormVisible(true);
   };
-
-  const handleConfirmResignation = (resignationId: string) => {
-    sendResignationID(resignationId, {
-      onSuccess: () => {
-        setActiveTab('5');
-      },
-    });
-  };
-
-  const resignationSubmittedDate =
-    employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
 
   const handleGoBack = () => {
     router.back();
@@ -97,50 +80,25 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         <Col lg={8} md={10} xs={24}>
           <BasicInfo id={id} />
           <AccessGuard permissions={[Permissions.EndEmployment]}>
-            <div className="flex gap-3 justify-center mb-2">
-              {resignationSubmittedDate === null ? (
-                employeeData?.employeeJobInformation.map((item: any) => (
-                  <Popconfirm
-                    key={item?.id}
-                    title="Are you sure to initiate resignation?"
-                    onConfirm={() => handleConfirmResignation(item?.id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button
-                      type="primary"
-                      danger
-                      className="bg-red-500 hover:bg-red-600"
-                      htmlType="submit"
-                      value={'submit'}
-                      name="submit"
-                      disabled={offboardingTermination?.isActive}
-                    >
-                      Initiate Resignation
-                    </Button>
-                  </Popconfirm>
-                ))
-              ) : (
+            <div className="flex gap-3">
+              <div>
                 <Button
                   type="primary"
                   htmlType="submit"
-                  className="px-4"
-                  onClick={handleEndEmploymentClick}
                   value={'submit'}
                   name="submit"
+                  onClick={handleEndEmploymentClick}
                   disabled={offboardingTermination?.isActive}
                 >
                   End Employment
                 </Button>
-              )}
+              </div>
             </div>
           </AccessGuard>
         </Col>
         <Col lg={16} md={14} xs={24}>
           <Card>
             <Tabs
-              activeKey={activeTab}
-              onChange={setActiveTab}
               items={items}
               tabBarGutter={16}
               size="small"

@@ -279,75 +279,6 @@ export default function ParticipantsList({
   function handleDeleteParticipant(id: string) {
     deleteParticipant(id);
   }
-  const removeParticipantContent = (id: string) => (
-    <div className="rounded-lg w-full max-w-sm text-center">
-      <p className="text-gray-800 text-base mb-6 text-left font-bold">
-        Are you sure you want to remove
-        <br />
-        this participant
-      </p>
-      <div className="flex justify-center gap-4">
-        <Button
-          loading={deleteParticipantLoading}
-          className="border border-gray-400 text-gray-800 w-full rounded-md hover:bg-gray-100"
-        >
-          Cancel
-        </Button>
-        <Button
-          className="bg-red-600 text-white   w-full  rounded-md hover:bg-red-700 border-none"
-          loading={deleteParticipantLoading}
-          onClick={() => handleDeleteParticipant(id)}
-        >
-          Delete
-        </Button>
-      </div>
-    </div>
-  );
-  const ConfirmContent = (id: string, option: boolean, status: string) => (
-    <div className="rounded-lg w-full max-w-sm text-center">
-      <p className="text-gray-800 text-base mb-6 text-left font-bold">
-        Are you sure you want to <br /> confirm MoM?
-      </p>
-      <div className="flex justify-center gap-4">
-        <Button
-          loading={updateAttendeesLoading}
-          className="border border-gray-400 text-gray-800 w-full rounded-md hover:bg-gray-100"
-        >
-          Cancel
-        </Button>
-        <Button
-          className="bg-blue text-white   w-full  rounded-md  border-none"
-          loading={updateAttendeesLoading}
-          onClick={() => handleConfirm(id, option, status)}
-        >
-          Confirm
-        </Button>
-      </div>
-    </div>
-  );
-  const RevertContent = (id: string, option: boolean, status: string) => (
-    <div className="rounded-lg w-full max-w-sm text-center">
-      <p className="text-gray-800 text-base mb-6 text-left font-bold">
-        Are you sure you want to <br />
-        revert MoM?
-      </p>
-      <div className="flex justify-center gap-4">
-        <Button
-          loading={updateAttendeesLoading}
-          className="border border-gray-400 text-gray-800 w-full rounded-md hover:bg-gray-100"
-        >
-          Cancel
-        </Button>
-        <Button
-          className="bg-red-600 text-white   w-full  rounded-md hover:bg-red-700 border-none"
-          loading={updateAttendeesLoading}
-          onClick={() => handleConfirm(id, option, status)}
-        >
-          Revert
-        </Button>
-      </div>
-    </div>
-  );
   return (
     <div className="p-4 space-y-3">
       <div className="flex justify-between items-center py-2">
@@ -404,20 +335,27 @@ export default function ParticipantsList({
                 )
               ) : (
                 <Popconfirm
-                  title={removeParticipantContent(p.id)}
-                  okButtonProps={{ style: { display: 'none' } }}
-                  cancelButtonProps={{ style: { display: 'none' } }}
+                  title="Are you sure you want to remove this participant?"
+                  onConfirm={() => handleDeleteParticipant(p.id)}
+                  okText="Delete"
+                  cancelText="Cancel"
                   icon={null}
+                  okButtonProps={{
+                    className: 'bg-red-400 text-white border-none',
+                  }}
+                  cancelButtonProps={{
+                    className: 'hover:bg-gray-100',
+                  }}
                 >
-                  <MdClose className="cursor-pointer text-gray-500 hover:text-red-500" />
+                  <MdClose className="cursor-pointer min-w-16" />
                 </Popconfirm>
               )
             ) : p.acknowledgedMom == false ? (
               <Popconfirm
-                title={ConfirmContent(p.id, true, p.attendanceStatus)}
-                // onConfirm={() => handleConfirm(p.id, true, p.attendanceStatus)}
-                okButtonProps={{ style: { display: 'none' } }}
-                cancelButtonProps={{ style: { display: 'none' } }}
+                title="Are you sure you want to confirm MoM?"
+                onConfirm={() => handleConfirm(p.id, true, p.attendanceStatus)}
+                okText="Confirm"
+                cancelText="Cancel"
                 icon={null}
               >
                 <Button
@@ -429,9 +367,10 @@ export default function ParticipantsList({
               </Popconfirm>
             ) : (
               <Popconfirm
-                title={RevertContent(p.id, false, p.attendanceStatus)}
-                okButtonProps={{ style: { display: 'none' } }}
-                cancelButtonProps={{ style: { display: 'none' } }}
+                title="Are you sure you want to revert MoM?"
+                onConfirm={() => handleConfirm(p.id, false, p.attendanceStatus)}
+                okText="Revert"
+                cancelText="Cancel"
                 icon={null}
               >
                 <Button

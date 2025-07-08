@@ -1,4 +1,5 @@
 'use client';
+import EmployeeSearchComponent from '@/components/common/search/searchComponent';
 import TabLandingLayout from '@/components/tabLanding';
 import {
   useGetAllRecognition,
@@ -16,16 +17,7 @@ import {
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
-import {
-  Button,
-  Card,
-  Col,
-  Row,
-  Select,
-  Table,
-  TableColumnsType,
-  Tabs,
-} from 'antd';
+import { Card, Table, TableColumnsType, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
@@ -34,8 +26,6 @@ import { useRouter } from 'next/navigation';
 import RecognitionTypeModal from './_components/recognitionTypeModal';
 import EmployeeRecognitionModal from './_components/EmployeeRecognitionModal';
 import CustomPagination from '@/components/customPagination';
-import { FaPlus } from 'react-icons/fa';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 function Page() {
   const {
     updateSearchValue,
@@ -97,8 +87,6 @@ function Page() {
       title: 'Recognition',
       dataIndex: 'recognition',
       render: (notused, record) => record.recognitionType?.name ?? '-',
-      sorter: (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
     {
       title: 'Employees',
@@ -107,8 +95,6 @@ function Page() {
         record.recipientId
           ? `${getEmployeeData(record.recipientId)?.firstName ?? '-'} ${getEmployeeData(record.recipientId)?.middleName ?? '-'} ${getEmployeeData(record.recipientId)?.lastName ?? '-'}`
           : '-',
-      sorter: (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
     {
       title: 'Criteria',
@@ -161,61 +147,88 @@ function Page() {
       key: '1',
       label: 'All',
       children: (
-        <>
-          <div className="flex justify-between items-center mb-4">
-            <PageHeader title="Recognition" description="Manage Recognition" />
-
-            <div className="flex items-center space-x-2">
-              <Button
-                type="primary"
-                onClick={handleRecognitionModal}
-                icon={<FaPlus />}
-                className="h-10 w-10 sm:w-auto"
-              >
-                <span className="hidden sm:inline">Recognize</span>
-              </Button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <Card
-              className="bg-[#fafafa] font-bold"
-              key={`all-card-${1}`}
-              style={{ width: '100%' }}
-            >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
-                <CiMedal fill="#0BA259" />
-              </div>
-              <p className="text-gray-400 text-xs font-normal  mt-4">
-                Total number of recognized employees
-              </p>
-              <p className="text-3xl">{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
-            </Card>
-            <Card
-              className="bg-[#fafafa] font-bold"
-              key={`all-card-${2}`}
-              style={{ width: '100%' }}
-            >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
-                <CiMedal fill="#0BA259" />
-              </div>
-              <p className="text-gray-400 text-xs font-normal mt-4">
-                Total number of Criteria
-              </p>
-              <p className="text-3xl">{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
-            </Card>
-          </div>
-        </>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${1}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of recognized employees
+            </p>
+            <p>{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
+          </Card>
+          <Card
+            className="bg-gray-100 font-bold"
+            key={`all-card-${2}`}
+            style={{ width: '100%' }} // Full width in grid cells
+          >
+            <p className="flex justify-start items-center text-green-600 font-extrabold text-xl">
+              <CiMedal />
+            </p>
+            <p className="text-gray-400 text-xs mt-4">
+              Total number of Criteria
+            </p>
+            <p>{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
+          </Card>
+        </div>
       ),
     },
     ...(recognitionType?.items?.map((item: any) => ({
       key: item.id,
       label: item.name,
-      children: (
-        <PageHeader title="Recognition" description="Manage Recognition" />
-      ),
     })) || []), // Fallback to an empty array if recognitionType?.items is undefined
   ];
-
+  const searcFields = [
+    {
+      key: 'employeeId',
+      placeholder: 'search by Employee',
+      options:
+        allUserData?.items?.map((item: any) => ({
+          key: item?.id,
+          value: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // Correctly concatenating firstName and lastName
+        })) ?? [],
+      widthRatio: 0.4,
+    },
+    {
+      key: 'yearId',
+      placeholder: 'Filter by year',
+      options:
+        getAllFisicalYear?.items?.map((item: any) => ({
+          key: item?.id,
+          value: item?.name,
+        })) ?? [],
+      widthRatio: 0.2,
+    },
+    {
+      key: 'sessionId',
+      placeholder: 'Select by session',
+      options:
+        getAllFisicalYear?.items
+          ?.find((item: FiscalYear) => item?.id === searchValue?.year)
+          ?.sessions?.map((session: Session) => ({
+            key: session?.id,
+            value: session?.name,
+          })) ?? [],
+      widthRatio: 0.2,
+    },
+    {
+      key: 'monthId',
+      placeholder: 'Filter by month',
+      options:
+        getAllFisicalYear?.items
+          ?.find((item: FiscalYear) => item?.id === searchValue?.year)
+          ?.sessions?.find((item: Session) => item?.id === searchValue?.session)
+          ?.months?.map((month: Month) => ({
+            key: month?.id,
+            value: month?.name,
+          })) ?? [],
+      widthRatio: 0.2,
+    },
+  ];
   const handleSearchChange = (key: string, value: string) => {
     updateSearchValue(value, key);
   };
@@ -248,7 +261,9 @@ function Page() {
           //       monthId: activeMonthId, // Assigning directly
           //     });
           // }}
-
+          onClickHandler={() => handleRecognitionModal()}
+          title="Recognition"
+          subtitle="Manage Recognition"
           // buttonDisabled={
           //   !fiscalActiveYearId || !activeMonthId || !activeSessionId
           // }
@@ -256,105 +271,37 @@ function Page() {
           // buttonTitle={
           //   selectedRecognitionType !== '1' ? 'Generate Recognition' : false
           // }
+          buttonTitle={'Recognize'}
           // buttonIcon={<PlusIcon />}
         >
-          <Row
-            gutter={[16, 24]}
-            justify="space-between"
-            align="middle"
-            className="mb-5 px-6"
-          >
-            <Col lg={9} md={9} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="Search by Employee"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={allUserData?.items?.map((item: any) => ({
-                  value: item?.id,
-                  label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
-                }))}
-              />
-            </Col>
-
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="filter by year"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={
-                  getAllFisicalYear?.items?.map((item: any) => ({
-                    key: item?.id,
-                    value: item?.name,
-                  })) ?? []
-                }
-              />
-            </Col>
-
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="Select by session"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={
-                  getAllFisicalYear?.items
-                    ?.find((item: FiscalYear) => item?.id === searchValue?.year)
-                    ?.sessions?.map((session: Session) => ({
-                      key: session?.id,
-                      value: session?.name,
-                    })) ?? []
-                }
-              />
-            </Col>
-
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="filter by month"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={
-                  getAllFisicalYear?.items
-                    ?.find((item: FiscalYear) => item?.id === searchValue?.year)
-                    ?.sessions?.find(
-                      (item: Session) => item?.id === searchValue?.session,
-                    )
-                    ?.months?.map((month: Month) => ({
-                      key: month?.id,
-                      value: month?.name,
-                    })) ?? []
-                }
-              />
-            </Col>
-          </Row>
-          <div className="px-6">
-            <Table<any>
-              columns={columns}
-              dataSource={getAllRecognition?.items ?? []}
-              pagination={false}
-              scroll={{ x: 800 }} // Enable horizontal scrolling
-              className="cursor-pointer"
-              onRow={(record) => ({
-                onClick: () => handleRowClick(record), // Add click handler
-              })}
-              loading={isLoading}
-            />
-            <CustomPagination
-              current={getAllRecognition?.meta?.currentPage || 1}
-              total={getAllRecognition?.meta?.totalItems || 1}
-              pageSize={pageSize}
-              onChange={(page, pageSize) => {
-                setCurrent(page);
-                setPageSize(pageSize);
-              }}
-              onShowSizeChange={(size) => {
-                setPageSize(size);
-                setCurrent(1);
-              }}
-            />
-          </div>
+          <EmployeeSearchComponent
+            fields={searcFields}
+            onChange={(value) => handleSearchChange(value.key, value.value)}
+          />
+          <Table<any>
+            columns={columns}
+            dataSource={getAllRecognition?.items ?? []}
+            pagination={false}
+            scroll={{ x: 800 }} // Enable horizontal scrolling
+            className="cursor-pointer"
+            onRow={(record) => ({
+              onClick: () => handleRowClick(record), // Add click handler
+            })}
+            loading={isLoading}
+          />
+          <CustomPagination
+            current={getAllRecognition?.meta?.currentPage || 1}
+            total={getAllRecognition?.meta?.totalItems || 1}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setCurrent(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrent(1);
+            }}
+          />
         </TabLandingLayout>
         <RecognitionTypeModal
           visible={visible}

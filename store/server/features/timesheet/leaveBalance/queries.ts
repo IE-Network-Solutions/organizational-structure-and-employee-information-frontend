@@ -43,7 +43,7 @@ const getAllLeaveBalanceWithFilter = async (
   });
 };
 export const useGetLeaveBalance = (userId: string, leaveTypeId: string) =>
-  useQuery<any>(
+  useQuery<ApiResponse<LeaveBalance>>(
     ['leave-balance', userId, leaveTypeId],
     () => getLeaveBalance(userId, leaveTypeId),
     {

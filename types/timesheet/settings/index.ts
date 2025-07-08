@@ -68,7 +68,7 @@ export interface LeaveRequest extends DateInfo {
   id: string;
   tenantId: string;
   userId: string;
-  leaveType: LeaveType;
+  leaveType: LeaveType | string;
   startAt: string;
   endAt: string;
   isHalfday: boolean;
@@ -141,8 +141,6 @@ export interface LeaveType extends DateInfo {
   isActive: boolean;
   incrementalYear?: number;
   incrementAmount?: number;
-  leaveBalance?: any;
-  convertableToCash?: boolean;
 }
 
 export interface AccrualRule extends DateInfo {

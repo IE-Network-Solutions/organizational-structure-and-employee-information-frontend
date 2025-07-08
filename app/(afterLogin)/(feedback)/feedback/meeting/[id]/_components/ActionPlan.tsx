@@ -30,18 +30,14 @@ export default function ActionPlan({
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Action Plan</h2>
           {canEdit && (
-            <Button
-              onClick={() => setOpenAddActionPlan(true)}
-              type="default"
-              className="h-10"
-            >
+            <Button onClick={() => setOpenAddActionPlan(true)} type="default">
               + Add New
             </Button>
           )}
         </div>
         {meetingActionPlan?.items?.length <= 0 ? (
-          <div className="text-center text-xl font-bold text-[#687588]">
-            You have no action plans
+          <div className="text-center text-xl font-semibold">
+            No Action Plan for This Meeting
           </div>
         ) : (
           meetingActionPlan?.items.map((item: any, index: number) => (

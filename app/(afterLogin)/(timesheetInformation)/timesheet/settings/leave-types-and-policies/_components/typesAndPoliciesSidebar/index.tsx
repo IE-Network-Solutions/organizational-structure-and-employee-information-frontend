@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import CustomRadio from '@/components/form/customRadio';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -84,16 +84,16 @@ const TypesAndPoliciesSidebar = () => {
       ? formatToOptions(accrualRulesData.items, 'title', 'id')
       : [];
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     form.resetFields();
     setIsShow(false);
-  }, [form, setIsShow]);
+  };
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
-  }, [isSuccess, onClose]);
+  }, [isSuccess]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -113,7 +113,6 @@ const TypesAndPoliciesSidebar = () => {
         incrementalYear: value.incrementalYear,
         incrementAmount: value.incrementAmount,
       }),
-      convertableToCash: value?.convertableToCash ?? false,
     });
     setIsFixed(false);
   };
@@ -423,31 +422,6 @@ const TypesAndPoliciesSidebar = () => {
                 placeholder="Input description"
                 rows={6}
               />
-            </Form.Item>
-            <Form.Item
-              label={
-                <span>
-                  Convertible to cash
-                  <Popover
-                    content={
-                      <div style={{ maxWidth: 300 }}>
-                        This leave balance can be converted into cash based on
-                        your company&apos;s policy.
-                        <br />
-                        The amount is calculated daily.
-                      </div>
-                    }
-                  >
-                    <span style={{ marginLeft: 6, cursor: 'pointer' }}>
-                      <InfoCircleOutlined style={{ color: '#888' }} />
-                    </span>
-                  </Popover>
-                </span>
-              }
-              id="TypesAndPoliciesConvertibleToCashFieldId"
-              name="convertableToCash"
-            >
-              <Switch defaultChecked={false} />
             </Form.Item>
           </Space.Compact>
         </Form>

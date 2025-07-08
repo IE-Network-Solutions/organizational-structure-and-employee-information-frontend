@@ -38,7 +38,7 @@ export default function FinalNotes({
       loading={loading}
       className="border-none p-4 rounded-xl"
     >
-      <h2 className="text-lg font-bold mb-2">Final Notes</h2>
+      <h2 className="text-lg font-semibold mb-2">Final Notes</h2>
 
       {editing ? (
         <div className="relative">
@@ -57,7 +57,7 @@ export default function FinalNotes({
               size="small"
               type="default"
               onClick={() => setEditing(false)}
-              className="h-10"
+              className=""
               loading={isLoading}
             >
               Cancel
@@ -66,7 +66,7 @@ export default function FinalNotes({
               size="small"
               type="primary"
               onClick={() => form.submit()}
-              className="ml-2 h-10"
+              className="ml-2"
               loading={isLoading}
             >
               Save

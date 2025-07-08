@@ -8,9 +8,11 @@ import {
   Paragraph,
   TextRun,
   AlignmentType,
+  BorderStyle,
   ImageRun,
   Header,
   Footer,
+  PageNumber,
 } from 'docx';
 import { saveAs } from 'file-saver';
 
@@ -19,29 +21,9 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
     if (!url) {
       return IE_LOGO_BASE64;
     }
-
-    // If it's already base64 data, return it
-    if (url.startsWith('data:image/')) {
-      return url.split(',')[1]; // Return just the base64 part without the data URI prefix
-    }
-
-    // If it's a URL, fetch and convert to base64
-    const response = await fetch(url);
-    if (!response.ok) {
-      return IE_LOGO_BASE64.split(',')[1]; // Return fallback without data URI prefix
-    }
-
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        resolve(base64.split(',')[1]); // Return just the base64 part
-      };
-      reader.readAsDataURL(blob);
-    });
+    return url;
   } catch (error) {
-    return IE_LOGO_BASE64.split(',')[1]; // Return fallback without data URI prefix
+    return IE_LOGO_BASE64; // Fallback to default logo
   }
 };
 
@@ -61,8 +43,6 @@ export const useGenerateBankLetter = () => {
     let logoBase64 = '';
     if (tenant.logo) {
       logoBase64 = await getBase64FromUrl(tenant.logo);
-    } else {
-      logoBase64 = IE_LOGO_BASE64.split(',')[1]; // Use fallback if no logo
     }
 
     // Create document
@@ -83,18 +63,16 @@ export const useGenerateBankLetter = () => {
             default: new Header({
               children: [
                 new Paragraph({
-                  children: logoBase64
-                    ? [
-                        new ImageRun({
-                          data: Buffer.from(logoBase64, 'base64'),
-                          transformation: {
-                            width: 120,
-                            height: 120,
-                          },
-                          type: 'png',
-                        }),
-                      ]
-                    : [],
+                  children: [
+                    new ImageRun({
+                      data: logoBase64,
+                      type: 'png',
+                      transformation: {
+                        width: 120,
+                        height: 120,
+                      },
+                    }),
+                  ],
                   alignment: AlignmentType.LEFT,
                   spacing: {
                     after: 200,
@@ -147,83 +125,48 @@ export const useGenerateBankLetter = () => {
           footers: {
             default: new Footer({
               children: [
-                // Blue bar
                 new Paragraph({
-                  children: [],
+                  children: [
+                    new TextRun({
+                      text: `T: ${tenant.phoneNumber} | M: ${tenant.contactPersonPhoneNumber} | F: ${tenant.phoneNumber}`,
+                      size: 20,
+                      font: 'Times New Roman',
+                    }),
+                  ],
                   alignment: AlignmentType.CENTER,
+                  border: {
+                    top: {
+                      color: '#1E40AF',
+                      space: 8,
+                      style: BorderStyle.SINGLE,
+                      size: 16,
+                    },
+                  },
                   shading: {
-                    fill: '#46b8ec', // blue color
+                    fill: '0EA5E9',
                     type: 'clear',
                   },
-                  spacing: { after: 200 },
                 }),
-                // Company name centered and bold
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: tenant.companyName,
-                      bold: true,
-                      size: 28,
+                      text: `Page `,
+                      font: 'Times New Roman',
+                    }),
+                    new TextRun({
+                      children: [PageNumber.CURRENT],
+                      font: 'Times New Roman',
+                    }),
+                    new TextRun({
+                      text: ` of `,
+                      font: 'Times New Roman',
+                    }),
+                    new TextRun({
+                      children: [PageNumber.TOTAL_PAGES],
                       font: 'Times New Roman',
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
-                  spacing: { after: 200 },
-                }),
-                // Contact info row
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: 'T:',
-                      bold: true,
-                      color: '3498DB',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: ` ${tenant.phoneNumber}  `,
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '|',
-                      color: '6EC6F7',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '  M:',
-                      bold: true,
-                      color: '3498DB',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: ` ${tenant.contactPersonPhoneNumber} / ${tenant.contactPersonAltPhoneNumber || ''} / ${tenant.contactPersonAltPhoneNumber2 || ''}  `,
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '|',
-                      color: '6EC6F7',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '  F:',
-                      bold: true,
-                      color: '3498DB',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: ` ${tenant.faxNumber || tenant.phoneNumber}`,
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                  ],
-                  alignment: AlignmentType.CENTER,
-                  spacing: { after: 200 },
                 }),
               ],
             }),

@@ -289,11 +289,11 @@ const BasicInformationForm = ({ form }: any) => {
         <Col xs={24} sm={24}>
           <Form.Item
             className="font-semibold text-xs"
-            name="maritalStatus"
+            name="martialStatus"
             label={
               <span className="mb-1 font-semibold text-xs">Marital Status</span>
             }
-            id="userMaritalStatusId"
+            id="userMartialStatusId"
             rules={[
               { required: true, message: 'Please select a marital status!' },
             ]}

@@ -26,10 +26,9 @@ const MoveToTalentPool: React.FC = () => {
   const { mutate: moveToTalentPool, isLoading } = useMoveToTalentPool();
 
   useEffect(() => {
-    const candidateArray = Array.isArray(selectedCandidate) ? selectedCandidate : [];
-    if (candidateArray.length > 0) {
+    if (selectedCandidate?.length > 0) {
       form.setFieldsValue({
-        jobCandidateInformationId: candidateArray.map(
+        jobCandidateInformationId: selectedCandidate.map(
           (item: any) => item.id,
         ),
       });
@@ -38,16 +37,15 @@ const MoveToTalentPool: React.FC = () => {
 
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
-    const candidateArray = Array.isArray(selectedCandidate) ? selectedCandidate : [];
 
     const formattedValues = {
       ...formValues,
       createdBy: createdBy,
-      jobCandidateId: candidateArray.map(
-        (candidate: any) => candidate?.jobCandidate?.[0]?.id,
-      ).filter(Boolean), // Filter out undefined values
+      jobCandidateId: selectedCandidate?.map(
+        (candidate: any) => candidate.jobCandidate[0].id,
+      ),
       jobCandidateInformationId:
-        candidateArray.map((candidate: any) => candidate.id),
+        selectedCandidate?.map((candidate: any) => candidate.id) || [],
     };
 
     moveToTalentPool(formattedValues, {
@@ -61,8 +59,7 @@ const MoveToTalentPool: React.FC = () => {
   };
 
   const handleChange = (values: string[]) => {
-    const candidateArray = Array.isArray(selectedCandidate) ? selectedCandidate : [];
-    const selectedOptions = candidateArray.filter((item: any) =>
+    const selectedOptions = selectedCandidate.filter((item: any) =>
       values.includes(item.id),
     );
     setSelectedCandidate(selectedOptions);
@@ -128,11 +125,10 @@ const MoveToTalentPool: React.FC = () => {
                 mode="multiple"
                 className="text-sm w-full min-h-12"
                 placeholder="Select talent pool category"
-                value={(Array.isArray(selectedCandidate) ? selectedCandidate : []).map((item: any) => item.id)}
+                value={selectedCandidate.map((item: any) => item.id)}
                 onChange={handleChange}
                 tagRender={({ label, value }) => {
-                  const candidateArray = Array.isArray(selectedCandidate) ? selectedCandidate : [];
-                  const candidate = candidateArray.find(
+                  const candidate = selectedCandidate.find(
                     (item: any) => item.id === value,
                   );
 
@@ -149,8 +145,7 @@ const MoveToTalentPool: React.FC = () => {
                   );
                 }}
                 optionRender={(option) => {
-                  const candidateArray = Array.isArray(selectedCandidate) ? selectedCandidate : [];
-                  const isChecked = candidateArray.some(
+                  const isChecked = selectedCandidate.some(
                     (item: any) => item.id === option.value,
                   );
 
@@ -162,7 +157,7 @@ const MoveToTalentPool: React.FC = () => {
                   );
                 }}
               >
-                {(Array.isArray(selectedCandidate) ? selectedCandidate : []).map((item: any) => (
+                {selectedCandidate.map((item: any) => (
                   <Option key={item.id} value={item.id}>
                     {item.fullName}
                   </Option>

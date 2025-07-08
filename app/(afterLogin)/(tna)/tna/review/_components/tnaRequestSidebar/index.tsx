@@ -16,7 +16,7 @@ import {
 } from '@/types/tna/tna';
 import {
   useCurrency,
-  useGetTnaById,
+  useGetTna,
 } from '@/store/server/features/tna/review/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
@@ -36,10 +36,9 @@ const TnaRequestSidebar = () => {
     monthId,
     sessionId,
     yearId,
+    searchQuery,
     setSearchQuery,
     tnaId,
-    tnaData,
-    setData,
     setTnaId,
   } = useTnaReviewStore();
   const { userId } = useAuthenticationStore();
@@ -49,11 +48,7 @@ const TnaRequestSidebar = () => {
 
   const { data: tnaCurrency } = useCurrency();
   const { data: tnaCategoryData } = useGetTnaCategory({});
-  const {
-    data: singleTnaData,
-    refetch: refetchSingleTna,
-    isFetching: isTnaFetching,
-  } = useGetTnaById(tnaId || '');
+
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
     useAllApproval(
       employeeData?.employeeJobInformation?.[0]?.departmentId || '',
@@ -75,17 +70,32 @@ const TnaRequestSidebar = () => {
   }, [userId]);
 
   const { mutate: setTna, isLoading } = useSetTna();
+  const { data, isFetching, refetch } = useGetTna(
+    {
+      page: 1,
+      limit: 1,
+    },
+    {
+      filter: {
+        id: tnaId ? [tnaId] : [],
+      },
+    },
+    searchQuery,
+    true,
+    true,
+  );
 
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (tnaId) {
-      refetchSingleTna();
+      refetch();
     }
   }, [tnaId]);
+
   useEffect(() => {
-    if (singleTnaData && tnaId !== null) {
-      const formData = singleTnaData;
+    if (data?.items?.[0] && tnaId !== null) {
+      const formData = data.items[0];
 
       const formattedData = {
         title: formData.title || '',
@@ -103,7 +113,7 @@ const TnaRequestSidebar = () => {
     } else {
       form.resetFields();
     }
-  }, [singleTnaData, fiscalYearData, tnaId]);
+  }, [data, form, fiscalYearData]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -111,7 +121,7 @@ const TnaRequestSidebar = () => {
       key: 'cancel',
       className: 'h-12',
       size: 'large',
-      loading: isLoading || isTnaFetching,
+      loading: isLoading || isFetching,
       onClick: () => onClose(),
     },
     {
@@ -123,7 +133,7 @@ const TnaRequestSidebar = () => {
       className: 'h-12',
       type: 'primary',
       size: 'large',
-      loading: isLoading || isTnaFetching,
+      loading: isLoading || isFetching,
       onClick: () => form.submit(),
       disabled:
         approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
@@ -137,7 +147,7 @@ const TnaRequestSidebar = () => {
     const finalValues = { ...value, monthId, yearId, sessionId };
 
     // Extract `trainingNeedCategory`, keep `otherData`
-    const { ...otherData } = singleTnaData || {};
+    const { ...otherData } = data?.items?.[0] || {};
 
     const dataValue: any = [
       {
@@ -147,30 +157,28 @@ const TnaRequestSidebar = () => {
         status: TrainingNeedAssessmentStatus.PENDING,
 
         assignedUserId: userId,
-        approvalWorkflowId: otherData?.approvalWorkflowId
-          ? otherData?.approvalWorkflowId
-          : approvalUserData?.length > 0
+        approvalWorkflowId:
+          approvalUserData?.length > 0
             ? approvalUserData[0]?.id
             : approvalDepartmentData?.[0]?.id,
       },
     ];
 
     const filteredData = dataValue?.map((originalData: any) => ({
-      approvalWorkflowId: originalData.approvalWorkflowId,
-      assignedUserId: originalData.assignedUserId,
-      certStatus: originalData.certStatus,
-      currencyId: originalData.currencyId,
-      departmentId: originalData?.departmentId,
-      detail: originalData.detail,
       id: tnaId ?? undefined,
-      monthId: originalData.monthId,
-      reason: originalData.reason,
-      sessionId: originalData.sessionId,
-      status: originalData.status,
       title: originalData.title,
+      trainingPrice: originalData?.trainingPrice, // Modify the training price as requested
+      assignedUserId: originalData.assignedUserId,
       trainingNeedCategoryId: originalData.trainingNeedCategoryId,
-      trainingPrice: originalData?.trainingPrice,
+      approvalWorkflowId: originalData.approvalWorkflowId,
+      currencyId: originalData.currencyId,
+      sessionId: originalData.sessionId,
       yearId: originalData.yearId,
+      reason: originalData.reason,
+      monthId: originalData.monthId,
+      departmentId: originalData?.departmentId, // Modified departmentId
+      status: originalData.status,
+      certStatus: originalData.certStatus,
       trainingProofs: [],
     }));
 
@@ -179,7 +187,6 @@ const TnaRequestSidebar = () => {
 
   const onClose = () => {
     setTnaId(null);
-    setData(null);
     form.resetFields();
     setIsShowTnaReviewSidebar(false);
   };
@@ -197,7 +204,7 @@ const TnaRequestSidebar = () => {
       ? `?${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
-    refetchSingleTna();
+    refetch();
   };
 
   return (
@@ -222,7 +229,7 @@ const TnaRequestSidebar = () => {
           layout="vertical"
           form={form}
           className="p-2"
-          disabled={isLoading || isTnaFetching}
+          disabled={isLoading || isFetching}
           onFinish={onFinish}
           requiredMark={CustomLabel}
         >
@@ -239,12 +246,12 @@ const TnaRequestSidebar = () => {
             onSearch={handleSearch}
             disable={['name', 'payPeriod']}
             defaultValues={
-              tnaData
+              data?.items?.[0]
                 ? {
-                    yearId: tnaData?.yearId,
-                    sessionId: tnaData.sessionId,
-                    monthId: tnaData.monthId,
-                    departmentId: tnaData.departmentId,
+                    yearId: data.items[0].yearId,
+                    sessionId: data.items[0].sessionId,
+                    monthId: data.items[0].monthId,
+                    departmentId: data.items[0].departmentId,
                   }
                 : undefined
             }

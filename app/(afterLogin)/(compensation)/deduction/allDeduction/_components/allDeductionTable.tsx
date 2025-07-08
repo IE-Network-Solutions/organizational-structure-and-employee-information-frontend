@@ -4,7 +4,6 @@ import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
-import CustomPagination from '@/components/customPagination';
 
 const AllDeductionTable = () => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
@@ -53,6 +52,11 @@ const AllDeductionTable = () => {
     return dataRow;
   });
 
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -80,32 +84,20 @@ const AllDeductionTable = () => {
         }))
       : []),
   ];
-  const paginatedData = dataSource.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
 
   return (
     <Spin spinning={isLoading}>
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
-
-      <CustomPagination
-        current={currentPage}
-        total={dataSource.length}
-        pageSize={pageSize}
-        onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
+        dataSource={dataSource}
+        pagination={{
+          current: currentPage,
+          pageSize,
+          total: dataSource.length,
+          showSizeChanger: true,
         }}
-        onShowSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
+        onChange={handleTableChange}
       />
     </Spin>
   );

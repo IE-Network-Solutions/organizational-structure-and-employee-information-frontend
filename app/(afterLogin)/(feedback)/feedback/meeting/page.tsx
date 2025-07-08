@@ -16,7 +16,7 @@ export default function Index() {
       buttonDisabled={false}
       id="meetingLayoutId"
       title="Meetings"
-      subtitle="Manage your Meetings"
+      subtitle="manage your Meetings"
       buttonTitle={'Add New'}
       buttonIcon={<FaPlus />}
       onClickHandler={() => HandleOpen()}

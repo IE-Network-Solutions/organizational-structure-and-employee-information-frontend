@@ -1,5 +1,5 @@
+'use client';
 import EditApproverComponent from '@/components/Approval/editApprover';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   useDeleteApprover,
   useDeleteParallelApprover,
@@ -30,6 +30,7 @@ const EditWorkFLow = () => {
   const { data: department } = useGetDepartments();
   const { data: users } = useGetAllUsers();
   const { mutate: EditApprover } = useUpdateAssignedUserMutation();
+
   const { mutate: deleteApprover } = useDeleteApprover();
   const { mutate: deleteParallelApprover } = useDeleteParallelApprover();
 
@@ -47,43 +48,50 @@ const EditWorkFLow = () => {
 
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
+    const jsonPayload = selections.SectionItemType.flatMap(
+      /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+        _,
+        idx,
+      ) => {
+        const approver = selectedItem?.approvers[idx];
+        const userIds = formValues[`assignedUser_${idx}`];
 
-    // Get the approvers from form values
-    const approvers = formValues?.approvers || [];
-
-    // Create the steps array in the correct format
-    const steps = approvers
-      .map((approver: any, index: number) => {
-        const stepOrder = index + 1;
-
-        return {
-          id: approver?.approverId,
-          stepOrder,
-          userId: approver?.assignedUser,
-        };
-      })
-      .filter((step: any) => step.userId); // Filter out empty entries
+        if (Array.isArray(userIds)) {
+          return userIds.map((userId) => {
+            const app = selectedItem?.approvers?.find(
+              (app) =>
+                app?.userId === userId && parseInt(app?.stepOrder) == idx + 1,
+            );
+            return app
+              ? { stepOrder: idx + 1, userId, id: app?.id }
+              : {
+                  stepOrder: idx + 1,
+                  userId,
+                };
+          });
+        }
+        return [
+          {
+            id: approver?.id,
+            stepOrder: Number(approver?.stepOrder),
+            userId: userIds,
+          },
+        ];
+      },
+    );
 
     EditApprover(
-      { values: { approvalWorkflowId: selectedItem?.id, steps } },
+      { values: { approvalWorkflowId: selectedItem?.id, steps: jsonPayload } },
       {
         onSuccess: () => {
           setEditModal(false);
-        },
-        onError: (error: any) => {
-          NotificationMessage.error({
-            message: 'Error',
-            description:
-              error?.response?.data?.message ?? 'Something went wrong',
-          });
         },
       },
     );
   };
 
-  const initialValues = [...selectedItem?.approvers]
-    .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
-    .reduce((acc: Record<string, any>, item: any, index: number) => {
+  const initialValues = selectedItem?.approvers.reduce(
+    (acc: Record<string, any>, item: any, index: number) => {
       if (approverType !== 'Parallel') {
         acc[`assignedUser_${index}`] = item.userId;
         acc[`level_${index}`] = item.stepOrder;
@@ -95,7 +103,9 @@ const EditWorkFLow = () => {
         acc[`assignedUser_${stepIndex}`].push(item.userId);
       }
       return acc;
-    }, {});
+    },
+    {},
+  );
 
   useEffect(() => {
     if (approverType === 'Parallel') {
@@ -104,12 +114,11 @@ const EditWorkFLow = () => {
       }
     }
   }, [initialValues, level]);
+
   const handleDeselect = (value: string, index: number) => {
-    const user = [...selectedItem?.approvers]
-      .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
-      ?.find(
-        (item: any) => item.stepOrder === index + 1 && item.userId === value,
-      );
+    const user = selectedItem?.approvers?.find(
+      (item: any) => item.stepOrder === index + 1 && item.userId === value,
+    );
     if (user) {
       deleteParallelApprover(user.id);
     }

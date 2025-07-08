@@ -3,7 +3,7 @@ import { CompanyInfo, CompanyInfoStore } from './interface';
 
 export const useStep2Store = create<CompanyInfoStore>((set) => ({
   companyInfo: {
-    domainName: '',
+    domainName: 'ienetworksolutions.selamnew.com',
     businessSize: '',
     industry: '',
     preferredIndustry: '',

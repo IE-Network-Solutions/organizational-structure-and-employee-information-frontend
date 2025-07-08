@@ -1,49 +1,75 @@
 'use client';
+import { Space, Switch } from 'antd';
 import React from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import SummaryCardsRow from './_components/SummaryCardsRow';
-import OKRDonutChart from './_components/OKRDonutChart';
-import MetricsProgressOverview from './_components/MetricsProgressOverview';
-import DueSoonKeyResultList from './_components/DueSoonKeyResultList';
-import AwaitingApprovalsList from './_components/AwaitingApprovalsList';
+// import ProgressCard from '@/app/(afterLogin)/(okr)/_components/achievementCard';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import ObjectiveKeyResult from './_components/objectiveKeyResult';
 import Performance from './_components/Performance';
+import VPdashboard from './_components/vpDashboard';
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<any> = () => {
+  const {
+    // revenue,
+    // financialSales,
+    // progressRevenue,
+    // progressSales,
+    isVP,
+    toggleDashboard,
+  } = useOKRStore();
+
   return (
     <>
-      <div className="flex items-center justify-between px-4 bg-gray-100">
+      <div className="flex items-center justify-between px-4">
         <CustomBreadcrumb
-          title="Dashboard"
-          subtitle="Employee's OKR Dashboard View"
+          title={`${isVP ? 'VP' : 'Dashboard'}`}
+          subtitle={` ${isVP ? 'view your variable pay progress' : 'Employee’s OKR Dashboard View'} `}
         />
+        <Space direction="vertical">
+          <Switch
+            checked={isVP}
+            title={`Switch to ${isVP ? 'OKR' : 'VP'} Dashboard`}
+            checkedChildren="VP"
+            unCheckedChildren="OKR"
+            onChange={toggleDashboard}
+          />
+        </Space>
       </div>
-      <div className="h-auto w-full p-4 bg-gray-100 rounded-md flex flex-col gap-6">
-        <SummaryCardsRow />
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 items-stretch">
-          {/* Performance (left, 3/5 width) */}
-          <div className="col-span-1 xl:col-span-3 flex flex-col h-full min-h-[200px]">
-            <Performance />
+      {!isVP ? (
+        <div className="h-auto w-full p-4 bg-white rounded-md">
+          <ObjectiveKeyResult />
+          <Performance />
+          {/* <div className="flex justify-between">
+            <div className="text-xl font-bold">Achievement</div>
           </div>
-          {/* OKR Metrics and Metrics Progress Overview (right, stacked, equal height) */}
-          <div className="col-span-1 xl:col-span-2 flex flex-col h-full min-h-[200px] gap-6 justify-between">
-            <div className="flex-1 min-h-0 flex flex-col">
-              <OKRDonutChart />
+          <div className="flex">
+            <div className="w-full mr-3 flex flex-col gap-5">
+              <Row gutter={[16, 16]} className="w-full max-w-screen-xl">
+                <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                  <ProgressCard
+                    title="Revenue"
+                    amount={revenue}
+                    progress={progressRevenue}
+                    totalAmount={revenue * 2}
+                    bgColor="#FFFFFF"
+                  />
+                </Col>
+                <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                  <ProgressCard
+                    title="Financial Sales"
+                    amount={financialSales}
+                    progress={financialSales}
+                    totalAmount={progressSales}
+                    bgColor="#E9E9FF"
+                  />
+                </Col>
+              </Row>
             </div>
-            <div className="flex-1 min-h-0 flex flex-col">
-              <MetricsProgressOverview />
-            </div>
-          </div>
+          </div> */}
         </div>
-        {/* Bottom section: Due Soon Key Result and Awaiting Approvals */}
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mt-2">
-          <div className="col-span-1 xl:col-span-3">
-            <DueSoonKeyResultList />
-          </div>
-          <div className="col-span-1 xl:col-span-2">
-            <AwaitingApprovalsList />
-          </div>
-        </div>
-      </div>
+      ) : (
+        <VPdashboard />
+      )}
     </>
   );
 };

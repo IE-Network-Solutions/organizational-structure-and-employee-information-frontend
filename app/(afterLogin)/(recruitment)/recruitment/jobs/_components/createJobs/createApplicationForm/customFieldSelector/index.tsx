@@ -4,16 +4,13 @@ import ParagraphField from '@/app/(afterLogin)/(feedback)/feedback/categories/[i
 import ShortTextField from '@/app/(afterLogin)/(feedback)/feedback/categories/[id]/survey/[slug]/_components/questions/shortTextField';
 import { useGetCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/queries';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
-import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 import { FieldType } from '@/types/enumTypes';
 import { Checkbox, Collapse, Spin } from 'antd';
 import React, { useEffect } from 'react';
 
 const CustomFieldsSelector: React.FC = () => {
-  const { templateCurrentPage, templatePageSize } =
-    useRecruitmentSettingsStore();
   const { data: customFields, isLoading: isCustomFieldLoading } =
-    useGetCustomFieldsTemplate(templatePageSize, templateCurrentPage);
+    useGetCustomFieldsTemplate();
 
   const { selectedQuestions, setSelectedQuestions, setFilteredQuestions } =
     useJobState();
@@ -30,7 +27,7 @@ const CustomFieldsSelector: React.FC = () => {
 
   useEffect(() => {
     if (customFields) {
-      const filtered = customFields?.items?.filter((question: any) =>
+      const filtered = customFields?.customFields?.filter((question: any) =>
         selectedQuestions.includes(question?.id),
       );
       setFilteredQuestions(filtered);

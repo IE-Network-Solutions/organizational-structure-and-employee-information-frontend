@@ -7,14 +7,11 @@ import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBa
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 type NewUserData = {
-  key: number;
   leaveType: string;
-  accrued: number;
-  balance: number;
-  carriedOver: number;
-  totalBalance: number;
-  utilizedLeave: number;
-  cashValue: number;
+  accrued: number | null;
+  balance: number | null;
+  carriedOver: number | null;
+  totalBalance: number | null;
 };
 
 const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
@@ -44,9 +41,10 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
 };
 
 const LeaveBalanceTable: React.FC = () => {
-  const { selectedUserId, leaveTypeId } = useLeaveBalanceStore();
+  const { userId, leaveTypeId } = useLeaveBalanceStore();
   const { data: leaveBalanceData, isLoading: leaveBalanceIsLoading } =
-    useGetLeaveBalance(selectedUserId, leaveTypeId);
+    useGetLeaveBalance(userId, leaveTypeId);
+
   const columns: TableColumnsType<NewUserData> = [
     {
       title: 'Leave Name',
@@ -73,42 +71,17 @@ const LeaveBalanceTable: React.FC = () => {
       dataIndex: 'totalBalance',
       key: 'totalBalance',
     },
-    {
-      title: 'Utilized Leave',
-      dataIndex: 'utilizedLeave',
-      key: 'utilizedLeave',
-    },
-    {
-      title: 'Cash Value',
-      dataIndex: 'cashValue',
-      key: 'cashValue',
-    },
   ];
 
-  let itemsArray: any[] = [];
-  if (Array.isArray(leaveBalanceData?.items)) {
-    itemsArray = leaveBalanceData.items;
-  } else if (
-    leaveBalanceData?.items &&
-    typeof leaveBalanceData.items === 'object' &&
-    Array.isArray((leaveBalanceData.items as any)?.items)
-  ) {
-    itemsArray = (leaveBalanceData.items as any).items;
-  }
-  const dataSource = itemsArray.map((item, index) => {
-    // Get cash value directly from the item
-    const cashValue = item?.cashValue || 0;
-    return {
+  const dataSource =
+    leaveBalanceData?.items?.map((item, index) => ({
       key: index,
       leaveType: item?.leaveType?.title || '-',
-      accrued: parseFloat(item?.accrued.toFixed(1)) || 0,
-      balance: parseFloat(item?.balance.toFixed(1)) || 0,
-      carriedOver: parseFloat(item?.carriedOver.toFixed(1)) || 0,
-      totalBalance: parseFloat(item?.totalBalance.toFixed(1)) || 0,
-      utilizedLeave: parseFloat(item?.utilizedLeave.toFixed(1)) || 0,
-      cashValue,
-    };
-  });
+      accrued: item?.accrued || 0,
+      balance: item?.balance || 0,
+      carriedOver: item?.carriedOver || 0,
+      totalBalance: item?.totalBalance || 0,
+    })) || [];
 
   return (
     <>
@@ -121,7 +94,7 @@ const LeaveBalanceTable: React.FC = () => {
         dataSource={dataSource}
         loading={leaveBalanceIsLoading}
         locale={{
-          emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
+          emptyText: userId ? undefined : <h3>Please Select User</h3>,
         }}
       />
     </>

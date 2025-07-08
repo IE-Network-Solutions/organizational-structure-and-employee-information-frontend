@@ -5,19 +5,15 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
-import { Button, Col, Input, Row, Select, DatePicker, Radio } from 'antd';
+import { Button, Col, Input, Row, Select } from 'antd';
 import { Modal } from 'antd';
+import { VscSettings } from 'react-icons/vsc';
 
 const { Option } = Select;
 
 const EmployeeSearch: React.FC = () => {
-  const {
-    searchParams,
-    setSearchParams,
-    pageSize,
-    userCurrentPage,
-    setJoinedDateType,
-  } = useEmployeeManagementStore();
+  const { searchParams, setSearchParams, pageSize, userCurrentPage } =
+    useEmployeeManagementStore();
 
   const { data: allFilterData } = useEmployeeAllFilter(
     pageSize,
@@ -26,9 +22,6 @@ const EmployeeSearch: React.FC = () => {
     searchParams.allJobs ? searchParams.allJobs : '',
     searchParams.employee_name ? searchParams.employee_name : '',
     searchParams.allStatus ? searchParams.allStatus : '',
-    searchParams.gender ? searchParams.gender : '',
-    searchParams.joinedDate ? searchParams.joinedDate : '',
-    searchParams.joinedDateType || 'after',
   );
 
   const { data: EmployeeBranches } = useEmployeeBranches();
@@ -65,15 +58,6 @@ const EmployeeSearch: React.FC = () => {
     onSelectChange(value, 'allStatus');
   };
 
-  const handleGenderChange = (value: string) => {
-    onSelectChange(value, 'gender');
-  };
-
-  const handleJoinedDateChange = (date: any, dateString: string | string[]) => {
-    const dateValue = Array.isArray(dateString) ? dateString[0] : dateString;
-    onSelectChange(dateValue, 'joinedDate');
-  };
-
   const activeStatusValue =
     allFilterData?.items?.find((item: any) => item.deletedAt === null)
       ?.deletedAt || 'null';
@@ -91,88 +75,101 @@ const EmployeeSearch: React.FC = () => {
         align="middle"
         className="mb-5"
       >
-        <Col xs={24} sm={24} lg={6}>
-          <Input
-            id={`inputEmployeeNames${searchParams.employee_name}`}
-            placeholder="Search employee"
-            onChange={(e) => handleSearchInput(e.target.value, 'employee_name')}
-            className="w-full h-10 rounded-lg"
-            allowClear
-          />
-        </Col>
-        <Col xs={24} sm={24} lg={18}>
-          <div className="flex flex-row gap-2 justify-end items-center">
-            <Select
-              id={`selectBranches${searchParams.allOffices}`}
-              placeholder="Office"
-              onChange={handleBranchChange}
-              allowClear
-              className="h-10 min-w-[120px]"
-            >
-              {EmployeeBranches?.items?.map((item: any) => (
-                <Option key={item?.id} value={item?.id}>
-                  {item?.name}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              id={`selectDepartment${searchParams.allJobs}`}
-              placeholder="Department"
-              onChange={handleDepartmentChange}
-              allowClear
-              className="h-10 min-w-[120px]"
-            >
-              {EmployeeDepartment?.map((item: any) => (
-                <Option key={item?.id} value={item?.id}>
-                  {item?.name}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              id={`selectGender${searchParams.gender}`}
-              placeholder="Gender"
-              onChange={handleGenderChange}
-              allowClear
-              className="h-10 min-w-[100px]"
-            >
-              <Option value="male">Male</Option>
-              <Option value="female">Female</Option>
-              <Option value="other">Other</Option>
-            </Select>
-            <Select
-              id={`selectStatus${searchParams.allStatus}`}
-              placeholder="Status"
-              onChange={handleStatusChange}
-              allowClear
-              className="h-10 min-w-[100px]"
-            >
-              <Option value={activeStatusValue}>Active</Option>
-              <Option value={inactiveStatusValue}>Inactive</Option>
-            </Select>
-            <div className="flex flex-row items-center gap-1">
-              <DatePicker
-                id={`datePickerJoinedDate${searchParams.joinedDate}`}
-                placeholder="Joined Date"
-                onChange={handleJoinedDateChange}
-                className="h-10 min-w-[130px]"
-                format="YYYY-MM-DD"
+        <Col xs={24} sm={24} lg={10}>
+          <Row gutter={8} align="middle">
+            <Col xs={20} sm={20} flex="auto">
+              <Input
+                id={`inputEmployeeNames${searchParams.employee_name}`}
+                placeholder="Search employee"
+                onChange={(e) =>
+                  handleSearchInput(e.target.value, 'employee_name')
+                }
+                className="w-full h-10 rounded-lg"
                 allowClear
-                renderExtraFooter={() => (
-                  <div className="flex items-center justify-between w-full px-2">
-                    <span className="font-semibold text-sm">Set Date</span>
-                    <Radio.Group
-                      value={searchParams.joinedDateType || 'after'}
-                      onChange={(e) => setJoinedDateType(e.target.value)}
-                      size="small"
-                    >
-                      <Radio value="before">Before</Radio>
-                      <Radio value="after">After</Radio>
-                    </Radio.Group>
-                  </div>
-                )}
               />
-            </div>
-          </div>
+            </Col>
+            <Col xs={4} sm={4} className="block sm:hidden">
+              <div className="flex items-center justify-center w-10 h-10 text-black border border-gray-300 rounded-lg">
+                <VscSettings
+                  size={20}
+                  onClick={() =>
+                    setIsMobileFilterVisible(!isMobileFilterVisible)
+                  }
+                />
+              </div>
+            </Col>
+          </Row>
+        </Col>
+
+        <Col lg={11} className="hidden sm:block ">
+          <Row gutter={[8, 16]}>
+            <Col lg={8} sm={12} xs={24}>
+              <Select
+                id={`selectBranches${searchParams.allOffices}`}
+                placeholder="All Offices"
+                onChange={handleBranchChange}
+                allowClear
+                className="w-full h-10"
+              >
+                {EmployeeBranches?.items?.map((item: any) => (
+                  <Option key={item?.id} value={item?.id}>
+                    {item?.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col lg={8} sm={12} xs={24}>
+              <Select
+                id={`selectDepartment${searchParams.allJobs}`}
+                placeholder="All Departments"
+                onChange={handleDepartmentChange}
+                allowClear
+                className=" w-full h-10"
+              >
+                {EmployeeDepartment?.map((item: any) => (
+                  <Option key={item?.id} value={item?.id}>
+                    {item?.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col lg={8} sm={12} xs={24}>
+              <Select
+                id={`selectStatus${searchParams.allStatus}`}
+                placeholder="Active"
+                onChange={handleStatusChange}
+                allowClear
+                className="w-full h-10"
+              >
+                <Option
+                  key="active"
+                  value={activeStatusValue}
+                  style={{
+                    backgroundColor:
+                      searchParams.allStatus === activeStatusValue
+                        ? '#f5f5f5'
+                        : 'transparent',
+                  }}
+                  className="hover:bg-gray-100"
+                >
+                  Active
+                </Option>
+                <Option
+                  key="inactive"
+                  value={inactiveStatusValue}
+                  style={{
+                    backgroundColor:
+                      searchParams.allStatus === inactiveStatusValue
+                        ? '#f5f5f5'
+                        : 'transparent',
+                  }}
+                  className="hover:bg-gray-100"
+                >
+                  Inactive
+                </Option>
+              </Select>
+            </Col>
+          </Row>
         </Col>
       </Row>
 
@@ -203,7 +200,7 @@ const EmployeeSearch: React.FC = () => {
       >
         <Select
           id={`selectBranches${searchParams.allOffices}`}
-          placeholder="Office"
+          placeholder="All Offices"
           onChange={handleBranchChange}
           allowClear
           className="w-full mb-4"
@@ -217,7 +214,7 @@ const EmployeeSearch: React.FC = () => {
 
         <Select
           id={`selectDepartment${searchParams.allJobs}`}
-          placeholder="Department"
+          placeholder="All Departments"
           onChange={handleDepartmentChange}
           allowClear
           className="w-full mb-4"
@@ -230,50 +227,15 @@ const EmployeeSearch: React.FC = () => {
         </Select>
 
         <Select
-          id={`selectGender${searchParams.gender}`}
-          placeholder="Gender"
-          onChange={handleGenderChange}
-          allowClear
-          className="w-full mb-4"
-        >
-          <Option value="male">Male</Option>
-          <Option value="female">Female</Option>
-          <Option value="other">Other</Option>
-        </Select>
-        <Select
           id={`selectStatus${searchParams.allStatus}`}
-          placeholder="Status"
+          placeholder="Active"
           onChange={handleStatusChange}
           allowClear
-          className="w-full mb-4"
+          className="w-full"
         >
           <Option value={activeStatusValue}>Active</Option>
           <Option value={inactiveStatusValue}>Inactive</Option>
         </Select>
-
-        <div className="flex flex-row items-center gap-1">
-          <DatePicker
-            id={`datePickerJoinedDate${searchParams.joinedDate}`}
-            placeholder="Joined Date"
-            onChange={handleJoinedDateChange}
-            className="w-full"
-            format="YYYY-MM-DD"
-            allowClear
-            renderExtraFooter={() => (
-              <div className="flex items-center justify-between w-full px-2">
-                <span className="font-semibold text-sm">Set Date</span>
-                <Radio.Group
-                  value={searchParams.joinedDateType || 'after'}
-                  onChange={(e) => setJoinedDateType(e.target.value)}
-                  size="small"
-                >
-                  <Radio value="before">Before</Radio>
-                  <Radio value="after">After</Radio>
-                </Radio.Group>
-              </div>
-            )}
-          />
-        </div>
       </Modal>
     </div>
   );

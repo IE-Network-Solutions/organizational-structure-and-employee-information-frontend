@@ -11,7 +11,6 @@ import {
 } from '@/store/server/features/compensation/settings/mutations';
 import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
-import CustomPagination from '@/components/customPagination';
 
 const BenefitTypeTable = () => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -148,31 +147,24 @@ const BenefitTypeTable = () => {
     },
   ];
 
-  const paginatedData = tableData.slice(
-    (benefitCurrentPage - 1) * benefitPageSize,
-    benefitCurrentPage * benefitPageSize,
-  );
+  const handleTableChange = (pagination: any) => {
+    setBenefitCurrentPage(pagination.current);
+    setBenefitPageSize(pagination.pageSize);
+  };
 
   return (
     <Spin spinning={isLoading}>
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
-      <CustomPagination
-        current={benefitCurrentPage}
-        total={tableData.length}
-        pageSize={benefitPageSize}
-        onChange={(page, size) => {
-          setBenefitCurrentPage(page);
-          setBenefitPageSize(size);
+        dataSource={tableData}
+        pagination={{
+          current: benefitCurrentPage,
+          pageSize: benefitPageSize,
+          total: tableData.length,
+          showSizeChanger: true,
         }}
-        onShowSizeChange={(size) => {
-          setBenefitPageSize(size);
-          setBenefitCurrentPage(1);
-        }}
+        onChange={handleTableChange}
       />
     </Spin>
   );

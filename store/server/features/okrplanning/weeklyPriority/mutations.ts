@@ -23,38 +23,6 @@ const createWeeklyPriority = async (values: any) => {
     throw error; // Re-throw error if needed for further handling
   }
 };
-const createWeeklyPriorityBulk = async (values: any) => {
-  try {
-    await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/weekly-priorities/create/bulk`,
-      method: 'POST',
-      data: values,
-      headers: {
-        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-        tenantId: tenantId, // Pass tenantId in the headers
-      },
-    });
-  } catch (error) {
-    // Handle error (optional)
-    throw error; // Re-throw error if needed for further handling
-  }
-};
-const updateWeeklyPriorityBulk = async (values: any) => {
-  try {
-    await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/weekly-priorities/update/bulk`,
-      method: 'POST',
-      data: values,
-      headers: {
-        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-        tenantId: tenantId, // Pass tenantId in the headers
-      },
-    });
-  } catch (error) {
-    // Handle error (optional)
-    throw error; // Re-throw error if needed for further handling
-  }
-};
 export const UpdateWeeklyPriority = async (values: any) => {
   try {
     await crudRequest({
@@ -110,30 +78,6 @@ export const useCreateWeeklyPriority = () => {
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Task Created Successfully.',
-      });
-    },
-  });
-};
-export const useCreateWeeklyPriorityBulk = () => {
-  const queryClient = useQueryClient();
-  return useMutation(createWeeklyPriorityBulk, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('weeklyPriorities'); // Adjust the query key as necessary
-      NotificationMessage.success({
-        message: 'Successfully Created',
-        description: 'Task Created Successfully.',
-      });
-    },
-  });
-};
-export const useUpdateCreateWeeklyPriorityBulk = () => {
-  const queryClient = useQueryClient();
-  return useMutation(updateWeeklyPriorityBulk, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('weeklyPriorities'); // Adjust the query key as necessary
-      NotificationMessage.success({
-        message: 'Successfully Updated',
-        description: 'Task Updated Successfully.',
       });
     },
   });

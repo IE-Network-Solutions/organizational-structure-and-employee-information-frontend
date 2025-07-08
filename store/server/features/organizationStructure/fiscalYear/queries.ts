@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { useQuery, QueryObserverOptions } from 'react-query';
+import { useQuery } from 'react-query';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { FiscalYear, FiscalYearResponse } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -52,14 +52,11 @@ export const useGetFiscalYearById = (id: string) =>
     keepPreviousData: true,
   });
 
-export const useGetActiveFiscalYears = (
-  options?: QueryObserverOptions<FiscalYear>,
-) => {
+export const useGetActiveFiscalYears = () => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
     enabled: token.length > 0 && tenantId.length > 0,
-    ...options,
   });
 };
 

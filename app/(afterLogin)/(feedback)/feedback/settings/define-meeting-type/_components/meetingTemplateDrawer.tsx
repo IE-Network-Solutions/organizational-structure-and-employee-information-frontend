@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { MdClose } from 'react-icons/md';
 
@@ -35,7 +36,6 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
         onClick={() => onClose()}
         style={{ marginRight: 8 }}
         loading={loading}
-        className="h-10"
       >
         Cancel
       </Button>
@@ -44,7 +44,6 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
         type="primary"
         onClick={() => form.submit()}
         loading={loading}
-        className="h-10"
       >
         {initialValues ? 'Update' : 'Create'}
       </Button>
@@ -56,7 +55,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       open={open}
       onClose={() => onClose()}
       modalHeader={
-        <div className="text-center font-bold text-xl">
+        <div className="text-center">
           {' '}
           {initialValues
             ? 'Update Meeting Template'
@@ -102,28 +101,26 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <div key={key} className="mb-2">
+                <div key={key} className="flex mb-1 gap-4 items-center">
                   <Form.Item
                     {...restField}
                     name={name}
                     rules={[{ required: true, message: 'Missing agenda item' }]}
-                    label={`Agenda Item ${key + 1}`}
                     className="w-full"
+                    label={`Agenda Item ${key + 1}`}
                   >
-                    <Input
-                      placeholder="Agenda Item"
-                      suffix={
-                        <MdClose
-                          className="cursor-pointer text-gray-500 hover:text-red-500"
-                          onClick={() => remove(name)}
-                        />
-                      }
-                    />
+                    <Input placeholder="Agenda Item" />
                   </Form.Item>
+                  <MdClose onClick={() => remove(name)} />
                 </div>
               ))}
               <Form.Item>
-                <Button type="primary" onClick={() => add()} block>
+                <Button
+                  type="primary"
+                  onClick={() => add()}
+                  block
+                  icon={<PlusOutlined />}
+                >
                   Add agenda item
                 </Button>
               </Form.Item>

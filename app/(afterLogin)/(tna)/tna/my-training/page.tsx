@@ -66,12 +66,8 @@ const TnaReviewPage = () => {
   };
   const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
-  const {
-    isShowTnaReviewSidebar,
-    setIsShowTnaReviewSidebar,
-    setData,
-    setTnaId,
-  } = useTnaReviewStore();
+  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, setTnaId } =
+    useTnaReviewStore();
   const {
     page,
     limit,
@@ -124,16 +120,7 @@ const TnaReviewPage = () => {
       );
     }
   }, [data]);
-  const onTnaEdit = (item: any) => {
-    setTnaId(item.id);
-    setData({
-      yearId: item.yearId,
-      sessionId: item.sessionId,
-      monthId: item.monthId,
-      departmentId: item.departmentId,
-    });
-    setIsShowTnaReviewSidebar(true);
-  };
+
   const tableColumns: TableColumnsType<any> = [
     {
       title: 'TNA',
@@ -202,7 +189,8 @@ const TnaReviewPage = () => {
               item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
             }
             onClick={() => {
-              onTnaEdit(item);
+              setTnaId(item.id);
+              setIsShowTnaReviewSidebar(true);
             }}
           />
 

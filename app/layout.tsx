@@ -5,7 +5,6 @@ import './globals.css';
 import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
-import RecaptchaProvider from '@/components/recaptcha';
 const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -25,9 +24,7 @@ export default function RootLayout({
         <ReactQueryWrapper>
           <AntdRegistry>
             <AntdConfigProvider>
-              <RecaptchaProvider>
-                <ConditionalNav>{children}</ConditionalNav>
-              </RecaptchaProvider>
+              <ConditionalNav>{children}</ConditionalNav>
             </AntdConfigProvider>
           </AntdRegistry>
         </ReactQueryWrapper>

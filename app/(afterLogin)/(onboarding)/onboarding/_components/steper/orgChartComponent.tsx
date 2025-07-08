@@ -12,7 +12,6 @@ import { Department } from '@/types/dashboard/organization';
 import DepartmentForm from '../departmentForm.tsx';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
-import { v4 as uuidv4 } from 'uuid';
 
 interface DepartmentNodeProps {
   data: Department;
@@ -38,31 +37,41 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       >
         Edit
       </Menu.Item>
-      {!isRoot && (
-        <Menu.Item
-          id={`${data.name}DeleteButton`}
-          icon={<DeleteOutlined />}
-          onClick={onDelete}
-        >
-          Delete
-        </Menu.Item>
-      )}
+      <Menu.Item
+        id={`${data.name}DeleteButton`}
+        icon={<DeleteOutlined />}
+        onClick={onDelete}
+      >
+        Delete
+      </Menu.Item>
     </Menu>
   );
 
   return (
     <Card className="p-1.5 rounded-md inline-block border border-[#e8e8e8] sm:w-auto">
-      <Dropdown
-        overlay={menu}
-        trigger={['click']}
-        className="absolute top-[5px] right-[5px]"
-      >
+      {isRoot && (
         <Button
-          icon={<MoreOutlined />}
-          id={`${data.name}ThreeDotButton`}
+          id="ceoButton"
+          icon={<PlusOutlined />}
           size="small"
+          type="primary"
+          className="p-2 rounded-full absolute bottom-[-10px] center-[-40px]"
+          onClick={onAdd}
         />
-      </Dropdown>
+      )}
+      {!isRoot && (
+        <Dropdown
+          overlay={menu}
+          trigger={['click']}
+          className="absolute top-[5px] right-[5px]"
+        >
+          <Button
+            icon={<MoreOutlined />}
+            id={`${data.name}ThreeDotButton`}
+            size="small"
+          />
+        </Dropdown>
+      )}
 
       <div
         style={{
@@ -75,16 +84,17 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
           <span style={{ fontWeight: 'bold' }}>{data.name}</span>
         </Tooltip>
       </div>
-
-      <Button
-        id={`${data.name}Button`}
-        icon={<PlusOutlined />}
-        size="small"
-        type="primary"
-        className="rounded-full absolute bottom-[-10px]"
-        style={{ marginTop: '5px' }}
-        onClick={onAdd}
-      />
+      {!isRoot && (
+        <Button
+          id={`${data.name}Button`}
+          icon={<PlusOutlined />}
+          size="small"
+          type="primary"
+          className="rounded-full absolute bottom-[-10px] "
+          style={{ marginTop: '5px' }}
+          onClick={onAdd}
+        />
+      )}
     </Card>
   );
 };
@@ -96,23 +106,25 @@ const renderTreeNodes = (
   onDelete: (departmentId: string) => void,
   isRoot = false,
 ) =>
-  data.map((item) => (
-    <TreeNode
-      key={item.id}
-      label={
-        <DepartmentNode
-          data={item}
-          onEdit={() => onEdit(item)}
-          onAdd={() => onAdd(item.id)}
-          onDelete={() => onDelete(item.id)}
-          isRoot={isRoot}
-        />
-      }
-    >
-      {item.department &&
-        renderTreeNodes(item.department, onEdit, onAdd, onDelete)}
-    </TreeNode>
-  ));
+  data.map((item) => {
+    return (
+      <TreeNode
+        key={item.id}
+        label={
+          <DepartmentNode
+            data={item}
+            onEdit={() => onEdit(item)}
+            onAdd={() => onAdd(item.id)}
+            onDelete={() => onDelete(item.id)}
+            isRoot={isRoot}
+          />
+        }
+      >
+        {item.department &&
+          renderTreeNodes(item.department, onEdit, onAdd, onDelete)}
+      </TreeNode>
+    );
+  });
 
 const OrgChartComponent: React.FC = () => {
   const {
@@ -128,6 +140,7 @@ const OrgChartComponent: React.FC = () => {
     setParentId,
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
+    setBranchId,
     setOrgData,
   } = useOrganizationStore();
 
@@ -138,6 +151,8 @@ const OrgChartComponent: React.FC = () => {
 
   const handleAdd = (parentId: string) => {
     setParentId(parentId);
+    orgData.branchId = branches?.items?.[0].id;
+    setOrgData(orgData);
     setSelectedDepartment(null);
     setIsFormVisible(true);
   };
@@ -148,12 +163,7 @@ const OrgChartComponent: React.FC = () => {
   };
 
   const handleFormSubmit = (values: Department) => {
-    if (selectedDepartment?.id === 'root') {
-      setOrgData({
-        ...orgData,
-        name: values.name,
-      });
-    } else if (selectedDepartment) {
+    if (selectedDepartment) {
       updateDepartment({ ...selectedDepartment, ...values });
     } else if (parentId) {
       addDepartment(parentId, values);
@@ -169,53 +179,11 @@ const OrgChartComponent: React.FC = () => {
   };
 
   const { data: branches } = useGetBranches();
-
   useEffect(() => {
-    if (!orgData.department || orgData.department.length === 0) {
-      const defaultDepartments: Department[] = [
-        {
-          id: uuidv4(),
-          name: 'HR',
-          department: [],
-          branchId: null,
-          description: '',
-          collapsed: false,
-        },
-        {
-          id: uuidv4(),
-          name: 'Marketing',
-          department: [],
-          branchId: null,
-          description: '',
-          collapsed: false,
-        },
-        {
-          id: uuidv4(),
-          name: 'Finance',
-          department: [],
-          branchId: null,
-          description: '',
-          collapsed: false,
-        },
-      ];
-
-      setOrgData({
-        ...orgData,
-        name: orgData.name || 'CEO',
-        branchId: null,
-        department: defaultDepartments,
-      });
+    if (branches && branches?.items?.length > 0) {
+      setBranchId(branches?.items?.[0]?.id || '');
     }
-  }, [branches, orgData.department]);
-
-  const rootDepartment: Department = {
-    id: 'root',
-    name: orgData?.name || 'CEO',
-    department: orgData?.department || [],
-    branchId: orgData?.branchId || '',
-    description: '',
-    collapsed: false,
-  };
+  }, [branches, setBranchId]);
 
   return (
     <div className="w-full py-7 overflow-x-auto lg:overflow-x-visible">
@@ -223,8 +191,15 @@ const OrgChartComponent: React.FC = () => {
         <Tree
           label={
             <DepartmentNode
-              data={rootDepartment}
-              onEdit={() => handleEdit(rootDepartment)}
+              data={{
+                id: 'root',
+                name: orgData?.name || '',
+                department: orgData?.department || [],
+                branchId: orgData?.branchId,
+                description: '',
+                collapsed: false,
+              }}
+              onEdit={() => {}}
               onAdd={() => handleAdd('root')}
               onDelete={() => {}}
               isRoot={true}
@@ -249,13 +224,7 @@ const OrgChartComponent: React.FC = () => {
         open={isFormVisible}
         submitAction={handleFormSubmit}
         departmentData={selectedDepartment ?? undefined}
-        title={
-          selectedDepartment?.id === 'root'
-            ? 'Edit CEO'
-            : selectedDepartment
-              ? 'Edit Department'
-              : 'Add Department'
-        }
+        title={selectedDepartment ? 'Edit Department' : 'Add Department'}
       />
 
       <Modal

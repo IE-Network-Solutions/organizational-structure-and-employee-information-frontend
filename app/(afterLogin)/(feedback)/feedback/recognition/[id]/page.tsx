@@ -7,9 +7,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import EmployeeScoreCard from '../_components/EmployeeScoreCard';
 import { FaLongArrowAltLeft } from 'react-icons/fa';
-import { useDownloadCertificate } from '@/store/server/features/CFR/recognition/mutation';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-
 interface Params {
   id: string;
 }
@@ -19,8 +16,6 @@ interface RecognitionDetailsProps {
 
 function Page({ params: { id } }: RecognitionDetailsProps) {
   const { data: getRecognitionById, isLoading } = useGetRecognitionById(id);
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const downloadMutation = useDownloadCertificate();
 
   const EmployeeDetailsComponent = ({ empId }: { empId: string }) => {
     const { data: userDetails, isLoading, error } = useGetEmployee(empId);
@@ -56,18 +51,13 @@ function Page({ params: { id } }: RecognitionDetailsProps) {
       </div>
       <Tooltip placement="top" overlayClassName="custom-tooltip">
         <Button
-          loading={downloadMutation.isLoading}
-          onClick={() => {
-            downloadMutation.mutate({ recognitionId: id, tenantId });
-          }}
+          loading={isLoading}
           type="primary"
           id={`printCertificationCustomButtonId`}
           className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700`}
         >
           <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
-            {downloadMutation.isLoading
-              ? 'Downloading...'
-              : 'Print Certification'}
+            Print Certification
           </div>
         </Button>
       </Tooltip>

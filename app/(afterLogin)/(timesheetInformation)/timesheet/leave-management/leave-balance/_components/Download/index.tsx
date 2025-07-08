@@ -4,12 +4,12 @@ import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBa
 import { useGetAllLeaveBalanceWithFilter } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 const DownloadLeaveBalance: React.FC = () => {
-  const { selectedUserId, leaveTypeId, isDownloading, setIsDownloading } =
+  const { userId, leaveTypeId, isDownloading, setIsDownloading } =
     useLeaveBalanceStore();
   const buttonClass = 'text-xs font-bold h-[54px] w-full';
 
   const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } =
-    useGetAllLeaveBalanceWithFilter(selectedUserId, leaveTypeId);
+    useGetAllLeaveBalanceWithFilter(userId, leaveTypeId);
 
   useEffect(() => {
     const prefetchData = async () => {
@@ -17,7 +17,7 @@ const DownloadLeaveBalance: React.FC = () => {
     };
 
     prefetchData();
-  }, [selectedUserId, leaveTypeId, refetchFiltered]);
+  }, [userId, leaveTypeId, refetchFiltered]);
 
   const handleDownload = async () => {
     if (!allFilteredLeaveBalanceData?.file) {

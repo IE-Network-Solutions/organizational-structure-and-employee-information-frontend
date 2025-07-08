@@ -84,19 +84,6 @@ const getVariablePay = async (monthIds: string[]) => {
   });
 };
 
-const getDueSoonKeyResults = async (userId: string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  return crudRequest({
-    url: `${OKR_URL}/objective/${userId}?page=1&limit=100&metricTypeId=`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
-};
-
 export const useGetUserObjectiveDashboard = (postId: number | string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<ResponseData>(
@@ -138,16 +125,4 @@ export const useGetVariablePay = (monthIds: string[]) => {
   return useQuery(['variablePay', monthIds], () => getVariablePay(monthIds), {
     keepPreviousData: true,
   });
-};
-
-export const useGetDueSoonKeyResults = (userId: string) => {
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  return useQuery(
-    ['DueSoonKeyResults', userId],
-    () => getDueSoonKeyResults(userId),
-    {
-      keepPreviousData: true,
-      enabled: !!tenantId && !!userId,
-    },
-  );
 };

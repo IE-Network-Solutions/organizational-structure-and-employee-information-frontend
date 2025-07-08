@@ -1,7 +1,15 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Table, Select, Button, Avatar, Tooltip, Popconfirm } from 'antd';
+import {
+  Table,
+  Select,
+  Button,
+  Avatar,
+  Tooltip,
+  Popconfirm,
+  Pagination,
+} from 'antd';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import {
   useGetAllUsers,
@@ -18,7 +26,6 @@ import { MdDelete, MdEdit } from 'react-icons/md';
 import EmployeeSurveyModal from './EmployeeSurveyModal';
 import { useDeleteEmployeeSurvey } from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import CustomPagination from '@/components/customPagination';
 
 const { Option } = Select;
 const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
@@ -274,16 +281,16 @@ const EmployeeSurveyTable: React.FC = () => {
         loading={employeeSurveyLoading}
         className="overflow-x-auto"
       />
-      <CustomPagination
-        total={employeeSurvey?.meta?.totalItems || 0}
-        current={employeeSurvey?.meta?.currentPage || 1}
+      <Pagination
+        total={employeeSurvey?.meta?.totalItems}
+        current={employeeSurvey?.meta?.currentPage}
         pageSize={page}
         onChange={onPageChange}
-        onShowSizeChange={(size) => {
-          onPageChange(1, size);
-        }}
+        showSizeChanger={true}
+        onShowSizeChange={onPageChange}
+        pageSizeOptions={['5', '10', '20', '50', '100']}
+        className="mt-4 flex w-full justify-end"
       />
-
       <EmployeeSurveyDrawer onClose={() => setOpen(false)} open={open} />
       <EmployeeSurveyModal
         onClose={() => setOpenModal(false)}

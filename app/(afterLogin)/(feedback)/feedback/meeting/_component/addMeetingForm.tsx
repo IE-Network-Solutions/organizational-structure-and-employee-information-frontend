@@ -27,20 +27,6 @@ import dayjs from 'dayjs';
 
 const { Step } = Steps;
 
-// Custom styles for stepper
-const stepperStyles = `
-  .ant-steps-item-tail::after {
-    background-color: #d1d5db !important;
-    height: 2px !important;
-  }
-  .ant-steps-item-process .ant-steps-item-tail::after {
-    background-color: #3b82f6 !important;
-  }
-  .ant-steps-item-finish .ant-steps-item-tail::after {
-    background-color: #3b82f6 !important;
-  }
-`;
-
 export default function AddNewMeetingForm() {
   const [form] = Form.useForm();
   const [step, setStep] = useState(1);
@@ -172,14 +158,14 @@ export default function AddNewMeetingForm() {
     <div className="flex justify-center gap-3 mt-6">
       <Button
         loading={meetingLoading}
-        className="w-36 h-10"
+        className="w-36"
         onClick={step === 2 ? onPrev : handleClose}
       >
         {step === 2 ? 'Back' : 'Cancel'}
       </Button>
       <Button
         type="primary"
-        className="w-36 h-10"
+        className="w-36"
         loading={meetingLoading}
         onClick={step === 2 ? () => form.submit() : onNext}
       >
@@ -193,45 +179,43 @@ export default function AddNewMeetingForm() {
       open={openAddMeeting}
       onClose={handleClose}
       modalHeader={
-        <h2 className="text-center font-semibold text-2xl mb-1">
+        <h2 className="text-center font-semibold text-lg mb-2">
           Add New Meeting
         </h2>
       }
       width="40%"
       footer={footer}
     >
-      <style>{stepperStyles}</style>
-      <p className="text-center text-gray-600 mb-1 font-medium text-base">
+      <p className="text-center text-gray-600 mb-6 font-medium">
         Meeting Information
       </p>
 
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center ">
         <Steps
           current={step - 1}
           size="small"
           labelPlacement="vertical"
           className="w-full max-w-md"
-          progressDot={false}
         >
           <Step
             icon={
               step === 1 ? (
-                <div className="w-6 h-6 rounded-full flex items-center justify-center border-2 border-blue-500 bg-blue-500">
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
+                  <span className="w-3 h-3 bg-blue rounded-full"></span>
                 </div>
               ) : (
-                <div className="w-6 h-6 rounded-full bg-gray-300 border-2 border-gray-300"></div>
+                <div className="w-8 h-8 rounded-full bg-gray-300"></div>
               )
             }
           />
           <Step
             icon={
               step === 2 ? (
-                <div className="w-6 h-6 rounded-full flex items-center justify-center border-2 border-blue-500 bg-blue-500">
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 border-blue">
+                  <span className="w-3 h-3 bg-blue rounded-full"></span>
                 </div>
               ) : (
-                <div className="w-6 h-6 rounded-full border-2 border-gray-300 bg-white"></div>
+                <div className="w-8 h-8 rounded-full border border-gray-300"></div>
               )
             }
           />
@@ -251,7 +235,7 @@ export default function AddNewMeetingForm() {
             name="title"
             rules={[{ required: true, message: 'Please input the title' }]}
           >
-            <Input placeholder="Input area" className="h-[54px]" />
+            <Input placeholder="Input area" />
           </Form.Item>
 
           <Form.Item
@@ -266,7 +250,6 @@ export default function AddNewMeetingForm() {
               placeholder="Select meeting type"
               allowClear
               maxTagCount={3}
-              className="h-[54px]"
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
                   ?.toLowerCase()
@@ -284,25 +267,16 @@ export default function AddNewMeetingForm() {
             <Radio.Group
               onChange={(e) => setMeetingType(e.target.value)}
               value={locationType}
-              className="flex flex-col gap-2 w-full"
+              className="flex gap-2 w-full"
             >
-              <Radio
-                value="in-person"
-                className="w-full border p-3 rounded-md h-[54px] flex items-center"
-              >
-                <span className="ml-2">In-person</span>
+              <Radio value="in-person" className="w-full border p-2 rounded-md">
+                In-person
               </Radio>
-              <Radio
-                value="virtual"
-                className="w-full border p-3 rounded-md h-[54px] flex items-center"
-              >
-                <span className="ml-2">Virtual</span>
+              <Radio value="virtual" className="w-full border p-2 rounded-md">
+                Virtual
               </Radio>
-              <Radio
-                value="hybrid"
-                className="w-full border p-3 rounded-md h-[54px] flex items-center"
-              >
-                <span className="ml-2">Hybrid</span>
+              <Radio value="hybrid" className="w-full border p-2 rounded-md">
+                Hybrid
               </Radio>
             </Radio.Group>
           </Form.Item>
@@ -312,7 +286,7 @@ export default function AddNewMeetingForm() {
               name="virtualLink"
               rules={[{ required: true, message: 'Please enter Virtual Link' }]}
             >
-              <Input placeholder="Meeting link" className="h-[54px]" />
+              <Input placeholder="Meeting link" />
             </Form.Item>
           )}
 
@@ -322,7 +296,7 @@ export default function AddNewMeetingForm() {
               name="physicalLocation"
               rules={[{ required: true, message: 'Please enter location' }]}
             >
-              <Input placeholder="Conference Room" className="h-[54px]" />
+              <Input placeholder="Conference Room" />
             </Form.Item>
           )}
 
@@ -337,7 +311,6 @@ export default function AddNewMeetingForm() {
               allowClear
               mode="multiple"
               maxTagCount={3}
-              className="h-[54px]"
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
                   ?.toLowerCase()
@@ -353,7 +326,7 @@ export default function AddNewMeetingForm() {
               name="date"
               rules={[{ required: true, message: 'Please select date' }]}
             >
-              <DatePicker className="w-full h-[54px]" />
+              <DatePicker className="w-full" />
             </Form.Item>
 
             <Form.Item
@@ -361,11 +334,7 @@ export default function AddNewMeetingForm() {
               name="startAt"
               rules={[{ required: true, message: 'Please select start time' }]}
             >
-              <TimePicker
-                format="hh:mm A"
-                use12Hours
-                className="w-full h-[54px]"
-              />
+              <TimePicker format="hh:mm A" use12Hours className="w-full" />
             </Form.Item>
 
             <Form.Item
@@ -391,11 +360,7 @@ export default function AddNewMeetingForm() {
                 }),
               ]}
             >
-              <TimePicker
-                format="hh:mm A"
-                use12Hours
-                className="w-full h-[54px]"
-              />
+              <TimePicker format="hh:mm A" use12Hours className="w-full" />
             </Form.Item>
           </div>
 
@@ -408,7 +373,6 @@ export default function AddNewMeetingForm() {
               showSearch
               placeholder="Select chair person"
               allowClear
-              className="h-[54px]"
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
                   ?.toLowerCase()
@@ -427,7 +391,6 @@ export default function AddNewMeetingForm() {
               showSearch
               placeholder="Select a facilitator"
               allowClear
-              className="h-[54px]"
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
                   ?.toLowerCase()
@@ -448,7 +411,6 @@ export default function AddNewMeetingForm() {
               allowClear
               mode="multiple"
               maxTagCount={3}
-              className="h-[54px]"
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
                   ?.toLowerCase()
@@ -462,22 +424,9 @@ export default function AddNewMeetingForm() {
             <div className="flex justify-end">
               <Checkbox
                 checked={allowGuests}
-                onChange={(e) => {
-                  setAllowGuests(e.target.checked);
-                  if (e.target.checked) {
-                    // Add a default guest field when checkbox is checked
-                    const currentGuests = form.getFieldValue('guests') || [];
-                    form.setFieldsValue({
-                      guests: [...currentGuests, { name: '', email: '' }],
-                    });
-                  } else {
-                    // Clear all guests when checkbox is unchecked
-                    form.setFieldsValue({ guests: [] });
-                  }
-                }}
-                className="flex items-center"
+                onChange={(e) => setAllowGuests(e.target.checked)}
               >
-                <span className="font-bold ml-2">Allow Guests</span>
+                Allow Guests
               </Checkbox>
             </div>
 
@@ -486,107 +435,81 @@ export default function AddNewMeetingForm() {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div
-                        key={key}
-                        className="bg-gray-50 p-4 rounded-lg mb-3 border"
-                      >
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="font-semibold text-gray-700">
-                            Guest {name + 1}
-                          </span>
-                          <Button
-                            icon={<MdClose />}
-                            type="text"
-                            className="text-gray-500 hover:text-red-500"
-                            onClick={() => remove(name)}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'name']}
-                            label="Name"
-                            rules={[
-                              {
-                                validator: (notused, value) => {
-                                  if (!value)
-                                    return Promise.reject(
-                                      new Error('Name is required'),
-                                    );
-                                  const validName = /^[A-Za-z\s]+$/;
-                                  if (!validName.test(value)) {
-                                    return Promise.reject(
-                                      new Error(
-                                        'Name can only include letters and spaces',
-                                      ),
-                                    );
-                                  }
-                                  return Promise.resolve();
-                                },
-                              },
-                            ]}
-                            className="w-full"
-                          >
-                            <Input placeholder="Name" className="h-[54px]" />
-                          </Form.Item>
-
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'email']}
-                            label="Email"
-                            rules={[
-                              {
-                                validator: async (notused, value) => {
-                                  if (!value) {
-                                    return Promise.reject(
-                                      new Error('Email is required'),
-                                    );
-                                  }
-
-                                  const emailRegex =
-                                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                                  if (!emailRegex.test(value)) {
-                                    return Promise.reject(
-                                      new Error('Enter a valid email'),
-                                    );
-                                  }
-
-                                  const allValues =
-                                    form.getFieldValue('guests') || [];
-                                  const emails = allValues.map((g: any) =>
-                                    g?.email?.toLowerCase(),
+                      <div key={key} className="flex space-x-3">
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'name']}
+                          label="Name"
+                          rules={[
+                            {
+                              validator: (notused, value) => {
+                                if (!value)
+                                  return Promise.reject(
+                                    new Error('Name is required'),
                                   );
-                                  const duplicates = emails.filter(
-                                    (e: any) => e === value.toLowerCase(),
+                                const validName = /^[A-Za-z\s]+$/;
+                                if (!validName.test(value)) {
+                                  return Promise.reject(
+                                    new Error(
+                                      'Name can only include letters and spaces',
+                                    ),
                                   );
-
-                                  if (duplicates.length > 1) {
-                                    return Promise.reject(
-                                      new Error('This email is already added'),
-                                    );
-                                  }
-
-                                  return Promise.resolve();
-                                },
+                                }
+                                return Promise.resolve();
                               },
-                            ]}
-                            className="w-full"
-                          >
-                            <Input
-                              placeholder="Email"
-                              type="email"
-                              className="h-[54px]"
-                            />
-                          </Form.Item>
-                        </div>
+                            },
+                          ]}
+                          className="w-full mt-2"
+                        >
+                          <Input placeholder="Name" />
+                        </Form.Item>
+
+                        <Form.Item
+  {...restField}
+  name={[name, 'email']}
+  label={
+    <div className="flex justify-between items-center w-64">
+      <span>Email</span>
+      <Button
+        icon={<MdClose />}
+        type="link"
+        className="text-black ml-4"
+        onClick={() => remove(name)}
+      />
+    </div>
+  }
+  rules={[
+    {
+      validator: async (notused, value) => {
+        if (!value) {
+          return Promise.reject(new Error('Email is required'));
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          return Promise.reject(new Error('Enter a valid email'));
+        }
+
+        const allValues = form.getFieldValue('guests') || [];
+        const emails = allValues.map((g: any) => g?.email?.toLowerCase());
+        const duplicates = emails.filter((e:any) => e === value.toLowerCase());
+
+        if (duplicates.length > 1) {
+          return Promise.reject(new Error('This email is already added'));
+        }
+
+        return Promise.resolve();
+      },
+    },
+  ]}
+  className="w-full"
+>
+  <Input placeholder="Email" type="email" />
+</Form.Item>
                       </div>
                     ))}
                     <div className="flex justify-end">
-                      <Button
-                        type="primary"
-                        onClick={() => add()}
-                        className="h-10"
-                      >
+                      <Button type="primary" onClick={() => add()}>
                         Add Guest
                       </Button>
                     </div>
@@ -609,7 +532,6 @@ export default function AddNewMeetingForm() {
             <Input.TextArea
               placeholder="[[Meeting Type + Objective]]"
               rows={4}
-              className="min-h-[54px]"
             />
           </Form.Item>
 
@@ -623,7 +545,6 @@ export default function AddNewMeetingForm() {
               placeholder="Select template"
               allowClear
               maxTagCount={3}
-              className="h-[54px]"
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
                   ?.toLowerCase()
@@ -647,7 +568,7 @@ export default function AddNewMeetingForm() {
                       className="w-full"
                       label={`Agenda Item ${key + 1}`}
                     >
-                      <Input placeholder="Agenda Item" className="h-[54px]" />
+                      <Input placeholder="Agenda Item" />
                     </Form.Item>
                     <MdClose onClick={() => remove(name)} />
                   </div>

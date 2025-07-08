@@ -1,7 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { JobSummaryDashboard } from '@/store/uistate/features/dashboard/job-summary/interface';
 import { RECRUITMENT_URL } from '@/utils/constants';
-import { crudRequest } from '@/utils/crudRequest';
+import axios from 'axios';
 import { useQuery } from 'react-query';
 
 type ResponseData = JobSummaryDashboard[];
@@ -19,12 +19,13 @@ const getJobSummary = async (status: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-
-    return await crudRequest({
-      url: `${RECRUITMENT_URL}/job-information/job/status?type=${status}`,
-      method: 'GET',
-      headers,
-    });
+    const response = await axios.get(
+      `${RECRUITMENT_URL}/job-information/status/job?type=${status}`,
+      {
+        headers,
+      },
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }

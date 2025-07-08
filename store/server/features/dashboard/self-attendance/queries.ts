@@ -1,7 +1,5 @@
-import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
-import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
@@ -46,17 +44,6 @@ const getSelfAttendance = async (
   }
 };
 
-const getAnnualAttendance = async () => {
-  const userId = useAuthenticationStore.getState().userId;
-
-  const response = await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance/${userId}`,
-    method: 'GET',
-    headers: requestHeader(),
-  });
-  return response;
-};
-
 /**
  * Custom hook to get the applicant summary
  * @returns useQuery hook for fetching applicant summary
@@ -69,9 +56,3 @@ export const useGetSelfAttendance = (start: string, end: string) =>
       keepPreviousData: true,
     },
   );
-
-export const useGetAnnualAttendance = () => {
-  return useQuery<any>(['annualAttendance'], () => getAnnualAttendance(), {
-    keepPreviousData: true,
-  });
-};

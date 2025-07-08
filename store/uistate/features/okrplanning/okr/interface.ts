@@ -109,9 +109,6 @@ export interface OKRState {
   selectedPeriodId: string;
   setSelectedPeriodId: (value: string) => void;
 
-  selectedCard: string | null;
-  setSelectedCard: (selectedCard: string | null) => void;
-
   keyResultValue?: KeyResult[] | any;
   setKeyResultValue: (keyResultValue: KeyResult[]) => void;
   keyResults?: KeyResult[];

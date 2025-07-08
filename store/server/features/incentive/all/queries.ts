@@ -12,7 +12,7 @@ const fetchIncentiveCards = async () => {
   });
 };
 
-export const fetchExcelHeaders = async (recognitionsTypeId: string) => {
+const fetchExcelHeaders = async (recognitionsTypeId: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {

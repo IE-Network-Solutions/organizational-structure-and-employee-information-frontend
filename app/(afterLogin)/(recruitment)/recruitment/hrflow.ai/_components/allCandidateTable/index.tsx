@@ -110,8 +110,6 @@ const AllCandidateTable: React.FC = () => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
-      pageSize,
-      currentPage,
     );
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -124,7 +122,7 @@ const AllCandidateTable: React.FC = () => {
   const handleMenuClick = (key: string, candidate: any) => {
     if (key === 'moveToTalentPool') {
       setMoveToTalentPoolModal(true);
-      setSelectedCandidate([candidate]); // Wrap candidate in an array
+      setSelectedCandidate(candidate);
     } else if (key === 'edit') {
       setEditCandidate(candidate);
       setEditCandidateModal(true);

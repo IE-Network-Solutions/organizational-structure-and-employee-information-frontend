@@ -12,7 +12,6 @@ import {
   Divider,
   Form,
   Input,
-  InputNumber,
   Radio,
   Row,
   Select,
@@ -286,22 +285,6 @@ const JobTimeLineForm = () => {
                 label: `${status?.name ? status?.name : ''} `,
               }))}
             />
-          </Form.Item>
-        </Col>
-        <Col xs={24} sm={12}>
-          <Form.Item
-            className="w-full font-semibold text-xs"
-            name="basicSalary"
-            id="basicSalary"
-            label={
-              <span className="mb-1 font-semibold text-xs">Basic Salary</span>
-            }
-            rules={[
-              { required: true, message: 'Please enter basic salary' },
-              { type: 'number', message: 'Basic salary must be a number' },
-            ]}
-          >
-            <InputNumber className="w-full" />
           </Form.Item>
         </Col>
       </Row>

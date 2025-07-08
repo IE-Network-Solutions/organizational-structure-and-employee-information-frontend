@@ -15,9 +15,6 @@ export const useOKRStore = create<OKRState>()(
     selectedPeriodId: '',
     setSelectedPeriodId: (value) => set({ selectedPeriodId: value }),
 
-    selectedCard: null,
-    setSelectedCard: (selectedCard: string | null) => set({ selectedCard }),
-
     // Initialize objective state with keyResults as an empty array
     objective: {
       title: '',

@@ -9,7 +9,6 @@ import { useGetOrgChartsPeoples } from '@/store/server/features/organizationStru
 import { BiUser } from 'react-icons/bi';
 import OrgChartSkeleton from '../../../org-structure/_components/loading/orgStructureLoading';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useChartRef } from '../../../layout';
 
 interface DepartmentNodeProps {
   data: any;
@@ -113,8 +112,6 @@ const OrgChartComponent: React.FC = () => {
   const { data: orgStructureData, isLoading: orgStructureLoading } =
     useGetOrgChartsPeoples();
 
-  const chartRef = useChartRef();
-
   const handleFormSubmit = (values: Department) => {
     if (selectedDepartment) {
       updateDepartment({ ...selectedDepartment, ...values });
@@ -137,7 +134,7 @@ const OrgChartComponent: React.FC = () => {
         {orgStructureLoading ? (
           <OrgChartSkeleton loading={orgStructureLoading} />
         ) : (
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8">
             <Tree
               label={
                 <DepartmentNode

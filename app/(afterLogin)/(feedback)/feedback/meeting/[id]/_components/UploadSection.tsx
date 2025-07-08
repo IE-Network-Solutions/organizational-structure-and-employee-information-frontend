@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Typography, Form, Button, Spin } from 'antd';
+import { Typography, Form, Button } from 'antd';
 import { useUpdateMeetingAttachment } from '@/store/server/features/CFR/meeting/mutations';
 import CustomUpload from '@/components/form/customUpload';
 import { FaRegFileLines } from 'react-icons/fa6';
-import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 
 const { Text } = Typography;
 
@@ -22,29 +21,22 @@ const UploadSection: React.FC<UploadSectionProps> = ({
 }) => {
   const { mutate: updateMeeting, isLoading } = useUpdateMeetingAttachment();
   const [form] = Form.useForm();
+
+  const handleFileUpload = async (value: any) => {
+    updateMeeting({
+      id: meetingId,
+      attachment: [
+        {
+          audio: value?.audio?.[0]?.response || '',
+          document: value?.document?.[0]?.response || '',
+        },
+      ],
+    });
+  };
+
   const audioUrl = meeting?.attachment?.[0]?.audio || '';
   const documentUrl = meeting?.attachment?.[0]?.document || '';
-  const handleFileUpload = async (value: any) => {
-    updateMeeting(
-      {
-        id: meetingId,
-        attachment: [
-          {
-            audio: value?.audio ? value?.audio?.[0]?.response : audioUrl,
-            document: value?.document
-              ? value?.document?.[0]?.response
-              : documentUrl,
-          },
-        ],
-      },
-      {
-        onSuccess() {
-          form.resetFields();
-        },
-      },
-    );
-  };
-  const { isFileUploadLoading } = useTnaManagementCoursePageStore();
+
   return (
     <Form layout="vertical" form={form} onFinish={handleFileUpload}>
       {/* Preview Existing Attachments */}
@@ -85,57 +77,44 @@ const UploadSection: React.FC<UploadSectionProps> = ({
       {canEdit && (
         <>
           <div className="flex flex-col lg:flex-row items-center gap-4 p-4 bg-white">
-            <Spin spinning={isFileUploadLoading?.audio || false}>
-              <Form.Item
-                name="audio"
-                label="Audio"
-                className="form-item"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-              >
-                <CustomUpload
-                  mode="dragWithLink"
-                  className="w-full mt-3"
-                  listType="picture"
-                  title="Upload Your Audio"
-                  accept="audio/*"
-                  maxCount={1}
-                  targetState="fileList"
-                  uploadType="audio"
-                />
-              </Form.Item>
-            </Spin>
-            <Spin spinning={isFileUploadLoading?.document || false}>
-              <Form.Item
-                name="document"
-                label="Document"
-                className="form-item"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-              >
-                <CustomUpload
-                  mode="dragWithLink"
-                  className="w-full mt-3"
-                  listType="picture"
-                  title="Upload Your Document"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf"
-                  targetState="fileAttachmentList"
-                  uploadType="document"
-                />
-              </Form.Item>
-            </Spin>
+            <Form.Item
+              name="audio"
+              label="Audio"
+              className="form-item"
+              valuePropName="fileList"
+              getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+            >
+              <CustomUpload
+                mode="dragWithLink"
+                className="w-full mt-3"
+                listType="picture"
+                title="Upload Your Audio"
+                accept="audio/*"
+                maxCount={1}
+                targetState="fileList"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="document"
+              label="Document"
+              className="form-item"
+              valuePropName="fileList"
+              getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+            >
+              <CustomUpload
+                mode="dragWithLink"
+                className="w-full mt-3"
+                listType="picture"
+                title="Upload Your Document"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf"
+                targetState="fileAttachmentList"
+              />
+            </Form.Item>
           </div>
           {canEdit && (
             <div className="flex justify-end mx-4 mb-2">
-              <Button
-                loading={
-                  isLoading ||
-                  isFileUploadLoading?.audio ||
-                  isFileUploadLoading?.document
-                }
-                type="primary"
-                htmlType="submit"
-              >
+              <Button loading={isLoading} type="primary" htmlType="submit">
                 Upload
               </Button>
             </div>

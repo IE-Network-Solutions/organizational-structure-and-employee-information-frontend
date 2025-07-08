@@ -106,6 +106,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
+    
         key: 'meeting-type',
 
         icon: (

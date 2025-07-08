@@ -13,12 +13,9 @@ const headers = {
 };
 
 // Fetch all talent pool categories from the API
-const getAllTalentPoolCategory = async (
-  pageSize: number,
-  currentPage: number,
-) => {
+const getAllTalentPoolCategory = async () => {
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/talent-pool-category?limit=${pageSize}&&page=${currentPage}`,
+    url: `${RECRUITMENT_URL}/talent-pool-category`,
     method: 'GET',
     headers,
   });
@@ -38,13 +35,10 @@ const getTalentPoolCategoryById = async (id: string) => {
  * Uses React Query's useQuery to manage the query state.
  * @returns Query object containing the list of talent pool categories.
  */
-export const useGetTalentPoolCategory = (
-  pageSize: number,
-  currentPage: number,
-) =>
+export const useGetTalentPoolCategory = () =>
   useQuery<TalentPoolCategoryResponse>(
-    ['talentPoolCategory', pageSize, currentPage],
-    () => getAllTalentPoolCategory(pageSize, currentPage),
+    'talentPoolCategory',
+    getAllTalentPoolCategory,
   );
 
 /**

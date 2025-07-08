@@ -8,8 +8,7 @@ import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
 import { GrTransaction } from 'react-icons/gr';
 import { IoArrowUndoCircleOutline } from 'react-icons/io5';
-import { PiUserCircle } from 'react-icons/pi';
-
+import { PiUserCircleCheck } from 'react-icons/pi';
 import { IoTimeOutline } from 'react-icons/io5';
 import { GoKey } from 'react-icons/go';
 import { AiOutlineImport } from 'react-icons/ai';
@@ -169,7 +168,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/approvals') ? 'lg:ml-4' : ''}`}
           >
-            <PiUserCircle
+            <PiUserCircleCheck
               className={`hidden lg:block ${pathname.includes('/timesheet/settings/approvals') ? 'text-[#1677FF]' : ''}`}
             />
             <p className="menu-item-label ">Approval Workflow</p>

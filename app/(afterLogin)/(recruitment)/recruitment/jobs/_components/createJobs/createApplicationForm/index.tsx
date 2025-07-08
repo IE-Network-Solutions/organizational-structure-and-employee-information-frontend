@@ -33,7 +33,7 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
           <Row gutter={16}>
             {staticField?.map((item: any) => (
               <Col key={item?.key} xs={24} sm={24} lg={12} md={12} xl={12}>
-                <div className="w-full rounded-md border-gray-200 border p-3 bg-gray-100 my-1 text-sm font-normal">
+                <div className="w-full h-10 rounded-md border-gray-200 border p-4 bg-gray-100 my-2 text-sm font-normal">
                   {item?.name}
                 </div>
               </Col>
@@ -46,13 +46,13 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
         <div className="flex justify-center w-full  bg-[#fff] px-6 py-6 gap-6">
           <Button
             onClick={() => stepChange(0)}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+            className="flex justify-center text-sm font-medium text-[#A0AEC0] bg-[#F1F2F4] p-4 px-10 h-10 hover:border-gray-500 border-none"
           >
             Back
           </Button>
           <Button
             htmlType="submit"
-            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+            className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10"
           >
             Publish
           </Button>

@@ -50,35 +50,6 @@ const updateRecognitionType = async (data: any) => {
   });
 };
 
-const updateCriteria = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-  return await crudRequest({
-    url: `${ORG_DEV_URL}/criterias/${data?.id}`,
-    method: 'patch',
-    data,
-    headers,
-  });
-};
-
-const deleteCriteria = async (id: any) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-  return await crudRequest({
-    url: `${ORG_DEV_URL}/criterias/${id}`,
-    method: 'delete',
-    headers,
-  });
-};
-
 const createRecognition = async ({ value }: { value: any }) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -104,21 +75,6 @@ const createEmployeeRecognition = async ({ value }: { value: any }) => {
   };
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition/recognize`,
-    method: 'post',
-    data: value,
-    headers,
-  });
-};
-
-const createRecognitionCriteria = async ({ value }: { value: any }) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-  return await crudRequest({
-    url: `${ORG_DEV_URL}/criterias`,
     method: 'post',
     data: value,
     headers,
@@ -212,79 +168,5 @@ export const useCreateEmployeeRecognition = () => {
       handleSuccessMessage(method);
     },
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
-  });
-};
-export const useCreateRecognitionCriteria = () => {
-  const queryClient = useQueryClient();
-  return useMutation(createRecognitionCriteria, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('criteria');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-  });
-};
-export const useUpdateCriteria = () => {
-  const queryClient = useQueryClient();
-  return useMutation(updateCriteria, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('criteria');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-  });
-};
-export const useDeleteCriteria = () => {
-  const queryClient = useQueryClient();
-  return useMutation(deleteCriteria, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('criteria');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-  });
-};
-
-const downloadCertificate = async ({
-  recognitionId,
-  tenantId,
-}: {
-  recognitionId: string;
-  tenantId?: string;
-}) => {
-  const token = useAuthenticationStore.getState().token;
-  const headers = {
-    ...(tenantId ? { tenantId: tenantId } : {}),
-    Authorization: `Bearer ${token}`,
-  };
-
-  const response = await fetch(
-    `${ORG_DEV_URL}/recognition/${recognitionId}/certificate`,
-    {
-      method: 'GET',
-      headers,
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch certificate');
-  }
-
-  return await response.blob();
-};
-
-export const useDownloadCertificate = () => {
-  return useMutation({
-    mutationFn: downloadCertificate,
-    onSuccess: (blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `certificate-of-recognition.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    },
   });
 };

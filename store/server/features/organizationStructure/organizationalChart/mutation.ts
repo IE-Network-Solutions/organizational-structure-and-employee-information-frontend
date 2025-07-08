@@ -5,7 +5,6 @@ import { OrgData } from '@/types/dashboard/organization';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OrgChart } from './interface';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 /* eslint-disable @typescript-eslint/naming-convention */
 
 /**
@@ -127,10 +126,8 @@ export const useDeleteOrgChart = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('orgcharts');
-        NotificationMessage.success({
-          message: 'Department deleted successfully!',
-          description: 'Department has been successfully deleted',
-        });
+        // const method = variables?.method?.toUpperCase();
+        // handleSuccessMessage(method);
       },
     },
   );

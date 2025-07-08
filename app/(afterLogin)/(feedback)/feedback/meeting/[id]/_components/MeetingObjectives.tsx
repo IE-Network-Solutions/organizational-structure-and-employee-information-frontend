@@ -16,8 +16,8 @@ export default function MeetingObjectives({
       loading={loading}
       className="border-none p-4"
     >
-      <h2 className="text-lg font-semibold mb-2">Meeting Objectives</h2>
-      <p className="text-[#323B49]">{objective}</p>
+      <h2 className="text-lg font-sem ibold mb-2">Meeting Objectives</h2>
+      <p className="text-gray-600">{objective}</p>
     </Card>
   );
 }

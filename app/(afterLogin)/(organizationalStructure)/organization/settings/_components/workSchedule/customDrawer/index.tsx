@@ -27,15 +27,12 @@ const CustomWorkingScheduleDrawer = () => {
     id,
     scheduleName,
     standardHours,
-    validationError,
     isOpen,
     closeDrawer,
     isEditMode,
     setDetail,
     setScheduleName,
     setStandardHours,
-    setValidationError,
-    clearValidationError,
   } = useScheduleStore();
   const { mutate: updateSchedule } = useUpdateSchedule();
   const { mutate: createSchedule } = useCreateSchedule();
@@ -52,15 +49,6 @@ const CustomWorkingScheduleDrawer = () => {
   };
 
   const handleSubmit = () => {
-    // Check if total working hours is 0
-    if (standardHours === 0) {
-      setValidationError(
-        'Cannot create work schedule with 0 working hours. Please enable at least one working day with valid time range.',
-      );
-      return;
-    }
-
-    clearValidationError();
     createWorkSchedule();
     const transformedDetails: DayOfWeek[] = useScheduleStore
       .getState()
@@ -136,10 +124,6 @@ const CustomWorkingScheduleDrawer = () => {
       }
     });
     setStandardHours(totalHours);
-    // Clear validation error when hours change
-    if (totalHours > 0 && validationError) {
-      clearValidationError();
-    }
   };
 
   const columns: ColumnsType<ScheduleDetail> = [
@@ -250,16 +234,9 @@ const CustomWorkingScheduleDrawer = () => {
             <span className="text-xs font-semibold text-nowrap ">
               Total Working hours:
             </span>
-            <span
-              className={`mr-4 text-xs font-semibold text-nowrap ${validationError ? 'text-red-500' : 'text-primary'}`}
-            >
+            <span className="mr-4 text-primary text-xs font-semibold text-nowrap">
               {standardHours.toFixed(1) ?? '-'} / Week
             </span>
-            {validationError && (
-              <span className="text-red-500 text-xs ml-2">
-                {validationError}
-              </span>
-            )}
           </div>
           <div className="flex gap-2 mt-4 mr-8">
             <Button type="default" className="font-md" onClick={handleCancel}>

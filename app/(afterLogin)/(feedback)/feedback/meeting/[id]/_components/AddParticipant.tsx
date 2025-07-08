@@ -87,7 +87,7 @@ const AddParticipantsPopconfirm = ({
       <Popconfirm
         placement="bottomRight"
         visible={visible}
-        overlayStyle={{ width: 353 }}
+        overlayStyle={{ width: 370 }}
         icon={false}
         description={null}
         zIndex={0}
@@ -129,12 +129,12 @@ const AddParticipantsPopconfirm = ({
                           {...restField}
                           name={[name, 'name']}
                           label={
-                            <div className="relative w-96 ">
+                            <div className="flex justify-between items-center w-72">
                               <span>Name</span>
                               <Button
                                 icon={<MdClose size={12} />}
                                 type="link"
-                                className="absolute right-0 top-1/2 -translate-y-1/2 text-black"
+                                className="text-black ml-4"
                                 onClick={() => remove(name)}
                               />
                             </div>

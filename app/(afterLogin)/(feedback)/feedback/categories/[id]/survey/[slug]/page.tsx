@@ -86,7 +86,6 @@ function Page({ params: { slug } }: FormDetailProps) {
   const onChange = (key: string) => {
     setActiveTab(key);
   };
-
   return (
     <div className="flex flex-wrap justify-between items-center p-2">
       <div className="flex gap-4">
@@ -125,7 +124,6 @@ function Page({ params: { slug } }: FormDetailProps) {
           <CreateActionPlan onClose={onClose} id={slug} />
         </div>
       )}
-
       <Row justify="center" style={{ width: '100%' }}>
         {/* {activeTab === '2' && (
           <Col span={8}>

@@ -14,8 +14,8 @@ export const EmptyImage = () => (
 export const CustomizeRenderEmpty = () => (
   <div className="flex justify-center">
     <div>
-      {/* {' '}
-      <EmptyImage /> */}
+      {' '}
+      <EmptyImage />
       <p className="text-black">Data Not Found</p>
     </div>
   </div>

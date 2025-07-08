@@ -33,7 +33,6 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   isDeleteMode: false,
   id: '',
   standardHours: 0,
-  validationError: '',
   detail: initializeDetail(),
 
   setStandardHours: (standardHours) => set({ standardHours }),
@@ -44,8 +43,6 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   setEditMode: (isEdit) => set({ isEditMode: isEdit }),
   setScheduleName: (scheduleName) => set({ scheduleName }),
   setDeleteMode: (isDelete) => set({ isDeleteMode: isDelete }),
-  setValidationError: (error: string) => set({ validationError: error }),
-  clearValidationError: () => set({ validationError: '' }),
 
   setDetail: (dayOfWeek, data) =>
     set((state) => ({
@@ -75,7 +72,6 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
       scheduleName: '',
       id: '',
       standardHours: 0,
-      validationError: '',
       detail: initializeDetail(),
     })),
 }));

@@ -10,7 +10,6 @@ import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
 import CustomQuestionTemplate from './customQuestionTemplate';
 import { FieldType } from '@/types/enumTypes';
-import { useFetchedQuestionsByFormId } from '@/store/server/features/organization-development/categories/queries';
 
 const { Option } = Select;
 interface Props {
@@ -20,10 +19,7 @@ interface Props {
 
 const Question: React.FC<Props> = (props) => {
   const [form] = Form.useForm();
-  const { refetch: refetchQuestions } = useFetchedQuestionsByFormId(
-    props?.selectedFormId,
-    '',
-  );
+
   const { mutate: AddQuestion, isLoading: addQuestionLoading } =
     useCreateQuestion();
   const {
@@ -68,7 +64,6 @@ const Question: React.FC<Props> = (props) => {
       AddQuestion(formattedValues, {
         onSuccess: () => {
           setIsDrawerOpen(false);
-          refetchQuestions();
         },
       });
     } catch (error) {

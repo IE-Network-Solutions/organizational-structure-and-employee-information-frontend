@@ -1,6 +1,6 @@
-import dayjs, { Dayjs } from 'dayjs';
 import { create } from 'zustand';
 
+// Define the TypeScript interface for the state
 interface DateRangeState {
   type: number;
   dateRange: {
@@ -9,8 +9,6 @@ interface DateRangeState {
   };
   setType: (type: number) => void;
   setDateRange: (start: string | '', end: string | '') => void;
-  selectedDate: Dayjs;
-  setSelectedDate: (selectDate: Dayjs) => void;
 }
 
 // Create the Zustand store
@@ -25,7 +23,4 @@ export const useDelegationState = create<DateRangeState>((set) => ({
       dateRange: { start, end },
     })),
   setType: (type: number) => set({ type }),
-
-  selectedDate: dayjs(), // ✅ default to today
-  setSelectedDate: (selectedDate: Dayjs) => set({ selectedDate }),
 }));

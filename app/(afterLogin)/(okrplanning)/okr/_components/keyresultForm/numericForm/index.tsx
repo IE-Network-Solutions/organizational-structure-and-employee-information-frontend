@@ -192,11 +192,6 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 label="Initial"
                 rules={[
                   { required: true, message: 'Please enter the initial value' },
-                  {
-                    type: 'number',
-                    min: 0,
-                    message: 'Value must be greater than or equal to 0',
-                  },
                 ]}
                 id={`initial-value-input-${index}`}
               >

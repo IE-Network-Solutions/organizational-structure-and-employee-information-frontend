@@ -19,20 +19,16 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import RecruitmentPagination from '../../../_components';
 import { FaLinkedin } from 'react-icons/fa';
 import { SiGmail } from 'react-icons/si';
 import { TableRowSelection } from 'antd/es/table/interface';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import CustomPagination from '@/components/customPagination';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
 
   const userId = useAuthenticationStore.getState().userId;
-
-  const { isMobile, isTablet } = useIsMobile();
 
   const handleStageChange = (value: string, id: any) => {
     const selectedStage = statusStage?.items?.find(
@@ -127,8 +123,6 @@ const AllCandidateTable: React.FC = () => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
-      pageSize,
-      currentPage,
     );
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -283,10 +277,6 @@ const AllCandidateTable: React.FC = () => {
     },
   };
 
-  const onSizeChange = (size: number) => {
-    setPageSize(size);
-    setCurrentPage(1);
-  };
   return (
     <div>
       <Table
@@ -294,27 +284,16 @@ const AllCandidateTable: React.FC = () => {
         columns={columns}
         dataSource={data}
         loading={isResponseLoading}
-        pagination={false}
         scroll={{ x: 1000 }}
         rowSelection={rowSelection} // Enable selection
       />
-
-      {isMobile || isTablet ? (
-        <CustomMobilePagination
-          totalResults={candidateList?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
-      ) : (
-        <CustomPagination
-          current={currentPage}
-          total={candidateList?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
-      )}
+      <RecruitmentPagination
+        current={currentPage}
+        total={candidateList?.meta?.totalItems ?? 1}
+        pageSize={pageSize}
+        onChange={onPageChange}
+        onShowSizeChange={onPageChange}
+      />
       <CandidateDetail />
       <DeleteCandidate />
       <EditCandidate />

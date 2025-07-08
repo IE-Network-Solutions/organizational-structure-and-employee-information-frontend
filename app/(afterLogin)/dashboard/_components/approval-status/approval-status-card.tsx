@@ -12,7 +12,6 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface ApprovalRequestCardProps {
   name: string;
@@ -117,7 +116,6 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   };
 
   const cancel: any = () => {};
-  const { isMobile, isTablet } = useIsMobile();
 
   return (
     <div className="flex items-center justify-between bg-white p-2 rounded-lg  overflow-y-auto scrollbar-none mb-3">
@@ -150,11 +148,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           <p className="font-bold text-[12px]">
             {employeeData?.firstName} {employeeData?.middleName}
           </p>
-          <p className="font-bold text-gray-500 text-[12px]">
-            {leaveType?.length >= 15
-              ? leaveType?.slice(0, 15) + '...'
-              : leaveType}
-          </p>
+          <p className="font-bold text-gray-500 text-[12px]">{leaveType}</p>
           {requestType === 'BranchTransfer' ? (
             <>
               <p className="text-[10px] text-gray-500">
@@ -164,9 +158,8 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           ) : requestType === 'Leave' ? (
             <>
               <p className="text-[10px] text-gray-500">
-                {isMobile || isTablet
-                  ? `${dayjs(startAt).format('MMM DD') || '-'} to ${dayjs(endAt).format('MMM DD') || '-'}`
-                  : `${dayjs(startAt).format('MMM DD, YYYY') || '-'} to ${dayjs(endAt).format('MMM DD, YYYY') || '-'}`}
+                {dayjs(startAt).format('MMM DD, YYYY') || '-'} to{' '}
+                {dayjs(endAt).format('MMM DD, YYYY') || '-'}
               </p>
               <p className="text-[10px] text-gray-500">
                 (for {days} day) {isHalfDay ? 'Half Day' : ''}
@@ -213,7 +206,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           cancelText="Cancel"
           okButtonProps={{ disabled: !rejectComment }}
         >
-          <Button>Reject</Button>
+          <Button danger>Reject</Button>
         </Popconfirm>
         <Popconfirm
           title="Approve Request"

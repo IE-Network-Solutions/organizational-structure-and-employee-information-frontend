@@ -1,17 +1,13 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { Button, Spin, Form } from 'antd';
+import React, { useEffect } from 'react';
+import { Button, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-
-// UI‑state stores
 import useStepStore from '@/store/uistate/features/organizationStructure/steper/useStore';
+import WorkSchedule from './workSchedule';
+import Branches from './branches';
+import OrgChartComponent from './orgChartComponent';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
-import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
-import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-
-// Server mutations & queries
 import {
   useCreateFiscalYear,
   useDeleteFiscalYear,
@@ -24,57 +20,45 @@ import {
   useCreateOrgChart,
   useDeleteOrgChart,
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
+import { useStep2Store } from '@/store/uistate/features/organizationStructure/comanyInfo/useStore';
 import {
   useCreateCompanyInfo,
   useDeleteCompanyInfo,
 } from '@/store/server/features/organizationStructure/companyInfo/mutation';
-import {
-  useUpdateCompanyProfileWithStamp,
-  useGetCompanyProfileByTenantId,
-} from '@/store/server/features/organizationStructure/companyProfile/mutation';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import {
-  useCreateBranch,
-  useDeleteBranch,
-} from '@/store/server/features/organizationStructure/branchs/mutation';
-import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queries';
-import { useUpdateTimeZone } from '@/store/server/features/timesheet/timeZone/mutation';
-import {
-  useCreateRecruitmentStatus,
-  useDeleteRecruitmentStatus,
-} from '@/store/server/features/recruitment/settings/status/mutation';
-
-// Components
-import WorkSchedule from './workSchedule';
-import OrgChartComponent from './orgChartComponent';
+// import { useUpdateCompanyProfile } from '@/store/server/features/organizationStructure/companyProfile/mutation';
+// import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
+import { Form } from 'antd';
 import CompanyProfile from './companyProfile';
-import FiscalYearForm from './onBoardingFy';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { showValidationErrors } from '@/utils/showValidationErrors';
+import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useRouter } from 'next/navigation';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
-import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
+import CustomWorFiscalYearDrawer from '@/app/(afterLogin)/(organizationalStructure)/organization/settings/_components/fiscalYear/customDrawer';
+import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
+import {
+  // useUpdateCompanyProfile,
+  useUpdateCompanyProfileWithStamp,
+} from '@/store/server/features/organizationStructure/companyProfile/mutation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import TimeZone from './timezone';
 
-/**
- * Onboarding multi‑step wizard component
- */
-const OnboardingSteper: React.FC = () => {
-  /* -------------------------------------------------------------------------- */
-  /*                               form instances                               */
-  /* -------------------------------------------------------------------------- */
-  const [formCompany] = Form.useForm();
-  const [formFiscal] = Form.useForm();
-  const [formSchedule] = Form.useForm();
-  const forms = [formCompany, formFiscal, formSchedule];
+const tenantId = useAuthenticationStore.getState().tenantId;
 
-  /* -------------------------------------------------------------------------- */
-  /*                               external data                                */
-  /* -------------------------------------------------------------------------- */
+const OnboaringSteper: React.FC = () => {
+  const [form1] = Form.useForm();
+  const [form2] = Form.useForm();
+  const [form3] = Form.useForm();
+  const [form4] = Form.useForm();
+  const forms = [form1, form2, form3, form4];
 
   const { data: departments } = useGetDepartments();
+  const { calendarType } = useFiscalYearDrawerStore();
   const router = useRouter();
   useEffect(() => {
-    if (departments?.length) {
+    if (departments?.length > 0) {
       router.push('/dashboard');
     }
   }, [departments?.length]);
@@ -87,63 +71,21 @@ const OnboardingSteper: React.FC = () => {
     toggleLoading,
     isModalVisible,
     togleIsModalVisible,
-  } = useStepStore();
-  const { createWorkSchedule, detail } = useScheduleStore();
+  } = useStepStore((state) => state);
+
+  const { createWorkSchedule, getSchedule } = useScheduleStore();
+  const { data: branches } = useGetBranches();
+
   const { orgData } = useOrganizationStore();
-  const { fiscalYearPayLoad } = useFiscalYearDrawerStore();
+  // const { getFiscalYear } = useFiscalYearStore();
+
+  const { fiscalYearFormValues, sessionFormValues, monthRangeValues } =
+    useFiscalYearDrawerStore();
   const { companyName, companyProfileImage, companyStamp } =
     useCompanyProfile();
 
-  const { data: branches } = useGetBranches();
-  const { data: timeZoneRow } = useGetTimeZone();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
-  const { data: companyInformation } = useGetCompanyProfileByTenantId(tenantId);
-
-  /* -------------------------------------------------------------------------- */
-  /*                             helper: time‑zone                              */
-  /* -------------------------------------------------------------------------- */
-  const [detectedTimeZone, setDetectedTimeZone] = useState<string>('');
-  useEffect(() => {
-    const offsetMinutes = new Date().getTimezoneOffset();
-    const totalMinutes = -offsetMinutes;
-    const sign = totalMinutes >= 0 ? '+' : '-';
-    const absMinutes = Math.abs(totalMinutes);
-    const hours = Math.floor(absMinutes / 60)
-      .toString()
-      .padStart(2, '0');
-    const minutes = (absMinutes % 60).toString().padStart(2, '0');
-    setDetectedTimeZone(`${sign}${hours}:${minutes}`);
-  }, []);
-
-  /* -------------------------------------------------------------------------- */
-  /*                              static payloads                              */
-  /* -------------------------------------------------------------------------- */
-  const schedulePayload = {
-    name: 'Full‑time Schedule',
-    detail,
-  };
-  const timeZonePayload = {
-    timezone: detectedTimeZone,
-    id: timeZoneRow ? timeZoneRow.id : '',
-  };
-  const branchPayload = {
-    name: 'HQ',
-    description: 'HQ',
-    location: 'HQ',
-    contactNumber: companyInformation?.contactPersonPhoneNumber,
-    contactEmail: companyInformation?.contactPersonEmail,
-  };
-  const applicantStatusPayload = {
-    title: 'Initial Stage',
-    description: 'Initial Stage',
-    createdBy: userId,
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /*                              server actions                                */
-  /* -------------------------------------------------------------------------- */
   const createFiscalYear = useCreateFiscalYear();
+
   const deleteFiscalYear = useDeleteFiscalYear();
   const createSchedule = useCreateSchedule();
   const deleteSchedule = useDeleteSchedule();
@@ -151,24 +93,16 @@ const OnboardingSteper: React.FC = () => {
   const deleteOrgChart = useDeleteOrgChart();
   const createCompanyInfo = useCreateCompanyInfo();
   const deleteCompanyInfo = useDeleteCompanyInfo();
-  const createBranch = useCreateBranch();
-  const deleteBranch = useDeleteBranch();
-  const updateTimeZone = useUpdateTimeZone();
-  const createApplicantStatus = useCreateRecruitmentStatus();
-  const deleteApplicantStatus = useDeleteRecruitmentStatus();
-  const updateCompanyImageWithStamp = useUpdateCompanyProfileWithStamp();
+  const { companyInfo } = useStep2Store();
+  // const updateCompanyProfile = useUpdateCompanyProfile();
+  const updateComapnyImageWithStamp = useUpdateCompanyProfileWithStamp();
 
-  /* -------------------------------------------------------------------------- */
-  /*                        generator for sequential calls                      */
-  /* -------------------------------------------------------------------------- */
   function* createResourcesGenerator(
     fiscalYear: any,
     schedule: any,
     orgData: any,
     companyInfo: any,
-    timeZone: any,
-    branch: any,
-    applicantStatus: any,
+    companyProfileImage: any,
   ) {
     yield {
       createFn: createFiscalYear.mutateAsync,
@@ -190,215 +124,250 @@ const OnboardingSteper: React.FC = () => {
       deleteFn: deleteCompanyInfo.mutateAsync,
       data: companyInfo,
     };
+    // yield {
+    //   createFn: updateCompanyProfile.mutateAsync,
+    //   data: { id: tenantId, companyProfileImage: companyProfileImage},
+    // };
     yield {
-      createFn: updateCompanyImageWithStamp.mutateAsync,
+      createFn: updateComapnyImageWithStamp.mutateAsync,
       data: {
         id: tenantId,
         updateClientDto: { companyName },
         companyProfileImage: companyProfileImage?.companyProfileImage,
-        companyStamp: companyStamp?.companyStamp,
+        companyStamp: companyProfileImage?.companyStamp,
       },
-    };
-    yield { createFn: updateTimeZone.mutateAsync, data: timeZone };
-    yield {
-      createFn: createBranch.mutateAsync,
-      deleteFn: deleteBranch.mutateAsync,
-      data: branch,
-    };
-    yield {
-      createFn: createApplicantStatus.mutateAsync,
-      deleteFn: deleteApplicantStatus.mutateAsync,
-      data: applicantStatus,
     };
   }
 
-  /* -------------------------------------------------------------------------- */
-  /*                              submit handler                                */
-  /* -------------------------------------------------------------------------- */
   const onSubmitOnboarding = async () => {
-    // 1. validate all forms
-    try {
-      await Promise.all(forms.map((f) => f.validateFields()));
-    } catch (error: any) {
-      showValidationErrors(error?.errorFields);
-      return;
-    }
-
-    // 2. gather payload after validation
-    const companyInfoPayload = formCompany.getFieldsValue();
-
     toggleLoading();
     createWorkSchedule();
 
-    /* keep track of successful requests so that we can roll back on error */
-    const successfulRequests: {
-      deletePayload: any;
-      deleteFn: (payload: any) => Promise<any>;
-    }[] = [];
+    const getTransformedFiscalYear = (
+      monthFormValues: any,
+      sessionFormValues: any,
+    ) => {
+      const months = Object.keys(monthFormValues)
+        .filter((key) => key.startsWith('monthName_'))
+        /* eslint-disable-next-line @typescript-eslint/naming-convention */
+        .map((_, index) => ({
+          /* eslint-enable @typescript-eslint/naming-convention */
 
-    const generator = createResourcesGenerator(
-      fiscalYearPayLoad,
-      schedulePayload,
+          name: monthFormValues[`monthName_${index + 1}`],
+          description: monthFormValues[`monthDescription_${index + 1}`],
+          startDate: monthFormValues[`monthStartDate_${index + 1}`],
+          endDate: monthFormValues[`monthEndDate_${index + 1}`],
+        }));
+
+      const sessions = [];
+      if (calendarType === 'Quarter') {
+        sessions.push(
+          ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
+            name: session.sessionName || `Session ${index + 1}`,
+            description:
+              session.sessionDescription ||
+              `Description for Session ${index + 1}`,
+            startDate: session.sessionStartDate || '',
+            endDate: session.sessionEndDate || '',
+            months: months.slice(index * 3, (index + 1) * 3),
+          })),
+        );
+      } else if (calendarType === 'Semester') {
+        sessions.push(
+          ...sessionFormValues?.sessionData.map((session: any, index: any) => ({
+            name: session.sessionName || `Session ${index + 1}`,
+            description:
+              session.sessionDescription ||
+              `Description for Session ${index + 1}`,
+            startDate: session.sessionStartDate || '',
+            endDate: session.sessionEndDate || '',
+            months: months.slice(index * 6, (index + 1) * 6),
+          })),
+        );
+      } else if (calendarType === 'Year') {
+        sessions.push(
+          ...sessionFormValues?.sessionData.map((session: any) => ({
+            name: session?.sessionName || 'Session 1',
+            description:
+              session?.sessionDescription || 'Description for Session 1',
+            startDate: session?.sessionStartDate || '',
+            endDate: session?.sessionEndDate || '',
+            months,
+          })),
+        );
+      }
+
+      return sessions;
+    };
+
+    const fiscalYearData = getTransformedFiscalYear(
+      monthRangeValues,
+      sessionFormValues,
+    );
+
+    const fiscalYear = {
+      name: fiscalYearFormValues?.fiscalYearName,
+      startDate: fiscalYearFormValues?.fiscalYearStartDate,
+      endDate: fiscalYearFormValues?.fiscalYearEndDate,
+      description: fiscalYearFormValues?.fiscalYearDescription,
+      sessions: fiscalYearData?.map((session: any) => ({
+        name: session?.name,
+        description: session?.description,
+        startDate: session?.startDate,
+        endDate: session?.endDate,
+        months: session?.months.map((month: any) => ({
+          name: month?.name,
+          description: month?.description,
+          startDate: month?.startDate,
+          endDate: month?.endDate,
+        })),
+      })),
+    };
+    const schedule = getSchedule();
+
+    const successfulRequests: {
+      id: string;
+      deleteFn: (id: string) => Promise<any>;
+    }[] = [];
+    const generator: any = createResourcesGenerator(
+      fiscalYear,
+      schedule,
       orgData,
-      companyInfoPayload,
-      timeZonePayload,
-      branchPayload,
-      applicantStatusPayload,
+      companyInfo,
+      { companyProfileImage, companyStamp },
     );
 
     try {
       for (const { createFn, deleteFn, data } of generator) {
         const response = await createFn(data);
-        // For rollback, use the same payload as was used for creation, or adapt as needed
-        if (deleteFn && response) {
-          // If the delete function expects a different payload, adapt here as needed
-          successfulRequests.push({
-            deletePayload: response?.id ?? data,
-            deleteFn,
-          });
+        const id = response.id;
+
+        if (deleteFn) {
+          successfulRequests.push({ id, deleteFn });
+        } else {
+          togleIsModalVisible();
         }
       }
-
       NotificationMessage.success({
         message: 'Success',
-        description: 'All Requests Successfully Created',
+        description: `All Requests Successfully Created`,
       });
-      togleIsModalVisible();
-    } catch (err) {
-      // rollback
+    } catch (error: any) {
       await Promise.all(
-        successfulRequests.map(({ deletePayload, deleteFn }) =>
-          deleteFn(deletePayload),
-        ),
+        successfulRequests.map(({ id, deleteFn }) => deleteFn(id)),
       );
-      NotificationMessage.error({
-        message: 'Error',
-        description:
-          'An error occurred while processing onboarding. Rolled back changes.',
-      });
     }
-
     toggleLoading();
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                         next/previous step handler                         */
-  /* -------------------------------------------------------------------------- */
   const handleNextStep = () => {
-    // last index = steps.length - 1 (3)
-    if (currentStep >= 3) {
-      // on the review step… just make sure at least one branch exists
-      if (branches && branches.items?.length) {
-        nextStep();
-      } else {
-        NotificationMessage.warning({
-          message: 'Branch not created',
-          description: 'You have to create at least one branch',
-        });
-      }
-      return;
-    }
-
-    // validate only the current form before moving on
-    if (currentStep < forms.length) {
+    if (currentStep >= 4) {
+      branches && branches?.items?.length >= 1
+        ? nextStep()
+        : NotificationMessage.warning({
+            message: 'Branch Is not created Error',
+            description: 'You have to create at least one branch',
+          });
+    } else {
       forms[currentStep]
         .validateFields()
-        .then(() => nextStep())
-        .catch((e) => showValidationErrors([e?.errorFields[0]]));
-    } else {
-      nextStep();
+        .then(() => {
+          nextStep();
+        })
+        .catch((errorInfo: any) => {
+          showValidationErrors(errorInfo?.errorFields);
+        });
     }
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                                    UI                                      */
-  /* -------------------------------------------------------------------------- */
   const steps = [
-    { title: 'Step 1', content: <CompanyProfile form={formCompany} /> },
-    { title: 'Step 2', content: <FiscalYearForm form={formFiscal} /> },
-    { title: 'Step 3', content: <WorkSchedule form={formSchedule} /> },
-    { title: 'Step 4', content: <OrgChartComponent /> },
+    {
+      title: 'Step 1',
+      content: <CompanyProfile form={form1} />,
+    },
+    {
+      title: 'Step 2',
+      content: <TimeZone />,
+    },
+    {
+      title: 'Step 3',
+      content: (
+        <CustomWorFiscalYearDrawer
+          form={form3}
+          handleNextStep={handleNextStep}
+        />
+      ),
+    },
+    {
+      title: 'Step 4',
+      content: <WorkSchedule form={form4} />,
+    },
+    {
+      title: 'Step 5',
+      content: <Branches />,
+    },
+    {
+      title: 'Step 6',
+      content: <OrgChartComponent />,
+    },
   ];
 
-  const handleCloseModal = () => togleIsModalVisible();
+  const handleClose = () => {
+    togleIsModalVisible();
+  };
 
   return (
     <div className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12">
-      <div className="bg-white w-full rounded-lg flex flex-col p-4 lg:flex-row-reverse items-center gap-10">
-        {/* Left section: copy, progress & buttons */}
-        <div className="mx-auto pr-0 w-full">
-          {/* progress dots */}
-          <div className="flex items-center mb-8">
-            {steps.map((notused, index) => (
-              <div
-                key={index}
-                className={`w-6 h-5 rounded mr-2 ${currentStep >= index ? 'bg-blue' : 'bg-gray-300'}`}
-              />
-            ))}
+      <div
+        className="
+      bg-white 
+      w-full
+      rounded-lg
+      flex flex-col 
+      p-4
+      mobile-sm:p-2
+      mobile-md:p-2
+      mobile-lg:p-2 
+      tablet-md:p-4  
+      lg:p-4
+      lg:flex-row 
+      lg:space-x-2
+      items-center
+      md:items-stretch lg:items-stretch
+      tablet-md:px-2
+      "
+      >
+        {/* Left Section */}
+        <div className="flex-1 pr-0 tablet-md:pr-0 mb-4 md:mb-0 w-full">
+          <div className="flex items-center mb-4 md:mb-8">
+            <div className="flex items-center">
+              {/*eslint-disable @typescript-eslint/naming-convention */}
+              {steps.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-6 h-5 rounded mr-2 ${currentStep >= index ? 'bg-blue' : 'bg-gray-300'}`}
+                />
+              ))}
+              {/*eslint-enable @typescript-eslint/naming-convention */}
+            </div>
           </div>
-
           <div className="text-xl font-bold text-gray-600 mb-8">
             STEP {currentStep + 1} OF {steps.length}
           </div>
+          <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+            We can now create a workspace for your team.
+          </h2>
+          <p className="text-gray-600 mb-10">
+            Please fill out your teams in your company
+          </p>
 
-          {/* dynamic heading/description */}
-          {(() => {
-            switch (currentStep) {
-              case 0:
-                return (
-                  <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-                      Personalize your experience and ensure smooth setup
-                    </h2>
-                    <p className="text-gray-600 mb-10">
-                      This will help us configure the system to better align
-                      with your organizations operation.
-                    </p>
-                  </>
-                );
-              case 1:
-                return (
-                  <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-                      Define fiscal year for your organisation
-                    </h2>
-                    <p className="text-gray-600 mb-10">
-                      This will help us ensure accurate reporting and data
-                      alignment.
-                    </p>
-                  </>
-                );
-              case 2:
-                return (
-                  <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-                      Define the work schedule for your organisation
-                    </h2>
-                    <p className="text-gray-600 mb-10">
-                      Specify working days and hours to ensure proper planning
-                      and resource management.
-                    </p>
-                  </>
-                );
-              case 3:
-                return (
-                  <>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-                      Create and define your organisational structure
-                    </h2>
-                    <p className="text-gray-600 mb-10">
-                      Add departments, roles, and reporting hierarchies to
-                      ensure clear communication and streamlined workflows.
-                    </p>
-                  </>
-                );
-              default:
-                return null;
-            }
-          })()}
+          {currentStep == 5 && (
+            <div className="overflow-x-auto my-8">
+              {steps[currentStep].content}
+            </div>
+          )}
 
-          {/* buttons (desktop) */}
-          <div className="hidden tablet-md:flex space-x-4 items-center">
+          <div className="hidden tablet-md:flex space-x-2 md:space-x-4 justify-start items-center">
             {currentStep > 0 && (
               <Button
                 onClick={prevStep}
@@ -428,7 +397,11 @@ const OnboardingSteper: React.FC = () => {
               disabled={loading}
             >
               {loading ? (
-                <Spin size="large" style={{ color: 'white' }} />
+                <Spin
+                  size="large"
+                  style={{ color: 'white' }}
+                  className="text-white"
+                />
               ) : currentStep === steps.length - 1 ? (
                 'Submit'
               ) : (
@@ -438,37 +411,21 @@ const OnboardingSteper: React.FC = () => {
           </div>
         </div>
 
-        {/* Right section: actual step content (desktop) */}
-        <div className="w-full mt-8 md:mt-0 tablet-md:block hidden">
-          {steps.map((step, idx) => (
-            <div
-              key={idx}
-              style={{ display: idx === currentStep ? 'block' : 'none' }}
-            >
-              {step.content}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* buttons + step content for mobile */}
-      <div className="tablet-md:hidden w-full mt-8">
-        {steps.map((step, idx) => (
-          <div
-            key={idx}
-            style={{ display: idx === currentStep ? 'block' : 'none' }}
-          >
-            {step.content}
+        {/* Right Section */}
+        {currentStep !== 5 && (
+          <div className="w-full lg:w-1/2 mt-8 md:mt-0">
+            {steps[currentStep].content}
           </div>
-        ))}
-        <div className="flex space-x-4 mt-6 items-center">
+        )}
+
+        <div className="flex space-x-2 md:space-x-4 justify-start items-center tablet-md:hidden ">
           {currentStep > 0 && (
             <Button
               onClick={prevStep}
               icon={<ArrowLeftOutlined />}
               className="w-36 h-16"
               size="large"
-              id="goBackButtonMobile"
+              id="goBackButton"
               disabled={currentStep === 0}
             >
               Go Back
@@ -485,13 +442,17 @@ const OnboardingSteper: React.FC = () => {
             className="w-36 h-16 bg-blue disabled:bg-blue"
             id={
               currentStep === steps.length - 1
-                ? 'finishButtonMobile'
-                : 'continueButtonMobile'
+                ? 'finishButton'
+                : 'continueButton'
             }
             disabled={loading}
           >
             {loading ? (
-              <Spin size="large" style={{ color: 'white' }} />
+              <Spin
+                size="large"
+                style={{ color: 'white' }}
+                className="text-white"
+              />
             ) : currentStep === steps.length - 1 ? (
               'Submit'
             ) : (
@@ -500,16 +461,14 @@ const OnboardingSteper: React.FC = () => {
           </Button>
         </div>
       </div>
-
-      {/* Success modal */}
       <CustomModal
         visible={isModalVisible}
-        onClose={handleCloseModal}
-        text="You have successfully finished the onboarding process"
-        route="/dashboard"
+        onClose={handleClose}
+        text="You have successfully finished onboarding process"
+        route={`/dashboard`}
       />
     </div>
   );
 };
 
-export default OnboardingSteper;
+export default OnboaringSteper;

@@ -55,9 +55,8 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   const { mutate: createFormula, isLoading: createLoading } =
     useSetIncentiveFormula();
 
-  const { data: formulaById } = useIncentiveFormulaByRecognitionId(
-    recognitionId ?? recognitionData?.id,
-  );
+  const { data: formulaById } =
+    useIncentiveFormulaByRecognitionId(recognitionId);
   //   ===========> Functions <============
 
   const handleClose = () => {
@@ -73,61 +72,11 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   useEffect(() => {
     if (formulaById && recognitionId) {
-      let parsedExpression = [];
-
-      if (formulaById?.expression) {
-        try {
-          // If expression is a JSON string, parse it
-          if (typeof formulaById.expression === 'string') {
-            const parsedString = JSON.parse(formulaById.expression);
-
-            // Convert the parsed string back to formula array format
-            if (typeof parsedString === 'string') {
-              // Split the parsed string and convert to array format
-              const parts = parsedString.split(' ').filter(Boolean);
-
-              parsedExpression = parts.map((part: string) => {
-                // Remove quotes from criteria IDs
-                const cleanPart = part.replace(/"/g, '');
-
-                // Check if it's a criteria ID by finding matching criteria
-                const matchingCriteria =
-                  recognitionData?.recognitionCriteria?.find(
-                    (crit: any) => crit?.criteria?.id === cleanPart,
-                  );
-
-                if (matchingCriteria) {
-                  return {
-                    id: matchingCriteria.criteria.id,
-                    name: matchingCriteria.criteria.criteriaName,
-                    type: 'criteria',
-                  };
-                } else {
-                  // It's an operand or number
-                  return {
-                    id: cleanPart,
-                    name: cleanPart,
-                    type: 'operand',
-                  };
-                }
-              });
-            } else {
-              parsedExpression = parsedString;
-            }
-          } else if (Array.isArray(formulaById.expression)) {
-            // If it's already an array, use it as is
-            parsedExpression = formulaById.expression;
-          }
-        } catch (error) {
-          parsedExpression = [];
-        }
-      }
-
-      setFormula(parsedExpression);
+      setFormula(formulaById?.expression || []);
     } else {
       setFormula([]);
     }
-  }, [formulaById, recognitionId, recognitionData]);
+  }, [formulaById, recognitionId]);
 
   const handleOptionClick = (id: string, name: string, type: string) => {
     if (name === 'Clear') {
@@ -140,30 +89,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   };
 
   const handleSubmit = () => {
-    // Validate formula if Formula type is selected
-    if (value === 'Formula') {
-      if (!formula || formula.length === 0) {
-        setFormulaError('Formula cannot be empty.');
-        return;
-      }
-
-      // Convert formula array to string for validation
-      const formulaString = Array.isArray(formula)
-        ? formula.map((item: any) => item?.name || '').join(' ')
-        : '';
-
-      const validationError = validateFormula(formulaString);
-      if (validationError) {
-        setFormulaError(validationError);
-        return;
-      }
-    }
-
-    // Prevent submission if there are validation errors
-    if (formulaError) {
-      return;
-    }
-
     const formValues = form.getFieldsValue();
 
     const cleanedExpression =
@@ -175,7 +100,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             .join(' ')
         : '';
     const formdata = {
-      recognitionTypeId: recognitionId ?? recognitionData?.id,
+      recognitionTypeId: recognitionId,
       expression: value === 'Fixed' ? null : JSON.stringify(cleanedExpression),
       isComputed: value === 'Fixed' ? false : true,
       monetizedValue: value === 'Fixed' ? formValues?.fixedAmount : 0,
@@ -241,116 +166,38 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setValue(value);
   }, [value]);
 
-  const allowedOperands = ['+', '-', '*', '/', '(', ')'];
-  const allowedCriteria =
-    recognitionData?.recognitionCriteria
-      ?.map((item: any) => item?.criteria?.criteriaName)
-      ?.filter((name: string) => name) || [];
-
-  const validateFormula = (formula: string): string => {
-    if (!formula || !formula.trim()) return 'Formula cannot be empty.';
-
-    // Create regex pattern using dynamic criteria names
-    const criteriaPattern =
-      allowedCriteria?.length > 0
-        ? allowedCriteria
-            .map((name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-            .join('|')
-        : '';
-
-    const regexPattern = criteriaPattern
-      ? `(\\b(?:${criteriaPattern})\\b|\\d+(?:\\.\\d+)?|[()+\\-*/])`
-      : '(\\d+(?:\\.\\d+)?|[()+\\-*/])';
-
-    const tokens = formula.match(new RegExp(regexPattern, 'g'));
-
-    if (!tokens || tokens.length === 0) return 'Formula cannot be empty.';
-
-    // Check for invalid characters by removing all valid tokens and seeing if anything remains
-    let remainingFormula = formula;
-
-    // Remove all valid criteria
-    if (allowedCriteria && allowedCriteria.length > 0) {
-      allowedCriteria.forEach((criteria: string) => {
-        const criteriaRegex = new RegExp(
-          criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-          'g',
-        );
-        remainingFormula = remainingFormula.replace(criteriaRegex, '');
-      });
+  // Validation function for formula
+  function isValidFormula(formula: any[]): boolean {
+    if (!formula || formula.length === 0) return false;
+    // Check if first or last is an operand
+    if (
+      formula[0].type === 'operand' ||
+      formula[formula.length - 1].type === 'operand'
+    ) {
+      return false;
     }
-
-    // Remove all numbers and operators
-    remainingFormula = remainingFormula.replace(/\d+(?:\.\d+)?/g, ''); // Remove numbers
-    remainingFormula = remainingFormula.replace(/[()+\-*/]/g, ''); // Remove operators
-    remainingFormula = remainingFormula.replace(/\s+/g, ''); // Remove all spaces
-
-    // If anything remains, it's invalid
-    if (remainingFormula.length > 0) {
-      const allowedItems =
-        allowedCriteria?.length > 0
-          ? `allowed criteria (${allowedCriteria.join(', ')}), numbers, and operators (+, -, *, /, (, ))`
-          : 'numbers and operators (+, -, *, /, (, ))';
-      return `Formula can only contain ${allowedItems}.`;
-    }
-
-    let lastType: 'operand' | 'criteria' | 'open' | 'close' | null = null;
-    let balance = 0;
-
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-
-      if (token === '(') {
-        balance++;
-        lastType = 'open';
-      } else if (token === ')') {
-        balance--;
-        if (balance < 0) return 'Unbalanced parentheses.';
-        lastType = 'close';
-      } else if (
-        allowedOperands.includes(token) &&
-        token !== '(' &&
-        token !== ')'
-      ) {
-        if (i === 0 || i === tokens.length - 1)
-          return 'Formula cannot start or end with an operand.';
-        if (lastType === 'operand')
-          return 'Consecutive operands are not allowed.';
-        lastType = 'operand';
-      } else if (allowedCriteria?.includes(token)) {
-        if (lastType === 'criteria')
-          return 'Consecutive criteria are not allowed.';
-        lastType = 'criteria';
-      } else if (/^\d+(?:\.\d+)?$/.test(token)) {
-        // Handle numbers (integers and decimals)
-        if (lastType === 'criteria')
-          return 'Consecutive criteria/numbers are not allowed.';
-        lastType = 'criteria'; // Treat numbers like criteria for validation purposes
-      } else {
-        return `Invalid token detected: ${token}`;
+    for (let i = 1; i < formula.length; i++) {
+      const prev = formula[i - 1];
+      const curr = formula[i];
+      // Consecutive operands
+      if (prev.type === 'operand' && curr.type === 'operand') {
+        return false;
+      }
+      // Consecutive criteria
+      if (prev.type === 'criteria' && curr.type === 'criteria') {
+        return false;
       }
     }
-
-    if (balance !== 0) return 'Unbalanced parentheses.';
-
-    return ''; // Valid
-  };
+    return true;
+  }
 
   // Live validation effect
   useEffect(() => {
     if (value === 'Formula') {
-      if (formula && formula.length > 0) {
-        // Convert formula array to string for validation
-        const formulaString = Array.isArray(formula)
-          ? formula.map((item: any) => item?.name || '').join(' ')
-          : '';
-
-        const validationError = validateFormula(formulaString);
-        if (validationError) {
-          setFormulaError(validationError);
-        } else {
-          setFormulaError('');
-        }
+      if (formula && formula.length > 0 && !isValidFormula(formula)) {
+        setFormulaError(
+          'Invalid formula: Please avoid consecutive operands or criteria, and do not start or end with an operand.',
+        );
       } else {
         setFormulaError('');
       }
@@ -359,47 +206,57 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     }
   }, [formula, value, setFormulaError]);
 
-  const operators = ['+', '-', '*', '/', '(', ')'];
-
-  function handleTextAreaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Remove newlines to keep formula single-line
     const value = e.target.value.replace(/[\r\n]+/g, ' ');
     if (!value.trim()) {
       setFormula([]);
       return;
     }
 
-    // Split by space and operators, keep operators as tokens
-    const tokens = value
-      .split(/([+\-*/()])/)
-      .map((t) => t.trim())
-      .filter(Boolean);
+    // Find all criteria names in the input
+    const criteriaMatches = recognitionData?.recognitionCriteria?.reduce(
+      (acc: any[], crit: any) => {
+        if (value.includes(crit?.criteria?.criteriaName)) {
+          acc.push({
+            id: crit?.criteria?.id,
+            name: crit?.criteria?.criteriaName,
+            type: 'criteria',
+          });
+        }
+        return acc;
+      },
+      [],
+    );
 
-    const newFormula = tokens.map((token) => {
-      // Check if token matches a criteria name
-      const crit = recognitionData?.recognitionCriteria?.find(
-        (c: any) => c?.criteria?.criteriaName === token,
+    // Replace ALL criteria names with their IDs in the value
+    let processedValue = value;
+    criteriaMatches?.forEach((crit: { id: string; name: string }) => {
+      // Use a global regex to replace all occurrences
+      const regex = new RegExp(crit.name, 'g');
+      processedValue = processedValue.replace(regex, crit.id);
+    });
+
+    // Split by spaces and filter empty strings
+    const parts = processedValue.split(/\s+/).filter(Boolean);
+
+    const newFormula = parts.map((part) => {
+      // If it's a number or operator
+      if (/^[0-9+\-*/()]$/.test(part)) {
+        return { id: part, name: part, type: 'operand' };
+      }
+      // If it's a criteria ID
+      const matchingCriteria = criteriaMatches?.find(
+        (crit: { id: string }) => crit.id === part,
       );
-      if (crit) {
-        return {
-          id: crit.criteria.id,
-          name: crit.criteria.criteriaName,
-          type: 'criteria',
-        };
+      if (matchingCriteria) {
+        return matchingCriteria;
       }
-      // If it's an operator
-      if (operators.includes(token)) {
-        return { id: token, name: token, type: 'operand' };
-      }
-      // If it's a number
-      if (!isNaN(Number(token))) {
-        return { id: token, name: token, type: 'operand' };
-      }
-      // Otherwise, treat as plain text (or ignore)
-      return { id: token, name: token, type: 'operand' };
+      return { id: part, name: part, type: 'operand' };
     });
 
     setFormula(newFormula);
-  }
+  };
 
   const getDisplayValue = () => {
     // If formula is a string, return it directly without quotes
@@ -422,47 +279,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     // If formula is neither string nor array, return empty string
     return '';
   };
-  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  const uuidRegex =
-    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
-
-    /"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"/gi;
-
-  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  const uuidNoQuotesRegex =
-    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
-
-    /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
-
-  // 1. Extract all UUIDs (with or without quotes)
-  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  function extractIds(input: string) {
-    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
-
-    return input.match(uuidNoQuotesRegex) || [];
-  }
-
-  // 2. Clean display text
-  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  function cleanCriteriaText(input: string) {
-    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
-
-    // Replace quoted UUIDs with nothing
-    let text = input.replace(
-      /"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"/gi,
-      '',
-    );
-    // Replace unquoted UUIDs followed by a label (e.g., uuid of company) with just the label
-    text = text.replace(
-      /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\\s+([a-zA-Z][^\\s)]*)/gi,
-      '$2',
-    );
-    // Remove any remaining UUIDs
-    text = text.replace(uuidNoQuotesRegex, '');
-    // Clean up extra spaces and slashes
-    text = text.replace(/\s{2,}/g, ' ').trim();
-    return text;
-  }
 
   return (
     <CustomDrawerLayout
@@ -489,9 +305,12 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             className="p-4 px-10 h-10"
             onClick={handleSubmit}
             loading={updateLoading || createLoading}
-            disabled={formulaError ? true : false}
           >
-            {!formulaById ? <span>Create</span> : <span>Edit</span>}
+            {formulaById?.expression === null ? (
+              <span>Create</span>
+            ) : (
+              <span>Edit</span>
+            )}
           </Button>
         </div>
       }

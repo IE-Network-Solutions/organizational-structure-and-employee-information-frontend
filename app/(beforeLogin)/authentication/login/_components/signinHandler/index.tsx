@@ -7,7 +7,6 @@ import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
 import { useTenantChecker } from '../tenantChecker';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useEffect } from 'react';
-import AccessGuard from '@/utils/permissionGuard';
 
 export const useHandleSignIn = () => {
   const {
@@ -91,12 +90,10 @@ export const useHandleSignIn = () => {
         ) {
           router.push('/dashboard');
         } else {
-          if (
-            AccessGuard.checkAccess({
-              permissions: ['view_organization_settings'],
-            })
-          ) {
-            // For users with fiscal year management permission, check fiscal year status
+          const userRole = fetchedData?.data?.role?.slug;
+
+          if (userRole === 'owner' || userRole === 'admin') {
+            // For owners and admins, check fiscal year status
             if (
               fiscalYearData?.data?.endDate &&
               new Date(fiscalYearData?.data?.endDate) < new Date()

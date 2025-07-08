@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { TENANT_BASE_URL, TENANT_MGMT_URL } from '@/utils/constants';
+import { TENANT_MGMT_URL } from '@/utils/constants';
 import { CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -19,7 +19,7 @@ const headers = {
  */
 export const getCompanyProfileByTenantId = async (tenantId: string) => {
   return await crudRequest({
-    url: `${TENANT_BASE_URL}/api/v1/clients/${tenantId}`,
+    url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
     method: 'GET',
     headers,
   });

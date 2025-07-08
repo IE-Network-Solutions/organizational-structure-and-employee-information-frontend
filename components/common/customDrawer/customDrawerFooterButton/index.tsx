@@ -19,7 +19,7 @@ const CustomDrawerFooterButton: FC<CustomDrawerFooterButtonsProps> = ({
 }) => {
   return (
     <div className={classNames('', undefined, [className])}>
-      <Flex gap={20} className="w-full py-2">
+      <Flex gap={20} className="w-full">
         {buttons.map(({ key, label, className = '', ...otherProps }) => (
           <Button
             key={key}

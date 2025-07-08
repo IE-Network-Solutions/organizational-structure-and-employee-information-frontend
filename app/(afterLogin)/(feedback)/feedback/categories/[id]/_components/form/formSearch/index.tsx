@@ -5,6 +5,8 @@ import { SearchOutlined } from '@ant-design/icons';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { useDebounce } from '@/utils/useDebounce';
 
+
+
 const FormSearch: React.FC = () => {
   const { searchFormParams, setSearchFormParams } = CategoriesManagementStore();
   const handleSearchForms = async (
@@ -23,6 +25,7 @@ const FormSearch: React.FC = () => {
     onSearchChange(trimmedValue, keyValue);
   };
 
+
   return (
     <div className="my-2">
       <Row gutter={[16, 24]} justify="space-between" className="bg-white py-4">
@@ -35,6 +38,7 @@ const FormSearch: React.FC = () => {
             className="w-full h-12"
           />
         </Col>
+     
       </Row>
     </div>
   );

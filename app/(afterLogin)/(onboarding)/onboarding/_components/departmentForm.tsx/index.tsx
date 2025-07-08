@@ -5,7 +5,6 @@ import { DepartmentFormProps } from '@/types/dashboard/organization';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 const { Option } = Select;
 
@@ -19,7 +18,6 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   const [form] = Form.useForm();
   const { data: branches } = useGetBranches();
   const { setSelectedDepartment } = useOrganizationStore();
-  const { data: departments } = useGetDepartments();
   useEffect(() => {
     if (departmentData) {
       form.resetFields();
@@ -90,12 +88,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         <Form.Item
           name="branchId"
           label="Select Branch"
-          rules={[
-            {
-              required: departments?.length === 0 ? false : true,
-              message: 'Please select a branch',
-            },
-          ]}
+          rules={[{ required: true, message: 'Please select a branch' }]}
         >
           <Select size="large" placeholder="Select a branch">
             {branches?.items?.map((branch, i) => (

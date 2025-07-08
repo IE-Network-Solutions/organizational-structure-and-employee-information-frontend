@@ -35,5 +35,3 @@ export const EMAIL_URL = process.env.EMAIL_URL;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 export const DEFAULT_TENANT_ID = tenantId;
-
-export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;

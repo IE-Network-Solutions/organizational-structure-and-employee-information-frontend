@@ -13,8 +13,6 @@ export const fileUpload = async (
   try {
     const formData = new FormData();
     formData.append('tenantId', useAuthenticationStore.getState().tenantId);
-    // formData.append('createdBy', useAuthenticationStore.getState().userId);
-    // formData.append('updatedBy', useAuthenticationStore.getState().userId);
     formData.append('file', file);
 
     const config = {

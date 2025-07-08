@@ -10,7 +10,6 @@ import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
-import CustomPagination from '@/components/customPagination';
 
 const AllowanceEntitlementTable = () => {
   const { currentPage, pageSize, setCurrentPage, searchQuery, setPageSize } =
@@ -51,6 +50,11 @@ const AllowanceEntitlementTable = () => {
       defaultAmount: item.compensationItem?.defaultAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
+
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
@@ -115,32 +119,19 @@ const AllowanceEntitlementTable = () => {
       )
     : transformedData;
 
-  const paginatedData = filteredDataSource.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
-
   return (
     <Spin spinning={fiscalActiveYearFetchLoading}>
       <Table
         className="mt-6"
         columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
-
-      <CustomPagination
-        current={currentPage}
-        total={filteredDataSource.length}
-        pageSize={pageSize}
-        onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
+        dataSource={filteredDataSource}
+        pagination={{
+          current: currentPage,
+          pageSize,
+          total: transformedData?.length,
+          showSizeChanger: true,
         }}
-        onShowSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
+        onChange={handleTableChange}
       />
       <AllowanceEntitlementSideBar />
     </Spin>

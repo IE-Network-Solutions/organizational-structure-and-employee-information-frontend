@@ -1,6 +1,6 @@
 // components/ApprovalStatus.tsx
 import { FC } from 'react';
-import { Select } from 'antd';
+import { Empty, Select } from 'antd';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
@@ -20,11 +20,11 @@ const ApprovalStatus: FC = () => {
   const requests = [
     {
       type: 'Leave',
-      value: 'Leave',
+      value: 'Leave Request',
     },
     {
       type: 'BranchTransfer',
-      value: 'Branch',
+      value: 'Branch Transfer Request',
     },
   ];
   const handleChange = (value: string) => {
@@ -34,7 +34,7 @@ const ApprovalStatus: FC = () => {
   return (
     <div className="bg-white p-3 rounded-lg w-full">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-lg font-bold">Approval Status</h4>
+        <h4 className="text-sm font-semibold">Approval Status</h4>
         <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
           <Select
             placeholder="select"
@@ -50,7 +50,7 @@ const ApprovalStatus: FC = () => {
           />
         </div>
       </div>
-      <div className="max-h-[250px] min-h-[250px] overflow-y-auto scrollbar-none">
+      <div className="md:h-[325px] overflow-y-auto scrollbar-none">
         {approverType === 'BranchTransfer' ? (
           BranchTransferData?.items?.length ? (
             <div>
@@ -70,9 +70,7 @@ const ApprovalStatus: FC = () => {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center min-h-[250px]">
-              <div className="text-xl font-thin">No Approval Found</div>
-            </div>
+            <Empty />
           )
         ) : approverType === 'Leave' ? (
           LeaveTransferData?.items?.length ? (
@@ -95,14 +93,10 @@ const ApprovalStatus: FC = () => {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center min-h-[250px]">
-              <div className="text-xl font-thin">No Approval Found</div>
-            </div>
+            <Empty />
           )
         ) : (
-          <div className="flex items-center justify-center min-h-[250px]">
-            <div className="text-xl font-thin">No Approval Found</div>
-          </div>
+          <Empty /> // Optional: Render this if `approverType` does not match any cases
         )}
       </div>
     </div>

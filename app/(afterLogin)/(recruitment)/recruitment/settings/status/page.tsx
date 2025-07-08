@@ -11,9 +11,6 @@ import { useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { Pencil, Trash2 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import CustomPagination from '@/components/customPagination';
 
 const { Title } = Typography;
 
@@ -25,16 +22,10 @@ const Status: React.FC = () => {
     setEditMode,
     setIsDeleteModalOpen,
     selectedStatus,
-    setCurrentPage,
-    setPage,
-    pageSize,
-    currentPage,
   } = useRecruitmentStatusStore();
 
-  const { isMobile, isTablet } = useIsMobile();
-
   const { data: recruitmentStatus, isLoading: fetchLoading } =
-    useGetRecruitmentStatuses(pageSize, currentPage);
+    useGetRecruitmentStatuses();
 
   const { mutate: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
   const handleEditStatus = (status: any) => {
@@ -58,17 +49,6 @@ const Status: React.FC = () => {
     setIsDrawerOpen(true);
     setEditMode(false);
     setSelectedStatus(null);
-  };
-
-  const onPageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPage(pageSize);
-    }
-  };
-  const onSizeChange = (size: number) => {
-    setPage(size);
-    setCurrentPage(1);
   };
   return (
     <div className="p-5 rounded-2xl bg-white h-full">
@@ -137,23 +117,6 @@ const Status: React.FC = () => {
         }}
         onConfirm={handleDelete}
       />
-
-      {isMobile || isTablet ? (
-        <CustomMobilePagination
-          totalResults={recruitmentStatus?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
-      ) : (
-        <CustomPagination
-          current={currentPage}
-          total={recruitmentStatus?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
-      )}
     </div>
   );
 };
