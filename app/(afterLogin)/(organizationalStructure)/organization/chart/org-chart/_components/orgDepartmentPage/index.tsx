@@ -28,9 +28,11 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
 
   // Get the first user assigned to the department
   const user = getUserData(data?.employeeJobInformation?.[0]?.userId);
-
   return (
-    <Card className="p-1.5 rounded-3xl inline-block border border-[#e8e8e8] sm:w-auto">
+    <Card
+      bodyStyle={{ padding: 0, background: 'transparent' }}
+      className="p-1.5  inline-block rounded-2xl border-[#CBD5E0] border-2 sm:w-auto min-w-[132px] max-w-36"
+    >
       <div className="flex flex-col items-center">
         <Tooltip
           title={
@@ -60,9 +62,9 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
               className="mt-2 w-auto text-center"
             />
           ) : (
-            <span className="font-bold text-center">
+            <span className="text-xs font-bold text-center">
               {user?.firstName || user?.middleName || user?.lastName
-                ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} ${user?.lastName ?? ''}`.trim()
+                ? `${user?.firstName ?? ''}  ${user?.middleName ?? ''}  ${user?.lastName ?? ''}`.trim()
                 : 'Not assigned'}
             </span>
           )}
@@ -73,8 +75,10 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
               className="w-auto text-center"
             />
           ) : (
-            <span className="text-sm text-center">
-              {user?.role ? user?.role?.name?.trim() : 'Role not assigned'}
+            <span className="text-[10px] text-center">
+              {user?.employeeJobInformation
+                ? user?.employeeJobInformation[0]?.position?.name?.trim()
+                : 'Role not assigned'}
             </span>
           )}
         </div>
@@ -147,7 +151,7 @@ const OrgChartComponent: React.FC = () => {
                 />
               }
               lineWidth={'2px'}
-              lineColor={'#722ed1'}
+              lineColor={'#CBD5E0'}
               lineBorderRadius={'10px'}
             >
               {renderTreeNodes(orgStructureData?.department || [])}

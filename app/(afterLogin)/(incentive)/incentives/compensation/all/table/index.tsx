@@ -9,6 +9,9 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const columns: TableColumnsType<any> = [
   {
@@ -59,6 +62,8 @@ const AllIncentiveTable: React.FC = () => {
       setSelectedRowKeys(selectedRowKeys);
     },
   };
+
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: incentiveData, isLoading: responseLoading } =
     useGetAllIncentiveData(
@@ -119,13 +124,19 @@ const AllIncentiveTable: React.FC = () => {
               </div>
             ),
             status: (
-              <div className="rounded-lg px-3 py-2 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
+              <div className="inline-block">
                 {item?.isPaid ? (
-                  <span className="font-semibold text-md">Paid</span>
+                  <div className="rounded-lg bg-[#55C79033] py-1 px-6">
+                    <span className="text-[#0CAF60] font-semibold text-md">
+                      Paid
+                    </span>
+                  </div>
                 ) : (
-                  <span className="text-[#E03137] font-semibold text-md">
-                    Not Paid
-                  </span>
+                  <div className="rounded-lg bg-[#FFEDEC] py-1 px-4">
+                    <span className="text-[#E03137] font-semibold text-md">
+                      Not Paid
+                    </span>
+                  </div>
                 )}
               </div>
             ),
@@ -140,14 +151,7 @@ const AllIncentiveTable: React.FC = () => {
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={allIncentiveTableData}
-        pagination={{
-          total: incentiveData?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
+        pagination={false}
         loading={responseLoading}
         scroll={{ x: 1000 }}
         onRow={(record) => ({
@@ -156,6 +160,23 @@ const AllIncentiveTable: React.FC = () => {
           },
         })}
       />
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={incentiveData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={incentiveData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

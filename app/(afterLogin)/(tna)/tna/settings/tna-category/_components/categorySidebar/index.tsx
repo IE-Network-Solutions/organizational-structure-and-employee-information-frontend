@@ -48,7 +48,7 @@ const TnaCategorySidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
@@ -56,7 +56,7 @@ const TnaCategorySidebar = () => {
     {
       label: tnaCategoryId ? <span>Edit</span> : <span> Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
@@ -88,7 +88,7 @@ const TnaCategorySidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-2">
             {tnaCategoryId ? (
               <span>Edit TNA Category</span>
             ) : (
@@ -96,14 +96,21 @@ const TnaCategorySidebar = () => {
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="400px"
+        customMobileHeight="62vh"
       >
         <Spin spinning={isLoading || isFetching}>
           <Form
             layout="vertical"
             form={form}
             onFinish={onFinish}
+            className="p-2"
             requiredMark={CustomLabel}
           >
             <Form.Item
@@ -112,7 +119,7 @@ const TnaCategorySidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
             >
-              <Input id="tnaCategoryNameFieldId" className="control" />
+              <Input id="tnaCategoryNameFieldId" className="control h-10" />
             </Form.Item>
             <Form.Item
               name="description"
@@ -122,7 +129,7 @@ const TnaCategorySidebar = () => {
             >
               <Input.TextArea
                 id="tnaCategoryDescriptionFieldId"
-                className="control-tarea"
+                className="control-tarea h-28"
                 rows={6}
                 placeholder="Enter the Description"
               />

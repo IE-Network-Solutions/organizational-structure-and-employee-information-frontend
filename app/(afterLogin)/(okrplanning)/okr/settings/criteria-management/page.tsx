@@ -196,7 +196,7 @@ function Page() {
           >
             <Button
               type="primary"
-              className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 md:w-auto h-10"
+              className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 w-10 md:w-auto h-10"
               icon={<FaPlus />}
               onClick={() => openDrawer()}
             >

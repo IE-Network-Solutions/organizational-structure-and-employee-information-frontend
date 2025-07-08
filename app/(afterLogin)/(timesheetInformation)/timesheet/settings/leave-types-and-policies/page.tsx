@@ -24,6 +24,7 @@ const Page = () => {
             icon={<FaPlus />}
             id={`createNewTypesAndPoliciesButtonId`}
             onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
+            className="h-10 w-10 sm:w-auto"
           >
             <span className="hidden md:inline"> New Type</span>
           </Button>

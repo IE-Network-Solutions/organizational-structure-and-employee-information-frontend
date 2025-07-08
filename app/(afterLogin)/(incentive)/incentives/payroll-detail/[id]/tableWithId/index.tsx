@@ -9,6 +9,9 @@ import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRouter } from 'next/navigation';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 export type IncentiveTableDataParams = {
   recognition: string;
@@ -99,6 +102,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       setSelectedRowKeys(selectedRowKeys);
     },
   };
+  const { isMobile, isTablet } = useIsMobile();
 
   const IncentiveByRecognitionTypeTableData =
     responseLoading || dynamicRecognitionData?.items?.length < 0
@@ -135,13 +139,19 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
               </div>
             ),
             status: (
-              <div className="rounded-lg px-3 py-2 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block">
+              <div className="inline-block">
                 {item?.isPaid ? (
-                  <span className="font-semibold text-md">Paid</span>
+                  <div className="rounded-lg bg-[#55C79033] py-1 px-6">
+                    <span className="text-[#0CAF60] font-semibold text-md">
+                      Paid
+                    </span>
+                  </div>
                 ) : (
-                  <span className="text-[#E03137] font-semibold text-md">
-                    Not Paid
-                  </span>
+                  <div className="rounded-lg bg-[#FFEDEC] py-1 px-4">
+                    <span className="text-[#E03137] font-semibold text-md">
+                      Not Paid
+                    </span>
+                  </div>
                 )}
               </div>
             ),
@@ -156,22 +166,31 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
         className="w-full cursor-pointer"
         columns={columns}
         dataSource={IncentiveByRecognitionTypeTableData}
-        pagination={{
-          total: dynamicRecognitionData?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
+        pagination={false}
         loading={responseLoading}
         scroll={{ x: 1000 }}
         onRow={(record) => ({
           onClick: () => {
-            router.push(`/incentive/detail/${record?.id}`);
+            router.push(`/incentives/detail/${record?.id}`);
           },
         })}
       />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={dynamicRecognitionData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={dynamicRecognitionData?.meta?.totalItems}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      )}
     </div>
   );
 };

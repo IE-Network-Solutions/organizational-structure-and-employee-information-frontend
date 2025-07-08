@@ -51,7 +51,7 @@ const TnaCommitmentSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
@@ -59,7 +59,7 @@ const TnaCommitmentSidebar = () => {
     {
       label: tnaCommitmentId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
@@ -109,7 +109,7 @@ const TnaCommitmentSidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-2">
             {tnaCommitmentId ? (
               <span> Edit Commitment Rule</span>
             ) : (
@@ -117,7 +117,12 @@ const TnaCommitmentSidebar = () => {
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="400px"
       >
         <Form
@@ -125,6 +130,7 @@ const TnaCommitmentSidebar = () => {
           requiredMark={CustomLabel}
           form={form}
           onFinish={onFinish}
+          className="p-2"
           disabled={isLoading || isFetching}
           initialValues={{ rules: [{}] }}
         >
@@ -141,7 +147,7 @@ const TnaCommitmentSidebar = () => {
                         rules={[{ required: true, message: 'Required' }]}
                         className="form-item flex-1"
                       >
-                        <Input className="control" />
+                        <Input className="control h-10" />
                       </Form.Item>
                       {fields.length > 1 ? (
                         <RemoveFormFieldButton
@@ -159,7 +165,7 @@ const TnaCommitmentSidebar = () => {
                       className="form-item"
                     >
                       <Input.TextArea
-                        className="control-tarea"
+                        className="control-tarea h-28"
                         rows={6}
                         placeholder="Enter the Description of the commitment rule"
                       />
@@ -180,7 +186,7 @@ const TnaCommitmentSidebar = () => {
                         >
                           <InputNumber
                             min={0}
-                            className="control-number"
+                            className="control-number h-10"
                             placeholder="0.00"
                             suffix="$"
                           />
@@ -201,7 +207,7 @@ const TnaCommitmentSidebar = () => {
                         >
                           <InputNumber
                             min={0}
-                            className="control-number"
+                            className="control-number h-10"
                             placeholder="0.00"
                             suffix="$"
                           />
@@ -217,16 +223,16 @@ const TnaCommitmentSidebar = () => {
                     >
                       <InputNumber
                         min={0}
-                        className="control-number"
+                        className="control-number h-10"
                         placeholder="0.00"
                         suffix="Days"
                       />
                     </Form.Item>
-                    {!tnaCommitmentId && (
+                    {/* {!tnaCommitmentId && (
                       <Form.Item>
                         <div className="my-4 border-t border-gray-200"></div>
                       </Form.Item>
-                    )}
+                    )} */}
                   </React.Fragment>
                 ))}
 

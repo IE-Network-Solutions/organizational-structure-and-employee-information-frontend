@@ -35,7 +35,7 @@ const AddTypesSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
@@ -43,7 +43,7 @@ const AddTypesSidebar = () => {
     {
       label: 'Add',
       key: 'add',
-      className: 'h-[56px] text-base',
+      className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -52,7 +52,7 @@ const AddTypesSidebar = () => {
   ];
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[54px] w-full';
+  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -95,8 +95,16 @@ const AddTypesSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Accrual Rule</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        modalHeader={
+          <div className="px-2">
+            <CustomDrawerHeader>Accrual Rule</CustomDrawerHeader>
+          </div>
+        }
+        footer={
+          <div className="p-4">
+            <CustomDrawerFooterButton buttons={footerModalItems} />
+          </div>
+        }
         width="400px"
       >
         <Spin spinning={isLoading}>
@@ -108,7 +116,7 @@ const AddTypesSidebar = () => {
             className={itemClass}
             onFinish={onFinish}
           >
-            <Space direction="vertical" className="w-full" size={24}>
+            <Space.Compact direction="vertical" className="w-full  sm:px-0 ">
               <Form.Item
                 label="Accrual Name"
                 id="accrualNameId"
@@ -131,7 +139,7 @@ const AddTypesSidebar = () => {
                   options={periodOption}
                 />
               </Form.Item>
-            </Space>
+            </Space.Compact>
           </Form>
         </Spin>
       </CustomDrawerLayout>

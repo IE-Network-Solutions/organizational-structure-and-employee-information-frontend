@@ -120,11 +120,12 @@ const Approvals = () => {
             <div className="text-lg font-bold ">List Of Approval</div>
             <PermissionWraper permissions={[Permissions.CreateApprover]}>
               <Button
-                className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
+                type="primary"
+                className="hidden sm:flex h-10 w-10 sm:w-auto"
                 onClick={() => setAddDepartmentApproval(true)}
+                icon={<FaPlus />}
               >
-                <FaPlus className="text-white" />
-                <span className="hidden lg:inline"> Add Approval</span>
+                <span className="hidden sm:inline"> Add Approval</span>
               </Button>
             </PermissionWraper>
           </div>

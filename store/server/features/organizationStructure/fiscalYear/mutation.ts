@@ -7,14 +7,13 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
-
 const createFiscalYear = async (fiscalYear: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'POST',
@@ -24,6 +23,12 @@ const createFiscalYear = async (fiscalYear: any) => {
 };
 
 const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'PUT',
@@ -33,6 +38,13 @@ const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
 };
 
 const deleteFiscalYear = async (id: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'DELETE',
@@ -88,6 +100,13 @@ const updateClosedDate = async (
   fiscalYearId: string,
   closedDates: ClosedDates[],
 ) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${fiscalYearId}`,
     method: 'PUT',

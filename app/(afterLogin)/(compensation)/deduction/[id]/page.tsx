@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect } from 'react';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import DeductionEntitlementTable from './_components/deductionEntitlementTable';
 import { useParams } from 'next/navigation';
 import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
@@ -9,16 +8,15 @@ import { Button, Select } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { FaPlus } from 'react-icons/fa';
 import { Permissions } from '@/types/commons/permissionEnum';
+import BenefitEntitlementTable from '../../benefit/[id]/_components/benefitEntitelmentTable';
+import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 
 const SingleDeductionPage = () => {
   const { id } = useParams();
   const { data: deductionData } = useFetchAllowance(id);
-  const {
-    setIsAllowanceGlobal,
-    setIsAllowanceEntitlementSidebarOpen,
-    isAllowanceGlobal,
-  } = useAllowanceEntitlementStore();
-
+  const { setIsAllowanceGlobal, isAllowanceGlobal } =
+    useAllowanceEntitlementStore();
+  const { setIsBenefitEntitlementSidebarOpen } = useBenefitEntitlementStore();
   useEffect(() => {
     if (deductionData?.applicableTo === 'GLOBAL') {
       setIsAllowanceGlobal(true);
@@ -81,7 +79,7 @@ const SingleDeductionPage = () => {
                   className="h-12 w-full"
                   icon={<FaPlus />}
                   onClick={() => {
-                    setIsAllowanceEntitlementSidebarOpen(true);
+                    setIsBenefitEntitlementSidebarOpen(true);
                   }}
                   disabled={isAllowanceGlobal}
                 >
@@ -93,7 +91,11 @@ const SingleDeductionPage = () => {
         </div>
       </div>
       <div className="overflow-x-auto">
-        <DeductionEntitlementTable />
+        {/* <DeductionEntitlementTable /> */}
+
+        <BenefitEntitlementTable
+          title={deductionData?.name ? deductionData?.name : ''}
+        />
       </div>
     </>
   );

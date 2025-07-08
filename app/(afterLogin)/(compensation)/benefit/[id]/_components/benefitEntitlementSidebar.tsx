@@ -4,7 +4,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, InputNumber, Select, Spin, Table } from 'antd';
+import { Form, Input, InputNumber, Select, Spin, Table } from 'antd';
 import { useCreateBenefitEntitlementSettlement } from '@/store/server/features/compensation/benefit/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
@@ -37,9 +37,11 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
     useCreateBenefitEntitlementSettlement();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
-  const { data: departments } = useGetDepartmentsWithUsers();
+  const { data: departments, isLoading: depLoading } =
+    useGetDepartmentsWithUsers();
   const { id } = useParams();
   const [form] = Form.useForm();
+  const { TextArea } = Input;
 
   const { data: benefitDatas } = useFetchBenefit(id);
   const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
@@ -99,7 +101,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: createBenefitLoading,
       onClick: () => onClose(),
@@ -107,7 +109,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     {
       label: <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: createBenefitLoading,
@@ -179,7 +181,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           className="mb-0"
           rules={[{ required: true, message: 'Pay Period is required' }]}
         >
-          <Select placeholder="Pay Period" allowClear className="w-60">
+          <Select placeholder="Pay Period" allowClear className="w-full">
             {payPeriods
               ?.filter((period: any) => {
                 const start = dayjs(period.startDate);
@@ -201,6 +203,20 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         </Form.Item>
       ),
     },
+    {
+      dataIndex: 'reason',
+      key: 'reason',
+      render: (notused: any, notuseds: any, index: number) => (
+        <Form.Item
+          label="Reason"
+          required
+          name={['payments', index, 'reason']}
+          className="mb-0"
+        >
+          <TextArea placeholder="Reason" autoSize />
+        </Form.Item>
+      ),
+    },
   ];
 
   return (
@@ -210,23 +226,29 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         onClose={onClose}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            <span>{title}</span>
+            <span className="text-2xl">{title}</span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="600px"
       >
         <Spin spinning={allUserLoading || payLoading}>
           <Form
             layout="vertical"
+            className="p-2"
             form={form}
             onFinish={onFormSubmit}
             requiredMark={CustomLabel}
           >
-            <div className="grid grid-cols-2 gap-4 mb-1">
+            <div className="grid grid-cols-2 gap-4">
               <Form.Item required name="totalAmount" label="Total Amount">
                 <InputNumber
-                  className="w-full h-10"
+                  className="w-full h-10 mt-2"
                   value={totalAmount}
                   onChange={(value) => setTotalAmount(value || 0)}
                 />
@@ -237,7 +259,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 label="Settlement Period"
               >
                 <InputNumber
-                  className="w-full h-10"
+                  className="w-full h-10 mt-2"
                   value={settlementPeriod}
                   onChange={(value) => setSettlementPeriod(value || 0)}
                 />
@@ -260,13 +282,22 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               className="form-item min-h-10"
             >
               <Select
+                loading={depLoading}
                 placeholder="Select a department"
-                onChange={handleDepartmentChange}
+                className="w-full h-10 mt-2"
+                allowClear
+                showSearch
+                onChange={(value) => handleDepartmentChange(value)}
+                filterOption={(input, option) =>
+                  (option?.children as any)
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               >
-                {departments?.map((department: any) => (
-                  <Select.Option key={department.id} value={department.name}>
-                    {department.name}
-                  </Select.Option>
+                {departments?.map((dept: any) => (
+                  <Option key={dept.id} value={dept.name}>
+                    {dept.name}
+                  </Option>
                 ))}
               </Select>
             </Form.Item>
@@ -280,7 +311,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 showSearch
                 placeholder="Select a person"
                 mode="multiple"
-                className="w-full min-h-10"
+                className="w-full h-10 mt-2"
                 allowClear
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')
@@ -290,7 +321,12 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 options={allUsers?.items?.map((item: any) => ({
                   ...item,
                   value: item?.id,
-                  label: item?.firstName + ' ' + item?.lastName,
+                  label:
+                    item?.firstName +
+                    ' ' +
+                    item?.middleName +
+                    ' ' +
+                    item?.lastName,
                 }))}
                 loading={allUserLoading}
               />

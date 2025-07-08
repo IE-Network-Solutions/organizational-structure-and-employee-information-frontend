@@ -48,7 +48,7 @@ const CourseCategorySidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-12',
       size: 'large',
       loading: isLoading || isFetching,
       onClick: () => onClose(),
@@ -56,7 +56,7 @@ const CourseCategorySidebar = () => {
     {
       label: courseCategoryId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
-      className: 'h-14',
+      className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isFetching,
@@ -88,7 +88,7 @@ const CourseCategorySidebar = () => {
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl">
             {courseCategoryId ? (
               <span>Edit Course Category</span>
             ) : (
@@ -96,8 +96,14 @@ const CourseCategorySidebar = () => {
             )}
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <CustomDrawerFooterButton
+            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            buttons={footerModalItems}
+          />
+        }
         width="400px"
+        customMobileHeight="60vh"
       >
         <Spin spinning={isLoading || isFetching}>
           <Form
@@ -112,7 +118,7 @@ const CourseCategorySidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
             >
-              <Input className="control" />
+              <Input className="control h-10" />
             </Form.Item>
             <Form.Item
               name="description"
@@ -121,7 +127,7 @@ const CourseCategorySidebar = () => {
               className="form-item"
             >
               <Input.TextArea
-                className="control-tarea"
+                className="control-tarea h-28"
                 rows={6}
                 placeholder="Enter the Description"
               />

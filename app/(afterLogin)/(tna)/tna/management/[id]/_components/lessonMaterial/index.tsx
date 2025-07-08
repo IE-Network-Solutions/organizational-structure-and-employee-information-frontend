@@ -3,15 +3,16 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Col, Form, Input, InputNumber, Row } from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import TextEditor from '@/components/form/textEditor';
 import CustomUpload from '@/components/form/customUpload';
 import React, { useEffect } from 'react';
-import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { useGetCourseLessonsMaterial } from '@/store/server/features/tna/lessonMaterial/queries';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import { CourseLessonMaterial as CourseLessonMaterialType } from '@/types/tna/course';
+import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 
 const CourseLessonMaterial = () => {
   const {
@@ -22,6 +23,7 @@ const CourseLessonMaterial = () => {
     isShowAddLesson,
     lessonMaterial,
     setLessonMaterial,
+    isFileUploadLoading,
   } = useTnaManagementCoursePageStore();
   const {
     data: lessonMaterialData,
@@ -53,24 +55,21 @@ const CourseLessonMaterial = () => {
     if (lesson && lessonMaterialData?.items?.length) {
       const item = lessonMaterialData.items[0];
       setLessonMaterial(item);
-      form.setFieldValue('title', item.title);
-      form.setFieldValue('description', item.description);
-      form.setFieldValue('article', item.article);
-      form.setFieldValue('timeToFinishMinutes', item.timeToFinishMinutes);
-      form.setFieldValue('order', item.order);
-      if (item.videos.length) {
-        form.setFieldValue(
-          'videos',
-          item.videos.map((video) => formatLinkToUploadFile(video)),
-        );
-      }
-
-      if (item.attachments.length) {
-        form.setFieldValue(
-          'attachments',
-          item.attachments.map((video) => formatLinkToUploadFile(video)),
-        );
-      }
+      form.setFieldsValue({
+        title: item.title,
+        description: item.description,
+        article: item.article,
+        timeToFinishMinutes: item.timeToFinishMinutes,
+        order: item.order,
+        videos: item.videos.length
+          ? item.videos.map((video) => formatLinkToUploadFile(video))
+          : undefined,
+        attachments: item.attachments.length
+          ? item.attachments.map((attachment) =>
+              formatLinkToUploadFile(attachment),
+            )
+          : undefined,
+      });
     }
   }, [lessonMaterialData]);
 
@@ -80,11 +79,32 @@ const CourseLessonMaterial = () => {
     }
   }, [isSuccess]);
 
+  const getOrderOptions = (
+    courseLessonMaterials: CourseLessonMaterialType[],
+  ) => {
+    const defaultOption = {
+      label: 'Add at the end',
+      value: 0, // Use 0 to indicate appending at the end
+    };
+
+    // Generate options from existing materials, excluding the current material (if editing)
+    const materialOptions = courseLessonMaterials
+      .filter(
+        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
+      )
+      ?.sort((a, b) => a.order - b.order)
+      .map((material) => ({
+        label: material.title || 'Untitled', // Fallback for missing titles
+        value: material.order,
+      }));
+
+    return [defaultOption, ...materialOptions];
+  };
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-14',
+      className: 'h-10',
       size: 'large',
       loading: isLoading || isLoadingMaterial,
       onClick: () => onClose(),
@@ -92,10 +112,10 @@ const CourseLessonMaterial = () => {
     {
       label: lessonMaterial ? 'Update' : 'Create',
       key: 'create',
-      className: 'h-14',
+      className: 'h-10',
       type: 'primary',
       size: 'large',
-      loading: isLoading || isLoadingMaterial,
+      loading: isLoading || isLoadingMaterial||isFileUploadLoading?.video||isFileUploadLoading?.attachment,
       onClick: () => {
         form.submit();
       },
@@ -111,21 +131,56 @@ const CourseLessonMaterial = () => {
     setIsShow(false);
   };
 
+  const getMaterialOrder = (materialOrder: number): number => {
+    const courseLessonMaterials = lesson?.courseLessonMaterials ?? [];
+    // Return 0 if no materials or materialId is invalid
+    if (!courseLessonMaterials?.length || !materialOrder) {
+      return 0;
+    }
+
+    // Find the material with the given ID and its order
+    const targetMaterial = courseLessonMaterials.find(
+      (material) => material.order === materialOrder,
+    );
+    if (!targetMaterial) {
+      return 0; // Return 0 if material not found
+    }
+
+    const targetOrder = targetMaterial.order;
+
+    // Sort materials by order and find the last material with order < targetOrder
+    const sortedMaterials = [...courseLessonMaterials].sort(
+      (a, b) => a.order - b.order,
+    );
+    const previousMaterial = sortedMaterials
+      .filter((material) => material.order < targetOrder)
+      .pop(); // Get last material (highest order) less than targetOrder
+
+    // If no previous material, return targetOrder / 2
+    if (!previousMaterial) {
+      return targetOrder / 2;
+    }
+
+    // Return average of previous material's order and targetOrder
+    return (previousMaterial.order + targetOrder) / 2;
+  };
+
   const onFinish = () => {
-    const value = form.getFieldsValue();
+    const values = form.getFieldsValue();
 
     setMaterial([
       {
-        ...(lessonMaterial && lessonMaterial),
-        title: value.title,
-        description: value.description,
-        article: value.article,
-        timeToFinishMinutes: value.timeToFinishMinutes,
-        order: value.order,
+        ...(lessonMaterial || {}),
+        title: values.title,
+        description: values.description,
+        article: values.article,
+        timeToFinishMinutes: values.timeToFinishMinutes,
+        order: getMaterialOrder(values.order),
         courseLessonId: lesson?.id ?? '',
-        videos: [value.videos[0]['response']],
+        videos: values.videos?.map((video: any) => video.response) ?? [],
         attachments:
-          value.attachments?.map((item: any) => item['response']) ?? [],
+          values.attachments?.map((attachment: any) => attachment.response) ??
+          [],
       },
     ]);
   };
@@ -146,10 +201,7 @@ const CourseLessonMaterial = () => {
         </CustomDrawerHeader>
       }
       footer={
-        <CustomDrawerFooterButton
-          className="w-1/2 mx-auto"
-          buttons={footerModalItems}
-        />
+        <CustomDrawerFooterButton className="p-4" buttons={footerModalItems} />
       }
       width="50%"
     >
@@ -190,6 +242,7 @@ const CourseLessonMaterial = () => {
         >
           <TextEditor className="mt-3" placeholder="Enter the Article" />
         </Form.Item>
+        <Spin spinning={isFileUploadLoading.video}>
         <Form.Item
           name="videos"
           label="Video"
@@ -200,15 +253,19 @@ const CourseLessonMaterial = () => {
             return Array.isArray(e) ? e : e && e.fileList;
           }}
         >
-          <CustomUpload
-            mode="dragWithLink"
-            className="w-full mt-3"
-            listType="picture"
-            title="Upload Your video"
-            accept="video/*"
-            maxCount={1}
-          />
-        </Form.Item>
+            <CustomUpload
+              mode="dragWithLink"
+              className="w-full mt-3"
+              listType="picture"
+              title="Upload Your video"
+              accept="video/*"
+              maxCount={1}
+              targetState="fileList"
+              uploadType="video"
+            />
+          </Form.Item>
+        </Spin>
+        <Spin spinning={isFileUploadLoading.attachment}>
         <Form.Item
           name="attachments"
           label="Attachment"
@@ -219,13 +276,16 @@ const CourseLessonMaterial = () => {
             return Array.isArray(e) ? e : e && e.fileList;
           }}
         >
-          <CustomUpload
-            mode="dragWithLink"
-            className="w-full mt-3"
-            listType="picture"
-            title="Upload Your Attachment"
-          />
+            <CustomUpload
+              mode="dragWithLink"
+              className="w-full mt-3"
+              listType="picture"
+              title="Upload Your Attachment"
+              targetState="fileAttachmentList"
+              uploadType="attachment"
+            />
         </Form.Item>
+        </Spin>
         <Row gutter={24}>
           <Col span={12}>
             <Form.Item
@@ -243,14 +303,22 @@ const CourseLessonMaterial = () => {
           <Col span={12}>
             <Form.Item
               name="order"
-              label="Course Material Order in No"
+              label="Insert Before"
               className="form-item"
-              rules={[{ required: true, message: 'Required' }]}
+              rules={[{ required: true, message: 'Please select a position' }]}
+              initialValue={0} // Set default value to 0
             >
-              <InputNumber
-                className="control-number"
-                placeholder="Enter Order No"
-                min={0}
+              <Select
+                className="control"
+                placeholder="Select position"
+                showSearch
+                optionFilterProp="label"
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={getOrderOptions(lesson?.courseLessonMaterials ?? [])}
               />
             </Form.Item>
           </Col>

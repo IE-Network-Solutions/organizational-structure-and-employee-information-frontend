@@ -6,6 +6,7 @@ type MenuItem = Required<MenuProps>['items'][number];
 type MenuItemType = {
   item: MenuItem;
   link: string;
+  disabled?: boolean;
 };
 
 export class SidebarMenuItem {
@@ -27,6 +28,7 @@ export class SidebarMenuItem {
           (item as any)['icon'],
           'menu-item-icon',
         );
+
         item!.className = 'px-4';
       } else {
         (item as any)['icon'] = this.cloneIcon(
@@ -41,7 +43,10 @@ export class SidebarMenuItem {
   }
 
   get onlyItems(): MenuItem[] {
-    return this.items.map((item) => item.item);
+    return this.items.map((item: any) => ({
+      ...item?.item,
+      disabled: item?.disabled,
+    }));
   }
 
   findItem(itemKey: string): MenuItemType {

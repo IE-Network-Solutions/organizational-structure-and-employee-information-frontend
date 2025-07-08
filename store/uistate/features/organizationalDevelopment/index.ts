@@ -47,6 +47,9 @@ interface StoreState {
   isEditModalOpen: boolean;
   setIsEditModalOpen: (value: boolean) => void;
 
+  selectedType: string | null;
+  setSelectedType: (value: string | null) => void;
+
   editItemId: string;
   setEditItemId: (itemId: string) => void;
 
@@ -152,6 +155,9 @@ export const useOrganizationalDevelopment = create<StoreState>()(
 
     isEditModalOpen: false,
     setIsEditModalOpen: (value: boolean) => set({ isEditModalOpen: value }),
+
+    selectedType: null,
+    setSelectedType: (value: string | null) => set({ selectedType: value }),
 
     childrenDrawer: false,
     setChildrenDrawer: (value: boolean) => set({ childrenDrawer: value }),

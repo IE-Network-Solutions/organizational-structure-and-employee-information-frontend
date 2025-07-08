@@ -227,6 +227,23 @@ const PlanAssignment: React.FC = () => {
     <div className="p-5 rounded-2xl shadow-md bg-white h-full">
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-semibold">Plan Assignation</h2>
+      </div>
+      <div className="flex justify-between">
+        <Form.Item id="filterByLeaveRequestUserIds" name="userIds">
+          <Select
+            placeholder="Select a person"
+            showSearch
+            className="mb-4 w-60 sm:w-80 h-10"
+            allowClear
+            optionFilterProp="label"
+            onChange={onChange}
+            options={employeeData?.items?.map((list: any) => ({
+              value: list?.id,
+              label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+            }))}
+            loading={employeeDataLoading}
+          />
+        </Form.Item>
         <AccessGuard permissions={[Permissions.AssignPlanningPeriod]}>
           <Button
             icon={<FaPlus />}
@@ -238,22 +255,6 @@ const PlanAssignment: React.FC = () => {
           </Button>
         </AccessGuard>
       </div>
-
-      <Form.Item id="filterByLeaveRequestUserIds" name="userIds">
-        <Select
-          placeholder="Select a person"
-          showSearch
-          className="mb-4 w-full"
-          allowClear
-          optionFilterProp="label"
-          onChange={onChange}
-          options={employeeData?.items?.map((list: any) => ({
-            value: list?.id,
-            label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-          }))}
-          loading={employeeDataLoading}
-        />
-      </Form.Item>
 
       <div className="overflow-x-auto scrollbar-none w-full">
         <Table

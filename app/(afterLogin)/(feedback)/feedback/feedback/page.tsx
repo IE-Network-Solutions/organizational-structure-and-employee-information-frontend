@@ -150,7 +150,7 @@ const Page = () => {
         );
         return user
           ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-          : 'Unknown'; // Return full name or fallback
+          : 'Unknown';
       },
     },
     {
@@ -161,10 +161,9 @@ const Page = () => {
         const user = getAllUsers?.items?.find(
           (item: any) => item.id === record.issuerId,
         );
-
         return user
           ? `${user?.firstName} ${user?.middleName} ${user?.lastName}`
-          : 'Unknown'; // Return full name or fallback
+          : 'Unknown';
       },
     },
     {
@@ -175,48 +174,45 @@ const Page = () => {
         const feedbackType = getAllFeedbackTypes?.items?.find(
           (item: any) => item.id === record.feedbackTypeId,
         );
-        return feedbackType?.category || 'Unknown'; // Return the category or a fallback value
+        return feedbackType?.category || 'Unknown';
       },
     },
     {
       title: 'Reason',
       dataIndex: 'reason',
+      key: 'reason',
       render: (notused: any, record: any) => {
         return record.reason ? (
           <Tooltip title={record?.reason}>
             {record?.reason?.length >= 40
               ? record?.reason?.slice(0, 40) + '....'
-              : record?.reason}{' '}
+              : record?.reason}
           </Tooltip>
         ) : (
           'N/A'
         );
       },
-
-      key: 'reason',
     },
-
     {
       title: 'Objective',
       dataIndex: 'objective',
+      key: 'objective',
       render: (notused: any, record: any) => {
         return record.feedbackVariant.name ? (
           <Tooltip title={record?.feedbackVariant.name}>
             {record?.feedbackVariant.name?.length >= 40
               ? record?.feedbackVariant.name?.slice(0, 40) + '....'
-              : record?.feedbackVariant.name}{' '}
+              : record?.feedbackVariant.name}
           </Tooltip>
         ) : (
           'N/A'
         );
       },
-
-      key: 'objective',
     },
-
     {
       title: 'Name',
       dataIndex: 'name',
+      key: 'name',
       render: (notused: any, record: any) => {
         const data = EmployeeDepartment?.find(
           (item: any) =>
@@ -232,26 +228,29 @@ const Page = () => {
           '-'
         );
       },
-
-      key: 'name',
     },
-    {
-      title: 'Action To be Taken',
-      dataIndex: 'action',
-      render: (notused: any, record: any) => {
-        return record.action ? (
-          <Tooltip title={record?.action}>
-            {record?.action?.length >= 40
-              ? record?.action?.slice(0, 40) + '....'
-              : record?.action}{' '}
-          </Tooltip>
-        ) : (
-          'N/A'
-        );
-      },
 
-      key: 'reason',
-    },
+    ...(variantType !== 'appreciation'
+      ? [
+          {
+            title: 'Action To be Taken',
+            dataIndex: 'action',
+            key: 'actionToBeTaken',
+            render: (notused: any, record: any) => {
+              return record.action ? (
+                <Tooltip title={record?.action}>
+                  {record?.action?.length >= 40
+                    ? record?.action?.slice(0, 40) + '....'
+                    : record?.action}
+                </Tooltip>
+              ) : (
+                'N/A'
+              );
+            },
+          },
+        ]
+      : []),
+
     {
       title: 'Given Date',
       dataIndex: 'createdAt',
@@ -265,7 +264,7 @@ const Page = () => {
     {
       title: 'Action',
       dataIndex: 'action',
-      key: 'action',
+      key: 'actionButtons',
       render: (notused: any, record: any) => {
         return (
           <div className="flex gap-2">
@@ -402,7 +401,7 @@ const Page = () => {
       )}
 
       <Spin spinning={getFeedbackTypeLoading} tip="Loading...">
-        <div className="flex justify-start ">
+        <div className="flex justify-start pl-2 ">
           <Tabs
             className="max-w-[850px]"
             defaultActiveKey={activeTab}
@@ -417,7 +416,7 @@ const Page = () => {
         </div>
       </Spin>
 
-      <div className="flex justify-end sm:justify-start ">
+      <div className="flex justify-end sm:justify-start p-2 ">
         <Tabs
           defaultActiveKey="appreciation"
           items={variantTypeItems}
@@ -425,7 +424,7 @@ const Page = () => {
         />
       </div>
 
-      <div className="-mx-6 -mt-10">
+      <div className=" -mt-10">
         <TabLandingLayout
           buttonTitle={
             <div className="text-sm hidden sm:block">{variantType}</div>

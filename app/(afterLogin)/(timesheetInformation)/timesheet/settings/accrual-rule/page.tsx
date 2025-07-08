@@ -6,12 +6,12 @@ import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import { Button, Table } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 import usePagination from '@/utils/usePagination';
 import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const {
@@ -80,7 +80,8 @@ const Page = () => {
             size="large"
             type="primary"
             id="accrutualRuleId"
-            icon={<LuPlus size={18} />}
+            icon={<FaPlus />}
+            className="h-10 w-10 sm:w-auto"
             onClick={() => setIsShowNewAccrualRuleSidebar(true)}
           >
             <span className="hidden md:inline"> New Accrual Rule</span>

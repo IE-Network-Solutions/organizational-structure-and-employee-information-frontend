@@ -3,11 +3,11 @@ import React from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { useGetCarryOverRules } from '@/store/server/features/timesheet/carryOverRule/queries';
 import { Button } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import CarryOverCard from './_components/carryOverCard';
 import CarryOverSidebar from './_components/carryOverSidebar';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const { setIsShowCarryOverRuleSidebar } = useTimesheetSettingsStore();
@@ -21,7 +21,8 @@ const Page = () => {
             size="large"
             type="primary"
             id="carryOver"
-            icon={<LuPlus size={18} />}
+            icon={<FaPlus />}
+            className="h-10 w-10 sm:w-auto"
             onClick={() => setIsShowCarryOverRuleSidebar(true)}
           >
             <span className="hidden md:inline"> New Carry-over Rule</span>

@@ -45,6 +45,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'leave-types-and-policies',
         icon: <FiFileText className="hidden lg:block" />,
         label: <p className="menu-item-label">Leave Types & Policies</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/leave-types-and-policies',
     },
@@ -53,6 +54,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'allowed-areas',
         icon: <GoKey className="hidden lg:block" />,
         label: <p className="menu-item-label">Allowed Areas</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/allowed-areas',
     },
@@ -61,6 +63,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'attendance-rules',
         icon: <IoTimeOutline className="hidden lg:block" />,
         label: <p className="menu-item-label">Attendance Rules</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/attendance-rules',
     },
@@ -69,6 +72,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'imported-logs',
         icon: <AiOutlineImport className="hidden lg:block" />,
         label: <p className="menu-item-label">Imported Logs</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/imported-logs',
     },
@@ -77,6 +81,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'accrual-rule',
         icon: <GrTransaction className="hidden lg:block" />,
         label: <p className="menu-item-label">Accrual Rule</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/accrual-rule',
     },
@@ -85,15 +90,17 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'carry-over-rule',
         icon: <IoArrowUndoCircleOutline className="hidden lg:block" />,
         label: <p className="menu-item-label">Carry-over Rule</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/carry-over-rule',
     },
 
     {
       item: {
-        key: 'approval-workflow',
+        key: 'approvals',
         icon: <PiUserCircleCheck className="hidden lg:block" />,
         label: <p className="menu-item-label">Approval Workflow</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/approvals',
     },
@@ -102,23 +109,24 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'time-zone',
         icon: <IoTimeOutline className="hidden lg:block" />,
         label: <p className="menu-item-label">Time Zone</p>,
+        className: 'px-1',
       },
       link: '/timesheet/settings/time-zone',
     },
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="h-auto w-auto pr-6 pb-6 pl-3">
+    <div className="min-h-screen bg-[#fafafa] p-3">
+      <div className="h-auto w-auto">
         <PageHeader
           title="Settings"
           description="Settings for timesheet management"
         ></PageHeader>
 
-        <div className="flex flex-col lg:flex-row gap-6 mt-8 ">
+        <div className="flex flex-col lg:flex-row gap-6 mt-3 ">
           <SidebarMenu menuItems={menuItems} />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto ">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0 ">
             {children}
           </BlockWrapper>
         </div>
