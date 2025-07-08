@@ -6,8 +6,8 @@ import CustomButton from '@/components/common/buttons/customButton';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { FaPlus } from 'react-icons/fa';
 import { Button, Tooltip } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
 
-// Define prop types for tabLandingLayout
 interface TabLandingLayoutProps {
   title: string | any;
   subtitle?: string | any;
@@ -21,6 +21,7 @@ interface TabLandingLayoutProps {
   disabledMessage?: string;
   buttonDisabled?: boolean;
   handleSearchChange?: () => void;
+  permissionsData?: string[];
 }
 
 const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
@@ -33,22 +34,25 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   disabledMessage,
   buttonDisabled = false,
   children,
+  permissionsData = [],
 }) => {
   return (
-    <div className="min-h-screen h-auto w-full p-4">
-      <BlockWrapper>
+    <div className="min-h-screen h-auto w-full bg-gray-100">
+      <BlockWrapper className="bg-gray-100 ">
         <div className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb title={title} subtitle={subtitle ?? ''} />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
             {!buttonDisabled
               ? buttonTitle && (
-                  <CustomButton
-                    title={buttonTitle}
-                    id={`${id}-createButtonId`}
-                    icon={buttonIcon ?? <FaPlus />}
-                    onClick={onClickHandler}
-                    className="text-xs bg-blue-600 hover:bg-blue-700 h-4"
-                  />
+                  <AccessGuard permissions={permissionsData}>
+                    <CustomButton
+                      title={buttonTitle}
+                      id={`${id}-createButtonId`}
+                      icon={buttonIcon ?? <FaPlus />}
+                      onClick={onClickHandler}
+                      className="text-xs bg-blue-600 hover:bg-blue-700 h-14 w-5 sm:w-auto sm:px-5 px-6 py-6"
+                    />
+                  </AccessGuard>
                 )
               : buttonTitle && (
                   <Tooltip
@@ -61,7 +65,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                       disabled
                       id={`${title}CustomButtonId`}
                       icon={buttonIcon ?? <FaPlus />}
-                      className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700 h-4`}
+                      className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700`}
                     >
                       <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
                         {buttonTitle}

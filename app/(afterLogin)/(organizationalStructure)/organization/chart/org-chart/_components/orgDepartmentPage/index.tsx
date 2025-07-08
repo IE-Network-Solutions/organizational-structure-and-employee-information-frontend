@@ -1,19 +1,13 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Menu, Dropdown, Tooltip, Modal, Avatar, Skeleton } from 'antd';
-
+import { Card, Tooltip, Modal, Avatar, Skeleton } from 'antd';
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 import DepartmentForm from '@/app/(afterLogin)/(onboarding)/onboarding/_components/departmentForm.tsx';
 import { useGetOrgChartsPeoples } from '@/store/server/features/organizationStructure/organizationalChart/query';
-import CustomButton from '@/components/common/buttons/customButton';
-import { BsThreeDotsVertical } from 'react-icons/bs';
 import { BiUser } from 'react-icons/bi';
-import CustomDrawer from '../customDrawer';
 import OrgChartSkeleton from '../../../org-structure/_components/loading/orgStructureLoading';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 interface DepartmentNodeProps {
@@ -130,73 +124,8 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible(false);
   };
 
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [drawerContent, setDrawerContent] = useState('');
-  const [footerButtonText, setFooterButtonText] = useState('');
-  const [drawTitle, setDrawTitle] = useState('');
-
-  const showDrawer = (
-    drawerContent: string,
-    footerBtnText: string,
-    title: string,
-  ) => {
-    setDrawerVisible(true);
-    setDrawerContent(drawerContent);
-    setFooterButtonText(footerBtnText);
-    setDrawTitle(title);
-  };
-
-  const closeDrawer = () => {
-    setDrawerVisible(false);
-  };
-
-  const menu = (
-    <Menu>
-      <AccessGuard permissions={[Permissions.DeleteDepartment]}>
-        <Menu.Item
-          key="1"
-          className="py-2"
-          style={{ paddingRight: '64px' }}
-          onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
-        >
-          Archive
-        </Menu.Item>
-      </AccessGuard>
-      <AccessGuard permissions={[Permissions.MergeDepartment]}>
-        <Menu.Item
-          key="2"
-          className="py-2"
-          style={{ paddingRight: '64px' }}
-          onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
-        >
-          Merge
-        </Menu.Item>
-      </AccessGuard>
-      <AccessGuard permissions={[Permissions.DissolveDepartment]}>
-        <Menu.Item
-          key="3"
-          className="py-2"
-          style={{ paddingRight: '64px' }}
-          onClick={() =>
-            showDrawer('dissolve', 'Dissove', 'Dessolve Department')
-          }
-        >
-          Dissolve
-        </Menu.Item>
-      </AccessGuard>
-    </Menu>
-  );
   return (
-    <Card
-      title={<div className="text-2xl font-bold">ORG Chart</div>}
-      extra={
-        <div className="py-4 flex justify-center items-center gap-4">
-          <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-            <CustomButton title="" icon={<BsThreeDotsVertical size={24} />} />
-          </Dropdown>
-        </div>
-      }
-    >
+    <Card className="border-none">
       <div className="w-full py-7 overflow-x-auto">
         {orgStructureLoading ? (
           <OrgChartSkeleton loading={orgStructureLoading} />
@@ -243,14 +172,6 @@ const OrgChartComponent: React.FC = () => {
           <p>Are you sure you want to delete this department?</p>
         </Modal>
       </div>
-      <CustomDrawer
-        visible={drawerVisible}
-        onClose={closeDrawer}
-        drawerContent={drawerContent}
-        footerButtonText={footerButtonText}
-        onSubmit={() => {}}
-        title={drawTitle}
-      />
     </Card>
   );
 };

@@ -22,7 +22,7 @@ import {
 } from '@/types/timesheet/settings';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -82,12 +82,13 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           <UserCard
             data={employeeData}
             name={fullName}
+            email={employeeData?.email}
             profileImage={employeeData?.profileImage}
             size="small"
           />
-          <div className="text-[10px] leading-4 text-gray-600">
+          {/* <div className="text-[10px] leading-4 text-gray-600">
             {employeeData?.email}
-          </div>
+          </div> */}
         </div>
       </div>
     ) : (
@@ -129,6 +130,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       key: 'leaveType',
       sorter: true,
       render: (text: string) => <div>{text}</div>,
+    },
+    {
+      title: 'Requested At',
+      dataIndex: 'createdAt',
     },
     {
       title: 'Attachment',
@@ -200,6 +205,10 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           startAt: item.startAt,
           endAt: item.endAt,
           days: item.days,
+          createdAt: item?.createdAt
+            ? dayjs(item?.createdAt)?.format('YYYY-MM-DD')
+            : '-',
+
           leaveType: item.leaveType
             ? typeof item.leaveType === 'string'
               ? ''
@@ -244,21 +253,24 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   return (
     <div className="mt-6">
       <LeaveManagementTableFilter onChange={onFilterChange} />
-
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={tableData}
-        loading={isFetching}
-        rowSelection={{ checkStrictly: false }}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-      />
+      <div className="flex  overflow-x-auto scrollbar-none  w-full">
+        <Table
+          className="mt-6 w-full"
+          rowClassName={() => 'h-[60px]'}
+          scroll={{ x: 'max-content' }}
+          columns={columns}
+          dataSource={tableData}
+          loading={isFetching}
+          rowSelection={{ checkStrictly: false }}
+          pagination={DefaultTablePagination(data?.meta?.totalItems)}
+          onChange={(pagination, filters, sorter: any) => {
+            setPage(pagination.current ?? 1);
+            setLimit(pagination.pageSize ?? 10);
+            setOrderDirection(sorter['order']);
+            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+          }}
+        />
+      </div>
     </div>
   );
 };

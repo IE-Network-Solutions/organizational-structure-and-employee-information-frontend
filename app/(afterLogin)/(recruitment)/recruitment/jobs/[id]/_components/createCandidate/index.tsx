@@ -50,8 +50,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
   const { data: jobList } = useGetJobs(
     searchParams?.whatYouNeed || '',
-    pageSize,
     currentPage,
+    pageSize,
   );
 
   const isInternalApplicant = useAuthenticationStore.getState().userId;
@@ -88,8 +88,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   }
 
   const createJobDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      New Candidate
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 py-6">
+      Add New Candidate
     </div>
   );
 
@@ -117,9 +117,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
 
-    createCandidate(formData);
-    setCreateJobDrawer(false);
-    form.resetFields();
+    createCandidate(formData, {
+      onSuccess: () => {
+        setCreateJobDrawer(false);
+        form.resetFields();
+      },
+    });
   };
 
   return (
@@ -128,15 +131,26 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       onClose={onClose}
       modalHeader={createJobDrawerHeader}
       width="40%"
-      footer={null}
+      footer={
+        <Form.Item>
+          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
+            <Button
+              onClick={onClose}
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => form.submit()}
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12 border-none"
+            >
+              Create
+            </Button>
+          </div>
+        </Form.Item>
+      }
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={() => {
-          handleSubmit();
-        }}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           id="fullNameId"
           name="fullName"
@@ -145,10 +159,17 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               Full-Name
             </span>
           }
-          rules={[{ required: true, message: 'Please input full name!' }]}
+          rules={[
+            { required: true, message: 'Please input full name!' },
+            {
+              pattern: /^[a-zA-Z\s]+$/,
+              message: 'Only letters and spaces are allowed!',
+            },
+          ]}
         >
           <Input placeholder="Full Name" className="w-full h-10 text-sm" />
         </Form.Item>
+
         <Row gutter={16}>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Form.Item
@@ -160,9 +181,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 </span>
               }
               rules={[
+                { required: true, message: 'Please input the email address!' },
                 {
-                  required: true,
-                  message: 'Please input the email address!',
+                  type: 'email',
+                  message: 'Please enter a valid email address!',
                 },
               ]}
             >
@@ -173,6 +195,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               />
             </Form.Item>
           </Col>
+
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
               id="phoneNumberId"
@@ -184,6 +207,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               }
               rules={[
                 { required: true, message: 'Please input the phone number!' },
+                {
+                  pattern: /^\+?[1-9]\d{1,14}$/,
+                  message: 'Please enter a valid phone number!',
+                },
               ]}
             >
               <Input
@@ -265,6 +292,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             placeholder="Please enter your cover letter here"
           />
         </Form.Item>
+
         <Form.Item
           id="documentNameId"
           name="resumeUrl"
@@ -273,9 +301,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               Upload CV
             </span>
           }
-          rules={[
-            { required: true, message: 'Please choose the document type' },
-          ]}
+          rules={[{ required: true, message: 'Please upload your CV' }]}
         >
           <Dragger
             name="documentName"
@@ -284,7 +310,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             onRemove={handleDocumentRemove}
             customRequest={customRequest}
             listType="picture"
-            accept="application/pdf"
+            accept=".pdf,.doc,.docx"
           >
             <p>
               <Image
@@ -302,26 +328,9 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </div>
           </Dragger>
         </Form.Item>
-        <div className="text-sm font-md mb-5 ">
-          Max file size : 5MB. File format : .pdf
+        <div className="text-sm font-md mb-8">
+          Max file size: 5MB. File formats: .pdf, .doc, .docx
         </div>
-
-        <Form.Item>
-          <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
-            <Button
-              onClick={onClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
-            >
-              Cancel
-            </Button>
-            <Button
-              htmlType="submit"
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
-            >
-              Create
-            </Button>
-          </div>
-        </Form.Item>
       </Form>
     </CustomDrawerLayout>
   );

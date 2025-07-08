@@ -23,6 +23,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -44,10 +45,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
   const [form] = Form.useForm();
   const { mutate: createObjective, isLoading } = useCreateObjective();
-
+  const { isMobile } = useIsMobile();
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Objective
+      {isMobile ? 'Set Objective' : 'Objective'}
     </div>
   );
 
@@ -67,7 +68,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       ...objectiveValue,
       title: objectiveTitle || '',
     });
-  }, [objectiveTitle]);
+    form.setFieldsValue({ title: objectiveTitle || '' });
+  }, [objectiveTitle, form]);
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
     setObjectiveValue(defaultObjective); // Reset the objective state
@@ -108,10 +110,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           });
           return; // Stop submission if the sum is not 100
         }
+
         if (keyResults && keyResults.length !== 0) {
           // Iterate over each keyResult to validate all milestone key types
           for (const [index, keyResult] of keyResults.entries()) {
             const keyType = keyResult?.metricType?.name || keyResult?.key_type;
+            if (
+              keyResult?.title == '' ||
+              keyResult?.title == null ||
+              keyResult?.title == undefined
+            ) {
+              NotificationMessage.warning({
+                message: `Please Enter Number ${index + 1} Key Result Name`,
+              });
+              return; // Stop submission if the sum is not 100
+            }
             if (keyType === 'Milestone') {
               // Check if at least one milestone is added
               if (!keyResult.milestones || keyResult.milestones.length === 0) {
@@ -176,15 +189,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         // Validation failed
       });
   };
-  useEffect(() => {
-    if (objectiveValue) {
-      form.setFieldsValue(objectiveValue); // Set form fields with appType values
-    } else {
-      form.resetFields(); // Reset form if appType is null
-    }
-  }, [objectiveValue, form]);
+
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-2">
+    <div className="w-full flex justify-center items-center  pt-2  bottom-8  space-x-5 ">
       <CustomButton
         id="cancel-button"
         type="default"
@@ -203,11 +210,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   );
   return (
     <CustomDrawerLayout
-      open={props?.open}
+      open={props.open}
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
-      width={'50%'}
+      width={isMobile ? '100%' : '50%'}
       paddingBottom={10}
     >
       <Form
@@ -215,21 +222,25 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         form={form}
         layout="vertical"
         initialValues={objectiveValue}
+        className="w-full"
       >
-        <Checkbox checked={alignment} onChange={() => handleAlignment()}>
-          Change Objective Name
-        </Checkbox>
-        <Row gutter={[16, 16]} className="w-full">
-          {/* Objective/Alignment */}
+        <Row gutter={[16, isMobile ? 12 : 16]} className="w-full">
+          {!isMobile && (
+            <Col xs={24} sm={12} md={16}>
+              <Checkbox checked={alignment} onChange={() => handleAlignment()}>
+                Change Objective Name
+              </Checkbox>
+            </Col>
+          )}
           <Col xs={24} sm={12} md={16}>
             <Form.Item
               id="alignment-select"
-              className="font-bold text-xs w-full mb-2"
+              className="font-bold"
               name="allignedKeyResultId"
               label="Supervisor Key Result"
               rules={[
                 {
-                  required: !reportsToId ? true : false,
+                  required: reportsToId ? true : false,
                   message: 'Please enter the Objective name',
                 },
               ]}
@@ -239,14 +250,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 showSearch
                 placeholder="Search and select a Key Result"
                 value={objectiveValue?.allignedKeyResultId}
-                onChange={
-                  (value) => handleObjectiveChange(value, 'allignedKeyResultId') // Pass the value (id) as alignment ID
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'allignedKeyResultId')
                 }
                 filterOption={(input: string, option: any) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
                 }
+                style={{ fontSize: isMobile ? '14px' : '12px' }}
               >
-                {keyResultByUser?.items.map((keyResult) => (
+                {keyResultByUser?.items.map((keyResult: any) => (
                   <Select.Option key={keyResult.id} value={keyResult.id}>
                     {keyResult.title}
                   </Select.Option>
@@ -255,11 +267,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             </Form.Item>
           </Col>
 
-          {/* Objective Deadline */}
           <Col xs={24} sm={12} md={8}>
             <Form.Item
               id="deadline-picker"
-              className="font-bold text-xs w-full mb-2"
+              className="font-bold"
               name="ObjectiveDeadline"
               label="Objective Deadline"
               rules={[{ required: true, message: 'Please select a deadline' }]}
@@ -279,16 +290,16 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 disabledDate={(current) =>
                   current && current < dayjs().startOf('day')
                 }
+                style={{ fontSize: isMobile ? '14px' : '12px' }}
               />
             </Form.Item>
           </Col>
 
-          {/* Supervisor Key Result (Visible Only When Alignment is True) */}
           {alignment && (
             <Col xs={24} sm={24} md={16}>
               <Form.Item
                 id="title-input"
-                className="font-bold text-xs w-full"
+                className="font-bold"
                 name="title"
                 label="Objective Title"
                 rules={[
@@ -301,25 +312,34 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 <Input
                   id="title-input-field"
                   allowClear
-                  value={objectiveValue?.title || ''}
                   onChange={(e) => {
                     handleObjectiveChange(e.target.value, 'title');
                   }}
+                  style={{ fontSize: isMobile ? '14px' : '12px' }}
                 />
               </Form.Item>
             </Col>
           )}
         </Row>
 
-        <div className="border border-gray-300 rounded-lg p-4 mt-5 ">
-          <div className="flex justify-between items-center">
-            <p className="font-bold text-xs h-6">Set Key Result</p>
+        <div
+          className={`rounded-lg mt-5 w-full ${
+            isMobile ? '' : 'border border-gray-300'
+          }`}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <p className={`font-bold ${isMobile ? 'text-sm' : 'text-xs'} h-6`}>
+              Set Key Result
+            </p>
             <Button
               id="add-keyresult-button"
-              disabled={objective?.keyResults?.length == 1}
+              disabled={objective?.keyResults?.length === 1}
               onClick={addKeyResult}
-              className="border-none shadow-none bg-none text-xs"
-              icon={<GoPlus size={16} />}
+              className={`border-none shadow-none bg-none flex items-center ${
+                isMobile ? 'text-sm' : 'text-xs'
+              }`}
+              icon={<GoPlus size={isMobile ? 18 : 16} />}
+              aria-label="Add Key Result"
             >
               Add Key Result
             </Button>
@@ -346,6 +366,23 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           ))}
         </div>
       </Form>
+
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .ant-form-item-label > label {
+            font-size: 14px !important;
+          }
+          .ant-input,
+          .ant-select-selector,
+          .ant-picker {
+            height: 40px !important;
+            border-radius: 6px !important;
+          }
+          .ant-btn {
+            border-radius: 6px !important;
+          }
+        }
+      `}</style>
     </CustomDrawerLayout>
   );
 };

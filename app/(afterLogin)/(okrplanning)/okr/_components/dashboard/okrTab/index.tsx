@@ -1,6 +1,6 @@
 'use client';
-import { Pagination, Spin, Tabs } from 'antd';
-import React from 'react';
+import { Spin, Tabs } from 'antd';
+import React, { useEffect, useState } from 'react';
 import ObjectiveCard from '../objectivecard';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
@@ -15,16 +15,22 @@ import { EmptyImage } from '@/components/emptyIndicator';
 import OkrProgress from '../okrprogress';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import EmployeeOKRTable from '../EmployeeOkr';
+import CustomPagination from '@/components/customPagination';
+import dynamic from 'next/dynamic';
+
+// Dynamically import Tabs with no SSR to avoid hydration issues
+const DynamicTabs = dynamic(() => Promise.resolve(Tabs), { ssr: false });
 
 export default function OkrTab() {
-  const { TabPane } = Tabs;
+  const [isMounted, setIsMounted] = useState(false);
   const { userId } = useAuthenticationStore();
-  const { data: departments } = useGetUserDepartment();
+  // const { data: departments } = useGetUserDepartment();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
   const departmentId = userData?.employeeJobInformation[0]?.departmentId;
   const users =
-    departments
+    departmentUsers
       ?.find((i: any) => i.id === departmentId)
       ?.users?.map((user: any) => user.id) || [];
 
@@ -49,28 +55,39 @@ export default function OkrTab() {
       ?.find((i: any) => i.id == searchObjParams?.departmentId)
       ?.users?.map((user: any) => user.id) || [];
 
-  const { data: userObjectives, isLoading } = useGetUserObjective(
+  const {
+    data: userObjectives,
+    isLoading,
+    refetch: userRefetch,
+  } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
     searchObjParams?.metricTypeId,
   );
-  const { data: teamObjective, isLoading: teamLoading } = useGetTeamObjective(
+  const {
+    data: teamObjective,
+    isLoading: teamLoading,
+    refetch,
+  } = useGetTeamObjective(
     teamPageSize,
     teamCurrentPage,
     users,
     searchObjParams.userId,
     searchObjParams?.metricTypeId,
   );
-  const { data: companyObjective, isLoading: companyLoading } =
-    useGetCompanyObjective(
-      userId,
-      companyPageSize,
-      companyCurrentPage,
-      usersInDepartment,
-      searchObjParams.userId,
-      searchObjParams?.metricTypeId,
-    );
+  const {
+    data: companyObjective,
+    isLoading: companyLoading,
+    refetch: CompanyRefetch,
+  } = useGetCompanyObjective(
+    userId,
+    companyPageSize,
+    companyCurrentPage,
+    usersInDepartment,
+    searchObjParams.userId,
+    searchObjParams?.metricTypeId,
+  );
 
   const canVieTeamOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewTeamOkr],
@@ -79,123 +96,197 @@ export default function OkrTab() {
     permissions: [Permissions.ViewCompanyOkr],
   });
 
-  const onPageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      userRefetch();
     }
-  };
-  const onTeamPageChange = (page: number, pageSize?: number) => {
-    setTeamCurrentPage(page);
-    if (pageSize) {
-      setTeamPageSize(pageSize);
+  }, [pageSize, currentPage, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
+      refetch();
     }
-  };
-  const onCompanyPageChange = (page: number, pageSize?: number) => {
-    setCompanyCurrentPage(page);
-    if (pageSize) {
-      setCompanyPageSize(pageSize);
+  }, [teamPageSize, teamCurrentPage, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
+      CompanyRefetch();
     }
-  };
+  }, [companyPageSize, companyCurrentPage, isMounted]);
+
+  // Return null or loading state during SSR
+  if (!isMounted) {
+    return (
+      <div className="mt-6 flex justify-center items-center min-h-[200px]">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div className="mt-6">
-      <Tabs defaultActiveKey="1" onChange={(key) => setOkrTab(key)}>
-        <TabPane tab="My OKR" key={1}>
-          <OkrProgress />
-          {isLoading && (
-            <Spin
-              size="large"
-              style={{ color: 'white' }}
-              className="text-white text-center flex w-full justify-center"
-            />
-          )}
-          {userObjectives?.items?.length !== 0 ? (
-            <>
-              {userObjectives?.items?.map((obj: any) => (
-                <ObjectiveCard key={obj.id} myOkr={true} objective={obj} />
-              ))}
-              <Pagination
-                total={userObjectives?.meta?.totalItems}
-                current={userObjectives?.meta?.currentPage}
-                pageSize={pageSize}
-                onChange={onPageChange}
-                showSizeChanger={true}
-                onShowSizeChange={onPageChange}
-                pageSizeOptions={['5', '10', '20', '50', '100']}
-              />
-            </>
-          ) : (
-            <div className="flex justify-center">
-              <EmptyImage />
-            </div>
-          )}
-        </TabPane>
-        {canVieTeamOkr && (
-          <TabPane tab="Team OKR" key={2}>
-            <OkrProgress />
-            {teamLoading && (
-              <Spin
-                size="large"
-                style={{ color: 'white' }}
-                className="text-white text-center flex w-full justify-center"
-              />
-            )}
-            {teamObjective?.items?.length !== 0 ? (
-              <>
-                {teamObjective?.items?.map((obj: any) => (
-                  <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
-                ))}
-                <Pagination
-                  total={teamObjective?.meta?.totalItems}
-                  current={teamObjective?.meta?.currentPage}
-                  pageSize={teamPageSize}
-                  onChange={onTeamPageChange}
-                  showSizeChanger={true}
-                  onShowSizeChange={onTeamPageChange}
-                  pageSizeOptions={['5', '10', '20', '50', '100']}
-                />
-              </>
-            ) : (
-              <div className="flex justify-center">
-                <EmptyImage />
+      <DynamicTabs
+        defaultActiveKey="1"
+        onChange={(key) => setOkrTab(key)}
+        items={[
+          {
+            key: '1',
+            label: 'My OKR',
+            children: (
+              <div>
+                <OkrProgress />
+                {isLoading && (
+                  <Spin
+                    size="large"
+                    style={{ color: 'white' }}
+                    className="text-white text-center flex w-full justify-center"
+                  />
+                )}
+                {userObjectives?.items?.length !== 0 && (
+                  <div>
+                    {userObjectives?.items?.map((obj: any) => (
+                      <ObjectiveCard
+                        key={obj.id}
+                        myOkr={true}
+                        objective={obj}
+                      />
+                    ))}
+                    <CustomPagination
+                      current={userObjectives?.meta?.currentPage || 1}
+                      total={userObjectives?.meta?.totalItems || 1}
+                      pageSize={pageSize}
+                      onChange={(page, pageSize) => {
+                        setCurrentPage(page);
+                        setPageSize(pageSize);
+                      }}
+                      onShowSizeChange={(size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                      }}
+                    />
+                  </div>
+                )}
+                {userObjectives?.items?.length === 0 && (
+                  <div className="flex justify-center">
+                    <EmptyImage />
+                  </div>
+                )}
               </div>
-            )}
-          </TabPane>
-        )}
-        {canVieCompanyOkr && (
-          <TabPane tab="Company OKR" key={3}>
-            <OkrProgress />
-            {companyLoading && (
-              <Spin
-                size="large"
-                style={{ color: 'white' }}
-                className="text-white text-center flex w-full justify-center"
-              />
-            )}
-            {companyObjective?.items?.length !== 0 ? (
-              <>
-                {companyObjective?.items?.map((obj: any) => (
-                  <ObjectiveCard key={obj.id} myOkr={false} objective={obj} />
-                ))}
-
-                <Pagination
-                  total={companyObjective?.meta?.totalItems}
-                  current={companyObjective?.meta?.currentPage}
-                  pageSize={companyPageSize}
-                  onChange={onCompanyPageChange}
-                  showSizeChanger={true}
-                  onShowSizeChange={onCompanyPageChange}
-                  pageSizeOptions={['5', '10', '20', '50', '100']}
-                />
-              </>
-            ) : (
-              <div className="flex justify-center">
-                <EmptyImage />
-              </div>
-            )}
-          </TabPane>
-        )}
-      </Tabs>
+            ),
+          },
+          ...(canVieTeamOkr
+            ? [
+                {
+                  key: '2',
+                  label: 'Team OKR',
+                  children: (
+                    <div>
+                      <OkrProgress />
+                      {teamLoading && (
+                        <Spin
+                          size="large"
+                          style={{ color: 'white' }}
+                          className="text-white text-center flex w-full justify-center"
+                        />
+                      )}
+                      {teamObjective?.items?.length !== 0 && (
+                        <div>
+                          {teamObjective?.items?.map((obj: any) => (
+                            <ObjectiveCard
+                              key={obj.id}
+                              myOkr={false}
+                              objective={obj}
+                            />
+                          ))}
+                          <CustomPagination
+                            current={teamObjective?.meta?.currentPage || 1}
+                            total={teamObjective?.meta?.totalItems || 1}
+                            pageSize={teamPageSize}
+                            onChange={(page, pageSize) => {
+                              setTeamCurrentPage(page);
+                              setTeamPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setTeamPageSize(size);
+                              setTeamCurrentPage(1);
+                            }}
+                          />
+                        </div>
+                      )}
+                      {teamObjective?.items?.length === 0 && (
+                        <div className="flex justify-center">
+                          <EmptyImage />
+                        </div>
+                      )}
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+          ...(canVieCompanyOkr
+            ? [
+                {
+                  key: '3',
+                  label: 'Company OKR',
+                  children: (
+                    <div>
+                      {companyLoading && (
+                        <Spin
+                          size="large"
+                          style={{ color: 'white' }}
+                          className="text-white text-center flex w-full justify-center"
+                        />
+                      )}
+                      <OkrProgress />
+                      {companyObjective?.items?.length !== 0 && (
+                        <div>
+                          {companyObjective?.items?.map((obj: any) => (
+                            <ObjectiveCard
+                              key={obj.id}
+                              myOkr={false}
+                              objective={obj}
+                            />
+                          ))}
+                          <CustomPagination
+                            current={companyObjective?.meta?.currentPage || 1}
+                            total={companyObjective?.meta?.totalItems || 1}
+                            pageSize={companyPageSize}
+                            onChange={(page, pageSize) => {
+                              setCompanyCurrentPage(page);
+                              setCompanyPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setCompanyPageSize(size);
+                              setCompanyCurrentPage(1);
+                            }}
+                          />
+                        </div>
+                      )}
+                      {companyObjective?.items?.length === 0 && (
+                        <div className="flex justify-center">
+                          <EmptyImage />
+                        </div>
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  key: '4',
+                  label: 'All Employee OKR',
+                  children: (
+                    <div>
+                      <EmployeeOKRTable />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+        ]}
+      />
     </div>
   );
 }

@@ -167,7 +167,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                 <Button
                                   id="plan-milestone-as-task"
                                   disabled={
-                                    statuses[ml?.id] || // Check from Zustand store
+                                    statuses[ml?.id] ||
                                     ml?.status === 'Completed' ||
                                     form?.getFieldValue(
                                       `names-${kr?.id + ml?.id}`,
@@ -214,6 +214,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               isMKAsTask={!!mkAsATask}
                               keyResult={kr}
                             />
+
                             <BoardCardForm
                               form={form}
                               handleAddName={handleAddName}
@@ -221,7 +222,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               handleRemoveBoard={handleRemoveBoard}
                               kId={kr?.id}
                               hideTargetValue={hasTargetValue}
-                              name={kr?.id + ml?.id}
+                              name={kr?.id + ml.id}
                               isMKAsTask={!!mkAsATask}
                               keyResult={kr}
                             />

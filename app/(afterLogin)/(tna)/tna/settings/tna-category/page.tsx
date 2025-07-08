@@ -1,15 +1,13 @@
 'use client';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
-import CustomButton from '@/components/common/buttons/customButton';
-import { LuPlus } from 'react-icons/lu';
 import React, { useEffect } from 'react';
 import TnaCategoryCard from './_components/categoryCard';
 import TnaCategorySidebar from './_components/categorySidebar';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
-import { Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const TnaCategoryPage = () => {
   const { isShowTnaCategorySidebar, setIsShowTnaCategorySidebar } =
@@ -23,21 +21,23 @@ const TnaCategoryPage = () => {
   }, [isShowTnaCategorySidebar]);
 
   return (
-    <>
-      <PageHeader title="TNA Category" size="small">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-lg text-bold">TNA Category</h1>
         <AccessGuard permissions={[Permissions.CreateTnaCategory]}>
-          <CustomButton
+          <Button
             id="tnaNewCategoryButtonId"
-            title="New Category"
-            icon={<LuPlus size={18} />}
+            icon={<FaPlus />}
             type="primary"
             size="large"
             onClick={() => {
               setIsShowTnaCategorySidebar(true);
             }}
-          />
+          >
+            <span className="hidden lg:inline">New Category</span>
+          </Button>
         </AccessGuard>
-      </PageHeader>
+      </div>
 
       <Spin spinning={isFetching}>
         {data?.items ? (
@@ -50,7 +50,7 @@ const TnaCategoryPage = () => {
       </Spin>
 
       <TnaCategorySidebar />
-    </>
+    </div>
   );
 };
 

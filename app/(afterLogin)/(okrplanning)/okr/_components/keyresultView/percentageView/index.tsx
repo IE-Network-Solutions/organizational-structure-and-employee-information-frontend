@@ -5,6 +5,7 @@ import { VscClose } from 'react-icons/vsc';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const {
@@ -30,6 +31,8 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
 
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+  const { isMobile } = useIsMobile();
   return (
     <div
       className="py-4 border-b-[1px] border-gray-300"
@@ -44,6 +47,21 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             label={keyValue.key_type == 'Percentage' && 'Percentage'}
             className="w-full font-bold"
+            rules={[
+              {
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (_, value) => {
+                  /* eslint-enable @typescript-eslint/naming-convention */
+                  if (!value) {
+                    return Promise.reject(
+                      new Error('Milestone title is required'),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            validateTrigger="onBlur"
           >
             <Input
               id={`key-result-title-${index}`}
@@ -52,6 +70,11 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 handleChange(e.target.value, 'title');
               }}
             />
+            {!keyValue.title && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Milestone title is required
+              </div>
+            )}
           </Form.Item>
           <Form.Item className="w-24 font-bold" label="Weight">
             <InputNumber
@@ -77,6 +100,7 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                     ? handleKeyResultDelete(keyValue?.id)
                     : removeKeyResultValue(index)
                 }
+                disabled={isEditDisabled}
               />
             </Tooltip>
           </div>
@@ -127,8 +151,9 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
-            label="Deadline"
+            label={isMobile ? undefined : 'Deadline'}
           >
+            {isMobile && <span className="text-sm font-bold">Deadline</span>}
             <DatePicker
               id={`key-result-deadline-${index}`}
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -147,6 +172,11 @@ const PercentageView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 );
               }}
             />
+            {!keyValue.deadline && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Deadline is required
+              </div>
+            )}
           </Form.Item>
         </div>
       </Form>

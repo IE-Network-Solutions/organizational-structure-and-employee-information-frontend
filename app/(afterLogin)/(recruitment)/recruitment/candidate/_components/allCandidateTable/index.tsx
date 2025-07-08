@@ -11,8 +11,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { IoIosArrowForward } from 'react-icons/io';
-import { FileDown } from 'lucide-react';
 import CandidateDetail from '../../../jobs/[id]/_components/candidateDetail/page';
 import DeleteCandidate from '../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../_components/modals/editCandidate';
@@ -21,6 +19,10 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import RecruitmentPagination from '../../../_components';
+import { FaLinkedin } from 'react-icons/fa';
+import { SiGmail } from 'react-icons/si';
+import { TableRowSelection } from 'antd/es/table/interface';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -47,6 +49,15 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'candidateName',
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
     },
+    // {
+    //   title: 'AI score',
+    //   dataIndex: 'score',
+    //   render: () => (
+    //     <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
+    //       90%
+    //     </span>
+    //   ),
+    // },
     {
       title: 'Phone Number',
       dataIndex: 'phoneNumber',
@@ -58,7 +69,7 @@ const AllCandidateTable: React.FC = () => {
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
     },
     {
-      title: 'Internal/External',
+      title: 'Internal/ External',
       dataIndex: 'internal_external',
       sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
     },
@@ -67,8 +78,17 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'cv',
     },
     {
-      title: 'Created Date',
+      title: 'Applied/ Created Date',
       dataIndex: 'createdAt',
+    },
+    {
+      title: 'Date of Graduation',
+      dataIndex: 'graduateYear',
+    },
+
+    {
+      title: 'Social profile',
+      dataIndex: 'LinkedInURL',
     },
     {
       title: 'Stages',
@@ -92,7 +112,8 @@ const AllCandidateTable: React.FC = () => {
     setEditCandidate,
     setDeleteCandidateId,
     setDeleteCandidateModal,
-    setMoveToTalentPoolModal,
+    selectedRowKeys,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const { data: candidateList, isLoading: isResponseLoading } =
@@ -112,10 +133,7 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const handleMenuClick = (key: string, candidate: any) => {
-    if (key === 'moveToTalentPool') {
-      setMoveToTalentPoolModal(true);
-      setSelectedCandidate(candidate);
-    } else if (key === 'edit') {
+    if (key === 'edit') {
       setEditCandidate(candidate);
       setEditCandidateModal(true);
       setSelectedCandidateID(candidate?.id);
@@ -132,27 +150,7 @@ const AllCandidateTable: React.FC = () => {
   };
 
   const data = candidateList?.items?.map((item: any, index: any) => {
-    const handleDownload = () => {
-      const link = document.createElement('a');
-      link.href = item?.resumeUrl;
-      link.download = item?.documentName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
-
     const items = [
-      {
-        key: 'moveToTalentPool',
-        label: (
-          <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
-            Move to Talent Pool
-            <IoIosArrowForward size={12} />
-          </div>
-        ),
-        onClick: () => handleMenuClick('moveToTalentPool', item),
-        permissions: [Permissions.TransferCandidate],
-      },
       {
         key: 'edit',
         label: 'Edit',
@@ -174,6 +172,7 @@ const AllCandidateTable: React.FC = () => {
 
     return {
       key: index,
+      id: item.id,
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
@@ -181,29 +180,48 @@ const AllCandidateTable: React.FC = () => {
         item?.jobCandidate?.isExternalApplicant === false
           ? 'External'
           : 'Internal',
+
       cv: (
-        <div className="flex items-center justify-between">
-          <span
-            className="text-xs font-semibold cursor-pointer"
-            title={item?.documentName ?? 'CV.pdf'}
+        <a
+          href={item?.resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-semibold cursor-pointer flex items-center gap-2"
+          title={item?.documentName ?? 'CV.pdf'}
+        >
+          {item?.documentName?.length > 8
+            ? `${item.documentName.slice(0, 8)}...`
+            : (item?.documentName ?? 'CV.pdf')}
+        </a>
+      ),
+
+      createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
+      graduateYear: item?.graduateYear
+        ? dayjs(item.graduateYear).format('DD MMMM YYYY')
+        : '--',
+      LinkedInURL: (
+        <div className="flex justify-around">
+          <a
+            href={item?.LinkedInURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="LinkedIn"
           >
-            {item?.documentName?.length > 8
-              ? `${item.documentName.slice(0, 8)}...`
-              : (item?.documentName ?? 'CV.pdf')}{' '}
-          </span>
-          <div className="cursor-pointer" onClick={handleDownload}>
-            <FileDown size={20} strokeWidth={1.25} />
-          </div>
+            <FaLinkedin size={20} />
+          </a>
+          <a href={item?.email} title="Email">
+            <SiGmail size={20} />
+          </a>
         </div>
       ),
-      createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
         <div>
           <Select
             defaultValue={item?.jobCandidate?.map(
               (e: any) => e?.applicantStatusStage?.title ?? '--',
             )}
-            style={{ width: 120 }}
+            // style={{ width: 120 }}
+            className="w-full"
             onChange={(value) =>
               handleStageChange(
                 value,
@@ -224,7 +242,7 @@ const AllCandidateTable: React.FC = () => {
           <Button
             id={`editUserButton${item?.id}`}
             disabled={item?.deletedAt !== null}
-            className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
+            className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
             onClick={() => handleCandidateDetail(item)}
           >
             <FaEye />
@@ -246,22 +264,35 @@ const AllCandidateTable: React.FC = () => {
       ),
     };
   });
+
+  const rowSelection: TableRowSelection<CandidateData> = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+      setSelectedCandidate(
+        candidateList?.items?.filter((item: CandidateData) =>
+          selectedRows.some((row: CandidateData) => row.id === item.id),
+        ) || [],
+      );
+    },
+  };
+
   return (
     <div>
       <Table
         className="w-full"
         columns={columns}
         dataSource={data}
-        pagination={{
-          total: candidateList?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
+        rowSelection={rowSelection} // Enable selection
+      />
+      <RecruitmentPagination
+        current={currentPage}
+        total={candidateList?.meta?.totalItems ?? 1}
+        pageSize={pageSize}
+        onChange={onPageChange}
+        onShowSizeChange={onPageChange}
       />
       <CandidateDetail />
       <DeleteCandidate />

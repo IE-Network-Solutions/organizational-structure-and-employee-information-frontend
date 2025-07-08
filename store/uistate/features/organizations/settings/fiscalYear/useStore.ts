@@ -31,7 +31,7 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   setEditMode: (isEdit: any) => set({ isEditMode: isEdit }),
   setSelectedFiscalYear: (fiscalYear: any) =>
     set({ selectedFiscalYear: fiscalYear }),
-  setDeleteMode: (isDelete) => set({ isDeleteMode: isDelete }),
+  setDeleteMode: (isDelete: boolean) => set({ isDeleteMode: isDelete }),
   setCurrent: (value: number) => set({ current: value }),
   formData: {},
   setFormData: (newData) =>
@@ -43,6 +43,10 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   fiscalYearStart: null,
   setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
   clearFormData: () => set({ formData: {} }),
+
+  isOpenfiscalYearDrawer: false,
+  setIsOpenFiscalYearDrawer: (isOpenfiscalYearDrawer: boolean) =>
+    set({ isOpenfiscalYearDrawer }),
 
   sessionData: [],
   setSessionData: (value: any[]) => set({ sessionData: value }),
@@ -64,4 +68,8 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
         ? { monthRangeValues: newData }
         : state,
     ),
+
+  openfiscalYearDrawer: false,
+  setOpenFiscalYearDrawer: (value: boolean) =>
+    set({ openfiscalYearDrawer: value }),
 }));

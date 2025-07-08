@@ -8,9 +8,17 @@ import EmploymentStats from './_components/employee-status';
 import JobSummary from './_components/job-summary';
 import { Applicants } from './_components/applicants';
 import AccessGuard from '@/utils/permissionGuard';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { Skeleton } from 'antd';
 
 export default function Home() {
-  return (
+  const { data: activeCalender, isLoading: isResponseLoading } =
+    useGetActiveFiscalYears();
+
+  const hasEndedFiscalYear =
+    activeCalender?.isActive && new Date(activeCalender?.endDate) < new Date();
+
+  const mainLayout = (
     <div className="min-h-screen bg-gray-100 p-4">
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -43,18 +51,33 @@ export default function Home() {
 
             {/* Course Permitted and Applicants */}
             <div className="col-span-12 xl:col-span-4">
-              <div className="">
-                <AccessGuard roles={['user']}>
-                  <CoursePermitted />
-                </AccessGuard>
-                <AccessGuard roles={['admin', 'owner']}>
-                  <Applicants />
-                </AccessGuard>
-              </div>
+              <AccessGuard roles={['user']}>
+                <CoursePermitted />
+              </AccessGuard>
+              <AccessGuard roles={['admin', 'owner']}>
+                <Applicants />
+              </AccessGuard>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
+      {hasEndedFiscalYear && (
+        <div className="bg-[#323B49] p-2 rounded-lg my-2 h-12 flex items-center justify-start text-lg">
+          <span className="text-[#FFDE65] px-2">
+            Your fiscal year has ended
+          </span>
+          <span className="text-white">
+            Please contact your system admin for more information
+          </span>
+        </div>
+      )}
+      {mainLayout}
+    </>
   );
 }

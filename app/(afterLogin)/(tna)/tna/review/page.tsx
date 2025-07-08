@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
-import { Button, DatePicker, Space, Table } from 'antd';
+import { Button, DatePicker, Modal, Space, Table } from 'antd';
 import { DATE_FORMAT } from '@/utils/constants';
-import { LuPlus } from 'react-icons/lu';
+import { LuPlus, LuSettings2 } from 'react-icons/lu';
 import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
@@ -16,7 +16,6 @@ import TnaRequestSidebar from '@/app/(afterLogin)/(tna)/tna/review/_components/t
 import { useRouter } from 'next/navigation';
 import { useGetTna } from '@/store/server/features/tna/review/queries';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
 import { TnaRequestBody } from '@/store/server/features/tna/review/interface';
 import {
   TrainingNeedAssessment,
@@ -33,8 +32,39 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import UserCard from '@/components/common/userCard/userCard';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import TnaApprovalTable from './_components/approvalTabel';
+import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
 const TnaReviewPage = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (searchValues: any) => {
+    const queryParams = new URLSearchParams();
+
+    if (searchValues?.sessionId) {
+      queryParams.append('sessionId', searchValues.sessionId);
+    }
+    if (searchValues?.yearId) {
+      queryParams.append('yearId', searchValues.yearId);
+    }
+    if (searchValues?.currencyId) {
+      queryParams.append('currencyId', searchValues.currencyId);
+    }
+    if (searchValues?.departmentId) {
+      queryParams.append('departmentId', searchValues.departmentId);
+    }
+    if (searchValues?.monthId) {
+      queryParams.append('monthId', searchValues.monthId);
+    }
+
+    const searchParams = queryParams.toString()
+      ? `?${queryParams.toString()}`
+      : '';
+    setSearchQuery(searchParams);
+    refetch();
+  };
+
   const EmpRender = ({ userId }: any) => {
     const {
       isLoading,
@@ -66,8 +96,14 @@ const TnaReviewPage = () => {
   };
   const router = useRouter();
   const [tableData, setTableData] = useState<any[]>([]);
-  const { isShowTnaReviewSidebar, setIsShowTnaReviewSidebar, setTnaId } =
-    useTnaReviewStore();
+  const {
+    isShowTnaReviewSidebar,
+    setIsShowTnaReviewSidebar,
+    setTnaId,
+    currentPage,
+    setCurrentPage,
+    loading,
+  } = useTnaReviewStore();
   const {
     page,
     limit,
@@ -82,6 +118,7 @@ const TnaReviewPage = () => {
   const { data, isLoading, refetch } = useGetTna(
     { page, limit, orderBy, orderDirection },
     { filter },
+    searchQuery,
   );
 
   const {
@@ -89,6 +126,8 @@ const TnaReviewPage = () => {
     isLoading: isLoadingDelete,
     isSuccess,
   } = useDeleteTna();
+  const { isFilterModalOpen, setIsFilterModalOpen } = useEmployeeStore();
+  const { isMobile } = useIsMobile();
 
   useEffect(() => {
     if (isSuccess) {
@@ -109,6 +148,7 @@ const TnaReviewPage = () => {
           key: item.id,
           title: item.title,
           createdBy: item.assignedUserId,
+          trainingPrice: item.trainingPrice,
           completedAt: item.completedAt,
           attachment: item.trainingProofs,
           status: item.status,
@@ -118,6 +158,7 @@ const TnaReviewPage = () => {
       );
     }
   }, [data]);
+  <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />;
 
   const tableColumns: TableColumnsType<any> = [
     {
@@ -133,6 +174,13 @@ const TnaReviewPage = () => {
       key: 'createdBy',
       sorter: true,
       render: (text: string) => <EmpRender userId={text} />,
+    },
+    {
+      title: 'price',
+      dataIndex: 'trainingPrice',
+      key: 'trainingPrice',
+      sorter: true,
+      render: (text: string) => <div>{text}</div>,
     },
     {
       title: 'Completed Date',
@@ -241,11 +289,11 @@ const TnaReviewPage = () => {
   ];
 
   return (
-    <div className="page-wrap">
+    <div className="page-wrap bg-gray-100">
       <TnaApprovalTable />
       <BlockWrapper>
         <PageHeader title="TNA">
-          <Space size={20}>
+          <Space size={16}>
             <DatePicker.RangePicker
               format={DATE_FORMAT}
               separator="-"
@@ -263,33 +311,94 @@ const TnaReviewPage = () => {
                 );
               }}
             />
+            {isMobile && (
+              <div className="flex justify-between items-center gap-4">
+                <Button
+                  className="p-6 mr-2 border border-gray-300"
+                  onClick={() => setIsFilterModalOpen(true)}
+                  icon={<LuSettings2 size={20} />}
+                />
+              </div>
+            )}
             <AccessGuard permissions={[Permissions.CreateTna]}>
               <Button
-                icon={<LuPlus size={16} />}
-                className="h-[54px]"
+                icon={<LuPlus size={20} />}
+                className="h-[50px] w-[50px] sm:w-full"
                 type="primary"
                 size="large"
                 onClick={() => setIsShowTnaReviewSidebar(true)}
               >
-                New TNA
+                {!isMobile && <span>New TNA</span>}
               </Button>
             </AccessGuard>
           </Space>
         </PageHeader>
+        {!isMobile && (
+          <Filters
+            onSearch={handleSearch}
+            disable={['name', 'payPeriod', 'department']}
+          />
+        )}
+        {isFilterModalOpen && (
+          <Modal
+            title="Filters"
+            open={isFilterModalOpen}
+            onCancel={() => setIsFilterModalOpen(false)}
+            footer={
+              <div className="flex justify-center gap-4">
+                <Button
+                  key="cancel"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setIsFilterModalOpen(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  key="filter"
+                  type="primary"
+                  onClick={() => setIsFilterModalOpen(false)}
+                  className="text-white bg-blue border-none"
+                  loading={loading}
+                >
+                  Filter
+                </Button>
+              </div>
+            }
+            width={isMobile ? '90%' : '50%'}
+          >
+            <Filters
+              onSearch={handleSearch}
+              disable={['name', 'payPeriod', 'department']}
+              oneRow={false}
+            />
+          </Modal>
+        )}
 
-        <Table
-          className="mt-6"
-          columns={tableColumns}
-          dataSource={tableData}
-          loading={isLoading || isLoadingDelete}
-          pagination={defaultTablePagination(data?.meta?.totalItems)}
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 10);
-            setOrderDirection(sorter['order']);
-            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-          }}
-        />
+        <div className="flex  overflow-x-auto scrollbar-none  w-full ">
+          <Table
+            className="mt-6 w-full"
+            rowClassName={() => 'h-[60px]'}
+            scroll={{ x: 'max-content' }}
+            columns={tableColumns}
+            dataSource={tableData}
+            loading={isLoading || isLoadingDelete}
+            pagination={{
+              current: currentPage,
+              pageSize: 6,
+              onChange: setCurrentPage,
+              simple: isMobile,
+              position: isMobile ? ['bottomLeft'] : ['bottomRight'],
+            }}
+            onChange={(pagination, filters, sorter: any) => {
+              setPage(pagination.current ?? 1);
+              setLimit(pagination.pageSize ?? 10);
+              setOrderDirection(sorter['order']);
+              setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+            }}
+          />
+        </div>
       </BlockWrapper>
 
       <TnaRequestSidebar />

@@ -1,6 +1,5 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
-import { CiCalendarDate } from 'react-icons/ci';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import SidebarMenu from '@/components/sidebarMenu';
@@ -24,10 +23,11 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         filteredData?.map((allowance: any) => ({
           item: {
             key: allowance.id,
-            icon: <CiCalendarDate />,
             label: (
-              <p className="menu-item-label">
-                {allowance.name || 'Unnamed Allowance'}
+              <p title={allowance.name} className="menu-item-label">
+                {allowance.name?.length > 15
+                  ? allowance.name?.slice(0, 15) + '...'
+                  : allowance.name || 'Unnamed Allowance'}
               </p>
             ),
             className: 'px-1',
@@ -38,7 +38,6 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allAllowance',
-          icon: <CiCalendarDate />,
           label: <p className="menu-item-label">All Allowances</p>,
           className: 'px-1',
         },
@@ -52,13 +51,17 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3">
-      <PageHeader title="Allowance" description="Allowance" />
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="h-auto w-auto">
+        <PageHeader title="Allowance" description="Allowance" />
 
-      <div className="flex gap-6 mt-8">
-        <SidebarMenu menuItems={sidebarMenuItems} />
+        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+          <SidebarMenu menuItems={sidebarMenuItems} />
 
-        <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
+          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+            {children}
+          </BlockWrapper>
+        </div>
       </div>
     </div>
   );

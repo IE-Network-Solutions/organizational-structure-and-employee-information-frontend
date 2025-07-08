@@ -2,40 +2,41 @@
 import React from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import LeaveTypeCard from './_components/leaveTypeCard';
 import TypesAndPoliciesSidebar from './_components/typesAndPoliciesSidebar';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import TypesAndPoliciesEdit from './_components/typesAndPoliciesEdit';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const { setIsShowTypeAndPoliciesSidebar } = useTimesheetSettingsStore();
   const { data } = useGetLeaveTypes();
   return (
-    <>
-      <PageHeader title="Types and Policies" size="small">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-lg text-bold">Types & Policies</h1>
+
         <AccessGuard permissions={[Permissions.CreateLeaveType]}>
           <Button
-            size="large"
             type="primary"
-            icon={<LuPlus size={18} />}
+            icon={<FaPlus />}
             id={`createNewTypesAndPoliciesButtonId`}
             onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
           >
-            New Type
+            <span className="hidden md:inline"> New Type</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
-
-      {data &&
-        data.items.map((item) => <LeaveTypeCard key={item.id} item={item} />)}
+      </div>
+      <div className="w-full overflow-x-auto scrollbar-none">
+        {data &&
+          data.items.map((item) => <LeaveTypeCard key={item.id} item={item} />)}
+      </div>
 
       <TypesAndPoliciesSidebar />
       <TypesAndPoliciesEdit />
-    </>
+    </div>
   );
 };
 

@@ -17,6 +17,24 @@ type TnaReviewAction = {
   setTnaCategory: (tnaCategory: TrainingNeedCategory[]) => void;
   setUserCurrentPage: (userCurrentPage: number) => void;
   setPageSize: (pageSize: number) => void;
+
+  currentPage: number;
+  setCurrentPage: (currentPage: number) => void;
+
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
+
+  sessionId: string;
+  setSessionId: (sessionId: string) => void;
+
+  yearId: string;
+  setYearId: (yearId: string) => void;
+
+  monthId: string;
+  setMonthId: (monthId: string) => void;
 };
 
 const tnaReviewSlice: StateCreator<TnaReviewState & TnaReviewAction> = (
@@ -32,6 +50,18 @@ const tnaReviewSlice: StateCreator<TnaReviewState & TnaReviewAction> = (
     set({ isShowTnaUpdateSidebar });
   },
 
+  currentPage: 1,
+  setCurrentPage: (currentPage) => {
+    set({ currentPage });
+  },
+
+  loading: false,
+  setLoading: (loading) => {
+    set({ loading });
+  },
+
+  searchQuery: '',
+  setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   tnaId: null,
   setTnaId: (tnaId) => {
     set({ tnaId });
@@ -47,6 +77,15 @@ const tnaReviewSlice: StateCreator<TnaReviewState & TnaReviewAction> = (
 
   setPageSize: (pageSize: number) => set({ pageSize }),
   branchRequestSidebarData: '',
+
+  sessionId: '',
+  setSessionId: (sessionId: string) => set({ sessionId }),
+
+  yearId: '',
+  setYearId: (yearId: string) => set({ yearId }),
+
+  monthId: '',
+  setMonthId: (monthId: string) => set({ monthId }),
 });
 
 export const useTnaReviewStore = create<TnaReviewState & TnaReviewAction>(

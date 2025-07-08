@@ -35,7 +35,7 @@ const EmploymentStats: React.FC = () => {
       {
         data: dataValues || [], // Sample data for full-time, part-time, and others
         backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
-        borderWidth: 1,
+        borderWidth: 2,
       },
     ],
   };
@@ -83,7 +83,7 @@ const EmploymentStats: React.FC = () => {
   return (
     <Card loading={isLoading} className="w-full mx-auto ">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-gray-700 font-semibold text-sm">Employee Stat</h3>
+        <h3 className="text-gray-700 font-semibold text-lg">Employee Stat</h3>
         <Select
           bordered={false}
           defaultValue="All Time"
@@ -108,7 +108,6 @@ const EmploymentStats: React.FC = () => {
               margin: '0 auto',
             }}
           >
-            <Doughnut data={data} options={options} />
             <div
               className="absolute text-center bg-white shadow-lg w-16 h-16 rounded-full flex flex-col items-center justify-center px-3 z-0"
               style={{
@@ -120,6 +119,9 @@ const EmploymentStats: React.FC = () => {
             >
               <div className="font-bold text-xl">{totalCount}</div>
               <div className="font-light text-[8px]">Total Emp</div>
+            </div>
+            <div style={{ position: 'relative', zIndex: '1' }}>
+              <Doughnut data={data} options={options} />
             </div>
           </div>
           <div style={{ marginLeft: '20px' }}>

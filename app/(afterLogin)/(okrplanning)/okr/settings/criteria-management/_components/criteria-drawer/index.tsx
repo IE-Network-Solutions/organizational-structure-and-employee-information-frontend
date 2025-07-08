@@ -283,27 +283,25 @@ const ScoringDrawer: React.FC = () => {
         <span className="text-xl font-semibold">
           {currentId
             ? 'Edit Scoring Configuration'
-            : 'Add New Scoring Configuration'}
+            : 'Add Scoring Configuration'}
         </span>
       }
-      width="700px"
+      width="30%"
       footer={
-        <div className="flex justify-center items-center w-full h-full">
-          <div className="flex justify-between items-center gap-4">
-            <CustomButton
-              type="default"
-              title="Cancel"
-              onClick={() => {
-                resetState();
-                closeDrawer();
-              }}
-            />
-            <CustomButton
-              loading={currentId ? isUpdatingLoading : isCreateLoading}
-              title={currentId ? 'Update' : 'Add'}
-              onClick={() => form.submit()}
-            />
-          </div>
+        <div className=" w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5">
+          <CustomButton
+            type="default"
+            title="Cancel"
+            onClick={() => {
+              resetState();
+              closeDrawer();
+            }}
+          />
+          <CustomButton
+            loading={currentId ? isUpdatingLoading : isCreateLoading}
+            title={currentId ? 'Update' : 'Add'}
+            onClick={() => form.submit()}
+          />
         </div>
       }
     >

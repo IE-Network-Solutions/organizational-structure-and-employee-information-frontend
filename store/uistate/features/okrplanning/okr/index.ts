@@ -20,7 +20,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
-      isClosed: true,
+      isClosed: false,
       keyResults: [
         {
           key_type: 'Milestone',
@@ -38,11 +38,15 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
-      isClosed: true,
+      isClosed: false,
     },
 
+    selectedMetric: null,
+    setSelectedMetric: (selectedMetric: any) => set({ selectedMetric }),
     // Initialize key result value state
     keyResultValue: [],
+    keyResultId: '',
+    objectiveId: '',
 
     // Setters
     setObjective: (objective: Objective) => set({ objective }),
@@ -55,6 +59,8 @@ export const useOKRStore = create<OKRState>()(
         },
       })),
     setKeyResultValue: (keyResultValue: KeyResult[]) => set({ keyResultValue }),
+    setKeyResultId: (keyResultId: string) => set({ keyResultId }),
+    setObjectiveId: (objectiveId: string) => set({ objectiveId }),
 
     // Add key result to objective
     addKeyResult: () =>
@@ -261,9 +267,19 @@ export const useOKRStore = create<OKRState>()(
     companyCurrentPage: 1,
     setCompanyCurrentPage: (companyCurrentPage: number) =>
       set({ companyCurrentPage }),
+    employeePageSize: 10,
+    setEmployeePageSize: (employeePageSize: number) =>
+      set({ employeePageSize }),
+    employeeCurrentPage: 1,
+    setEmployeeCurrentPage: (employeeCurrentPage: number) =>
+      set({ employeeCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
     alignment: false,
     setAlignment: (alignment: boolean) => set({ alignment }),
+    fiscalYearId: '',
+    setFiscalYearId: (fiscalYearId: string) => set({ fiscalYearId }),
+    sessionIds: [],
+    setSessionIds: (sessionIds: string[]) => set({ sessionIds }),
   })),
 );

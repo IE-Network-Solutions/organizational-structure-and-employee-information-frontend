@@ -16,7 +16,7 @@ export const formatToOptions = <T extends CommonObject>(
   labelKey: keyof T,
   valueKey: keyof T,
 ): Options => {
-  return items.map((item) => ({
+  return items?.map((item) => ({
     value: item[valueKey],
     label: item[labelKey],
   }));
@@ -25,6 +25,7 @@ export const formatToOptions = <T extends CommonObject>(
 export const formatToAttendanceStatuses = (
   item: AttendanceRecord,
 ): { status: AttendanceRecordType; text: string }[] => {
+  if (!item) return [];
   if (item.isAbsent) {
     return [{ status: AttendanceRecordType.ABSENT, text: '' }];
   }

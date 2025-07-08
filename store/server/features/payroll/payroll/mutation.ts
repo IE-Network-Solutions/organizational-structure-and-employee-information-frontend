@@ -1,7 +1,7 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EMAIL_URL, PAYROLL_URL } from '@/utils/constants';
+import { EMAIL_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { PaySlipData } from './interface';
@@ -18,6 +18,7 @@ const createPayroll = async (values: any) => {
       headers: {
         Authorization: `Bearer ${token}`,
         tenantId: tenantId,
+        withIncentives: values.includeIncentive,
       },
     });
 
@@ -176,7 +177,69 @@ const sendToPayroll = async (data: any) => {
     data,
   });
 };
+const createBasicSalary = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
+  try {
+    await crudRequest({
+      url: `${ORG_AND_EMP_URL}/basic-salary`,
+      method: 'POST',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    NotificationMessage.success({
+      message: 'Successfully Created',
+      description: 'Basic Salary Created Successfully.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+const updateBasicSalary = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    await crudRequest({
+      url: `${ORG_AND_EMP_URL}/basic-salary/${values?.id}`,
+      method: 'PATCH',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+
+    NotificationMessage.success({
+      message: 'Successfully Updated',
+      description: 'Basic Salary Updated Successfully.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useCreateBasicSalary = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createBasicSalary, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('basicSalary');
+    },
+  });
+};
+export const useUpdateBasicSalary = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateBasicSalary, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('basicSalary');
+    },
+  });
+};
 export const useSendToPayroll = () => {
   const queryClient = useQueryClient();
   return useMutation(sendToPayroll, {

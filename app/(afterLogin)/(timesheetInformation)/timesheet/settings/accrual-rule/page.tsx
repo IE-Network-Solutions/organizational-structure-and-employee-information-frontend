@@ -5,12 +5,11 @@ import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRul
 import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button, Table } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -73,8 +72,9 @@ const Page = () => {
   }, [isShowNewAccrualRuleSidebar]);
 
   return (
-    <>
-      <PageHeader title="Accrual Rule" size="small">
+    <div className="p-5 rounded-2xl bg-white w-full h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg text-bold">Accrual Rule</h1>
         <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
           <Button
             size="large"
@@ -83,27 +83,28 @@ const Page = () => {
             icon={<LuPlus size={18} />}
             onClick={() => setIsShowNewAccrualRuleSidebar(true)}
           >
-            New Rule
+            <span className="hidden md:inline"> New Accrual Rule</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
-
-      <Table
-        columns={columns}
-        className="mt-6"
-        loading={isFetching}
-        dataSource={tableData()}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-      />
+      </div>
+      <div className="overflow-x-auto scrollbar-none w-full">
+        <Table
+          columns={columns}
+          className=""
+          loading={isFetching}
+          dataSource={tableData()}
+          pagination={DefaultTablePagination(data?.meta?.totalItems)}
+          onChange={(pagination, filters, sorter: any) => {
+            setPage(pagination.current ?? 1);
+            setLimit(pagination.pageSize ?? 10);
+            setOrderDirection(sorter['order']);
+            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+          }}
+        />
+      </div>
 
       <NewAccrualRuleSidebar />
-    </>
+    </div>
   );
 };
 

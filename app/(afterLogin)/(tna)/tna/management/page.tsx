@@ -14,6 +14,7 @@ import { CourseManagementRequestBody } from '@/store/server/features/tna/managem
 import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { localUserID } from '@/utils/constants';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
@@ -60,24 +61,24 @@ const TnaManagementPage = () => {
   }, 500);
 
   return (
-    <div className="page-wrap">
+    <div className="page-wrap bg-[#f5f5f5] mt-4 ">
       <PageHeader
         title="Training & Learning"
         description="Training and Learning module"
       >
-        <Flex gap={16}>
+        <Flex gap={16} className="pt-4">
           <CourseFilter onChange={onFilterChange} />
           <AccessGuard permissions={[Permissions.CreateCourse]}>
             <Button
               id="tnaAddCourseActionButtonId"
               size="large"
               type="primary"
-              className="h-[54px]"
+              className="h-[50px]"
               icon={<LuPlus size={16} />}
               loading={isFetching}
               onClick={() => setIsShowCourseSidebar(true)}
             >
-              Add Course
+              <span className="hidden sm:block">Add Course</span>
             </Button>
           </AccessGuard>
         </Flex>
@@ -90,9 +91,15 @@ const TnaManagementPage = () => {
       ) : (
         <Spin spinning={isFetchingCourse}>
           <div className="grid grid-cols-course-list gap-6 mt-8">
-            {coursesData?.items?.map((item) => (
-              <CourseCard item={item} key={item.id} refetch={refetch} />
-            ))}
+            {coursesData?.items?.map((item) =>
+              item.isDraft ? (
+                item.preparedBy === localUserID ? (
+                  <CourseCard item={item} key={item.id} refetch={refetch} />
+                ) : null
+              ) : (
+                <CourseCard item={item} key={item.id} refetch={refetch} />
+              ),
+            )}
           </div>
         </Spin>
       )}

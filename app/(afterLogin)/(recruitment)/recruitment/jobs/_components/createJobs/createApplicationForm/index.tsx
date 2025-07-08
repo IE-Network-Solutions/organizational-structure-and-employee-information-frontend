@@ -46,7 +46,7 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
         <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
           <Button
             onClick={() => stepChange(0)}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+            className="flex justify-center text-sm font-medium text-[#A0AEC0] bg-[#F1F2F4] p-4 px-10 h-12 hover:border-gray-500 border-none"
           >
             Back
           </Button>

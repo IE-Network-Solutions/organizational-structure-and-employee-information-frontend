@@ -6,9 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { Avatar, Button, Space, Table } from 'antd';
-
 import TableFilter from './tableFilter';
-
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import {
@@ -28,7 +26,7 @@ import {
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
 import usePagination from '@/utils/usePagination';
-import { defaultTablePagination } from '@/utils/defaultTablePagination';
+import { DefaultTablePagination } from '@/utils/defaultTablePagination';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import { FiEdit2 } from 'react-icons/fi';
@@ -59,8 +57,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
   } = useEmployeeAttendanceStore();
-  const [filter, setFilter] =
-    useState<Partial<AttendanceRequestBody['filter']>>();
+  const { filter, setFilter } = useEmployeeAttendanceStore();
   const { data, isFetching, refetch } = useGetAttendances(
     { page, limit, orderBy, orderDirection },
     { filter },
@@ -197,7 +194,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
   useEffect(() => {
     if (data && data.items) {
-      const nData = data.items.map((item) => {
+      const sortedItems = [...data.items].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+
+      const nData = sortedItems.map((item) => {
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(item);
         return {
           key: item.id,
@@ -215,6 +217,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           action: item,
         };
       });
+
       setTableData(nData);
     }
   }, [data]);
@@ -232,6 +235,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       nFilter['type'] = val.type;
     }
 
+    if (val.employeeId) {
+      nFilter['userIds'] = Array.isArray(val.employeeId)
+        ? val.employeeId
+        : [val.employeeId];
+    }
+
     setFilter(nFilter);
     setBodyRequest((prev) => ({
       ...prev,
@@ -244,19 +253,24 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       <div className="mb-6">
         <TableFilter onChange={onFilterChange} />
       </div>
-      <Table
-        loading={isFetching}
-        columns={columns}
-        dataSource={tableData}
-        rowSelection={{ checkStrictly: false }}
-        pagination={defaultTablePagination(data?.meta?.totalItems)}
-        onChange={(pagination, filters, sorter: any) => {
-          setPage(pagination.current ?? 1);
-          setLimit(pagination.pageSize ?? 10);
-          setOrderDirection(sorter['order']);
-          setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-        }}
-      />
+      <div className="flex  overflow-x-auto scrollbar-none  w-full">
+        <Table
+          loading={isFetching}
+          columns={columns}
+          dataSource={tableData}
+          rowSelection={{ checkStrictly: false }}
+          pagination={DefaultTablePagination(data?.meta?.totalItems)}
+          rowClassName={() => 'h-[60px]'}
+          scroll={{ x: 'max-content' }}
+          className="w-full"
+          onChange={(pagination, filters, sorter: any) => {
+            setPage(pagination.current ?? 1);
+            setLimit(pagination.pageSize ?? 5);
+            setOrderDirection(sorter['order']);
+            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+          }}
+        />
+      </div>
     </>
   );
 };

@@ -1,39 +1,40 @@
 'use client';
 import React from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import DeductionTypeTable from './_components/DeductionTypeTable';
 // import BenefitypeSideBar from './_components/DeductiontypeSideBar';
 import DeductiontypeSideBar from './_components/DeductiontypeSideBar';
+import { FaPlus } from 'react-icons/fa';
 
 const DeductionTypePage = () => {
   const { setIsDeductionOpen } = useCompensationSettingStore();
 
   return (
-    <>
-      <PageHeader title="Deduction Types" size="small">
+    <div className="p-5 rounded-2xl bg-white ">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-lg font-bold">Deduction Types</h1>
         <AccessGuard permissions={[Permissions.CreateBenefitType]}>
           <Button
-            size="large"
             type="primary"
             id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
+            icon={<FaPlus />}
+            className="h-10"
             onClick={() => {
               setIsDeductionOpen(true);
             }}
           >
-            New Deduction Type
+            <span className="hidden lg:inline"> New Deduction Type</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
-
-      <DeductionTypeTable />
+      </div>
+      <div className="flex overflow-x-auto scrollbar-none w-full ">
+        <DeductionTypeTable />
+      </div>
       <DeductiontypeSideBar />
-    </>
+    </div>
   );
 };
 

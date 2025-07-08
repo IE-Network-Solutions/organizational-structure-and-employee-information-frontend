@@ -1,15 +1,13 @@
 'use client';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
 import React, { useEffect } from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
-import CustomButton from '@/components/common/buttons/customButton';
-import { LuPlus } from 'react-icons/lu';
-import { Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import CourseCategorySidebar from './_components/categorySidebar';
 import { useGetCourseCategory } from '@/store/server/features/tna/courseCategory/queries';
 import CourseCategoryCard from './_components/categoryCard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const TnaCourseCategoryPage = () => {
   const { isShowCourseCategorySidebar, setIsShowCourseCategorySidebar } =
@@ -23,20 +21,22 @@ const TnaCourseCategoryPage = () => {
   }, [isShowCourseCategorySidebar]);
 
   return (
-    <>
-      <PageHeader title="Course Category" size="small">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex justify-between mb-4 ">
+        <h1 className="text-lg text-bold">Course Category</h1>
         <AccessGuard permissions={[Permissions.CreateCourseCategory]}>
-          <CustomButton
-            title="New Category"
-            icon={<LuPlus size={18} />}
+          <Button
+            icon={<FaPlus />}
             type="primary"
             size="large"
             onClick={() => {
               setIsShowCourseCategorySidebar(true);
             }}
-          />
+          >
+            <span className="hidden lg:inline">New Category</span>
+          </Button>
         </AccessGuard>
-      </PageHeader>
+      </div>
 
       <Spin spinning={isFetching}>
         {data?.items ? (
@@ -49,7 +49,7 @@ const TnaCourseCategoryPage = () => {
       </Spin>
 
       <CourseCategorySidebar />
-    </>
+    </div>
   );
 };
 

@@ -15,6 +15,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
+    setEmployeeJobInfoModalWidth,
+    employeeJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
   const { data: employeeData } = useGetEmployee(id);
@@ -23,9 +25,15 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
+    setEmployeeJobInfoModalWidth(null);
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
+    values.positionId = form.getFieldValue('positionId') || '';
+    values.employementTypeId = form.getFieldValue('employementTypeId') || '';
+    values.departmentId = form.getFieldValue('departmentId') || '';
+    values.branchId = form.getFieldValue('branchId') || '';
+    values.workScheduleId = form.getFieldValue('workScheduleId') || '';
     values.userId = id;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
@@ -37,12 +45,12 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
       },
     });
   };
-
   return (
     <>
       <Modal
         title="Add Employee Job Information"
         centered
+        width={employeeJobInfoModalWidth || undefined}
         open={isAddEmployeeJobInfoModalVisible}
         onCancel={handleClose}
         footer={false}

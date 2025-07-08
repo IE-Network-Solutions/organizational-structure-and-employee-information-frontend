@@ -117,9 +117,9 @@ const PlanningPeriod = () => {
   );
 
   return (
-    <div className="p-4">
+    <div className="p-5 rounded-2xl bg-white h-full">
       <div className="mb-4">
-        <Input.Search
+        <Input
           placeholder="Search period by name"
           className="rounded-lg"
           onChange={(e) => setPlanningPeriodName(e.target.value)}

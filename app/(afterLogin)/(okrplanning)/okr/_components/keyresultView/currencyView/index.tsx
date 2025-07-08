@@ -6,6 +6,7 @@ import { CiDollar } from 'react-icons/ci';
 import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
   const {
@@ -33,6 +34,8 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
 
+  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
+  const { isMobile } = useIsMobile();
   return (
     <div
       className="py-4 border-b-[1px] border-gray-300"
@@ -51,6 +54,21 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
             }
             className="w-full font-bold"
             id={`key-result-title-${index}`}
+            rules={[
+              {
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (_, value) => {
+                  /* eslint-enable @typescript-eslint/naming-convention */
+                  if (!value) {
+                    return Promise.reject(
+                      new Error('Milestone title is required'),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            validateTrigger="onBlur"
           >
             <Input
               value={keyValue.title}
@@ -58,6 +76,11 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 handleChange(e.target.value, 'title');
               }}
             />
+            {!keyValue.title && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Milestone title is required
+              </div>
+            )}
           </Form.Item>
           <Form.Item
             className="w-24 font-bold"
@@ -85,6 +108,7 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                     : removeKeyResultValue(index)
                 }
                 id={`remove-key-result-${index}`}
+                disabled={isEditDisabled}
               />
             </Tooltip>
           </div>
@@ -148,9 +172,10 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
           <Form.Item
             layout="horizontal"
             className="w-full font-bold"
-            label="Deadline"
+            label={isMobile ? undefined : 'Deadline'}
             id={`deadline-${index}`}
           >
+            {isMobile && <span className="text-sm font-bold">Deadline</span>}
             <DatePicker
               value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
               onChange={(dateString) => {
@@ -168,6 +193,11 @@ const CurrencyView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
                 );
               }}
             />
+            {!keyValue.deadline && (
+              <div className="text-red-500 font-semibold absolute top-[30px]">
+                Deadline is required
+              </div>
+            )}
           </Form.Item>
         </div>
       </Form>

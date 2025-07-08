@@ -2,39 +2,39 @@
 import React from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { Button } from 'antd';
-import { LuPlus } from 'react-icons/lu';
 import AreaCard from './_components/areaCard';
 import LocationSidebar from './_components/locationSidebar';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
   const { setIsShowLocationSidebar } = useTimesheetSettingsStore();
   const { data } = useGetAllowedAreas();
   return (
-    <>
-      <PageHeader title="Allowed Areas" size="small">
+    <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg text-bold">Allowed Areas</h1>
+
         <AccessGuard permissions={[Permissions.CreateAllowedArea]}>
           <Button
-            icon={<LuPlus size={18} />}
+            icon={<FaPlus />}
             type="primary"
-            size="large"
             id="newLocationCreateButtonId"
             onClick={() => setIsShowLocationSidebar(true)}
           >
-            New Location
+            <span className="hidden md:inline"> New Location</span>
           </Button>
         </AccessGuard>
-      </PageHeader>
-      <div className="mt-6">
+      </div>
+      <div className="w-full overflow-x-auto scrollbar-none">
         {data &&
           data.items.map((item) => <AreaCard key={item.id} item={item} />)}
       </div>
 
       <LocationSidebar />
-    </>
+    </div>
   );
 };
 

@@ -87,3 +87,55 @@ export const useUpdateCompanyProfile = () => {
 };
 
 /* eslint-enable @typescript-eslint/naming-convention */
+
+const updateCompanyProfileWithStamp = async ({
+  id,
+  updateClientDto, // Include the DTO data
+  companyProfileImage,
+  companyStamp,
+}: {
+  id: string;
+  updateClientDto?: any; // Optional DTO
+  companyProfileImage?: CompanyProfileImage;
+  companyStamp?: CompanyProfileImage;
+}): Promise<any> => {
+  const formData = new FormData();
+  // Append DTO as JSON string
+  if (updateClientDto) {
+    formData.append('updateClientDto', JSON.stringify({}));
+  }
+
+  // Append files if they exist
+  if (companyProfileImage?.originFileObj) {
+    formData.append('companyProfileImage', companyProfileImage.originFileObj);
+  }
+
+  if (companyStamp?.originFileObj) {
+    formData.append('companyStamp', companyStamp.originFileObj);
+  }
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    // Don't manually set 'Content-Type': 'multipart/form-data'
+    // Let Axios or Fetch handle it automatically
+  };
+
+  return await crudRequest({
+    url: `${TENANT_MGMT_URL}/clients/${id}`,
+    method: 'PUT',
+    headers: headers,
+    data: formData,
+  });
+};
+
+export const useUpdateCompanyProfileWithStamp = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateCompanyProfileWithStamp, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('companyProfile');
+      // const method = variables?.method?.toUpperCase();
+      // handleSuccessMessage(method);
+    },
+  });
+};

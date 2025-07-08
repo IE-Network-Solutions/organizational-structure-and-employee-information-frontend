@@ -2,11 +2,13 @@
 import { useGrantObjectiveEditAccess } from '@/store/server/features/okrplanning/okr/editAccess/mutation';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import useObjectiveEditAccessStore from '@/store/uistate/features/okrplanning/okrSetting/editAccess';
+import AccessGuard from '@/utils/permissionGuard';
 import { useDebounce } from '@/utils/useDebounce';
-import { Button, Col, Input, Row } from 'antd';
+import { Col, Input, Row, Switch } from 'antd';
 import React from 'react';
 import { IoCheckmarkOutline } from 'react-icons/io5';
 import { MdOutlineCancel } from 'react-icons/md';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const SearchEmployee: React.FC = () => {
   const { searchParams, setSearchParams, checked, setChecked } =
@@ -51,41 +53,63 @@ const SearchEmployee: React.FC = () => {
   return (
     <div>
       <Row gutter={[16, 24]} justify="space-between">
-        <Col xl={14} md={14} lg={14} sm={24} xs={24}>
+        <Col xl={14} md={14} lg={14} sm={16} xs={16}>
           <Input
             id={`inputEmployeeNames${searchParams.employee_name}`}
             placeholder="Search employee"
             onChange={(e) => handleSearchInput(e.target.value, 'employee_name')}
-            className="w-full h-14"
+            className="w-full h-10"
             allowClear
           />
         </Col>
-        <Col xl={6} md={6} lg={6} sm={24} xs={24}>
-          {checked === false ? (
-            <Button
-              type="primary"
-              className="w-full h-14"
-              icon={<MdOutlineCancel size={18} />}
-              onClick={() => {
-                handleSubmit();
-                setChecked(true);
-              }}
-            >
-              Revoke all access
-            </Button>
+        <Col xl={6} md={6} lg={6} sm={8} xs={8}>
+          {/* {checked === false ? (
+            <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
+              <Button
+                type="primary"
+                className="w-full h-14"
+                icon={<MdOutlineCancel size={18} />}
+                onClick={() => {
+                  handleSubmit();
+                  setChecked(true);
+                }}
+              >
+                Revoke all access
+              </Button>
+            </AccessGuard>
           ) : (
-            <Button
-              type="primary"
-              className="w-full h-14"
-              icon={<IoCheckmarkOutline size={18} />}
-              onClick={() => {
-                handleSubmit();
-                setChecked(false);
-              }}
-            >
-              Grant all access
-            </Button>
-          )}
+            <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
+              <Button
+                type="primary"
+                className="w-full h-14"
+                icon={<IoCheckmarkOutline size={18} />}
+                onClick={() => {
+                  handleSubmit();
+                  setChecked(false);
+                }}
+              >
+                Grant all access
+              </Button>
+            </AccessGuard>
+          )} */}
+
+          <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
+            <div className="w-full h-10 flex justify-between">
+              <span className="text-base font-medium hidden lg:inline">
+                {checked ? 'Revoke all access' : 'Grant all access'}
+              </span>
+              <Switch
+                checked={checked}
+                className="mt-2"
+                onChange={(checked) => {
+                  setChecked(checked);
+                  handleSubmit();
+                }}
+                checkedChildren={<IoCheckmarkOutline size={20} />}
+                unCheckedChildren={<MdOutlineCancel size={20} />}
+              />
+            </div>
+          </AccessGuard>
         </Col>
       </Row>
     </div>
