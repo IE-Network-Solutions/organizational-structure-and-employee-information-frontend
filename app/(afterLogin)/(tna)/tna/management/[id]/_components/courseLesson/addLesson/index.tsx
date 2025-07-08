@@ -66,6 +66,8 @@ const CourseAddLessonSidebar = () => {
   useEffect(() => {
     if (lesson && lessonData?.items?.length && form) {
       const item = lessonData.items[0];
+
+      console.log(' lessonData', lessonData);
       setLesson(item);
       form.setFieldValue('lessons', [item]);
     }
@@ -139,12 +141,14 @@ const CourseAddLessonSidebar = () => {
     { label: 'Create at the end', value: 0 },
     ...(course?.courseLessons
       ?.sort((a, b) => a.order - b.order)
-      ?.map((lesson) => ({
+      ?.map((lesson,index) => ({
         label: lesson.title || 'Untitled Lesson',
-        value: lesson.order,
-        key: `lesson-${lesson.order}`,
+        value: index+1,
+        key: `lesson-${lesson.order}-${index+1}`,
       })) || []),
   ];
+
+ 
   const onFinish = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -160,6 +164,8 @@ const CourseAddLessonSidebar = () => {
   };
 
   return (
+
+   
     isShow && (
       <CustomDrawerLayout
         open={isShow}
@@ -235,6 +241,8 @@ const CourseAddLessonSidebar = () => {
                         aria-label="Lesson order selection"
                       />
                     </Form.Item>
+
+                    
                     <Form.Item
                       {...restField}
                       name={[name, 'description']}
