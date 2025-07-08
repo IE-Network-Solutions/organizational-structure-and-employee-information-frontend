@@ -67,7 +67,6 @@ const CourseAddLessonSidebar = () => {
     if (lesson && lessonData?.items?.length && form) {
       const item = lessonData.items[0];
 
-      console.log(' lessonData', lessonData);
       setLesson(item);
       form.setFieldValue('lessons', [item]);
     }
