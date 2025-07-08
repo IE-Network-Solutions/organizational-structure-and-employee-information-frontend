@@ -20,7 +20,7 @@ interface FiscalYearDrawerProps {
   form?: FormInstance;
   handleNextStep?: () => void;
 }
-const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({}) => {
+const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
