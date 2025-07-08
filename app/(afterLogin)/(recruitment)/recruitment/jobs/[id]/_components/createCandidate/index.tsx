@@ -15,13 +15,9 @@ import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import cvUpload from '@/public/image/cvUpload.png';
-import { CandidateType } from '@/types/enumTypes';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import {
-  useGetJobs,
-  useGetJobsByID,
-} from '@/store/server/features/recruitment/job/queries';
+import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 
 const { Dragger } = Upload;
@@ -38,8 +34,25 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 }) => {
   const [form] = Form.useForm();
 
+  const {
+    createJobDrawer,
+    documentFileList,
+    setDocumentFileList,
+    removeDocument,
+    isClient,
+    setIsClient,
+    setCreateJobDrawer,
+    currentPage,
+    pageSize,
+  } = useCandidateState();
+
   const { searchParams } = useCandidateState();
-  const { data: jobList } = useGetJobs(searchParams?.whatYouNeed || '');
+
+  const { data: jobList } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+    pageSize,
+    currentPage,
+  );
 
   const isInternalApplicant = useAuthenticationStore.getState().userId;
   const { data: statusStage } = useGetStages();
@@ -49,21 +62,9 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   const foundStage = statusStage?.items?.find(
     (stage: any) => stage.title === titleToFind,
   );
-  const stageId = foundStage ? foundStage.id : null;
 
-  const {
-    createJobDrawer,
-    documentFileList,
-    setDocumentFileList,
-    removeDocument,
-    isClient,
-    setIsClient,
-    setCreateJobDrawer,
-  } = useCandidateState();
-
+  const stageId = foundStage ? foundStage.id : '';
   const { mutate: createCandidate } = useCreateCandidate();
-
-  const { data: jobById } = useGetJobsByID(jobId ?? '');
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -193,54 +194,30 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item
-          id="jobId"
-          name="jobInformationId"
-          label={
-            <span className="text-md font-semibold text-gray-700">Job</span>
-          }
-          rules={
-            jobId ? [] : [{ required: true, message: 'Please select a job' }]
-          }
-        >
-          <Select
-            className="text-sm w-full h-10"
-            placeholder={
-              jobById && jobById ? jobById?.jobTitle : 'Select a job type'
-            }
-            disabled={!!jobId}
-          >
-            {jobList &&
-              jobList?.items?.map((job: any) => (
-                <Option key={job?.id} value={job?.id}>
-                  {job?.jobTitle}
-                </Option>
-              ))}
-          </Select>
-        </Form.Item>
 
         <Row gutter={16}>
           <Col xs={24} sm={24} lg={12} md={12} xl={12}>
             <Form.Item
-              id="candidateTypeId"
-              name="candidateType"
+              id="jobId"
+              name="jobInformationId"
               label={
-                <span className="text-md font-semibold text-gray-700">
-                  Candidate Type
-                </span>
+                <span className="text-md font-semibold text-gray-700">Job</span>
               }
-              rules={[
-                { required: true, message: 'Please input the job name!' },
-              ]}
+              rules={
+                jobId
+                  ? []
+                  : [{ required: true, message: 'Please select a job' }]
+              }
             >
               <Select
                 className="text-sm w-full h-10"
                 placeholder="Select a job type"
+                disabled={!!jobId}
               >
-                {CandidateType &&
-                  Object?.values(CandidateType).map((type) => (
-                    <Option key={type} value={type}>
-                      {type}
+                {jobList &&
+                  jobList?.items?.map((job: any) => (
+                    <Option key={job?.id} value={job?.id}>
+                      {job?.jobTitle}
                     </Option>
                   ))}
               </Select>
@@ -307,7 +284,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             onRemove={handleDocumentRemove}
             customRequest={customRequest}
             listType="picture"
-            accept="*/*"
+            accept="application/pdf"
           >
             <p>
               <Image
@@ -332,7 +309,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         <Form.Item>
           <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
             <Button
-              type="primary"
+              onClick={onClose}
               className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
             >
               Cancel

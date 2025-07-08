@@ -1,6 +1,6 @@
 'use client';
 import React, { ReactNode, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   AppstoreOutlined,
   BarChartOutlined,
@@ -24,6 +24,7 @@ import { LuUsers2 } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
+import SimpleLogo from '../common/logo/simpleLogo';
 
 const menuItems: MenuProps['items'] = [
   {
@@ -45,6 +46,11 @@ const menuItems: MenuProps['items'] = [
       {
         key: '/employees/manage-employees',
         label: 'Manage Employees',
+        className: 'font-bold',
+      },
+      {
+        key: '/employees/departmentRequest',
+        label: 'Department Request',
         className: 'font-bold',
       },
       { key: '/employees/settings', label: 'Settings', className: 'font-bold' },
@@ -83,11 +89,11 @@ const menuItems: MenuProps['items'] = [
         label: 'Planning and Reporting',
         className: 'font-bold',
       },
-      {
-        key: '/monitoring-evaluation',
-        label: 'Monitoring & Evaluation',
-        className: 'font-bold',
-      },
+      // {
+      //   key: '/monitoring-evaluation',
+      //   label: 'Monitoring & Evaluation',
+      //   className: 'font-bold',
+      // },
       { key: '/okr/settings', label: 'Settings', className: 'font-bold' },
     ],
   },
@@ -97,6 +103,24 @@ const menuItems: MenuProps['items'] = [
     icon: <UserOutlined />,
     className: 'font-bold',
     children: [
+      {
+        key: '/feedback/conversation',
+        label: 'Conversation',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/feedback',
+        label: 'Feedback',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
+      {
+        key: '/feedback/recognition',
+        label: 'Recognition',
+        className: 'font-bold',
+        icon: <FiSettings />,
+      },
       {
         key: '/feedback/categories',
         label: 'Form',
@@ -130,6 +154,27 @@ const menuItems: MenuProps['items'] = [
       },
     ],
   },
+  // payroll
+  {
+    key: '/payroll',
+    icon: <PiSuitcaseSimpleThin />,
+    className: 'font-bold',
+    label: 'Payroll',
+    children: [
+      {
+        key: '/employee-information',
+        label: 'Employee Information',
+        className: 'font-bold',
+      },
+      { key: '/payroll', label: 'Payroll', className: 'font-bold' },
+      { key: '/myPayroll', label: 'My Payroll', className: 'font-bold' },
+      {
+        key: '/settings',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
   {
     key: '/timesheet',
     icon: <CiCalendar />,
@@ -147,13 +192,54 @@ const menuItems: MenuProps['items'] = [
         className: 'font-bold',
       },
       {
-        key: '/timesheet/leave-management',
+        key: '/timesheet/leave-management/leaves',
         label: 'Leave Management',
         className: 'font-bold',
       },
       {
         key: '/timesheet/settings/closed-date',
         label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
+  {
+    key: '/compensation',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Compensation & Benefit',
+    children: [
+      {
+        key: '/allowance',
+        label: 'Allowance',
+        className: 'font-bold',
+      },
+      {
+        key: '/benefit',
+        label: 'Benefit',
+        className: 'font-bold',
+      },
+      {
+        key: '/deduction',
+        label: 'Deduction',
+        className: 'font-bold',
+      },
+      {
+        key: '/compensationSetting',
+        label: 'Settings',
+        className: 'font-bold',
+      },
+    ],
+  },
+  {
+    key: '/incentive',
+    icon: <CiCalendar />,
+    className: 'font-bold',
+    label: 'Incentive',
+    children: [
+      {
+        key: '/variable-pay',
+        label: 'Variable Pay',
         className: 'font-bold',
       },
     ],
@@ -174,27 +260,22 @@ const userItems: MenuProps['items'] = [
         label: 'Planning and Reporting',
         className: 'font-bold',
       },
-      {
-        key: '/monitoring-evaluation',
-        label: 'Monitoring & Evaluation',
-        className: 'font-bold',
-      },
     ],
   },
-  {
-    key: '/feedback',
-    label: 'CFR',
-    icon: <UserOutlined />,
-    className: 'font-bold',
-    children: [
-      {
-        key: '/feedback/categories',
-        label: 'Form',
-        icon: <UserOutlined />,
-        className: 'font-bold',
-      },
-    ],
-  },
+  //   {
+  //     key: '/feedback',
+  //     label: 'CFR',
+  //     icon: <UserOutlined />,
+  //     className: 'font-bold',
+  //     children: [
+  //       {
+  //         key: '/feedback/categories',
+  //         label: 'Form',
+  //         icon: <UserOutlined />,
+  //         className: 'font-bold',
+  //       },
+  //     ],
+  //   },
   {
     key: '/tna',
     icon: <BarChartOutlined />,
@@ -206,7 +287,7 @@ const userItems: MenuProps['items'] = [
         label: 'Training Management',
         className: 'font-bold',
       },
-      { key: '/tna/review', label: 'TNA', className: 'font-bold' },
+      // { key: '/tna/review', label: 'TNA', className: 'font-bold' },
     ],
   },
   {
@@ -222,6 +303,20 @@ const userItems: MenuProps['items'] = [
       },
     ],
   },
+  // {
+  //   key: '/incentive',
+  //   icon: <CiCalendar />,
+  //   className: 'font-bold',
+  //   label: 'Incentive',
+  //   children: [
+  //     {
+  //       key: '/variable-pay',
+  //       label: 'Variable Pay',
+  //       className: 'font-bold',
+  //     }
+
+  //   ],
+  // },
 ];
 
 interface MyComponentProps {
@@ -236,6 +331,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
+  const pathname = usePathname(); // Add this hook
+
   const { userData, setLocalId, setTenantId, setToken, setUserId, setError } =
     useAuthenticationStore();
   const userRole = userData?.role?.slug || '';
@@ -306,9 +403,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={isMobile ? 80 : 80}
       >
+        <div className="my-2">{collapsed && <SimpleLogo />}</div>
+
         <div className="flex justify-between px-4 my-4">
           <div className=" flex items-center gap-2">
-            <Logo type="selamnew" />
+            {!collapsed && <Logo type="selamnew" />}
           </div>
 
           <div onClick={toggleCollapsed} className="text-black text-xl">
@@ -336,8 +435,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           defaultSelectedKeys={['/dashboard']}
           items={userRole === 'user' ? userItems : menuItems}
           inlineCollapsed={collapsed}
-          className="my-5"
+          // className="my-5"
           onClick={handleMenuClick}
+          selectedKeys={[pathname]}
+          className={`my-5 [&_.ant-menu-item-selected]:!bg-[#3636F0] [&_.ant-menu-item-selected]:!text-white`}
         />
       </Sider>
       <Layout

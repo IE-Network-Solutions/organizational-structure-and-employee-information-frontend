@@ -6,6 +6,8 @@ import { useQuery } from 'react-query';
 // Define the OKRDashboard interface
 interface User {
   firstName: string;
+  middleName: string | null;
+  lastName: string;
   profileImage: string | null;
 }
 

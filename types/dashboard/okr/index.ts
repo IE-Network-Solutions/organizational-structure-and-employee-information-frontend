@@ -1,11 +1,6 @@
 export interface RookStarsListProps {
-  dataSource: Array<{
-    avatar: string;
-    name: string;
-    title: string;
-    completion: number;
-  }>;
   title: string;
+  planningPeriodId: string;
 }
 
 export interface ListData {
@@ -16,30 +11,38 @@ export interface ListData {
   completion: number;
 }
 
-export interface CardData {
+export interface SelectOption {
   key: string;
-  name: string;
-  position: string;
-  department: string;
-  okr: OkrValue;
-  supervisorOkr: OkrValue;
-  keyResults: OkrValue;
-  vp: OkrValue;
-  issuedReprimand: OkrValue;
-  receiveReprimand: OkrValue;
-  issuedAppreciations: OkrValue;
-  receiveAppreciations: OkrValue;
-  updatedAt: string;
+  value: string;
+  label: string;
 }
-interface OkrValue {
+
+interface OKRValue {
+  userOkr: number;
   score: string;
   progress: string;
   progressType: boolean;
   achievement?: string;
 }
+export interface CardData {
+  key: string;
+  name: string;
+  position: string;
+  department: string;
+  okr: OKRValue;
+  supervisorOkr: OKRValue;
+  keyResults: OKRValue;
+  vp: OKRValue;
+  issuedReprimand: OKRValue;
+  receiveReprimand: OKRValue;
+  issuedAppreciations: OKRValue;
+  receiveAppreciations: OKRValue;
+  updatedAt: string;
+}
+
 export interface DashboardCardProps {
   updatedAt: string;
-  score: OkrValue;
+  score: OKRValue;
   title: string;
   icon: React.ReactNode;
   span: number;

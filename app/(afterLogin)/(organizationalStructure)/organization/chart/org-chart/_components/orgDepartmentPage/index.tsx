@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
-import { Card, Menu, Dropdown, Tooltip, Modal, Avatar } from 'antd';
+import { Card, Menu, Dropdown, Tooltip, Modal, Avatar, Skeleton } from 'antd';
 
 import { Department } from '@/types/dashboard/organization';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
@@ -11,42 +11,79 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { BiUser } from 'react-icons/bi';
 import CustomDrawer from '../customDrawer';
+import OrgChartSkeleton from '../../../org-structure/_components/loading/orgStructureLoading';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 interface DepartmentNodeProps {
   data: any;
 }
 
 const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
+  const { data: getUsersData, isLoading } = useGetAllUsers();
+
+  const getUserData = (userId: string) => {
+    if (!getUsersData?.items) return null;
+
+    const user =
+      getUsersData.items.find((user: any) => user.id === userId) ?? null;
+
+    return user;
+  };
+
+  // Get the first user assigned to the department
+  const user = getUserData(data?.employeeJobInformation?.[0]?.userId);
+
   return (
     <Card className="p-1.5 rounded-3xl inline-block border border-[#e8e8e8] sm:w-auto">
       <div className="flex flex-col items-center">
         <Tooltip
           title={
-            data?.employeeJobInformation?.[0]?.user?.firstName ||
-            data?.employeeJobInformation?.[0]?.user?.lastName
-              ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
+            user?.firstName || user?.lastName
+              ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} ${user?.lastName ?? ''}`.trim()
               : 'Not assigned'
           }
           placement="top"
         >
-          <Avatar
-            icon={<BiUser />}
-            size={54}
-            src={`${data?.employeeJobInformation?.[0]?.user?.profileImage}`}
-            className="mb-2"
-          />
+          {isLoading ? (
+            <Skeleton.Avatar active size={54} />
+          ) : (
+            <Avatar
+              icon={<BiUser />}
+              size={54}
+              src={user?.profileImage}
+              className="mb-2"
+            />
+          )}
         </Tooltip>
-        <span className="font-bold text-center">
-          {data?.employeeJobInformation?.[0]?.user?.firstName ||
-          data?.employeeJobInformation?.[0]?.user?.lastName
-            ? `${data.employeeJobInformation[0].user.firstName ?? ''} ${data.employeeJobInformation[0].user.lastName ?? ''}`.trim()
-            : 'Not assigned'}
-        </span>
-        <span className="text-sm text-center">
-          {data?.employeeJobInformation?.[0]?.user?.role
-            ? `${data.employeeJobInformation[0]?.user?.role?.name ?? ''}`.trim()
-            : 'Role not assigned'}
-        </span>
+
+        <div className="flex flex-col items-center">
+          {isLoading ? (
+            <Skeleton.Input
+              active
+              size="small"
+              className="mt-2 w-auto text-center"
+            />
+          ) : (
+            <span className="font-bold text-center">
+              {user?.firstName || user?.middleName || user?.lastName
+                ? `${user?.firstName ?? ''} ${user?.middleName ?? ''} ${user?.lastName ?? ''}`.trim()
+                : 'Not assigned'}
+            </span>
+          )}
+          {isLoading ? (
+            <Skeleton.Input
+              active
+              size="small"
+              className="w-auto text-center"
+            />
+          ) : (
+            <span className="text-sm text-center">
+              {user?.role ? user?.role?.name?.trim() : 'Role not assigned'}
+            </span>
+          )}
+        </div>
       </div>
     </Card>
   );
@@ -74,7 +111,8 @@ const OrgChartComponent: React.FC = () => {
     setIsDeleteConfirmVisible,
   } = useOrganizationStore();
 
-  const { data: orgStructureData, isLoading } = useGetOrgChartsPeoples();
+  const { data: orgStructureData, isLoading: orgStructureLoading } =
+    useGetOrgChartsPeoples();
 
   const handleFormSubmit = (values: Department) => {
     if (selectedDepartment) {
@@ -114,35 +152,42 @@ const OrgChartComponent: React.FC = () => {
 
   const menu = (
     <Menu>
-      <Menu.Item
-        key="1"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
-      >
-        Archive
-      </Menu.Item>
-      <Menu.Item
-        key="2"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
-      >
-        Merge
-      </Menu.Item>
-      <Menu.Item
-        key="3"
-        className="py-2"
-        style={{ paddingRight: '64px' }}
-        onClick={() => showDrawer('dissolve', 'Dissove', 'Dessolve Department')}
-      >
-        Dissolve
-      </Menu.Item>
+      <AccessGuard permissions={[Permissions.DeleteDepartment]}>
+        <Menu.Item
+          key="1"
+          className="py-2"
+          style={{ paddingRight: '64px' }}
+          onClick={() => showDrawer('archive', 'Archive', 'Archive Level')}
+        >
+          Archive
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.MergeDepartment]}>
+        <Menu.Item
+          key="2"
+          className="py-2"
+          style={{ paddingRight: '64px' }}
+          onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
+        >
+          Merge
+        </Menu.Item>
+      </AccessGuard>
+      <AccessGuard permissions={[Permissions.DissolveDepartment]}>
+        <Menu.Item
+          key="3"
+          className="py-2"
+          style={{ paddingRight: '64px' }}
+          onClick={() =>
+            showDrawer('dissolve', 'Dissove', 'Dessolve Department')
+          }
+        >
+          Dissolve
+        </Menu.Item>
+      </AccessGuard>
     </Menu>
   );
   return (
     <Card
-      loading={isLoading}
       title={<div className="text-2xl font-bold">ORG Chart</div>}
       extra={
         <div className="py-4 flex justify-center items-center gap-4">
@@ -153,27 +198,33 @@ const OrgChartComponent: React.FC = () => {
       }
     >
       <div className="w-full py-7 overflow-x-auto">
-        <div className="p-4 sm:p-2 md:p-6 lg:p-8">
-          <Tree
-            label={
-              <DepartmentNode
-                data={{
-                  id: 'root',
-                  name: `${orgStructureData?.name}` || '',
-                  department: orgStructureData?.department || [],
-                  branchId: orgStructureData?.branchId,
-                  description: '',
-                  collapsed: false,
-                }}
-              />
-            }
-            lineWidth={'2px'}
-            lineColor={'#722ed1'}
-            lineBorderRadius={'10px'}
-          >
-            {renderTreeNodes(orgStructureData?.department || [])}
-          </Tree>
-        </div>
+        {orgStructureLoading ? (
+          <OrgChartSkeleton loading={orgStructureLoading} />
+        ) : (
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8">
+            <Tree
+              label={
+                <DepartmentNode
+                  data={{
+                    id: 'root',
+                    name: `${orgStructureData?.name}` || '',
+                    department: orgStructureData?.department || [],
+                    branchId: orgStructureData?.branchId,
+                    description: '',
+                    collapsed: false,
+                    employeeJobInformation:
+                      orgStructureData?.employeeJobInformation ?? [],
+                  }}
+                />
+              }
+              lineWidth={'2px'}
+              lineColor={'#722ed1'}
+              lineBorderRadius={'10px'}
+            >
+              {renderTreeNodes(orgStructureData?.department || [])}
+            </Tree>
+          </div>
+        )}
 
         <DepartmentForm
           onClose={() => setIsFormVisible(false)}

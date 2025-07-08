@@ -10,6 +10,8 @@ import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/qu
 import AppreciationDrawer from './appreciationDrawer';
 import AppreciationEditDrawer from './appreciationEditDrawer';
 import { useGetAppreciationType } from '@/store/server/features/okrplanning/monitoring-evaluation/appreciation-type/queries';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const Appreciation = () => {
   const {
     open,
@@ -68,14 +70,16 @@ const Appreciation = () => {
           <h1 className="text-xl font-bold mb-1">Appreciation</h1>
           <span className="text-sm mb-4">Given Upon Appreciation</span>
         </div>
-        <CustomButton
-          title="Appreciate"
-          id="appreciateButton"
-          icon={<GoPlus size={20} className="mr-2" />}
-          onClick={showDrawer}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-          aria-label="Open appreciation drawer"
-        />
+        <AccessGuard permissions={[Permissions.CreateAppreciation]}>
+          <CustomButton
+            title="Appreciate"
+            id="appreciateButton"
+            icon={<GoPlus size={20} className="mr-2" />}
+            onClick={showDrawer}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            aria-label="Open appreciation drawer"
+          />
+        </AccessGuard>
       </div>
       <div className="flex  justify-between items-center mb-4 gap-5">
         <Select
@@ -90,7 +94,8 @@ const Appreciation = () => {
           options={allUsers?.items?.map((item: any) => ({
             ...item,
             value: item?.id,
-            label: item?.firstName + ' ' + item?.lastName,
+            label:
+              item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
           }))}
         />
         <Select

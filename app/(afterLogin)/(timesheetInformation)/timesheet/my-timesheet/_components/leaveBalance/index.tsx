@@ -31,6 +31,7 @@ const LeaveBalance = () => {
             <Button
               className="w-6 h-6"
               type="text"
+              id="leaveBalanceCardLeftId"
               icon={<LeftOutlined size={16} className="text-gray-900" />}
               onClick={() => swiper?.slidePrev()}
             />
@@ -38,6 +39,7 @@ const LeaveBalance = () => {
         )}
         <Swiper
           className="flex-1"
+          id="swiperId"
           slidesPerView={4}
           spaceBetween={16}
           modules={[Navigation]}

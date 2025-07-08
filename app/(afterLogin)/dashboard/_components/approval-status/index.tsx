@@ -2,46 +2,34 @@
 import { FC } from 'react';
 import { Empty, Select } from 'antd';
 import ApprovalRequestCard from './approval-status-card';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
+import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/approval';
+import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
 
 const ApprovalStatus: FC = () => {
+  const { userId } = useAuthenticationStore();
+  const { data: LeaveTransferData } = useGetApprovalLeaveRequest(userId, 1, 4);
+  const { data: BranchTransferData } = useGetBranchTransferApproveById(
+    userId,
+    4,
+    1,
+  );
+  const { approverType, setApproverType } = useDashboardApprovalStore();
+
   const requests = [
     {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
+      type: 'Leave',
+      value: 'Leave Request',
     },
     {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
-    },
-    {
-      name: 'Patricia Candra',
-      date: '12 Mar 2024',
-      time: '8:50 PM',
-      type: 'Leave Request',
+      type: 'BranchTransfer',
+      value: 'Branch Transfer Request',
     },
   ];
+  const handleChange = (value: string) => {
+    setApproverType(value);
+  };
 
   return (
     <div className="bg-white p-3 rounded-lg w-full">
@@ -54,29 +42,61 @@ const ApprovalStatus: FC = () => {
             className="min-w-10   text-sm font-semibold border-none"
             options={requests.map((item) => ({
               value: item.type,
-              label: item.type,
+              label: item.value,
             }))}
-            defaultValue={requests[0].type}
             bordered={false}
+            defaultValue="Leave"
+            onChange={handleChange}
           />
         </div>
       </div>
-
       <div className="md:h-[325px] overflow-y-auto scrollbar-none">
-        {requests?.length ? (
-          <div className="">
-            {requests.map((request, index) => (
-              <ApprovalRequestCard
-                key={index}
-                name={request.name}
-                date={request.date}
-                time={request.time}
-                type={request.type}
-              />
-            ))}
-          </div>
+        {approverType === 'BranchTransfer' ? (
+          BranchTransferData?.items?.length ? (
+            <div>
+              {BranchTransferData.items.map((request: any, index: number) => (
+                <ApprovalRequestCard
+                  key={index}
+                  id={request.id}
+                  name={request.name}
+                  approveRequesterId={request.userId}
+                  startAt={request?.currentBranch?.name}
+                  endAt={request?.requestBranch?.name}
+                  leaveType={'Branch Transfer Request'}
+                  approvalWorkflowId={request.approvalWorkflowId}
+                  nextApprover={request.nextApprover?.[0]?.stepOrder}
+                  requestType={approverType}
+                />
+              ))}
+            </div>
+          ) : (
+            <Empty />
+          )
+        ) : approverType === 'Leave' ? (
+          LeaveTransferData?.items?.length ? (
+            <div>
+              {LeaveTransferData.items.map((request: any, index: number) => (
+                <ApprovalRequestCard
+                  key={index}
+                  id={request.id}
+                  name={request.name}
+                  days={request.days}
+                  approveRequesterId={request.userId}
+                  startAt={request.startAt}
+                  endAt={request.endAt}
+                  isHalfDay={request.isHalfDay}
+                  leaveType={request.leaveType.title}
+                  approvalWorkflowId={request.approvalWorkflowId}
+                  nextApprover={request.nextApprover?.[0]?.stepOrder}
+                  requestType={approverType}
+                />
+              ))}
+            </div>
+          ) : (
+            <Empty />
+          )
         ) : (
-          <Empty />
+          <Empty /> // Optional: Render this if `approverType` does not match any cases
         )}
       </div>
     </div>

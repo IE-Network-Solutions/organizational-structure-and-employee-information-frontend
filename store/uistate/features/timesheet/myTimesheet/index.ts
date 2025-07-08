@@ -2,6 +2,7 @@ import { create, StateCreator } from 'zustand';
 import { AllowedArea, LeaveType } from '@/types/timesheet/settings';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 import { BreakType } from '@/types/timesheet/breakType';
+import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 
 export enum CheckStatus {
   notStarted = 'notStarted',
@@ -9,11 +10,14 @@ export enum CheckStatus {
   breaking = 'breaking',
   finished = 'finished',
 }
-
 type MyTimesheetState = {
+  filter: Partial<LeaveRequestBody['filter']>;
   isShowViewSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
+  isLoading: boolean;
+  isShowLeaveRequestDetail: boolean;
   leaveRequestSidebarData: string | null;
+  leaveRequestSidebarWorkflowData: string | null;
   isShowCheckOutSidebar: boolean;
   checkStatus: CheckStatus;
   leaveTypes: LeaveType[];
@@ -25,9 +29,15 @@ type MyTimesheetState = {
 };
 
 type MyTimesheetAction = {
+  setFilter: (filter: Partial<LeaveRequestBody['filter']>) => void;
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
+  setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
   setLeaveRequestSidebarData: (leaveRequestSidebarData: string | null) => void;
+  setLeaveRequestSidebarWorkflowData: (
+    leaveRequestSidebarWorkflowData: string | null,
+  ) => void;
   setIsShowCheckOutSidebar: (isShowCheckOutSidebar: boolean) => void;
   setCheckStatus: (checkStatus: CheckStatus) => void;
   setLeaveTypes: (leaveTypes: LeaveType[]) => void;
@@ -41,6 +51,9 @@ type MyTimesheetAction = {
 const useMyTimesheetSlice: StateCreator<
   MyTimesheetState & MyTimesheetAction
 > = (set) => ({
+  filter: {},
+  setFilter: (newFilter) => set({ filter: newFilter }),
+
   isShowViewSidebar: false,
   setIsShowViewSidebar: (isShowViewSidebar) => {
     set({ isShowViewSidebar });
@@ -51,9 +64,24 @@ const useMyTimesheetSlice: StateCreator<
     set({ isShowLeaveRequestSidebar });
   },
 
+  isLoading: false,
+  setIsLoading: (isLoading) => {
+    set({ isLoading });
+  },
+
+  isShowLeaveRequestDetail: false,
+  setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail) => {
+    set({ isShowLeaveRequestDetail });
+  },
+
   leaveRequestSidebarData: null,
   setLeaveRequestSidebarData: (leaveRequestSidebarData) => {
     set({ leaveRequestSidebarData });
+  },
+
+  leaveRequestSidebarWorkflowData: null,
+  setLeaveRequestSidebarWorkflowData: (leaveRequestSidebarWorkflowData) => {
+    set({ leaveRequestSidebarWorkflowData });
   },
 
   isShowCheckOutSidebar: false,

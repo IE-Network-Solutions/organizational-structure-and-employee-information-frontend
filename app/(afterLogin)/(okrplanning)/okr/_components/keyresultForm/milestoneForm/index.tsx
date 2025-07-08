@@ -12,7 +12,6 @@ import {
 import { GoPlus } from 'react-icons/go';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
-import moment from 'moment';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
@@ -26,15 +25,15 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult } = useOKRStore();
+  const { setKeyResult, objectiveValue } = useOKRStore();
   const { data: metrics } = useGetMetrics();
+  const metricTypeId = metrics?.items?.find(
+    (i: any) => i.name == 'Milestone',
+  )?.id;
   const handleAddKeyResult = () => {
     form
       .validateFields()
       .then((keyItem) => {
-        const metricTypeId = metrics?.items?.find(
-          (i: any) => i.name === keyItem.key_type,
-        )?.id;
         const NewValue = {
           ...keyItem,
           metricTypeId: metricTypeId,
@@ -44,7 +43,6 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
       })
       .catch(() => {});
   };
-
   return (
     <div className="p-4 sm:p-6 lg:p-2">
       <Form form={form} layout="vertical" initialValues={keyItem}>
@@ -56,18 +54,19 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               onClick={() => removeKeyResult(index)}
               className="cursor-pointer text-red-500 mb-2"
               aria-label="Cancel"
+              id={`cancel-key-result-${index}`}
             />
           </div>
 
           <Form.Item
             className="w-full"
-            name="key_type"
             rules={[
               {
                 required: true,
                 message: 'Please select a Key Result type',
               },
             ]}
+            id={`key-result-type-${index}`}
           >
             <Select
               className="w-full text-xs"
@@ -85,6 +84,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   (metric) => metric.name === keyItem.key_type,
                 )?.id || ''
               } // Use the ID as the value
+              id={`select-metric-type-${index}`}
             >
               <Option value="" disabled>
                 Please select a metric type
@@ -103,6 +103,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
             ]}
+            id={`key-result-title-${index}`}
           >
             <Input
               placeholder="Key Result Name"
@@ -114,20 +115,28 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           <Row gutter={[16, 16]}>
             <Col xs={24} md={12}>
               <Form.Item
-                className="font-semibold text-xs w-full "
+                className="font-semibold text-xs w-full"
                 name={`dead_line_${index}`}
                 label="Deadline"
                 layout="horizontal"
                 rules={[
                   { required: true, message: 'Please select a deadline' },
                 ]}
+                id={`key-result-deadline-${index}`}
               >
                 <DatePicker
                   className="w-full text-xs"
-                  value={keyItem.deadline ? moment(keyItem.deadline) : null}
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
-                    return current && current < dayjs().startOf('day');
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                    // Disable dates before today and above the objective deadline
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
                     updateKeyResult(
@@ -136,6 +145,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       date ? date.format('YYYY-MM-DD') : null,
                     )
                   }
+                  id={`deadline-picker-${index}`}
                 />
               </Form.Item>
             </Col>
@@ -150,6 +160,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   { required: true, message: 'Please enter the Weight' },
                   { type: 'number', message: 'Weight must be a number' },
                 ]}
+                id={`key-result-weight-${index}`}
               >
                 <InputNumber
                   className="text-xs w-full"
@@ -171,6 +182,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               className="bg-blue-600 text-xs md:w-32 w-full"
               icon={<GoPlus />}
               aria-label="Add Key Result"
+              id={`add-key-result-btn-${index}`}
             >
               Add Key Result
             </Button>

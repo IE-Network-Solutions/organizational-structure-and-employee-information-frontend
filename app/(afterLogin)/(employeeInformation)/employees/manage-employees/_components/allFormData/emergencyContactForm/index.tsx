@@ -1,10 +1,10 @@
 import React from 'react';
-import { Col, DatePicker, Form, Input, Row, Select } from 'antd';
+import { Col, Form, Input, Row, Select } from 'antd';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import AddCustomField from '../../addCustomField';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
-import { validateEmail, validateName } from '@/utils/validation';
+import { validateName, validatePhoneNumber } from '@/utils/validation';
 
 const { Option } = Select;
 
@@ -21,11 +21,12 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactFullName']}
-            label="Full Name"
-            id="emergencyContactFullName"
+            name={['emergencyContact', 'firstName']}
+            label="First Name"
+            id="emergencyContactFirstName"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Full Name', value)
                     ? Promise.resolve()
@@ -38,14 +39,35 @@ const EmergencyContactForm = () => {
             <Input />
           </Form.Item>
         </Col>
+        <Col xs={24} sm={8}>
+          <Form.Item
+            className="font-semibold text-xs"
+            name={['emergencyContact', 'middleName']}
+            label="Middle Name"
+            id="emergencyContactMiddleName"
+            rules={[
+              {
+                validator: (rule, value) =>
+                  !value || !validateName('Middle Name', value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(validateName('Middle Name', value) || ''),
+                      ),
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactLastName']}
+            name={['emergencyContact', 'lastName']}
             label="Last Name"
             id="emergencyContactLastName"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
                   !validateName('Last Name', value)
                     ? Promise.resolve()
@@ -63,15 +85,18 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactEmailAddress']}
-            label="Email Address"
-            id="emergencyContactEmailAddress"
+            name={['emergencyContact', 'phoneNumber']}
+            label="Phone Number"
+            id="phoneNumber"
             rules={[
               {
+                required: true,
                 validator: (rule, value) =>
-                  !validateEmail(value)
+                  !validatePhoneNumber(value)
                     ? Promise.resolve()
-                    : Promise.reject(new Error(validateEmail(value) || '')),
+                    : Promise.reject(
+                        new Error(validatePhoneNumber(value) || ''),
+                      ),
               },
             ]}
           >
@@ -81,7 +106,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactGender']}
+            name={['emergencyContact', 'gender']}
             label="Gender"
             id="emergencyContactGender"
             rules={[{ required: true }]}
@@ -97,18 +122,7 @@ const EmergencyContactForm = () => {
         <Col xs={24} sm={12}>
           <Form.Item
             className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactDateOfBirth']}
-            label="Date of Birth"
-            id="emergencyContactDateOfBirth"
-            rules={[{ required: true }]}
-          >
-            <DatePicker className="w-full" />
-          </Form.Item>
-        </Col>
-        <Col xs={24} sm={12}>
-          <Form.Item
-            className="font-semibold text-xs"
-            name={['emergencyContact', 'emergencyContactNationality']}
+            name={['emergencyContact', 'nationality']}
             label="Nationality"
             id="emergencyContactNationality"
             rules={[{ required: true }]}

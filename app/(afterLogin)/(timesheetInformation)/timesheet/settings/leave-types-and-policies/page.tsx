@@ -7,6 +7,9 @@ import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import LeaveTypeCard from './_components/leaveTypeCard';
 import TypesAndPoliciesSidebar from './_components/typesAndPoliciesSidebar';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import TypesAndPoliciesEdit from './_components/typesAndPoliciesEdit';
 
 const Page = () => {
   const { setIsShowTypeAndPoliciesSidebar } = useTimesheetSettingsStore();
@@ -14,20 +17,24 @@ const Page = () => {
   return (
     <>
       <PageHeader title="Types and Policies" size="small">
-        <Button
-          size="large"
-          type="primary"
-          icon={<LuPlus size={18} />}
-          onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
-        >
-          New Type
-        </Button>
+        <AccessGuard permissions={[Permissions.CreateLeaveType]}>
+          <Button
+            size="large"
+            type="primary"
+            icon={<LuPlus size={18} />}
+            id={`createNewTypesAndPoliciesButtonId`}
+            onClick={() => setIsShowTypeAndPoliciesSidebar(true)}
+          >
+            New Type
+          </Button>
+        </AccessGuard>
       </PageHeader>
 
       {data &&
         data.items.map((item) => <LeaveTypeCard key={item.id} item={item} />)}
 
       <TypesAndPoliciesSidebar />
+      <TypesAndPoliciesEdit />
     </>
   );
 };

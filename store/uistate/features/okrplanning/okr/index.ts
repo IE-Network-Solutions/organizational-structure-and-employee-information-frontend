@@ -4,11 +4,23 @@ import { devtools } from 'zustand/middleware';
 
 export const useOKRStore = create<OKRState>()(
   devtools((set) => ({
+    isVP: true,
+    toggleDashboard: () => set((state) => ({ isVP: !state.isVP })),
+
+    revenue: 123050,
+    financialSales: 10050,
+    progressRevenue: 56.02,
+    progressSales: 123100000,
+
+    selectedPeriodId: '',
+    setSelectedPeriodId: (value) => set({ selectedPeriodId: value }),
+
     // Initialize objective state with keyResults as an empty array
     objective: {
       title: '',
       userId: '',
       deadline: '',
+      isClosed: true,
       keyResults: [
         {
           key_type: 'Milestone',
@@ -26,6 +38,7 @@ export const useOKRStore = create<OKRState>()(
       title: '',
       userId: '',
       deadline: '',
+      isClosed: true,
     },
 
     // Initialize key result value state
@@ -111,11 +124,13 @@ export const useOKRStore = create<OKRState>()(
             i === index ? { ...item, [field]: value } : item,
           ),
         },
+      })),
+    updateKeyResultValue: (index: number, field: keyof KeyResult, value: any) =>
+      set((state) => ({
         keyResultValue: state.keyResultValue.map((item: any, i: number) =>
           i === index ? { ...item, [field]: value } : item,
         ),
       })),
-
     handleKeyResultChange: (value: any, index: number, field: string) =>
       set((state) => {
         const newKeyResult = [...state.objectiveValue.keyResults];
@@ -248,5 +263,7 @@ export const useOKRStore = create<OKRState>()(
       set({ companyCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
+    alignment: false,
+    setAlignment: (alignment: boolean) => set({ alignment }),
   })),
 );

@@ -1,5 +1,5 @@
 'use client';
-import { Card, Tabs } from 'antd';
+import { Card, Form, Tabs } from 'antd';
 import { TabsProps } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
 import { TbNotes } from 'react-icons/tb';
@@ -13,7 +13,7 @@ import CustomDeleteFiscalYear from '../_components/fiscalYear/deleteModal';
 
 function SettingsPage() {
   const [tabPosition, setTabPosition] = useState<'left' | 'top'>('left');
-
+  const [form] = Form.useForm();
   useEffect(() => {
     const updateTabPosition = () => {
       if (window.innerWidth < 768) {
@@ -32,32 +32,25 @@ function SettingsPage() {
     };
   }, []);
 
+  const handleStepChange = () => {};
+
   const items: TabsProps['items'] = [
     {
       key: '1',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" /> <p className="font-semibold">Branchs </p>{' '}
+          <TbNotes className="mt-1" />{' '}
+          <p className="font-semibold">Branches </p>
         </span>
       ),
       children: <Branches />,
     },
-    // {
-    //   key: '2',
-    //   label: (
-    //     <span className="flex gap-2 mt-4">
-    //       <TbNotes className="mt-1" />{' '}
-    //       <p className="font-semibold">Departments </p>{' '}
-    //     </span>
-    //   ),
-    //   children: <Branches />,
-    // },
     {
       key: '2',
       label: (
         <span className="flex gap-2 mt-4">
           <TbNotes className="mt-1" />{' '}
-          <p className="font-semibold">Fiscal Year </p>{' '}
+          <p className="font-semibold">Fiscal Year </p>
         </span>
       ),
       children: <FiscalYearListCard />,
@@ -66,8 +59,8 @@ function SettingsPage() {
       key: '3',
       label: (
         <span className="flex gap-2 mt-4">
-          <TbNotes className="mt-1" />{' '}
-          <p className="font-semibold">Work Schedule </p>{' '}
+          <TbNotes className="mt-1" />
+          <p className="font-semibold">Work Schedule </p>
         </span>
       ),
       children: <WorkScheduleTab />,
@@ -77,7 +70,7 @@ function SettingsPage() {
     <>
       <div className="flex justify-start  -mt-2 -ml-2">
         <Card className="shadow-none" bordered={false}>
-          <p className="font-bold text-xl">Branchs</p>
+          <p className="font-bold text-xl">Branches</p>
           <p className="text-gray-400">Branch</p>
         </Card>
       </div>
@@ -90,7 +83,10 @@ function SettingsPage() {
         tabPosition={tabPosition}
       />
       <CustomWorkingScheduleDrawer />
-      <CustomWorFiscalYearDrawer />
+      <CustomWorFiscalYearDrawer
+        form={form}
+        handleNextStep={handleStepChange}
+      />
       <CustomDeleteWorkingSchduel />
       <CustomDeleteFiscalYear />
     </>

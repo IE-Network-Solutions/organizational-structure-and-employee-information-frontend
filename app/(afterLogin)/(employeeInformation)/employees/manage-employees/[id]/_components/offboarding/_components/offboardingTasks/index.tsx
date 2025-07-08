@@ -21,6 +21,8 @@ import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { OffBoardingTasksUpdateStatus } from '@/store/server/features/employees/offboarding/interface';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 const TaskItem: React.FC<{ task: Task; onToggle: () => void }> = ({
   task,
   onToggle,
@@ -108,26 +110,32 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
         title="Offboarding Tasks"
         extra={
           <div className="flex space-x-2">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAddTaskClick}
-              disabled={!offboardingTermination}
-            >
-              Add Task
-            </Button>
-            <div id="offboarding-template-tasks">
-              <Dropdown
-                menu={{ items: menuItems }}
-                trigger={['click']}
-                placement="bottomRight"
+            <AccessGuard permissions={[Permissions.AddOffloadingTasks]}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAddTaskClick}
                 disabled={!offboardingTermination}
               >
-                <Button className="flex items-center">
-                  <SettingOutlined className="mr-2" />
-                  <DownOutlined />
-                </Button>
-              </Dropdown>
+                Add Task
+              </Button>
+            </AccessGuard>
+            <div id="offboarding-template-tasks">
+              <AccessGuard
+                permissions={[Permissions.AddOffloadingTemplateTasks]}
+              >
+                <Dropdown
+                  menu={{ items: menuItems }}
+                  trigger={['click']}
+                  placement="bottomRight"
+                  disabled={!offboardingTermination}
+                >
+                  <Button className="flex items-center">
+                    <SettingOutlined className="mr-2" />
+                    <DownOutlined />
+                  </Button>
+                </Dropdown>
+              </AccessGuard>
             </div>
           </div>
         }

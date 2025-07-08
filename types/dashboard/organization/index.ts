@@ -42,6 +42,8 @@ export interface OrganizationState {
   isDeleteConfirmVisible: boolean;
   selectedDepartment: Department | null;
   parentId: string | null;
+  departmentTobeDeletedId: string;
+  departmentTobeShiftedId: string;
 
   setOrgData: (orgData: OrgData) => void;
   setBranchId: (branchId: string) => void;
@@ -52,4 +54,16 @@ export interface OrganizationState {
   setSelectedDepartment: (department: Department | null) => void;
   setParentId: (parentId: string | null) => void;
   setIsDeleteConfirmVisible: (isDeleteConfirmVisible: boolean) => void;
+  chartDownlaodLoading: boolean;
+  setChartDonwnloadLoading: (chartDownlaodLoading: boolean) => void;
+  drawerVisible: boolean;
+  setDrawerVisible: (visible: boolean) => void;
+  drawerContent: string;
+  setDrawerContent: (content: string) => void;
+  footerButtonText: string;
+  setFooterButtonText: (text: string) => void;
+  drawTitle: string;
+  setDrawTitle: (title: string) => void;
+  setDepartmentTobeDeletedId: (departmentTobeDeletedId: string) => void;
+  setShiftDepartmentId: (departmentTobeShiftedId: string) => void;
 }

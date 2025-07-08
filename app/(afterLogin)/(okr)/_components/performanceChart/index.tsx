@@ -9,7 +9,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { WeeklyScore } from '@/types/dashboard/okr';
+import { MdCheckBoxOutlineBlank } from 'react-icons/md';
+import { useGetPerformance } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 
 ChartJS.register(
   CategoryScale,
@@ -19,26 +20,40 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-const weeklyScores: WeeklyScore[] = [
-  { label: 'Week 1', scoreValue: 40 },
-  { label: 'Week 2', scoreValue: 90 },
-  { label: 'Week 3', scoreValue: 60 },
-  { label: 'Week 4', scoreValue: 75 },
-];
 
-const PerformanceChart = () => {
+interface PerformanceChartProps {
+  selectedPeriodId: string;
+  userId: string;
+}
+
+const PerformanceChart: React.FC<PerformanceChartProps> = ({
+  selectedPeriodId,
+  userId,
+}) => {
+  const { data: scores } = useGetPerformance(selectedPeriodId, userId);
+
   const getHighestScore = () => {
-    return Math.max(...weeklyScores?.map((score) => score.scoreValue));
+    const scoresArray = scores?.map((score: any) => score?.totalscore) || [];
+    return scoresArray.length > 0 ? Math.max(...scoresArray) : 0;
   };
 
   const highestScore = getHighestScore();
   const data = {
-    labels: weeklyScores?.map((score) => score.label),
+    labels: scores?.map((score: any) =>
+      score?.weeknumber
+        ? `Week ${score.weeknumber}`
+        : score?.month
+          ? `Month ${score.month}`
+          : score?.day
+            ? `Day ${score.day}`
+            : '',
+    ),
+
     datasets: [
       {
-        data: weeklyScores?.map((score) => score.scoreValue),
-        backgroundColor: weeklyScores?.map((score) =>
-          score.scoreValue === highestScore
+        data: scores?.map((score: any) => score?.totalscore),
+        backgroundColor: scores?.map((score: any) =>
+          score.totalscore === highestScore
             ? 'rgba(34, 69, 255, 1)'
             : 'rgb(233, 233, 255)',
         ),
@@ -64,17 +79,16 @@ const PerformanceChart = () => {
       },
     },
   };
-
   return (
     <div className="mb-10">
       <Bar data={data} options={options} />
-      <div className="flex justify-start mt-4">
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-[rgba(34,69,255,1)] mr-2"></div>
+      <div className="flex items-center justify-start mt-4 gap-4">
+        <div className="flex justify-center items-center gap-1">
+          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-md bg-[#4C4CFF] text-[#4C4CFF]" />
           <span>Highest Average Score</span>
         </div>
-        <div className="flex items-center mr-4">
-          <div className="w-4 h-4 bg-[rgb(233,233,255)] mr-2"></div>
+        <div className="flex justify-center items-center gap-1">
+          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-md bg-[#E9E9FF] text-[#E9E9FF]" />
           <span>Average Score</span>
         </div>
       </div>

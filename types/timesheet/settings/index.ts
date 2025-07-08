@@ -1,4 +1,5 @@
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
+import { EmployeeData } from '@/store/server/features/employees/employeeDetail/interface';
 import { DateInfo } from '@/types/commons/dateInfo';
 
 export enum LeaveRequestStatus {
@@ -32,11 +33,16 @@ export enum CarryOverPeriod {
 }
 
 export enum AccrualRulePeriod {
+  DAILY = 'daily',
   MONTHLY = 'monthly',
   YEAR = 'year',
   QUARTER = 'quarter',
 }
 
+type AllowedUserAccess = {
+  allowedAreaId: string;
+  userId: string;
+};
 export interface AllowedArea extends DateInfo {
   id: string;
   title: string;
@@ -44,6 +50,8 @@ export interface AllowedArea extends DateInfo {
   distance: number;
   latitude: number;
   longitude: number;
+  isGlobal: boolean;
+  allowedUserAccesses?: AllowedUserAccess[];
 }
 
 export interface CarryOverRule extends DateInfo {
@@ -59,7 +67,7 @@ export interface CarryOverRule extends DateInfo {
 export interface LeaveRequest extends DateInfo {
   id: string;
   tenantId: string;
-  user: string;
+  userId: string;
   leaveType: LeaveType | string;
   startAt: string;
   endAt: string;
@@ -70,7 +78,48 @@ export interface LeaveRequest extends DateInfo {
   status: LeaveRequestStatus;
   days: number;
   comment: string | null;
+  approvalType: string | null;
+  approvalWorkflowId: string | null;
   commentAttachments: string[];
+  delegatee?: EmployeeData | string;
+}
+export interface SingleLeaveRequest extends DateInfo {
+  id: string;
+  tenantId: string;
+  user: string;
+  userId?: string;
+  leaveType: LeaveType;
+  startAt: string;
+  endAt: string;
+  isHalfday: boolean;
+  justificationNote: string | null;
+  justificationDocument: string | null;
+  managedBy: string | null;
+  status: LeaveRequestStatus;
+  days: number;
+  comment: string | null;
+  approvalType: string | null;
+  approvalWorkflowId: string | null;
+  commentAttachments: string[];
+  delegatee?: EmployeeData | string;
+}
+export interface ApprovalLog extends DateInfo {
+  approvalLogId: string;
+  comment: string;
+  commentedBy: string;
+  id: string;
+  tenantId: string;
+}
+export interface SingleLogRequest extends DateInfo {
+  action: string;
+  approvalWorkflowId: string;
+  approvalComments?: ApprovalLog[];
+  approvedUserId: string;
+  approverRoleId: string;
+  id: string;
+  requestId: string;
+  stepOrder: number;
+  tenantId: string;
 }
 
 export interface LeaveType extends DateInfo {
@@ -81,6 +130,8 @@ export interface LeaveType extends DateInfo {
   isPaid: boolean;
   accrualRule: AccrualRule | string;
   carryOverRule: CarryOverRule | string;
+  accrualRuleId?: string;
+  carryOverRuleId?: string;
   maximumAllowedConsecutiveDays: number;
   minimumNotifyingDays: number;
   entitledDaysPerYear: number;

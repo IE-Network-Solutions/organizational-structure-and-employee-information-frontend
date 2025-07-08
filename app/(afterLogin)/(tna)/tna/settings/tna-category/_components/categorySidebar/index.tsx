@@ -54,7 +54,7 @@ const TnaCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: tnaCategoryId ? <span>Edit</span> : <span> Create</span>,
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -89,7 +89,11 @@ const TnaCategorySidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add TNA Category
+            {tnaCategoryId ? (
+              <span>Edit TNA Category</span>
+            ) : (
+              <span>Add TNA Category</span>
+            )}
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
@@ -108,7 +112,7 @@ const TnaCategorySidebar = () => {
               rules={[{ required: true, message: 'Required' }]}
               className="form-item"
             >
-              <Input className="control" />
+              <Input id="tnaCategoryNameFieldId" className="control" />
             </Form.Item>
             <Form.Item
               name="description"
@@ -117,6 +121,7 @@ const TnaCategorySidebar = () => {
               className="form-item"
             >
               <Input.TextArea
+                id="tnaCategoryDescriptionFieldId"
                 className="control-tarea"
                 rows={6}
                 placeholder="Enter the Description"

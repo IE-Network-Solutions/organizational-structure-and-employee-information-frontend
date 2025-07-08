@@ -9,6 +9,7 @@ interface RemoveFormFieldButtonProps {
 const RemoveFormFieldButton: FC<RemoveFormFieldButtonProps> = ({ onClick }) => {
   return (
     <Button
+      id="tnaRemoveFormFieldButton"
       onClick={onClick}
       icon={<IoCloseCircle size={16} />}
       htmlType="button"

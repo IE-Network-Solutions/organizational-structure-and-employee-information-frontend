@@ -6,7 +6,6 @@ import {
   Form,
   Input,
   InputNumber,
-  Modal,
   Row,
   Select,
   Upload,
@@ -15,10 +14,10 @@ import Image from 'next/image';
 import React, { useEffect } from 'react';
 import cvUpload from '@/public/image/cvUpload.png';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
-import { CandidateType } from '@/types/enumTypes';
 import { FaInfoCircle } from 'react-icons/fa';
 import TextArea from 'antd/es/input/TextArea';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import CustomDrawerLayout from '@/components/common/customDrawer';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -26,8 +25,6 @@ const { Option } = Select;
 const EditCandidate: React.FC = () => {
   const [form] = Form.useForm();
   const { searchParams } = useCandidateState();
-  const { data: jobList } = useGetJobs(searchParams?.whatYouNeed || '');
-  const { mutate: updateCandidate } = useUpdateCandidate();
 
   const {
     editCandidateModal,
@@ -35,11 +32,18 @@ const EditCandidate: React.FC = () => {
     selectedCandidateId,
     setDocumentFileList,
     removeDocument,
-    isClient,
-    setIsClient,
     documentFileList,
     setEditCandidateModal,
+    currentPage,
+    pageSize,
   } = useCandidateState();
+
+  const { data: jobList } = useGetJobs(
+    searchParams?.whatYouNeed || '',
+    currentPage,
+    pageSize,
+  );
+  const { mutate: updateCandidate } = useUpdateCandidate();
 
   const updatedBy = useAuthenticationStore.getState().userId;
 
@@ -56,14 +60,6 @@ const EditCandidate: React.FC = () => {
       onSuccess('ok');
     }, 0);
   };
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient || !editCandidateModal) {
-    return null;
-  }
 
   const handleFormSubmit = () => {
     const formValues = form.getFieldsValue();
@@ -90,15 +86,42 @@ const EditCandidate: React.FC = () => {
     updateCandidate({ data: formData, id: selectedCandidateId });
     setEditCandidateModal(false);
   };
+  const editCandidateHeader = (
+    <div className="flex flex-col items-center">Edit Candidate</div>
+  );
+
+  useEffect(() => {
+    if (editCandidate && selectedCandidateId) {
+      form.setFieldsValue({
+        fullName: editCandidate?.fullName,
+        email: editCandidate?.email,
+        phoneNumber: editCandidate?.phoneNumber,
+        jobInformationId: editCandidate?.jobCandidate?.map(
+          (item: any) => item?.jobInformation?.jobTitle,
+        ),
+        coverLetter: editCandidate?.jobCandidate?.map(
+          (item: any) => item?.coverLetter,
+        ),
+        resumeUrl: editCandidate?.resumeUrl
+          ? {
+              uid: editCandidate?.resumeUrl,
+              name: editCandidate?.resumeUrl,
+              status: 'done',
+              url: editCandidate?.resumeUrl,
+            }
+          : undefined,
+      });
+    }
+  }, [editCandidate, selectedCandidateId]);
 
   return (
     editCandidateModal && (
-      <Modal
-        title="Edit Candidate"
+      <CustomDrawerLayout
         open={editCandidateModal}
-        onCancel={() => setEditCandidateModal(false)}
+        onClose={() => setEditCandidateModal(false)}
+        modalHeader={editCandidateHeader}
+        width="40%"
         footer={null}
-        destroyOnClose
       >
         <Form
           form={form}
@@ -154,7 +177,10 @@ const EditCandidate: React.FC = () => {
                   </span>
                 }
                 rules={[
-                  { required: true, message: 'Please input the phone number!' },
+                  {
+                    required: true,
+                    message: 'Please input the phone number!',
+                  },
                 ]}
               >
                 <Input
@@ -166,49 +192,26 @@ const EditCandidate: React.FC = () => {
             </Col>
           </Row>
 
-          <Form.Item
-            id="jobId"
-            name="jobInformationId"
-            label={
-              <span className="text-md font-semibold text-gray-700">Job</span>
-            }
-            rules={[{ required: true, message: 'Please select a job' }]}
-          >
-            <Select
-              className="text-sm w-full h-10"
-              placeholder="Select a job type"
-            >
-              {jobList &&
-                jobList?.items?.map((job: any) => (
-                  <Option key={job?.id} value={job?.id}>
-                    {job?.jobTitle}
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
-
           <Row gutter={16}>
             <Col xs={24} sm={24} lg={12} md={12} xl={12}>
               <Form.Item
-                id="candidateTypeId"
-                name="candidateType"
+                id="jobId"
+                name="jobInformationId"
                 label={
                   <span className="text-md font-semibold text-gray-700">
-                    Candidate Type
+                    Job
                   </span>
                 }
-                rules={[
-                  { required: true, message: 'Please input the job name!' },
-                ]}
+                rules={[{ required: true, message: 'Please select a job' }]}
               >
                 <Select
                   className="text-sm w-full h-10"
                   placeholder="Select a job type"
                 >
-                  {CandidateType &&
-                    Object?.values(CandidateType).map((type) => (
-                      <Option key={type} value={type}>
-                        {type}
+                  {jobList &&
+                    jobList?.items?.map((job: any) => (
+                      <Option key={job?.id} value={job?.id}>
+                        {job?.jobTitle}
                       </Option>
                     ))}
                 </Select>
@@ -275,7 +278,7 @@ const EditCandidate: React.FC = () => {
               onRemove={handleDocumentRemove}
               customRequest={customRequest}
               listType="picture"
-              accept="*/*"
+              accept="application/pdf"
             >
               <p className="flex items-center justify-center">
                 <Image
@@ -314,7 +317,7 @@ const EditCandidate: React.FC = () => {
             </div>
           </Form.Item>
         </Form>
-      </Modal>
+      </CustomDrawerLayout>
     )
   );
 };

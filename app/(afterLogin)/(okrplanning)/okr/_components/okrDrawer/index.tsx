@@ -1,7 +1,16 @@
 'use client';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import React, { useEffect } from 'react';
-import { Button, DatePicker, Form, Input, Row, Col, Select } from 'antd';
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Col,
+  Select,
+  Checkbox,
+} from 'antd';
 import { GoPlus } from 'react-icons/go';
 import KeyResultForm from '../keyresultForm';
 import KeyResultView from '../keyresultView';
@@ -29,10 +38,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     updateKeyResult,
     removeKeyResult,
     addKeyResultValue,
+    setAlignment,
+    alignment,
   } = useOKRStore();
 
   const [form] = Form.useForm();
-  const { mutate: createObjective } = useCreateObjective();
+  const { mutate: createObjective, isLoading } = useCreateObjective();
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -45,17 +56,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const reportsToId = userData?.reportingTo?.id;
 
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
-  const objectiveTitle = keyResultByUser?.items?.find(
-    (i: any) => i.id === objectiveValue?.allignedKeyResultId,
-  )?.title;
-  const handleObjectiveChange = (value: any, field: string) => {
-    const newObjectiveName = value;
-    setObjectiveValue({
-      ...objectiveValue,
-      userId: userId,
-      [field]: newObjectiveName,
-    });
-  };
+  const objectiveTitle = objectiveValue?.title
+    ? objectiveValue?.title
+    : keyResultByUser?.items?.find(
+        (i: any) => i.id === objectiveValue?.allignedKeyResultId,
+      )?.title;
+
   useEffect(() => {
     setObjectiveValue({
       ...objectiveValue,
@@ -67,15 +73,94 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     setObjectiveValue(defaultObjective); // Reset the objective state
     props?.onClose(); // Close the drawer
   };
+  const handleAlignment = () => {
+    const updatedAlignment = !alignment;
+    setAlignment(updatedAlignment);
+
+    if (!updatedAlignment) {
+      setObjectiveValue({
+        ...objectiveValue,
+        allignedKeyResultId: null,
+      });
+    }
+  };
+  const handleObjectiveChange = (value: any, field: string) => {
+    const newObjectiveName = value;
+    setObjectiveValue({
+      ...objectiveValue,
+      userId: userId,
+      [field]: newObjectiveName,
+    });
+  };
   const onSubmit = () => {
     form
       .validateFields()
       .then(() => {
-        if (
-          objectiveValue?.keyResults &&
-          objectiveValue?.keyResults?.length !== 0
-        ) {
-          createObjective(objectiveValue, {
+        const keyResults = objectiveValue?.keyResults;
+        const keyResultSum = keyResults?.reduce(
+          (sum: number, keyResult: Record<string, number>) =>
+            sum + keyResult.weight,
+          0,
+        );
+        if (keyResultSum !== 100) {
+          NotificationMessage.warning({
+            message: `The sum of key result should equal to 100.`,
+          });
+          return; // Stop submission if the sum is not 100
+        }
+        if (keyResults && keyResults.length !== 0) {
+          // Iterate over each keyResult to validate all milestone key types
+          for (const [index, keyResult] of keyResults.entries()) {
+            const keyType = keyResult?.metricType?.name || keyResult?.key_type;
+            if (keyType === 'Milestone') {
+              // Check if at least one milestone is added
+              if (!keyResult.milestones || keyResult.milestones.length === 0) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} Please add at least one milestone`,
+                });
+                return; // Stop submission if no milestone is added
+              }
+
+              // Calculate the sum of milestone values
+              const milestoneSum = keyResult.milestones.reduce(
+                (sum: number, milestone: Record<string, number>) =>
+                  sum + milestone.weight,
+                0,
+              );
+
+              // Check if the sum of milestone values equals 100
+
+              if (milestoneSum !== 100) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+            if (
+              keyType === 'Currency' ||
+              keyType === 'Numeric' ||
+              keyType === 'Percentage'
+            ) {
+              // Check if at least one milestone is added
+
+              if (keyResult?.initialValue > keyResult?.targetValue) {
+                NotificationMessage.warning({
+                  message: `On number:${index + 1} title:${keyResult.title} key result initialValue should be less than or equal to the target value.`,
+                });
+                return; // Stop submission if the sum is not 100
+              }
+            }
+          }
+          const modifiedObjectiveValue = { ...objectiveValue };
+          if (
+            modifiedObjectiveValue?.allignedKeyResultId === '' ||
+            modifiedObjectiveValue?.allignedKeyResultId === null
+          ) {
+            delete modifiedObjectiveValue.allignedKeyResultId;
+          }
+          // If all checks pass, proceed with the objective creation
+          createObjective(modifiedObjectiveValue, {
             onSuccess: () => {
               handleDrawerClose();
             },
@@ -99,14 +184,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     }
   }, [objectiveValue, form]);
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div className="w-full flex justify-center items-center gap-4 pt-2">
       <CustomButton
+        id="cancel-button"
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
       />
-      <CustomButton title={'Save'} type="primary" onClick={onSubmit} />
+      <CustomButton
+        id="save-button"
+        title={'Save'}
+        type="primary"
+        onClick={onSubmit}
+        loading={isLoading}
+      />
     </div>
   );
   return (
@@ -116,72 +208,64 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       modalHeader={modalHeader}
       footer={footer}
       width={'50%'}
+      paddingBottom={10}
     >
-      <Form form={form} layout="vertical" initialValues={objectiveValue}>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={16}>
-            {keyResultByUser?.items?.length ? (
-              <Form.Item
-                className="font-bold text-xs w-full mb-2"
-                name="allignedKeyResultId"
-                label="Objective/Alignment"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
-              >
-                {/* Search and select a key result by user */}
-                <Select
-                  showSearch
-                  placeholder="Search and select a Key Result"
-                  value={objectiveValue?.title || ''}
-                  onChange={
-                    (value, option) =>
-                      handleObjectiveChange(option?.key, 'allignedKeyResultId') // Update the alignment ID with the selected key
-                  }
-                  filterOption={(input: any, option: any) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                >
-                  {keyResultByUser?.items.map((keyResult) => (
-                    <Select.Option key={keyResult.id} value={keyResult.title}>
-                      {keyResult.title}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            ) : (
-              <Form.Item
-                className="font-bold text-xs w-full mb-2"
-                name="title"
-                label="Objective/Alignment"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
-              >
-                <Input
-                  allowClear
-                  value={objectiveValue?.title || ''}
-                  onChange={(e) => {
-                    handleObjectiveChange(e.target.value, 'title');
-                  }}
-                />
-              </Form.Item>
-            )}
-          </Col>
-          <Col xs={24} sm={8}>
+      <Form
+        id="okr-form"
+        form={form}
+        layout="vertical"
+        initialValues={objectiveValue}
+      >
+        <Checkbox checked={alignment} onChange={() => handleAlignment()}>
+          Change Objective Name
+        </Checkbox>
+        <Row gutter={[16, 16]} className="w-full">
+          {/* Objective/Alignment */}
+          <Col xs={24} sm={12} md={16}>
             <Form.Item
-              className="font-bold text-xs w-full"
+              id="alignment-select"
+              className="font-bold text-xs w-full mb-2"
+              name="allignedKeyResultId"
+              label="Supervisor Key Result"
+              rules={[
+                {
+                  required: !reportsToId ? true : false,
+                  message: 'Please enter the Objective name',
+                },
+              ]}
+            >
+              <Select
+                id="alignment-select-dropdown"
+                showSearch
+                placeholder="Search and select a Key Result"
+                value={objectiveValue?.allignedKeyResultId}
+                onChange={
+                  (value) => handleObjectiveChange(value, 'allignedKeyResultId') // Pass the value (id) as alignment ID
+                }
+                filterOption={(input: string, option: any) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {keyResultByUser?.items.map((keyResult) => (
+                  <Select.Option key={keyResult.id} value={keyResult.id}>
+                    {keyResult.title}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          {/* Objective Deadline */}
+          <Col xs={24} sm={12} md={8}>
+            <Form.Item
+              id="deadline-picker"
+              className="font-bold text-xs w-full mb-2"
               name="ObjectiveDeadline"
               label="Objective Deadline"
               rules={[{ required: true, message: 'Please select a deadline' }]}
             >
               <DatePicker
+                id="deadline-picker-field"
                 value={
                   objectiveValue.deadline
                     ? dayjs(objectiveValue.deadline)
@@ -192,18 +276,46 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 }}
                 className="w-full"
                 format="YYYY-MM-DD"
-                disabledDate={(current) => {
-                  return current && current < dayjs().startOf('day');
-                }}
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf('day')
+                }
               />
             </Form.Item>
           </Col>
+
+          {/* Supervisor Key Result (Visible Only When Alignment is True) */}
+          {alignment && (
+            <Col xs={24} sm={24} md={16}>
+              <Form.Item
+                id="title-input"
+                className="font-bold text-xs w-full"
+                name="title"
+                label="Objective Title"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the Objective name',
+                  },
+                ]}
+              >
+                <Input
+                  id="title-input-field"
+                  allowClear
+                  value={objectiveValue?.title || ''}
+                  onChange={(e) => {
+                    handleObjectiveChange(e.target.value, 'title');
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          )}
         </Row>
 
         <div className="border border-gray-300 rounded-lg p-4 mt-5 ">
           <div className="flex justify-between items-center">
             <p className="font-bold text-xs h-6">Set Key Result</p>
             <Button
+              id="add-keyresult-button"
               disabled={objective?.keyResults?.length == 1}
               onClick={addKeyResult}
               className="border-none shadow-none bg-none text-xs"

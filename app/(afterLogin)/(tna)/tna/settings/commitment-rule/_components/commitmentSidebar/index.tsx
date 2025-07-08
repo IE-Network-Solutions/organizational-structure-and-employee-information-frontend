@@ -57,7 +57,7 @@ const TnaCommitmentSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: 'Create',
+      label: tnaCommitmentId ? <span>Edit</span> : <span>Create</span>,
       key: 'create',
       className: 'h-14',
       type: 'primary',
@@ -110,7 +110,11 @@ const TnaCommitmentSidebar = () => {
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            Add Commitment Rule
+            {tnaCommitmentId ? (
+              <span> Edit Commitment Rule</span>
+            ) : (
+              <span> Add Commitment Rule</span>
+            )}
           </CustomDrawerHeader>
         }
         footer={<CustomDrawerFooterButton buttons={footerModalItems} />}

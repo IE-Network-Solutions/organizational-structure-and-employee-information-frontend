@@ -10,7 +10,6 @@ import {
   Input,
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
-import moment from 'moment';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
@@ -27,7 +26,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult } = useOKRStore();
+  const { setKeyResult, objectiveValue } = useOKRStore();
 
   const handleAddKeyResult = () => {
     form
@@ -43,7 +42,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
   const { data: metrics } = useGetMetrics();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-2">
+    <div className="p-4 sm:p-6 lg:p-2" id={`key-result-${index}`}>
       <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8">
         {/* Close Button */}
         <div className="flex justify-end">
@@ -52,11 +51,13 @@ const PercentageForm: React.FC<OKRFormProps> = ({
             title="Cancel"
             onClick={() => removeKeyResult(index)}
             className="cursor-pointer text-red-500 mb-2"
+            id={`remove-key-result-${index}`}
           />
         </div>
         <Form form={form} initialValues={keyItem} layout="vertical">
           <Form.Item className="w-full mb-2">
             <Select
+              id={`metric-type-${index}`}
               className="w-full text-xs"
               onChange={(value) => {
                 const selectedMetric = metrics?.items?.find(
@@ -81,13 +82,11 @@ const PercentageForm: React.FC<OKRFormProps> = ({
             name="title"
             className="font-semibold text-xs w-full mb-2"
             rules={[
-              {
-                required: true,
-                message: 'Please enter the Key Result name',
-              },
+              { required: true, message: 'Please enter the Key Result name' },
             ]}
           >
             <Input
+              id={`key-result-title-${index}`}
               value={keyItem.title || ''}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
@@ -107,11 +106,19 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 ]}
               >
                 <DatePicker
+                  id={`key-result-deadline-${index}`}
                   className="w-full text-xs"
-                  value={keyItem.deadline ? moment(keyItem.deadline) : null}
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
-                    return current && current < dayjs().startOf('day');
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
+
+                    // Disable dates before today and above the objective deadline
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
                   }}
                   onChange={(date) =>
                     updateKeyResult(
@@ -136,18 +143,17 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     message: 'Please enter the weight as a Percentage',
                   },
                   {
-                    /* eslint-disable @typescript-eslint/no-unused-vars */
                     validator: (form, value) =>
                       value && value > 0
                         ? Promise.resolve()
                         : Promise.reject(
                             new Error('Weight must be greater than 0'),
                           ),
-                    /* eslint-enable @typescript-eslint/no-unused-vars */
                   },
                 ]}
               >
                 <InputNumber
+                  id={`key-result-weight-${index}`}
                   className="w-full"
                   min={0}
                   max={100}
@@ -169,21 +175,20 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 rules={[
                   {
                     required: true,
-                    message: 'Please enter the initialValue value',
+                    message: 'Please enter the initial value',
                   },
                   {
-                    /* eslint-disable @typescript-eslint/no-unused-vars */
                     validator: (form, value) =>
-                      value && value >= 0
-                        ? Promise.resolve()
+                      value >= 0
+                        ? Promise.resolve() // Accepts value 0 and any positive number
                         : Promise.reject(
                             new Error('Initial value must be non-negative'),
                           ),
-                    /* eslint-enable @typescript-eslint/no-unused-vars */
                   },
                 ]}
               >
                 <InputNumber
+                  id={`key-result-initial-value-${index}`}
                   className="w-full"
                   min={0}
                   max={100}
@@ -205,21 +210,20 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 rules={[
                   {
                     required: true,
-                    message: 'Please enter the targetValue value',
+                    message: 'Please enter the target value',
                   },
                   {
-                    /* eslint-disable @typescript-eslint/no-unused-vars */
                     validator: (form, value) =>
                       value && value >= 0
                         ? Promise.resolve()
                         : Promise.reject(
                             new Error('Target value must be non-negative'),
                           ),
-                    /* eslint-enable @typescript-eslint/no-unused-vars */
                   },
                 ]}
               >
                 <InputNumber
+                  id={`key-result-target-value-${index}`}
                   className="w-full"
                   min={0}
                   max={100}
@@ -237,9 +241,10 @@ const PercentageForm: React.FC<OKRFormProps> = ({
 
           <div className="flex justify-end">
             <Button
+              id={`add-key-result-${index}`}
               onClick={handleAddKeyResult}
               type="primary"
-              className="bg-blue-600 text-xs md:w-52   w-full"
+              className="bg-blue-600 text-xs md:w-52 w-full"
               icon={<GoPlus />}
               aria-label="Add Key Result"
             >

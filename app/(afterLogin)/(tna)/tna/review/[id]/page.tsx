@@ -21,6 +21,12 @@ import TnaUpdateSidebar from '@/app/(afterLogin)/(tna)/tna/review/[id]/_componen
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import FileButton from '@/components/common/fileButton';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import ApprovalStatusCard from '@/components/common/approvalStatuses/approvalStatusCard';
+import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
+import { useGetSingleApprovalLog } from '@/store/server/features/timesheet/leaveRequest/queries';
 
 const TnaDetailPage = () => {
   const { isShowTnaUpdateSidebar, setTnaId, setIsShowTnaUpdateSidebar } =
@@ -44,7 +50,57 @@ const TnaDetailPage = () => {
       refetch();
     }
   }, [isShowTnaUpdateSidebar]);
+  const { data: employeeData } = useGetAllUsers();
 
+  const userData = (id: string) => {
+    const user = employeeData?.items?.find((item: any) => item.id === id);
+    return `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim();
+  };
+  const userImage = (id: string) => {
+    const user = employeeData?.items?.find((item: any) => item.id === id);
+    return user?.profileImage;
+  };
+  type ApprovalRecord = {
+    approverId: string; // UUID
+    userId: string; // UUID
+    stepOrder: number;
+    status: 'Approved' | 'Rejected' | 'Pending'; // Adjust enum as needed
+    conditionField: string | null;
+    conditionRangeValue: string | null;
+    tenantId: string; // UUID
+    approvalLogId: string; // UUID
+    requestId: string; // UUID
+    approvalWorkflowId: string; // UUID
+    action: 'Approved' | 'Rejected'; // Adjust enum as needed
+    approvalComments: any;
+  };
+  const ApprovalList = ({
+    id,
+    approvalWorkflowId,
+  }: {
+    id: string;
+    approvalWorkflowId: string;
+  }) => {
+    const { data: logData } = useGetSingleApprovalLog(
+      id ?? '',
+      approvalWorkflowId ?? '',
+    );
+    return (
+      <div className="mx-1 text-sm">
+        {Array.isArray(logData) &&
+          logData
+            ?.sort((a, b) => a.stepOrder - b.stepOrder)
+            ?.map((approvalCard: ApprovalRecord, idx: number) => (
+              <ApprovalStatusCard
+                key={idx}
+                data={approvalCard}
+                userName={userData}
+                userImage={userImage}
+              />
+            ))}
+      </div>
+    );
+  };
   return (
     <div className="page-wrap">
       <BlockWrapper>
@@ -54,6 +110,7 @@ const TnaDetailPage = () => {
               <Button
                 icon={<FaArrowLeftLong size={18} />}
                 className="text-gray-900 bg-transparent shadow-none"
+                id="tnaDetailActionButtonId"
                 type="primary"
                 size="small"
                 onClick={router.back}
@@ -70,14 +127,40 @@ const TnaDetailPage = () => {
           <Spin spinning={isFetching}>
             <div className="mt-6 rounded-lg border border-gray-200 p-6">
               <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8">
-                {data.items[0].createdBy || '-'}
+                {data.items[0].assignedUserId ? (
+                  <UserCard
+                    data={data}
+                    name={
+                      data.items[0].assignedUserId &&
+                      userData(String(data.items[0].assignedUserId))
+                    }
+                    profileImage={
+                      data.items[0].assignedUserId &&
+                      userImage(String(data.items[0].assignedUserId))
+                    }
+                    size="small"
+                  />
+                ) : (
+                  '-'
+                )}
               </div>
 
               <div>
                 <div className="flex gap-2.5 text-sm mb-4">
                   <div className="w-[200px] text-gray-600">Requester</div>
                   <div className="flex-1">
-                    <UserCard name="-" description="Join Date: 23 Feb, 2023 " />
+                    <UserCard
+                      data={data}
+                      name={
+                        data.items[0].assignedUserId &&
+                        userData(String(data.items[0].assignedUserId))
+                      }
+                      profileImage={
+                        data.items[0].assignedUserId &&
+                        userImage(String(data.items[0].assignedUserId))
+                      }
+                      size="small"
+                    />{' '}
                   </div>
                 </div>
 
@@ -153,23 +236,58 @@ const TnaDetailPage = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="border-b border-gray-200 text-lg font-semibold text-gray-900 pb-4 mb-8">
+                {data.items[0].assignedUserId ? (
+                  <UserCard
+                    data={data}
+                    name={
+                      data.items[0].assignedUserId &&
+                      userData(String(data.items[0].assignedUserId))
+                    }
+                    profileImage={
+                      data.items[0].assignedUserId &&
+                      userImage(String(data.items[0].assignedUserId))
+                    }
+                    size="small"
+                  />
+                ) : (
+                  '-'
+                )}
+              </div>
+              <div>
+                <div className="text-lg font-semibold text-gray-900">
+                  Approval Levels Status
+                </div>
+
+                <div className="my-2.5">
+                  <ApprovalStatusesInfo />
+                </div>
+                <ApprovalList
+                  id={data.items[0].id}
+                  approvalWorkflowId={data.items[0].approvalWorkflowId}
+                />
+              </div>
             </div>
 
             <div className="flex justify-end mt-6">
-              <CustomButton
-                title="Update TNA"
-                type="primary"
-                icon={<FiEdit2 size={16} />}
-                size="large"
-                disabled={
-                  data.items[0].certStatus ===
-                  TrainingNeedAssessmentCertStatus.COMPLETED
-                }
-                onClick={() => {
-                  setTnaId(data.items[0].id);
-                  setIsShowTnaUpdateSidebar(true);
-                }}
-              />
+              <AccessGuard permissions={[Permissions.UpdateTna]}>
+                <CustomButton
+                  title="Update TNA"
+                  type="primary"
+                  id="tnaUpdateCustomButtonId"
+                  icon={<FiEdit2 size={16} />}
+                  size="large"
+                  disabled={
+                    data.items[0].certStatus ===
+                    TrainingNeedAssessmentCertStatus.COMPLETED
+                  }
+                  onClick={() => {
+                    setTnaId(data.items[0].id);
+                    setIsShowTnaUpdateSidebar(true);
+                  }}
+                />
+              </AccessGuard>
             </div>
           </Spin>
         )}

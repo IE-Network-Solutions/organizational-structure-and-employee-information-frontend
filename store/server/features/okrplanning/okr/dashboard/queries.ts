@@ -1,19 +1,17 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { OKR_AND_PLANNING_URL } from '@/utils/constants';
-import axios from 'axios';
+import { OKR_URL } from '@/utils/constants';
+import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
-type Dashboard = {
+interface Dashboard {
   daysLeft: number;
   okrCompleted: number;
   userOkr: number;
   teamOkr: number;
   companyOkr: number;
   keyResultCount: number;
-  supervisorOkr?: number; // Add supervisorOkr if it's included in the API response
-};
+  supervisorOkr?: number;
+}
 
 type ResponseData = Dashboard;
 
@@ -22,27 +20,107 @@ type ResponseData = Dashboard;
  * @returns The response data from the API
  */
 const getObjectiveDashboardByUser = async (id: number | string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/objective/user/${id}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/objective/user/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
 };
-export const useGetUserObjectiveDashboard = (postId: number | string) =>
-  useQuery<ResponseData>(
-    ['ObjectiveDashboard', postId, 'ObjectiveInformation'],
+
+const getPlanningPeriods = async () => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/planning-periods`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getPerformance = async (planningPeriodId: string, userId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/okr-report/performance/user?planningPeriodId=${planningPeriodId}&&userId=${userId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getRockStars = async (planningPeriodId: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/okr-report/rock-star/user?planningPeriodId=${planningPeriodId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getVariablePay = async (monthIds: string[]) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/vp-score-instance/filter?monthIds=${monthIds}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetUserObjectiveDashboard = (postId: number | string) => {
+  return useQuery<ResponseData>(
+    ['ObjectiveDashboard', postId],
     () => getObjectiveDashboardByUser(postId),
     {
       keepPreviousData: true,
     },
   );
+};
+
+export const useGetPlanningPeriods = () => {
+  return useQuery('periods', getPlanningPeriods);
+};
+
+export const useGetRockStars = (planningPeriodId: string, options: any) => {
+  return useQuery(
+    ['rockStars', planningPeriodId],
+    () => getRockStars(planningPeriodId),
+    {
+      ...options,
+      keepPreviousData: true,
+    },
+  );
+};
+
+export const useGetPerformance = (planningPeriodId: string, userId: string) => {
+  return useQuery(
+    ['performance', planningPeriodId, userId],
+    () => getPerformance(planningPeriodId, userId),
+    {
+      keepPreviousData: true,
+    },
+  );
+};
+
+export const useGetVariablePay = (monthIds: string[]) => {
+  return useQuery(['variablePay', monthIds], () => getVariablePay(monthIds), {
+    keepPreviousData: true,
+  });
+};

@@ -12,17 +12,18 @@ import {
   Select,
   Spin,
 } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import dayjs from 'dayjs';
+import TextEditor from '@/components/form/textEditor';
 
 const { Option } = Select;
-
 interface CreateJobsProps {
   close: () => void;
   form: FormInstance;
   stepChange: (value: number) => void;
 }
+
 const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
@@ -44,9 +45,10 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
         ]}
       >
         <Input
+          id="jobTitle"
           size="large"
           placeholder="Job title"
-          className="text-sm w-full  h-10"
+          className="text-sm w-full h-10"
           allowClear
         />
       </Form.Item>
@@ -67,11 +69,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
             ]}
           >
             <Select
+              id="employmentType"
               placeholder="Employment type"
               className="text-sm w-full h-10"
             >
               {EmploymentType &&
-                Object?.values(EmploymentType).map((type) => (
+                Object.values(EmploymentType).map((type) => (
                   <Option key={type} value={type}>
                     {type}
                   </Option>
@@ -94,7 +97,11 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               },
             ]}
           >
-            <Select placeholder="Department" className="text-sm w-full h-10">
+            <Select
+              id="department"
+              placeholder="Department"
+              className="text-sm w-full h-10"
+            >
               {isDepartmentLoading && (
                 <div className="flex items-center justify-center h-30">
                   <Spin size="small" />
@@ -124,7 +131,11 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               },
             ]}
           >
-            <Select placeholder="Location" className="text-sm w-full h-10">
+            <Select
+              id="jobLocation"
+              placeholder="Location"
+              className="text-sm w-full h-10"
+            >
               {Object.values(LocationType).map((type) => (
                 <Option key={type} value={type}>
                   {type}
@@ -134,7 +145,6 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           </Form.Item>
         </Col>
       </Row>
-
       <Form.Item
         name="yearOfExperience"
         label={
@@ -152,6 +162,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
         ]}
       >
         <InputNumber
+          id="yearOfExperience"
           size="large"
           placeholder="0"
           className="text-sm w-full h-10"
@@ -173,7 +184,11 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               },
             ]}
           >
-            <Select placeholder="Job status" className="text-sm w-full h-10">
+            <Select
+              id="jobStatus"
+              placeholder="Job status"
+              className="text-sm w-full h-10"
+            >
               <Option value="Open">Open</Option>
               <Option value="Closed">Closed</Option>
             </Select>
@@ -194,10 +209,18 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
               },
             ]}
           >
-            <Select placeholder="Compensation" className="text-sm w-full h-10">
+            <Select
+              id="compensation"
+              placeholder="Compensation"
+              className="text-sm w-full h-10"
+            >
               {EmploymentType &&
-                Object?.values(EmploymentType).map((type) => (
-                  <Option key={type} value={type}>
+                Object.values(EmploymentType).map((type, index) => (
+                  <Option
+                    id={`compensationOption-${index}`}
+                    key={type}
+                    value={type}
+                  >
                     {type}
                   </Option>
                 ))}
@@ -222,6 +245,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
             ]}
           >
             <InputNumber
+              id="quantity"
               size="large"
               placeholder="0"
               className="text-sm w-full h-10"
@@ -241,9 +265,21 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
                 required: true,
                 message: 'Please input the expected closing date!',
               },
+              {
+                validator({}, value) {
+                  if (!value || value.isAfter(dayjs(), 'day')) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      'Expected end date cannot be before the current date!',
+                    ),
+                  );
+                },
+              },
             ]}
           >
-            <DatePicker className="text-sm w-full h-10" />
+            <DatePicker id="jobDeadline" className="text-sm w-full h-10" />
           </Form.Item>
         </Col>
       </Row>
@@ -261,18 +297,19 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           },
         ]}
       >
-        <TextArea rows={4} placeholder="Description" />
+        <TextEditor placeholder="Description" />
       </Form.Item>
-
       <Form.Item>
         <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-6">
           <Button
+            id="cancelButton"
             onClick={close}
             className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
           >
             Cancel
           </Button>
           <Button
+            id="nextButton"
             onClick={() => stepChange(1)}
             className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
           >
