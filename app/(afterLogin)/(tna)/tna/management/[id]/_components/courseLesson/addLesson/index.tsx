@@ -77,6 +77,12 @@ const CourseAddLessonSidebar = () => {
     }
   }, [isSuccess]);
 
+  useEffect(() => {
+    if (isSuccess && refetchCourse) {
+      refetchCourse();
+    }
+  }, [isSuccess, refetchCourse]);
+
   const getLessonOrder = (lessonOrder: number): number => {
     const courseLessons = course?.courseLessons ?? [];
     // Return 0 if no materials or materialId is invalid

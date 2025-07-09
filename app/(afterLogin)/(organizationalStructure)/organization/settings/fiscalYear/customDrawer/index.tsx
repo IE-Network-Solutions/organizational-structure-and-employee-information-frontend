@@ -1,4 +1,3 @@
-import FiscalYear from '@/app/(afterLogin)/(onboarding)/onboarding/_components/steper/fiscalYear';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateFiscalYear,
@@ -7,22 +6,21 @@ import {
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import React, { useEffect } from 'react';
 import { FormInstance } from 'antd/lib';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Form } from 'antd';
 import {
   Month,
   Session,
 } from '@/store/server/features/organizationStructure/fiscalYear/interface';
-import SessionDrawer from '../../_components/session/sessionDrawer';
-import MonthDrawer from '../../_components/month/monthDrawer';
+import FiscalYearForm from './steps/fiscalYearDrawer';
+import MonthDrawer from './steps/monthDrawer';
+import SessionDrawer from './steps/sessionDrawer';
+import dayjs from 'dayjs';
 
 interface FiscalYearDrawerProps {
-  form: FormInstance;
+  form?: FormInstance;
   handleNextStep?: () => void;
 }
-const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
-  handleNextStep,
-}) => {
+const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
@@ -43,8 +41,12 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     setSessionFormValues,
     openfiscalYearDrawer,
     setOpenFiscalYearDrawer,
+    resetFormState,
+    setCalendarType,
+    setFiscalYearStart,
+    setFiscalYearEnd,
+    setSessionData,
   } = useFiscalYearDrawerStore();
-  const { data: departments } = useGetDepartments();
 
   useEffect(() => {
     const formValues = form3?.getFieldsValue();
@@ -62,22 +64,53 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
     setEditMode(false);
     setSelectedFiscalYear(null);
     setCurrent(0);
+
+    // Reset all form fields
     form1.resetFields();
     form2.resetFields();
     form3.resetFields();
+
+    // Clear all stored form values from the store
+    setFiscalYearFormValues({});
+    setSessionFormValues({});
+    setMonthRangeFormValues(null);
+
+    // Reset form validation state
+    resetFormState();
+
+    // Reset calendar type and dates
+    setCalendarType('');
+    setFiscalYearStart(null);
+    setFiscalYearEnd(null);
+
+    // Reset session data
+    setSessionData([]);
   };
 
   React.useEffect(() => {
-    if (isEditMode && selectedFiscalYear) {
+    if (
+      isEditMode &&
+      selectedFiscalYear &&
+      Array.isArray(monthRangeValues) &&
+      monthRangeValues.length > 0
+    ) {
       form1.setFieldsValue(fiscalYearFormValues);
       form2.setFieldsValue(sessionFormValues);
-      form3.setFieldsValue(monthRangeValues);
-    } else {
-      form1.resetFields();
-      form2.resetFields();
-      form3.resetFields();
+      form3.setFieldsValue(
+        monthRangeValues.reduce(
+          (acc, month) => {
+            const key = month.monthNumber;
+            acc[`monthName_${key}`] = month.monthName;
+            acc[`monthStartDate_${key}`] = month.monthStartDate;
+            acc[`monthEndDate_${key}`] = month.monthEndDate;
+            acc[`monthDescription_${key}`] = month.monthDescription;
+            return acc;
+          },
+          {} as Record<string, any>,
+        ),
+      );
     }
-  }, [isEditMode, selectedFiscalYear]);
+  }, [isEditMode, selectedFiscalYear, monthRangeValues]);
 
   const getTransformedFiscalYear = (
     monthFormValues: any,
@@ -143,21 +176,49 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
     const fiscalYearPayload = {
       name: fiscalYearFormValues?.fiscalYearName,
-      startDate: fiscalYearFormValues?.fiscalYearStartDate,
-      endDate: fiscalYearFormValues?.fiscalYearEndDate,
+      startDate: fiscalYearFormValues?.fiscalYearStartDate
+        ? dayjs(fiscalYearFormValues.fiscalYearStartDate).format('YYYY-MM-DD')
+        : undefined,
+      endDate: fiscalYearFormValues?.fiscalYearEndDate
+        ? dayjs(fiscalYearFormValues.fiscalYearEndDate).format('YYYY-MM-DD')
+        : undefined,
       description: fiscalYearFormValues?.fiscalYearDescription,
-      sessions: fiscalYearData?.map((session: Session) => ({
-        name: session?.name,
-        description: session?.description,
-        startDate: session?.startDate,
-        endDate: session?.endDate,
-        months: session?.months?.map((month: Month) => ({
-          name: month?.name,
-          description: month?.description,
-          startDate: month?.startDate,
-          endDate: month?.endDate,
-        })),
-      })),
+      sessions: fiscalYearData?.map((session: Session, sessionIdx: number) => {
+        // Get the session from selectedFiscalYear (if in edit mode)
+        const originalSession =
+          isEditMode && selectedFiscalYear?.sessions?.[sessionIdx];
+        return {
+          ...(isEditMode && originalSession?.id
+            ? { id: originalSession.id }
+            : {}),
+          name: session?.name,
+          description: session?.description,
+          startDate: session?.startDate
+            ? dayjs(session.startDate).format('YYYY-MM-DD')
+            : undefined,
+          endDate: session?.endDate
+            ? dayjs(session.endDate).format('YYYY-MM-DD')
+            : undefined,
+          months: session?.months?.map((month: Month, monthIdx: number) => {
+            // Get the month from the original session (if in edit mode)
+            const originalMonth =
+              isEditMode && originalSession?.months?.[monthIdx];
+            return {
+              ...(isEditMode && originalMonth?.id
+                ? { id: originalMonth.id }
+                : {}),
+              name: month?.name,
+              description: month?.description,
+              startDate: month?.startDate
+                ? dayjs(month.startDate).format('YYYY-MM-DD')
+                : undefined,
+              endDate: month?.endDate
+                ? dayjs(month.endDate).format('YYYY-MM-DD')
+                : undefined,
+            };
+          }),
+        };
+      }),
     };
 
     if (isEditMode) {
@@ -174,6 +235,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
             setMonthRangeFormValues(null);
             setFiscalYearFormValues({});
             setSessionFormValues({});
+            setSessionData([]);
             setCurrent(0);
             setOpenFiscalYearDrawer(false);
           },
@@ -188,6 +250,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           setMonthRangeFormValues(null);
           setFiscalYearFormValues({});
           setSessionFormValues({});
+          setSessionData([]);
           setCurrent(0);
           setOpenFiscalYearDrawer(false);
         },
@@ -196,13 +259,16 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   };
 
   const formContent = (
-    <Form layout="vertical" onFinish={handleSubmit}>
-      {current === 0 && <FiscalYear form={form1} />}
+    <
+      // Form layout="vertical" onFinish={handleSubmit}
+    >
+      {current === 0 && <FiscalYearForm form={form1} />}
       {current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
+          isFiscalYear={true}
         />
       )}
       {current === 2 && (
@@ -210,30 +276,32 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           form={form3}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
-          onNextStep={handleNextStep}
+          onSubmit={handleSubmit} // <-- pass the handler
+          isFiscalYear={true}
+          open={openfiscalYearDrawer} // <-- add this
         />
       )}
-    </Form>
+    </>
   );
-  return !departments?.length ? (
-    openfiscalYearDrawer ? (
+
+  return (
+    <>
       <CustomDrawerLayout
         modalHeader={
-          <h1 className="text-2xl font-semibold">
-            {isEditMode ? 'Edit Fiscal Year' : ' Year'}
+          <h1 className="flex justify-start text-base font-bold text-gray-800">
+            {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
           </h1>
         }
         onClose={handleCancel}
         open={openfiscalYearDrawer}
-        width="50%"
+        width="35%"
         footer={null}
+        customPadding="0px"
       >
         {formContent}
       </CustomDrawerLayout>
-    ) : (
-      formContent
-    )
-  ) : null;
+    </>
+  );
 };
 
 export default CustomWorFiscalYearDrawer;

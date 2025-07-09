@@ -1,7 +1,7 @@
 'use client';
 
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { FaCopy, FaPlus } from 'react-icons/fa';
 import TalentRoasterTable from './_components/table';
 import CreateTalentRoaster from './_components/drawer';
@@ -10,6 +10,13 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { IoIosShareAlt } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AddToJobPipeline from './_components/modal';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { PUBLIC_DOMAIN } from '@/utils/constants';
+import { useGetAllJobs } from '@/store/server/features/recruitment/job/queries';
+import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
+import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
+import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
+import { useDeleteTalentRoaster } from '@/store/server/features/recruitment/talent-roaster/mutation';
 
 // Define the interface that matches the table data structure
 interface TalentRoasterItem {
@@ -37,7 +44,12 @@ const TalentRoasterPage = () => {
     moveToJobPipelineModal,
     setSelectedTalentRoaster,
   } = useTalentRoasterStore();
+
+  const { searchParams } = useCandidateState();
+
   const { isMobile, isTablet } = useIsMobile();
+  const { tenantId } = useAuthenticationStore();
+
   const handleEdit = (data: TalentRoasterItem) => {
     setCreateTalentRoasterDrawer(true);
     setEditData(data);
@@ -70,6 +82,81 @@ const TalentRoasterPage = () => {
       ) || [];
     setSelectedTalentRoaster(updatedCandidates);
   };
+
+  const handleCopyLink = () => {
+    if (!tenantId) {
+      message.error('Unable to generate link. Please try again.');
+      return;
+    }
+
+    const publicLink = `${PUBLIC_DOMAIN}/talent-roster/${tenantId}`;
+
+    navigator.clipboard
+      .writeText(publicLink)
+      .then(() => {
+        message.success('Public application link copied to clipboard!');
+      })
+      .catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = publicLink;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          message.success('Public application link copied to clipboard!');
+        } catch (err) {
+          message.error(
+            'Failed to copy link. Please copy manually: ' + publicLink,
+          );
+        }
+        document.body.removeChild(textArea);
+      });
+  };
+
+  const { data: jobList } = useGetAllJobs(searchParams?.whatYouNeed || '');
+  const { mutate: createCandidate } = useCreateCandidate();
+  const { mutate: deleteTalentRoaster } = useDeleteTalentRoaster();
+  const { data: statusStage } = useGetStages();
+
+  // ==========> Initial Stage Id <=========
+
+  const handleMoveHandler = (values: Record<string, string>) => {
+    // ==========> Initial Stage Id <=========
+    const titleToFind = 'Initial Stage';
+    const foundStage = statusStage?.items?.find(
+      (stage: any) => stage.title === titleToFind,
+    );
+
+    const stageId = foundStage ? foundStage.id : '';
+    const formattedValues = {
+      isExternal: false,
+      jobInformationId: values?.jobId,
+      applicantStatusStageId: stageId,
+      createdBy: selectedTalentRoaster?.[0]?.id,
+      email: selectedTalentRoaster?.[0]?.email,
+      phone: selectedTalentRoaster?.[0]?.phone,
+      fullName: selectedTalentRoaster?.[0]?.fullName,
+      resumeUrl: selectedTalentRoaster?.[0]?.resumeUrl,
+      coverLetter: selectedTalentRoaster?.[0]?.coverLetter,
+    };
+
+    // formData.append('newFormData', JSON.stringify(formattedValues));
+    createCandidate(
+      { newFormData: formattedValues },
+      {
+        onSuccess: () => {
+          deleteTalentRoaster(selectedTalentRoaster?.[0]?.id);
+        },
+      },
+    );
+  };
+  const today = new Date();
+
+  const isNotExpired = (job: any) => {
+    return new Date(job.jobDeadline) >= today;
+  };
+  const filteredJobs = jobList?.items?.filter(isNotExpired);
 
   return (
     <div className="h-auto w-full bg-white">
@@ -111,9 +198,11 @@ const TalentRoasterPage = () => {
           </Button>
           <Button
             type="primary"
-            id="createUserButton"
+            id="copyLinkButton"
             className="h-10 w-10 sm:w-auto"
             icon={<FaCopy />}
+            onClick={handleCopyLink}
+            title="Copy public application link"
           >
             <span className="hidden sm:inline">Copy Link</span>
           </Button>
@@ -133,8 +222,8 @@ const TalentRoasterPage = () => {
           onCancel={onCancel}
           selectedCandidates={selectedTalentRoaster}
           onRemoveCandidate={handleRemoveCandidate}
-          availableJobs={[]}
-          onSubmit={() => {}}
+          availableJobs={filteredJobs}
+          onSubmit={(record) => handleMoveHandler(record)}
         />
       </div>
     </div>

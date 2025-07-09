@@ -47,6 +47,7 @@ export const transformData = (data: any) => {
       departmentLeadOrNot: data.departmentLeadOrNot ?? true,
       employmentContractType: data.employmentContractType,
       workScheduleId: data.workScheduleId,
+      basicSalary: Number(data.basicSalary),
     },
     createEmployeeDocumentDto: {
       documentName: data?.documentName?.file?.originFileObj ?? '',

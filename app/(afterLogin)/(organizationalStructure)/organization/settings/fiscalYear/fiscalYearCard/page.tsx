@@ -14,9 +14,9 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import dayjs from 'dayjs';
 import { IoIosArrowDown } from 'react-icons/io';
 import { MdKeyboardArrowUp } from 'react-icons/md';
-import CustomWorFiscalYearDrawer from '../../_components/fiscalYear/customDrawer';
 import { FaPlus } from 'react-icons/fa';
 import CustomDeleteFiscalYears from '../deleteModal';
+import CustomWorFiscalYearDrawer from '../customDrawer';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -70,6 +70,9 @@ const FiscalYearListCard: React.FC = () => {
   }
 
   const handelDrawerOpen = () => {
+    // Reset form state for create mode
+    setEditMode(false);
+    setSelectedFiscalYear(null);
     setOpenFiscalYearDrawer(true);
   };
 
@@ -91,7 +94,11 @@ const FiscalYearListCard: React.FC = () => {
 
       {fiscalYears?.items && fiscalYears.items.length > 0 ? (
         fiscalYears.items.map((fYear: FiscalYear) => (
-          <Card key={fYear?.id} className="my-3">
+          <Card
+            key={fYear?.id}
+            className="my-3"
+            bodyStyle={{ padding: 0, margin: 0 }}
+          >
             <div className="flex items-center justify-between">
               <div className="flex flex-col w-full ">
                 <div
