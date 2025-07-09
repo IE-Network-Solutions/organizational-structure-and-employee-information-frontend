@@ -1,14 +1,21 @@
 'use client';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Card, Progress } from 'antd';
+import { useRouter } from 'next/navigation';
 import { GoGoal } from 'react-icons/go';
 
 const Header = () => {
   const { userId } = useAuthenticationStore();
   const { data: objectiveDashboard, isLoading } =
     useGetUserObjectiveDashboard(userId);
+  const { data: vpScore } = useGetVPScore(userId);
+  const router = useRouter();
 
+  const onDetail = () => {
+    router.push(`/okr/vp`);
+  };
   return (
     <>
       <div className="  w-full mb-4 flex overflow-x-auto grid-cols-none  lg:grid lg:grid-cols-5 gap-4 scrollbar-none">
@@ -70,9 +77,9 @@ const Header = () => {
             <div className="">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
-                  {Number(objectiveDashboard?.supervisorOkr?.toFixed(1) || 0)}%
+                  {Number(objectiveDashboard?.supervisorOkr?.toFixed(1) || 0)}
                 </span>{' '}
-                Supervisor OKR
+                Key Results Achieved
               </div>
               <Progress
                 percent={Number(objectiveDashboard?.supervisorOkr || 0)}
@@ -110,9 +117,8 @@ const Header = () => {
                   {Number(
                     objectiveDashboard?.companyOkr.toFixed(1),
                   )?.toLocaleString() || 0}{' '}
-                  %
                 </span>{' '}
-                Company OKR
+                Key Results Achieved
               </div>
               <Progress
                 percent={Number(objectiveDashboard?.companyOkr || 0)}
@@ -140,9 +146,12 @@ const Header = () => {
           </div>
           <div className="flex items-center justify-between">
             <div className="">
-              <div className="text-xl font-bold ">
-                {`${Number(objectiveDashboard?.okrCompleted || 0)} / ${Number(objectiveDashboard?.keyResultCount || 0)}`}
-              </div>
+              <span className="text-xl font-bold ">
+                {`${Number(objectiveDashboard?.okrCompleted || 0)} / `}
+              </span>
+              <span className="text-xs font-bold ">
+                {Number(objectiveDashboard?.keyResultCount || 0)}
+              </span>
             </div>
             <div className="">
               <div className="text-xs text-gray-400 text-end">
@@ -172,6 +181,7 @@ const Header = () => {
           bordered={false}
           bodyStyle={{ padding: '10px' }}
           className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
+          onClick={() => onDetail()}
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -181,24 +191,17 @@ const Header = () => {
           </div>
           <div className="flex items-center justify-between">
             <div className="">
-              <div className="text-xl font-bold ">
-                {objectiveDashboard?.keyResultCount || 0}
-              </div>
+              <div className="text-xl font-bold ">{vpScore?.score || 0} %</div>
             </div>
             <div className="">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
-                  {' '}
-                  {`${Number(objectiveDashboard?.okrCompleted || 0)} / ${Number(objectiveDashboard?.keyResultCount || 0)}`}
+                  {`${Math.round(Number(vpScore?.score || 0))}`} %
                 </span>{' '}
-                Key Results achieved
+                Achieved out of 30
               </div>
               <Progress
-                percent={
-                  (Number(objectiveDashboard?.okrCompleted || 0) /
-                    Number(objectiveDashboard?.keyResultCount || 0)) *
-                  100
-                }
+                percent={(Number(vpScore?.score || 0) / 30) * 100}
                 showInfo={false}
                 strokeColor="#4c6ef5"
                 trailColor="#f5f5f5"
