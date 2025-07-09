@@ -1,6 +1,5 @@
 'use client';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
-import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Card, Progress } from 'antd';
 // import { useRouter } from 'next/navigation';
@@ -10,9 +9,7 @@ const Header = () => {
   const { userId } = useAuthenticationStore();
   const { data: objectiveDashboard, isLoading } =
     useGetUserObjectiveDashboard(userId);
-  const onDetail = () => {
-    // router.push(`/okr/vp`);
-  };
+
   return (
     <>
       <div className="  w-full mb-4 flex overflow-x-auto grid-cols-none  lg:grid lg:grid-cols-5 gap-4 scrollbar-none">
