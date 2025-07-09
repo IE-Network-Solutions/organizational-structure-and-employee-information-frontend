@@ -96,6 +96,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiSettings
             size={18}
+            className={expandedKeys.includes('/dashboard') ? 'text-blue' : ''}
+          />
+          <span>Dashboard</span>
+        </span>
+      ),
+      key: '/dashboard',
+      className: 'font-bold',
+      permissions: [],
+    },
+    {
+      title: (
+        <span className="flex items-center gap-2 h-12">
+          <CiSettings
+            size={18}
             className={
               expandedKeys.includes('/organization') ? 'text-blue' : ''
             }
@@ -496,7 +510,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <CiSettings size={18} />
+          <CiSettings
+            size={18}
+            className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
+          />
           <span>Admin</span>
         </span>
       ),
