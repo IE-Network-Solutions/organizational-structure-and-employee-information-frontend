@@ -13,12 +13,12 @@
 
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
+  display: none; /* Safari and Chrome */
 }
 
 .ant-popconfirm-message {
@@ -390,4 +390,12 @@ h6 {
 .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-state {
   display: none;
+}
+
+.ql-container {
+  border: none !important;
+  box-shadow: none !important;
+}
+.ql-editor {
+  border: none !important;
 }

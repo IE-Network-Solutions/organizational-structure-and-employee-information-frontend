@@ -9,11 +9,11 @@ import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalan
 type NewUserData = {
   key: number;
   leaveType: string;
-  accrued: number | null;
-  balance: number | null;
-  carriedOver: number | null;
-  totalBalance: number | null;
-  utilizedLeave: number | null;
+  accrued: number;
+  balance: number;
+  carriedOver: number;
+  totalBalance: number;
+  utilizedLeave: number;
   cashValue: number;
 };
 
@@ -101,11 +101,11 @@ const LeaveBalanceTable: React.FC = () => {
     return {
       key: index,
       leaveType: item?.leaveType?.title || '-',
-      accrued: item?.accrued || 0,
-      balance: item?.balance || 0,
-      carriedOver: item?.carriedOver || 0,
-      totalBalance: item?.totalBalance || 0,
-      utilizedLeave: item?.utilizedLeave || 0,
+      accrued: parseFloat(item?.accrued.toFixed(1)) || 0,
+      balance: parseFloat(item?.balance.toFixed(1)) || 0,
+      carriedOver: parseFloat(item?.carriedOver.toFixed(1)) || 0,
+      totalBalance: parseFloat(item?.totalBalance.toFixed(1)) || 0,
+      utilizedLeave: parseFloat(item?.utilizedLeave.toFixed(1)) || 0,
       cashValue,
     };
   });

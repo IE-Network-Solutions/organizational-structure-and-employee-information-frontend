@@ -207,57 +207,47 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     }
   }, [formula, value, setFormulaError]);
 
-  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // Remove newlines to keep formula single-line
+  const operators = ['+', '-', '*', '/', '(', ')'];
+
+  function handleTextAreaChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = e.target.value.replace(/[\r\n]+/g, ' ');
     if (!value.trim()) {
       setFormula([]);
       return;
     }
 
-    // Find all criteria names in the input
-    const criteriaMatches = recognitionData?.recognitionCriteria?.reduce(
-      (acc: any[], crit: any) => {
-        if (value.includes(crit?.criteria?.criteriaName)) {
-          acc.push({
-            id: crit?.criteria?.id,
-            name: crit?.criteria?.criteriaName,
-            type: 'criteria',
-          });
-        }
-        return acc;
-      },
-      [],
-    );
+    // Split by space and operators, keep operators as tokens
+    const tokens = value
+      .split(/([+\-*/()])/)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
-    // Replace ALL criteria names with their IDs in the value
-    let processedValue = value;
-    criteriaMatches?.forEach((crit: { id: string; name: string }) => {
-      // Use a global regex to replace all occurrences
-      const regex = new RegExp(crit.name, 'g');
-      processedValue = processedValue.replace(regex, crit.id);
-    });
-
-    // Split by spaces and filter empty strings
-    const parts = processedValue.split(/\s+/).filter(Boolean);
-
-    const newFormula = parts.map((part) => {
-      // If it's a number or operator
-      if (/^[0-9+\-*/()]$/.test(part)) {
-        return { id: part, name: part, type: 'operand' };
-      }
-      // If it's a criteria ID
-      const matchingCriteria = criteriaMatches?.find(
-        (crit: { id: string }) => crit.id === part,
+    const newFormula = tokens.map((token) => {
+      // Check if token matches a criteria name
+      const crit = recognitionData?.recognitionCriteria?.find(
+        (c: any) => c?.criteria?.criteriaName === token,
       );
-      if (matchingCriteria) {
-        return matchingCriteria;
+      if (crit) {
+        return {
+          id: crit.criteria.id,
+          name: crit.criteria.criteriaName,
+          type: 'criteria',
+        };
       }
-      return { id: part, name: part, type: 'operand' };
+      // If it's an operator
+      if (operators.includes(token)) {
+        return { id: token, name: token, type: 'operand' };
+      }
+      // If it's a number
+      if (!isNaN(Number(token))) {
+        return { id: token, name: token, type: 'operand' };
+      }
+      // Otherwise, treat as plain text (or ignore)
+      return { id: token, name: token, type: 'operand' };
     });
 
     setFormula(newFormula);
-  };
+  }
 
   const getDisplayValue = () => {
     // If formula is a string, return it directly without quotes
@@ -280,6 +270,47 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     // If formula is neither string nor array, return empty string
     return '';
   };
+  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  const uuidRegex =
+    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
+
+    /"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"/gi;
+
+  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  const uuidNoQuotesRegex =
+    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
+
+    /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+
+  // 1. Extract all UUIDs (with or without quotes)
+  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  function extractIds(input: string) {
+    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
+
+    return input.match(uuidNoQuotesRegex) || [];
+  }
+
+  // 2. Clean display text
+  /*  eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  function cleanCriteriaText(input: string) {
+    /*  eslint-enable-next-line @typescript-eslint/no-unused-vars */
+
+    // Replace quoted UUIDs with nothing
+    let text = input.replace(
+      /"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"/gi,
+      '',
+    );
+    // Replace unquoted UUIDs followed by a label (e.g., uuid of company) with just the label
+    text = text.replace(
+      /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\\s+([a-zA-Z][^\\s)]*)/gi,
+      '$2',
+    );
+    // Remove any remaining UUIDs
+    text = text.replace(uuidNoQuotesRegex, '');
+    // Clean up extra spaces and slashes
+    text = text.replace(/\s{2,}/g, ' ').trim();
+    return text;
+  }
 
   return (
     <CustomDrawerLayout

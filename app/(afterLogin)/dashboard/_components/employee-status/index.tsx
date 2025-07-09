@@ -17,6 +17,7 @@ interface ChartData {
     data: number[];
     backgroundColor: string[];
     borderWidth: number;
+    hoverOffset: number;
   }[];
 }
 
@@ -34,8 +35,20 @@ const EmploymentStats: React.FC = () => {
     datasets: [
       {
         data: dataValues || [], // Sample data for full-time, part-time, and others
-        backgroundColor: ['#2f78ee', '#3636ee', '#1d9bf0'],
-        borderWidth: 2,
+        backgroundColor: [
+          '#3636F0', // Primary blue
+          '#4F8CFF', // Light blue
+          '#3EC3FF', // Cyan
+          '#22C55E', // Green
+          '#FACC15', // Yellow
+          '#EF4444', // Red
+          '#8B5CF6', // Purple
+          '#F97316', // Orange
+          '#06B6D4', // Teal
+          '#84CC16', // Lime
+        ],
+        borderWidth: 4,
+        hoverOffset: 10,
       },
     ],
   };

@@ -211,7 +211,8 @@ const TaskCard: React.FC = () => {
             <span className="text-right text-md font-bold">
               {item.departmentId
                 ? getDepartmentData(item.departmentId)?.name +
-                    " Team's weekly priority:" || ''
+                " Team's weekly priority:" || ''
+
                 : ''}
             </span>
             <div className="flex items-center gap-2">
