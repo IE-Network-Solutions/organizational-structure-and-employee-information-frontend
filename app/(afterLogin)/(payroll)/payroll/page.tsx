@@ -638,7 +638,6 @@ const Payroll = () => {
       });
       return;
     }
-    console.log('Generating bank letter for amount:', amount);
     setLoading(true);
     try {
       await generateBankLetter(amount);
