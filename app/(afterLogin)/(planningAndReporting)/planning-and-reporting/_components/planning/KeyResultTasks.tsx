@@ -17,8 +17,8 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
   return (
     <div className="my-3 pb-8 bg-white shadow-sm rounded-lg border">
       <div className="grid gap-4 mt-3 sm:mt-0">
-        <div className="flex gap-4 sm:px-16 sm:py-3">
-          <div className="flex items-center gap-2 hidden sm:flex">
+        <div className="flex gap-4 sm:px-10 sm:py-3">
+          <div className="items-center gap-2 hidden sm:flex">
             <div className="flex items-center gap-1">
               <div className="text-blue text-xl">&#x2022;</div>
               <div className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg">
@@ -39,7 +39,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
             </Tag>
           </div>
 
-          <div className="flex items-center gap-2 hidden sm:flex">
+          <div className="items-center gap-2 hidden sm:flex">
             <div className="flex items-center gap-1">
               <div className="text-blue text-xl">&#x2022;</div>
               <div className="text-gray-500 font-semibold mt-1 text-[10px] flex items-center rounded-lg">
@@ -60,7 +60,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
             </Tag>
           </div>
 
-          <div className="flex items-center gap-2 hidden sm:flex">
+          <div className="items-center gap-2 hidden sm:flex">
             <div className="flex items-center gap-1">
               <div className="text-green-600 text-xl">&#x2022;</div>
               <div className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg">
@@ -76,7 +76,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
           </div>
         </div>
       </div>
-      <div className="bg-white px-3 w-full sm:px-12">
+      <div className="bg-white px-3 w-full sm:px-6">
         <div className="flex items-center gap-2 mb-1">
           <BsKey size={32} className="text-blue flex-shrink-0" />
           <h2 className="text-sm font-semibold truncate min-w-0 flex-1">

@@ -2,8 +2,9 @@ import React from 'react';
 import { Tree, Tag, Typography } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
-
+import { useIsMobile } from '@/hooks/useIsMobile';
 const { Text } = Typography;
+
 
 const getPriorityColor = (priority: string) => {
   switch (priority) {
@@ -16,7 +17,10 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
+
 const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
+const {isMobile} = useIsMobile();
+  
   const generateTreeData = (tasks: any[]): any[] => {
     return tasks.map((task, index) => ({
       title: (
@@ -166,6 +170,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
         showLine={{ showLeafIcon: false }}
         switcherIcon={null}
         defaultExpandAll
+        className={isMobile ? 'mobile-switcher' : 'desktop-switcher'}
       />
     </div>
   );
