@@ -28,7 +28,7 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
   } = useDeleteCourseLesson();
   const { isMobile } = useIsMobile();
 
-  const shouldShowButton = !(isMobile && activeKey === lesson.id);
+  const shouldShowButton = true; // Always show the button like it was before
 
   // Refetch after delete
   if (isSuccess && refetchCourse) {
@@ -95,21 +95,6 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
             <div className="text-sm text-gray-600">No-data</div>
           )}
         </div>
-        {isMobile && (
-          <div className="flex justify-center items-end">
-            <Button
-              className="flex items-end"
-              id="tnaAddCourseMaterialButtonId"
-              icon={<LuPlus size={16} className="text-primary" />}
-              type="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLesson(lesson);
-                setIsShowLessonMaterial(true);
-              }}
-            />
-          </div>
-        )}
       </div>
     </Spin>
   );
