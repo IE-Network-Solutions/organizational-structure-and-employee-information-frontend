@@ -71,12 +71,14 @@ const IncentiveSettingsTable: React.FC = () => {
         recognitionData?.recognitionCriteria?.map(
           (criterion: RecognitionCriteria, index: string) => (
             <Skeleton active loading={responseLoading} key={index}>
-              <span
-                key={index}
-                className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
-              >
-                {criterion?.criteria?.criteriaName || '--'}
-              </span>
+              <div className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
+                <span
+                  key={index}
+                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
+                >
+                  {criterion?.criteria?.criteriaName || '--'}
+                </span>{' '}
+              </div>
             </Skeleton>
           ),
         )

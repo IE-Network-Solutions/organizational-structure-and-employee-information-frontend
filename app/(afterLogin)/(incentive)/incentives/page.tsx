@@ -36,7 +36,8 @@ const Page = () => {
     confirmationModal,
     setConfirmationModal,
   } = useIncentiveStore();
-  const { mutate: exportIncentiveData } = useExportIncentiveData();
+  const { mutate: exportIncentiveData, isLoading: exportIncentiveLoading } =
+    useExportIncentiveData();
 
   const { searchParams: incentiveSearchParams } = useIncentiveStore();
   const handleExport = (values: any, generateAll: boolean) => {
@@ -150,6 +151,8 @@ const Page = () => {
               onClick={() => handleExport(incentiveSearchParams, true)}
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
+              loading={exportIncentiveLoading}
+              disabled={exportIncentiveLoading}
             />
           )}
 
@@ -224,8 +227,10 @@ const Page = () => {
     isTablet,
     setShowGenerateModal,
     showGenerateModal,
-    handleExport,
     incentiveSearchParams,
+    exportIncentiveLoading,
+    searchParams,
+    handleExport,
   ]);
 
   const handleTabChange = (key: string) => {
