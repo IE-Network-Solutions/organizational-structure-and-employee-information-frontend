@@ -1,14 +1,18 @@
 'use client';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Card, Progress } from 'antd';
+// import { useRouter } from 'next/navigation';
 import { GoGoal } from 'react-icons/go';
 
 const Header = () => {
   const { userId } = useAuthenticationStore();
   const { data: objectiveDashboard, isLoading } =
     useGetUserObjectiveDashboard(userId);
-
+  const onDetail = () => {
+    // router.push(`/okr/vp`);
+  };
   return (
     <>
       <div className="  w-full mb-4 flex overflow-x-auto grid-cols-none  lg:grid lg:grid-cols-5 gap-4 scrollbar-none">
@@ -70,9 +74,9 @@ const Header = () => {
             <div className="">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
-                  {Number(objectiveDashboard?.supervisorOkr?.toFixed(1) || 0)}%
+                  {Number(objectiveDashboard?.supervisorOkr?.toFixed(1) || 0)}
                 </span>{' '}
-                Supervisor OKR
+                Key Results Achieved
               </div>
               <Progress
                 percent={Number(objectiveDashboard?.supervisorOkr || 0)}
@@ -181,17 +185,19 @@ const Header = () => {
           </div>
           <div className="flex items-center justify-between">
             <div className="">
-              <div className="text-xl font-bold ">
-                {objectiveDashboard?.keyResultCount || 0}
-              </div>
+              <span className="text-xl font-bold ">
+                {`${Number(objectiveDashboard?.okrCompleted || 0)} / `}
+              </span>
+              <span className="text-xs font-bold ">
+                {Number(objectiveDashboard?.keyResultCount || 0)}
+              </span>
             </div>
             <div className="">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
-                  {' '}
                   {`${Number(objectiveDashboard?.okrCompleted || 0)} / ${Number(objectiveDashboard?.keyResultCount || 0)}`}
                 </span>{' '}
-                Key Results achieved
+                achieved
               </div>
               <Progress
                 percent={

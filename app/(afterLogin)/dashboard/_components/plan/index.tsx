@@ -45,7 +45,7 @@ const Plan = () => {
             className="w-32 text-gray-400 text-sm"
             onChange={handleChange}
             options={[
-              { value: 'Daily', label: 'Daily Tak' },
+              { value: 'Daily', label: 'Daily Task' },
               { value: 'Weekly', label: 'Weekly Task' },
             ]}
           />

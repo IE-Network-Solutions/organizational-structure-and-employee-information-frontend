@@ -19,6 +19,7 @@ import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
   useGetEmployeeInfo,
+  useGetAllPayrollForExport,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
   useCreatePayroll,
@@ -77,6 +78,9 @@ const Payroll = () => {
   const { data: allEmployees } = useGetAllUsersData();
   const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+
+  const { refetch: refetchAllPayroll } = useGetAllPayrollForExport(searchQuery);
+
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
@@ -86,6 +90,7 @@ const Payroll = () => {
   const { exportToExcel } = useExportData();
 
   const [loading, setLoading] = useState(false);
+  const [exportProgress, setExportProgress] = useState<string>('');
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
@@ -239,16 +244,27 @@ const Payroll = () => {
     sendPaySlip({ values });
   };
   const handleDeductionExportPayroll = async () => {
-    if (!mergedPayroll || mergedPayroll?.length === 0) {
-      NotificationMessage.error({
-        message: 'No Data Available',
-        description: 'There is no data available to export.',
-      });
-      return;
-    }
-
     setLoading(true);
+    setExportProgress('Fetching payroll data...');
     try {
+      // Fetch all payroll data for export (without pagination)
+      const allPayroll = await fetchAllPayrollForExport();
+
+      if (
+        !validatePayrollData(
+          allPayroll,
+          'There is no data available to export.',
+        )
+      ) {
+        setLoading(false);
+        setExportProgress('');
+        return;
+      }
+
+      setExportProgress('Processing data...');
+      // Merge all payroll data with employee data
+      const allMergedPayroll = mergePayrollWithEmployees(allPayroll.items);
+
       const uniqueAllowanceTypes = new Set<string>();
       const uniqueMeritTypes = new Set<string>();
       const uniqueDeductionTypes = new Set<string>();
@@ -285,7 +301,9 @@ const Payroll = () => {
         exportColumns.map((col) => [col.key, col.type]),
       );
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
-      mergedPayroll.forEach((item: any) => {
+
+      // Collect unique types from all payroll data
+      allMergedPayroll.forEach((item: any) => {
         item.breakdown?.allowances?.forEach((a: any) =>
           uniqueAllowanceTypes.add(a.type),
         );
@@ -297,7 +315,9 @@ const Payroll = () => {
         );
       });
 
-      mergedPayroll.forEach((item: any) => {
+      setExportProgress('Generating Excel file...');
+      // Process all payroll data
+      allMergedPayroll.forEach((item: any) => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
@@ -523,14 +543,15 @@ const Payroll = () => {
       createSheet('Merits', meritData, uniqueMeritTypes, 'totalMerits');
 
       const buffer = await workbook.xlsx.writeBuffer();
+      setExportProgress('Downloading file...');
       saveAs(
         new Blob([buffer], { type: 'application/octet-stream' }),
-        'Payroll_Details.xlsx',
+        'Payroll_Details_All_Data.xlsx',
       );
 
       NotificationMessage.success({
         message: 'Export Successful',
-        description: 'Payroll data exported successfully!',
+        description: `Payroll data exported successfully! (${allMergedPayroll.length} records)`,
       });
     } catch (error) {
       NotificationMessage.error({
@@ -539,6 +560,7 @@ const Payroll = () => {
       });
     } finally {
       setLoading(false);
+      setExportProgress('');
     }
   };
 
@@ -552,6 +574,19 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
+      // Fetch all payroll data for bank export (without pagination)
+      const allPayroll = await fetchAllPayrollForExport();
+
+      if (
+        !validatePayrollData(
+          allPayroll,
+          'There is no payroll data available to export.',
+        )
+      ) {
+        setLoading(false);
+        return;
+      }
+
       const formatAmount = (amount: number | undefined | null) => {
         return Number(amount || 0).toLocaleString('en-US', {
           minimumFractionDigits: 2,
@@ -560,7 +595,7 @@ const Payroll = () => {
       };
 
       const flatData = employeeInfo.map((employee: any) => {
-        const payroll = mergedPayroll.find(
+        const payroll = allPayroll.items.find(
           (p: any) => p.employeeId === employee.id,
         ) as Payroll | undefined;
 
@@ -603,13 +638,14 @@ const Payroll = () => {
       });
       return;
     }
+    console.log('Generating bank letter for amount:', amount);
     setLoading(true);
     try {
       await generateBankLetter(amount);
-    } catch (error) {
+    } catch (error: any) {
       notification.error({
         message: 'Error Generating Bank Letter',
-        description: 'An error occurred while generating the bank letter.',
+        description: error + '',
       });
     } finally {
       setLoading(false);
@@ -795,6 +831,39 @@ const Payroll = () => {
     setPageSize(pageSize);
     setCurrentPage(1);
   };
+
+  const fetchAllPayrollForExport = async () => {
+    try {
+      const result = await refetchAllPayroll();
+      return result.data;
+    } catch (error) {
+      throw new Error('Failed to fetch payroll data for export');
+    }
+  };
+
+  const mergePayrollWithEmployees = (payrollItems: any[]) => {
+    return payrollItems.map((pay: any) => {
+      const employee = allEmployees?.items?.find(
+        (emp: any) => emp.id === pay.employeeId,
+      );
+      return {
+        ...pay,
+        employeeInfo: employee || null,
+      };
+    });
+  };
+
+  const validatePayrollData = (payroll: any, errorMessage: string) => {
+    if (!payroll?.items || payroll?.items?.length === 0) {
+      NotificationMessage.error({
+        message: 'No Data Available',
+        description: errorMessage,
+      });
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div
       className={isMobile ? 'pt-[16px] bg-gray-100' : 'pt-[16px] bg-white'}
@@ -1085,15 +1154,20 @@ const Payroll = () => {
                 type="primary"
                 onClick={handleExportAll}
                 className="text-white bg-blue border-none"
-                disabled={!bankLetter || loading}
+                disabled={!exportPayrollData || loading}
                 loading={loading}
               >
-                Export
+                {loading ? 'Exporting...' : 'Export'}
               </Button>
             </div>
           }
         >
           <div className="flex flex-col gap-5 m-6">
+            {loading && exportProgress && (
+              <div className="text-center text-blue-600 font-medium">
+                {exportProgress}
+              </div>
+            )}
             <div className="flex flex-col justify-between items-start gap-2 ">
               <span>Export Bank Letter</span>
               <Switch

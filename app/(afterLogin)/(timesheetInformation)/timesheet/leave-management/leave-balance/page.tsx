@@ -52,7 +52,9 @@ const LeaveBalance = () => {
                   allowClear
                   loading={usersLoading}
                   optionFilterProp="label"
-                  value={usersLoading ? undefined : form.getFieldValue('userId')}
+                  value={
+                    usersLoading ? undefined : form.getFieldValue('userId')
+                  }
                   options={users?.items?.map((list: any) => ({
                     value: list?.id,
                     label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
