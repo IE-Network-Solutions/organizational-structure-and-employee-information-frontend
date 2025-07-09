@@ -20,8 +20,6 @@ interface Employee {
   lateDays: number;
 }
 
-
-
 const statusColors = {
   'ON LEAVE': 'bg-red-100 text-red-600',
   Active: 'bg-green-100 text-green-600',
@@ -39,7 +37,6 @@ export default function EmployeeAttendanceTable() {
     endDateOnAttendance,
     setEndDateOnAttendance,
     pageSizeOnAttendance,
-    setPageSizeOnAttendance,
     currentPageOnAttendance,
     setCurrentPageOnAttendance,
   } = TimeAndAttendaceDashboardStore();
@@ -55,7 +52,6 @@ export default function EmployeeAttendanceTable() {
       page: currentPageOnAttendance,
       limit: pageSizeOnAttendance,
     });
-  console.log(adminAttendanceUsers, 'adminAttendanceUsers');
 
   const { data: departments } = useGetUserDepartment();
   const departmentOptions = departments?.map((i: any) => ({

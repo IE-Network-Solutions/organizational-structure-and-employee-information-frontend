@@ -1,26 +1,43 @@
-import { Card, DatePicker, Form, Input, Select, Skeleton, Tag, Empty, Spin } from 'antd';
+import { Card, DatePicker, Form, Select, Skeleton, Tag, Spin } from 'antd';
 import React from 'react';
-import { SearchOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'next/navigation';
 import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
-const { Option } = Select;
 const UserLeaveBalance: React.FC = () => {
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
   const userId = searchParams.get('user');
-  const { setLeaveTypeId, leaveTypeId, startDate, endDate, setStartDate, setEndDate, setUserIdOnLeaveBalance, userIdOnLeaveBalance } = TimeAndAttendaceDashboardStore();
+  const {
+    setLeaveTypeId,
+    leaveTypeId,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    setUserIdOnLeaveBalance,
+    userIdOnLeaveBalance,
+  } = TimeAndAttendaceDashboardStore();
 
-  const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } = useGetUserLeaveBalance(userIdOnLeaveBalance ? userIdOnLeaveBalance : userId as string, leaveTypeId || '', startDate || '', endDate || '');
-  const { data: leaveBalance, isLoading: leaveBalanceLoading } = useGetLeaveBalance(userIdOnLeaveBalance ? userIdOnLeaveBalance : userId as string, '');
+  const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
+    useGetUserLeaveBalance(
+      userIdOnLeaveBalance ? userIdOnLeaveBalance : (userId as string),
+      leaveTypeId || '',
+      startDate || '',
+      endDate || '',
+    );
+  const { data: leaveBalance, isLoading: leaveBalanceLoading } =
+    useGetLeaveBalance(
+      userIdOnLeaveBalance ? userIdOnLeaveBalance : (userId as string),
+      '',
+    );
 
   const statusColors: { [key: string]: string } = {
-    approved: "text-green-500 bg-green-500/20",
-    pending: "text-yellow-500 bg-yellow-500/20",
-    rejected: "text-red-500 bg-red-500/20",
-    cancelled: "text-gray-500 bg-gray-500/20",
+    approved: 'text-green-500 bg-green-500/20',
+    pending: 'text-yellow-500 bg-yellow-500/20',
+    rejected: 'text-red-500 bg-red-500/20',
+    cancelled: 'text-gray-500 bg-gray-500/20',
   };
   const leaveOptions = leaveBalance?.items?.items?.map((item: any) => ({
     label: item.leaveType.title,
@@ -39,19 +56,15 @@ const UserLeaveBalance: React.FC = () => {
         className="grid grid-cols-12 gap-4 mb-4"
       >
         <Form.Item name="employee" className="col-span-6">
-
           <Select
             showSearch
             placeholder="Select employee"
             allowClear
             filterOption={(input: any, option: any) =>
-              (option?.label ?? '')
-                ?.toLowerCase()
-                .includes(input.toLowerCase())
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
             options={employeeOptions}
-
-            className='w-full  h-10 '
+            className="w-full  h-10 "
             onChange={(value: any) => setUserIdOnLeaveBalance(value)}
           />
         </Form.Item>
@@ -61,9 +74,7 @@ const UserLeaveBalance: React.FC = () => {
             placeholder="Select Leave Type"
             allowClear
             filterOption={(input: any, option: any) =>
-              (option?.label ?? '')
-                ?.toLowerCase()
-                .includes(input.toLowerCase())
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
             options={leaveOptions}
             maxTagCount={1}
@@ -95,16 +106,21 @@ const UserLeaveBalance: React.FC = () => {
             bodyStyle={{ padding: '10px' }}
             key={index}
             className={`min-w-60 flex-shrink-0  ${leaveTypeId === item.leaveTypeId ? 'shadow-md' : ''}`}
-            onClick={() => leaveTypeId ? setLeaveTypeId('') : setLeaveTypeId(item.leaveTypeId)}
+            onClick={() =>
+              leaveTypeId
+                ? setLeaveTypeId('')
+                : setLeaveTypeId(item.leaveTypeId)
+            }
           >
             <div className="flex flex-row justify-between">
               <div>
                 <p className="font-medium text-xs">{item.leaveType.title}</p>
                 <Tag
-                  className={`font-medium border-none ${item.leaveType.isFixed
-                    ? 'bg-[#b2b2ff] text-blue'
-                    : 'bg-green-200 text-green-700'
-                    }`}
+                  className={`font-medium border-none ${
+                    item.leaveType.isFixed
+                      ? 'bg-[#b2b2ff] text-blue'
+                      : 'bg-green-200 text-green-700'
+                  }`}
                 >
                   {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
@@ -134,19 +150,27 @@ const UserLeaveBalance: React.FC = () => {
         >
           <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Entitled</p>
-            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalEntitledDays}</p>
+            <p className="font-semibold text-[16px]">
+              {userLeaveBalance?.data?.totals?.totalEntitledDays}
+            </p>
           </div>
           <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Accrued</p>
-            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalAccrued}</p>
+            <p className="font-semibold text-[16px]">
+              {userLeaveBalance?.data?.totals?.totalAccrued}
+            </p>
           </div>
           <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2 ">
             <p className="font-normal text-sm w-28">Carried over</p>
-            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalCarriedOver}</p>
+            <p className="font-semibold text-[16px]">
+              {userLeaveBalance?.data?.totals?.totalCarriedOver}
+            </p>
           </div>
           <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Total Utilized</p>
-            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalUtilizedLeaves}</p>
+            <p className="font-semibold text-[16px]">
+              {userLeaveBalance?.data?.totals?.totalUtilizedLeaves}
+            </p>
           </div>
         </Card>
 
@@ -162,19 +186,45 @@ const UserLeaveBalance: React.FC = () => {
               {userLeaveBalanceLoading && <Skeleton active />}
               {userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
                 userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
-                  <div key={leave.leaveRequestId} className="border rounded-md p-2">
+                  <div
+                    key={leave.leaveRequestId}
+                    className="border rounded-md p-2"
+                  >
                     <div className="flex flex-row gap-2 items-center justify-between">
                       <div>
                         <p className="text-xs">
-                          <b>{leave.totalDays} {leave.totalDays > 1 ? 'Days' : 'Day'}</b>
+                          <b>
+                            {leave.totalDays}{' '}
+                            {leave.totalDays > 1 ? 'Days' : 'Day'}
+                          </b>
                         </p>
                         <p className="text-xs">
-                          {new Date(leave.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} - {new Date(leave.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          {new Date(leave.startDate).toLocaleDateString(
+                            'en-GB',
+                            { day: 'numeric', month: 'long', year: 'numeric' },
+                          )}{' '}
+                          -{' '}
+                          {new Date(leave.endDate).toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })}
                         </p>
                       </div>
                       <div className="flex flex-col justify-end items-end">
                         <p className="text-xs">
-                          Requested on <strong> {new Date(leave.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>{' '}
+                          Requested on{' '}
+                          <strong>
+                            {' '}
+                            {new Date(leave.createdAt).toLocaleDateString(
+                              'en-GB',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              },
+                            )}
+                          </strong>{' '}
                         </p>
                         <Tag
                           style={{ marginInlineEnd: 0 }}
@@ -187,16 +237,15 @@ const UserLeaveBalance: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div className='flex justify-center items-center h-96'>
-                  <p className='text-gray-500 text-[14px] font-semibold'>No Recored Found</p>
+                <div className="flex justify-center items-center h-96">
+                  <p className="text-gray-500 text-[14px] font-semibold">
+                    No Recored Found
+                  </p>
                 </div>
               )}
-
             </div>
           </Spin>
         </Card>
-
-
       </div>
     </div>
   );

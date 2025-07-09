@@ -32,11 +32,14 @@ const MyAttendanceReport: React.FC = () => {
     setEndDateOnAttendance,
   } = TimeAndAttendaceDashboardStore();
 
-  const { data: attendanceHistory, isLoading } = useGetUserAttendanceHistory(userId, {
-    status: statusOnAttendance,
-    startDate: startDateOnAttendance,
-    endDate: endDateOnAttendance,
-  });
+  const { data: attendanceHistory, isLoading } = useGetUserAttendanceHistory(
+    userId,
+    {
+      status: statusOnAttendance,
+      startDate: startDateOnAttendance,
+      endDate: endDateOnAttendance,
+    },
+  );
 
   const statusOptions = [
     { value: 'all', label: 'All' },
@@ -101,12 +104,13 @@ const MyAttendanceReport: React.FC = () => {
                   <div className="flex flex-col justify-end items-end">
                     <Tag
                       style={{ marginInlineEnd: 0, border: 'none' }}
-                      className={` capitalize ${status === 'on time'
-                        ? ' bg-purple/20 text-purple font-semibold'
-                        : status === 'late'
-                          ? 'text-yellow-500 bg-yellow-500/20 font-semibold '
-                          : 'text-red-500 bg-red-500/20 font-semibold'
-                        }`}
+                      className={` capitalize ${
+                        status === 'on time'
+                          ? ' bg-purple/20 text-purple font-semibold'
+                          : status === 'late'
+                            ? 'text-yellow-500 bg-yellow-500/20 font-semibold '
+                            : 'text-red-500 bg-red-500/20 font-semibold'
+                      }`}
                     >
                       {status}{' '}
                       {req.startTime && dayjs(req.startTime).format('h:mm A')}

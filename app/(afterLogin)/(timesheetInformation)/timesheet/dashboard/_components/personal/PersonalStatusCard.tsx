@@ -18,7 +18,6 @@ const PersonalStatusCard: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: attendanceStats, isLoading } = useGetAttendanceStats(userId);
 
-
   const statsData: StatData[] = [
     {
       title: 'Total Leave Days',
@@ -28,25 +27,30 @@ const PersonalStatusCard: React.FC = () => {
     },
     {
       title: 'Pending Request',
-      value: attendanceStats?.data?.yearlyLeaveStats?.pendingLeaveRequests || '0',
+      value:
+        attendanceStats?.data?.yearlyLeaveStats?.pendingLeaveRequests || '0',
       icon: <IoTimeOutline className="text-blue" />,
       color: 'text-blue-600',
     },
     {
       title: 'Approved Leave',
-      value: attendanceStats?.data?.yearlyLeaveStats?.approvedLeaveRequests || '0',
+      value:
+        attendanceStats?.data?.yearlyLeaveStats?.approvedLeaveRequests || '0',
       icon: <CiCalendarDate className="text-blue" />,
       color: ' text-black',
     },
     {
       title: 'Total Late arrival',
-      value: attendanceStats?.data?.quarterlyAttendanceStats?.totalLateArrivals || '0',
+      value:
+        attendanceStats?.data?.quarterlyAttendanceStats?.totalLateArrivals ||
+        '0',
       icon: <AiOutlineInfoCircle className="text-blue" />,
       color: 'text-yellow-400',
     },
     {
       title: 'Absentism',
-      value: attendanceStats?.quarterlyAttendanceStats?.totalAbsentArrivals || '0',
+      value:
+        attendanceStats?.quarterlyAttendanceStats?.totalAbsentArrivals || '0',
       icon: <GoQuestion className="text-blue" />,
       color: ' text-red-600',
     },

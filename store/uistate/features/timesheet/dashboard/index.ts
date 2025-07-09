@@ -14,7 +14,9 @@ export interface TimeAndAttendanceDashboardUseState {
   departmentOnLeaveGraph: string;
   setDepartmentOnLeaveGraph: (departmentOnLeaveGraph: string) => void;
   departmentOnAttendanceReport: string;
-  setDepartmentOnAttendanceReport: (departmentOnAttendanceReport: string) => void;
+  setDepartmentOnAttendanceReport: (
+    departmentOnAttendanceReport: string,
+  ) => void;
   startDateAttendanceReport: string;
   endDateAttendanceReport: string;
   setStartDateAttendanceReport: (startDateAttendanceReport: string) => void;
@@ -61,23 +63,32 @@ export const TimeAndAttendaceDashboardStore =
     userIdOnLeave: '',
     setUserIdOnLeave: (userIdOnLeave: string) => set({ userIdOnLeave }),
     departmentOnLeave: '',
-    setDepartmentOnLeave: (departmentOnLeave: string) => set({ departmentOnLeave }),
+    setDepartmentOnLeave: (departmentOnLeave: string) =>
+      set({ departmentOnLeave }),
     departmentOnLeaveGraph: '',
-    setDepartmentOnLeaveGraph: (departmentOnLeaveGraph: string) => set({ departmentOnLeaveGraph }),
+    setDepartmentOnLeaveGraph: (departmentOnLeaveGraph: string) =>
+      set({ departmentOnLeaveGraph }),
     departmentOnAttendanceReport: '',
-    setDepartmentOnAttendanceReport: (departmentOnAttendanceReport: string) => set({ departmentOnAttendanceReport }),
+    setDepartmentOnAttendanceReport: (departmentOnAttendanceReport: string) =>
+      set({ departmentOnAttendanceReport }),
     startDateAttendanceReport: '',
-    setStartDateAttendanceReport: (startDateAttendanceReport: string) => set({ startDateAttendanceReport }),
+    setStartDateAttendanceReport: (startDateAttendanceReport: string) =>
+      set({ startDateAttendanceReport }),
     endDateAttendanceReport: '',
-    setEndDateAttendanceReport: (endDateAttendanceReport: string) => set({ endDateAttendanceReport }),
+    setEndDateAttendanceReport: (endDateAttendanceReport: string) =>
+      set({ endDateAttendanceReport }),
     userIdOnLeaveRequest: '',
-    setUserIdOnLeaveRequest: (userIdOnLeaveRequest: string) => set({ userIdOnLeaveRequest }),
+    setUserIdOnLeaveRequest: (userIdOnLeaveRequest: string) =>
+      set({ userIdOnLeaveRequest }),
     startDateOnLeaveRequest: '',
-    setStartDateOnLeaveRequest: (startDateOnLeaveRequest: string) => set({ startDateOnLeaveRequest }),
+    setStartDateOnLeaveRequest: (startDateOnLeaveRequest: string) =>
+      set({ startDateOnLeaveRequest }),
     endDateOnLeaveRequest: '',
-    setEndDateOnLeaveRequest: (endDateOnLeaveRequest: string) => set({ endDateOnLeaveRequest }),
+    setEndDateOnLeaveRequest: (endDateOnLeaveRequest: string) =>
+      set({ endDateOnLeaveRequest }),
     departmentOnLeaveRequest: '',
-    setDepartmentOnLeaveRequest: (departmentOnLeaveRequest: string) => set({ departmentOnLeaveRequest }),
+    setDepartmentOnLeaveRequest: (departmentOnLeaveRequest: string) =>
+      set({ departmentOnLeaveRequest }),
     employeeIdOnAttendance: '',
     setEmployeeIdOnAttendance: (employeeIdOnAttendance: string) =>
       set({ employeeIdOnAttendance }),
@@ -100,8 +111,7 @@ export const TimeAndAttendaceDashboardStore =
     setCurrentPageOnAttendance: (currentPageOnAttendance: number) =>
       set({ currentPageOnAttendance }),
     leaveTypeId: '',
-    setLeaveTypeId: (leaveTypeId: string) =>
-      set({ leaveTypeId }),
+    setLeaveTypeId: (leaveTypeId: string) => set({ leaveTypeId }),
     userIdOnLeaveBalance: '',
     setUserIdOnLeaveBalance: (userIdOnLeaveBalance: string) =>
       set({ userIdOnLeaveBalance }),

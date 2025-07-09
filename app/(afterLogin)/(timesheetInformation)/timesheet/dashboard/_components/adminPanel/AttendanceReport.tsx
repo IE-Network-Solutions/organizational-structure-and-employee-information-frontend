@@ -21,28 +21,32 @@ ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 const { RangePicker } = DatePicker;
 
-interface AttendanceData {
-  name: string;
-  date: string;
-  status: {
-    label: string;
-    color: string;
-  };
-  late: number;
-  absent: number;
-}
-
 const AttendanceReport: React.FC = () => {
-  const { startDateAttendanceReport, endDateAttendanceReport, setStartDateAttendanceReport, setEndDateAttendanceReport, departmentOnAttendanceReport, setDepartmentOnAttendanceReport } = TimeAndAttendaceDashboardStore();
-  const { data: attendanceStats, isLoading: loading } = useGetAdminAttendanceStats({ startDate: startDateAttendanceReport, endDate: endDateAttendanceReport, departmentId: departmentOnAttendanceReport });
-
+  const {
+    startDateAttendanceReport,
+    endDateAttendanceReport,
+    setStartDateAttendanceReport,
+    setEndDateAttendanceReport,
+    departmentOnAttendanceReport,
+    setDepartmentOnAttendanceReport,
+  } = TimeAndAttendaceDashboardStore();
+  const { data: attendanceStats, isLoading: loading } =
+    useGetAdminAttendanceStats({
+      startDate: startDateAttendanceReport,
+      endDate: endDateAttendanceReport,
+      departmentId: departmentOnAttendanceReport,
+    });
 
   // Doughnut chart data
   const doughnutChartData = {
     labels: ['Late', 'Absent', 'Leave'],
     datasets: [
       {
-        data: [attendanceStats?.late, attendanceStats?.absent, attendanceStats?.leave],
+        data: [
+          attendanceStats?.late,
+          attendanceStats?.absent,
+          attendanceStats?.leave,
+        ],
         backgroundColor: ['#8b5cf6', '#f87171', '#06b6d4'],
         borderWidth: 0,
       },
@@ -99,25 +103,29 @@ const AttendanceReport: React.FC = () => {
             placeholder="Select department"
             allowClear
             filterOption={(input: any, option: any) =>
-              (option?.label ?? '')
-                ?.toLowerCase()
-                .includes(input.toLowerCase())
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
-
             options={departmentOptions}
             maxTagCount={1}
-            className='w-48 h-12'
+            className="w-48 h-12"
             onChange={(value) => setDepartmentOnAttendanceReport(value)}
           />
-          <RangePicker className="w-48 h-12" onChange={(value) => {
-            if (value) {
-              setStartDateAttendanceReport(value[0]?.format('YYYY-MM-DD') || '');
-              setEndDateAttendanceReport(value[1]?.format('YYYY-MM-DD') || '');
-            } else {
-              setStartDateAttendanceReport('');
-              setEndDateAttendanceReport('');
-            }
-          }} />
+          <RangePicker
+            className="w-48 h-12"
+            onChange={(value) => {
+              if (value) {
+                setStartDateAttendanceReport(
+                  value[0]?.format('YYYY-MM-DD') || '',
+                );
+                setEndDateAttendanceReport(
+                  value[1]?.format('YYYY-MM-DD') || '',
+                );
+              } else {
+                setStartDateAttendanceReport('');
+                setEndDateAttendanceReport('');
+              }
+            }}
+          />
         </div>
       </div>
       <Spin spinning={loading}>
@@ -125,24 +133,30 @@ const AttendanceReport: React.FC = () => {
           {/* Doughnut Chart */}
           <div className="col-span-12 md:col-span-7 flex justify-center">
             <div className="">
-              {attendanceStats?.users?.length === 0 ?
-                <div className='flex justify-center items-center h-64'>
-                  <p className='text-gray-500 text-[14px] font-semibold'>No Record Found</p>
-                </div> :
+              {attendanceStats?.users?.length === 0 ? (
+                <div className="flex justify-center items-center h-64">
+                  <p className="text-gray-500 text-[14px] font-semibold">
+                    No Record Found
+                  </p>
+                </div>
+              ) : (
                 <div className="w-72 h-72 md:w-96 md:h-96">
                   <Doughnut data={doughnutChartData} options={options} />
                 </div>
-              }
+              )}
             </div>
           </div>
 
           {/* Attendance List */}
 
           <div className="space-y-3 col-span-12 md:col-span-5 h-64 overflow-y-auto scrollbar-none">
-            {attendanceStats?.users?.length === 0 ?
-              <div className='flex justify-center items-center h-64'>
-                <p className='text-gray-500 text-[14px] font-semibold'>No Record Found</p>
-              </div> :
+            {attendanceStats?.users?.length === 0 ? (
+              <div className="flex justify-center items-center h-64">
+                <p className="text-gray-500 text-[14px] font-semibold">
+                  No Record Found
+                </p>
+              </div>
+            ) : (
               attendanceStats?.users?.map((item: any, index: any) => (
                 <div
                   key={index}
@@ -150,10 +164,7 @@ const AttendanceReport: React.FC = () => {
                 >
                   {/* Left Side */}
                   <div className="flex items-center space-x-3">
-                    <Avatar
-                      className="w-7 h-7"
-                      src={item.profileImage}
-                    >
+                    <Avatar className="w-7 h-7" src={item.profileImage}>
                       {item.name.charAt(0)}
                     </Avatar>
                     <div>
@@ -163,7 +174,10 @@ const AttendanceReport: React.FC = () => {
                       <span
                         className={`text-xs px-2 py-0.5 rounded font-medium inline-block capitalize ${item.status === 'late' ? 'bg-yellow-100 text-yellow-700' : item.status === 'absent' ? 'bg-red-100 text-red-700' : 'bg-indigo-100 text-indigo-700'}`}
                       >
-                        {item.status} {item.status === 'late' || item.status === 'ontime' ? `${item.recordTime}` : ''}
+                        {item.status}{' '}
+                        {item.status === 'late' || item.status === 'ontime'
+                          ? `${item.recordTime}`
+                          : ''}
                       </span>
                     </div>
                   </div>
@@ -183,10 +197,9 @@ const AttendanceReport: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
           </div>
-
-
         </div>
       </Spin>
     </Card>

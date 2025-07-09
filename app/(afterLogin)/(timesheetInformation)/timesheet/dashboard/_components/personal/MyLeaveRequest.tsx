@@ -35,12 +35,16 @@ const MyLeaveRequest: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: leaveRequests, isLoading } = useGetUserLeaveRequests(userId);
   const { setIsShowLeaveRequestSidebar } = useMyTimesheetStore();
-  console.log(leaveRequests, 'leaveRequests');
   return (
     <Card className="shadow">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-[16px] font-semibold">My Leave Requests</h3>
-        <Button onClick={() => setIsShowLeaveRequestSidebar(true)} type="primary">Request</Button>
+        <Button
+          onClick={() => setIsShowLeaveRequestSidebar(true)}
+          type="primary"
+        >
+          Request
+        </Button>
       </div>
       <div className="flex flex-col h-48 overflow-y-auto scrollbar-none">
         {isLoading && (
@@ -50,7 +54,9 @@ const MyLeaveRequest: React.FC = () => {
         )}
         {leaveRequests?.myLeaveRequests?.length === 0 && (
           <div className="flex justify-center items-center h-full">
-            <p className="text-sm text-gray-500 font-semibold">No leave requests found</p>
+            <p className="text-sm text-gray-500 font-semibold">
+              No leave requests found
+            </p>
           </div>
         )}
         {leaveRequests?.myLeaveRequests?.map((req: LeaveRequest) => {
@@ -68,9 +74,7 @@ const MyLeaveRequest: React.FC = () => {
                 <div className="flex flex-col justify-end items-end">
                   <p className="text-xs">
                     Requested on
-                    <strong>
-                      {dayjs(req.createdAt).format('D MMM YYYY')}
-                    </strong>
+                    <strong>{dayjs(req.createdAt).format('D MMM YYYY')}</strong>
                   </p>
                   <Tag
                     style={{ marginInlineEnd: 0, border: 'none' }}

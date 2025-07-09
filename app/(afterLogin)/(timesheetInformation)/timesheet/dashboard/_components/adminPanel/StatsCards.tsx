@@ -17,8 +17,8 @@ interface StatData {
 }
 
 const StatsCards: React.FC = () => {
-  const { data: adminLeaveBalance, isLoading } = useGetAdminLeaveBalanceDashboard()
-  console.log(adminLeaveBalance, "adminLeaveBalance")
+  const { data: adminLeaveBalance, isLoading } =
+    useGetAdminLeaveBalanceDashboard();
   const statsData: StatData[] = [
     {
       title: 'Total Employees',
@@ -52,7 +52,6 @@ const StatsCards: React.FC = () => {
       color: 'text-black',
     },
   ];
-
 
   return (
     <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">

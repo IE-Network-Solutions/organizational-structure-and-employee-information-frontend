@@ -1,115 +1,41 @@
 'use client';
 
 import React from 'react';
-import { Card, Select, DatePicker, Avatar, Tag, Input, Spin } from 'antd';
-import { Line } from 'react-chartjs-2';
+import { Card, Select, Avatar, Tag, Spin } from 'antd';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  Title,
-  Tooltip,
-  Legend,
 } from 'chart.js';
 import { useGetAdminOnLeave } from '@/store/server/features/timesheet/dashboard/queries';
-import {
-  UserOutlined,
-  LoadingOutlined,
-} from '@ant-design/icons';
-import { useGetEmployee, useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 import dayjs from 'dayjs';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import LeaveSectionGraph from './LeaveSectionGraph';
 // Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-);
-
-const { Option } = Select;
-const { RangePicker } = DatePicker;
-
-interface LeaveData {
-  name: string;
-  period: string;
-  days: string;
-  type: string;
-  avatar: string;
-}
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement);
 
 const LeaveSection: React.FC = () => {
-  const { setDepartmentOnLeave, setUserIdOnLeave, departmentOnLeave, userIdOnLeave, startDate, endDate } = TimeAndAttendaceDashboardStore();
-  const { data: employeeAdminLeave, isLoading: loading } = useGetAdminOnLeave({ userId: userIdOnLeave, startDate: startDate, endDate: endDate, departmentId: departmentOnLeave });
-  console.log(employeeAdminLeave, "employeeAdminLeave")
+  const {
+    setDepartmentOnLeave,
+    setUserIdOnLeave,
+    departmentOnLeave,
+    userIdOnLeave,
+    startDate,
+    endDate,
+  } = TimeAndAttendaceDashboardStore();
+  const { data: employeeAdminLeave, isLoading: loading } = useGetAdminOnLeave({
+    userId: userIdOnLeave,
+    startDate: startDate,
+    endDate: endDate,
+    departmentId: departmentOnLeave,
+  });
 
   // Line chart data for employee trends
-  const lineChartData = {
-    labels: [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ],
-    datasets: [
-      {
-        label: 'Number of Employees on leave',
-        data: [20, 75, 45, 25, 30, 40, 35, 80, 45, 40, 35, 30],
-        borderColor: '#8979FF', // New line color (e.g., Indigo-600)
-        backgroundColor: 'rgba(79, 70, 229, 0.1)', // Lighter fill
-        borderWidth: 1.5, // Line thickness
-        tension: 0.4,
-        fill: true,
-        pointRadius: 2.5, // Optional: increase point size
-        pointBackgroundColor: '#ffffff', // Point color
-      },
-    ],
-  };
 
-  const lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      datalabels: { display: false },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        min: 0,
-        max: 100,
-        ticks: {
-          stepSize: 20,
-          color: '#333',
-        },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-      },
-      x: {
-        grid: {
-          display: true,
-        },
-      },
-    },
-  };
   const { data: Departments } = useGetUserDepartment();
 
   const departmentOptions = Departments?.map((i: any) => ({
@@ -138,7 +64,7 @@ const LeaveSection: React.FC = () => {
               }
               options={employeeOptions}
               maxTagCount={1}
-              className='w-full h-12'
+              className="w-full h-12"
               onChange={(value) => setUserIdOnLeave(value)}
             />
             <Select
@@ -150,18 +76,20 @@ const LeaveSection: React.FC = () => {
                   ?.toLowerCase()
                   .includes(input.toLowerCase())
               }
-
               options={departmentOptions}
               maxTagCount={1}
-              className='w-full h-12'
+              className="w-full h-12"
               onChange={(value) => setDepartmentOnLeave(value)}
             />
           </div>
           <Spin spinning={loading}>
-            {employeeAdminLeave?.users?.length === 0 ?
-              <div className='flex justify-center items-center h-64'>
-                <p className='text-gray-500 text-[14px] font-semibold'>No Record Found</p>
-              </div> :
+            {employeeAdminLeave?.users?.length === 0 ? (
+              <div className="flex justify-center items-center h-64">
+                <p className="text-gray-500 text-[14px] font-semibold">
+                  No Record Found
+                </p>
+              </div>
+            ) : (
               <div className="h-64 overflow-y-auto scrollbar-none space-y-2">
                 {employeeAdminLeave?.users?.map((leave: any, index: any) => (
                   <div
@@ -169,11 +97,16 @@ const LeaveSection: React.FC = () => {
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 py-1 bg-white border   rounded-lg gap-3 "
                   >
                     <div className="flex items-center gap-3">
-                      <Avatar src={leave.profileImage} className="bg-purple-500 w-7 h-7">
+                      <Avatar
+                        src={leave.profileImage}
+                        className="bg-purple-500 w-7 h-7"
+                      >
                         {leave.name.charAt(0)}
                       </Avatar>
                       <div>
-                        <p className=" text-gray-800 text-[12px]">{leave.name}</p>
+                        <p className=" text-gray-800 text-[12px]">
+                          {leave.name}
+                        </p>
                         <p className="text-black     text-[12px] font-medium">
                           {`${dayjs(leave.startDate).format('DD MMM YYYY')} to ${dayjs(leave.endDate).format('DD MMM YYYY')}`}
                         </p>
@@ -193,10 +126,8 @@ const LeaveSection: React.FC = () => {
                   </div>
                 ))}
               </div>
-            }
+            )}
           </Spin>
-
-
         </div>
         <LeaveSectionGraph />
       </div>
