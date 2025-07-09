@@ -7,7 +7,6 @@ import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/ma
 import { useDeleteCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import Link from 'next/link';
 
-
 interface LessonCardProps {
   lesson: CourseLesson;
 }
@@ -26,8 +25,6 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     isSuccess,
   } = useDeleteCourseLesson();
 
-  const shouldShowButton = true; // Always show the button like it was before
-
   // Refetch after delete
   if (isSuccess && refetchCourse) {
     refetchCourse();
@@ -35,31 +32,29 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
 
   return (
     <Spin spinning={isLoading}>
-      <div className="flex items-center gap-6 mb-2">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
-          {shouldShowButton && (
-            <Button
-              id="tnaAddCourseMaterialButtonId"
-              icon={<LuPlus size={16} className="text-primary" />}
-              type="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLesson(lesson);
-                setIsShowLessonMaterial(true);
-              }}
-            />
-          )}
+          <ActionButton
+            id={lesson?.id || null}
+            onEdit={(e: MouseEvent) => {
+              e.stopPropagation();
+              setLesson(lesson);
+              setIsShowAddLesson(true);
+            }}
+            onDelete={(e: MouseEvent) => {
+              e.stopPropagation();
+              deleteLesson([lesson.id]);
+            }}
+          />
         </div>
-        <ActionButton
-          id={lesson?.id || null}
-          onEdit={(e: MouseEvent) => {
+        <Button
+          id="tnaAddCourseMaterialButtonId"
+          icon={<LuPlus size={16} className="text-primary" />}
+          type="text"
+          onClick={(e) => {
             e.stopPropagation();
             setLesson(lesson);
-            setIsShowAddLesson(true);
-          }}
-          onDelete={(e: MouseEvent) => {
-            e.stopPropagation();
-            deleteLesson([lesson.id]);
+            setIsShowLessonMaterial(true);
           }}
         />
       </div>
