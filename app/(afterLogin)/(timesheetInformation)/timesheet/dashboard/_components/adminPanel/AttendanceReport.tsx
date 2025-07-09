@@ -35,50 +35,7 @@ interface AttendanceData {
 const AttendanceReport: React.FC = () => {
   const { startDateAttendanceReport, endDateAttendanceReport, setStartDateAttendanceReport, setEndDateAttendanceReport, departmentOnAttendanceReport, setDepartmentOnAttendanceReport } = TimeAndAttendaceDashboardStore();
   const { data: attendanceStats, isLoading: loading } = useGetAdminAttendanceStats({ startDate: startDateAttendanceReport, endDate: endDateAttendanceReport, departmentId: departmentOnAttendanceReport });
-  console.log(attendanceStats, "attendanceStats")
-  const attendanceData: AttendanceData[] = [
-    {
-      name: 'Hanna Baptista',
-      date: 'Feb 26, 2025',
-      status: { label: 'Late 7:45 AM', color: 'bg-yellow-100 text-yellow-700' },
-      late: 6,
-      absent: 4,
-    },
-    {
-      name: 'Hanna Baptista',
-      date: 'Feb 26, 2025',
-      status: {
-        label: 'On Time 7:10 AM',
-        color: 'bg-indigo-100 text-indigo-700',
-      },
-      late: 1,
-      absent: 0,
-    },
-    {
-      name: 'Hanna Baptista',
-      date: 'Feb 26, 2025',
-      status: { label: 'Absent', color: 'bg-red-100 text-red-700' },
-      late: 0,
-      absent: 3,
-    },
-    {
-      name: 'Hanna Baptista',
-      date: 'Feb 26, 2025',
-      status: {
-        label: 'On Time 7:10 AM',
-        color: 'bg-indigo-100 text-indigo-700',
-      },
-      late: 1,
-      absent: 0,
-    },
-    {
-      name: 'Hanna Baptista',
-      date: 'Feb 26, 2025',
-      status: { label: 'Late 7:45 AM', color: 'bg-yellow-100 text-yellow-700' },
-      late: 6,
-      absent: 4,
-    },
-  ];
+
 
   // Doughnut chart data
   const doughnutChartData = {

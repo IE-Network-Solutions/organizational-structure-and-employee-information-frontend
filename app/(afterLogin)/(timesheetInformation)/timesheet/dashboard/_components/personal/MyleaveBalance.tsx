@@ -10,7 +10,6 @@ const MyleaveBalance: React.FC = () => {
   const { leaveTypeId, startDate, endDate, setLeaveTypeId } = TimeAndAttendaceDashboardStore();
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } = useGetUserLeaveBalance(userId as string, leaveTypeId || '', startDate || '', endDate || '');
   const { data: leaveBalance, isLoading: leaveBalanceLoading } = useGetLeaveBalance(userId as string, '');
-  console.log(userLeaveBalance, 'userLeaveBalance');
   const statusColors: { [key: string]: string } = {
     approved: "text-green-500 bg-green-500/20",
     pending: "text-yellow-500 bg-yellow-500/20",

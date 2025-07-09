@@ -15,7 +15,6 @@ const UserLeaveBalance: React.FC = () => {
 
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } = useGetUserLeaveBalance(userIdOnLeaveBalance ? userIdOnLeaveBalance : userId as string, leaveTypeId || '', startDate || '', endDate || '');
   const { data: leaveBalance, isLoading: leaveBalanceLoading } = useGetLeaveBalance(userIdOnLeaveBalance ? userIdOnLeaveBalance : userId as string, '');
-  console.log(userLeaveBalance, 'userLeaveBalance');
 
   const statusColors: { [key: string]: string } = {
     approved: "text-green-500 bg-green-500/20",

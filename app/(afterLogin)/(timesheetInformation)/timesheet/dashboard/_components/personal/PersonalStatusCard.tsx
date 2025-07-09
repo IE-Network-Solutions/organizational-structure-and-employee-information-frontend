@@ -17,7 +17,6 @@ interface StatData {
 const PersonalStatusCard: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: attendanceStats, isLoading } = useGetAttendanceStats(userId);
-  console.log(attendanceStats, 'attendanceStats');
 
 
   const statsData: StatData[] = [
