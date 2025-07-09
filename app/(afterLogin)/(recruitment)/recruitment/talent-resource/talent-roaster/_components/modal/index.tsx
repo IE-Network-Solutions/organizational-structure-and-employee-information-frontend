@@ -90,7 +90,7 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
             <Select placeholder="Selection" className="w-full" size="large">
               {availableJobs?.map((job) => (
                 <Option key={job.id} value={job.id}>
-                  {job.title}
+                  {job.jobTitle}
                 </Option>
               ))}
             </Select>
