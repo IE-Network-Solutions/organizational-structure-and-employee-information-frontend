@@ -10,7 +10,6 @@ import {
   Row,
   Spin,
   Tooltip,
-  Typography,
 } from 'antd';
 import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
@@ -45,8 +44,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-
-const { Title } = Typography;
 
 function Reporting() {
   const {
@@ -218,8 +215,14 @@ function Reporting() {
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
-        <div className="flex flex-wrap justify-between items-center my-4 gap-4">
-          <Title level={5}>Reporting</Title>
+        <div className="flex items-center my-4 gap-4">
+          {hasPermission && (
+            <EmployeeSearch
+              optionArray1={employeeData?.items}
+              optionArray2={ReportingType}
+              optionArray3={departmentData}
+            />
+          )}
           <Tooltip
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
@@ -229,29 +232,26 @@ function Reporting() {
                 : ''
             }
           >
-            <div style={{ display: 'inline-block' }}>
+            <div className="flex-1" style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
                   // selectedUser.includes(userId) &&
                   allUserPlanning && allUserPlanning.length < 1
                 }
-                title={`Create ${activeTabName} report`}
+                title={
+                  <span className="hidden sm:block">
+                    {`Create ${activeTabName} Report`}
+                  </span>
+                }
                 id="createActiveTabName"
-                icon={<FaPlus className="mr-2" />}
+                icon={<FaPlus className="ml-2 sm:ml-0" />}
                 onClick={() => setOpenReportModal(true)}
-                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:w-auto`}
                 loading={getUserPlanningLoading}
               />
             </div>
           </Tooltip>
         </div>
-        {hasPermission && (
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={ReportingType}
-            optionArray3={departmentData}
-          />
-        )}
 
         {allReporting?.items?.map((dataItem: any, index: number) => (
           <>
@@ -315,12 +315,12 @@ function Reporting() {
                             </div>
                           </Col>
                           <div className="flex flex-col text-xs ml-2">
-                            <span className="mr-4">
+                            <span className="mr-4 hidden sm:block">
                               {dataItem?.plan?.isReportValidated
                                 ? 'Closed'
                                 : 'Open'}
                             </span>
-                            <span className="mr-4 text-gray-500">
+                            <span className="mr-4 text-gray-500 hidden sm:block">
                               {dayjs(dataItem?.createdAt).format(
                                 'MMMM DD YYYY, h:mm:ss A',
                               )}

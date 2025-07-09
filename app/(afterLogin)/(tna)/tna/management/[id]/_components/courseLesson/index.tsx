@@ -42,7 +42,11 @@ const CourseLesson = () => {
   const items =
     course?.courseLessons?.map((lesson) => ({
       key: String(lesson.id),
-      label: <div className="text-lg font-semibold text-gray-900">{lesson.title}</div>,
+      label: (
+        <div className="text-lg font-semibold text-gray-900">
+          {lesson.title}
+        </div>
+      ),
       children: <LessonCard lesson={lesson} />, // Just render the content, not a Collapse
     })) || [];
 

@@ -87,7 +87,9 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   optionFilterProp="children"
                   filterOption={(input: any, option: any) => {
                     const optionText = option?.children?.toString();
-                    return optionText?.toLowerCase().includes(input.toLowerCase());
+                    return optionText
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase());
                   }}
                 >
                   {optionArray1?.map((item: any) => {
@@ -96,15 +98,18 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
 
                     const maxNameLength = 10;
                     if (displayFirstName.length > maxNameLength) {
-                      displayFirstName = displayFirstName.substring(0, maxNameLength) + '...';
+                      displayFirstName =
+                        displayFirstName.substring(0, maxNameLength) + '...';
                     }
                     if (displayMiddleName.length > maxNameLength) {
-                      displayMiddleName = displayMiddleName.substring(0, maxNameLength) + '...';
+                      displayMiddleName =
+                        displayMiddleName.substring(0, maxNameLength) + '...';
                     }
 
-                    const fullName = displayFirstName || displayMiddleName
-                      ? `${displayFirstName} ${displayMiddleName}`.trim()
-                      : 'Unnamed Employee';
+                    const fullName =
+                      displayFirstName || displayMiddleName
+                        ? `${displayFirstName} ${displayMiddleName}`.trim()
+                        : 'Unnamed Employee';
 
                     return (
                       <Option value={item.id} key={item.id}>
@@ -135,7 +140,9 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   optionFilterProp="children"
                   filterOption={(input: any, option: any) => {
                     const optionText = option?.children?.toString();
-                    return optionText?.toLowerCase().includes(input.toLowerCase());
+                    return optionText
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase());
                   }}
                 >
                   {optionArray1?.map((item: any) => {
@@ -144,15 +151,18 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
 
                     const maxNameLength = 10;
                     if (displayFirstName.length > maxNameLength) {
-                      displayFirstName = displayFirstName.substring(0, maxNameLength) + '...';
+                      displayFirstName =
+                        displayFirstName.substring(0, maxNameLength) + '...';
                     }
                     if (displayMiddleName.length > maxNameLength) {
-                      displayMiddleName = displayMiddleName.substring(0, maxNameLength) + '...';
+                      displayMiddleName =
+                        displayMiddleName.substring(0, maxNameLength) + '...';
                     }
 
-                    const fullName = displayFirstName || displayMiddleName
-                      ? `${displayFirstName} ${displayMiddleName}`.trim()
-                      : 'Unnamed Employee';
+                    const fullName =
+                      displayFirstName || displayMiddleName
+                        ? `${displayFirstName} ${displayMiddleName}`.trim()
+                        : 'Unnamed Employee';
 
                     return (
                       <Option value={item.id} key={item.id}>
@@ -172,7 +182,8 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                       ? 'All User'
                       : selectedUser.includes('subordinate')
                         ? 'Subordinate'
-                        : selectedUser.length === 1 && selectedUser.includes(userId)
+                        : selectedUser.length === 1 &&
+                            selectedUser.includes(userId)
                           ? optionArray2?.[0]?.key
                           : undefined
                   }
@@ -247,7 +258,8 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                     ? 'All User'
                     : selectedUser.includes('subordinate')
                       ? 'Subordinate'
-                      : selectedUser.length === 1 && selectedUser.includes(userId)
+                      : selectedUser.length === 1 &&
+                          selectedUser.includes(userId)
                         ? optionArray2?.[0]?.key
                         : undefined
                 }

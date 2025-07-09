@@ -147,7 +147,7 @@ function Page() {
         </div>
         <div className="w-full h-auto mt-4">
           <Tabs
-          tabBarGutter={50}
+            tabBarGutter={50}
             defaultActiveKey={selectedTab?.id}
             onChange={(key: any) => setActivePlanPeriod(key)}
             centered
