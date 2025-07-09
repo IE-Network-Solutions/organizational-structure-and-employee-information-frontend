@@ -1,37 +1,51 @@
-import { Card, Tag } from 'antd';
+import { Card, Skeleton, Spin, Tag } from 'antd';
 import React from 'react';
+import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
+import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
+import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const MyleaveBalance: React.FC = () => {
+  const { userId } = useAuthenticationStore();
+  const { leaveTypeId, startDate, endDate, setLeaveTypeId } = TimeAndAttendaceDashboardStore();
+  const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } = useGetUserLeaveBalance(userId as string, leaveTypeId || '', startDate || '', endDate || '');
+  const { data: leaveBalance, isLoading: leaveBalanceLoading } = useGetLeaveBalance(userId as string, '');
+  console.log(userLeaveBalance, 'userLeaveBalance');
+  const statusColors: { [key: string]: string } = {
+    approved: "text-green-500 bg-green-500/20",
+    pending: "text-yellow-500 bg-yellow-500/20",
+    rejected: "text-red-500 bg-red-500/20",
+    cancelled: "text-gray-500 bg-gray-500/20",
+  };
   return (
     <div>
       <h2 className="text-lg font-bold mb-2">My Leave Balance</h2>
       <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2">
-        {[
-          { label: 'Sick Leave', value: '58', type: 'Fixed' },
-          { label: 'Annual Leave', value: '10', type: 'Incremental' },
-          { label: 'Emergency Leave', value: '3', type: 'Fixed' },
-          { label: 'Mourning Leave', value: '5', type: 'Fixed' },
-          { label: 'Sick Leave 1', value: '58', type: 'Fixed' },
-          { label: 'Sick Leave 2', value: '58', type: 'Fixed' },
-          { label: 'Sick Leave 3', value: '58', type: 'Fixed' },
-        ].map((item, index) => (
+        {leaveBalanceLoading && <Skeleton active />}
+        {leaveBalance?.items?.items?.map((item: any, index: number) => (
           <Card
             bodyStyle={{ padding: '10px' }}
             key={index}
-            className="min-w-60 flex-shrink-0"
+            className={`min-w-60 flex-shrink-0  ${leaveTypeId === item.leaveTypeId ? 'shadow-md' : ''}`}
+            onClick={() => leaveTypeId ? setLeaveTypeId('') : setLeaveTypeId(item.leaveTypeId)}
           >
             <div className="flex flex-row justify-between">
               <div>
-                <p className="font-medium text-xs">{item.label}</p>
+                <p className="font-medium text-xs">{item.leaveType.title}</p>
                 <Tag
-                  className={`font-medium border-none ${item.type === 'Fixed' ? 'bg-[#b2b2ff] text-blue' : 'bg-green-200 text-green-700'}`}
+                  className={`font-medium border-none ${item.leaveType.isFixed
+                    ? 'bg-[#b2b2ff] text-blue'
+                    : 'bg-green-200 text-green-700'
+                    }`}
                 >
-                  {item.type}
+                  {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
               </div>
               <div className="">
                 <div className="text-xl font-semibold text-blue ">
-                  <span className="">{item.value}</span>
+                  <span className="">
+                    {Math.round(item.totalBalance * 100) / 100}
+                  </span>
                   <span className="text-[10px]">days</span>
                 </div>
                 <div className="text-sm font-semibold text-black ">
@@ -47,23 +61,24 @@ const MyleaveBalance: React.FC = () => {
       <div className="grid grid-cols-12 gap-4 mt-4">
         <Card
           bodyStyle={{ padding: '10px' }}
-          className="shadow col-span-3 space-y-2"
+          className="shadow col-span-3 space-y-2 h-44"
+          loading={userLeaveBalanceLoading}
         >
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Entitled</p>
-            <p className="font-semibold text-[16px]">60</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalEntitledDays}</p>
           </div>
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Accrued</p>
-            <p className="font-semibold text-[16px]">3</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalAccrued}</p>
           </div>
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2 ">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2 ">
             <p className="font-normal text-sm w-28">Carried over</p>
-            <p className="font-semibold text-[16px]">0</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalCarriedOver}</p>
           </div>
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Total Utilized</p>
-            <p className="font-semibold text-[16px]">10</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalUtilizedLeaves}</p>
           </div>
         </Card>
 
@@ -75,99 +90,43 @@ const MyleaveBalance: React.FC = () => {
             Utilization
           </p>
           <div className="flex flex-col gap-2 h-36 overflow-y-auto scrollbar-none">
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
+            <Spin spinning={userLeaveBalanceLoading}>
+              <div className="flex flex-col gap-2 h-36 overflow-y-auto scrollbar-none">
+                {userLeaveBalanceLoading && <Skeleton active />}
+                {userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
+                  userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
+                    <div key={leave.leaveRequestId} className="border rounded-md p-2">
+                      <div className="flex flex-row gap-2 items-center justify-between">
+                        <div>
+                          <p className="text-xs">
+                            <b>{leave.totalDays} {leave.totalDays > 1 ? 'Days' : 'Day'}</b>
+                          </p>
+                          <p className="text-xs">
+                            {new Date(leave.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} - {new Date(leave.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </p>
+                        </div>
+                        <div className="flex flex-col justify-end items-end">
+                          <p className="text-xs">
+                            Requested on <strong> {new Date(leave.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>{' '}
+                          </p>
+                          <Tag
+                            style={{ marginInlineEnd: 0 }}
+                            className={`${statusColors[leave.status.toLowerCase()] || 'text-gray-500 bg-gray-500/20'} font-semibold border-none text-xs capitalize`}
+                          >
+                            {leave.status}
+                          </Tag>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className='flex justify-center items-center h-36'>
+                    <p className='text-gray-500 text-[14px] font-semibold'>No Recored Found</p>
                   </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
+                )}
 
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
               </div>
-            </div>
+            </Spin>
           </div>
         </Card>
       </div>

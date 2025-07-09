@@ -1,9 +1,37 @@
-import { Card, DatePicker, Form, Input, Select, Tag } from 'antd';
+import { Card, DatePicker, Form, Input, Select, Skeleton, Tag, Empty, Spin } from 'antd';
 import React from 'react';
 import { SearchOutlined } from '@ant-design/icons';
+import { useSearchParams } from 'next/navigation';
+import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
+import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
+import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
+import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 const { Option } = Select;
 const UserLeaveBalance: React.FC = () => {
   const [form] = Form.useForm();
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('user');
+  const { setLeaveTypeId, leaveTypeId, startDate, endDate, setStartDate, setEndDate, setUserIdOnLeaveBalance, userIdOnLeaveBalance } = TimeAndAttendaceDashboardStore();
+
+  const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } = useGetUserLeaveBalance(userIdOnLeaveBalance ? userIdOnLeaveBalance : userId as string, leaveTypeId || '', startDate || '', endDate || '');
+  const { data: leaveBalance, isLoading: leaveBalanceLoading } = useGetLeaveBalance(userIdOnLeaveBalance ? userIdOnLeaveBalance : userId as string, '');
+  console.log(userLeaveBalance, 'userLeaveBalance');
+
+  const statusColors: { [key: string]: string } = {
+    approved: "text-green-500 bg-green-500/20",
+    pending: "text-yellow-500 bg-yellow-500/20",
+    rejected: "text-red-500 bg-red-500/20",
+    cancelled: "text-gray-500 bg-gray-500/20",
+  };
+  const leaveOptions = leaveBalance?.items?.items?.map((item: any) => ({
+    label: item.leaveType.title,
+    value: item.leaveTypeId,
+  }));
+  const { data: Employees } = useGetEmployees();
+  const employeeOptions = Employees?.items?.map((i: any) => ({
+    value: i.id,
+    label: i?.firstName + ' ' + i?.middleName + ' ' + i?.lastName,
+  }));
   return (
     <div>
       <Form
@@ -11,57 +39,82 @@ const UserLeaveBalance: React.FC = () => {
         layout="inline"
         className="grid grid-cols-12 gap-4 mb-4"
       >
-        <Form.Item name="search" className="col-span-6">
-          <Input
-            placeholder="Search Employee"
-            prefix={<SearchOutlined />}
+        <Form.Item name="employee" className="col-span-6">
+
+          <Select
+            showSearch
+            placeholder="Select employee"
             allowClear
-            className="rounded-md h-10"
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')
+                ?.toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            options={employeeOptions}
+
+            className='w-full  h-10 '
+            onChange={(value: any) => setUserIdOnLeaveBalance(value)}
+          />
+        </Form.Item>
+        <Form.Item name="type" className="w-full  col-span-3">
+          <Select
+            showSearch
+            placeholder="Select Leave Type"
+            allowClear
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')
+                ?.toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            options={leaveOptions}
+            maxTagCount={1}
+            className="w-full h-10"
+            onChange={(value) => setLeaveTypeId(value)}
           />
         </Form.Item>
 
-        <Form.Item name="type" className="w-full  col-span-3">
-          <Select placeholder="Type" allowClear className=" h-10">
-            <Option value="Active">Active</Option>
-            <Option value="On Leave">On Leave</Option>
-          </Select>
-        </Form.Item>
-
         <Form.Item name="date" className="w-full  col-span-3 ">
-          <DatePicker
-            placeholder="Date"
+          <DatePicker.RangePicker
             size="large"
             className="rounded-md w-full h-10"
+            onChange={(value) => {
+              if (value) {
+                setStartDate(value[0] ? value[0].format('YYYY-MM-DD') : '');
+                setEndDate(value[1] ? value[1].format('YYYY-MM-DD') : '');
+              } else {
+                setStartDate('');
+                setEndDate('');
+              }
+            }}
           />
         </Form.Item>
       </Form>
       <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2">
-        {[
-          { label: 'Sick Leave', value: '58', type: 'Fixed' },
-          { label: 'Annual Leave', value: '10', type: 'Incremental' },
-          { label: 'Emergency Leave', value: '3', type: 'Fixed' },
-          { label: 'Mourning Leave', value: '5', type: 'Fixed' },
-          { label: 'Sick Leave 1', value: '58', type: 'Fixed' },
-          { label: 'Sick Leave 2', value: '58', type: 'Fixed' },
-          { label: 'Sick Leave 3', value: '58', type: 'Fixed' },
-        ].map((item, index) => (
+        {leaveBalanceLoading && <Skeleton active />}
+        {leaveBalance?.items?.items?.map((item: any, index: number) => (
           <Card
             bodyStyle={{ padding: '10px' }}
             key={index}
-            className="min-w-60 flex-shrink-0  shadow-md"
+            className={`min-w-60 flex-shrink-0  ${leaveTypeId === item.leaveTypeId ? 'shadow-md' : ''}`}
+            onClick={() => leaveTypeId ? setLeaveTypeId('') : setLeaveTypeId(item.leaveTypeId)}
           >
             <div className="flex flex-row justify-between">
               <div>
-                <p className="font-medium text-xs">{item.label}</p>
+                <p className="font-medium text-xs">{item.leaveType.title}</p>
                 <Tag
-                  className={`font-medium border-none ${item.type === 'Fixed' ? 'bg-[#b2b2ff] text-blue' : 'bg-green-200 text-green-700'}`}
+                  className={`font-medium border-none ${item.leaveType.isFixed
+                    ? 'bg-[#b2b2ff] text-blue'
+                    : 'bg-green-200 text-green-700'
+                    }`}
                 >
-                  {item.type}
+                  {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
               </div>
               <div className="">
                 <div className="text-xl font-semibold text-blue ">
-                  <span className="">{item.value}</span>
+                  <span className="">
+                    {Math.round(item.totalBalance * 100) / 100}
+                  </span>
                   <span className="text-[10px]">days</span>
                 </div>
                 <div className="text-sm font-semibold text-black ">
@@ -78,22 +131,23 @@ const UserLeaveBalance: React.FC = () => {
         <Card
           bodyStyle={{ padding: '10px' }}
           className="shadow col-span-3 space-y-2 h-44"
+          loading={userLeaveBalanceLoading}
         >
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Entitled</p>
-            <p className="font-semibold text-[16px]">60</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalEntitledDays}</p>
           </div>
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Accrued</p>
-            <p className="font-semibold text-[16px]">3</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalAccrued}</p>
           </div>
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2 ">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2 ">
             <p className="font-normal text-sm w-28">Carried over</p>
-            <p className="font-semibold text-[16px]">0</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalCarriedOver}</p>
           </div>
-          <div className="flex flex-row gap-2 items-center justify-center border-b border-gray-300 pb-2 mb-2">
+          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
             <p className="font-normal text-sm w-28">Total Utilized</p>
-            <p className="font-semibold text-[16px]">10</p>
+            <p className="font-semibold text-[16px]">{userLeaveBalance?.data?.totals?.totalUtilizedLeaves}</p>
           </div>
         </Card>
 
@@ -104,263 +158,46 @@ const UserLeaveBalance: React.FC = () => {
           <p className="font-medium text-xs mb-2 border-b border-gray-300">
             Utilization
           </p>
-          <div className="flex flex-col gap-2 h-96 overflow-y-auto scrollbar-none">
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
+          <Spin spinning={userLeaveBalanceLoading}>
+            <div className="flex flex-col gap-2 h-96 overflow-y-auto scrollbar-none">
+              {userLeaveBalanceLoading && <Skeleton active />}
+              {userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
+                userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
+                  <div key={leave.leaveRequestId} className="border rounded-md p-2">
+                    <div className="flex flex-row gap-2 items-center justify-between">
+                      <div>
+                        <p className="text-xs">
+                          <b>{leave.totalDays} {leave.totalDays > 1 ? 'Days' : 'Day'}</b>
+                        </p>
+                        <p className="text-xs">
+                          {new Date(leave.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} - {new Date(leave.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
+                      <div className="flex flex-col justify-end items-end">
+                        <p className="text-xs">
+                          Requested on <strong> {new Date(leave.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>{' '}
+                        </p>
+                        <Tag
+                          style={{ marginInlineEnd: 0 }}
+                          className={`${statusColors[leave.status.toLowerCase()] || 'text-gray-500 bg-gray-500/20'} font-semibold border-none text-xs capitalize`}
+                        >
+                          {leave.status}
+                        </Tag>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
+                ))
+              ) : (
+                <div className='flex justify-center items-center h-96'>
+                  <p className='text-gray-500 text-[14px] font-semibold'>No Recored Found</p>
                 </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
+              )}
 
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
             </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="border rounded-md p-2">
-                <div className="flex flex-row gap-2 items-center justify-between">
-                  <div>
-                    <p className="text-xs">
-                      <b>1 Days</b>
-                    </p>
-                    <p className="text-xs">20 June 2025 - 21 July 2025</p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <p className="text-xs">
-                      Requested on <strong> 20 June 2025</strong>{' '}
-                    </p>
-                    <Tag
-                      style={{ marginInlineEnd: 0 }}
-                      className="text-yellow-500 bg-yellow-500/20  font-semibold border-none text-xs"
-                    >
-                      Pending
-                    </Tag>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          </Spin>
         </Card>
+
+
       </div>
     </div>
   );
