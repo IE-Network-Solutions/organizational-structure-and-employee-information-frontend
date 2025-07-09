@@ -212,6 +212,7 @@ const TaskCard: React.FC = () => {
               {item.departmentId
                 ? getDepartmentData(item.departmentId)?.name +
                 " Team's weekly priority:" || ''
+
                 : ''}
             </span>
             <div className="flex items-center gap-2">
