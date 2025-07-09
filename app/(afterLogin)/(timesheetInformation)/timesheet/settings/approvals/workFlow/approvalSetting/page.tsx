@@ -49,6 +49,7 @@ const ApprovalSetting: React.FC<any> = () => {
           NotificationMessage.success({
             message: 'Success',
             description: 'Approver created successfully'
+
           });
           router.push('/timesheet/settings/approvals');
         },
@@ -58,6 +59,7 @@ const ApprovalSetting: React.FC<any> = () => {
             description: error?.response?.data?.message ?? 'Something went wrong',
           });
         }
+
       },
     );
   };
