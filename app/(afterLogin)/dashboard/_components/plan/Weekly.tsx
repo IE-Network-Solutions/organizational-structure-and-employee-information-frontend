@@ -53,14 +53,14 @@ const Weekly = ({
     <div className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none">
       {planTaskArray?.length > 0 ? (
         planTaskArray?.map((item: any) => (
-          <div key={item?.keyResultId} className="flex flex-col pb-3">
-            <div className="text-base font-bold flex gap-3 pb-3 items-center ">
+          <div key={item?.keyResultId} className="flex flex-col gap-2  p-2">
+            <div className="text-base font-bold flex gap-3 items-center ">
               <BsKey className="text-primary" />
               {item?.task?.[0]?.keyResult?.title}
             </div>
             <div className="">
               {item?.task?.map((task: any) => (
-                <div className="pb-2" key={task?.id}>
+                <div className="" key={task?.id}>
                   <Checkbox
                     checked={task?.status == 'pre-achieved'}
                     onChange={() =>
@@ -69,9 +69,9 @@ const Weekly = ({
                     disabled={task?.status == 'completed'}
                   >
                     <div
-                      className={`text-base font-medium text-slate-500 ${
+                      className={`text-base font-medium text-gray-500 ${
                         task?.status == 'pre-achieved'
-                          ? 'line-through text-slate-400'
+                          ? 'line-through text-gray-400'
                           : ''
                       }`}
                     >

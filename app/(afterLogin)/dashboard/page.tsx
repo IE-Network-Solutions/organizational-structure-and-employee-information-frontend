@@ -33,7 +33,7 @@ export default function Home() {
   };
 
   const mainLayout = (
-    <div className="min-h-screen bg-gray-100 px-4">
+    <div className="min-h-screen bg-gray-100 p-4">
       <div className=" flex justify-between items-center">
         <div className="">
           {' '}

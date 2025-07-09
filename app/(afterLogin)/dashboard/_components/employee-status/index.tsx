@@ -54,11 +54,10 @@ const EmploymentStats: React.FC = () => {
   };
 
   const options = {
-    cutout: '70%',
+    cutout: '60%',
     plugins: {
       legend: { display: false },
       tooltip: { enabled: true },
-      datalabels: { display: false },
     },
     elements: {
       arc: { borderWidth: 0 },
@@ -90,7 +89,7 @@ const EmploymentStats: React.FC = () => {
       {employeeStatus?.length ? (
         <div className="flex-1 flex items-center justify-between h-[80%] mt-10">
           <div className="relative flex items-center justify-center w-[180px] h-[180px] px-4 overflow-visible z-10">
-            <Doughnut data={data} options={options} className="z-20" />
+            <Doughnut data={data} options={options} />
             <div
               className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
               style={{ transform: 'translate(-50%, -50%)' }}
