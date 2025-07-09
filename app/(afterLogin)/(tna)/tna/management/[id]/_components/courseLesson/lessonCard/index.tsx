@@ -6,7 +6,7 @@ import { LuPlus } from 'react-icons/lu';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useDeleteCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import Link from 'next/link';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+
 
 interface LessonCardProps {
   lesson: CourseLesson;
@@ -19,14 +19,12 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     setIsShowAddLesson,
     refetchCourse,
     setIsShowLessonMaterial,
-    activeKey,
   } = useTnaManagementCoursePageStore();
   const {
     mutate: deleteLesson,
     isLoading,
     isSuccess,
   } = useDeleteCourseLesson();
-  const { isMobile } = useIsMobile();
 
   const shouldShowButton = true; // Always show the button like it was before
 
