@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const logUserId = useAuthenticationStore.getState().userId;
+// const logUserId = useAuthenticationStore.getState().userId;
 
 const getEmployeeSurvey = async (
   userId: string | null,
@@ -21,8 +21,8 @@ const getEmployeeSurvey = async (
         userId,
         departmentId,
         monthId,
-        updatedBy: logUserId,
-        createdBy: logUserId,
+        // updatedBy: logUserId,
+        // createdBy: logUserId,
       }, // merged into one object
       {
         headers: {

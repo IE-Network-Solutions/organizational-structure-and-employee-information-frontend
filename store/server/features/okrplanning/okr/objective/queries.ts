@@ -6,7 +6,7 @@ import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const logUserId = useAuthenticationStore.getState().userId;
+// const logUserId = useAuthenticationStore.getState().userId;
 
 type ResponseData = {
   items: Objective[];
@@ -60,8 +60,8 @@ const getObjectiveByTeam = async (
         users: users,
         userId: userId,
         metricTypeId: metricTypeId,
-        updatedBy: logUserId,
-        createdBy: logUserId,
+        // updatedBy: logUserId,
+        // createdBy: logUserId,
       }, // This is the request body
       {
         headers: {
@@ -91,8 +91,8 @@ const getObjectiveByCompany = async (
         users: users,
         userId: userId,
         metricTypeId: metricTypeId,
-        updatedBy: logUserId,
-        createdBy: logUserId,
+        // updatedBy: logUserId,
+        // createdBy: logUserId,
       }, // This is the request body
       {
         headers: {
@@ -124,8 +124,8 @@ const getEmployeeOkr = async (
         userId: searchObjParams?.userId,
         departmentId: searchObjParams?.departmentId,
         metricTypeId: searchObjParams?.metricTypeId,
-        updatedBy: logUserId,
-        createdBy: logUserId,
+        // updatedBy: logUserId,
+        // createdBy: logUserId,
       }, // merged into one object
       {
         headers: {
