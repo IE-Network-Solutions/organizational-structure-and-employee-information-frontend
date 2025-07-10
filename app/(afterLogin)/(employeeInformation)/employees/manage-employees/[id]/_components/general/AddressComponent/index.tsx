@@ -34,6 +34,25 @@ const AddressComponent = ({
     );
   };
 
+  // Filter custom fields for address section
+  const addressFields =
+    mergedFields?.filter((field: any) => field?.formTitle === 'address') || [];
+
+  // Merge existing employee data with custom fields
+  const existingData = employeeData?.employeeInformation?.addresses || {};
+  const defaultFields = {
+    country: '',
+    city: '',
+  };
+  const allFields = { ...defaultFields, ...existingData };
+
+  // Add custom fields to allFields if they don't exist
+  addressFields.forEach((field: any) => {
+    if (!(field.fieldName in allFields)) {
+      allFields[field.fieldName] = '';
+    }
+  });
+
   const titleMap: Record<string, string> = {
     phoneNumber: 'Phone Number',
   };
@@ -62,20 +81,23 @@ const AddressComponent = ({
           onFinish={(values) => handleSaveChanges('addresses', values)}
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
-          initialValues={employeeData?.employeeInformation?.addresses || {}}
+          initialValues={allFields}
         >
           <Row gutter={[16, 24]}>
             <Col lg={16}>
-              {Object.entries(
-                employeeData?.employeeInformation?.addresses || {
-                  country: '',
-                  city: '',
-                },
-              ).map(([key, val]) => (
+              {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
                   name={key}
-                  label={key}
+                  label={
+                    titleMap[key] ||
+                    key
+                      .split('_')
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(' ')
+                  }
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -100,7 +122,7 @@ const AddressComponent = ({
                             break;
 
                           default:
-                            fieldValidation = getFieldValidation(key);
+                            fieldValidation = getFieldValidation(key) || 'any';
                         }
 
                         const validationError = validateField(
@@ -115,7 +137,10 @@ const AddressComponent = ({
                     },
                   ]}
                 >
-                  <Input placeholder={key} defaultValue={val?.toString()} />
+                  <Input
+                    placeholder={key.replace(/_/g, ' ')}
+                    defaultValue={val?.toString()}
+                  />
                 </Form.Item>
               ))}
             </Col>
@@ -131,12 +156,16 @@ const AddressComponent = ({
       ) : (
         <Row gutter={[16, 24]}>
           <Col lg={16}>
-            {Object.entries(
-              employeeData?.employeeInformation?.addresses || {},
-            ).map(([key, val]) => (
+            {Object.entries(allFields).map(([key, val]) => (
               <InfoLine
                 key={key}
-                title={(titleMap[key] || key).replace('address', '')}
+                title={(
+                  titleMap[key] ||
+                  key
+                    .split('_')
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')
+                ).replace('address', '')}
                 value={val?.toString() || '-'}
               />
             ))}
