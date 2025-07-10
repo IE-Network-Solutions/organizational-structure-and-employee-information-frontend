@@ -1,7 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -33,19 +32,16 @@ const getSurvey = async (start: string, end: string): Promise<ResponseData> => {
     throw new Error('Missing authentication information.');
   }
 
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get<ResponseData>(
-      `${ORG_DEV_URL}/forms/user/form?userId=${userId}&start=${start}&end=${end}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(`Error fetching applicant summary: ${error}`);
-  }
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+  const response = await crudRequest({
+    url: `${ORG_DEV_URL}/forms/user/form?userId=${userId}&start=${start}&end=${end}`,
+    method: 'GET',
+    headers,
+  });
+  return response;
 };
 const getSchedule = async () => {
   const token = useAuthenticationStore.getState().token;
@@ -56,20 +52,16 @@ const getSchedule = async () => {
     throw new Error('Missing authentication information.');
   }
 
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    };
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
 
-    return await crudRequest({
-      url: `${ORG_DEV_URL}/my-meetings/${userId}`,
-      method: 'GET',
-      headers,
-    });
-  } catch (error: any) {
-    throw new Error(`Error fetching schedule: ${error.message || error}`);
-  }
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/my-meetings/${userId}`,
+    method: 'GET',
+    headers,
+  });
 };
 const getScheduleByDate = async (date: string) => {
   const token = useAuthenticationStore.getState().token;
@@ -82,21 +74,17 @@ const getScheduleByDate = async (date: string) => {
 
   const params = { date: date };
 
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    };
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
 
-    return await crudRequest({
-      url: `${ORG_DEV_URL}/my-meetings/${userId}/by-date`,
-      method: 'GET',
-      headers,
-      params,
-    });
-  } catch (error: any) {
-    throw new Error(`Error fetching schedule: ${error.message || error}`);
-  }
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/my-meetings/${userId}/by-date`,
+    method: 'GET',
+    headers,
+    params,
+  });
 };
 
 /**

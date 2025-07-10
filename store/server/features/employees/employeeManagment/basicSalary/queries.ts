@@ -1,27 +1,15 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
+import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 
 const getBasicSalaryById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/basic-salary/user/${id}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/basic-salary/user/${id}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
 };
 
 export const useGetBasicSalaryById = (empId: string) =>

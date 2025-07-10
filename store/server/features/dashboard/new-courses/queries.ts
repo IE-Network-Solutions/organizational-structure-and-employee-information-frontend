@@ -1,6 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TNA_URL } from '@/utils/constants';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -30,19 +30,16 @@ const getCourse = async (): Promise<ResponseData> => {
     throw new Error('Missing authentication information.');
   }
 
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get<ResponseData>(
-      `${TNA_URL}/learning/course/user-courses/${userId}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(`Error fetching applicant summary: ${error}`);
-  }
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+  const response = await crudRequest({
+    url: `${TNA_URL}/learning/course/user-courses/${userId}`,
+    method: 'GET',
+    headers,
+  });
+  return response;
 };
 
 /**

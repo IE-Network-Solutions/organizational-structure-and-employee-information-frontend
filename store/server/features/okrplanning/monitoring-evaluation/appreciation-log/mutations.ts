@@ -51,24 +51,18 @@ export const UpdateAppLog = async (values: Record<string, string>) => {
 };
 
 const deleteAppLog = async (deletedId: string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/appreciation-log/${deletedId}`,
-      { headers },
-    );
-    NotificationMessage.success({
-      message: 'Successfully Deleted',
-      description: 'Appreciation successfully deleted.',
-    });
-
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/appreciation-log/${deletedId}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+  NotificationMessage.success({
+    message: 'Successfully Deleted',
+    description: 'Appreciation successfully deleted.',
+  });
 };
 
 export const useDeleteAppLog = () => {

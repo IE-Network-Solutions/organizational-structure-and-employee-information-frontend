@@ -1,7 +1,8 @@
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
+import { requestHeader } from '@/helpers/requestHeader';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -14,27 +15,16 @@ const getEmployeeSurvey = async (
   page: number,
   currentPage: number,
 ) => {
-  try {
-    const response = await axios.post(
-      `${ORG_DEV_URL}/survey-target-score/filtered-data/vp-score?page=${currentPage}&limit=${page}`,
-      {
-        userId,
-        departmentId,
-        monthId,
-        // updatedBy: logUserId,
-        // createdBy: logUserId,
-      }, // merged into one object
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          tenantId: tenantId,
-        },
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  return crudRequest({
+    url: `${ORG_DEV_URL}/survey-target-score/filtered-data/vp-score?page=${currentPage}&limit=${page}`,
+    method: 'POST',
+    headers: requestHeader(),
+    data: {
+      userId,
+      departmentId,
+      monthId,
+    },
+  });
 };
 
 export const useGetEmployeeSurvey = (

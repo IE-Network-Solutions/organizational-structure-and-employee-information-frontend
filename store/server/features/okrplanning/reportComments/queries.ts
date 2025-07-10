@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
-import axios from 'axios';
 import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
+import { requestHeader } from '@/helpers/requestHeader';
 // import axiosInstance from "@/providers/axiosContext";
 
 /**
@@ -19,12 +19,11 @@ const getPlanComments = async () => {
  */
 
 const getComment = async (id: number) => {
-  try {
-    const response = await axios.get(`${OKR_URL}/report-comments/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  return crudRequest({
+    url: `${OKR_URL}/report-comments/${id}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
 };
 
 /**

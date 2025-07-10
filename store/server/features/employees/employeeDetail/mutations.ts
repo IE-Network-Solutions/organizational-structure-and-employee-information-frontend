@@ -2,7 +2,6 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 // Mutation function for updating profile image
@@ -132,19 +131,15 @@ const updateEmployeeJobInformationMutation = async (
 const deleteEmployeeDocument = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee-document/${id}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-document/${id}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
 };
 
 const createEmployeeDocument = async (formData: FormData) => {

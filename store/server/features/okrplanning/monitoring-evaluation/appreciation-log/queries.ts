@@ -1,7 +1,8 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
+import { requestHeader } from '@/helpers/requestHeader';
 import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log/interface';
 
 const token = useAuthenticationStore.getState().token;
@@ -25,38 +26,19 @@ type ResponseDataDetail = AppreciationLog;
  * @returns The response data from the API
  */
 const getAppreciationLog = async (userId: string, typeId: string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/appreciation-log?userId=${userId}&typeId=${typeId}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  return crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/appreciation-log?userId=${userId}&typeId=${typeId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
 };
+
 const getAppRepAll = async (userId: string, typeId: string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/appreciation-log/all?userId=${userId}&typeId=${typeId}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  return crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/appreciation-log/all?userId=${userId}&typeId=${typeId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
 };
 
 /**
@@ -65,22 +47,13 @@ const getAppRepAll = async (userId: string, typeId: string) => {
  * @returns The response data from the API
  */
 const getAppreciationLogById = async (id: number | string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/appreciation-log/${id}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  return crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/appreciation-log/${id}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
 };
+
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
  *

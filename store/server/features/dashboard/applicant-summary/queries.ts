@@ -1,6 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
+import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -35,19 +36,11 @@ const getApplicantSummary = async (status: string): Promise<ResponseData> => {
     throw new Error('Missing authentication information.');
   }
 
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get<ResponseData>(
-      `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(`Error fetching applicant summary: ${error}`);
-  }
+  return crudRequest({
+    url: `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
 };
 
 /**
