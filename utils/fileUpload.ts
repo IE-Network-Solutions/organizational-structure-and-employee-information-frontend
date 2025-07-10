@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { FILE_URL } from '@/utils/constants';
 
 export interface CustomFile {
   image: string;
@@ -13,6 +14,8 @@ export const fileUpload = async (
   try {
     const formData = new FormData();
     formData.append('tenantId', useAuthenticationStore.getState().tenantId);
+    // formData.append('createdBy', useAuthenticationStore.getState().userId);
+    // formData.append('updatedBy', useAuthenticationStore.getState().userId);
     formData.append('file', file);
 
     const config = {
@@ -21,11 +24,7 @@ export const fileUpload = async (
       },
     };
 
-    const response = await axios.post(
-      'https://files.ienetworks.co/testUpload',
-      formData,
-      config,
-    );
+    const response = await axios.post(FILE_URL, formData, config);
 
     return response;
   } catch (error) {

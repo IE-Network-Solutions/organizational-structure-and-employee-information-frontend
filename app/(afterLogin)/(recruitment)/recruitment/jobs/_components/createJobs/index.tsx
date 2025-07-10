@@ -27,6 +27,7 @@ const CreateJobs: React.FC = () => {
     setAddJobModalResult,
     setSelectedJobId,
     filteredQuestions,
+    setSelectedQuestions,
   } = useJobState();
   const { mutate: createJob } = useCreateJobs();
 
@@ -46,16 +47,6 @@ const CreateJobs: React.FC = () => {
   const handleStepChange = (value: number) => {
     setCurrentStep(value);
   };
-  // const handleStepChange = async (value: number) => {
-  //   try {
-  //     if (currentStep === 0) {
-
-  //       await form.validateFields();
-  //     }
-  //     setCurrentStep(value);
-  //   } catch (error) {
-  //   }
-  // };
 
   const addNewDrawerHeader = (
     <div className="flex flex-col items-center">
@@ -91,6 +82,9 @@ const CreateJobs: React.FC = () => {
 
   const handlePublish = async () => {
     try {
+      // Validate all form fields before proceeding
+      await form.validateFields();
+
       const formValues = form.getFieldsValue();
 
       const formattedValue = {
@@ -113,12 +107,19 @@ const CreateJobs: React.FC = () => {
               }),
             };
           }) || []),
-          ...(filteredQuestions?.map((e: any) => {
-            return {
-              ...e,
-              required: e.required || false,
-            };
-          }) || []),
+          ...(filteredQuestions?.flatMap((template: any) =>
+            template.form?.map((formItem: any) => ({
+              id: uuidv4(),
+              fieldType: formItem.fieldType,
+              question: formItem.question,
+              required: formItem.required || false,
+              field:
+                formItem.field?.map((field: any) => ({
+                  id: uuidv4(),
+                  value: field.value || field,
+                })) || [],
+            })),
+          ) || []),
         ],
       };
       createJob(formattedValue, {
@@ -129,12 +130,14 @@ const CreateJobs: React.FC = () => {
           setAddNewDrawer(false);
           form.resetFields();
           setCurrentStep(0);
+          setSelectedQuestions([]);
         },
       });
-    } catch {
+    } catch (error) {
+      // If validation fails, the error will be caught here and no request will be sent
       NotificationMessage.error({
-        message: 'Publish Failed',
-        description: 'There was an error publishing Add new Job.',
+        message: 'Validation Failed',
+        description: 'Please check all required fields before publishing.',
       });
     }
   };

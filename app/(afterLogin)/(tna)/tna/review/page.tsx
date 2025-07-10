@@ -102,6 +102,7 @@ const TnaReviewPage = () => {
     isShowTnaReviewSidebar,
     setIsShowTnaReviewSidebar,
     setTnaId,
+    setData,
     loading,
   } = useTnaReviewStore();
   const {
@@ -159,6 +160,16 @@ const TnaReviewPage = () => {
     }
   }, [data]);
   <Filters onSearch={handleSearch} disable={['name', 'payPeriod']} />;
+  const onTnaEdit = (item: any) => {
+    setTnaId(item.id);
+    setData({
+      yearId: item.yearId,
+      sessionId: item.sessionId,
+      monthId: item.monthId,
+      departmentId: item.departmentId,
+    });
+    setIsShowTnaReviewSidebar(true);
+  };
 
   const tableColumns: TableColumnsType<any> = [
     {
@@ -261,8 +272,7 @@ const TnaReviewPage = () => {
                 item.certStatus === TrainingNeedAssessmentCertStatus.COMPLETED
               }
               onClick={() => {
-                setTnaId(item.id);
-                setIsShowTnaReviewSidebar(true);
+                onTnaEdit(item);
               }}
             />
           </AccessGuard>

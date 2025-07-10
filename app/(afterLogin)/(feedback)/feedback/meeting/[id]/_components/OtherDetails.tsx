@@ -75,7 +75,7 @@ export default function OtherDetails({
       loading={loading}
       className="p-4 space-y-3 border-none"
     >
-      <h2 className="text-lg font-semibold">Other Details</h2>
+      <h2 className="text-lg font-bold">Other Details</h2>
       <Form form={form} layout="vertical" onFinish={handleConfirm}>
         {/* Start and End Time */}
         <div className="flex gap-5">
@@ -127,14 +127,14 @@ export default function OtherDetails({
           ) : (
             <>
               <p
-                className="w-full border p-3 rounded-lg cursor-pointer"
+                className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit start time"
               >
                 {dayjs(meeting?.startAt)?.format('HH:mm A')}
               </p>
               <p
-                className="w-full border p-3 rounded-lg cursor-pointer"
+                className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit end time"
               >
@@ -222,7 +222,7 @@ export default function OtherDetails({
               htmlType="submit"
               type="primary"
               loading={isLoading}
-              className="text-[10px] h-5 min-w-16 border-none shadow-none"
+              className="h-10 min-w-16 border-none shadow-none"
             >
               Save
             </Button>
@@ -232,7 +232,7 @@ export default function OtherDetails({
                 setIsEditing(false);
               }}
               loading={isLoading}
-              className="text-[10px] h-5 min-w-16"
+              className="h-10 min-w-16"
             >
               Cancel
             </Button>

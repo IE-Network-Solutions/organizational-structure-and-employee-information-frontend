@@ -2,7 +2,6 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 // Mutation function for updating profile image
@@ -52,6 +51,20 @@ export const useUpdateProfileImage = () => {
 };
 
 // Mutation function
+const createEmployeeMutation = async (values: any) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information`,
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: values,
+  });
+};
 const updateEmployeeMutation = async (id: string, values: any) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -118,19 +131,15 @@ const updateEmployeeJobInformationMutation = async (
 const deleteEmployeeDocument = async (id: string) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee-document/${id}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-document/${id}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
 };
 
 const createEmployeeDocument = async (formData: FormData) => {
@@ -184,6 +193,22 @@ export const useUpdateEmployee = () => {
   return useMutation(
     ({ id, values }: { id: string; values: any }) =>
       updateEmployeeMutation(id, values),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee');
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Employee successfully updated',
+        });
+      },
+    },
+  );
+};
+export const useCreateEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ values }: { values: any }) => createEmployeeMutation(values),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');

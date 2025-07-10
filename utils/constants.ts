@@ -20,6 +20,8 @@ export const ORG_DEV = process.env.ORG_DEV;
 
 export const BASE_FRONT_URL = process.env.BASE_FRONT_URL;
 
+export const FILE_URL = process.env.FILE_URL || '';
+
 export const DATE_FORMAT = 'DD MMM YYYY';
 export const DATETIME_FORMAT = 'DD MMM YYYY hh:mm A';
 export const TIME_FORMAT = 'hh:mm A';
@@ -35,3 +37,5 @@ export const EMAIL_URL = process.env.EMAIL_URL;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 export const DEFAULT_TENANT_ID = tenantId;
+
+export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;

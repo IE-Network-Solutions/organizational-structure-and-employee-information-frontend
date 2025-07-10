@@ -1,5 +1,4 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
@@ -11,11 +10,11 @@ const getCandidates = async (
   selectedJob: string,
   selectedStage: string,
   selectedDepartment: string,
+  pageSize: number,
+  currentPage: number,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const pageSize = useCandidateState.getState().pageSize;
-  const currentPage = useCandidateState.getState().currentPage;
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -34,11 +33,12 @@ const getAllCandidates = async (
   selectedJob: string,
   selectedStage: string,
   selectedDepartment: string,
+  pageSize: number,
+  currentPage: number,
 ) => {
   const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const pageSize = useCandidateState.getState().pageSize;
-  const currentPage = useCandidateState.getState().currentPage;
+
   const headers = {
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
@@ -98,6 +98,8 @@ export const useGetCandidates = (
   selectedJob: string,
   selectedStage: string,
   selectedDepartment: string,
+  pageSize: number,
+  currentPage: number,
 ) => {
   return useQuery(
     [
@@ -108,6 +110,8 @@ export const useGetCandidates = (
       selectedJob,
       selectedStage,
       selectedDepartment,
+      pageSize,
+      currentPage,
     ],
     () =>
       getCandidates(
@@ -117,6 +121,8 @@ export const useGetCandidates = (
         selectedJob,
         selectedStage,
         selectedDepartment,
+        pageSize,
+        currentPage,
       ),
   );
 };
@@ -133,6 +139,8 @@ export const useGetAllCandidates = (
   selectedJob: string,
   selectedStage: string,
   selectedDepartment: string,
+  pageSize: number,
+  currentPage: number,
 ) => {
   return useQuery(
     [
@@ -142,6 +150,8 @@ export const useGetAllCandidates = (
       selectedJob,
       selectedStage,
       selectedDepartment,
+      pageSize,
+      currentPage,
     ],
     () =>
       getAllCandidates(
@@ -150,6 +160,8 @@ export const useGetAllCandidates = (
         selectedJob,
         selectedStage,
         selectedDepartment,
+        pageSize,
+        currentPage,
       ),
   );
 };

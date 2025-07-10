@@ -3,11 +3,11 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+// const logUserId = useAuthenticationStore.getState().userId;
 const createObjective = async (values: any) => {
   try {
     await crudRequest({
@@ -52,24 +52,15 @@ export const UpdateObjective = async (values: any) => {
 };
 
 const deleteObjective = async (deletedId: string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/objective/${deletedId}`,
-      { headers },
-    );
-    NotificationMessage.success({
-      message: 'Successfully Deleted',
-      description: 'Objective successfully deleted.',
-    });
-
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/objective/${deletedId}`,
+    method: 'DELETE',
+    headers: requestHeader(),
+  });
+  NotificationMessage.success({
+    message: 'Successfully Deleted',
+    description: 'Objective successfully deleted.',
+  });
 };
 
 export const updateKeyResult = async (values: any) => {
@@ -93,44 +84,26 @@ export const updateKeyResult = async (values: any) => {
   }
 };
 const deleteKeyResult = async (deletedId: string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/key-results/${deletedId}`,
-      { headers },
-    );
-    NotificationMessage.success({
-      message: 'Successfully Deleted',
-      description: 'Key result successfully deleted.',
-    });
-
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/key-results/${deletedId}`,
+    method: 'DELETE',
+    headers: requestHeader(),
+  });
+  NotificationMessage.success({
+    message: 'Successfully Deleted',
+    description: 'Key result successfully deleted.',
+  });
 };
 const deleteMilestone = async (deletedId: string) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
-      { headers },
-    );
-    NotificationMessage.success({
-      message: 'Successfully Deleted',
-      description: 'Milestone deleted successfully.',
-    });
-
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
+    method: 'DELETE',
+    headers: requestHeader(),
+  });
+  NotificationMessage.success({
+    message: 'Successfully Deleted',
+    description: 'Milestone deleted successfully.',
+  });
 };
 
 // Function to update the remaining key results
@@ -144,27 +117,21 @@ const updateKeyResults = async (data: any) => {
 };
 const downloadEmployeeOkrScore = async (data: any) => {
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
-      data,
-      {
-        headers: {
-          ...requestHeader(),
-        },
-        responseType: 'blob', // Important for file download!
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
+      method: 'POST',
+      headers: {
+        ...requestHeader(),
       },
-    );
-    const blob = new Blob([response.data], {
-      type: response.headers['content-type'],
+      data,
+      skipEncryption: true, // For file download
+    });
+    const blob = new Blob([response], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    const disposition = response.headers['content-disposition'];
     let fileName = 'Employee okr score export.xlsx';
-    if (disposition && disposition.includes('filename=')) {
-      fileName = disposition.split('filename=')[1].replace(/"/g, '');
-    }
-
     link.href = url;
     link.setAttribute('download', fileName);
     document.body.appendChild(link);

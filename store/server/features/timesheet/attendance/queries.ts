@@ -6,12 +6,13 @@ import {
   AttendanceImportLogsBody,
   AttendanceRequestBody,
 } from '@/store/server/features/timesheet/attendance/interface';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import {
   AttendanceImport,
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
+// const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (
   query: RequestCommonQueryData,
@@ -29,6 +30,45 @@ const getAttendances = async (
     params: query,
   });
 };
+const exportAttendanceData = async (data: any) => {
+  try {
+    // const payload = {
+    //   ...data,
+    //   updatedBy: logUserId,
+    //   createdBy: logUserId,
+    // };
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
+      method: 'POST',
+      headers: {
+        ...requestHeader(),
+      },
+      data,
+      skipEncryption: true, // Skip encryption for file downloads
+    });
+
+    const blob = new Blob([response], {
+      type:
+        data.exportType === 'PDF'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    let fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
+
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getSingleAttendances = async (id: string) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
@@ -77,6 +117,15 @@ export const useGetAttendances = (
       },
     },
   );
+};
+
+export const UseExportAttendanceData = () => {
+  const queryClient = useQueryClient();
+  return useMutation(exportAttendanceData, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('exportData');
+    },
+  });
 };
 
 export const useGetSingleAttendances = (id: string) => {

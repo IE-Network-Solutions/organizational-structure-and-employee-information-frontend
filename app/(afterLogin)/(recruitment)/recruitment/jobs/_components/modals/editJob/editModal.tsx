@@ -32,8 +32,14 @@ const EditJob: React.FC = () => {
       jobLocation: formValues?.jobLocation,
       jobDeadline: formValues?.jobDeadline,
     };
-    updateJob({ data: updatedFormValues, id: selectedJobId });
-    setEditModalVisible(false);
+    updateJob(
+      { data: updatedFormValues, id: selectedJobId },
+      {
+        onSuccess: () => {
+          setEditModalVisible(false);
+        },
+      },
+    );
   };
 
   const handleEditModalClose = () => {
@@ -70,7 +76,7 @@ const EditJob: React.FC = () => {
                 Cancel
               </Button>
               <Button
-                htmlType="submit"
+                onClick={() => form.submit()}
                 className="flex justify-center border-none text-sm font-medium text-white bg-primary p-4 px-10 h-10"
               >
                 Update Job

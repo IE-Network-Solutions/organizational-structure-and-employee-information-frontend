@@ -1,6 +1,7 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -29,19 +30,27 @@ const getSelfAttendance = async (
     throw new Error('Missing authentication information.');
   }
 
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get<ResponseData>(
-      `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(`Error fetching applicant summary: ${error}`);
-  }
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
+    method: 'GET',
+    headers,
+  });
+  return response;
+};
+
+const getAnnualAttendance = async () => {
+  const userId = useAuthenticationStore.getState().userId;
+
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/${userId}`,
+    method: 'GET',
+    headers: requestHeader(),
+  });
+  return response;
 };
 
 /**
@@ -56,3 +65,9 @@ export const useGetSelfAttendance = (start: string, end: string) =>
       keepPreviousData: true,
     },
   );
+
+export const useGetAnnualAttendance = () => {
+  return useQuery<any>(['annualAttendance'], () => getAnnualAttendance(), {
+    keepPreviousData: true,
+  });
+};

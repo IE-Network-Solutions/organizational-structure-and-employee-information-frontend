@@ -53,25 +53,20 @@ const deleteGroupPermission = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,
-      { headers },
-    );
-    setCurrentModal(null);
-    setDeletedId(null);
-    NotificationMessage.success({
-      message: 'Successfully Deleted',
-      description: 'Permission Group successfully deleted.',
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  await crudRequest({
+    url: `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+  setCurrentModal(null);
+  setDeletedId(null);
+  NotificationMessage.success({
+    message: 'Successfully Deleted',
+    description: 'Permission Group successfully deleted.',
+  });
 };
 
 /**
