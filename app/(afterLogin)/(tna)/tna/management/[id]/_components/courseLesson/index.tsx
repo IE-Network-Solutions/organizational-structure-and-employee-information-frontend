@@ -1,4 +1,4 @@
-import { Button, Collapse, Spin } from 'antd';
+import { Button, Collapse } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CourseAddLessonSidebar from './addLesson';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
