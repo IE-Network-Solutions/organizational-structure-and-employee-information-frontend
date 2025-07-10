@@ -6,7 +6,6 @@ import { LuPlus } from 'react-icons/lu';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useDeleteCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import Link from 'next/link';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 interface LessonCardProps {
   lesson: CourseLesson;
@@ -19,16 +18,12 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
     setIsShowAddLesson,
     refetchCourse,
     setIsShowLessonMaterial,
-    activeKey,
   } = useTnaManagementCoursePageStore();
   const {
     mutate: deleteLesson,
     isLoading,
     isSuccess,
   } = useDeleteCourseLesson();
-  const { isMobile } = useIsMobile();
-
-  const shouldShowButton = !(isMobile && activeKey === lesson.id);
 
   // Refetch after delete
   if (isSuccess && refetchCourse) {
@@ -37,31 +32,29 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
 
   return (
     <Spin spinning={isLoading}>
-      <div className="flex items-center gap-6 mb-2">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
-          {shouldShowButton && (
-            <Button
-              id="tnaAddCourseMaterialButtonId"
-              icon={<LuPlus size={16} className="text-primary" />}
-              type="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLesson(lesson);
-                setIsShowLessonMaterial(true);
-              }}
-            />
-          )}
+          <ActionButton
+            id={lesson?.id || null}
+            onEdit={(e: MouseEvent) => {
+              e.stopPropagation();
+              setLesson(lesson);
+              setIsShowAddLesson(true);
+            }}
+            onDelete={(e: MouseEvent) => {
+              e.stopPropagation();
+              deleteLesson([lesson.id]);
+            }}
+          />
         </div>
-        <ActionButton
-          id={lesson?.id || null}
-          onEdit={(e: MouseEvent) => {
+        <Button
+          id="tnaAddCourseMaterialButtonId"
+          icon={<LuPlus size={16} className="text-primary" />}
+          type="text"
+          onClick={(e) => {
             e.stopPropagation();
             setLesson(lesson);
-            setIsShowAddLesson(true);
-          }}
-          onDelete={(e: MouseEvent) => {
-            e.stopPropagation();
-            deleteLesson([lesson.id]);
+            setIsShowLessonMaterial(true);
           }}
         />
       </div>
@@ -95,21 +88,6 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
             <div className="text-sm text-gray-600">No-data</div>
           )}
         </div>
-        {isMobile && (
-          <div className="flex justify-center items-end">
-            <Button
-              className="flex items-end"
-              id="tnaAddCourseMaterialButtonId"
-              icon={<LuPlus size={16} className="text-primary" />}
-              type="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLesson(lesson);
-                setIsShowLessonMaterial(true);
-              }}
-            />
-          </div>
-        )}
       </div>
     </Spin>
   );
