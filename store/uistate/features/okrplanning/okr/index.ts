@@ -15,24 +15,16 @@ export const useOKRStore = create<OKRState>()(
     selectedPeriodId: '',
     setSelectedPeriodId: (value) => set({ selectedPeriodId: value }),
 
+    selectedCard: null,
+    setSelectedCard: (selectedCard: string | null) => set({ selectedCard }),
+
     // Initialize objective state with keyResults as an empty array
     objective: {
       title: '',
       userId: '',
       deadline: '',
       isClosed: false,
-      keyResults: [
-        {
-          key_type: 'Milestone',
-          metricTypeId: '',
-          title: '',
-          weight: 0,
-          deadline: null,
-          initialValue: 0,
-          targetValue: 0,
-          milestones: [],
-        },
-      ],
+      keyResults: [],
     },
     objectiveValue: {
       title: '',
@@ -63,15 +55,15 @@ export const useOKRStore = create<OKRState>()(
     setObjectiveId: (objectiveId: string) => set({ objectiveId }),
 
     // Add key result to objective
-    addKeyResult: () =>
+    addKeyResult: (keyType = 'Milestone', metricTypeId = '') =>
       set((state) => ({
         objective: {
           ...state.objective,
           keyResults: [
             ...state.objective.keyResults,
             {
-              key_type: 'Milestone',
-              metricTypeId: '',
+              key_type: keyType,
+              metricTypeId: metricTypeId,
               title: '',
               weight: 0,
               deadline: null,

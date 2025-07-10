@@ -8,7 +8,9 @@ import { UploadFile } from 'antd/es/upload/interface';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { FormInstance } from 'antd/lib';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
 const { Option } = Select;
+
 interface CompanyProfileProps {
   form: FormInstance;
 }
@@ -54,14 +56,22 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
     4: '201-500',
     5: '500+',
   };
-  const getBusinessSizeIndex = (value: string) => {
-    return Object.entries(businessSize).find(([label]) => label === value)?.[0];
+
+  const businessSizeArray = Object.entries(businessSize).map(
+    ([key, value]) => ({
+      key: Number(key),
+      value,
+    }),
+  );
+
+  const getBusinessSizeIndex = (value: string): number | undefined => {
+    return businessSizeArray.find(({ value: v }) => v === value)?.key;
   };
+
   useEffect(() => {
     if (companyInfo) {
       const domainName = companyInfo.domainName?.replace('.selamnew.com', '');
 
-      // Set form fields
       form.setFieldsValue({
         companyName: companyInfo.companyName,
         companyEmail: companyInfo.companyEmail,
@@ -73,15 +83,12 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
         contactPersonPhone: companyInfo.contactPersonPhoneNumber,
         companyDomainName: domainName,
         industry: companyInfo.industry,
-        businessSize:
-          getBusinessSizeIndex(companyInfo.businessSize || '') ?? null,
+        businessSize: getBusinessSizeIndex(companyInfo?.businessSize) ?? 0,
       });
 
-      // Set UI state
       setCompanyName(companyInfo.companyName || '');
       setCompanyDomainName(domainName || '');
 
-      // Set logo and stamp if available
       if (companyInfo.logo) {
         setCompanyProfile({
           uid: '1',
@@ -225,6 +232,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
             >
               <Input placeholder="Contact Email" />
             </Form.Item>
+
             <Form.Item
               name="industry"
               label="Industry Type"
@@ -248,6 +256,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
               </Select>
             </Form.Item>
           </div>
+
           <Form.Item
             name="businessSize"
             label="Size of Your Company"
@@ -264,6 +273,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
               }}
             />
           </Form.Item>
+
           <div className="flex justify-start items-center gap-2 text-gray-400 mt-8">
             We will create a unique company URL for you to log into Selamnew
           </div>

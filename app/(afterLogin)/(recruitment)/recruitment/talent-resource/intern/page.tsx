@@ -1,12 +1,14 @@
 'use client';
 
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { FaCopy } from 'react-icons/fa6';
 import InternTable from './_components/table';
 import CreateIntern from './_components/drawer';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { PUBLIC_DOMAIN } from '@/utils/constants';
 
 const InternPage = () => {
   const {
@@ -15,6 +17,7 @@ const InternPage = () => {
     setEditInternData,
     editInternData,
   } = useInternStore();
+  const { tenantId } = useAuthenticationStore();
 
   const onClose = () => {
     setCreateInternDrawer(false);
@@ -30,6 +33,37 @@ const InternPage = () => {
   const handleEdit = (data: any) => {
     setCreateInternDrawer(true);
     setEditInternData(data);
+  };
+
+  const handleCopyLink = () => {
+    if (!tenantId) {
+      message.error('Unable to generate link. Please try again.');
+      return;
+    }
+
+    const publicLink = `${PUBLIC_DOMAIN}/internship/${tenantId}`;
+
+    navigator.clipboard
+      .writeText(publicLink)
+      .then(() => {
+        message.success('Public application link copied to clipboard!');
+      })
+      .catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = publicLink;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          message.success('Public application link copied to clipboard!');
+        } catch (err) {
+          message.error(
+            'Failed to copy link. Please copy manually: ' + publicLink,
+          );
+        }
+        document.body.removeChild(textArea);
+      });
   };
 
   return (
@@ -60,6 +94,8 @@ const InternPage = () => {
             id="createUserButton"
             className="h-10 w-10 sm:w-auto"
             icon={<FaCopy />}
+            onClick={handleCopyLink}
+            title="Copy public application link"
           >
             <span className="hidden sm:inline">Copy Link</span>
           </Button>

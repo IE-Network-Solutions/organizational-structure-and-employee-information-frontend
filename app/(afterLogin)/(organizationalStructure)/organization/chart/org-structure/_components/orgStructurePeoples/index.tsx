@@ -12,10 +12,6 @@ import {
 } from '@/store/server/features/organizationStructure/organizationalChart/mutation';
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
 import DeleteModal from '@/components/common/deleteModal';
-import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import OrgChartSkeleton from '../loading/orgStructureLoading';
 import { DepartmentNode } from '../departmentNode';
@@ -148,34 +144,18 @@ const OrgChartComponent: React.FC = () => {
     reset();
   };
 
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
-    useEmployeeManagementStore();
-  const { userId } = useAuthenticationStore.getState();
   const { data: departments } = useGetDepartments();
-
-  const { data: employeeData } = useGetEmployee(userId);
   const { reset } = useDepartmentStore();
 
   useEffect(() => {
-    if (departments?.length < 1) {
+    if (departments?.length === 0) {
       router.push('/onboarding');
-    } else if (
-      employeeData &&
-      employeeData?.employeeJobInformation?.length < 1
-    ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
     }
     if (isSuccess) {
       closeDrawer();
       resetStore();
     }
-  }, [
-    employeeData,
-    departments,
-    setIsAddEmployeeJobInfoModalVisible,
-    isSuccess,
-  ]);
+  }, [departments, isSuccess]);
 
   const router = useRouter();
 
@@ -260,8 +240,6 @@ const OrgChartComponent: React.FC = () => {
           loading={deleteLoading}
         />
       </div>
-
-      <CreateEmployeeJobInformation id={userId} />
     </div>
   );
 };

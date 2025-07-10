@@ -109,6 +109,9 @@ export interface OKRState {
   selectedPeriodId: string;
   setSelectedPeriodId: (value: string) => void;
 
+  selectedCard: string | null;
+  setSelectedCard: (selectedCard: string | null) => void;
+
   keyResultValue?: KeyResult[] | any;
   setKeyResultValue: (keyResultValue: KeyResult[]) => void;
   keyResults?: KeyResult[];
@@ -121,7 +124,7 @@ export interface OKRState {
   setKeyResult: (keyResult: KeyResult[]) => void;
   setKeyResultId: (keyResultId: string) => void;
   setObjectiveId: (objectiveId: string) => void;
-  addKeyResult: () => void;
+  addKeyResult: (keyType?: string, metricTypeId?: string) => void;
   addKeyResultValue: (value: any) => void;
   handleKeyResultChange: (value: any, index: number, field: string) => void;
   handleSingleKeyResultChange: (value: any, field: string) => void;

@@ -10,7 +10,6 @@ import {
   Row,
   Spin,
   Tooltip,
-  Typography,
 } from 'antd';
 import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
@@ -45,8 +44,6 @@ import KeyResultTasks from './KeyResultTasks';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-
-const { Title } = Typography;
 
 function Planning() {
   const {
@@ -227,8 +224,12 @@ function Planning() {
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
-        <div className="flex flex-wrap justify-between items-center my-4 gap-4">
-          <Title level={5}>Planning</Title>
+        <div className="flex  items-center my-4 gap-4">
+          <EmployeeSearch
+            optionArray1={employeeData?.items}
+            optionArray2={PlanningType}
+            optionArray3={departmentData}
+          />
           <Tooltip
             title={
               allUserPlanning?.length != 0
@@ -243,7 +244,7 @@ function Planning() {
                     : ''
             }
           >
-            <div style={{ display: 'inline-block' }}>
+            <div className="flex-1" style={{ display: 'inline-block' }}>
               {userPlanningPeriodId && (
                 <CustomButton
                   disabled={
@@ -252,26 +253,29 @@ function Planning() {
                     (objective?.items?.length ?? 0) === 0
                   }
                   loading={isLoading}
-                  title={`Create ${activeTabName} Plan`}
+                  title={
+                    <span className="hidden sm:block">
+                      {`Create ${activeTabName} Plan`}
+                    </span>
+                  }
                   id="createActiveTabName"
-                  icon={<FaPlus className="mr-2" />}
+                  icon={<FaPlus className="ml-2 sm:ml-0" />}
                   onClick={() => setOpen(true)}
-                  className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+                  className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:w-auto`}
                 />
               )}
             </div>
           </Tooltip>
         </div>
 
-        <EmployeeSearch
-          optionArray1={employeeData?.items}
-          optionArray2={PlanningType}
-          optionArray3={departmentData}
-        />
-
         {transformedData?.map((dataItem: any, index: number) => (
           <>
-            <Card key={index} className="mb-2" loading={getPlanningLoading}>
+            <Card
+              bodyStyle={{ padding: '12px' }}
+              key={index}
+              className="mb-2"
+              loading={getPlanningLoading}
+            >
               <div>
                 <Row gutter={16} className="items-center">
                   <Col xs={4} sm={2} md={1}>
@@ -323,10 +327,10 @@ function Planning() {
                           </div>
                         </Col>
                         <div className="flex flex-col text-xs ml-2">
-                          <span className="mr-4">
+                          <span className="mr-4 hidden sm:block">
                             {dataItem?.isValidated ? 'Closed' : 'Open'}
                           </span>
-                          <span className="mr-4 text-gray-500">
+                          <span className="mr-4 text-gray-500 hidden sm:block">
                             {dayjs(dataItem?.createdAt).format(
                               'MMMM DD YYYY, h:mm:ss A',
                             )}

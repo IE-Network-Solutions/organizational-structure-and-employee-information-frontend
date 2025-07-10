@@ -63,6 +63,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       searchParams?.selectedJob || '',
       searchParams?.selectedStage || '',
       searchParams?.selectedDepartment || '',
+      pageSize,
+      currentPage,
     );
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -129,6 +131,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const handleMenuClick = (key: string, candidate: any) => {
     if (key === 'moveToTalentPool') {
       setMoveToTalentPoolModal(true);
+      setSelectedCandidate([candidate]); // Wrap candidate in an array
     } else if (key === 'edit') {
       setEditCandidate(candidate);
       setSelectedCandidateID(candidate?.id);
@@ -260,6 +263,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
         rowSelection={rowSelection}
+        pagination={false}
       />
 
       {isMobile || isTablet ? (

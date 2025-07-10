@@ -1,3 +1,4 @@
+import { useAllChildrenRecognition } from '@/store/server/features/incentive/other/queries';
 import {
   IncentiveRecognitionParams,
   IncentiveSettingParams,
@@ -47,6 +48,7 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
 }) => {
   const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
     useIncentiveStore();
+  const { data: recognitionDataIndexed } = useAllChildrenRecognition();
 
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
@@ -59,12 +61,16 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
     name: recognitionData?.[0]?.name,
     recognition_criteria: recognitionData?.[0]?.recognitionCriteria?.map(
       (criterion: RecognitionCriteria, index: string) => (
-        <span
-          key={index}
-          className="rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1"
-        >
-          {criterion?.criteria?.criteriaName || '--'}
-        </span>
+        <Skeleton active loading={responseLoading} key={index}>
+          <div className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
+            <span
+              key={index}
+              className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
+            >
+              {criterion?.criteria?.criteriaName || '--'}
+            </span>{' '}
+          </div>
+        </Skeleton>
       ),
     ),
     action: (
@@ -72,7 +78,9 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
         <Pencil
           size={15}
           className="text-white cursor-pointer"
-          onClick={() => handleProjectIncentiveEdit(recognitionData)}
+          onClick={() =>
+            handleProjectIncentiveEdit(recognitionDataIndexed?.[0])
+          }
         />
       </div>
     ),
