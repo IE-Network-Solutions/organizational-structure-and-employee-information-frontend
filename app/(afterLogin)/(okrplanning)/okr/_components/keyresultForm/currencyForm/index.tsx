@@ -261,10 +261,15 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 rules={[
                   { required: true, message: 'Please enter the target value' },
                   {
-                    validator: (rule, value) =>
-                      value > 0
-                        ? Promise.resolve()
-                        : Promise.reject('Target must be greater than 0'),
+                    validator: (rule, value) => {
+                      if (value <= 0) {
+                        return Promise.reject('Target must be greater than 0');
+                      }
+                      if (value <= keyItem.initialValue) {
+                        return Promise.reject('Target must be greater than initial value');
+                      }
+                      return Promise.resolve();
+                    },
                   },
                 ]}
                 id={`target-value-${index}`}

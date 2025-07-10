@@ -20,7 +20,6 @@ const LeaveBalance = () => {
   if (!data) {
     return '';
   }
-
   return (
     <>
       <div
