@@ -5,9 +5,8 @@ const apiClient = axios.create();
 
 // Encrypt request payload
 apiClient.interceptors.request.use(async (config) => {
-
-// Don't encrypt requests during build time
- const url = config.url || '';
+  // Don't encrypt requests during build time
+  const url = config.url || '';
 
   const shouldSkip =
     (config as any).skipEncryption ||
@@ -16,7 +15,7 @@ apiClient.interceptors.request.use(async (config) => {
     url.endsWith('.woff2') ||
     url.endsWith('.ttf') ||
     url.endsWith('.otf') ||
-    url.endsWith('.css')
+    url.endsWith('.css');
 
   if (shouldSkip) {
     return config;
@@ -52,7 +51,7 @@ apiClient.interceptors.response.use(async (response) => {
       const decryptedPayload = decrypt(data.data);
       response.data = JSON.parse(await decryptedPayload);
     } catch (err) {
-      throw err
+      throw err;
     }
   }
 

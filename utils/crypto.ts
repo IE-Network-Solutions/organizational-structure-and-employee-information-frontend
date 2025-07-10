@@ -7,7 +7,9 @@ function hexToString(hex: string) {
 }
 
 function hexToBytes(hex: string): Uint8Array {
-  return new Uint8Array(hex.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
+  return new Uint8Array(
+    hex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
+  );
 }
 
 function strToUint8Array(str: string): Uint8Array {
@@ -15,7 +17,9 @@ function strToUint8Array(str: string): Uint8Array {
 }
 
 function uint8ArrayToHex(buffer: Uint8Array): string {
-  return Array.from(buffer).map(b => b.toString(16).padStart(2, '0')).join('');
+  return Array.from(buffer)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 async function deriveKey(): Promise<CryptoKey> {
@@ -29,7 +33,7 @@ async function deriveKey(): Promise<CryptoKey> {
     strToUint8Array(password),
     { name: 'PBKDF2' },
     false,
-    ['deriveKey']
+    ['deriveKey'],
   );
 
   const key = await crypto.subtle.deriveKey(
@@ -42,7 +46,7 @@ async function deriveKey(): Promise<CryptoKey> {
     baseKey,
     { name: 'AES-GCM', length: 256 },
     false,
-    ['encrypt', 'decrypt']
+    ['encrypt', 'decrypt'],
   );
 
   return key;
@@ -61,7 +65,7 @@ export async function encrypt(text: string): Promise<string> {
         tagLength: 128,
       },
       key,
-      encodedText
+      encodedText,
     );
 
     const encryptedBytes = new Uint8Array(encryptedBuffer);
@@ -87,7 +91,7 @@ export async function decrypt(ciphertext: string): Promise<string> {
         tagLength: 128,
       },
       key,
-      encryptedBytes
+      encryptedBytes,
     );
 
     return new TextDecoder().decode(decryptedBuffer);
