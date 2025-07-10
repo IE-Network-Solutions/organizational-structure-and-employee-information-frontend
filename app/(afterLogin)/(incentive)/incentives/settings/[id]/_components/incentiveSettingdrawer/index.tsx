@@ -54,17 +54,22 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     useUpdateIncentiveFormula();
   const { mutate: createFormula, isLoading: createLoading } =
     useSetIncentiveFormula();
-
+  const fallbackRecognitionId = recognitionData?.id;
   const { data: formulaById } = useIncentiveFormulaByRecognitionId(
-    recognitionId ?? recognitionData?.id,
+    recognitionId || fallbackRecognitionId,
   );
+
   //   ===========> Functions <============
 
-  const handleClose = () => {
+  const handleClose = (shouldClear = false) => {
     setOpenIncentiveDrawer(false);
-    setValue('');
-    setIncentiveId('');
-    form.resetFields();
+    if (shouldClear) {
+      setValue('');
+      setIncentiveId('');
+      setFormula([]);
+      setFormulaError('');
+      form.resetFields();
+    }
   };
 
   const handleRadioChange = ({ target: { value } }: RadioChangeEvent) => {
@@ -72,7 +77,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   };
 
   useEffect(() => {
-    if (formulaById && recognitionId) {
+    if (formulaById && (recognitionId || fallbackRecognitionId)) {
       let parsedExpression = [];
 
       if (formulaById?.expression) {
@@ -127,7 +132,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     } else {
       setFormula([]);
     }
-  }, [formulaById, recognitionId, recognitionData]);
+  }, [formulaById, recognitionId, fallbackRecognitionId, recognitionData]);
 
   const handleOptionClick = (id: string, name: string, type: string) => {
     if (name === 'Clear') {
@@ -467,7 +472,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   return (
     <CustomDrawerLayout
       open={openIncentiveDrawer}
-      onClose={handleClose}
+      onClose={() => handleClose(false)}
       modalHeader={
         <CustomDrawerHeader className="flex justify-center ">
           {recognitionData?.name || '-'}
@@ -477,7 +482,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
         <div className="flex justify-center  w-full p-4 gap-6">
           <Button
             type="default"
-            onClick={handleClose}
+            onClick={() => handleClose(true)}
             className=" p-4 px-10 h-10 "
           >
             Cancel
