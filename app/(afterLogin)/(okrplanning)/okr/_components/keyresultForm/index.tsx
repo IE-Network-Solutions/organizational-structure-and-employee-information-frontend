@@ -29,7 +29,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
         />
-      ) : keyItem.key_type === 'Achieve' ? (
+      ) : keyItem.key_type === 'Achieve' || keyItem.key_type === 'Achieved' ? (
         <AchiveOrNot
           key={index}
           keyItem={keyItem}
