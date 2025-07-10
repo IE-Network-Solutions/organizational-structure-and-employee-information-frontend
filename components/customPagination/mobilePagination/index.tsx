@@ -9,7 +9,7 @@ interface CustomPaginationProps {
   pageSize: number;
   currentPage?: number;
   onChange?: (page: number, pageSize: number) => void;
-  onShowSizeChange?: (size: number) => void;
+  onShowSizeChange?: (current: number, size: number) => void;
 }
 
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
@@ -33,7 +33,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
         setCurrentPage(newPage);
       }
       onChange?.(newPage, pageSize);
-      onShowSizeChange?.(pageSize);
+      onShowSizeChange?.(newPage, pageSize);
     }
   };
 
@@ -44,7 +44,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
         setCurrentPage(newPage);
       }
       onChange?.(newPage, pageSize);
-      onShowSizeChange?.(pageSize);
+      onShowSizeChange?.(newPage, pageSize);
     }
   };
 
