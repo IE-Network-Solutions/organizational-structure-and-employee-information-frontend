@@ -54,10 +54,11 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     useUpdateIncentiveFormula();
   const { mutate: createFormula, isLoading: createLoading } =
     useSetIncentiveFormula();
-
+  const fallbackRecognitionId = recognitionData?.id;
   const { data: formulaById } = useIncentiveFormulaByRecognitionId(
-    recognitionId ?? recognitionData?.id,
+    recognitionId || fallbackRecognitionId,
   );
+
   //   ===========> Functions <============
 
   const handleClose = (shouldClear = false) => {
@@ -76,7 +77,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   };
 
   useEffect(() => {
-    if (formulaById && recognitionId) {
+    if (formulaById && (recognitionId || fallbackRecognitionId)) {
       let parsedExpression = [];
 
       if (formulaById?.expression) {
@@ -131,7 +132,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     } else {
       setFormula([]);
     }
-  }, [formulaById, recognitionId, recognitionData]);
+  }, [formulaById, recognitionId, fallbackRecognitionId, recognitionData]);
 
   const handleOptionClick = (id: string, name: string, type: string) => {
     if (name === 'Clear') {
