@@ -19,20 +19,16 @@ const getPriorityColor = (priority: string) => {
 };
 
 // Reusable Task Row Component
-const TaskRow = ({ task, keyResult, parent = false }: any) => (
-  <Row
-    align="middle"
-    justify="space-between"
-    className={`w-full ${parent ? 'ml-5 mb-1' : 'ml-5 mb-1'}`}
-  >
+const TaskRow = ({ task, keyResult }: any) => (
+  <Row align="middle" justify="space-between" className={`w-full sm:px-10 `}>
     <Col>
-      <Text className="text-xs flex items-center gap-1">
-        <div className="flex items-center gap-1">
-          <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#cfaaff]">
+      <Text className="text-xs flex items-center gap-1 px-4">
+        <div className="flex items-center gap-1 max-w-full">
+          <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF]">
             <span className="rounded-full bg-blue w-1 h-1"></span>
           </div>
 
-          <span>{task?.task} </span>
+          <span className="truncate">{task?.task} </span>
         </div>
 
         {task?.achieveMK ? (
@@ -46,9 +42,9 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
         )}
       </Text>
     </Col>
-    <Col>
+    <Col className="flex items-center gap-2 px-6 my-2 sm:my-0" xs={24} sm={12}>
       {/* Priority Section */}
-      <Text type="secondary" className="text-[10px] mr-2">
+      <Text type="secondary" className="text-[10px] px-4 hidden sm:block">
         <span className="text-xl text-blue">&bull;</span> Priority
       </Text>
       <Tag
@@ -59,7 +55,7 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
       </Tag>
 
       {/* Weight Section */}
-      <Text type="secondary" className="text-[10px] mr-2">
+      <Text type="secondary" className="text-[10px] hidden sm:block">
         <span className="text-xl text-blue">&bull;</span> Weight:
       </Text>
       <Tag
@@ -73,7 +69,7 @@ const TaskRow = ({ task, keyResult, parent = false }: any) => (
       {keyResult?.metricType?.name !== 'Milestone' &&
         keyResult?.metricType?.name !== 'Achieve' && (
           <>
-            <Text type="secondary" className="text-[10px]">
+            <Text type="secondary" className="text-[10px] hidden sm:block">
               <span className="text-xl text-blue">&bull;</span> Target:
             </Text>
             <Tag
