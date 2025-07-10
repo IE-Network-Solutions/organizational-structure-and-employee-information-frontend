@@ -7,6 +7,7 @@ import LessonCard from './lessonCard';
 import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
 import { RiTriangleFill } from 'react-icons/ri';
 import { classNames } from '@/utils/classNames';
+import ActionButton from '@/components/common/actionButton';
 
 const CourseLesson = () => {
   const {
@@ -17,6 +18,8 @@ const CourseLesson = () => {
     isShowLessonMaterial,
     activeKey,
     setActiveKey,
+    setLesson,
+    setIsShowLessonMaterial,
   } = useTnaManagementCoursePageStore();
 
   useEffect(() => {
@@ -42,7 +45,37 @@ const CourseLesson = () => {
   const items =
     course?.courseLessons?.map((lesson) => ({
       key: String(lesson.id),
-      label: <div className="text-lg font-semibold text-gray-900">{lesson.title}</div>,
+      label: (
+        <div className="flex items-center justify-between w-full">
+          <span className="text-lg font-semibold text-gray-900">{lesson.title}</span>
+          {activeKey === String(lesson.id) && (
+            <div className="flex items-center gap-2">
+              <Button
+                id="tnaAddCourseMaterialButtonId"
+                icon={<LuPlus size={16} className="text-primary" />}
+                type="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLesson(lesson);
+                  setIsShowLessonMaterial(true);
+                }}
+              />
+              <ActionButton
+                id={lesson?.id || null}
+                onEdit={(e) => {
+                  e.stopPropagation();
+                  setLesson(lesson);
+                  setIsShowAddLesson(true);
+                }}
+                onDelete={(e) => {
+                  e.stopPropagation();
+                  // Add your delete logic here
+                }}
+              />
+            </div>
+          )}
+        </div>
+      ),
       children: <LessonCard lesson={lesson} />, // Just render the content, not a Collapse
     })) || [];
 
