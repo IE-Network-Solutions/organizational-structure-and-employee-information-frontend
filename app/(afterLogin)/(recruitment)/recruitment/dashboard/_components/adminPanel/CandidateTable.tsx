@@ -1,74 +1,81 @@
 'use client';
 import React from 'react';
-import { Table } from 'antd';
+import { Table, Spin, Select } from 'antd';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { LoadingOutlined } from '@ant-design/icons';
+import CustomPagination from '@/components/customPagination';
+import { useRecruitmentDashboardStore } from '@/store/uistate/features/recruitment/dashboard';
 
-const data = [
-  {
-    key: '1',
-    candidate: 'Mandefro Demse',
-    job: 'UI/UX Designer',
-    department: 'Software',
-    stage: 'Stage 1',
-    daysToHire: 0,
-  },
-  {
-    key: '2',
-    candidate: 'Samuel Tola',
-    job: 'Sales Representative',
-    department: 'Sales',
-    stage: 'Stage 2',
-    daysToHire: 5,
-  },
-  {
-    key: '3',
-    candidate: 'Estiphanos Yonas',
-    job: 'Software Development Team Lead',
-    department: 'Software',
-    stage: 'Stage 2',
-    daysToHire: 10,
-  },
-];
-
-const columns = [
-  {
-    title: 'Candidate',
-    dataIndex: 'candidate',
-    key: 'candidate',
-  },
-  {
-    title: 'Job',
-    dataIndex: 'job',
-    key: 'job',
-  },
-  {
-    title: 'Department',
-    dataIndex: 'department',
-    key: 'department',
-  },
-  {
-    title: 'Stage',
-    dataIndex: 'stage',
-    key: 'stage',
-  },
-  {
-    title: 'Days to hire',
-    dataIndex: 'daysToHire',
-    key: 'daysToHire',
-  },
-];
-
-export default function CandidateTable() {
+export default function CandidateTable({
+  data,
+  isLoading,
+}: {
+  data: any;
+  isLoading: boolean;
+}) {
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { page, limit, setPage, setLimit } = useRecruitmentDashboardStore();
+  const getDepartmentName = (id: string) => {
+    const department = departments?.find(
+      (department: any) => department.id === id,
+    );
+    if (departmentsLoading) return <LoadingOutlined />;
+    return department?.name;
+  };
+  const columns = [
+    {
+      title: 'Candidate',
+      dataIndex: 'candidate',
+      key: 'candidate',
+    },
+    {
+      title: 'Job',
+      dataIndex: 'job',
+      key: 'job',
+    },
+    {
+      title: 'Department',
+      dataIndex: 'department',
+      key: 'department',
+      render: (text: string, record: any) => {
+        return getDepartmentName(record.department);
+      },
+    },
+    {
+      title: 'Stage',
+      dataIndex: 'stage',
+      key: 'stage',
+    },
+    {
+      title: 'Days to hire',
+      dataIndex: 'daysToHire',
+      key: 'daysToHire',
+    },
+  ];
   return (
     <div>
-      <Table
-        columns={columns}
-        dataSource={data}
-        pagination={{
-          pageSize: 3,
-          showSizeChanger: false,
-        }}
-        bordered={false}
-      />
+      <Spin spinning={isLoading}>
+        <Table
+          columns={columns}
+          dataSource={data?.results}
+          pagination={false}
+          bordered={false}
+        />
+        <CustomPagination
+          total={data?.total}
+          pageSize={limit}
+          current={page}
+          onChange={(page: number, pageSize?: number) => {
+            setPage(page);
+            if (pageSize) setLimit(pageSize);
+          }}
+          onShowSizeChange={(size: number) => {
+            setPage(1);
+            setLimit(size);
+          }}
+        />
+      </Spin>
     </div>
   );
 }
