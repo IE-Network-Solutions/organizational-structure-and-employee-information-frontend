@@ -16,7 +16,6 @@ const ApprovalStatus: FC = () => {
     1,
   );
   const { approverType, setApproverType } = useDashboardApprovalStore();
-
   const requests = [
     {
       type: 'Leave',

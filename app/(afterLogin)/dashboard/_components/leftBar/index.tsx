@@ -8,7 +8,7 @@ import SelfAttendance from '../self-attendance';
 import EmploymentStats from '../employee-status';
 import CoursePermitted from '../course-permitted';
 
-import Appreciation from '../../appreciation';
+import Appreciation from '../appreciation';
 import Incentive from '../incentive';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
