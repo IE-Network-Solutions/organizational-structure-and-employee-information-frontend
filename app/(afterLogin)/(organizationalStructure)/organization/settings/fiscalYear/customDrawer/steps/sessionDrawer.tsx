@@ -88,58 +88,40 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
   // Initialize sessions when component mounts or calendar type changes
   useEffect(() => {
-    if (isEditMode && selectedFiscalYear) {
-      // In edit mode, check if calendar type has changed
-      const currentSessionCount = selectedFiscalYear?.sessions?.length || 0;
-      const expectedSessionCount = getSessionCount();
-
-      if (
-        currentSessionCount !== expectedSessionCount &&
-        calendarType &&
-        fiscalYearStart &&
-        fiscalYearEnd
-      ) {
-        // Calendar type has changed, regenerate session data
-        const newSessionData = generateSessionData();
-        setSessionData(newSessionData);
-        form.setFieldsValue({ sessionData: newSessionData });
-      } else {
-        // Load existing session data for edit mode (no calendar type change)
-        const sessions = selectedFiscalYear?.sessions || [];
-        const updatedSessionData = sessions.map((session: any) => ({
-          sessionName: session.name || '',
-          sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
-          sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
-          sessionDescription: session.description || '',
-        }));
-
-        setSessionData(updatedSessionData);
-        form.setFieldsValue({ sessionData: updatedSessionData });
-      }
-    } else if (
-      !isEditMode &&
-      calendarType &&
-      fiscalYearStart &&
-      fiscalYearEnd
-    ) {
-      // Generate new session data for create mode only when we have all required data
+    // Always regenerate session data based on current fiscalYearStart, fiscalYearEnd, and calendarType
+    if (calendarType && fiscalYearStart && fiscalYearEnd) {
       const newSessionData = generateSessionData();
       setSessionData(newSessionData);
       form.setFieldsValue({ sessionData: newSessionData });
+      setSessionFormValues({ sessionData: newSessionData });
+    } else if (isEditMode && selectedFiscalYear) {
+      // Only use API data for initial prefill if dates are not set
+      const sessions = selectedFiscalYear?.sessions || [];
+      const updatedSessionData = sessions.map((session: any) => ({
+        id: session?.id,
+        sessionName: session.name || '',
+        sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
+        sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
+        sessionDescription: session.description || '',
+      }));
+      setSessionData(updatedSessionData);
+      form.setFieldsValue({ sessionData: updatedSessionData });
+      setSessionFormValues({ sessionData: updatedSessionData });
     } else if (!isEditMode) {
       // Reset session data when in create mode but missing required data
       setSessionData([]);
       form.setFieldsValue({ sessionData: [] });
     }
   }, [
-    isEditMode,
-    selectedFiscalYear,
     calendarType,
     fiscalYearStart,
     fiscalYearEnd,
+    isEditMode,
+    selectedFiscalYear,
     form,
     setSessionData,
-    getSessionCount,
+    generateSessionData,
+    setSessionFormValues,
   ]);
 
   // Session validation function
@@ -216,7 +198,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           ...updated[index],
           [field]: value,
         };
-
         // Update form values to keep them in sync
         form.setFieldsValue({ sessionData: updated });
 
@@ -229,6 +210,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   // Handle next step
   const handleNext = useCallback(() => {
     const currentValues = form.getFieldsValue();
+
     setSessionFormValues(currentValues);
     setCurrent(2);
   }, [form, setSessionFormValues, setCurrent]);

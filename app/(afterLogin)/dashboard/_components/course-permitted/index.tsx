@@ -37,7 +37,7 @@ const CoursePermitted: React.FC = () => {
                           {coursePermitted?.length} Courses
                         </div>
                       ) : (
-                        <div className="p-1 bg-red-300 text-red-800 rounded-lg">
+                        <div className="p-1 bg-red-100 text-error rounded-lg">
                           No Courses
                         </div>
                       )}{' '}

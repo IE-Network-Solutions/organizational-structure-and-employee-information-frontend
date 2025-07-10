@@ -14,6 +14,7 @@ import {
 import FiscalYearForm from './steps/fiscalYearDrawer';
 import MonthDrawer from './steps/monthDrawer';
 import SessionDrawer from './steps/sessionDrawer';
+import dayjs from 'dayjs';
 
 interface FiscalYearDrawerProps {
   form?: FormInstance;
@@ -90,6 +91,39 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
 
   React.useEffect(() => {
     if (isEditMode && selectedFiscalYear) {
+      // Populate sessionData with IDs
+      const sessionsWithIds =
+        selectedFiscalYear.sessions?.map((session: any) => ({
+          id: session.id,
+          sessionName: session.name,
+          sessionDescription: session.description,
+          sessionStartDate: session.startDate,
+          sessionEndDate: session.endDate,
+          months: session.months?.map((month: any) => ({
+            id: month.id,
+            monthName: month.name,
+            monthDescription: month.description,
+            monthStartDate: month.startDate,
+            monthEndDate: month.endDate,
+          })),
+        })) || [];
+
+      setSessionData(sessionsWithIds);
+
+      // Optionally, also populate monthRangeValues with IDs
+      const monthsWithIds = sessionsWithIds.flatMap(
+        (session: any) =>
+          session.months?.map((month: any) => ({
+            id: month.id,
+            name: month.monthName,
+            description: month.monthDescription,
+            startDate: month.monthStartDate,
+            endDate: month.monthEndDate,
+          })) || [],
+      );
+      setMonthRangeFormValues(monthsWithIds);
+
+      // Set form fields as before
       form1.setFieldsValue(fiscalYearFormValues);
       form2.setFieldsValue(sessionFormValues);
       form3.setFieldsValue(monthRangeValues);
@@ -161,23 +195,52 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       monthFormValues,
       sessionFormValues,
     );
+
     const fiscalYearPayload = {
       name: fiscalYearFormValues?.fiscalYearName,
-      startDate: fiscalYearFormValues?.fiscalYearStartDate,
-      endDate: fiscalYearFormValues?.fiscalYearEndDate,
+      startDate: fiscalYearFormValues?.fiscalYearStartDate
+        ? dayjs(fiscalYearFormValues.fiscalYearStartDate).format('YYYY-MM-DD')
+        : undefined,
+      endDate: fiscalYearFormValues?.fiscalYearEndDate
+        ? dayjs(fiscalYearFormValues.fiscalYearEndDate).format('YYYY-MM-DD')
+        : undefined,
       description: fiscalYearFormValues?.fiscalYearDescription,
-      sessions: fiscalYearData?.map((session: Session) => ({
-        name: session?.name,
-        description: session?.description,
-        startDate: session?.startDate,
-        endDate: session?.endDate,
-        months: session?.months?.map((month: Month) => ({
-          name: month?.name,
-          description: month?.description,
-          startDate: month?.startDate,
-          endDate: month?.endDate,
-        })),
-      })),
+      sessions: fiscalYearData?.map((session: Session, sessionIdx: number) => {
+        // Get the session from selectedFiscalYear (if in edit mode)
+        const originalSession =
+          isEditMode && selectedFiscalYear?.sessions?.[sessionIdx];
+        return {
+          ...(isEditMode && originalSession?.id
+            ? { id: originalSession.id }
+            : {}),
+          name: session?.name,
+          description: session?.description,
+          startDate: session?.startDate
+            ? dayjs(session.startDate).format('YYYY-MM-DD')
+            : undefined,
+          endDate: session?.endDate
+            ? dayjs(session.endDate).format('YYYY-MM-DD')
+            : undefined,
+          months: session?.months?.map((month: Month, monthIdx: number) => {
+            // Get the month from the original session (if in edit mode)
+            const originalMonth =
+              isEditMode && originalSession?.months?.[monthIdx];
+            return {
+              ...(isEditMode && originalMonth?.id
+                ? { id: originalMonth.id }
+                : {}),
+              name: month?.name,
+              description: month?.description,
+              startDate: month?.startDate
+                ? dayjs(month.startDate).format('YYYY-MM-DD')
+                : undefined,
+              endDate: month?.endDate
+                ? dayjs(month.endDate).format('YYYY-MM-DD')
+                : undefined,
+            };
+          }),
+        };
+      }),
     };
 
     if (isEditMode) {
