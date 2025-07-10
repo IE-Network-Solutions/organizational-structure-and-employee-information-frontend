@@ -1,6 +1,6 @@
 import { CourseLesson } from '@/types/tna/course';
 import { FC } from 'react';
-import { Button, Spin } from 'antd';
+import { Spin } from 'antd';
 import Link from 'next/link';
 
 interface LessonCardProps {
