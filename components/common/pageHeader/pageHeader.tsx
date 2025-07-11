@@ -9,6 +9,7 @@ interface PageHeaderProps {
   children?: React.ReactNode;
   size?: 'small' | 'medium';
   toolTip?: string;
+  horizontalPadding?: string;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -17,11 +18,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   size = 'medium',
   children,
   toolTip,
+  horizontalPadding = 'px-2',
 }) => {
   const { isMobile } = useIsMobile();
   return (
-    <div className="flex justify-between flex-wrap items-center px-2">
-      <div className="flex-1 px-2">
+    <div
+      className={`flex justify-between flex-wrap items-center ${horizontalPadding}`}
+    >
+      <div className={`flex-1 ${horizontalPadding}`}>
         {isMobile ? (
           <Tooltip title={toolTip} placement="top">
             <h2

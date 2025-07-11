@@ -71,12 +71,12 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
         )}
 
         {/* Select Person (Left on small screens) */}
-        <Col span={isSmallScreen ? 16 : 6}>
+        <Col span={isSmallScreen ? 18 : 6}>
           <Form.Item id="filterByLeaveRequestUserIds" name="userIds">
             <Select
               showSearch
               placeholder="Select a person"
-              className="w-full h-[54px]"
+              className="w-full h-10"
               allowClear
               optionFilterProp="label"
               options={users?.items?.map((list: any) => ({
@@ -96,8 +96,8 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
             <Select
               className={
                 isSmallScreen
-                  ? 'w-[50px] h-[50px] text-white text-[0px]'
-                  : 'w-full h-[54px]'
+                  ? 'w-[40px] h-[40px] text-white text-[0px]'
+                  : 'w-full h-[40px]'
               }
               placeholder={isSmallScreen ? '' : 'Select Status'}
               allowClear

@@ -146,14 +146,13 @@ const CourseAddLessonSidebar = () => {
     { label: 'Create at the end', value: 0 },
     ...(course?.courseLessons
       ?.sort((a, b) => a.order - b.order)
-      ?.map((lesson,index) => ({
+      ?.map((lesson, index) => ({
         label: lesson.title || 'Untitled Lesson',
-        value: index+1,
-        key: `lesson-${lesson.order}-${index+1}`,
+        value: index + 1,
+        key: `lesson-${lesson.order}-${index + 1}`,
       })) || []),
   ];
 
- 
   const onFinish = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -169,8 +168,6 @@ const CourseAddLessonSidebar = () => {
   };
 
   return (
-
-   
     isShow && (
       <CustomDrawerLayout
         open={isShow}
@@ -247,7 +244,6 @@ const CourseAddLessonSidebar = () => {
                       />
                     </Form.Item>
 
-                    
                     <Form.Item
                       {...restField}
                       name={[name, 'description']}
