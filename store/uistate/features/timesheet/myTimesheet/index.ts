@@ -3,6 +3,7 @@ import { AllowedArea, LeaveType } from '@/types/timesheet/settings';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 import { BreakType } from '@/types/timesheet/breakType';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
+import { Key } from 'react';
 
 export enum CheckStatus {
   notStarted = 'notStarted',
@@ -10,6 +11,7 @@ export enum CheckStatus {
   breaking = 'breaking',
   finished = 'finished',
 }
+
 type MyTimesheetState = {
   filter: Partial<LeaveRequestBody['filter']>;
   isShowViewSidebar: boolean;
@@ -27,10 +29,9 @@ type MyTimesheetState = {
   viewAttendanceId: string | null;
   location: { lat: null | number; lng: null | number };
   showLeaveHistoryFilter: boolean;
-  setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) => void;
   currentPage: number;
   pageSize: number;
-  resetPagination: () => void;
+  selectedRowKeys: Key[];
 };
 
 type MyTimesheetAction = {
@@ -53,6 +54,9 @@ type MyTimesheetAction = {
   setLocation: (location: { lat: null | number; lng: null | number }) => void;
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (pageSize: number) => void;
+  setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) => void;
+  resetPagination: () => void;
+  setSelectedRowKeys: (selectedRowKeys: Key[]) => void;
 };
 
 const useMyTimesheetSlice: StateCreator<
@@ -152,9 +156,15 @@ const useMyTimesheetSlice: StateCreator<
   setLocation: (location) => {
     set({ location });
   },
+
   showLeaveHistoryFilter: false,
   setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) =>
     set({ showLeaveHistoryFilter }),
+
+  selectedRowKeys: [],
+  setSelectedRowKeys: (selectedRowKeys: Key[]) => {
+    set({ selectedRowKeys });
+  },
 });
 
 export const useMyTimesheetStore = create<MyTimesheetState & MyTimesheetAction>(
