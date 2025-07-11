@@ -22,10 +22,12 @@ import {
   CalculateSubscriptionPriceDto,
   CalculateSubscriptionPriceResponse,
 } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
+import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
 
 const PlanPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { transactionType } = usePaymentStore();
   const initialStep = parseInt(searchParams.get('step') || '0');
   const updateSource = searchParams.get('source') || 'default'; // 'quota' or 'period'
   const [currentStep, setCurrentStep] = useState(initialStep);
@@ -267,6 +269,7 @@ const PlanPage = () => {
         planPeriodId: selectedPlanPeriod.id,
         slotTotal: updatedQuota,
         newSlotTotal: updatedQuota - (activeSubscription?.slotTotal ?? 0), // Use updatedQuota directly
+        transactionType: transactionType,
         ...(activeSubscription
           ? { subscriptionId: activeSubscription.id }
           : {}),
@@ -284,7 +287,7 @@ const PlanPage = () => {
       setCurrentStep((prev) => prev + 1);
     }
   };
-
+  console.log(transactionType, "transactionType")
   const handlePreviousStep = () => setCurrentStep((prev) => prev - 1);
 
   const handleQuotaChange = (value: number | null) => {
@@ -670,16 +673,14 @@ const PlanPage = () => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className={`flex items-center gap-2 w-full text-center ${
-                index === currentStep
-                  ? 'text-black'
-                  : 'text-gray-400 opacity-50'
-              }`}
+              className={`flex items-center gap-2 w-full text-center ${index === currentStep
+                ? 'text-black'
+                : 'text-gray-400 opacity-50'
+                }`}
             >
               <span
-                className={`text-lg font-bold ${
-                  index === currentStep ? 'text-primary' : 'text-gray-400'
-                }`}
+                className={`text-lg font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'
+                  }`}
               >
                 {index + 1}
               </span>
@@ -1031,13 +1032,13 @@ const PlanPage = () => {
                         [
                           'Billing Period:',
                           updatedSubscriptionValue?.startAt &&
-                          updatedSubscriptionValue?.endAt
+                            updatedSubscriptionValue?.endAt
                             ? `${formatDate(updatedSubscriptionValue?.startAt)} - ${formatDate(updatedSubscriptionValue?.endAt)}`
                             : '-',
                         ],
                         [
                           'Number of Users:',
-                          updatedSubscriptionValue?.slotTotal || 0,
+                          updatedSubscriptionValue?.invoices[0]?.paymentMetadata?.targetState?.slotTotal || 0,
                         ],
                         [
                           'Amount:',
