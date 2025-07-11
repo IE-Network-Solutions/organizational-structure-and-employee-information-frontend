@@ -101,6 +101,24 @@ const editReport = async (values: any, selectedReportId: string) => {
     headers,
   });
 };
+
+const updateStatus = async (id: string, status: string) => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  const body = {
+    status: status,
+  };
+  return await crudRequest({
+    url: `${OKR_URL}/plan-tasks/update-status/${id}`,
+    method: 'patch',
+    data: body,
+    headers,
+  });
+};
 export const useApprovalPlanningPeriods = () => {
   const queryClient = useQueryClient();
   return useMutation(approveOrRejectPlanningPeriods, {
@@ -197,4 +215,34 @@ export const useApprovalReporting = () => {
       });
     },
   });
+};
+
+export const useUpdateStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({
+      id,
+      status,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      planningPeriodId,
+      // eslint-enable-next-line @typescript-eslint/no-unused-vars
+    }: {
+      id: string;
+      status: string;
+      planningPeriodId?: string;
+    }) => updateStatus(id, status),
+    {
+      onSuccess: (
+        /* eslint-disable-next-line @typescript-eslint/naming-convention */
+        _data /* eslint-enable-next-line @typescript-eslint/naming-convention */,
+        variables,
+      ) => {
+        const { planningPeriodId } = variables;
+        queryClient.invalidateQueries('defaultPlanningPeriods');
+        queryClient.invalidateQueries('okrPlan');
+        queryClient.invalidateQueries(['okrPlannedData', planningPeriodId]);
+      },
+    },
+  );
 };

@@ -30,7 +30,7 @@ const CustomFieldsSelector: React.FC = () => {
 
   useEffect(() => {
     if (customFields) {
-      const filtered = customFields?.customFields?.filter((question: any) =>
+      const filtered = customFields?.items?.filter((question: any) =>
         selectedQuestions.includes(question?.id),
       );
       setFilteredQuestions(filtered);

@@ -9,11 +9,9 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Card, DatePicker } from 'antd';
-import { useGetSelfAttendance } from '@/store/server/features/dashboard/self-attendance/queries';
-import { useSelfAttendance } from '@/store/uistate/features/dashboard/self-attendace';
-
-const { RangePicker } = DatePicker;
+import { Card } from 'antd';
+import { useGetAnnualAttendance } from '@/store/server/features/dashboard/self-attendance/queries';
+import ChartDataLabels, { Context } from 'chartjs-plugin-datalabels';
 
 ChartJS.register(
   CategoryScale,
@@ -22,66 +20,83 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  ChartDataLabels,
 );
 
 const SelfAttendance = () => {
-  const { dateRange, setDateRange } = useSelfAttendance(); // Access the Zustand store
-  const handleDateChange = (dates: any) => {
-    if (dates) {
-      const startDate = dates[0]?.format('YYYY-MM-DD'); // Format start date
-      const endDate = dates[1]?.format('YYYY-MM-DD'); // Format end date
-
-      // Update the Zustand state with the formatted dates
-      setDateRange(startDate, endDate);
-    } else {
-      setDateRange('', ''); // Handle case where no dates are selected
-    }
-  };
-  const { data: selfAttendance, isLoading } = useGetSelfAttendance(
-    dateRange?.start,
-    dateRange?.end,
-  );
-  const getHighestScore = () => {
-    return Math.max(...attendanceArray?.map((score) => score.count as number));
-  };
-  const attendanceArray = Object?.entries(selfAttendance || {}).map(
-    ([name, count]) => ({
-      name,
-      count,
-    }),
-  );
-  const highestScore = getHighestScore();
+  const { data: annualAttendance, isLoading: attendanceIsLoading } =
+    useGetAnnualAttendance();
   const data = {
-    labels: attendanceArray?.map((score) =>
-      score.name.toString().toUpperCase(),
+    labels: annualAttendance?.calendar?.months?.map((month: any) =>
+      month.monthName.toUpperCase().slice(0, 3),
     ),
     datasets: [
       {
-        data: attendanceArray?.map((score) => score.count),
-        backgroundColor: attendanceArray?.map((score) =>
-          score.count === highestScore
-            ? 'rgba(34, 69, 255, 1)'
-            : 'rgb(233, 233, 255)',
+        label: 'Leaves',
+        data: annualAttendance?.calendar?.months?.map(
+          (month: any) => month.stats.leaves,
         ),
-        borderRadius: 10,
-        barThickness: 30, // Make bars thinner
+        backgroundColor: 'rgba(54, 54, 240, 0.7)',
+      },
+
+      {
+        label: 'Lates',
+        data: annualAttendance?.calendar?.months?.map(
+          (month: any) => month.stats.lates,
+        ),
+        backgroundColor: 'rgba(2, 99, 255, 0.7)',
+      },
+      {
+        label: 'Absents',
+        data: annualAttendance?.calendar?.months?.map(
+          (month: any) => month.stats.absents,
+        ),
+        backgroundColor: 'rgba(233, 233, 255, 0.7)',
       },
     ],
   };
 
   const options = {
     responsive: true,
+
     scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { family: 'inherit', size: 14 } },
+      },
       y: {
-        max: 100,
+        max: 30,
+        ticks: { stepSize: 10 },
+        beginAtZero: true,
+        grid: { color: '#9ca3af' },
       },
     },
+
     plugins: {
       legend: {
-        display: false,
+        position: 'bottom' as const,
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'rect', // 'circle' | 'rect' | 'line' | etc.
+          boxWidth: 14,
+        },
       },
       title: {
         display: false,
+      },
+      datalabels: {
+        anchor: 'end' as const,
+        align: 'top' as const,
+        color: (context: Context): string => {
+          return context.dataset.backgroundColor as string;
+        },
+        font: {
+          weight: 'bold' as const,
+          size: 12,
+        },
+        formatter: (value: number | string): string => {
+          return value === 0 ? '' : String(value);
+        },
       },
     },
   };
@@ -89,41 +104,25 @@ const SelfAttendance = () => {
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      loading={isLoading}
-      className="bg-white p-5 rounded-xl md:h-[222px]"
+      loading={attendanceIsLoading}
+      className="bg-white p-5 rounded-xl md:h-[404px]"
     >
       <div className="flex justify-between items-center">
-        <div className="text-sm font-bold">Self Attendance Report</div>
-        <div className="pl-2">
-          <RangePicker
-            id={{
-              start: 'startInput',
-              end: 'endInput',
-            }}
-            onChange={handleDateChange}
-          />
-        </div>
+        <div className="text-lg font-bold">Annual Attendance Report</div>
+        <div className="pl-2"></div>
       </div>
-
-      <div className="flex mt-4 gap-4 items-center">
-        <div className="md:h-[150px] w-full ">
-          {' '}
-          {/* Adjust chart size */}
-          <Bar data={data} options={options} />
-        </div>
-
-        {/* Add text beside the chart */}
-        <div className="text-sm w-full ">
-          <div className="flex items-center mb-2">
-            <div className="w-4 h-4 bg-[rgba(34,69,255,1)] mr-2"></div>
-            <span>Highest Average Score</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 bg-[rgb(233,233,255)] mr-2"></div>
-            <span>Average Score</span>
-          </div>
-        </div>
+      <div className="flex  xl:hidden">
+        {/* flex xl:hidden zoom in min 110{' '} */}
+        <Bar data={data} options={options} height={120} width={180} />{' '}
       </div>
+      <div className="hidden xl:flex 2xl:hidden">
+        {/* hidden xl:flex 2xl:hidden mid 90 - 100 */}
+        <Bar data={data} options={options} height={100} width={180} />{' '}
+      </div>
+      <div className="hidden 2xl:flex ">
+        {/* hidden 2xl:flex = zoom out max 80 -75 */}
+        <Bar data={data} options={options} height={75} width={180} />
+      </div>{' '}
     </Card>
   );
 };

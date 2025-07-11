@@ -297,7 +297,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           <div className="flex justify-between items-center">
             <p className="font-bold text-xs h-6">Set Key Result</p>
             <Button
-              onClick={addKeyResult}
+              onClick={() => addKeyResult()}
               className="border-none shadow-none bg-none text-xs"
               icon={<GoPlus size={16} />}
             >

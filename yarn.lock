@@ -1756,15 +1756,9 @@
     "@tiptap/pm" "^2.14.0"
 
 "@tiptap/suggestion@^2.7.0":
-<<<<<<< HEAD
-  version "2.12.0"
-  resolved "https://registry.npmjs.org/@tiptap/suggestion/-/suggestion-2.12.0.tgz"
-  integrity sha512-bsXLoZbjUo1oOF1Z+XSfoGzbcnrTcYtJdfylM/FerMLU9T12dhsM/Ri2SKLX4IR5D0HJ07FcsEHCrGEy8Y5y0A==
-=======
   version "2.14.0"
   resolved "https://registry.npmjs.org/@tiptap/suggestion/-/suggestion-2.14.0.tgz"
   integrity sha512-AXzEw0KYIyg5id8gz5geIffnBtkZqan5MWe29rGo3gXTfKH+Ik8tWbZdnlMVheycsUCllrymDRei4zw9DqVqkQ==
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
 
 "@tootallnate/once@2":
   version "2.0.0"
@@ -2023,14 +2017,6 @@
   resolved "https://registry.npmjs.org/@types/tough-cookie/-/tough-cookie-4.0.5.tgz"
   integrity sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==
 
-<<<<<<< HEAD
-"@types/use-sync-external-store@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.npmjs.org/@types/use-sync-external-store/-/use-sync-external-store-0.0.6.tgz"
-  integrity sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==
-
-=======
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
 "@types/uuid@^10.0.0":
   version "10.0.0"
   resolved "https://registry.npmjs.org/@types/uuid/-/uuid-10.0.0.tgz"
@@ -3119,11 +3105,8 @@ common-tags@^1.8.0:
   resolved "file:"
   dependencies:
     "@ant-design/nextjs-registry" "^1.0.0"
-<<<<<<< HEAD
-=======
     "@tiptap/extension-bubble-menu" "^2.12.0"
     "@tiptap/extension-floating-menu" "^2.12.0"
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
     "@tiptap/extension-link" "^2.12.0"
     "@tiptap/extension-mention" "^2.12.0"
     "@tiptap/extension-placeholder" "^2.12.0"
@@ -4219,11 +4202,7 @@ fast-csv@^4.3.1:
     "@fast-csv/format" "4.3.5"
     "@fast-csv/parse" "4.3.6"
 
-<<<<<<< HEAD
-fast-deep-equal@^3, fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
-=======
 fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
   version "3.1.3"
   resolved "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz"
   integrity sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
@@ -6167,6 +6146,11 @@ math-intrinsics@^1.1.0:
   resolved "https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz"
   integrity sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==
 
+mdurl@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/mdurl/-/mdurl-2.0.0.tgz"
+  integrity sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==
+
 memoize-one@^5.1.1:
   version "5.2.1"
   resolved "https://registry.npmjs.org/memoize-one/-/memoize-one-5.2.1.tgz"
@@ -7457,11 +7441,7 @@ react-chartjs-2@^5.2.0:
   resolved "https://registry.npmjs.org/react-chartjs-2/-/react-chartjs-2-5.2.0.tgz"
   integrity sha512-98iN5aguJyVSxp5U3CblRLH67J8gkfyGNbiK3c+l1QI/G4irHMPQw44aEPmjVag+YKTyQ260NcF82GTQ3bdscA==
 
-<<<<<<< HEAD
-react-dom@*, "react-dom@^16 || ^17 || ^18", "react-dom@^16.8.5 || ^17.0.0 || ^18.0.0", "react-dom@^17.0.0 || ^18.0.0 || ^19.0.0", react-dom@^18, react-dom@^18.0.0, react-dom@^18.2.0, "react-dom@>= 16.12.0", react-dom@>=16.0.0, react-dom@>=16.11.0, react-dom@>=16.2.0, react-dom@>=16.9.0:
-=======
 react-dom@*, "react-dom@^16 || ^17 || ^18", "react-dom@^16.8.5 || ^17.0.0 || ^18.0.0", "react-dom@^17.0 || ^18.0 || ^19.0", react-dom@^18, react-dom@^18.0.0, react-dom@^18.2.0, "react-dom@>= 16.12.0", react-dom@>=16.0.0, react-dom@>=16.11.0, react-dom@>=16.2.0, react-dom@>=16.9.0:
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
   version "18.3.1"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz"
   integrity sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==
@@ -7574,11 +7554,7 @@ react-webcam@^7.2.0:
   resolved "https://registry.npmjs.org/react-webcam/-/react-webcam-7.2.0.tgz"
   integrity sha512-xkrzYPqa1ag2DP+2Q/kLKBmCIfEx49bVdgCCCcZf88oF+0NPEbkwYk3/s/C7Zy0mhM8k+hpdNkBLzxg8H0aWcg==
 
-<<<<<<< HEAD
-react@*, "react@^16 || ^17 || ^18", "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.3 || ^17 || ^18", "react@^16.8.5 || ^17.0.0 || ^18.0.0", "react@^17.0.0 || ^18.0.0 || ^19.0.0", react@^18, react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.12.0", "react@>= 16.8.0 || 17.x.x || ^18.0.0-0", react@>=16.0.0, react@>=16.11.0, react@>=16.2.0, react@>=16.6.0, react@>=16.8, react@>=16.8.0, react@>=16.9.0:
-=======
 react@*, "react@^16 || ^17 || ^18", "react@^16.3 || ^17.0 || ^18.0 || ^19.0", "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.8.3 || ^17 || ^18", "react@^16.8.5 || ^17.0.0 || ^18.0.0", react@^18, react@^18.0.0, react@^18.2.0, react@^18.3.1, "react@>= 16.12.0", "react@>= 16.8.0 || 17.x.x || ^18.0.0-0", react@>=16.0.0, react@>=16.11.0, react@>=16.2.0, react@>=16.6.0, react@>=16.8, react@>=16.8.0, react@>=16.9.0:
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
   version "18.3.1"
   resolved "https://registry.npmjs.org/react/-/react-18.3.1.tgz"
   integrity sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==
@@ -8345,11 +8321,7 @@ svg-pathdata@^6.0.3:
   resolved "https://registry.npmjs.org/svg-pathdata/-/svg-pathdata-6.0.3.tgz"
   integrity sha512-qsjeeq5YjBZ5eMdFuUa4ZosMLxgr5RZ+F+Y1OrDhuOCEInRMA3x74XdBtggJcj9kOeInz0WE+LgCPDkZFlBYJw==
 
-<<<<<<< HEAD
-swiper@^11.1.10:
-=======
 swiper@^11.2.7:
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
   version "11.2.8"
   resolved "https://registry.npmjs.org/swiper/-/swiper-11.2.8.tgz"
   integrity sha512-S5FVf6zWynPWooi7pJ7lZhSUe2snTzqLuUzbd5h5PHUOhzgvW0bLKBd2wv0ixn6/5o9vwc/IkQT74CRcLJQzeg==
@@ -8771,11 +8743,7 @@ use-memo-one@^1.1.1:
   resolved "https://registry.npmjs.org/use-memo-one/-/use-memo-one-1.1.3.tgz"
   integrity sha512-g66/K7ZQGYrI6dy8GLpVcMsBp4s17xNkYJVSMvTEevGy3nDxHOfE6z8BVE22+5G5x7t3+bhzrlTDB7ObrEE0cQ==
 
-<<<<<<< HEAD
-use-sync-external-store@^1, use-sync-external-store@1.2.2:
-=======
 use-sync-external-store@1.2.2:
->>>>>>> 484be9c61d67cc3d3cec2325148d191d8f0dc056
   version "1.2.2"
   resolved "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.2.2.tgz"
   integrity sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==
