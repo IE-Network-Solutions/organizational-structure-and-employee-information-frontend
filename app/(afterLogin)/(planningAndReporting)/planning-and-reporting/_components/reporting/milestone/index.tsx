@@ -3,6 +3,7 @@ import { Row, Col, Tag, Typography, Tooltip } from 'antd';
 import { FaStar } from 'react-icons/fa';
 import { MdKey } from 'react-icons/md';
 import { NAME } from '@/types/enumTypes';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const { Text } = Typography;
 
@@ -31,28 +32,32 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
       {tasks?.map((task: Task) => (
         <Row
           key={task.taskId}
-          className="flex task-row space-y-1 my-2"
+          className="flex task-row space-y-1 my-2 sm:px-10"
           gutter={4}
           align="middle"
           justify="space-between" // Only justifying the space between taskName and others
         >
           <Col className="flex gap-2">
             <Text className="text-xs flex flex-col">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 max-w-[250px] sm:max-w-full">
                 {task?.isAchieved ? (
                   <Tooltip title="Achieved">
-                    <div className="py-1 px-1 w-3 h-3 text-white flex items-center justify-center rounded-full bg-green-600"></div>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 text-white flex items-center justify-center rounded-full bg-green-600 shrink-0">
+                      <FaCheck size={8} />
+                    </div>
                   </Tooltip>
                 ) : (
                   <Tooltip title="Not Achieved">
-                    <div className="py-1 text-xl px-1 w-3 h-3 text-white flex items-center justify-center rounded-full bg-red-600"></div>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 text-white flex items-center justify-center rounded-full bg-red-600 shrink-0">
+                      <FaTimes size={8} />
+                    </div>
                   </Tooltip>
                 )}
-                <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#cfaaff]">
+                <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF] shrink-0">
                   <span className="rounded-full bg-blue w-1 h-1"></span>
                 </div>
 
-                <span>{task?.taskName} </span>
+                <span className="truncate">{task?.taskName} </span>
                 {task?.achieveMK ? (
                   task?.milestone ? (
                     <FaStar size={11} />
@@ -64,22 +69,22 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                 )}
               </div>
 
-              {task?.customReason && (
+              {/* {task?.customReason && (
                 <Tooltip title={task.customReason}>
                   <Text className="text-[10px] mb-2">
                     {`Reason: ${task.customReason?.length >= 100 ? task.customReason.slice(0, 100) + '...' : task.customReason}`}
                   </Text>
                 </Tooltip>
-              )}
+              )} */}
             </Text>
           </Col>
 
           {/* This section is now justified to space between taskName and the rest */}
           <Col>
-            <Text type="secondary" className="text-[10px] mr-2">
+            <Text type="secondary" className="text-[10px]">
               <span className="text-xl" style={{ color: 'blue' }}>
                 &bull;
-              </span>{' '}
+              </span>
               Priority
             </Text>
             <Tag
@@ -97,10 +102,10 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             {task?.keyResult?.metricType?.name !== NAME.MILESTONE &&
               task?.keyResult?.metricType?.name !== NAME.ACHIEVE && (
                 <>
-                  <Text type="secondary" className="text-[10px] mr-2">
+                  <Text type="secondary" className="text-[10px]">
                     <span className="text-xl" style={{ color: 'blue' }}>
                       &bull;
-                    </span>{' '}
+                    </span>
                     Actual
                   </Text>
                   <Tag
@@ -109,7 +114,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                   >
                     {Number(task?.actualValue)?.toLocaleString() || 'None'}
                   </Tag>
-                  <Text type="secondary" className="text-[10px] mr-2">
+                  <Text type="secondary" className="text-[10px]">
                     <span className="text-xl" style={{ color: 'blue' }}>
                       &bull;
                     </span>
@@ -123,7 +128,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                   </Tag>
                 </>
               )}{' '}
-            <Text type="secondary" className="text-[10px] mr-2">
+            <Text type="secondary" className="text-[10px]">
               <span className="text-xl" style={{ color: 'blue' }}>
                 &bull;
               </span>

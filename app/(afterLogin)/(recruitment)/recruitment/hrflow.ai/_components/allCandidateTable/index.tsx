@@ -124,7 +124,7 @@ const AllCandidateTable: React.FC = () => {
   const handleMenuClick = (key: string, candidate: any) => {
     if (key === 'moveToTalentPool') {
       setMoveToTalentPoolModal(true);
-      setSelectedCandidate(candidate);
+      setSelectedCandidate([candidate]); // Wrap candidate in an array
     } else if (key === 'edit') {
       setEditCandidate(candidate);
       setEditCandidateModal(true);

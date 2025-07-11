@@ -105,7 +105,7 @@ const fetchIncentiveCriteria = async () => {
   });
 };
 
-const fetchIncentiveFormula = async (recognitionTypeId: string) => {
+const fetchIncentiveFormula = async (recognitionTypeId: string | undefined) => {
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas/recognition-type/${recognitionTypeId}`,
     method: 'GET',
@@ -128,10 +128,14 @@ export const useRecognitionByParentId = (recognitionTypeId: string) => {
   );
 };
 export const useIncentiveFormulaByRecognitionId = (
-  recognitionTypeId: string,
+  recognitionTypeId: string | undefined,
 ) => {
-  return useQuery<any>(['incentiveFormula', recognitionTypeId], () =>
-    fetchIncentiveFormula(recognitionTypeId),
+  return useQuery<any>(
+    ['incentiveFormula', recognitionTypeId],
+    () => fetchIncentiveFormula(recognitionTypeId),
+    {
+      enabled: !!recognitionTypeId, // Only run when recognitionTypeId is truthy
+    },
   );
 };
 

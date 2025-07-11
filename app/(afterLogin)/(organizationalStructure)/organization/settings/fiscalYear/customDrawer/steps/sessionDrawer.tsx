@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from 'react';
-import { Button, Col, DatePicker, Form, Input, Row, Spin } from 'antd';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
+import { Button, Col, DatePicker, Form, Input, Row, Spin, Popover } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
@@ -27,6 +27,12 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 }) => {
   const { isMobile } = useIsMobile();
 
+  // Ref to track last processed fiscal year dates to avoid infinite loops
+  const lastProcessedFiscalYearRef = useRef<{
+    start: string | null;
+    end: string | null;
+  }>({ start: null, end: null });
+
   const {
     calendarType,
     setCurrent,
@@ -38,6 +44,10 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
     sessionData,
     setSessionData,
   } = useFiscalYearDrawerStore();
+
+  // State to track form errors
+  const [hasErrors, setHasErrors] = useState(false);
+  const [firstErrorMsg, setFirstErrorMsg] = useState<string | null>(null);
 
   // Calculate number of sessions based on calendar type
   const getSessionCount = useCallback(() => {
@@ -88,83 +98,112 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
   // Initialize sessions when component mounts or calendar type changes
   useEffect(() => {
-    if (isEditMode && selectedFiscalYear) {
-      // In edit mode, check if calendar type has changed
-      const currentSessionCount = selectedFiscalYear?.sessions?.length || 0;
-      const expectedSessionCount = getSessionCount();
+    // Priority 1: Check if fiscal year dates have changed and regenerate
+    if (calendarType && fiscalYearStart && fiscalYearEnd) {
+      const currentStart = dayjs(fiscalYearStart).format('YYYY-MM-DD');
+      const currentEnd = dayjs(fiscalYearEnd).format('YYYY-MM-DD');
+      const fyStartChanged =
+        lastProcessedFiscalYearRef.current.start !== null &&
+        lastProcessedFiscalYearRef.current.start !== currentStart;
+      const fyEndChanged =
+        lastProcessedFiscalYearRef.current.end !== null &&
+        lastProcessedFiscalYearRef.current.end !== currentEnd;
 
       if (
-        currentSessionCount !== expectedSessionCount &&
-        calendarType &&
-        fiscalYearStart &&
-        fiscalYearEnd
+        fyStartChanged ||
+        fyEndChanged ||
+        lastProcessedFiscalYearRef.current.start === null ||
+        lastProcessedFiscalYearRef.current.end === null
       ) {
-        // Calendar type has changed, regenerate session data
         const newSessionData = generateSessionData();
         setSessionData(newSessionData);
         form.setFieldsValue({ sessionData: newSessionData });
-      } else {
-        // Load existing session data for edit mode (no calendar type change)
-        const sessions = selectedFiscalYear?.sessions || [];
-        const updatedSessionData = sessions.map((session: any) => ({
-          sessionName: session.name || '',
-          sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
-          sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
-          sessionDescription: session.description || '',
-        }));
+        form.validateFields();
 
-        setSessionData(updatedSessionData);
-        form.setFieldsValue({ sessionData: updatedSessionData });
+        // Update the ref to track the processed dates
+        lastProcessedFiscalYearRef.current = {
+          start: currentStart,
+          end: currentEnd,
+        };
+
+        setSessionFormValues({
+          sessionData: newSessionData,
+          fiscalYearStart,
+          fiscalYearEnd,
+          lastGeneratedFiscalYearStart: fiscalYearStart,
+          lastGeneratedFiscalYearEnd: fiscalYearEnd,
+        });
       }
-    } else if (
-      !isEditMode &&
-      calendarType &&
-      fiscalYearStart &&
-      fiscalYearEnd
-    ) {
-      // Generate new session data for create mode only when we have all required data
-      const newSessionData = generateSessionData();
-      setSessionData(newSessionData);
-      form.setFieldsValue({ sessionData: newSessionData });
-    } else if (!isEditMode) {
-      // Reset session data when in create mode but missing required data
+    }
+    // Priority 2: Edit mode with API data
+    else if (isEditMode && selectedFiscalYear && selectedFiscalYear.sessions) {
+      const sessions = selectedFiscalYear.sessions;
+      const updatedSessionData = sessions.map((session: any) => ({
+        id: session?.id,
+        sessionName: session.name || '',
+        sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
+        sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
+        sessionDescription: session.description || '',
+      }));
+      setSessionData(updatedSessionData);
+      form.setFieldsValue({ sessionData: updatedSessionData });
+      form.validateFields();
+
+      // Update the ref to track the processed dates
+      lastProcessedFiscalYearRef.current = {
+        start: fiscalYearStart
+          ? dayjs(fiscalYearStart).format('YYYY-MM-DD')
+          : null,
+        end: fiscalYearEnd ? dayjs(fiscalYearEnd).format('YYYY-MM-DD') : null,
+      };
+
+      setSessionFormValues({
+        sessionData: updatedSessionData,
+        fiscalYearStart,
+        fiscalYearEnd,
+        lastGeneratedFiscalYearStart: fiscalYearStart,
+        lastGeneratedFiscalYearEnd: fiscalYearEnd,
+      });
+    }
+    // Priority 3: Reset session data when missing required data
+    else if (!calendarType || !fiscalYearStart || !fiscalYearEnd) {
       setSessionData([]);
       form.setFieldsValue({ sessionData: [] });
+      form.validateFields();
     }
   }, [
-    isEditMode,
-    selectedFiscalYear,
     calendarType,
     fiscalYearStart,
     fiscalYearEnd,
+    isEditMode,
+    selectedFiscalYear,
     form,
     setSessionData,
-    getSessionCount,
+    generateSessionData,
+    setSessionFormValues,
   ]);
 
   // Session validation function
-  const validateSessionDates = useCallback(
+  const validateSessionStartDate = useCallback(
     (rule: any, value: any) => {
       if (!value) return Promise.resolve();
 
       const fieldName = rule.field;
       const sessionIndex = parseInt(fieldName.match(/\d+/)?.[0] || '0');
-      const isStartDate = fieldName.includes('sessionStartDate');
-
       const currentSession = sessionData[sessionIndex];
       if (!currentSession) return Promise.resolve();
 
-      const startDate = isStartDate ? value : currentSession.sessionStartDate;
-      const endDate = isStartDate ? currentSession.sessionEndDate : value;
+      const startDate = value;
+      const endDate = currentSession.sessionEndDate;
 
-      // Check if start date is after end date
+      // Start date after end date
       if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
         return Promise.reject(
           new Error('Start date cannot be after end date!'),
         );
       }
 
-      // Check if dates are within fiscal year range
+      // Start date before fiscal year start
       if (
         fiscalYearStart &&
         startDate &&
@@ -177,26 +216,20 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         );
       }
 
-      if (
-        fiscalYearEnd &&
-        endDate &&
-        dayjs(endDate).isAfter(dayjs(fiscalYearEnd), 'day')
-      ) {
-        return Promise.reject(
-          new Error('Session end date cannot be after fiscal year end date!'),
-        );
-      }
-
-      // Check for overlap with previous session
-      if (sessionIndex > 0 && isStartDate) {
+      // Overlap with previous session
+      if (sessionIndex > 0) {
         const previousSession = sessionData[sessionIndex - 1];
         if (
           previousSession?.sessionEndDate &&
-          dayjs(startDate).isBefore(dayjs(previousSession.sessionEndDate))
+          (dayjs(startDate).isBefore(dayjs(previousSession.sessionEndDate)) ||
+            dayjs(startDate).isSame(
+              dayjs(previousSession.sessionEndDate),
+              'day',
+            ))
         ) {
           return Promise.reject(
             new Error(
-              `Session ${sessionIndex + 1} start date cannot overlap with the previous session's end date.`,
+              `Session ${sessionIndex + 1} start date cannot overlap with or be equal to the previous session's end date.`,
             ),
           );
         }
@@ -204,7 +237,56 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
       return Promise.resolve();
     },
-    [sessionData, fiscalYearStart, fiscalYearEnd],
+    [sessionData, fiscalYearStart],
+  );
+
+  const validateSessionEndDate = useCallback(
+    (rule: any, value: any) => {
+      if (!value) return Promise.resolve();
+
+      const fieldName = rule.field;
+      const sessionIndex = parseInt(fieldName.match(/\d+/)?.[0] || '0');
+      const currentSession = sessionData[sessionIndex];
+      if (!currentSession) return Promise.resolve();
+
+      const startDate = currentSession.sessionStartDate;
+      const endDate = value;
+
+      // End date before start date
+      if (startDate && endDate && dayjs(startDate).isAfter(dayjs(endDate))) {
+        return Promise.reject(
+          new Error('End date cannot be before start date!'),
+        );
+      }
+
+      const end = dayjs(endDate);
+      const fyEnd = dayjs(fiscalYearEnd);
+
+      if (fyEnd && end && end.isAfter(fyEnd, 'day')) {
+        return Promise.reject(
+          new Error('Session end date cannot be after fiscal year end date!'),
+        );
+      }
+
+      // Overlap with next session
+      if (sessionIndex < sessionData.length - 1) {
+        const nextSession = sessionData[sessionIndex + 1];
+        if (
+          nextSession?.sessionStartDate &&
+          (dayjs(endDate).isAfter(dayjs(nextSession.sessionStartDate)) ||
+            dayjs(endDate).isSame(dayjs(nextSession.sessionStartDate), 'day'))
+        ) {
+          return Promise.reject(
+            new Error(
+              `Session ${sessionIndex + 1} end date cannot overlap with or be equal to the next session's start date.`,
+            ),
+          );
+        }
+      }
+
+      return Promise.resolve();
+    },
+    [sessionData, fiscalYearEnd],
   );
 
   // Handle session field changes
@@ -216,7 +298,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           ...updated[index],
           [field]: value,
         };
-
         // Update form values to keep them in sync
         form.setFieldsValue({ sessionData: updated });
 
@@ -228,20 +309,51 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
   // Handle next step
   const handleNext = useCallback(() => {
-    const currentValues = form.getFieldsValue();
-    setSessionFormValues(currentValues);
-    setCurrent(2);
-  }, [form, setSessionFormValues, setCurrent]);
+    form
+      .validateFields()
+      .then(() => {
+        // Save current session form values before going to next step
+        const currentSessionValues = form.getFieldsValue();
+        setSessionFormValues({
+          ...currentSessionValues,
+          fiscalYearStart,
+          fiscalYearEnd,
+          lastGeneratedFiscalYearStart: fiscalYearStart,
+          lastGeneratedFiscalYearEnd: fiscalYearEnd,
+        });
+        setCurrent(2);
+      })
+      .catch(() => {
+        // Do nothing, errors will be shown by the form
+      });
+  }, [form, setSessionFormValues, setCurrent, fiscalYearStart, fiscalYearEnd]);
 
   // Handle previous step
   const handlePrevious = useCallback(() => {
     // Store current session form values before going back
     const currentSessionValues = form.getFieldsValue();
-    setSessionFormValues(currentSessionValues);
-
-    // Go back to fiscal year step while preserving fiscal year data
+    setSessionFormValues({
+      ...currentSessionValues,
+      fiscalYearStart,
+      fiscalYearEnd,
+      lastGeneratedFiscalYearStart: fiscalYearStart,
+      lastGeneratedFiscalYearEnd: fiscalYearEnd,
+    });
     setCurrent(0);
-  }, [form, setSessionFormValues, setCurrent]);
+  }, [form, setSessionFormValues, setCurrent, fiscalYearStart, fiscalYearEnd]);
+
+  // Update error state on form changes
+  const updateErrorState = useCallback(() => {
+    const fieldsError = form.getFieldsError();
+    const errorFields = fieldsError.filter((field) => field.errors.length > 0);
+    setHasErrors(errorFields.length > 0);
+    setFirstErrorMsg(errorFields.length > 0 ? errorFields[0].errors[0] : null);
+  }, [form]);
+
+  useEffect(() => {
+    updateErrorState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionData]);
 
   // Render session form items
   const renderSessionForm = useCallback(
@@ -258,9 +370,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             size="large"
             className="w-full font-normal text-sm"
             placeholder="Enter session name"
-            onChange={(e) =>
-              handleSessionChange(index, 'sessionName', e.target.value)
-            }
           />
         </Form.Item>
 
@@ -274,16 +383,10 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                   required: true,
                   message: 'Please input the session Start Date!',
                 },
-                { validator: validateSessionDates },
+                { validator: validateSessionStartDate },
               ]}
             >
-              <DatePicker
-                format="YYYY-MM-DD"
-                className="w-full"
-                onChange={(date) =>
-                  handleSessionChange(index, 'sessionStartDate', date)
-                }
-              />
+              <DatePicker format="YYYY-MM-DD" className="w-full" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
@@ -295,16 +398,10 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                   required: true,
                   message: 'Please input the session End Date!',
                 },
-                { validator: validateSessionDates },
+                { validator: validateSessionEndDate },
               ]}
             >
-              <DatePicker
-                format="YYYY-MM-DD"
-                className="w-full"
-                onChange={(date) =>
-                  handleSessionChange(index, 'sessionEndDate', date)
-                }
-              />
+              <DatePicker format="YYYY-MM-DD" className="w-full" />
             </Form.Item>
           </Col>
         </Row>
@@ -318,14 +415,11 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             rows={2}
             className="h-32 font-normal text-sm mt-2"
             size="large"
-            onChange={(e) =>
-              handleSessionChange(index, 'sessionDescription', e.target.value)
-            }
           />
         </Form.Item>
       </div>
     ),
-    [handleSessionChange, validateSessionDates],
+    [handleSessionChange, validateSessionStartDate, validateSessionEndDate],
   );
 
   return (
@@ -334,7 +428,14 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         Set up Session
       </div>
 
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={(nonused, allValues) => {
+          setSessionData(allValues.sessionData);
+        }}
+        onFieldsChange={updateErrorState}
+      >
         {sessionData.map((session, index) => renderSessionForm(session, index))}
 
         <Form.Item className="mb-0">
@@ -350,17 +451,26 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             >
               Previous
             </Button>
-            <Button
-              type="primary"
-              onClick={handleNext}
-              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+            <Popover
+              content={hasErrors && firstErrorMsg ? firstErrorMsg : ''}
+              trigger={hasErrors ? 'hover' : undefined}
+              placement="top"
             >
-              {isCreateLoading || isUpdateLoading ? (
-                <Spin />
-              ) : (
-                <span>Next</span>
-              )}
-            </Button>
+              <span>
+                <Button
+                  type="primary"
+                  onClick={handleNext}
+                  className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+                  disabled={hasErrors}
+                >
+                  {isCreateLoading || isUpdateLoading ? (
+                    <Spin />
+                  ) : (
+                    <span>Next</span>
+                  )}
+                </Button>
+              </span>
+            </Popover>
           </div>
         </Form.Item>
       </Form>

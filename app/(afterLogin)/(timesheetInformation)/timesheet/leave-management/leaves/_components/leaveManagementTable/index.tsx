@@ -31,13 +31,18 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { usePathname } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
+import { Key } from 'react';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
+  selectedRowKeys?: Key[];
+  setSelectedRowKeys?: (keys: Key[]) => void;
 }
 
 const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   setBodyRequest,
+  selectedRowKeys,
+  setSelectedRowKeys,
 }) => {
   const {
     setIsShowLeaveRequestManagementSidebar,
@@ -77,8 +82,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     { filter },
   );
 
-  // const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
-
   const { isMobile, isTablet } = useIsMobile();
 
   const EmpRender = ({ userId }: any) => {
@@ -105,9 +108,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
             profileImage={employeeData?.profileImage}
             size="small"
           />
-          {/* <div className="text-[10px] leading-4 text-gray-600">
-            {employeeData?.email}
-          </div> */}
         </div>
       </div>
     ) : (
@@ -196,21 +196,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       render: (item: LeaveRequest) => (
         <ActionButtons
           id={item?.id ?? null}
-          // disableDelete={
-          //   item.status === LeaveRequestStatus.APPROVED ||
-          //   item.status === LeaveRequestStatus.DECLINED
-          // }
-          // disableEdit={
-          //   item.status === LeaveRequestStatus.APPROVED ||
-          //   item.status === LeaveRequestStatus.DECLINED
-          // }
-          // onEdit={() => {
-          //   isShow(true);
-          //   setLeaveRequestSidebarData(item.id);
-          // }}
-          // onDelete={() => {
-          //   deleteLeaveRequest(item.id);
-          // }}
           onDetail={() => {
             setIsShowLeaveRequestManagementSidebar(true);
             setLeaveRequestId(item.id);
@@ -276,6 +261,25 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       filter: nFilter,
     }));
   };
+
+  const handleRowSelection = (selectedKeys: Key[]) => {
+    const currentPageKeys = tableData.map((row) => row.key);
+
+    const previousSelectedKeys =
+      selectedRowKeys?.filter((key) => !currentPageKeys.includes(key)) || [];
+
+    const allSelectedKeys = [...previousSelectedKeys, ...selectedKeys];
+
+    setSelectedRowKeys?.(allSelectedKeys);
+  };
+
+  const getCurrentPageSelectedKeys = () => {
+    const currentPageKeys = tableData.map((row) => row.key);
+    return (
+      selectedRowKeys?.filter((key) => currentPageKeys.includes(key)) || []
+    );
+  };
+
   return (
     <div className="mt-6">
       <LeaveManagementTableFilter onChange={onFilterChange} />
@@ -288,7 +292,11 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
             columns={columns}
             dataSource={tableData}
             loading={isFetching}
-            rowSelection={{ checkStrictly: false }}
+            rowSelection={{
+              checkStrictly: false,
+              selectedRowKeys: getCurrentPageSelectedKeys(),
+              onChange: handleRowSelection,
+            }}
             pagination={false}
             onChange={handleTableChange}
           />
