@@ -7,12 +7,14 @@ import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBa
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 
 type NewUserData = {
+  key: number;
   leaveType: string;
-  accrued: number | null;
-  balance: number | null;
-  carriedOver: number | null;
-  totalBalance: number | null;
-  utilizedLeave: number | null;
+  accrued: number;
+  balance: number;
+  carriedOver: number;
+  totalBalance: number;
+  utilizedLeave: number;
+  cashValue: number;
 };
 
 const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
@@ -76,18 +78,37 @@ const LeaveBalanceTable: React.FC = () => {
       dataIndex: 'utilizedLeave',
       key: 'utilizedLeave',
     },
+    {
+      title: 'Cash Value',
+      dataIndex: 'cashValue',
+      key: 'cashValue',
+    },
   ];
 
-  const dataSource =
-    leaveBalanceData?.items?.items?.map((item: any, index: number) => ({
+  let itemsArray: any[] = [];
+  if (Array.isArray(leaveBalanceData?.items)) {
+    itemsArray = leaveBalanceData.items;
+  } else if (
+    leaveBalanceData?.items &&
+    typeof leaveBalanceData.items === 'object' &&
+    Array.isArray((leaveBalanceData.items as any)?.items)
+  ) {
+    itemsArray = (leaveBalanceData.items as any).items;
+  }
+  const dataSource = itemsArray.map((item, index) => {
+    // Get cash value directly from the item
+    const cashValue = item?.cashValue || 0;
+    return {
       key: index,
       leaveType: item?.leaveType?.title || '-',
-      accrued: item?.accrued || 0,
-      balance: item?.balance || 0,
-      carriedOver: item?.carriedOver || 0,
-      totalBalance: item?.totalBalance || 0,
-      utilizedLeave: item?.utilizedLeave || 0,
-    })) || [];
+      accrued: parseFloat(item?.accrued.toFixed(1)) || 0,
+      balance: parseFloat(item?.balance.toFixed(1)) || 0,
+      carriedOver: parseFloat(item?.carriedOver.toFixed(1)) || 0,
+      totalBalance: parseFloat(item?.totalBalance.toFixed(1)) || 0,
+      utilizedLeave: parseFloat(item?.utilizedLeave.toFixed(1)) || 0,
+      cashValue,
+    };
+  });
 
   return (
     <>

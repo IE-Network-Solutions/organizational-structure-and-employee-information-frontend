@@ -13,6 +13,7 @@ import { EmployeeDetails } from '../../../_components/employeeDetails';
 import BenefitEntitlementSideBarEdit from './benefitEntitlementSidebarEdit';
 import BenefitTracking from './benefitTracker';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
+import CustomPagination from '@/components/customPagination';
 type BenefitPropTypes = {
   title: string;
 };
@@ -132,13 +133,15 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
     },
   ];
 
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
   const filteredDataSource = searchQuery
     ? transformedData.filter((employee: any) => employee.userId === searchQuery)
     : transformedData;
+
+  const paginatedData = filteredDataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <Spin spinning={isLoading}>
       {employeeBenefitData == null ? (
@@ -146,14 +149,21 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
           <Table
             className="mt-6"
             columns={columns}
-            dataSource={filteredDataSource}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: transformedData.length,
-              showSizeChanger: true,
+            dataSource={paginatedData}
+            pagination={false}
+          />
+          <CustomPagination
+            current={currentPage}
+            total={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
             }}
-            onChange={handleTableChange}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
           />
         </>
       ) : (

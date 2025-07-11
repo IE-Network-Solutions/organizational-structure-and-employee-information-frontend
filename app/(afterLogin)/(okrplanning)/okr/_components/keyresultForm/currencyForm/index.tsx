@@ -227,6 +227,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 wrapperCol={{ span: isMobile ? undefined : 18 }}
                 rules={[
                   { required: true, message: 'Please enter an initial value' },
+                  {
+                    type: 'number',
+                    min: 0,
+                    message: 'Value must be greater than or equal to 0',
+                  },
                 ]}
                 id={`initial-value-${index}`}
               >
@@ -256,10 +261,15 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 rules={[
                   { required: true, message: 'Please enter the target value' },
                   {
-                    validator: (rule, value) =>
-                      value > 0
-                        ? Promise.resolve()
-                        : Promise.reject('Target must be greater than 0'),
+                    validator: (rule, value) => {
+                      if (value <= 0) {
+                        return Promise.reject('Target must be greater than 0');
+                      }
+                      if (value <= keyItem.initialValue) {
+                        return Promise.reject('Target must be greater than initial value');
+                      }
+                      return Promise.resolve();
+                    },
                   },
                 ]}
                 id={`target-value-${index}`}

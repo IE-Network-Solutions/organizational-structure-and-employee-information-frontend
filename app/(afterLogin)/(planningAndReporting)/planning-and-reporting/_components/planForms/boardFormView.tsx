@@ -124,6 +124,13 @@ function BoardCardForm({
                               new Error('Please enter a valid number.'),
                             );
                           }
+                          if (numericValue < 0) {
+                            return Promise.reject(
+                              new Error(
+                                "Your target value shouldn't be negative.",
+                              ),
+                            );
+                          }
 
                           // Validate against the key result limits
                           if (

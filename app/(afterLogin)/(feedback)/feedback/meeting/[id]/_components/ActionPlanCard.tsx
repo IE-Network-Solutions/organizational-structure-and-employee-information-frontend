@@ -1,4 +1,3 @@
-// components/ActionPlan/ActionPlanCard.tsx
 import { useDeleteMeetingActionPlan } from '@/store/server/features/CFR/meeting/action-plan/mutations';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
@@ -31,15 +30,19 @@ export default function ActionPlanCard({
   const statusColor = status === 'Completed' ? 'green' : 'orange';
   const priorityColor =
     priority === 'High' ? 'red' : priority === 'Medium' ? 'orange' : 'blue';
+
   const { setActionPlanData, setOpenAddActionPlan } = useMeetingStore();
   const { mutate: deleteActionPlan, isLoading } = useDeleteMeetingActionPlan();
-  function handleEditActionPlan(value: any) {
+
+  const handleEditActionPlan = (value: any) => {
     setActionPlanData(value);
     setOpenAddActionPlan(true);
-  }
-  function handleDeleteActionPlan(id: string) {
+  };
+
+  const handleDeleteActionPlan = (id: string) => {
     deleteActionPlan(id);
-  }
+  };
+
   const menu = (
     <Menu>
       <Menu.Item
@@ -63,6 +66,7 @@ export default function ActionPlanCard({
       </Menu.Item>
     </Menu>
   );
+
   const EmployeeDetails = ({
     empId,
     type,
@@ -72,36 +76,31 @@ export default function ActionPlanCard({
   }) => {
     const { data: userDetails, isLoading, error } = useGetEmployee(empId);
 
-    if (isLoading)
-      return (
-        <>
-          <LoadingOutlined />
-        </>
-      );
-
+    if (isLoading) return <LoadingOutlined />;
     if (error || !userDetails) return '-';
 
     const userName =
-      `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
+      `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName}` ||
       '-';
     const profileImage = userDetails?.profileImage;
+
     return (
       <div className="flex gap-2 items-center">
-        <Tooltip title={type == 'all' ? '' : userName}>
+        <Tooltip title={type === 'all' ? '' : userName}>
           <Avatar src={profileImage} icon={<UserOutlined />} />
         </Tooltip>
-
-        {type == 'all' && <div>{userName}</div>}
+        {type === 'all' && <div>{userName}</div>}
       </div>
     );
   };
+
   return (
-    <div className="bg-white border rounded-xl p-4  space-y-2">
+    <div className="bg-white border rounded-xl p-4 space-y-3 w-full">
+      {/* Header */}
       <div className="flex justify-between items-start">
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-semibold">Issue</p>
-          <p className="text-gray-600 text-sm">{issue}</p>
-          {/* <p className="text-gray-600 text-sm">{description}</p> */}
+          <p className="text-gray-600 text-sm break-words">{issue}</p>
         </div>
         {canEdit && (
           <Dropdown overlay={menu} trigger={['click']}>
@@ -117,14 +116,16 @@ export default function ActionPlanCard({
           </Dropdown>
         )}
       </div>
-      <div className="grid grid-cols-4 text-sm pt-2">
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm pt-2">
+        {/* Responsible Users */}
         <div>
           <p className="font-bold text-gray-700">Responsible Person</p>
-
           {responsibleUsers?.length > 0 ? (
             <Avatar.Group
               maxCount={5}
-              maxStyle={{ color: '#f56a00', backgroundColor: '#fde3cf' }}
+              maxStyle={{ color: '#000', backgroundColor: '#f0f0f0' }}
               className="mt-1"
             >
               {responsibleUsers.map((res: any) => (
@@ -136,13 +137,17 @@ export default function ActionPlanCard({
               ))}
             </Avatar.Group>
           ) : (
-            '-'
+            <span className="text-gray-500">-</span>
           )}
         </div>
+
+        {/* Deadline */}
         <div>
           <p className="font-bold text-gray-700">Deadline</p>
           <p>{dayjs(deadline).format('YYYY-MM-DD')}</p>
         </div>
+
+        {/* Status */}
         <div>
           <p className="font-bold text-gray-700">Status</p>
           <Tag
@@ -152,6 +157,8 @@ export default function ActionPlanCard({
             {status}
           </Tag>
         </div>
+
+        {/* Priority */}
         <div>
           <p className="font-bold text-gray-700">Priority</p>
           <Tag

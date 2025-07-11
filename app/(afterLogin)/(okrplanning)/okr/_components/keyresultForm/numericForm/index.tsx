@@ -192,6 +192,11 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 label="Initial"
                 rules={[
                   { required: true, message: 'Please enter the initial value' },
+                  {
+                    type: 'number',
+                    min: 0,
+                    message: 'Value must be greater than or equal to 0',
+                  },
                 ]}
                 id={`initial-value-input-${index}`}
               >
@@ -217,10 +222,15 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 rules={[
                   { required: true, message: 'Please enter the target value' },
                   {
-                    validator: (form, value) =>
-                      value && value >= 0
-                        ? Promise.resolve()
-                        : Promise.reject('Target value must be non-negative'),
+                    validator: (form, value) => {
+                      if (value <= 0) {
+                        return Promise.reject('Target must be greater than 0');
+                      }
+                      if (value <= keyItem.initialValue) {
+                        return Promise.reject('Target must be greater than initial value');
+                      }
+                      return Promise.resolve();
+                    },
                   },
                 ]}
                 id={`target-value-input-${index}`}

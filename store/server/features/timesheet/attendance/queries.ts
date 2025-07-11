@@ -13,6 +13,7 @@ import {
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
 import axios from 'axios';
+// const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (
   query: RequestCommonQueryData,
@@ -32,6 +33,11 @@ const getAttendances = async (
 };
 const exportAttendanceData = async (data: any) => {
   try {
+    // const payload = {
+    //   ...data,
+    //   updatedBy: logUserId,
+    //   createdBy: logUserId,
+    // };
     const response = await axios.post(
       `${TIME_AND_ATTENDANCE_URL}/attendance`,
       data,

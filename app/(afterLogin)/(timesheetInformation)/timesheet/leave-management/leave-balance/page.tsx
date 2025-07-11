@@ -14,7 +14,7 @@ const LeaveBalance = () => {
   const [form] = Form.useForm();
   const { userId } = useAuthenticationStore();
 
-  const { data: users } = useGetAllUsers();
+  const { data: users, isLoading: usersLoading } = useGetAllUsers();
   const { data: leaveTypes } = useGetLeaveTypes();
   const { selectedUserId, setLeaveTypeId, setUserId } = useLeaveBalanceStore();
   const handleChange = (values: any) => {
@@ -22,11 +22,13 @@ const LeaveBalance = () => {
   };
 
   useEffect(() => {
-    userId ? setUserId(userId) : '';
-    form.setFieldsValue({
-      userId: userId || '',
-    });
-  }, [userId, form]);
+    if (!usersLoading && users?.items) {
+      userId ? setUserId(userId) : '';
+      form.setFieldsValue({
+        userId: userId || '',
+      });
+    }
+  }, [userId, form, usersLoading, users]);
   const handleLeaveChange = (values: any) => {
     setLeaveTypeId(values || '');
   };
@@ -48,7 +50,11 @@ const LeaveBalance = () => {
                   placeholder="Select a person"
                   className="w-full h-[54px]"
                   allowClear
+                  loading={usersLoading}
                   optionFilterProp="label"
+                  value={
+                    usersLoading ? undefined : form.getFieldValue('userId')
+                  }
                   options={users?.items?.map((list: any) => ({
                     value: list?.id,
                     label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,

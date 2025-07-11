@@ -79,7 +79,6 @@ const Payroll = () => {
   const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
 
-  // Add the export hook for fetching all payroll data without pagination
   const { refetch: refetchAllPayroll } = useGetAllPayrollForExport(searchQuery);
 
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
@@ -642,10 +641,10 @@ const Payroll = () => {
     setLoading(true);
     try {
       await generateBankLetter(amount);
-    } catch (error) {
+    } catch (error: any) {
       notification.error({
         message: 'Error Generating Bank Letter',
-        description: 'An error occurred while generating the bank letter.',
+        description: error + '',
       });
     } finally {
       setLoading(false);

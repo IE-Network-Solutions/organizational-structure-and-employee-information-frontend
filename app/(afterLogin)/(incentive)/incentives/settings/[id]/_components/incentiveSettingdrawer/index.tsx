@@ -73,11 +73,61 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   useEffect(() => {
     if (formulaById && recognitionId) {
-      setFormula(formulaById?.expression || []);
+      let parsedExpression = [];
+
+      if (formulaById?.expression) {
+        try {
+          // If expression is a JSON string, parse it
+          if (typeof formulaById.expression === 'string') {
+            const parsedString = JSON.parse(formulaById.expression);
+
+            // Convert the parsed string back to formula array format
+            if (typeof parsedString === 'string') {
+              // Split the parsed string and convert to array format
+              const parts = parsedString.split(' ').filter(Boolean);
+
+              parsedExpression = parts.map((part: string) => {
+                // Remove quotes from criteria IDs
+                const cleanPart = part.replace(/"/g, '');
+
+                // Check if it's a criteria ID by finding matching criteria
+                const matchingCriteria =
+                  recognitionData?.recognitionCriteria?.find(
+                    (crit: any) => crit?.criteria?.id === cleanPart,
+                  );
+
+                if (matchingCriteria) {
+                  return {
+                    id: matchingCriteria.criteria.id,
+                    name: matchingCriteria.criteria.criteriaName,
+                    type: 'criteria',
+                  };
+                } else {
+                  // It's an operand or number
+                  return {
+                    id: cleanPart,
+                    name: cleanPart,
+                    type: 'operand',
+                  };
+                }
+              });
+            } else {
+              parsedExpression = parsedString;
+            }
+          } else if (Array.isArray(formulaById.expression)) {
+            // If it's already an array, use it as is
+            parsedExpression = formulaById.expression;
+          }
+        } catch (error) {
+          parsedExpression = [];
+        }
+      }
+
+      setFormula(parsedExpression);
     } else {
       setFormula([]);
     }
-  }, [formulaById, recognitionId]);
+  }, [formulaById, recognitionId, recognitionData]);
 
   const handleOptionClick = (id: string, name: string, type: string) => {
     if (name === 'Clear') {
@@ -90,6 +140,30 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   };
 
   const handleSubmit = () => {
+    // Validate formula if Formula type is selected
+    if (value === 'Formula') {
+      if (!formula || formula.length === 0) {
+        setFormulaError('Formula cannot be empty.');
+        return;
+      }
+
+      // Convert formula array to string for validation
+      const formulaString = Array.isArray(formula)
+        ? formula.map((item: any) => item?.name || '').join(' ')
+        : '';
+
+      const validationError = validateFormula(formulaString);
+      if (validationError) {
+        setFormulaError(validationError);
+        return;
+      }
+    }
+
+    // Prevent submission if there are validation errors
+    if (formulaError) {
+      return;
+    }
+
     const formValues = form.getFieldsValue();
 
     const cleanedExpression =
@@ -167,38 +241,116 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setValue(value);
   }, [value]);
 
-  // Validation function for formula
-  function isValidFormula(formula: any[]): boolean {
-    if (!formula || formula.length === 0) return false;
-    // Check if first or last is an operand
-    if (
-      formula[0].type === 'operand' ||
-      formula[formula.length - 1].type === 'operand'
-    ) {
-      return false;
+  const allowedOperands = ['+', '-', '*', '/', '(', ')'];
+  const allowedCriteria =
+    recognitionData?.recognitionCriteria
+      ?.map((item: any) => item?.criteria?.criteriaName)
+      ?.filter((name: string) => name) || [];
+
+  const validateFormula = (formula: string): string => {
+    if (!formula || !formula.trim()) return 'Formula cannot be empty.';
+
+    // Create regex pattern using dynamic criteria names
+    const criteriaPattern =
+      allowedCriteria?.length > 0
+        ? allowedCriteria
+            .map((name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|')
+        : '';
+
+    const regexPattern = criteriaPattern
+      ? `(\\b(?:${criteriaPattern})\\b|\\d+(?:\\.\\d+)?|[()+\\-*/])`
+      : '(\\d+(?:\\.\\d+)?|[()+\\-*/])';
+
+    const tokens = formula.match(new RegExp(regexPattern, 'g'));
+
+    if (!tokens || tokens.length === 0) return 'Formula cannot be empty.';
+
+    // Check for invalid characters by removing all valid tokens and seeing if anything remains
+    let remainingFormula = formula;
+
+    // Remove all valid criteria
+    if (allowedCriteria && allowedCriteria.length > 0) {
+      allowedCriteria.forEach((criteria: string) => {
+        const criteriaRegex = new RegExp(
+          criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+          'g',
+        );
+        remainingFormula = remainingFormula.replace(criteriaRegex, '');
+      });
     }
-    for (let i = 1; i < formula.length; i++) {
-      const prev = formula[i - 1];
-      const curr = formula[i];
-      // Consecutive operands
-      if (prev.type === 'operand' && curr.type === 'operand') {
-        return false;
-      }
-      // Consecutive criteria
-      if (prev.type === 'criteria' && curr.type === 'criteria') {
-        return false;
+
+    // Remove all numbers and operators
+    remainingFormula = remainingFormula.replace(/\d+(?:\.\d+)?/g, ''); // Remove numbers
+    remainingFormula = remainingFormula.replace(/[()+\-*/]/g, ''); // Remove operators
+    remainingFormula = remainingFormula.replace(/\s+/g, ''); // Remove all spaces
+
+    // If anything remains, it's invalid
+    if (remainingFormula.length > 0) {
+      const allowedItems =
+        allowedCriteria?.length > 0
+          ? `allowed criteria (${allowedCriteria.join(', ')}), numbers, and operators (+, -, *, /, (, ))`
+          : 'numbers and operators (+, -, *, /, (, ))';
+      return `Formula can only contain ${allowedItems}.`;
+    }
+
+    let lastType: 'operand' | 'criteria' | 'open' | 'close' | null = null;
+    let balance = 0;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      if (token === '(') {
+        balance++;
+        lastType = 'open';
+      } else if (token === ')') {
+        balance--;
+        if (balance < 0) return 'Unbalanced parentheses.';
+        lastType = 'close';
+      } else if (
+        allowedOperands.includes(token) &&
+        token !== '(' &&
+        token !== ')'
+      ) {
+        if (i === 0 || i === tokens.length - 1)
+          return 'Formula cannot start or end with an operand.';
+        if (lastType === 'operand')
+          return 'Consecutive operands are not allowed.';
+        lastType = 'operand';
+      } else if (allowedCriteria?.includes(token)) {
+        if (lastType === 'criteria')
+          return 'Consecutive criteria are not allowed.';
+        lastType = 'criteria';
+      } else if (/^\d+(?:\.\d+)?$/.test(token)) {
+        // Handle numbers (integers and decimals)
+        if (lastType === 'criteria')
+          return 'Consecutive criteria/numbers are not allowed.';
+        lastType = 'criteria'; // Treat numbers like criteria for validation purposes
+      } else {
+        return `Invalid token detected: ${token}`;
       }
     }
-    return true;
-  }
+
+    if (balance !== 0) return 'Unbalanced parentheses.';
+
+    return ''; // Valid
+  };
 
   // Live validation effect
   useEffect(() => {
     if (value === 'Formula') {
-      if (formula && formula.length > 0 && !isValidFormula(formula)) {
-        setFormulaError(
-          'Invalid formula: Please avoid consecutive operands or criteria, and do not start or end with an operand.',
-        );
+      if (formula && formula.length > 0) {
+        // Convert formula array to string for validation
+        const formulaString = Array.isArray(formula)
+          ? formula.map((item: any) => item?.name || '').join(' ')
+          : '';
+
+        const validationError = validateFormula(formulaString);
+        if (validationError) {
+          setFormulaError(validationError);
+        } else {
+          setFormulaError('');
+        }
       } else {
         setFormulaError('');
       }
@@ -337,6 +489,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             className="p-4 px-10 h-10"
             onClick={handleSubmit}
             loading={updateLoading || createLoading}
+            disabled={formulaError ? true : false}
           >
             {!formulaById ? <span>Create</span> : <span>Edit</span>}
           </Button>

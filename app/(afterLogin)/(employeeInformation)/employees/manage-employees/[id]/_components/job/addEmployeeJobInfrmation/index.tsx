@@ -9,8 +9,12 @@ import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryFor
 
 interface Ids {
   id: string;
+  onInfoSubmition?: () => void;
 }
-export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
+export const CreateEmployeeJobInformation: React.FC<Ids> = ({
+  id: id,
+  onInfoSubmition: onInfoSubmition,
+}) => {
   const [form] = Form.useForm();
   const {
     isAddEmployeeJobInfoModalVisible,
@@ -42,6 +46,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({ id: id }) => {
     createJobInformation(values, {
       onSuccess: () => {
         handleClose();
+        onInfoSubmition && onInfoSubmition();
       },
     });
   };

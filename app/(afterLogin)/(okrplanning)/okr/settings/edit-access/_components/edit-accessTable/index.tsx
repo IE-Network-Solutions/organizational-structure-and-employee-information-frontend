@@ -119,13 +119,13 @@ const EditAccessTable: React.FC = () => {
               <Avatar size={20} src={item?.profileImage} />
             ) : (
               <Avatar size={20}>
-                {item?.firstName[0]?.toUpperCase()}
-                {item?.middleName[0]?.toUpperCase()}
-                {item?.lastName[0]?.toUpperCase()}
+                {item?.firstName ? item?.firstName[0]?.toUpperCase() : ''}
+                {item?.middleName ? item?.middleName[0]?.toUpperCase() : ''}
+                {item?.lastName ? item?.lastName[0]?.toUpperCase() : ''}
               </Avatar>
             )}
           </div>
-          <span> {item?.firstName + ' ' + item?.middleName}</span>
+          <span> {item?.firstName + ' ' + item?.middleName || ''}</span>
         </div>
       ),
       grant_access: (

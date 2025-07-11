@@ -112,10 +112,12 @@ const AllIncentiveTable: React.FC = () => {
           role: getEmployeeInformation(item?.userId)?.role?.name,
           criteria: item?.breakdown?.map((criterion, index) => (
             <div
+              className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
               key={criterion?.criterionKey || index}
-              className="rounded-xl p-3 mx-2 bg-[#D3E4F0] text-[#1D9BF0] font-semibold inline-block flex-wrap"
             >
-              {criterion?.criterionKey}
+              <span className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1">
+                {criterion?.criterionKey}
+              </span>
             </div>
           )),
           bonus: (

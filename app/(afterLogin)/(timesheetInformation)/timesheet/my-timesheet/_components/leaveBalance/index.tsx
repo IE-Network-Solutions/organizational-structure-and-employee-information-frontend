@@ -77,7 +77,7 @@ const LeaveBalance = () => {
                 ))}
             </Swiper>
           </div>
-          {data.items?.items?.length > 1 && (
+          {data.items?.items.length > 1 && (
             <Button
               className="absolute right-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"

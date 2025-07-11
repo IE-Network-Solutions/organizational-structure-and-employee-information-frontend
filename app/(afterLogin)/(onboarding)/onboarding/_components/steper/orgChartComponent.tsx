@@ -38,54 +38,31 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       >
         Edit
       </Menu.Item>
-      <Menu.Item
-        id={`${data.name}DeleteButton`}
-        icon={<DeleteOutlined />}
-        onClick={onDelete}
-      >
-        Delete
-      </Menu.Item>
+      {!isRoot && (
+        <Menu.Item
+          id={`${data.name}DeleteButton`}
+          icon={<DeleteOutlined />}
+          onClick={onDelete}
+        >
+          Delete
+        </Menu.Item>
+      )}
     </Menu>
   );
 
   return (
     <Card className="p-1.5 rounded-md inline-block border border-[#e8e8e8] sm:w-auto">
-      {isRoot && (
-        <Dropdown
-          overlay={menu}
-          trigger={['click']}
-          className="absolute top-[5px] right-[5px]"
-        >
-          <Button
-            icon={<MoreOutlined />}
-            id={`${data.name}ThreeDotButton`}
-            size="small"
-          />
-        </Dropdown>
-      )}
-      {isRoot && (
+      <Dropdown
+        overlay={menu}
+        trigger={['click']}
+        className="absolute top-[5px] right-[5px]"
+      >
         <Button
-          id="ceoButton"
-          icon={<PlusOutlined />}
+          icon={<MoreOutlined />}
+          id={`${data.name}ThreeDotButton`}
           size="small"
-          type="primary"
-          className="p-2 rounded-full absolute bottom-[-10px] center-[-40px]"
-          onClick={onAdd}
         />
-      )}
-      {!isRoot && (
-        <Dropdown
-          overlay={menu}
-          trigger={['click']}
-          className="absolute top-[5px] right-[5px]"
-        >
-          <Button
-            icon={<MoreOutlined />}
-            id={`${data.name}ThreeDotButton`}
-            size="small"
-          />
-        </Dropdown>
-      )}
+      </Dropdown>
 
       <div
         style={{
@@ -98,17 +75,16 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({
           <span style={{ fontWeight: 'bold' }}>{data.name}</span>
         </Tooltip>
       </div>
-      {!isRoot && (
-        <Button
-          id={`${data.name}Button`}
-          icon={<PlusOutlined />}
-          size="small"
-          type="primary"
-          className="rounded-full absolute bottom-[-10px] "
-          style={{ marginTop: '5px' }}
-          onClick={onAdd}
-        />
-      )}
+
+      <Button
+        id={`${data.name}Button`}
+        icon={<PlusOutlined />}
+        size="small"
+        type="primary"
+        className="rounded-full absolute bottom-[-10px]"
+        style={{ marginTop: '5px' }}
+        onClick={onAdd}
+      />
     </Card>
   );
 };
@@ -172,7 +148,12 @@ const OrgChartComponent: React.FC = () => {
   };
 
   const handleFormSubmit = (values: Department) => {
-    if (selectedDepartment) {
+    if (selectedDepartment?.id === 'root') {
+      setOrgData({
+        ...orgData,
+        name: values.name,
+      });
+    } else if (selectedDepartment) {
       updateDepartment({ ...selectedDepartment, ...values });
     } else if (parentId) {
       addDepartment(parentId, values);
@@ -227,30 +208,23 @@ const OrgChartComponent: React.FC = () => {
     }
   }, [branches, orgData.department]);
 
+  const rootDepartment: Department = {
+    id: 'root',
+    name: orgData?.name || 'CEO',
+    department: orgData?.department || [],
+    branchId: orgData?.branchId || '',
+    description: '',
+    collapsed: false,
+  };
+
   return (
     <div className="w-full py-7 overflow-x-auto lg:overflow-x-visible">
       <div className="p-4 sm:p-2 md:p-6 lg:p-8">
         <Tree
           label={
             <DepartmentNode
-              data={{
-                id: 'root',
-                name: orgData?.name || 'CEO',
-                department: orgData?.department || [],
-                branchId: orgData?.branchId || '',
-                description: '',
-                collapsed: false,
-              }}
-              onEdit={() =>
-                handleEdit({
-                  id: 'root',
-                  name: orgData?.name || 'CEO',
-                  department: orgData?.department || [],
-                  branchId: orgData?.branchId || '',
-                  description: '',
-                  collapsed: false,
-                })
-              }
+              data={rootDepartment}
+              onEdit={() => handleEdit(rootDepartment)}
               onAdd={() => handleAdd('root')}
               onDelete={() => {}}
               isRoot={true}
@@ -275,7 +249,13 @@ const OrgChartComponent: React.FC = () => {
         open={isFormVisible}
         submitAction={handleFormSubmit}
         departmentData={selectedDepartment ?? undefined}
-        title={selectedDepartment ? 'Edit Department' : 'Add Department'}
+        title={
+          selectedDepartment?.id === 'root'
+            ? 'Edit CEO'
+            : selectedDepartment
+              ? 'Edit Department'
+              : 'Add Department'
+        }
       />
 
       <Modal
