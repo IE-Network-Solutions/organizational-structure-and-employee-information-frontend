@@ -13,8 +13,8 @@ if (typeof window !== 'undefined') {
 
     if (config.data && typeof config.data === 'object') {
       try {
-        const encryptedPayload = await encrypt(JSON.stringify(config.data));
-        config.data = { encryptedPayload };
+        // const encryptedPayload = ;
+        config.data = await encrypt(JSON.stringify(config.data));
       } catch (err) {
         throw err;
       }
