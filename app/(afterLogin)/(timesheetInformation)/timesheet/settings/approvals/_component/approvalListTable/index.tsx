@@ -162,7 +162,7 @@ const ApprovalListTable = () => {
               overflowY: 'scroll',
             }}
           >
-            {[...item?.approvers]
+            {[...(item?.approvers ?? [])]
               .sort((a, b) => a.stepOrder - b.stepOrder)
               ?.map((employee: any, empIndex: number) => {
                 const employeeInfo = getEmployeeInformation(employee?.userId);
@@ -239,7 +239,9 @@ const ApprovalListTable = () => {
         ),
         level: item?.approvers
           ? item?.approvalWorkflowType == 'Parallel'
-            ? Math.max(...item?.approvers.map((item: any) => item.stepOrder))
+            ? Math.max(
+                ...(item?.approvers ?? []).map((item: any) => item.stepOrder),
+              )
             : item?.approvers?.length
           : '-',
         action: (
