@@ -12,9 +12,10 @@ const JobSummary = () => {
         <div className=" font-bold text-lg">Latest Jobs Posted</div>
       </div>
       {Array.isArray(jobSummary) && jobSummary.length > 0 ? (
-        <div className="flex flex-col gap-2  overflow-y-auto max-h-80 scrollbar-none">
+        <div className="flex flex-col gap-3 shadow-lg overflow-y-auto max-h-80 scrollbar-none">
           {jobSummary?.map((items: any, index: number) => (
             <div
+              // bodyStyle={{ padding: '0px', margin: '0px' }}
               key={items?.id || index}
               className="rounded-xl shadow-lg flex  justify-between items-center gap-3 p-2  "
             >
