@@ -21,7 +21,8 @@ const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
     {} as LeaveRequestBody,
   );
-  const { setLeaveTypes } = useMyTimesheetStore();
+  const { setLeaveTypes, selectedRowKeys, setSelectedRowKeys } =
+    useMyTimesheetStore();
   const { mutate: sendNotification, isLoading } =
     useSetAllLeaveRequestNotification();
 
@@ -78,6 +79,13 @@ const LeaveManagement = () => {
     setBodyRequest((prev) => ({
       ...prev,
       exportType: type,
+      filter: {
+        ...prev.filter,
+        leaveRequestsIds:
+          selectedRowKeys.length > 0
+            ? selectedRowKeys.map((key) => key.toString())
+            : prev.filter?.leaveRequestsIds,
+      },
     }));
   };
 
@@ -145,7 +153,11 @@ const LeaveManagement = () => {
             </Space>
           </PageHeader>
 
-          <LeaveManagementTable setBodyRequest={setBodyRequest} />
+          <LeaveManagementTable
+            setBodyRequest={setBodyRequest}
+            selectedRowKeys={selectedRowKeys}
+            setSelectedRowKeys={setSelectedRowKeys}
+          />
         </BlockWrapper>
       </div>
 

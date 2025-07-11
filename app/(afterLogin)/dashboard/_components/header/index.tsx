@@ -3,7 +3,7 @@ import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplannin
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Card, Progress } from 'antd';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { GoGoal } from 'react-icons/go';
 
 const Header = () => {
@@ -11,19 +11,20 @@ const Header = () => {
   const { data: objectiveDashboard, isLoading } =
     useGetUserObjectiveDashboard(userId);
   const { data: vpScore } = useGetVPScore(userId);
-  const router = useRouter();
+  // const router = useRouter();
 
   const onDetail = () => {
-    router.push(`/okr/vp`);
+    // router.push(`/okr/vp`);
   };
+
   return (
     <>
-      <div className="  w-full mb-4 flex overflow-x-auto grid-cols-none  lg:grid lg:grid-cols-5 gap-4 scrollbar-none">
+      <div className="  w-full mb-4 flex overflow-x-auto  2xl:grid 2xl:grid-cols-5 gap-4 scrollbar-none">
         <Card
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-56  sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -36,7 +37,7 @@ const Header = () => {
                 {Number(objectiveDashboard?.userOkr?.toFixed(2))}
               </div>
             </div>
-            <div className="">
+            <div className="xl:min-w-28">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
                   {Number(objectiveDashboard?.okrCompleted || 0)}
@@ -44,7 +45,11 @@ const Header = () => {
                 Key Results Achieved
               </div>
               <Progress
-                percent={Number(objectiveDashboard?.userOkr || 0)}
+                percent={Number(
+                  (Number(objectiveDashboard?.okrCompleted || 0) /
+                    Number(objectiveDashboard?.keyResultCount || 1)) *
+                    100,
+                )}
                 showInfo={false}
                 strokeColor="#3636ee"
                 trailColor="#f5f5f5"
@@ -52,14 +57,14 @@ const Header = () => {
             </div>
           </div>
           <div className="text-gray-500  w-full text-start text-xs">
-            Average OKR Score
+            Average OKR
           </div>
         </Card>
         <Card
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -74,15 +79,25 @@ const Header = () => {
                 {Number(objectiveDashboard?.supervisorOkr?.toFixed(2))}
               </div>
             </div>
-            <div className="">
+            <div className="xl:min-w-28">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
-                  {Number(objectiveDashboard?.supervisorOkr?.toFixed(1) || 0)}
+                  {Number(
+                    objectiveDashboard?.supervisorKeyResultAchieved?.toFixed(
+                      1,
+                    ) || 0,
+                  )}
                 </span>{' '}
                 Key Results Achieved
               </div>
               <Progress
-                percent={Number(objectiveDashboard?.supervisorOkr || 0)}
+                percent={Number(
+                  (Number(
+                    objectiveDashboard?.supervisorKeyResultAchieved || 0,
+                  ) /
+                    Number(objectiveDashboard?.supervisorKeyResultCount || 1)) *
+                    100,
+                )}
                 showInfo={false}
                 strokeColor="#4c6ef5"
                 trailColor="#f5f5f5"
@@ -90,14 +105,14 @@ const Header = () => {
             </div>
           </div>
           <div className="text-gray-500  w-full text-start text-xs">
-            Supervisor OKR score
+            Supervisor OKR
           </div>
         </Card>
         <Card
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -111,14 +126,14 @@ const Header = () => {
                 {objectiveDashboard?.companyOkr.toFixed(2) || 0}
               </div>
             </div>
-            <div className="">
+            <div className="xl:min-w-28">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
                   {Number(
                     objectiveDashboard?.companyOkr.toFixed(1),
                   )?.toLocaleString() || 0}{' '}
                 </span>{' '}
-                Key Results Achieved
+                OKR Achieved
               </div>
               <Progress
                 percent={Number(objectiveDashboard?.companyOkr || 0)}
@@ -129,14 +144,14 @@ const Header = () => {
             </div>
           </div>
           <div className="text-gray-500  w-full text-start text-xs">
-            Company OKR score
+            Company OKR
           </div>
         </Card>
         <Card
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -153,7 +168,7 @@ const Header = () => {
                 {Number(objectiveDashboard?.keyResultCount || 0)}
               </span>
             </div>
-            <div className="">
+            <div className=" xl:min-w-28">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
                   {`${Number(objectiveDashboard?.okrCompleted || 0)} / ${Number(objectiveDashboard?.keyResultCount || 0)}`}
@@ -180,7 +195,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52 sm:shrink-0"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0"
           onClick={() => onDetail()}
         >
           <div className="flex items-center justify-between">
@@ -193,7 +208,7 @@ const Header = () => {
             <div className="">
               <div className="text-xl font-bold ">{vpScore?.score || 0} %</div>
             </div>
-            <div className="">
+            <div className="xl:min-w-28">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-blue">
                   {`${Math.round(Number(vpScore?.score || 0))}`} %

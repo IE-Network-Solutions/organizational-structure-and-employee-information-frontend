@@ -26,10 +26,9 @@ ChartJS.register(
 const SelfAttendance = () => {
   const { data: annualAttendance, isLoading: attendanceIsLoading } =
     useGetAnnualAttendance();
-
   const data = {
     labels: annualAttendance?.calendar?.months?.map((month: any) =>
-      month.monthName.toUpperCase(),
+      month.monthName.toUpperCase().slice(0, 3),
     ),
     datasets: [
       {
@@ -112,10 +111,18 @@ const SelfAttendance = () => {
         <div className="text-lg font-bold">Annual Attendance Report</div>
         <div className="pl-2"></div>
       </div>
-
-      <div className=" h-[300px]  mt-4 gap-4 items-center ">
-        <Bar data={data} options={options} />
+      <div className="flex  xl:hidden">
+        {/* flex xl:hidden zoom in min 110{' '} */}
+        <Bar data={data} options={options} height={120} width={180} />{' '}
       </div>
+      <div className="hidden xl:flex 2xl:hidden">
+        {/* hidden xl:flex 2xl:hidden mid 90 - 100 */}
+        <Bar data={data} options={options} height={100} width={180} />{' '}
+      </div>
+      <div className="hidden 2xl:flex ">
+        {/* hidden 2xl:flex = zoom out max 80 -75 */}
+        <Bar data={data} options={options} height={75} width={180} />
+      </div>{' '}
     </Card>
   );
 };

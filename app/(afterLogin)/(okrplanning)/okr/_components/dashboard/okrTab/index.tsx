@@ -162,13 +162,13 @@ export default function OkrTab() {
                       <CustomMobilePagination
                         totalResults={userObjectives?.meta?.totalItems ?? 0}
                         pageSize={pageSize}
+                        currentPage={currentPage}
                         onChange={(page, pageSize) => {
                           setCurrentPage(page);
                           setPageSize(pageSize);
                         }}
                         onShowSizeChange={(size) => {
                           setPageSize(size);
-                          setCurrentPage(1);
                         }}
                       />
                     ) : (
@@ -220,19 +220,36 @@ export default function OkrTab() {
                               objective={obj}
                             />
                           ))}
-                          <CustomPagination
-                            current={teamObjective?.meta?.currentPage || 1}
-                            total={teamObjective?.meta?.totalItems || 1}
-                            pageSize={teamPageSize}
-                            onChange={(page, pageSize) => {
-                              setTeamCurrentPage(page);
-                              setTeamPageSize(pageSize);
-                            }}
-                            onShowSizeChange={(size) => {
-                              setTeamPageSize(size);
-                              setTeamCurrentPage(1);
-                            }}
-                          />
+                          {isMobile || isTablet ? (
+                            <CustomMobilePagination
+                              totalResults={
+                                teamObjective?.meta?.totalItems ?? 0
+                              }
+                              pageSize={teamPageSize}
+                              currentPage={teamCurrentPage}
+                              onChange={(page, pageSize) => {
+                                setTeamCurrentPage(page);
+                                setTeamPageSize(pageSize);
+                              }}
+                              onShowSizeChange={(size) => {
+                                setTeamPageSize(size);
+                              }}
+                            />
+                          ) : (
+                            <CustomPagination
+                              current={teamObjective?.meta?.currentPage || 1}
+                              total={teamObjective?.meta?.totalItems || 1}
+                              pageSize={teamPageSize}
+                              onChange={(page, pageSize) => {
+                                setTeamCurrentPage(page);
+                                setTeamPageSize(pageSize);
+                              }}
+                              onShowSizeChange={(size) => {
+                                setTeamPageSize(size);
+                                setTeamCurrentPage(1);
+                              }}
+                            />
+                          )}
                         </div>
                       )}
                       {teamObjective?.items?.length === 0 && (
@@ -275,13 +292,13 @@ export default function OkrTab() {
                                 companyObjective?.meta?.totalItems ?? 0
                               }
                               pageSize={companyPageSize}
+                              currentPage={companyCurrentPage}
                               onChange={(page, pageSize) => {
                                 setCompanyCurrentPage(page);
                                 setCompanyPageSize(pageSize);
                               }}
                               onShowSizeChange={(size) => {
                                 setCompanyPageSize(size);
-                                setCompanyCurrentPage(1);
                               }}
                             />
                           ) : (
