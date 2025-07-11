@@ -123,190 +123,199 @@ const ApprovalListTable = () => {
   }, [allFilterData?.items, selectedItem]);
 
   const data =
-    !isDataLoading &&
-    allFilterData?.items?.map((item: any, index: number) => {
-      const employeeInfo = getEmployeeInformation(item?.entityId);
-      const departmentInfo = getDepartmentInformation(item?.entityId);
+    !isDataLoading && allFilterData?.items
+      ? allFilterData.items.map((item: any, index: number) => {
+          const employeeInfo = getEmployeeInformation(item?.entityId);
+          const departmentInfo = getDepartmentInformation(item?.entityId);
 
-      let appliedToValue = '-';
-      if (item?.entityId) {
-        if (
-          item?.entityType === 'Department' ||
-          item?.entityType === 'Hierarchy'
-        ) {
-          appliedToValue = departmentInfo?.name || '-';
-        } else if (item?.entityType === 'User') {
-          const firstName = employeeInfo?.firstName || '';
-          const middleName = employeeInfo?.middleName || '';
-          appliedToValue =
-            firstName && middleName
-              ? `${firstName} ${middleName}`
-              : firstName || middleName || '-';
-        } else {
-          appliedToValue = item?.entityId;
-        }
-      }
+          let appliedToValue = '-';
+          if (item?.entityId) {
+            if (
+              item?.entityType === 'Department' ||
+              item?.entityType === 'Hierarchy'
+            ) {
+              appliedToValue = departmentInfo?.name || '-';
+            } else if (item?.entityType === 'User') {
+              const firstName = employeeInfo?.firstName || '';
+              const middleName = employeeInfo?.middleName || '';
+              appliedToValue =
+                firstName && middleName
+                  ? `${firstName} ${middleName}`
+                  : firstName || middleName || '-';
+            } else {
+              appliedToValue = item?.entityId;
+            }
+          }
 
-      return {
-        key: index,
-        workflow_name: item?.name ? item?.name : '-',
-        applied_to: appliedToValue,
+          return {
+            key: index,
+            workflow_name: item?.name ? item?.name : '-',
+            applied_to: appliedToValue,
 
-        assigned: (
-          <div
-            className="flex flex-col gap-2 max-h-20 overflow-y-auto"
-            style={{
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              overflow: 'hidden',
-              overflowY: 'scroll',
-            }}
-          >
-            {[...(item?.approvers ?? [])]
-              .sort((a, b) => a.stepOrder - b.stepOrder)
-              ?.map((employee: any, empIndex: number) => {
-                const employeeInfo = getEmployeeInformation(employee?.userId);
-                const firstName = employeeInfo?.firstName || '';
-                const middleName = employeeInfo?.middleName || '';
-                const email = employeeInfo?.email || '';
+            assigned: (
+              <div
+                className="flex flex-col gap-2 max-h-20 overflow-y-auto"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  overflow: 'hidden',
+                  overflowY: 'scroll',
+                }}
+              >
+                {[...(item?.approvers ?? [])]
+                  .sort((a, b) => a.stepOrder - b.stepOrder)
+                  ?.map((employee: any, empIndex: number) => {
+                    const employeeInfo = getEmployeeInformation(
+                      employee?.userId,
+                    );
+                    const firstName = employeeInfo?.firstName || '';
+                    const middleName = employeeInfo?.middleName || '';
+                    const email = employeeInfo?.email || '';
 
-                const fullName =
-                  firstName && middleName
-                    ? `${firstName} ${middleName}`
-                    : firstName || middleName || 'Unknown User';
+                    const fullName =
+                      firstName && middleName
+                        ? `${firstName} ${middleName}`
+                        : firstName || middleName || 'Unknown User';
 
-                const displayName =
-                  fullName?.length > MAX_NAME_LENGTH
-                    ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
-                    : fullName;
-                const displayEmail =
-                  email?.length > MAX_EMAIL_LENGTH
-                    ? email.slice(0, MAX_EMAIL_LENGTH) + '...'
-                    : email;
+                    const displayName =
+                      fullName?.length > MAX_NAME_LENGTH
+                        ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
+                        : fullName;
+                    const displayEmail =
+                      email?.length > MAX_EMAIL_LENGTH
+                        ? email.slice(0, MAX_EMAIL_LENGTH) + '...'
+                        : email;
 
-                return (
-                  <Tooltip
-                    key={empIndex}
-                    title={
-                      <div>
-                        {fullName}
-                        <br />
-                        {email}
-                      </div>
-                    }
-                  >
-                    <div className="flex items-center flex-wrap sm:flex-row gap-2">
-                      <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                        <Image
-                          src={
-                            employeeInfo?.profileImage &&
-                            typeof employeeInfo.profileImage === 'string'
-                              ? (() => {
-                                  try {
-                                    const parsed = JSON.parse(
-                                      employeeInfo.profileImage,
-                                    );
-                                    return parsed.url &&
-                                      parsed.url.startsWith('http')
-                                      ? parsed.url
-                                      : Avatar;
-                                  } catch {
-                                    return employeeInfo.profileImage.startsWith(
-                                      'http',
-                                    )
-                                      ? employeeInfo.profileImage
-                                      : Avatar;
-                                  }
-                                })()
-                              : Avatar
-                          }
-                          alt="Description of image"
-                          layout="fill"
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex flex-wrap flex-col justify-center">
-                        <p>{displayName}</p>
-                        <p className="font-extralight text-[12px]">
-                          {displayEmail}
-                        </p>
-                      </div>
-                    </div>
+                    return (
+                      <Tooltip
+                        key={empIndex}
+                        title={
+                          <div>
+                            {fullName}
+                            <br />
+                            {email}
+                          </div>
+                        }
+                      >
+                        <div className="flex items-center flex-wrap sm:flex-row gap-2">
+                          <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                            <Image
+                              src={
+                                employeeInfo?.profileImage &&
+                                typeof employeeInfo.profileImage === 'string'
+                                  ? (() => {
+                                      try {
+                                        const parsed = JSON.parse(
+                                          employeeInfo.profileImage,
+                                        );
+                                        return parsed.url &&
+                                          parsed.url.startsWith('http')
+                                          ? parsed.url
+                                          : Avatar;
+                                      } catch {
+                                        return employeeInfo.profileImage.startsWith(
+                                          'http',
+                                        )
+                                          ? employeeInfo.profileImage
+                                          : Avatar;
+                                      }
+                                    })()
+                                  : Avatar
+                              }
+                              alt="Description of image"
+                              layout="fill"
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex flex-wrap flex-col justify-center">
+                            <p>{displayName}</p>
+                            <p className="font-extralight text-[12px]">
+                              {displayEmail}
+                            </p>
+                          </div>
+                        </div>
+                      </Tooltip>
+                    );
+                  })}
+              </div>
+            ),
+            level: item?.approvers
+              ? item?.approvalWorkflowType == 'Parallel'
+                ? (item?.approvers ?? []).length > 0
+                  ? Math.max(
+                      ...(item?.approvers ?? []).map(
+                        (item: any) => item.stepOrder,
+                      ),
+                    )
+                  : 0
+                : item?.approvers?.length
+              : '-',
+            action: (
+              <div className="flex gap-4 text-white">
+                <AccessGuard permissions={[Permissions.CreateApprover]}>
+                  <Tooltip title={'Add Approver'}>
+                    <Button
+                      id={`editUserButton${item?.id}`}
+                      className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none "
+                      onClick={() => {
+                        setAddModal(true);
+                        setSelectedItem(item);
+                        setLevel(1);
+                        setApproverType(
+                          item?.approvalWorkflowType
+                            ? item?.approvalWorkflowType
+                            : '-',
+                        );
+                      }}
+                    >
+                      <FaPlus />
+                    </Button>
                   </Tooltip>
-                );
-              })}
-          </div>
-        ),
-        level: item?.approvers
-          ? item?.approvalWorkflowType == 'Parallel'
-            ? Math.max(
-                ...(item?.approvers ?? []).map((item: any) => item.stepOrder),
-              )
-            : item?.approvers?.length
-          : '-',
-        action: (
-          <div className="flex gap-4 text-white">
-            <AccessGuard permissions={[Permissions.CreateApprover]}>
-              <Tooltip title={'Add Approver'}>
-                <Button
-                  id={`editUserButton${item?.id}`}
-                  className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none "
-                  onClick={() => {
-                    setAddModal(true);
-                    setSelectedItem(item);
-                    setLevel(1);
-                    setApproverType(
-                      item?.approvalWorkflowType
-                        ? item?.approvalWorkflowType
-                        : '-',
-                    );
-                  }}
-                >
-                  <FaPlus />
-                </Button>
-              </Tooltip>
-            </AccessGuard>
-            <AccessGuard permissions={[Permissions.UpdateApprover]}>
-              <Tooltip title={'Edit Approver'}>
-                <Button
-                  id={`editUserButton${item?.id}`}
-                  className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none "
-                  onClick={() => {
-                    setEditModal(true);
-                    setSelectedItem(item);
-                    setLevel(item?.approvers ? item?.approvers?.length : '-');
-                    setWorkflowApplies(
-                      item?.entityType ? item?.entityType : '-',
-                    );
-                    setApproverType(
-                      item?.approvalWorkflowType
-                        ? item?.approvalWorkflowType
-                        : '-',
-                    );
-                  }}
-                >
-                  <FaPencil />
-                </Button>
-              </Tooltip>
-            </AccessGuard>
-            <AccessGuard permissions={[Permissions.DeleteApprover]}>
-              <Tooltip title={'Delete Employee'}>
-                <Button
-                  id={`deleteUserButton${item?.id}`}
-                  className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none "
-                  onClick={() => {
-                    setDeleteModal(true);
-                    setDeletedItem(item?.id);
-                  }}
-                >
-                  <RiDeleteBin6Line />
-                </Button>
-              </Tooltip>
-            </AccessGuard>
-          </div>
-        ),
-      };
-    });
+                </AccessGuard>
+                <AccessGuard permissions={[Permissions.UpdateApprover]}>
+                  <Tooltip title={'Edit Approver'}>
+                    <Button
+                      id={`editUserButton${item?.id}`}
+                      className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none "
+                      onClick={() => {
+                        setEditModal(true);
+                        setSelectedItem(item);
+                        setLevel(
+                          item?.approvers ? item?.approvers?.length : '-',
+                        );
+                        setWorkflowApplies(
+                          item?.entityType ? item?.entityType : '-',
+                        );
+                        setApproverType(
+                          item?.approvalWorkflowType
+                            ? item?.approvalWorkflowType
+                            : '-',
+                        );
+                      }}
+                    >
+                      <FaPencil />
+                    </Button>
+                  </Tooltip>
+                </AccessGuard>
+                <AccessGuard permissions={[Permissions.DeleteApprover]}>
+                  <Tooltip title={'Delete Employee'}>
+                    <Button
+                      id={`deleteUserButton${item?.id}`}
+                      className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none "
+                      onClick={() => {
+                        setDeleteModal(true);
+                        setDeletedItem(item?.id);
+                      }}
+                    >
+                      <RiDeleteBin6Line />
+                    </Button>
+                  </Tooltip>
+                </AccessGuard>
+              </div>
+            ),
+          };
+        })
+      : [];
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
     if (pageSize) {
