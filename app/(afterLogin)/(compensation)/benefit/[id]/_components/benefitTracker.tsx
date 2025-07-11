@@ -80,13 +80,15 @@ const BenefitTracking = () => {
       className="px-4 max-w-5xl mx-auto bg-white"
     >
       <div className="grid gap-4 text-sm my-3">
-        <div className="grid grid-cols-2 items-center gap-2">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Full Name</span>
-          <div className="font-medium">
-            <EmployeeDetails empId={employeeEntitlementData?.employeeId} />
+          <div className="font-medium max-w-[150px] sm:max-w-none">
+            <div className="truncate">
+              <EmployeeDetails empId={employeeEntitlementData?.employeeId} />
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 items-center gap-2">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Total Amount Take</span>
           <div className="font-medium">
             {Number(
@@ -97,7 +99,7 @@ const BenefitTracking = () => {
             )?.toLocaleString()}
           </div>
         </div>
-        <div className="grid grid-cols-2 items-center gap-2">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Expected pay per period</span>
           <div className="font-medium">
             {Number(
@@ -106,14 +108,14 @@ const BenefitTracking = () => {
             )?.toLocaleString()}
           </div>
         </div>
-        <div className="grid grid-cols-2 items-center gap-2">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Period</span>
           <div className="font-medium">
             {dayjs(earliestStart).format('MMM DD, YYYY')} -{' '}
             {dayjs(latestEnd).format('MMM DD, YYYY')}
           </div>
         </div>
-        <div className="grid grid-cols-2 items-center gap-2">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Total paid amount</span>
           <div className="text-green-600 font-medium">
             {Number(
@@ -126,7 +128,7 @@ const BenefitTracking = () => {
             )?.toLocaleString()}
           </div>
         </div>
-        <div className="grid grid-cols-2 items-center gap-2">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Remaining amount</span>
           <div className="text-yellow-500 font-medium">
             {Number(
@@ -144,83 +146,103 @@ const BenefitTracking = () => {
       <Divider className="my-4" />
       <h3 className="text-sm font-light mb-2">Paid Back</h3>
 
-      <Form form={form} layout="vertical">
-        <Form.List name="benefits">
-          {(fields) => (
-            <Table
-              dataSource={fields}
-              columns={[
-                {
-                  title: 'Date',
-                  dataIndex: 'date',
-                  key: 'date',
-                  render: (notused, notuseds, index) => (
-                    <Form.Item name={[index, 'createdAt']} className="mb-0">
-                      <span>
-                        {dayjs(paginatedTracking?.[index]?.createdAt).format(
-                          'MMM DD, YYYY',
-                        )}
-                      </span>
-                    </Form.Item>
-                  ),
-                },
-                {
-                  title: 'Paid Amount',
-                  dataIndex: 'amount',
-                  key: 'amount',
-                  render: (notused, notuseds, index) => (
-                    <Form.Item name={[index, 'amount']} className="mb-0">
-                      <span>
-                        {Number(
-                          paginatedTracking?.[index]?.amount,
-                        )?.toLocaleString()}
-                      </span>
-                    </Form.Item>
-                  ),
-                },
-                {
-                  title: 'Pay Period',
-                  dataIndex: 'payPeriodId',
-                  key: 'payPeriodId',
-                  render: (notused, notuseds, index) => (
-                    <Form.Item
-                      name={[index, 'payPeriodId']}
-                      className="mb-0 w-60"
-                    >
-                      <Select
-                        placeholder="Select Period"
-                        allowClear
-                        className="w-60"
-                        loading={payLoading}
-                        disabled={paginatedTracking?.[index]?.isPaid}
-                      >
-                        {payPeriods?.map((period: any) => (
-                          <Option key={period.id} value={period.id}>
-                            {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
-                            {dayjs(period.endDate).format('MMM DD, YYYY')}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  ),
-                },
-                {
-                  title: 'Reason',
-                  dataIndex: 'reason',
-                  key: 'reason',
-                  render: (notused, notuseds, index) => (
-                    <Form.Item name={[index, 'reason']} className="mb-0">
-                      <span>{paginatedTracking?.[index]?.reason || '-'}</span>
-                    </Form.Item>
-                  ),
-                },
-              ]}
-              pagination={false}
-              rowKey={(field) => field.key}
-            />
-          )}
-        </Form.List>
-      </Form>
+      <div className="overflow-x-auto scrollbar-hide">
+        <div className="min-w-[600px] sm:min-w-[700px] md:min-w-[800px]">
+          <Form form={form} layout="vertical">
+            <Form.List name="benefits">
+              {(fields) => (
+                <Table
+                  dataSource={fields}
+                  columns={[
+                    {
+                      title: 'Date',
+                      dataIndex: 'date',
+                      key: 'date',
+                      width: 100,
+                      fixed: 'left',
+                      render: (notused, notuseds, index) => (
+                        <Form.Item name={[index, 'createdAt']} className="mb-0">
+                          <span className="text-xs sm:text-sm">
+                            {dayjs(
+                              paginatedTracking?.[index]?.createdAt,
+                            ).format('MMM DD, YYYY')}
+                          </span>
+                        </Form.Item>
+                      ),
+                    },
+                    {
+                      title: 'Paid Amount',
+                      dataIndex: 'amount',
+                      key: 'amount',
+                      width: 100,
+                      render: (notused, notuseds, index) => (
+                        <Form.Item name={[index, 'amount']} className="mb-0">
+                          <span className="text-xs sm:text-sm">
+                            {Number(
+                              paginatedTracking?.[index]?.amount,
+                            )?.toLocaleString()}
+                          </span>
+                        </Form.Item>
+                      ),
+                    },
+                    {
+                      title: 'Pay Period',
+                      dataIndex: 'payPeriodId',
+                      key: 'payPeriodId',
+                      width: 180,
+                      render: (notused, notuseds, index) => (
+                        <Form.Item
+                          name={[index, 'payPeriodId']}
+                          className="mb-0"
+                        >
+                          <Select
+                            placeholder="Select Period"
+                            allowClear
+                            className="w-full"
+                            loading={payLoading}
+                            disabled={paginatedTracking?.[index]?.isPaid}
+                            size="small"
+                          >
+                            {payPeriods?.map((period: any) => (
+                              <Option key={period.id} value={period.id}>
+                                <span className="text-xs sm:text-sm">
+                                  {dayjs(period.startDate).format(
+                                    'MMM DD, YYYY',
+                                  )}{' '}
+                                  –{' '}
+                                  {dayjs(period.endDate).format('MMM DD, YYYY')}
+                                </span>
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      ),
+                    },
+                    {
+                      title: 'Reason',
+                      dataIndex: 'reason',
+                      key: 'reason',
+                      width: 120,
+                      render: (notused, notuseds, index) => (
+                        <Form.Item name={[index, 'reason']} className="mb-0">
+                          <span className="text-xs sm:text-sm">
+                            {paginatedTracking?.[index]?.reason || '-'}
+                          </span>
+                        </Form.Item>
+                      ),
+                    },
+                  ]}
+                  pagination={false}
+                  rowKey={(field) => field.key}
+                  scroll={{ x: 'max-content' }}
+                  size="small"
+                  style={{ fontSize: '12px' }}
+                />
+              )}
+            </Form.List>
+          </Form>
+        </div>
+      </div>
 
       <div className="flex justify-between items-center my-6">
         <Pagination
