@@ -93,10 +93,7 @@ const LeaveManagement = () => {
     <>
       <div className="h-auto w-auto pb-6 bg-white rounded-lg">
         <BlockWrapper className="bg-white p-2">
-          <PageHeader
-            title="Leave Management"
-            horizontalPadding="px-0"
-          >
+          <PageHeader title="Leave Management" horizontalPadding="px-0">
             <Space size={20}>
               <CustomButton
                 title={!isSmallScreen ? 'Email Reminder' : ' '} // Hide text on small screens

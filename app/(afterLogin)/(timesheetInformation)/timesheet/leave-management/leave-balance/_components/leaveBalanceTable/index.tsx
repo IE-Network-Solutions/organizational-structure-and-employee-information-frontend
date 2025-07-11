@@ -115,17 +115,16 @@ const LeaveBalanceTable: React.FC = () => {
       {leaveBalanceData && (
         <EmpRender userId={leaveBalanceData?.items?.items?.[0]?.userId} />
       )}
-       <div className="flex overflow-x-auto scrollbar-none w-full bg-[#fafafa]">
-
-      <Table
-        className="mt-2"
-        columns={columns}
-        dataSource={dataSource}
-        loading={leaveBalanceIsLoading}
-        locale={{
-          emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
-        }}
-      />
+      <div className="flex overflow-x-auto scrollbar-none w-full bg-[#fafafa]">
+        <Table
+          className="mt-2"
+          columns={columns}
+          dataSource={dataSource}
+          loading={leaveBalanceIsLoading}
+          locale={{
+            emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
+          }}
+        />
       </div>
     </>
   );
