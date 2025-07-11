@@ -142,11 +142,8 @@ const CourseAddLessonSidebar = () => {
       ?.map((lesson) => ({
         label: lesson.title || 'Untitled Lesson',
         value: lesson.order,
-        // key: `lesson-${lesson.order}`,
         key: `lesson-${lesson.order}`,
       })) || []),
-
-
   ];
   const onFinish = () => {
     const value = form.getFieldsValue();

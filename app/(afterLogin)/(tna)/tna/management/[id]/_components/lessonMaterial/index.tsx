@@ -95,9 +95,11 @@ const CourseLessonMaterial = () => {
       ?.sort((a, b) => a.order - b.order)
       .map((material, index) => ({
         label: material.title || 'Untitled', // Fallback for missing titles
-        value: index + 1, // Use index+1 for unique values
-        key: `material-${material.order}-${index + 1}`, // Use unique keys
+        value:material.order, // Use index+1 for unique values
+        key: `material-${material.order}`, // Use unique keys
       }));
+
+    
 
     return [defaultOption, ...materialOptions];
   };
