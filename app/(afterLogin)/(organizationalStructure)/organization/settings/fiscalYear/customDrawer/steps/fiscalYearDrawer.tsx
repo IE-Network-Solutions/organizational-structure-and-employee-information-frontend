@@ -14,9 +14,9 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { FormInstance } from 'antd/lib';
 
-const FiscalYearForm: React.FC = () => {
-  const [form] = Form.useForm();
+const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
   const { isMobile } = useIsMobile();
 
   const {
@@ -165,7 +165,16 @@ const FiscalYearForm: React.FC = () => {
     try {
       const currentValues = form.getFieldsValue();
       setFiscalYearFormValues(currentValues);
-      setCurrent(1);
+      if (currentValues.fiscalYearStartDate)
+        setFiscalYearStart(currentValues.fiscalYearStartDate);
+      if (currentValues.fiscalYearEndDate)
+        setFiscalYearEnd(currentValues.fiscalYearEndDate);
+      if (currentValues.fiscalYearCalenderId)
+        setCalendarType(currentValues.fiscalYearCalenderId);
+      // Wait for state to update before moving to next step
+      setTimeout(() => {
+        setCurrent(1);
+      }, 0);
     } catch (error) {
       message.error('Failed to proceed to next step. Please try again.');
     }
@@ -175,7 +184,25 @@ const FiscalYearForm: React.FC = () => {
 
   useEffect(() => {
     try {
-      if (isEditMode && selectedFiscalYear) {
+      // Priority 1: If we have stored form values (returning from next step), restore them
+      if (Object.keys(fiscalYearFormValues).length > 0) {
+        form.setFieldsValue(fiscalYearFormValues);
+        setCalendarType(fiscalYearFormValues.fiscalYearCalenderId || '');
+        setFormValidation({
+          fiscalYearName: fiscalYearFormValues.fiscalYearName,
+          fiscalYearStartDate: fiscalYearFormValues.fiscalYearStartDate,
+          fiscalYearEndDate: fiscalYearFormValues.fiscalYearEndDate,
+        });
+        // Set fiscal year dates in store for session generation
+        if (fiscalYearFormValues.fiscalYearStartDate) {
+          setFiscalYearStart(fiscalYearFormValues.fiscalYearStartDate);
+        }
+        if (fiscalYearFormValues.fiscalYearEndDate) {
+          setFiscalYearEnd(fiscalYearFormValues.fiscalYearEndDate);
+        }
+      }
+      // Priority 2: If in edit mode and no stored values, initialize with original data
+      else if (isEditMode && selectedFiscalYear) {
         const sessionCount = selectedFiscalYear?.sessions?.length;
         let newCalendarType = '';
         if (sessionCount >= 4) {
@@ -203,24 +230,9 @@ const FiscalYearForm: React.FC = () => {
           fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
           fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
         });
-      } else if (!isEditMode && Object.keys(fiscalYearFormValues).length > 0) {
-        // If we have stored form values (returning from next step), restore them
-        form.setFieldsValue(fiscalYearFormValues);
-        setCalendarType(fiscalYearFormValues.fiscalYearCalenderId || '');
-        setFormValidation({
-          fiscalYearName: fiscalYearFormValues.fiscalYearName,
-          fiscalYearStartDate: fiscalYearFormValues.fiscalYearStartDate,
-          fiscalYearEndDate: fiscalYearFormValues.fiscalYearEndDate,
-        });
-        // Set fiscal year dates in store for session generation
-        if (fiscalYearFormValues.fiscalYearStartDate) {
-          setFiscalYearStart(fiscalYearFormValues.fiscalYearStartDate);
-        }
-        if (fiscalYearFormValues.fiscalYearEndDate) {
-          setFiscalYearEnd(fiscalYearFormValues.fiscalYearEndDate);
-        }
-      } else if (!isEditMode) {
-        // Reset form when in create mode and no stored values
+      }
+      // Priority 3: Reset form when in create mode and no stored values
+      else if (!isEditMode && Object.keys(fiscalYearFormValues).length === 0) {
         form.resetFields();
         setCalendarType('');
         setFormValidation({
@@ -267,6 +279,20 @@ const FiscalYearForm: React.FC = () => {
     }
   }, [formValidation, setIsFormValid, calendarType, form]);
 
+  // Always sync form values to store so month drawer gets latest values
+  useEffect(() => {
+    const values = form.getFieldsValue();
+    if (values.fiscalYearStartDate)
+      setFiscalYearStart(values.fiscalYearStartDate);
+    if (values.fiscalYearEndDate) setFiscalYearEnd(values.fiscalYearEndDate);
+    if (values.fiscalYearCalenderId)
+      setCalendarType(values.fiscalYearCalenderId);
+  }, [
+    form.getFieldValue('fiscalYearStartDate'),
+    form.getFieldValue('fiscalYearEndDate'),
+    form.getFieldValue('fiscalYearCalenderId'),
+  ]);
+
   return (
     <div className="flex flex-col h-[calc(50vh)] md:h-[calc(100vh-100px)]">
       <Form
@@ -279,6 +305,17 @@ const FiscalYearForm: React.FC = () => {
               fiscalYearStartDate: allValues.fiscalYearStartDate,
               fiscalYearEndDate: allValues.fiscalYearEndDate,
             });
+
+            setFiscalYearFormValues(allValues);
+
+            // --- Add these lines ---
+            if (allValues.fiscalYearStartDate)
+              setFiscalYearStart(allValues.fiscalYearStartDate);
+            if (allValues.fiscalYearEndDate)
+              setFiscalYearEnd(allValues.fiscalYearEndDate);
+            if (allValues.fiscalYearCalenderId)
+              setCalendarType(allValues.fiscalYearCalenderId);
+            // -----------------------
 
             // Check form validity immediately when values change
             const isValid = Boolean(
@@ -401,6 +438,7 @@ const FiscalYearForm: React.FC = () => {
                   className="h-12 w-full font-normal text-xl mt-2"
                   onChange={(value) => handleValuesChange(value)}
                   value={isEditMode ? calendarType : undefined}
+                  disabled={isEditMode}
                 >
                   <Select.Option value="Quarter">Quarter</Select.Option>
                   <Select.Option value="Semester">Semester</Select.Option>

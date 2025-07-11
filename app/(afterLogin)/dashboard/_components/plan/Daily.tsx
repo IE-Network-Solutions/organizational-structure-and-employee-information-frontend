@@ -54,14 +54,14 @@ const Daily = ({
     <div className="h-[350px] overflow-y-auto scrollbar-track-primary scrollbar-none">
       {planTaskArray?.length > 0 ? (
         planTaskArray?.map((item: any) => (
-          <div key={item?.parentTaskId} className="flex flex-col gap-2  p-2">
-            <div className="text-base font-bold flex gap-3 items-center ">
+          <div key={item?.parentTaskId} className="flex flex-col  pb-3">
+            <div className="text-base font-bold flex gap-3 pb-3 items-center ">
               <MdOutlineRadioButtonChecked className="text-primary" />
               {item?.parentTask?.[0]?.parentTask?.task}
             </div>
             <div className="">
               {item?.parentTask?.map((task: any) => (
-                <div className="" key={task?.id}>
+                <div className=" pb-2" key={task?.id}>
                   <Checkbox
                     checked={task?.status == 'pre-achieved'}
                     onChange={() =>
@@ -70,9 +70,9 @@ const Daily = ({
                     disabled={task?.status == 'completed'}
                   >
                     <div
-                      className={`text-base font-medium text-gray-500 ${
+                      className={`text-base font-medium text-slate-500 ${
                         task?.status == 'pre-achieved'
-                          ? 'line-through text-gray-400'
+                          ? 'line-through text-slate-400'
                           : ''
                       }`}
                     >
