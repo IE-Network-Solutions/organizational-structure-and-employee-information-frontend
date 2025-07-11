@@ -34,21 +34,26 @@ const LeaveBalance = () => {
   };
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3">
-      <BlockWrapper>
-        <PageHeader title="Leave Balance">
-          <div className="pb-4">
+    <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-white rounded-lg">
+      <BlockWrapper className="bg-white p-2">
+        <div className='mb-2 flex justify-between'>
+        <PageHeader 
+        title="Leave Balance"
+        horizontalPadding='px-0'
+        > 
+        </PageHeader>
+        <div className="">
             <DownloadLeaveBalance />
           </div>
-          <Space size={20}>
-            <div className=""></div>
-            <Form form={form} className=" flex gap-2">
-              <Form.Item id="filterByLeaveRequestUserIds" name="userId">
+        </div>
+        <div>
+            <Form form={form} className=" flex justify-between gap-2">
+              <Form.Item id="filterByLeaveRequestUserIds" name="userId" className="w-1/2">
                 <Select
                   showSearch
                   onChange={handleChange}
                   placeholder="Select a person"
-                  className="w-full h-[54px]"
+                  className="w-full h-[40px]"
                   allowClear
                   loading={usersLoading}
                   optionFilterProp="label"
@@ -65,12 +70,13 @@ const LeaveBalance = () => {
                 <Form.Item
                   id="filterByLeaveRequestLeaveTypeIds"
                   name="LeaveTypeId"
+                  className="w-1/2"
                 >
                   <Select
                     showSearch
                     onChange={handleLeaveChange}
                     placeholder="Select a Leave Type"
-                    className="w-full h-[54px]"
+                    className="w-full h-[40px]"
                     allowClear
                     optionFilterProp="label"
                     options={leaveTypes?.items?.map((list: any) => ({
@@ -81,8 +87,7 @@ const LeaveBalance = () => {
                 </Form.Item>
               )}
             </Form>
-          </Space>
-        </PageHeader>
+          </div>
         <LeaveBalanceTable />
       </BlockWrapper>
     </div>

@@ -106,17 +106,19 @@ const LeaveBalanceTable: React.FC = () => {
       carriedOver: parseFloat(item?.carriedOver.toFixed(1)) || 0,
       totalBalance: parseFloat(item?.totalBalance.toFixed(1)) || 0,
       utilizedLeave: parseFloat(item?.utilizedLeave.toFixed(1)) || 0,
-      cashValue,
+      cashValue: parseFloat(cashValue.toFixed(2)),
     };
   });
 
   return (
     <>
       {leaveBalanceData && (
-        <EmpRender userId={leaveBalanceData?.items?.[0]?.userId} />
+        <EmpRender userId={leaveBalanceData?.items?.items?.[0]?.userId} />
       )}
+       <div className="flex overflow-x-auto scrollbar-none w-full bg-[#fafafa]">
+
       <Table
-        className="mt-6"
+        className="mt-2"
         columns={columns}
         dataSource={dataSource}
         loading={leaveBalanceIsLoading}
@@ -124,6 +126,7 @@ const LeaveBalanceTable: React.FC = () => {
           emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
         }}
       />
+      </div>
     </>
   );
 };
