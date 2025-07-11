@@ -14,7 +14,7 @@ if (typeof window !== 'undefined') {
     if (config.data && typeof config.data === 'object') {
       try {
         const encryptedPayload = await encrypt(JSON.stringify(config.data));
-        config.data = { body: encryptedPayload };
+        config.data = { encryptedPayload };
       } catch (err) {
         throw err;
       }
