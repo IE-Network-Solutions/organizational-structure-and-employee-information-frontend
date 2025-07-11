@@ -10,6 +10,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useDashboardStore } from '@/store/uistate/features/dashboard';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AccessGuard from '@/utils/permissionGuard';
+import CustomDashboardModal from './_components/customDashbordModal';
 
 export default function Home() {
   useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
@@ -58,21 +59,28 @@ export default function Home() {
           ''
         )}
       </div>
-      {isMobile || isTablet ? isOpen ? null : <Header /> : <Header />}
+      <Header />
       {isMobile || isTablet ? (
-        <div className="grid grid-cols-1 ">
+        <div className="grid grid-cols-1 pb-3">
           {isOpen ? (
-            <div className="col-span-12 ">
-              <RightBar />
-            </div>
+            <CustomDashboardModal
+              open={isOpen}
+              onClose={showAnnouncements}
+              width="400px"
+            >
+              <div className="col-span-12 ">
+                <RightBar />
+              </div>
+            </CustomDashboardModal>
           ) : (
-            <div className="col-span-12  ">
-              <LeftBar />
-            </div>
+            ''
           )}
+          <div className="col-span-12  ">
+            <LeftBar />
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-12 gap-4">
+        <div className="grid grid-cols-12 gap-4 pb-5">
           <div className="col-span-8">
             <LeftBar />
           </div>
