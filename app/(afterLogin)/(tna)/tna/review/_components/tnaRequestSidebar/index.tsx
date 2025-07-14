@@ -116,27 +116,26 @@ const TnaRequestSidebar = () => {
     form.submit();
   };
 
-const footerModalItems: CustomDrawerFooterButtonProps[] = [
-  {
-    label: 'Cancel',
-    key: 'cancel',
-    className: 'h-12',
-    size: 'large',
-    loading: isLoading || isTnaFetching,
-    onClick: () => onClose(),
-  },
-  {
-    label: 'Request',
-    key: 'request',
-    className: 'h-12',
-    type: 'primary',
-    size: 'large',
-    loading: isLoading || isTnaFetching,
-    onClick: () => onSubmit(),  
-  },
-];
+  const footerModalItems: CustomDrawerFooterButtonProps[] = [
+    {
+      label: 'Cancel',
+      key: 'cancel',
+      className: 'h-12',
+      size: 'large',
+      loading: isLoading || isTnaFetching,
+      onClick: () => onClose(),
+    },
+    {
+      label: 'Request',
+      key: 'request',
+      className: 'h-12',
+      type: 'primary',
+      size: 'large',
+      loading: isLoading || isTnaFetching,
+      onClick: () => onSubmit(),
+    },
+  ];
 
- 
   const onFinish = () => {
     const value = form.getFieldsValue(); // Get form values
 
