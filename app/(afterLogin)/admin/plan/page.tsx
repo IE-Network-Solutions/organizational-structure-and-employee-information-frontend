@@ -922,8 +922,10 @@ const PlanPage = () => {
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
                     <span>
                       Total Amount for{' '}
-                      {(updatedQuota || 0) -
-                        (activeSubscription?.slotTotal || 0)}{' '}
+                      {activeSubscription
+                        ? (updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)
+                        : updatedQuota || 0}{' '}
                       User Quota
                     </span>
                     <span>
@@ -1138,7 +1140,7 @@ const PlanPage = () => {
         return null;
     }
   };
-  console.log(updatedSubscriptionValue, "updatedSubscriptionValue")
+  console.log({ updatedSubscriptionValue, updatedQuota }, "updatedSubscriptionValue")
   return (
 
     <div className="h-auto w-auto px-6 py-6">
