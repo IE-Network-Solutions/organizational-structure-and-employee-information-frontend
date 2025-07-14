@@ -15,6 +15,7 @@ export enum CheckStatus {
 type MyTimesheetState = {
   filter: Partial<LeaveRequestBody['filter']>;
   isShowViewSidebar: boolean;
+  isShowViewSidebarAttendance: boolean;
   isShowLeaveRequestSidebar: boolean;
   isLoading: boolean;
   isShowLeaveRequestDetail: boolean;
@@ -37,6 +38,9 @@ type MyTimesheetState = {
 type MyTimesheetAction = {
   setFilter: (filter: Partial<LeaveRequestBody['filter']>) => void;
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
+  setIsShowViewSidebarAttendance: (
+    isShowViewSidebarAttendance: boolean,
+  ) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
@@ -68,6 +72,11 @@ const useMyTimesheetSlice: StateCreator<
   isShowViewSidebar: false,
   setIsShowViewSidebar: (isShowViewSidebar) => {
     set({ isShowViewSidebar });
+  },
+
+  isShowViewSidebarAttendance: false,
+  setIsShowViewSidebarAttendance: (isShowViewSidebarAttendance) => {
+    set({ isShowViewSidebarAttendance });
   },
 
   isShowLeaveRequestSidebar: false,
