@@ -68,7 +68,6 @@ const TwoFactorAuth = () => {
         values: {
           email: user2FA.email,
           pass: user2FA.pass,
-          recaptchaToken: user2FA.recaptchaToken,
         },
       },
       {
