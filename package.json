@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.0",
+    "@react-pdf/renderer": "^4.3.0",
     "@tiptap/extension-bubble-menu": "^2.12.0",
     "@tiptap/extension-floating-menu": "^2.12.0",
     "@tiptap/extension-link": "^2.12.0",
@@ -26,6 +27,7 @@
     "@tiptap/extension-underline": "^2.12.0",
     "@tiptap/react": "^2.12.0",
     "@tiptap/starter-kit": "^2.12.0",
+    "@types/react-pdf": "^7.0.0",
     "antd": "^5.20.5",
     "axios": "^1.7.2",
     "chart.js": "^4.4.4",
