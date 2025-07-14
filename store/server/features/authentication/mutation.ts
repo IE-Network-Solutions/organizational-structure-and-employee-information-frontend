@@ -3,7 +3,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
-interface Get2FACodeProps {
+export interface Get2FACodeProps {
   email: string;
   pass: string;
 }
