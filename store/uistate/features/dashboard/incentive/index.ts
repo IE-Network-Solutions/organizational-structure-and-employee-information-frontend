@@ -6,6 +6,8 @@ interface UserState {
   setRecognitionType: (recognitionType: string | '') => void;
   status: boolean | null;
   setStatus: (status: boolean | null) => void;
+  isShowMobileFilters: boolean;
+  setIsShowMobileFilters: (isShowMobileFilters: boolean) => void;
 }
 export const useDashboardIncentiveStore = create<UserState>()(
   devtools((set) => ({
@@ -14,5 +16,8 @@ export const useDashboardIncentiveStore = create<UserState>()(
       set({ recognitionType: recognitionType }),
     status: null,
     setStatus: (status: boolean | null) => set({ status: status }),
+    isShowMobileFilters: false,
+    setIsShowMobileFilters: (isShowMobileFilters: boolean) =>
+      set({ isShowMobileFilters: isShowMobileFilters }),
   })),
 );

@@ -1,7 +1,7 @@
 // components/CardList.tsx
 import { FC, useState } from 'react';
 import { Avatar, Button } from 'antd';
-import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { BirthDayData } from '@/store/server/features/dashboard/birthday/queries';
 import { WorkAnniversaryData } from '@/store/server/features/dashboard/work-anniversary/queries';
 import { UserOutlined } from '@ant-design/icons';
@@ -38,14 +38,14 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
         {title}
       </div>
 
-      <div className="overflow-x-auto min-h-20 scrollbar-none m-2">
+      <div className=" min-h-20 m-2 flex items-center justify-center">
         {visibleCards?.length > 0 ? (
-          <div className="flex flex-row gap-3 px-3 items-center">
+          <div className="flex flex-row gap-1 2xl:gap-3 2xl:px-3 items-center ">
             {totalCards > cardsPerPage && currentPersonIndex > 0 ? (
               <Button
                 onClick={handlePrevious}
-                icon={<FaAngleLeft />}
-                className="bg-light_purple w-5 h-5 rounded-full flex items-center justify-center border-none"
+                icon={<FaArrowLeft />}
+                className="bg-gray-100 w-5 h-5 rounded-full flex items-center justify-center border-none"
               />
             ) : (
               <div className="w-5"></div>
@@ -53,22 +53,22 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
 
             {visibleCards?.map((item: any, index: number) => (
               <div
-                className="flex flex-col items-center gap-2 min-w-24"
+                className="flex flex-col items-center 2xl:gap-1 2xl:min-w-24 "
                 key={index}
               >
                 {item?.user?.profileImage ? (
                   <Avatar
                     src={item?.user?.profileImage}
                     alt={`${item?.user?.firstName || ''}`}
-                    className="w-16 h-16 rounded-full"
+                    className="w-10 2xl:w-16 h-10 2xl:h-16 rounded-full"
                   />
                 ) : (
                   <Avatar
                     icon={<UserOutlined size={40} />}
-                    className="w-16 h-16 rounded-full"
+                    className="w-10 2xl:w-16 h-10 2xl:h-16 rounded-full"
                   />
                 )}
-                <p className="font-normal text-center text-sm">
+                <p className="font-normal text-center text-[11px]">
                   {`${item?.user?.firstName || ''} ${item?.user?.middleName || ''}`}
                 </p>
               </div>
@@ -77,15 +77,15 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
             {totalCards > cardsPerPage && currentPersonIndex < maxIndex ? (
               <Button
                 onClick={handleNext}
-                icon={<FaAngleRight />}
-                className="bg-light_purple w-5 h-5 rounded-full flex items-center justify-center border-none"
+                icon={<FaArrowRight />}
+                className="bg-gray-100 w-5 h-5 rounded-full flex items-center justify-center border-none"
               />
             ) : (
               <div className="w-5"></div>
             )}
           </div>
         ) : (
-          <div className="text-sm font-light flex h-full justify-center items-center ">
+          <div className="text-sm font-light flex min-h-20 justify-center items-center ">
             No {type} today
           </div>
         )}
