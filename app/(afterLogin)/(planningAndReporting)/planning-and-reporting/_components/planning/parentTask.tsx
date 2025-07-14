@@ -5,7 +5,6 @@ import { FaStar } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 const { Text } = Typography;
 
-
 const getPriorityColor = (priority: string) => {
   switch (priority) {
     case 'high':
@@ -17,10 +16,9 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
-
 const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
-const {isMobile} = useIsMobile();
-  
+  const { isMobile } = useIsMobile();
+
   const generateTreeData = (tasks: any[]): any[] => {
     return tasks.map((task, index) => ({
       title: (

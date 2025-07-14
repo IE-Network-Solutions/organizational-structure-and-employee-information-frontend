@@ -27,11 +27,10 @@ export default function MeetingHeader({
       updateInstance(
         <QueryClientProvider client={queryClient}>
           <MomTemplate meetingData={meetingData} />
-        </QueryClientProvider>
+        </QueryClientProvider>,
       );
     }
   }, [meetingData, updateInstance, queryClient]);
-
 
   const handleDownload = () => {
     if (instance.url && !instance.loading && !instance.error) {
@@ -43,7 +42,6 @@ export default function MeetingHeader({
       document.body.removeChild(link);
     }
   };
-
   return (
     <Card
       bodyStyle={{ padding: 0 }}
@@ -66,6 +64,7 @@ export default function MeetingHeader({
           className="h-8 sm:h-10 w-full sm:w-auto text-xs sm:text-sm"
           onClick={handleDownload}
           disabled={instance.loading || !meetingData}
+          loading={instance.loading}
         >
           MoM
         </Button>

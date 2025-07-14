@@ -47,7 +47,9 @@ const CourseLesson = () => {
       key: String(lesson.id),
       label: (
         <div className="flex items-center justify-between w-full">
-          <span className="text-lg font-semibold text-gray-900">{lesson.title}</span>
+          <span className="text-lg font-semibold text-gray-900">
+            {lesson.title}
+          </span>
           {activeKey === String(lesson.id) && (
             <div className="flex items-center gap-2">
               <Button
