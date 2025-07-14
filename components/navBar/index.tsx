@@ -690,7 +690,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
   const { data: departments } = useGetDepartments();
   const { data: employeeData } = useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
+  const { setIsNavBarJobInfoModalVisible, setNavBarJobInfoModalWidth } =
     useEmployeeManagementStore();
   useEffect(() => {
     if (!departments || !employeeData) return;
@@ -701,8 +701,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       !employeeData.employeeJobInformation ||
       employeeData.employeeJobInformation.length === 0
     ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
+      setIsNavBarJobInfoModalVisible(true);
+      setNavBarJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router]);
 
@@ -1083,6 +1083,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               handleUserInfoUpdate();
             }}
             id={userId}
+            isNavBarModal={true}
           />
         </Content>
       </Layout>
