@@ -146,10 +146,10 @@ const CourseAddLessonSidebar = () => {
     { label: 'Create at the end', value: 0 },
     ...(course?.courseLessons
       ?.sort((a, b) => a.order - b.order)
-      ?.map((lesson,index) => ({
+      ?.map((lesson) => ({
         label: lesson.title || 'Untitled Lesson',
-        value: index+1,
-        key: `lesson-${lesson.order}-${index+1}`,
+        value: lesson.order,
+        key: `lesson-${lesson.order}`,
       })) || []),
   ];
 
