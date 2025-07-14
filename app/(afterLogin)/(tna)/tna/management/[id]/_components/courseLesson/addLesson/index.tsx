@@ -153,7 +153,6 @@ const CourseAddLessonSidebar = () => {
       })) || []),
   ];
 
- 
   const onFinish = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -169,8 +168,6 @@ const CourseAddLessonSidebar = () => {
   };
 
   return (
-
-   
     isShow && (
       <CustomDrawerLayout
         open={isShow}
@@ -247,7 +244,6 @@ const CourseAddLessonSidebar = () => {
                       />
                     </Form.Item>
 
-                    
                     <Form.Item
                       {...restField}
                       name={[name, 'description']}

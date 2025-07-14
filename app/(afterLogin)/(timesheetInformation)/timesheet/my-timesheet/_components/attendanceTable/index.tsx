@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Space, Table, Drawer } from 'antd';
+import { Button, Space, Table } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
@@ -44,7 +44,6 @@ const AttendanceTable = () => {
   const {
     setIsShowViewSidebarAttendance,
     setViewAttendanceId,
-    isShowViewSidebarAttendance,
     filter,
     setFilter,
     currentPage,

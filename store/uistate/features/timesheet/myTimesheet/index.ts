@@ -38,7 +38,9 @@ type MyTimesheetState = {
 type MyTimesheetAction = {
   setFilter: (filter: Partial<LeaveRequestBody['filter']>) => void;
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
-  setIsShowViewSidebarAttendance: (isShowViewSidebarAttendance: boolean) => void;
+  setIsShowViewSidebarAttendance: (
+    isShowViewSidebarAttendance: boolean,
+  ) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
