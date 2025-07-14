@@ -1,12 +1,70 @@
 'use client';
 
-import { Input, Select, Button } from 'antd';
+import { Input, Select, Button, Spin } from 'antd';
 import CandidateTable from './CandidateTable';
 import { ExportOutlined } from '@ant-design/icons';
-
-const { Option } = Select;
+import { useGetRecruitmentPipeline } from '@/store/server/features/recruitment/dashboard/queries';
+import { useRecruitmentDashboardStore } from '@/store/uistate/features/recruitment/dashboard';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
+import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
+import { useEffect, useState } from 'react';
 
 const RecruitmentPipeline = () => {
+  const {
+    search,
+    setSearch,
+    departmentId,
+    setDepartmentId,
+    stageId,
+    setStageId,
+    jobId,
+    setJobId,
+    page,
+    limit,
+  } = useRecruitmentDashboardStore();
+
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
+  const { data: pipelineData, isLoading } = useGetRecruitmentPipeline({
+    search: debouncedSearch,
+    departmentId,
+    stageId,
+    jobId,
+    page,
+    limit,
+  });
+
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { data: stages, isLoading: stagesLoading } = useGetStages();
+  const { data: jobs, isLoading: jobsLoading } = useGetJobs('', 1, 100);
+
+  const departmentOptions = departments?.map((department: any) => ({
+    value: department.id,
+    label: department.name,
+  }));
+
+  const stageOptions = stages?.items?.map((stage: any) => ({
+    value: stage.id,
+    label: stage.title,
+  }));
+
+  const jobOptions = jobs?.items?.map((job: any) => ({
+    value: job.id,
+    label: job.jobTitle,
+  }));
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm">
       <div className="flex justify-between items-center mb-6">
@@ -17,22 +75,56 @@ const RecruitmentPipeline = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Input placeholder="Search candidate" />
-        <Select placeholder="Department" allowClear>
-          <Option value="Software">Software</Option>
-          <Option value="Sales">Sales</Option>
-        </Select>
-        <Select placeholder="Stage" allowClear>
-          <Option value="Stage 1">Stage 1</Option>
-          <Option value="Stage 2">Stage 2</Option>
-        </Select>
-        <Select placeholder="Job" allowClear>
-          <Option value="UI/UX Designer">UI/UX Designer</Option>
-          <Option value="Sales Representative">Sales Representative</Option>
-        </Select>
+        <Input
+          placeholder="Search candidate"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Select
+          placeholder="Department"
+          allowClear
+          showSearch
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          loading={departmentsLoading}
+          options={departmentOptions}
+          onChange={(value) => setDepartmentId(value)}
+        />
+        <Select
+          placeholder="Stage"
+          allowClear
+          showSearch
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          loading={stagesLoading}
+          options={stageOptions}
+          onChange={(value) => setStageId(value)}
+        />
+        <Select
+          placeholder="Job"
+          allowClear
+          showSearch
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          loading={jobsLoading}
+          options={jobOptions}
+          onChange={(value) => setJobId(value)}
+        />
       </div>
 
-      <CandidateTable />
+      <CandidateTable data={pipelineData} isLoading={isLoading} />
     </div>
   );
 };
