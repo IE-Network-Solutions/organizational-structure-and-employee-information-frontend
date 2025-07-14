@@ -42,9 +42,9 @@ const AttendanceTable = () => {
     usePagination(1, 10);
 
   const {
-    setIsShowViewSidebar,
+    setIsShowViewSidebarAttendance,
     setViewAttendanceId,
-    isShowViewSidebar,
+    isShowViewSidebarAttendance,
     filter,
     setFilter,
     currentPage,
@@ -192,7 +192,7 @@ const AttendanceTable = () => {
             type="primary"
             onClick={() => {
               setViewAttendanceId(record.id);
-              setIsShowViewSidebar(true);
+              setIsShowViewSidebarAttendance(true);
             }}
           />
         </div>
@@ -289,7 +289,7 @@ const AttendanceTable = () => {
 
       {/* View Attendance Sidebar */}
 
-      <Drawer
+      {/* <Drawer
         title="Filter"
         placement="bottom"
         onClose={() => setIsShowViewSidebar(false)}
@@ -302,7 +302,7 @@ const AttendanceTable = () => {
         <div className="p-4">
           <AttendanceTableFilter onChange={onFilterChange} />
         </div>
-      </Drawer>
+      </Drawer> */}
     </div>
   );
 };
