@@ -33,8 +33,11 @@ const deleteIncentiveFormula = async (id: string) => {
 export const useSetIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(setIncentiveFormula, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('incentiveFormula');
+    onSuccess: (nonused, variables) => {
+      queryClient.invalidateQueries([
+        'incentiveFormula',
+        variables.recognitionTypeId,
+      ]);
       NotificationMessage.success({
         message: 'Incentive formula created successfully!',
         description: 'Incentive formula has been successfully created',
@@ -49,8 +52,12 @@ export const useUpdateIncentiveFormula = () => {
     ({ id, data }: { id: string; data: any }) =>
       updateIncentiveFormula(id, data),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('incentiveFormula');
+      onSuccess: (nonused, variables) => {
+        // This is the correct key!
+        queryClient.invalidateQueries([
+          'incentiveFormula',
+          variables.data.recognitionTypeId,
+        ]);
         NotificationMessage.success({
           message: 'Incentive formula updated successfully!',
           description: 'Incentive formula has been successfully updated',

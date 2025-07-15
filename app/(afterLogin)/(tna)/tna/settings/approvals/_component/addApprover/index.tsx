@@ -1,4 +1,5 @@
 import AddApproverComponent from '@/components/Approval/addApprover';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAddApproverMutation } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
@@ -65,6 +66,18 @@ const AddApprover = () => {
       {
         onSuccess: () => {
           setAddModal(false);
+        },
+        onError: (error: any) => {
+          // For AxiosError, the backend message is in error.response.data.message
+          const errorMessage = 
+            error?.response?.data?.message || 
+            error?.message || 
+            'Something went wrong';
+            
+          NotificationMessage.error({
+            message: 'Error',
+            description: errorMessage,
+          });
         },
       },
     );
