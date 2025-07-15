@@ -3,10 +3,9 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
-interface Get2FACodeProps {
+export interface Get2FACodeProps {
   email: string;
   pass: string;
-  recaptchaToken: string;
 }
 const get2FACode = async (values: Get2FACodeProps) => {
   return crudRequest({

@@ -17,7 +17,7 @@ const TalentResourcePage = () => {
             title="Talent Resource"
             subtitle="Profiles of interested and prospective talent."
           />
-          <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-8 sm:h-16 px-3  gap-4 sm:gap-12 mx-3 sm:mx-0">
+          <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-8 sm:h-16  gap-4 sm:gap-12 mx-3 sm:mx-0">
             <button
               onClick={() => setActiveTab(1)}
               className={

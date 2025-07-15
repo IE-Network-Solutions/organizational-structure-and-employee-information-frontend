@@ -1,70 +1,16 @@
 import { CourseLesson } from '@/types/tna/course';
 import { FC } from 'react';
-import { Button, Spin } from 'antd';
-import ActionButton from '@/components/common/actionButton';
-import { LuPlus } from 'react-icons/lu';
-import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
-import { useDeleteCourseLesson } from '@/store/server/features/tna/lesson/mutation';
+import { Spin } from 'antd';
 import Link from 'next/link';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 interface LessonCardProps {
   lesson: CourseLesson;
 }
 
 const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
-  const {
-    course,
-    setLesson,
-    setIsShowAddLesson,
-    refetchCourse,
-    setIsShowLessonMaterial,
-    activeKey,
-  } = useTnaManagementCoursePageStore();
-  const {
-    mutate: deleteLesson,
-    isLoading,
-    isSuccess,
-  } = useDeleteCourseLesson();
-  const { isMobile } = useIsMobile();
-
-  const shouldShowButton = !(isMobile && activeKey === lesson.id);
-
-  // Refetch after delete
-  if (isSuccess && refetchCourse) {
-    refetchCourse();
-  }
-
+  // Removed lesson-level ActionButton and plus Button
   return (
-    <Spin spinning={isLoading}>
-      <div className="flex items-center gap-6 mb-2">
-        <div className="flex items-center gap-2">
-          {shouldShowButton && (
-            <Button
-              id="tnaAddCourseMaterialButtonId"
-              icon={<LuPlus size={16} className="text-primary" />}
-              type="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLesson(lesson);
-                setIsShowLessonMaterial(true);
-              }}
-            />
-          )}
-        </div>
-        <ActionButton
-          id={lesson?.id || null}
-          onEdit={(e: MouseEvent) => {
-            e.stopPropagation();
-            setLesson(lesson);
-            setIsShowAddLesson(true);
-          }}
-          onDelete={(e: MouseEvent) => {
-            e.stopPropagation();
-            deleteLesson([lesson.id]);
-          }}
-        />
-      </div>
+    <Spin spinning={false}>
       <div className="pl-9 flex">
         <div className="flex-1">
           {lesson.courseLessonMaterials.length ? (
@@ -77,7 +23,7 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
                 >
                   <Link
                     id="tnaRedirectToTnaManagment"
-                    href={`/tna/management/${course?.id}/${lesson.id}/${item.id}`}
+                    href={`/tna/management/${lesson.courseId}/${lesson.id}/${item.id}`}
                     className="text-sm text-gray-600 hover:text-primary w-full md:w-auto pr-2"
                   >
                     {`${index + 1}. ${item.title}`}
@@ -95,21 +41,6 @@ const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
             <div className="text-sm text-gray-600">No-data</div>
           )}
         </div>
-        {isMobile && (
-          <div className="flex justify-center items-end">
-            <Button
-              className="flex items-end"
-              id="tnaAddCourseMaterialButtonId"
-              icon={<LuPlus size={16} className="text-primary" />}
-              type="text"
-              onClick={(e) => {
-                e.stopPropagation();
-                setLesson(lesson);
-                setIsShowLessonMaterial(true);
-              }}
-            />
-          </div>
-        )}
       </div>
     </Spin>
   );

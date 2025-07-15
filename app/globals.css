@@ -399,3 +399,13 @@ h6 {
 .ql-editor {
   border: none !important;
 }
+
+/* For mobile */
+.mobile-switcher .ant-tree-switcher {
+  width: 10px !important;
+}
+
+/* For desktop */
+.desktop-switcher .ant-tree-switcher {
+  width: 24px !important;
+}
