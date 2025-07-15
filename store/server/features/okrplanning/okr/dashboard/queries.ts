@@ -11,6 +11,8 @@ interface Dashboard {
   companyOkr: number;
   keyResultCount: number;
   supervisorOkr?: number;
+  supervisorKeyResultAchieved?: number;
+  supervisorKeyResultCount?: number;
 }
 
 type ResponseData = Dashboard;

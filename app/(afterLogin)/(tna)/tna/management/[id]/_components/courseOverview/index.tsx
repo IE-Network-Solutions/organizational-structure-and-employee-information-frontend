@@ -6,7 +6,11 @@ const CourseOverview = () => {
   return (
     <BlockWrapper className="border border-gray-200">
       <div className="text-lg font-bold text-black mb-6">Overview</div>
-      <div className="text-base text-gray-600">{course?.overview}</div>
+      <div className="text-base text-gray-600">
+        {course?.overview && !/^[a-f0-9-]{16,}$/.test(course.overview)
+          ? course.overview
+          : 'No overview available'}
+      </div>
     </BlockWrapper>
   );
 };
