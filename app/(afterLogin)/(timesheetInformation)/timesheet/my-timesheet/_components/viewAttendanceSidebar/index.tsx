@@ -30,8 +30,8 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 
 const ViewAttendanceSidebar = () => {
   const {
-    isShowViewSidebar,
-    setIsShowViewSidebar,
+    isShowViewSidebarAttendance,
+    setIsShowViewSidebarAttendance,
     viewAttendanceId,
     setViewAttendanceId,
   } = useMyTimesheetStore();
@@ -87,7 +87,7 @@ const ViewAttendanceSidebar = () => {
 
   const onClose = () => {
     setViewAttendanceId(null);
-    setIsShowViewSidebar(false);
+    setIsShowViewSidebarAttendance(false);
   };
 
   const lateInfo = (record: AttendanceRecord | AttendanceBreak) => {
@@ -131,9 +131,9 @@ const ViewAttendanceSidebar = () => {
 
   const userData = getUserName(attendance?.userId ?? '');
   return (
-    isShowViewSidebar && (
+    isShowViewSidebarAttendance && (
       <CustomDrawerLayout
-        open={isShowViewSidebar}
+        open={isShowViewSidebarAttendance}
         onClose={() => onClose()}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">

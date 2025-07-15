@@ -3,6 +3,7 @@ import { AllowedArea, LeaveType } from '@/types/timesheet/settings';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 import { BreakType } from '@/types/timesheet/breakType';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
+import { Key } from 'react';
 
 export enum CheckStatus {
   notStarted = 'notStarted',
@@ -10,9 +11,11 @@ export enum CheckStatus {
   breaking = 'breaking',
   finished = 'finished',
 }
+
 type MyTimesheetState = {
   filter: Partial<LeaveRequestBody['filter']>;
   isShowViewSidebar: boolean;
+  isShowViewSidebarAttendance: boolean;
   isShowLeaveRequestSidebar: boolean;
   isLoading: boolean;
   isShowLeaveRequestDetail: boolean;
@@ -27,15 +30,17 @@ type MyTimesheetState = {
   viewAttendanceId: string | null;
   location: { lat: null | number; lng: null | number };
   showLeaveHistoryFilter: boolean;
-  setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) => void;
   currentPage: number;
   pageSize: number;
-  resetPagination: () => void;
+  selectedRowKeys: Key[];
 };
 
 type MyTimesheetAction = {
   setFilter: (filter: Partial<LeaveRequestBody['filter']>) => void;
   setIsShowViewSidebar: (isShowViewSidebar: boolean) => void;
+  setIsShowViewSidebarAttendance: (
+    isShowViewSidebarAttendance: boolean,
+  ) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
@@ -53,6 +58,9 @@ type MyTimesheetAction = {
   setLocation: (location: { lat: null | number; lng: null | number }) => void;
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (pageSize: number) => void;
+  setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) => void;
+  resetPagination: () => void;
+  setSelectedRowKeys: (selectedRowKeys: Key[]) => void;
 };
 
 const useMyTimesheetSlice: StateCreator<
@@ -64,6 +72,11 @@ const useMyTimesheetSlice: StateCreator<
   isShowViewSidebar: false,
   setIsShowViewSidebar: (isShowViewSidebar) => {
     set({ isShowViewSidebar });
+  },
+
+  isShowViewSidebarAttendance: false,
+  setIsShowViewSidebarAttendance: (isShowViewSidebarAttendance) => {
+    set({ isShowViewSidebarAttendance });
   },
 
   isShowLeaveRequestSidebar: false,
@@ -152,9 +165,15 @@ const useMyTimesheetSlice: StateCreator<
   setLocation: (location) => {
     set({ location });
   },
+
   showLeaveHistoryFilter: false,
   setShowLeaveHistoryFilter: (showLeaveHistoryFilter: boolean) =>
     set({ showLeaveHistoryFilter }),
+
+  selectedRowKeys: [],
+  setSelectedRowKeys: (selectedRowKeys: Key[]) => {
+    set({ selectedRowKeys });
+  },
 });
 
 export const useMyTimesheetStore = create<MyTimesheetState & MyTimesheetAction>(
