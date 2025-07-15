@@ -30,8 +30,8 @@ const ApprovalFilterComponent = ({
     useAllAllowanceStore();
 
   return (
-    <Row gutter={16} justify="space-between">
-      <Col xl={16} lg={16} md={16} sm={16} xs={18}>
+    <Row gutter={12} justify="space-between">
+      <Col xl={16} lg={16} md={16} sm={16} xs={20}>
         <Input
           id={`inputEmployeeNames${searchParams.name}`}
           placeholder="Search workflow name"
@@ -41,7 +41,7 @@ const ApprovalFilterComponent = ({
         />
       </Col>
 
-      <Col xl={8} lg={8} md={8} sm={8} xs={6}>
+      <Col xl={8} lg={8} md={8} sm={8} xs={4}>
         <Select
           id={`selectDepartment${searchParams.entityType}`}
           placeholder="Applied For"
@@ -60,7 +60,7 @@ const ApprovalFilterComponent = ({
             type="default"
             icon={<LuSettings2 size={24} className="text-gray-600" />}
             onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
-            className="flex items-center justify-center w-10 h-10 hover:bg-gray-50 border-gray-200"
+            className="flex w-10 h-10 hover:bg-gray-50 border-gray-200"
           />
         </div>
       </Col>
