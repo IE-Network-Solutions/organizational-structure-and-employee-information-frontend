@@ -70,13 +70,6 @@ const EditWorkFLow = () => {
         onSuccess: () => {
           setEditModal(false);
         },
-        onError: (error: any) => {
-          NotificationMessage.error({
-            message: 'Error',
-            description:
-              error?.response?.data?.message ?? 'Something went wrong',
-          });
-        },
       },
     );
   };
