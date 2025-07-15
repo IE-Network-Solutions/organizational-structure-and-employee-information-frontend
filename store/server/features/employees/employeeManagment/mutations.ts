@@ -26,8 +26,13 @@ const createEmployee = async (values: any) => {
   });
 };
 
-
-const downloadEmployeeInfomation = async ({ downloadFormat, searchParams }: { downloadFormat: string, searchParams: Record<string, string> }) => {
+const downloadEmployeeInfomation = async ({
+  downloadFormat,
+  searchParams,
+}: {
+  downloadFormat: string;
+  searchParams: Record<string, string>;
+}) => {
   const paramsData = { ...searchParams, downloadFormat };
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/export`,
@@ -160,7 +165,6 @@ export const useCreateJobInformation = () => {
     },
   });
 };
-
 
 export const useDownloadEmployeeDataByFilter = () => {
   // const queryClient = useQueryClient();
