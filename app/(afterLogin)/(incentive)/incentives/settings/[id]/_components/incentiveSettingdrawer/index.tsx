@@ -47,7 +47,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setFormulaError,
   } = useIncentiveStore();
 
-  const textAreaRef = useRef<any>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   //   ===========> HTTP Requests <============
 
