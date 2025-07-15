@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Space, Table, Drawer } from 'antd';
+import { Button, Space, Table } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { IoEyeOutline } from 'react-icons/io5';
 import { GoLocation } from 'react-icons/go';
@@ -42,9 +42,8 @@ const AttendanceTable = () => {
     usePagination(1, 10);
 
   const {
-    setIsShowViewSidebar,
+    setIsShowViewSidebarAttendance,
     setViewAttendanceId,
-    isShowViewSidebar,
     filter,
     setFilter,
     currentPage,
@@ -192,7 +191,7 @@ const AttendanceTable = () => {
             type="primary"
             onClick={() => {
               setViewAttendanceId(record.id);
-              setIsShowViewSidebar(true);
+              setIsShowViewSidebarAttendance(true);
             }}
           />
         </div>
@@ -289,7 +288,7 @@ const AttendanceTable = () => {
 
       {/* View Attendance Sidebar */}
 
-      <Drawer
+      {/* <Drawer
         title="Filter"
         placement="bottom"
         onClose={() => setIsShowViewSidebar(false)}
@@ -302,7 +301,7 @@ const AttendanceTable = () => {
         <div className="p-4">
           <AttendanceTableFilter onChange={onFilterChange} />
         </div>
-      </Drawer>
+      </Drawer> */}
     </div>
   );
 };
