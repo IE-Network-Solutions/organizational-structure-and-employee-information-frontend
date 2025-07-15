@@ -31,7 +31,10 @@ interface AddressData {
 interface AddressComponentProps {
   mergedFields: FormField[];
   id: string;
-  handleSaveChanges: (editKey: keyof EditState, values: Record<string, unknown>) => void;
+  handleSaveChanges: (
+    editKey: keyof EditState,
+    values: Record<string, unknown>,
+  ) => void;
 }
 
 const AddressComponent: React.FC<AddressComponentProps> = ({
@@ -55,7 +58,9 @@ const AddressComponent: React.FC<AddressComponentProps> = ({
 
   // Filter custom fields for address section
   const addressFields: FormField[] =
-    mergedFields?.filter((field: FormField) => field?.formTitle === 'address') || [];
+    mergedFields?.filter(
+      (field: FormField) => field?.formTitle === 'address',
+    ) || [];
 
   // Merge existing employee data with custom fields
   const existingData = employeeData?.employeeInformation?.addresses || {};
@@ -119,9 +124,9 @@ const AddressComponent: React.FC<AddressComponentProps> = ({
                   }
                   rules={[
                     {
-                          /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                      /*  eslint-disable-next-line @typescript-eslint/naming-convention */
                       validator: (_rule: unknown, value: unknown) => {
-                          /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                        /*  eslint-enable-next-line @typescript-eslint/naming-convention */
                         let fieldValidation = getFieldValidation(key);
 
                         switch (key) {
