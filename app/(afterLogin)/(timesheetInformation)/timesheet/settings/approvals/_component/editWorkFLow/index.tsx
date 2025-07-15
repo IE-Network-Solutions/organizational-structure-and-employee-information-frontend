@@ -1,5 +1,4 @@
 import EditApproverComponent from '@/components/Approval/editApprover';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   useDeleteApprover,
   useDeleteParallelApprover,
