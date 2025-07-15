@@ -26,6 +26,19 @@ const createEmployee = async (values: any) => {
   });
 };
 
+
+const downloadEmployeeInfomation = async ({ downloadFormat, searchParams }: { downloadFormat: string, searchParams: Record<string, string> }) => {
+  const paramsData = { ...searchParams, downloadFormat };
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/export`,
+    method: 'POST',
+    data: paramsData, // paramsData should match ExportUserDto shape
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 const createJobInformation = async (values: any) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/EmployeeJobInformation`,
@@ -144,6 +157,25 @@ export const useCreateJobInformation = () => {
         message: 'Successfully Created',
         description: 'Employee successfully Created',
       });
+    },
+  });
+};
+
+
+export const useDownloadEmployeeDataByFilter = () => {
+  // const queryClient = useQueryClient();
+  return useMutation(downloadEmployeeInfomation, {
+    onSuccess: (data) => {
+      if (data?.fileUrl) {
+        const link = document.createElement('a');
+        link.href = data.fileUrl;
+        // Optionally, extract filename from URL
+        const filename = data.fileUrl.split('/').pop() || 'downloaded_file';
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     },
   });
 };
