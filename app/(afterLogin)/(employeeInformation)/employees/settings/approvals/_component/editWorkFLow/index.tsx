@@ -103,7 +103,16 @@ const EditWorkFLow = () => {
         (item: any) => item.stepOrder === index + 1 && item.userId === value,
       );
     if (user) {
-      deleteParallelApprover(user.id);
+      deleteParallelApprover(user.id, {
+        onSuccess: () => {
+          // Remove only the specific deleted approver from the form
+          const currentApprovers = form.getFieldValue('approvers') || [];
+          const updatedApprovers = currentApprovers.filter(
+            (approver: any) => approver?.approverId !== user.id
+          );
+          form.setFieldsValue({ approvers: updatedApprovers });
+        },
+      });
     }
   };
   const handleDeleteConfirm = (id: string, workFlowId: string) => {
@@ -115,6 +124,15 @@ const EditWorkFLow = () => {
       deleteApprover({
         id: user?.id,
         workFlowId: { approvalWorkflowId: workFlowId },
+      }, {
+        onSuccess: () => {
+          // Remove only the specific deleted approver from the form
+          const currentApprovers = form.getFieldValue('approvers') || [];
+          const updatedApprovers = currentApprovers.filter(
+            (approver: any) => approver?.approverId !== user.id
+          );
+          form.setFieldsValue({ approvers: updatedApprovers });
+        },
       });
     }
   };
