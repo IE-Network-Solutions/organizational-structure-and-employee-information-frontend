@@ -57,15 +57,16 @@ const ApproverListTableComponent = ({
   const { isMobile, isTablet } = useIsMobile();
   return (
     <div>
-      <div className="mt-2 w-[900px]">
+      <div className='mt-2 w-full'>
+      <div className="overflow-x-auto scrollbar-none">
         <Table
           columns={columns}
           dataSource={data}
           pagination={false}
           loading={isEmployeeLoading}
-          scroll={{ x: 100 }}
+          scroll={{ x: 730 }}
         />
-      </div>
+      </div></div>
       {isMobile || isTablet ? (
         <CustomMobilePagination
           totalResults={allFilterData?.meta?.totalItems ?? 0}
