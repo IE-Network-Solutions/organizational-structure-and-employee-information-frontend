@@ -148,6 +148,13 @@ export const useCreateApproverMutation = () => {
         description: 'Approval WorkFlow Created Successfully',
       });
     },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message || 'Something went wrong';
+      NotificationMessage.error({
+        message: 'Error',
+        description: errorMessage,
+      });
+    },
   });
 };
 
@@ -175,6 +182,13 @@ export const useUpdateAssignedUserMutation = () => {
         NotificationMessage.success({
           message: 'Successfully Updated',
           description: 'Approver updated successfully ',
+        });
+      },
+      onError: (error: any) => {
+        const errorMessage = error?.response?.data?.message || 'Something went wrong';
+        NotificationMessage.error({
+          message: 'Error',
+          description: errorMessage,
         });
       },
     },
