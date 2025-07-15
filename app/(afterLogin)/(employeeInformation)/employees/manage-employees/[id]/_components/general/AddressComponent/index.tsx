@@ -11,14 +11,33 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
 
-const AddressComponent = ({
+// Define interfaces for better type safety
+interface FormField {
+  fieldName: string;
+  fieldType: string;
+  fieldValidation?: string;
+  isActive: boolean;
+  id: string;
+  options?: string[];
+  formTitle: string;
+}
+
+interface AddressData {
+  country: string;
+  city: string;
+  [key: string]: string | undefined;
+}
+
+interface AddressComponentProps {
+  mergedFields: FormField[];
+  id: string;
+  handleSaveChanges: (editKey: keyof EditState, values: Record<string, unknown>) => void;
+}
+
+const AddressComponent: React.FC<AddressComponentProps> = ({
   mergedFields,
   id,
   handleSaveChanges,
-}: {
-  mergedFields: any;
-  id: string;
-  handleSaveChanges: any;
 }) => {
   const { setEdit, edit } = useEmployeeManagementStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -27,27 +46,27 @@ const AddressComponent = ({
     setEdit(editKey);
   };
 
-  const getFieldValidation = (fieldName: string) => {
+  const getFieldValidation = (fieldName: string): string => {
     return (
-      mergedFields?.find((field: any) => field?.fieldName === fieldName)
+      mergedFields?.find((field: FormField) => field?.fieldName === fieldName)
         ?.fieldValidation ?? 'any'
     );
   };
 
   // Filter custom fields for address section
-  const addressFields =
-    mergedFields?.filter((field: any) => field?.formTitle === 'address') || [];
+  const addressFields: FormField[] =
+    mergedFields?.filter((field: FormField) => field?.formTitle === 'address') || [];
 
   // Merge existing employee data with custom fields
   const existingData = employeeData?.employeeInformation?.addresses || {};
-  const defaultFields = {
+  const defaultFields: AddressData = {
     country: '',
     city: '',
   };
-  const allFields = { ...defaultFields, ...existingData };
+  const allFields: AddressData = { ...defaultFields, ...existingData };
 
   // Add custom fields to allFields if they don't exist
-  addressFields.forEach((field: any) => {
+  addressFields.forEach((field: FormField) => {
     if (!(field.fieldName in allFields)) {
       allFields[field.fieldName] = '';
     }
@@ -100,9 +119,9 @@ const AddressComponent = ({
                   }
                   rules={[
                     {
-                      /*  eslint-disable-next-line @typescript-eslint/naming-convention */
-                      validator: (_rule: any, value: any) => {
-                        /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                          /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                      validator: (_rule: unknown, value: unknown) => {
+                          /*  eslint-enable-next-line @typescript-eslint/naming-convention */
                         let fieldValidation = getFieldValidation(key);
 
                         switch (key) {
