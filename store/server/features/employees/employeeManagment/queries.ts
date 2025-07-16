@@ -271,7 +271,7 @@ export const useGetAllUsersData = () =>
  * the query object containing the posts data and any loading or error states.
  */
 export const useGetEmployees = () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   return useQuery<any>('employees', getEmployees, {
     enabled: !!token,
   });

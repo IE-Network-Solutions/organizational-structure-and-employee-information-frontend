@@ -47,7 +47,7 @@ export const useGetSimpleEmployee = (empId: string) =>
     enabled: !!empId,
   });
 export const useGetEmployee = (empId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   return useQuery<any>(['employeeItemData', empId], () => getEmployee(empId), {
     keepPreviousData: true,
     enabled: empId?.length > 0 || !!token,
