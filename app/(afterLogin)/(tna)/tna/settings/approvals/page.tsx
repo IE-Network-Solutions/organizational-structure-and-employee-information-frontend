@@ -35,7 +35,7 @@ const Workflow = () => {
       <div className="mb-4">
         <ApprovalFilter />
       </div>
-      <div className="overflow-x-auto scrollbar-none w-full">
+      <div>
         <ApprovalListTable />
       </div>
     </div>
