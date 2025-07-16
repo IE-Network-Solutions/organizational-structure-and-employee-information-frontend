@@ -27,7 +27,7 @@ const getLeaveRequest = async (
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: await requestHeader(),
     data,
     params: queryData,
   });
@@ -40,7 +40,7 @@ const getEmployeeLeave = async (
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all?page=${currentPage}&limit=${pageSize}&userId=${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: await requestHeader(),
   });
   return response;
 };
@@ -53,7 +53,7 @@ const getApprovalLeaveRequest = async (
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/${requesterId}?page=${page}&limit=${limit}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: await requestHeader(),
   });
   return response;
 };
@@ -61,7 +61,7 @@ const getSingleLeaveRequest = async (requestId: string) => {
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/${requestId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: await requestHeader(),
   });
   return response;
 };
@@ -69,7 +69,7 @@ const getSingleApprovalLog = async (requestId: string, workflowId: string) => {
   const response = await crudRequest({
     url: `${APPROVER_URL}/approver/status/${requestId}/${workflowId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: await requestHeader(),
   });
   return response;
 };
@@ -77,7 +77,7 @@ const getSingleApproval = async (requestId: string) => {
   const response = await crudRequest({
     url: `${APPROVER_URL}/approval-logs/${requestId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: await requestHeader(),
   });
   return response;
 };
@@ -89,7 +89,7 @@ const getApprovalTNARequest = async (
   const response = await crudRequest({
     url: `${TNA_URL}/tna/tna-currentApprover/${userId}?page=${page}&limit=${limit}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: await requestHeader(),
   });
   return response;
 };
@@ -123,7 +123,7 @@ export const useGetLeaveRequest = (
   );
 };
 
-export const useGetApprovalLeaveRequest = (
+export const useGetApprovalLeaveRequest = async (
   requesterId: string,
   page: number,
   limit: number,

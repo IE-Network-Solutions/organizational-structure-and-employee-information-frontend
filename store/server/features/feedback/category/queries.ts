@@ -8,6 +8,8 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
+
+
 /**
  * Fetch all categories from the API.
  * @param {number} pageSize - The number of categories to fetch per page.
@@ -171,7 +173,7 @@ export const useGetFormCategories = (formCatsId: string) => {
  * @param {string} createdById - The ID of the user to fetch.
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
-export const useGetUsersById = () => {
+export const useGetUsersById = async () => {
   const token = await getCurrentToken();
   return useQuery<any>('categories', fetchCatUsersById, {
     keepPreviousData: true,

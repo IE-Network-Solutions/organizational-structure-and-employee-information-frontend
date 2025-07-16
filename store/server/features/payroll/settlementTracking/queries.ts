@@ -92,7 +92,7 @@ export const useGetSettlementTracking = (
   );
 };
 
-export const useGetSettlementTrackingById = (
+export const useGetSettlementTrackingById = async (
   id: string,
   options?: UseQueryOptions<SettlementTrackingDetail>,
 ) => {
@@ -127,7 +127,7 @@ export const useGetSettlementTrackingById = (
 };
 
 // Helper function to check if settlement tracking exists
-export const useCheckSettlementTrackingExists = (
+export const useCheckSettlementTrackingExists = async (
   employeeId: string,
   payPeriod: string,
 ) => {
@@ -161,7 +161,7 @@ export const useCheckSettlementTrackingExists = (
   );
 };
 
-export const useEmployeeSettlementTracking = (
+export const useEmployeeSettlementTracking = async (
   entitlementId: string,
   employeeId: string,
 ) => {
