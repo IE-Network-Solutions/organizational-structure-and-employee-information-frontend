@@ -112,7 +112,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
           </Form.Item>
           <Form.Item
             className="w-32 mb-0"
-            name="weight"
+            name={`weight_${index}`}
             rules={[{ required: true, message: 'Please enter the weight' }]}
             id={`weight-input-${index}`}
           >
@@ -183,7 +183,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   !/[0-9]/.test(e.key) &&
                   e.key !== 'Backspace' &&
                   e.key !== 'Delete' &&
-                  e.key !== 'Tab'
+                  e.key !== 'Tab' &&
+                  e.key !== '.'
                 ) {
                   e.preventDefault();
                 }
@@ -211,7 +212,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   !/[0-9]/.test(e.key) &&
                   e.key !== 'Backspace' &&
                   e.key !== 'Delete' &&
-                  e.key !== 'Tab'
+                  e.key !== 'Tab' &&
+                  e.key !== '.'
                 ) {
                   e.preventDefault();
                 }
@@ -277,7 +279,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             </Form.Item>
             <Form.Item
               className="w-24 mb-0"
-              name="weight"
+              name={`weight_${index}`}
               rules={[{ required: true, message: 'Please enter the weight' }]}
               id={`weight-input-mobile-${index}`}
             >
@@ -346,7 +348,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     !/[0-9]/.test(e.key) &&
                     e.key !== 'Backspace' &&
                     e.key !== 'Delete' &&
-                    e.key !== 'Tab'
+                    e.key !== 'Tab' &&
+                    e.key !== '.'
                   ) {
                     e.preventDefault();
                   }
@@ -376,7 +379,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     !/[0-9]/.test(e.key) &&
                     e.key !== 'Backspace' &&
                     e.key !== 'Delete' &&
-                    e.key !== 'Tab'
+                    e.key !== 'Tab' &&
+                    e.key !== '.'
                   ) {
                     e.preventDefault();
                   }

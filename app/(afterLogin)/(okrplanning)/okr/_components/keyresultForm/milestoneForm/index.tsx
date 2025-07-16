@@ -33,11 +33,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const calculateAndDistributeWeights = (milestoneList: any[]) => {
     if (milestoneList.length === 0) return [];
 
-    const weightPerMilestone = Math.round(100 / milestoneList.length);
+    const baseWeight = Math.floor(100 / milestoneList.length);
+    const remainder = 100 - baseWeight * milestoneList.length;
 
-    return milestoneList.map((milestone) => ({
+    return milestoneList.map((milestone, index) => ({
       ...milestone,
-      weight: weightPerMilestone,
+      weight: baseWeight + (index < remainder ? 1 : 0),
     }));
   };
 

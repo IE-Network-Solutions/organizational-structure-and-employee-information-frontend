@@ -188,7 +188,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   !/[0-9]/.test(e.key) &&
                   e.key !== 'Backspace' &&
                   e.key !== 'Delete' &&
-                  e.key !== 'Tab'
+                  e.key !== 'Tab' &&
+                  e.key !== '.'
                 ) {
                   e.preventDefault();
                 }
@@ -216,7 +217,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   !/[0-9]/.test(e.key) &&
                   e.key !== 'Backspace' &&
                   e.key !== 'Delete' &&
-                  e.key !== 'Tab'
+                  e.key !== 'Tab' &&
+                  e.key !== '.'
                 ) {
                   e.preventDefault();
                 }
@@ -356,7 +358,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     !/[0-9]/.test(e.key) &&
                     e.key !== 'Backspace' &&
                     e.key !== 'Delete' &&
-                    e.key !== 'Tab'
+                    e.key !== 'Tab' &&
+                    e.key !== '.'
                   ) {
                     e.preventDefault();
                   }
@@ -386,7 +389,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     !/[0-9]/.test(e.key) &&
                     e.key !== 'Backspace' &&
                     e.key !== 'Delete' &&
-                    e.key !== 'Tab'
+                    e.key !== 'Tab' &&
+                    e.key !== '.'
                   ) {
                     e.preventDefault();
                   }
