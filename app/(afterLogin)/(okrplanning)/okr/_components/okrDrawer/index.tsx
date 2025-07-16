@@ -64,11 +64,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       )?.title;
 
   useEffect(() => {
-    setObjectiveValue({
-      ...objectiveValue,
-      title: objectiveTitle || '',
-    });
-    form.setFieldsValue({ title: objectiveTitle || '' });
+    if (!objectiveValue?.title || objectiveValue.title.trim() === '') {
+      setObjectiveValue({
+        ...objectiveValue,
+        title: objectiveTitle || '',
+      });
+      form.setFieldsValue({ title: objectiveTitle || '' });
+    }
   }, [objectiveTitle, form]);
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
@@ -135,12 +137,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 0,
               );
 
-              // Check if the sum of milestone values equals the key result weight
-              if (milestoneSum !== keyResult.weight) {
+              // Check if the sum of milestone values equals 100
+              if (milestoneSum !== 100) {
                 NotificationMessage.warning({
-                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to ${keyResult.weight}. Current sum: ${milestoneSum}`,
+                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100. Current sum: ${milestoneSum}`,
                 });
-                return; // Stop submission if the sum is not equal to key result weight
+                return; // Stop submission if the sum is not 100
               }
             }
             if (
@@ -229,6 +231,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     { label: 'Milestone', value: 'Milestone' },
     { label: 'Currency', value: 'Currency' },
     { label: 'Numerics', value: 'Numeric' },
+    { label: 'Percentage', value: 'Percentage' },
     { label: 'Achieved or Not', value: 'Achieved' },
   ];
 
@@ -240,6 +243,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       Milestone: 'Milestone',
       Currency: 'Currency',
       Numeric: 'Numeric',
+      Percentage: 'Percentage',
       Achieved: 'Achieve', // Map "Achieved" to "Achieve"
     };
 
@@ -489,7 +493,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 />
               </Form.Item>
             </Col>
-            <Col xs={24} className="flex justify-end items-center mb-10">
+            <Col xs={24} className="flex justify-end items-center mb-4">
               <Dropdown overlay={keyResultMenu} trigger={['click']}>
                 <Button
                   type="default"
