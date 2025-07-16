@@ -39,7 +39,7 @@ const getFiscalYear = async (id: string) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: await requestHeader(),
   });
 };
 
@@ -53,7 +53,7 @@ export const useGetFiscalYearById = (id: string) =>
     keepPreviousData: true,
   });
 
-export const useGetActiveFiscalYears = (
+export const useGetActiveFiscalYears = async (
   options?: QueryObserverOptions<FiscalYear>,
 ) => {
   const token = await getCurrentToken();
@@ -64,7 +64,7 @@ export const useGetActiveFiscalYears = (
   });
 };
 
-export const useGetActiveFiscalYearsData = () => {
+export const useGetActiveFiscalYearsData = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {

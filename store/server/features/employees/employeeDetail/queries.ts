@@ -46,7 +46,7 @@ export const useGetSimpleEmployee = (empId: string) =>
     keepPreviousData: true,
     enabled: !!empId,
   });
-export const useGetEmployee = (empId: string) => {
+export const useGetEmployee = async (empId: string) => {
   const token = await getCurrentToken();
   return useQuery<any>(['employeeItemData', empId], () => getEmployee(empId), {
     keepPreviousData: true,
