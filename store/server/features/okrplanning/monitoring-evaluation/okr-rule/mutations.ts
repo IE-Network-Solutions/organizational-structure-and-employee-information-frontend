@@ -4,8 +4,9 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const createOkrRule = async (values: any) => {
   try {

@@ -4,11 +4,12 @@ import { ORG_AND_EMP_URL, RECRUITMENT_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Candidate } from '@/types/dashboard/recruitment/talentPool';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,
@@ -57,7 +58,7 @@ const deleteTalentPoolCandidate = async (id: string) => {
 };
 
 const moveTalentPoolToandidate = async ({ taletnPoolId, value }: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

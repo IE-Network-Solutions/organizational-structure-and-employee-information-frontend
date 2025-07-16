@@ -8,8 +8,9 @@ import {
   PlanningPeriodUserArray,
   ResponsePlanningPeriod,
 } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchAllPlanningPeriods = async () => {

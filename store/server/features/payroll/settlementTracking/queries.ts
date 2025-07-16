@@ -2,6 +2,7 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery, UseQueryOptions } from 'react-query';
 
 interface SettlementTrackingParams {
@@ -59,7 +60,7 @@ interface SettlementTrackingDetail
 const getAllSettlementTracking = async (
   searchParams: SettlementTrackingParams,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   /* eslint-disable */
@@ -95,7 +96,7 @@ export const useGetSettlementTrackingById = (
   id: string,
   options?: UseQueryOptions<SettlementTrackingDetail>,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery<SettlementTrackingDetail>(
@@ -130,7 +131,7 @@ export const useCheckSettlementTrackingExists = (
   employeeId: string,
   payPeriod: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery(
@@ -164,7 +165,7 @@ export const useEmployeeSettlementTracking = (
   entitlementId: string,
   employeeId: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery(

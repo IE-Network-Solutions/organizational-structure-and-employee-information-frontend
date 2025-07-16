@@ -4,8 +4,9 @@ import { TENANT_BASE_URL, TENANT_MGMT_URL } from '@/utils/constants';
 import { CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 /* eslint-disable @typescript-eslint/naming-convention */
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId,

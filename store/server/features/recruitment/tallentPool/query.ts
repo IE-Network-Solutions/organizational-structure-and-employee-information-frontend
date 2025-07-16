@@ -7,9 +7,10 @@ import {
   TalentPool,
   TalentPoolResponse,
 } from '@/types/dashboard/recruitment/talentPool';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,

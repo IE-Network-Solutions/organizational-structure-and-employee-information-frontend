@@ -4,8 +4,9 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { EmployeeOffBoardingTasks, EmploymentStatusUpdate } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const addOffboardingItem = async (values: EmploymentStatusUpdate) => {

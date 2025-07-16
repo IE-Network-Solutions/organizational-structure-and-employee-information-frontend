@@ -2,9 +2,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { crudRequest } from '@/utils/crudRequest';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
-
+import { getCurrentToken } from '@/utils/getCurrentToken';
 const createEmployeeSurvey = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -28,7 +28,7 @@ const createEmployeeSurvey = async (data: any) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const updateEmployeeSurvey = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -50,7 +50,7 @@ const updateEmployeeSurvey = async (data: any) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const deleteEmployeeSurvey = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

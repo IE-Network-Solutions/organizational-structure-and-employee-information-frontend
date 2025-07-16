@@ -2,10 +2,11 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { INCENTIVE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 
 const generateIncentive = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

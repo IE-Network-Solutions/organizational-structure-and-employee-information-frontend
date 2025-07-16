@@ -3,8 +3,9 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import axios from 'axios';
 import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-log/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {

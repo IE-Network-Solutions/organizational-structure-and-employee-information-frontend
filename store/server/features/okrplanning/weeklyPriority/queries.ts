@@ -4,8 +4,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import axios from 'axios';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 

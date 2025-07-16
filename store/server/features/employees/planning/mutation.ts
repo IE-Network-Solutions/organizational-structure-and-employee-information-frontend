@@ -3,8 +3,9 @@ import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const createPlanTasks = async (values: any) => {

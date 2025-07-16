@@ -3,9 +3,10 @@ import { RECRUITMENT_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,

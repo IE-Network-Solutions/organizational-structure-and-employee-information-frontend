@@ -3,9 +3,9 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { RecognitionParams } from '.';
-
+import { getCurrentToken } from '@/utils/getCurrentToken';
 const getAllRecognitionTypes = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -18,7 +18,7 @@ const getAllRecognitionTypes = async () => {
   });
 };
 const getAllCriteria = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -31,7 +31,7 @@ const getAllCriteria = async () => {
   });
 };
 const getAllRecognitionTypesChild = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -44,7 +44,7 @@ const getAllRecognitionTypesChild = async () => {
   });
 };
 const getAllRecognitionData = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -57,7 +57,7 @@ const getAllRecognitionData = async () => {
   });
 };
 const getTotalRecognition = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -71,7 +71,7 @@ const getTotalRecognition = async () => {
 };
 
 const getAllRecognitionTypesWithOutCriteria = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -84,7 +84,7 @@ const getAllRecognitionTypesWithOutCriteria = async () => {
   });
 };
 const getPersonalRecognition = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
   return crudRequest({
@@ -101,7 +101,7 @@ const getAllRecognitions = async ({
   current,
   pageSize,
 }: RecognitionParams) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const queryString = [
     `limit=${pageSize}`,
@@ -123,7 +123,7 @@ const getAllRecognitions = async ({
 };
 
 const getRecognitionsById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/recognition/${id}`,
@@ -136,7 +136,7 @@ const getRecognitionsById = async (id: string) => {
 };
 
 const getRecognitionTypeById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({

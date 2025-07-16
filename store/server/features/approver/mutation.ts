@@ -2,11 +2,12 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 const createApprover = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -21,7 +22,7 @@ const createApprover = async (values: any) => {
 };
 
 const deleteApprovalWorkFLow = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
@@ -39,7 +40,7 @@ const deleteApprovalWorkFLow = async (id: string) => {
 };
 
 const updateApprovalAssignedUserMutation = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -54,7 +55,7 @@ const updateApprovalAssignedUserMutation = async (values: any) => {
 };
 
 const addApprovalUserMutation = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -69,7 +70,7 @@ const addApprovalUserMutation = async (values: any) => {
 };
 
 const deleteApprover = async (id: string, data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
@@ -86,7 +87,7 @@ const deleteApprover = async (id: string, data: any) => {
   }
 };
 const deleteParallelApprover = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
@@ -110,7 +111,8 @@ export const updateLeaverequestApprovalWorkFlow = async (
   approvalWorkflowId: string,
 ) => {
   // Retrieve authentication data safely
-  const { token, tenantId } = useAuthenticationStore.getState();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
   if (!token || !tenantId) {
     throw new Error('User not authenticated.');
   }

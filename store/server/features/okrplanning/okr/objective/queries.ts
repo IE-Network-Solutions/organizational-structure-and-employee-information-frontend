@@ -3,8 +3,9 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import axios from 'axios';
 import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 

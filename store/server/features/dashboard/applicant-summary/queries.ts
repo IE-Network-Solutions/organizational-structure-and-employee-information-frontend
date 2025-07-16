@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
@@ -28,7 +29,7 @@ type ResponseData = ApplicantData;
  * @returns The response data from the API
  */
 const getApplicantSummary = async (status: string): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   if (!token || !tenantId) {

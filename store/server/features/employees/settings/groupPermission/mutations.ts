@@ -5,8 +5,9 @@ import { crudRequest } from '@/utils/crudRequest';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to create a new permission group by sending a POST request to the API.

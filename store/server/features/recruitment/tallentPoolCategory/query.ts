@@ -3,9 +3,10 @@ import { TalentPoolCategoryResponse } from '@/types/dashboard/recruitment/talent
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,

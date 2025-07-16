@@ -18,7 +18,7 @@ import {
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { requestHeader } from '@/helpers/requestHeader';
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getLeaveRequest = async (
   queryData: RequestCommonQueryData,
@@ -128,7 +128,7 @@ export const useGetApprovalLeaveRequest = (
   page: number,
   limit: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   return useQuery<any>(
     ['current_approval', requesterId, limit, page],
     () => getApprovalLeaveRequest(requesterId, page, limit),

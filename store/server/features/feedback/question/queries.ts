@@ -6,12 +6,13 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 /**
  * @constant {string} token - The authentication token retrieved from the authentication store.
  */
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 
 /**
  * @constant {string} tenantId - The tenant ID retrieved from the authentication store.

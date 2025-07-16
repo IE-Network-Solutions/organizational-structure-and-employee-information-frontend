@@ -4,8 +4,9 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Meta } from '../../settings/groupPermission/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 type Item = {
   id: string;

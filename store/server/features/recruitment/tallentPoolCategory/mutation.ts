@@ -5,11 +5,12 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { TalentPoolCategoryResponse } from '@/types/dashboard/recruitment/talentPool';
 import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,

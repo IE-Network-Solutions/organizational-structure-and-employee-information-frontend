@@ -2,9 +2,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getAllMeetingType = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -17,7 +18,7 @@ const getAllMeetingType = async () => {
   });
 };
 const getMeetingType = async (pageSizeType: number, currentType: number) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -31,7 +32,7 @@ const getMeetingType = async (pageSizeType: number, currentType: number) => {
 };
 
 const getMeetingTypeById = async (id: string | null) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({

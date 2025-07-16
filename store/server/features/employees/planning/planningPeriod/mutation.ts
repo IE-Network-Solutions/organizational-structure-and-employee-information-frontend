@@ -8,8 +8,9 @@ import {
   UpdatePlanningPeriodFunction,
 } from './interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {

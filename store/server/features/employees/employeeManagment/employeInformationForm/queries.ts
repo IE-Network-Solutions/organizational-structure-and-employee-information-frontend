@@ -4,7 +4,9 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { EmployeeInformationForm } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-const token = useAuthenticationStore.getState().token;
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API

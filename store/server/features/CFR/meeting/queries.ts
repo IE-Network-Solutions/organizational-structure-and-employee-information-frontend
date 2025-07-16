@@ -2,6 +2,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 interface UseGetMeetingsParams {
   pageSize: number;
   current: number;
@@ -20,7 +21,7 @@ const getMeetings = async (
   endAt: string | null = null,
   title: string | null = null,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -33,7 +34,7 @@ const getMeetings = async (
   });
 };
 const getMeetingsId = async (id: string | null) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -89,7 +90,7 @@ export const useGetMeetings = (
   );
 };
 const getUserMeetings = async (id: string | null) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -113,7 +114,7 @@ export const useGetUserMeetings = (id: string | null) => {
 };
 //prev meeting
 const getPrevMeetings = async (meetingTypeId: string, userId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -140,7 +141,7 @@ export const useGetPrevMeetings = (
 
 //meeting comments
 const getMeetingComments = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({

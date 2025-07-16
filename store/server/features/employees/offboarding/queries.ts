@@ -3,8 +3,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useQuery } from 'react-query';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import axios from 'axios';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchOffBoardingTemplateTasks = async () => {

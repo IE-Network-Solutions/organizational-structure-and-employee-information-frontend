@@ -4,8 +4,9 @@ import { ScheduleResponse } from './interface';
 import { crudRequest } from '@/utils/crudRequest';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 const headers = {
   tenantId: tenantId,
