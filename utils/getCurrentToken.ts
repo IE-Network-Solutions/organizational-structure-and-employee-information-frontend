@@ -18,10 +18,10 @@ export const getCurrentToken = async (): Promise<string> => {
       return currentToken;
     }
     // Fallback to store token if no Firebase user
-    return useAuthenticationStore.getState().tok;
+    return useAuthenticationStore.getState().token;
   } catch (error) {
     // Fallback to store token on error
-    return useAuthenticationStore.getState().tok;
+    return useAuthenticationStore.getState().token;
   }
 };
 

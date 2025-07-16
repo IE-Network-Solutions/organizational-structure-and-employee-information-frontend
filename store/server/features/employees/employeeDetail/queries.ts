@@ -46,8 +46,8 @@ export const useGetSimpleEmployee = (empId: string) =>
     keepPreviousData: true,
     enabled: !!empId,
   });
-export const useGetEmployee = async (empId: string) => {
-  const token = await getCurrentToken();
+export const useGetEmployee = (empId: string) => {
+  const token = useAuthenticationStore.getState().token;
   return useQuery<any>(['employeeItemData', empId], () => getEmployee(empId), {
     keepPreviousData: true,
     enabled: empId?.length > 0 || !!token,

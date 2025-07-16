@@ -3,7 +3,7 @@ import create from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 interface StoreState {
-  tok: string;
+  token: string;
   setToken: (token: string) => void;
   tenantId: string;
   setTenantId: (tenantId: string) => void;
@@ -42,10 +42,10 @@ export const useAuthenticationStore = create<StoreState>()(
   devtools(
     persist(
       (set) => ({
-        tok: '',
+        token: '',
         setToken: (token: string) => {
           setCookie('token', token, 30); // Optionally set a cookie
-          set({ tok: token });
+          set({ token });
         },
         tenantId: '',
         setTenantId: (tenantId: string) => {
@@ -106,7 +106,7 @@ export const useAuthenticationStore = create<StoreState>()(
         name: 'authentications-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
         partialize: (state) => ({
-          tok: state.tok,
+          tok: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,
