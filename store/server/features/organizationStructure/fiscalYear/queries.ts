@@ -36,10 +36,11 @@ const getActiveFiscalYear = async () => {
 };
 
 const getFiscalYear = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'GET',
-    headers: await requestHeader(),
+    headers: requestHeaders,
   });
 };
 
