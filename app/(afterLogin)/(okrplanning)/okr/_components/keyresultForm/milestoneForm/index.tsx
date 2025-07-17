@@ -20,7 +20,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const [milestones, setMilestones] = useState(
     keyItem.milestones && keyItem.milestones.length > 0
       ? keyItem.milestones
-      : [{ title: '', weight: 0 }],
+      : [{ title: '', weight: 100 }], // Default to 100 for first milestone
   );
 
   useEffect(() => {
@@ -29,8 +29,25 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
     // eslint-disable-next-line
   }, [milestones]);
 
+  // Function to calculate and distribute weights automatically
+  const calculateAndDistributeWeights = (milestoneList: any[]) => {
+    if (milestoneList.length === 0) return [];
+
+    const baseWeight = Math.floor(100 / milestoneList.length);
+    const remainder = 100 - baseWeight * milestoneList.length;
+
+    return milestoneList.map((milestone, index) => ({
+      ...milestone,
+      weight: baseWeight + (index < remainder ? 1 : 0),
+    }));
+  };
+
   const handleAddMilestone = () => {
-    setMilestones([...milestones, { title: '', weight: 0 }]);
+    const newMilestone = { title: '', weight: 0 };
+    const updatedMilestones = [...milestones, newMilestone];
+    const distributedMilestones =
+      calculateAndDistributeWeights(updatedMilestones);
+    setMilestones(distributedMilestones);
   };
 
   const handleMilestoneChange = (mIndex: number, field: string, value: any) => {
@@ -41,7 +58,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   };
 
   const handleRemoveMilestone = (mIndex: number) => {
-    setMilestones(milestones.filter((noneUsed, i) => i !== mIndex));
+    const filteredMilestones = milestones.filter((noneUsed, i) => i !== mIndex);
+    const distributedMilestones =
+      calculateAndDistributeWeights(filteredMilestones);
+    setMilestones(distributedMilestones);
   };
 
   const { isMobile } = useIsMobile();
@@ -51,7 +71,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
-        className="absolute top-2 right-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-5 h-5 flex items-center justify-center shadow"
+        className="absolute top-4 right-4 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-5 h-5 flex items-center justify-center shadow"
         style={{ zIndex: 10 }}
         id={`cancel-key-result-${index}`}
       >
@@ -72,7 +92,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
       </button>
       <Form form={form} layout="vertical" initialValues={keyItem}>
         {isMobile ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-4 mx-4">
             {/* Row 1: Key Result Name */}
             <div>
               <Form.Item
@@ -211,6 +231,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     min={0}
                     max={100}
                     placeholder="Weight"
+                    suffix="%"
                     value={milestones[0]?.weight}
                     onChange={(value) =>
                       handleMilestoneChange(0, 'weight', value)
@@ -253,40 +274,41 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       min={0}
                       max={100}
                       placeholder="Weight"
+                      suffix="%"
                       value={milestone.weight}
                       onChange={(value) =>
                         handleMilestoneChange(mIndex + 1, 'weight', value)
                       }
                     />
                   </Form.Item>
-                  <Button
-                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-full p-0 w-8 h-8 flex items-center justify-center"
-                    icon={
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M6 6L14 14M6 14L14 6"
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    }
-                    aria-label="Remove Milestone"
+                  <button
                     onClick={() => handleRemoveMilestone(mIndex + 1)}
-                    type="primary"
-                  />
+                    title="Remove Milestone"
+                    aria-label="Remove Milestone"
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                    style={{ zIndex: 10 }}
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M6 6L14 14M6 14L14 6"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-4 mx-4">
             <div className="flex flex-row gap-4 items-center">
               <Form.Item
                 className="flex-1 mb-0"
@@ -402,7 +424,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <div className="flex flex-col gap-2">
               {/* First milestone row (always present) */}
               <div className="flex flex-row gap-4 items-center">
-                <Form.Item className="w-full mb-0">
+                <Form.Item className="w-2/3 mb-0">
                   <Input
                     className="h-10 rounded-lg text-base"
                     placeholder="Set Milestone"
@@ -416,12 +438,13 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     }
                   />
                 </Form.Item>
-                <Form.Item className="w-32 mb-0">
+                <Form.Item className="w-20 mb-0">
                   <InputNumber
                     className="w-full h-10 rounded-lg text-base"
                     min={0}
                     max={100}
                     placeholder="Weight"
+                    suffix="%"
                     value={milestones[0]?.weight}
                     onChange={(value) =>
                       handleMilestoneChange(0, 'weight', value)
@@ -444,7 +467,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   key={mIndex + 1}
                   className="flex flex-row gap-4 items-center"
                 >
-                  <Form.Item className="w-2/3 mb-0">
+                  <Form.Item className="w-[63%] mb-0">
                     <Input
                       className="h-10 rounded-lg text-base"
                       placeholder="Set Milestone"
@@ -466,20 +489,35 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       min={0}
                       max={100}
                       placeholder="Weight"
+                      suffix="%"
                       value={milestone.weight}
                       onChange={(value) =>
                         handleMilestoneChange(mIndex + 1, 'weight', value)
                       }
                     />
                   </Form.Item>
-                  <Button
-                    type="default"
-                    className="text-white hover:bg-[#4954d2] text-lg bg-[#2B3CF1] rounded-3xl h-5 w-2"
+                  <button
                     onClick={() => handleRemoveMilestone(mIndex + 1)}
+                    title="Remove Milestone"
                     aria-label="Remove Milestone"
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                    style={{ zIndex: 10 }}
                   >
-                    ×
-                  </Button>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M6 6L14 14M6 14L14 6"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
                 </div>
               ))}
             </div>

@@ -134,6 +134,28 @@ const RecognitionForm: React.FC<PropsData> = ({
     );
   };
 
+  // Helper function to distribute weights evenly and ensure they sum to 1
+  const distributeWeightsEvenly = (count: number) => {
+    if (count === 0) return [];
+
+    const baseWeight = 1 / count;
+    const weights = [];
+    let remainingWeight = 1;
+
+    for (let i = 0; i < count; i++) {
+      if (i === count - 1) {
+        // Last item gets the remaining weight to ensure exact sum of 1
+        weights.push(parseFloat(remainingWeight.toFixed(2)));
+      } else {
+        const weight = parseFloat(baseWeight.toFixed(2));
+        weights.push(weight);
+        remainingWeight -= weight;
+      }
+    }
+
+    return weights;
+  };
+
   const handleCriteriaChange = (value: string[]) => {
     const noCriterion = value.length;
 
@@ -143,18 +165,35 @@ const RecognitionForm: React.FC<PropsData> = ({
         (item: any) => (item.criteriaId || item.id) === id,
       );
       if (existing) return { ...existing };
+
       // Otherwise, build a new object from the criteria list
       const criteriaObj = criteria.find((item: any) => item.id === id);
+
+      // If criteriaObj is not found (newly created criteria), try to get the name from pending criteria
+      let criteriaName = criteriaObj?.criteriaName || '';
+
+      // If this is a newly added criteria and we don't have the name yet,
+      // we'll set a placeholder that will be updated when the criteria list refreshes
+      if (!criteriaName && pendingNewCriteriaId === id) {
+        criteriaName = 'New Criteria'; // Temporary placeholder
+      }
+
       return {
-        criterionKey: criteriaObj?.criteriaName || '',
+        criterionKey: criteriaName,
         id,
         criteriaId: id,
-        weight: parseFloat((1 / noCriterion).toFixed(2)),
+        weight: 0, // Will be set below
         operator: null,
         condition: null,
         value: 0,
         active: true,
       };
+    });
+
+    // Distribute weights evenly among all criteria
+    const weights = distributeWeightsEvenly(noCriterion);
+    updatedCriteria.forEach((criterion: any, index: number) => {
+      criterion.weight = weights[index];
     });
 
     setSelectedCriteria(updatedCriteria);
@@ -392,10 +431,45 @@ const RecognitionForm: React.FC<PropsData> = ({
           const newCriteriaId = response?.id;
           if (newCriteriaId) {
             setPendingNewCriteriaId(newCriteriaId);
-            // Set the form value immediately for UI feedback
             const currentCriteria = form.getFieldValue('criteria') || [];
             const updatedCriteria = [...currentCriteria, newCriteriaId];
             form.setFieldsValue({ criteria: updatedCriteria });
+
+            if (selectedCriteria.length > 0) {
+              const tempCriteria = {
+                criterionKey: values.criteriaName,
+                id: newCriteriaId,
+                criteriaId: newCriteriaId,
+                weight: 0, // Will be set below
+                operator: null,
+                condition: null,
+                value: 0,
+                active: true,
+              };
+
+              const updatedSelectedCriteria = [
+                ...selectedCriteria,
+                tempCriteria,
+              ];
+
+              const weights = distributeWeightsEvenly(
+                updatedSelectedCriteria.length,
+              );
+              updatedSelectedCriteria.forEach(
+                (criterion: any, index: number) => {
+                  criterion.weight = weights[index];
+                },
+              );
+
+              setSelectedCriteria(updatedSelectedCriteria);
+              setTotalWeight(1);
+
+              form.setFieldsValue({
+                recognitionCriteria: updatedSelectedCriteria,
+              });
+            } else {
+              handleCriteriaChange(updatedCriteria);
+            }
           }
         },
       },
@@ -407,10 +481,35 @@ const RecognitionForm: React.FC<PropsData> = ({
       pendingNewCriteriaId &&
       criteria?.some((c: any) => c.id === pendingNewCriteriaId)
     ) {
-      // Now the new criteria is available in the list, so update the fields
       const currentCriteria = form.getFieldValue('criteria') || [];
       if (currentCriteria.includes(pendingNewCriteriaId)) {
-        handleCriteriaChange(currentCriteria);
+        const newCriteriaObj = criteria.find(
+          (c: any) => c.id === pendingNewCriteriaId,
+        );
+
+        if (newCriteriaObj) {
+          const updatedSelectedCriteria = selectedCriteria.map(
+            (criterion: any) => {
+              if (
+                criterion.criteriaId === pendingNewCriteriaId ||
+                criterion.id === pendingNewCriteriaId
+              ) {
+                return {
+                  ...criterion,
+                  criterionKey: newCriteriaObj.criteriaName,
+                };
+              }
+              return criterion;
+            },
+          );
+
+          setSelectedCriteria(updatedSelectedCriteria);
+
+          form.setFieldsValue({
+            recognitionCriteria: updatedSelectedCriteria,
+          });
+        }
+
         setPendingNewCriteriaId(null); // Reset
       }
     }
