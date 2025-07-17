@@ -119,8 +119,8 @@ function Page() {
         <div className="flex flex-col md:flex-row md:justify-between">
           <CustomBreadcrumb
             className="text-sm"
-            title="Planning & Reporting"
-            subtitle="OKR setting"
+            title="Planning and Reporting"
+            subtitle="OKR Settings"
           />
           <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] mx-auto border-1">
             <button

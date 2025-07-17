@@ -12,7 +12,7 @@ const getPriorityColor = (priority: string) => {
     case 'high':
       return 'red';
     case 'medium':
-      return 'orange';
+      return 'yellow';
     default:
       return 'green';
   }
@@ -42,9 +42,10 @@ const TaskRow = ({ task, keyResult }: any) => (
         )}
       </Text>
     </Col>
-    <Col className="flex items-center gap-2 px-6 my-2 sm:my-0" xs={24} sm={12}>
+    {/* Desktop View */}
+    <Col className="items-center gap-2 px-6 hidden sm:flex" xs={24} sm={12}>
       {/* Priority Section */}
-      <Text type="secondary" className="text-[10px] px-4 hidden sm:block">
+      <Text type="secondary" className="text-[10px] px-4">
         <span className="text-xl text-blue">&bull;</span> Priority
       </Text>
       <Tag
@@ -55,11 +56,11 @@ const TaskRow = ({ task, keyResult }: any) => (
       </Tag>
 
       {/* Weight Section */}
-      <Text type="secondary" className="text-[10px] hidden sm:block">
+      <Text type="secondary" className="text-[10px]">
         <span className="text-xl text-blue">&bull;</span> Weight:
       </Text>
       <Tag
-        className="font-bold border-none w-16 text-center text-blue text-[10px]"
+        className="font-bold border-none w-16 text-center text-blue text-[10px] ml-2"
         color="#B2B2FF"
       >
         {task?.weight || 0}
@@ -67,6 +68,46 @@ const TaskRow = ({ task, keyResult }: any) => (
 
       {/* Target Section */}
       {keyResult?.metricType?.name !== 'Milestone' &&
+        keyResult?.metricType?.name !== 'Achieve' && (
+          <>
+            <Text type="secondary" className="text-[10px">
+              <span className="text-xl text-blue">&bull;</span> Target:
+            </Text>
+            <Tag
+              className="font-bold border-none w-16 text-center text-blue text-[10px]"
+              color="#B2B2FF"
+            >
+              {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
+            </Tag>
+          </>
+        )}
+    </Col>
+    {/* Mobile View */}
+    <Col className="flex gap-2 px-6 sm:hidden" xs={24} sm={12}>
+      {/* Priority Section */}
+      <div className="flex justify-between gap-2 w-[100%] sm:w-full py-2">
+        <Tag
+          className="font-bold border-none w-16 text-center capitalize text-[10px]"
+          color={getPriorityColor(task?.priority)}
+        >
+          {task?.priority || 'None'}
+        </Tag>
+
+        {/* Weight Section */}
+        <div className="flex gap-2">
+          <span className="text-xs text-gray-500">
+            <span className="text-blue mr-1">&bull;</span>Weight
+          </span>
+          <Tag
+            className="font-semibold border-none text-blue px-1.5 py-0 h-4 text-xs"
+            color="#e7e7ff"
+          >
+            {task?.weight || 0}
+          </Tag>
+        </div>
+
+        {/* Target Section */}
+        {/* {keyResult?.metricType?.name !== 'Milestone' &&
         keyResult?.metricType?.name !== 'Achieve' && (
           <>
             <Text type="secondary" className="text-[10px] hidden sm:block">
@@ -79,7 +120,8 @@ const TaskRow = ({ task, keyResult }: any) => (
               {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
             </Tag>
           </>
-        )}
+        )} */}
+      </div>
     </Col>
   </Row>
 );
