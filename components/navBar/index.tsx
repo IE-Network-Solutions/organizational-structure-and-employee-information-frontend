@@ -33,6 +33,8 @@ import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInform
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -89,69 +91,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const { token } = useAuthenticationStore();
   const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
-  useEffect(() => {
-    refetch();
-  }, [token]);
+  const { data: subscriptionData } = useGetSubscriptions(
+    {
+      filter: {
+        tenantId: [tenantId],
+      },
+    },
+    true,
+    true,
+  );
+  const activeSubscription = subscriptionData?.items?.find((sub: any) => sub.isActive);
+  const availableModules = activeSubscription?.plan?.modules || [];
+  // Check if user is admin
+  const isAdmin = userData?.role?.slug?.toLowerCase() === 'owner' ||
+    userData?.userPermissions?.some((permission: any) =>
+      permission.permission.slug === 'view_admin_configuration'
+    );
 
+  const shouldShowSidebar = (activeSubscription && availableModules.length > 0) || isAdmin;
+
+  console.log(subscriptionData, "subscriptionData");
   const hasEndedFiscalYear =
     !!activeFiscalYear?.isActive &&
     !!activeFiscalYear?.endDate &&
     new Date(activeFiscalYear?.endDate) <= new Date();
-
-  // ===========> Fiscal Year Ended Section <=================
-
-  // Separate array for routes that should be accessible but not shown in navigation
-  const hiddenRoutes: { key: string; permissions: string[] }[] = [
-    {
-      key: '/dashboard',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/',
-      permissions: [], // No permissions required
-    },
-    {
-      key: '/employees/manage-employees/[id]',
-      permissions: [], // No permissions required
-    },
-  ];
-
-  const getRoutesAndPermissions = (
-    menuItems: CustomMenuItem[],
-  ): { route: string; permissions: string[] }[] => {
-    const routes: { route: string; permissions: string[] }[] = [];
-
-    const traverse = (items: CustomMenuItem[]) => {
-      items.forEach((item) => {
-        if (item.key && item.permissions) {
-          routes.push({
-            route: item.key,
-            permissions: item.permissions,
-          });
-        }
-
-        if (item.children) {
-          traverse(item.children);
-        }
-      });
-    };
-
-    // First add hidden routes
-    hiddenRoutes.forEach((route) => {
-      if (route.key && route.permissions) {
-        routes.push({
-          route: route.key,
-          permissions: route.permissions,
-        });
-      }
-    });
-
-    // Then add visible menu routes
-    traverse(menuItems);
-    return routes;
-  };
-
   const treeData: CustomMenuItem[] = [
     {
       title: (
@@ -591,6 +556,140 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
   ];
+  // Get active subscription and its modules
+
+  console.log(availableModules, "availableModules");
+  console.log(shouldShowSidebar, "shouldShowSidebar");
+  console.log(isAdmin, "isAdmin");
+  // Function to check if a menu item is available in the subscription
+  const isMenuItemAvailable = (menuKey: string): boolean => {
+    // Admin menu should always be visible for admin users
+    if (menuKey === 'admin-menu' && isAdmin) {
+      return true;
+    }
+
+    // If no subscription data or no modules, hide all items except admin menu for admins
+    if (!activeSubscription || !availableModules.length) {
+      return menuKey === 'admin-menu' && isAdmin;
+    }
+
+    // Map menu keys to module descriptions
+    const menuToModuleMap: Record<string, string> = {
+      '/organization': '/organization',
+      '/employees': '/employees',
+      '/recruitment': '/recruitment',
+      '/okr': '/okr',
+      '/feedback': '/feedback',
+      '/tna': '/tna',
+      '/payroll': '/payroll',
+      '/timesheet': '/timesheet',
+      '/compensationSetting': '/compensationSetting',
+      '/incentives': '/incentives',
+      '/admin': '/admin',
+    };
+
+    const modulePath = menuToModuleMap[menuKey];
+    if (!modulePath) {
+      return menuKey === 'admin-menu' && isAdmin; // Only show admin menu for admins if no mapping found
+    }
+
+    // Check if any module in the subscription matches the menu path
+    return availableModules.some(module =>
+      module.module?.description === modulePath
+    );
+  };
+
+  // Filter treeData based on available modules
+  const getFilteredTreeData = (): CustomMenuItem[] => {
+    return treeData
+      .map(item => {
+        // Check if the main menu item is available
+        const isMainItemAvailable = isMenuItemAvailable(item.key);
+
+        if (!isMainItemAvailable) {
+          return null; // Don't show this menu item
+        }
+
+        // Filter children based on availability
+        const filteredChildren = item.children?.filter(child => {
+          // For child items, we can be more permissive or use the same logic
+          // For now, if parent is available, show all children
+          return true;
+        });
+
+        return {
+          ...item,
+          children: filteredChildren,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+  };
+
+  const filteredTreeData = getFilteredTreeData();
+  console.log(filteredTreeData, "filteredTreeData");
+
+  // Check if we should show the sidebar at all
+
+  useEffect(() => {
+    refetch();
+  }, [token]);
+
+
+
+  // ===========> Fiscal Year Ended Section <=================
+
+  // Separate array for routes that should be accessible but not shown in navigation
+  const hiddenRoutes: { key: string; permissions: string[] }[] = [
+    {
+      key: '/dashboard',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/employees/manage-employees/[id]',
+      permissions: [], // No permissions required
+    },
+  ];
+
+  const getRoutesAndPermissions = (
+    menuItems: CustomMenuItem[],
+  ): { route: string; permissions: string[] }[] => {
+    const routes: { route: string; permissions: string[] }[] = [];
+
+    const traverse = (items: CustomMenuItem[]) => {
+      items.forEach((item) => {
+        if (item.key && item.permissions) {
+          routes.push({
+            route: item.key,
+            permissions: item.permissions,
+          });
+        }
+
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    // First add hidden routes
+    hiddenRoutes.forEach((route) => {
+      if (route.key && route.permissions) {
+        routes.push({
+          route: route.key,
+          permissions: route.permissions,
+        });
+      }
+    });
+
+    // Then add visible menu routes
+    traverse(menuItems);
+    return routes;
+  };
+
+
 
   // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
   const isRouteMatch = (routePattern: string, pathname: string) => {
@@ -707,6 +806,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   }, [departments, employeeData, router]);
 
+
   // ✅ Check permission on pathname change
   useEffect(() => {
     const checkPermissions = async () => {
@@ -781,7 +881,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
       setTenantId('');
       setToken('');
-      setUser2FA({ email: '', pass: '', recaptchaToken: '' });
+      setUser2FA({ email: '', pass: '' });
 
       // Then remove cookies
       removeCookie('token');
@@ -798,7 +898,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     } catch (error) { }
   };
 
-  const filteredMenuItems = treeData
+  const filteredMenuItems = filteredTreeData
     .map((item) => {
       const hasAccess = AccessGuard.checkAccess({
         permissions: item.permissions,
@@ -930,84 +1030,86 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   return (
     <Layout>
-      <Sider
-        theme="light"
-        width={280}
-        style={{
-          overflow: 'auto',
-          height: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 1000,
-          transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
-          transition: 'transform 0.3s ease',
-          overflowX: 'hidden',
-        }}
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        breakpoint="md"
-        onBreakpoint={(broken) => {
-          setIsMobile(broken);
-          if (broken) {
-            setMobileCollapsed(true);
-          }
-        }}
-        collapsedWidth={isMobile ? 80 : 80}
-      >
-        <div className="my-2">{collapsed && <SimpleLogo />}</div>
+      {shouldShowSidebar && (
+        <Sider
+          theme="light"
+          width={280}
+          style={{
+            overflow: 'auto',
+            height: '100vh',
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            zIndex: 1000,
+            transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
+            transition: 'transform 0.3s ease',
+            overflowX: 'hidden',
+          }}
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          breakpoint="md"
+          onBreakpoint={(broken) => {
+            setIsMobile(broken);
+            if (broken) {
+              setMobileCollapsed(true);
+            }
+          }}
+          collapsedWidth={isMobile ? 80 : 80}
+        >
+          <div className="my-2">{collapsed && <SimpleLogo />}</div>
 
-        <div className="flex justify-between px-4 my-4">
-          <div className=" flex items-center gap-2">
-            {!collapsed && <Logo type="selamnew" />}
+          <div className="flex justify-between px-4 my-4">
+            <div className=" flex items-center gap-2">
+              {!collapsed && <Logo type="selamnew" />}
+            </div>
+
+            <div onClick={toggleCollapsed} className="text-black text-xl">
+              {collapsed ? (
+                <MdOutlineKeyboardDoubleArrowRight />
+              ) : (
+                <MdOutlineKeyboardDoubleArrowLeft />
+              )}
+            </div>
           </div>
+          {!collapsed && (
+            <Button
+              href="/dashboard"
+              className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
+            >
+              <div className="text-black font-bold font-['Manrope'] leading-normal">
+                Dashboard
+              </div>
+              <AppstoreOutlined size={24} className="text-black" />
+            </Button>
+          )}
 
-          <div onClick={toggleCollapsed} className="text-black text-xl">
-            {collapsed ? (
-              <MdOutlineKeyboardDoubleArrowRight />
+          <div className="relative">
+            <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
+            {isLoading ? (
+              <div className="px-5 w-full h-full flex justify-center items-center my-5">
+                <Skeleton active />{' '}
+              </div>
             ) : (
-              <MdOutlineKeyboardDoubleArrowLeft />
+              <Tree
+                treeData={getResponsiveTreeData(filteredMenuItems, collapsed)}
+                showLine={{ showLeafIcon: false }}
+                defaultExpandAll={false}
+                expandedKeys={expandedKeys}
+                selectedKeys={selectedKeys}
+                onSelect={handleSelect}
+                onDoubleClick={handleDoubleClick}
+                className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
+                switcherIcon={null}
+              />
             )}
           </div>
-        </div>
-        {!collapsed && (
-          <Button
-            href="/dashboard"
-            className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
-          >
-            <div className="text-black font-bold font-['Manrope'] leading-normal">
-              Dashboard
-            </div>
-            <AppstoreOutlined size={24} className="text-black" />
-          </Button>
-        )}
-
-        <div className="relative">
-          <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
-          {isLoading ? (
-            <div className="px-5 w-full h-full flex justify-center items-center my-5">
-              <Skeleton active />{' '}
-            </div>
-          ) : (
-            <Tree
-              treeData={getResponsiveTreeData(filteredMenuItems, collapsed)}
-              showLine={{ showLeafIcon: false }}
-              defaultExpandAll={false}
-              expandedKeys={expandedKeys}
-              selectedKeys={selectedKeys}
-              onSelect={handleSelect}
-              onDoubleClick={handleDoubleClick}
-              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
-              switcherIcon={null}
-            />
-          )}
-        </div>
-      </Sider>
+        </Sider>
+      )}
       <Layout
         style={{
-          marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
+          marginLeft: shouldShowSidebar ? (isMobile ? 2 : collapsed ? 10 : 20) : 0,
           transition: 'margin-left 0.3s ease',
         }}
       >
@@ -1018,14 +1120,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             display: 'flex',
             alignItems: 'center',
             position: 'fixed',
-            width: isMobile
-              ? '100%'
-              : collapsed
-                ? 'calc(100% - 80px)'
-                : 'calc(100% - 280px)',
+            width: shouldShowSidebar
+              ? (isMobile
+                ? '100%'
+                : collapsed
+                  ? 'calc(100% - 80px)'
+                  : 'calc(100% - 280px)')
+              : '100%',
             zIndex: 1000,
             top: 0,
-            left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
+            left: shouldShowSidebar
+              ? (isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280)
+              : 0,
             transition: 'left 0.3s ease, width 0.3s ease',
             boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.15)', // Adjust shadow as needed
           }}
@@ -1058,7 +1164,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className="overflow-y-hidden min-h-screen"
           style={{
             paddingInline: isMobile ? 8 : 24,
-            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            paddingLeft: shouldShowSidebar ? (isMobile ? 0 : collapsed ? 5 : 280) : 0,
             transition: 'padding-left 0.3s ease',
           }}
         >
