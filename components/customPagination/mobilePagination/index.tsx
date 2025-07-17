@@ -2,49 +2,35 @@
 
 import { Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { usePaginationStore } from '@/store/uistate/features/pagination';
 
 interface CustomPaginationProps {
   totalResults: number;
   pageSize: number;
   currentPage?: number;
-  onChange?: (page: number, pageSize: number) => void;
+  onChange?: (page: number, pageSize?: number) => void;
   onShowSizeChange?: (current: number, size: number) => void;
 }
 
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   totalResults,
   pageSize,
-  currentPage,
+  currentPage = 1,
   onChange,
   onShowSizeChange,
 }) => {
-  const { currentPage: globalCurrentPage, setCurrentPage } =
-    usePaginationStore();
-
-  const activeCurrentPage = currentPage ?? globalCurrentPage;
-
   const totalPages = Math.ceil(totalResults / pageSize);
 
   const handlePrevious = () => {
-    if (activeCurrentPage > 1) {
-      const newPage = activeCurrentPage - 1;
-      if (currentPage === undefined) {
-        setCurrentPage(newPage);
-      }
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
       onChange?.(newPage, pageSize);
-      onShowSizeChange?.(newPage, pageSize);
     }
   };
 
   const handleNext = () => {
-    if (activeCurrentPage < totalPages) {
-      const newPage = activeCurrentPage + 1;
-      if (currentPage === undefined) {
-        setCurrentPage(newPage);
-      }
+    if (currentPage < totalPages) {
+      const newPage = currentPage + 1;
       onChange?.(newPage, pageSize);
-      onShowSizeChange?.(newPage, pageSize);
     }
   };
 
@@ -54,16 +40,16 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
         <Button
           icon={<LeftOutlined />}
           onClick={handlePrevious}
-          disabled={activeCurrentPage === 1}
+          disabled={currentPage === 1}
           className="border-gray-200"
         />
         <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 font-medium">
-          {activeCurrentPage}
+          {currentPage}
         </div>
         <Button
           icon={<RightOutlined className="text-gray-800" />}
           onClick={handleNext}
-          disabled={activeCurrentPage === totalPages}
+          disabled={currentPage === totalPages}
           className="border-gray-200"
         />
       </div>

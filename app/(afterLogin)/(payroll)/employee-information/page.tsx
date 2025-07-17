@@ -282,6 +282,7 @@ const EmployeeInformation = () => {
           <CustomMobilePagination
             totalResults={filteredData?.length || 0}
             pageSize={pageSize}
+            currentPage={currentPage}
             onChange={onPageChange}
             onShowSizeChange={onPageSizeChange}
           />
