@@ -41,7 +41,7 @@ const Page = () => {
         children: <AllRecognition data={[recognitionType]} />,
       })) || []),
   ];
- 
+
   const CategoryButton = (
     <AccessGuard permissions={[Permissions.CreateRecognition]}>
       <Button
