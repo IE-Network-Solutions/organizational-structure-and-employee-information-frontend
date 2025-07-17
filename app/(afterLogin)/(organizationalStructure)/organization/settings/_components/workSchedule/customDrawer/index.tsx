@@ -2,6 +2,7 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { DayOfWeek } from '@/store/server/features/organizationStructure/workSchedule/interface';
 import { useUpdateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
 import { useCreateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
+import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
 import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { showValidationErrors } from '@/utils/showValidationErrors';
@@ -37,8 +38,11 @@ const CustomWorkingScheduleDrawer = () => {
     setValidationError,
     clearValidationError,
   } = useScheduleStore();
-  const { mutate: updateSchedule } = useUpdateSchedule();
-  const { mutate: createSchedule } = useCreateSchedule();
+  const { mutate: updateSchedule, isSuccess: isUpdateSuccess } =
+    useUpdateSchedule();
+  const { mutate: createSchedule, isSuccess: isCreateSuccess } =
+    useCreateSchedule();
+  const { refetch: refetchSchedules } = useFetchSchedule();
   const [form] = Form.useForm();
   const { detail } = useScheduleStore((state) => ({
     scheduleName: state.scheduleName,
@@ -84,7 +88,6 @@ const CustomWorkingScheduleDrawer = () => {
               detail: transformedDetails,
             },
           });
-          handleCancel();
         })
         .catch((errorInfo: any) => {
           showValidationErrors(errorInfo?.errorFields);
@@ -97,7 +100,6 @@ const CustomWorkingScheduleDrawer = () => {
             name: scheduleName,
             detail: transformedDetails,
           });
-          handleCancel();
         })
         .catch((errorInfo: any) => {
           showValidationErrors(errorInfo?.errorFields);
@@ -124,6 +126,26 @@ const CustomWorkingScheduleDrawer = () => {
     };
     form.setFieldsValue(fieldValues);
   }, [form, scheduleName, detail]);
+
+  // Handle successful mutations with proper timing
+  useEffect(() => {
+    if (isUpdateSuccess || isCreateSuccess) {
+      // Force refetch the schedule data and wait for it to complete
+      refetchSchedules().then(() => {
+        // Only close after the data has been refetched
+        clearState();
+        form.resetFields();
+        closeDrawer();
+      });
+    }
+  }, [
+    isUpdateSuccess,
+    isCreateSuccess,
+    refetchSchedules,
+    clearState,
+    form,
+    closeDrawer,
+  ]);
 
   const handleValuesChange = (s: any, allValues: any) => {
     let totalHours = 0;
