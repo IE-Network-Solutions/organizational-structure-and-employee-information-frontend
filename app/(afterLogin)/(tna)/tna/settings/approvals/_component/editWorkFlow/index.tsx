@@ -107,7 +107,7 @@ const EditWorkFLow = () => {
           // Remove only the specific deleted approver from the form
           const currentApprovers = form.getFieldValue('approvers') || [];
           const updatedApprovers = currentApprovers.filter(
-            (approver: any) => approver?.approverId !== user.id
+            (approver: any) => approver?.approverId !== user.id,
           );
           form.setFieldsValue({ approvers: updatedApprovers });
         },
@@ -120,19 +120,22 @@ const EditWorkFLow = () => {
     );
     if (user) {
       setDeleteModal(false);
-      deleteApprover({
-        id: user?.id,
-        workFlowId: { approvalWorkflowId: workFlowId },
-      }, {
-        onSuccess: () => {
-          // Remove only the specific deleted approver from the form
-          const currentApprovers = form.getFieldValue('approvers') || [];
-          const updatedApprovers = currentApprovers.filter(
-            (approver: any) => approver?.approverId !== user.id
-          );
-          form.setFieldsValue({ approvers: updatedApprovers });
+      deleteApprover(
+        {
+          id: user?.id,
+          workFlowId: { approvalWorkflowId: workFlowId },
         },
-      });
+        {
+          onSuccess: () => {
+            // Remove only the specific deleted approver from the form
+            const currentApprovers = form.getFieldValue('approvers') || [];
+            const updatedApprovers = currentApprovers.filter(
+              (approver: any) => approver?.approverId !== user.id,
+            );
+            form.setFieldsValue({ approvers: updatedApprovers });
+          },
+        },
+      );
     }
   };
   return (

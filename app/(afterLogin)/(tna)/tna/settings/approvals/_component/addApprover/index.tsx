@@ -69,11 +69,11 @@ const AddApprover = () => {
         },
         onError: (error: any) => {
           // For AxiosError, the backend message is in error.response.data.message
-          const errorMessage = 
-            error?.response?.data?.message || 
-            error?.message || 
+          const errorMessage =
+            error?.response?.data?.message ||
+            error?.message ||
             'Something went wrong';
-            
+
           NotificationMessage.error({
             message: 'Error',
             description: errorMessage,

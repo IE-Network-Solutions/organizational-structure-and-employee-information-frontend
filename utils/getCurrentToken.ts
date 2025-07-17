@@ -11,10 +11,10 @@ export const getCurrentToken = async (): Promise<string> => {
     if (auth.currentUser) {
       const tokenResult = await auth.currentUser.getIdTokenResult();
       const currentToken = tokenResult.token;
-      
+
       // Update the store with the fresh token
       useAuthenticationStore.getState().setToken(currentToken);
-      
+
       return currentToken;
     }
     // Fallback to store token if no Firebase user
@@ -24,4 +24,3 @@ export const getCurrentToken = async (): Promise<string> => {
     return useAuthenticationStore.getState().token;
   }
 };
-

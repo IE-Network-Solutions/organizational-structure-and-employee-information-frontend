@@ -92,16 +92,16 @@ export const useGetSettlementTracking = (
   );
 };
 
-export const useGetSettlementTrackingById = async (
+export const useGetSettlementTrackingById =  (
   id: string,
   options?: UseQueryOptions<SettlementTrackingDetail>,
 ) => {
-  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery<SettlementTrackingDetail>(
     ['settlement-tracking', id],
     async () => {
+      const token = await getCurrentToken();
       const response = await fetch(`${PAYROLL_URL}/settlement-tracking/${id}`, {
         headers: {
           ...requestHeader,
@@ -127,16 +127,17 @@ export const useGetSettlementTrackingById = async (
 };
 
 // Helper function to check if settlement tracking exists
-export const useCheckSettlementTrackingExists = async (
+export const useCheckSettlementTrackingExists = (
   employeeId: string,
   payPeriod: string,
 ) => {
-  const token = await getCurrentToken();
+
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery(
     ['settlement-tracking-exists', employeeId, payPeriod],
     async () => {
+      const token = await getCurrentToken();
       const response = await fetch(
         `${PAYROLL_URL}/settlement-tracking/check-exists?employeeId=${employeeId}&payPeriod=${payPeriod}`,
         {
@@ -161,16 +162,17 @@ export const useCheckSettlementTrackingExists = async (
   );
 };
 
-export const useEmployeeSettlementTracking = async (
+export const useEmployeeSettlementTracking = (
   entitlementId: string,
   employeeId: string,
 ) => {
-  const token = await getCurrentToken();
+
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery(
     ['settlement-tracking-exists', employeeId, entitlementId],
     async () => {
+      const token = await getCurrentToken();
       const response = await fetch(
         `${PAYROLL_URL}/compensation-item-entitlement/get-employee-settlement-tracking/entitlement/${entitlementId}/employee/${employeeId}`,
         {

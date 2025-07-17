@@ -8,8 +8,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
-
-
 /**
  * Fetch all categories from the API.
  * @param {number} pageSize - The number of categories to fetch per page.
