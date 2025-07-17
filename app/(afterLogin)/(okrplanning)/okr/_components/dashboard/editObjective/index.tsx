@@ -84,7 +84,10 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               }
 
               // Validate that each milestone has a non-empty name/title
-              for (const [mIndex, milestone] of keyResult.milestones.entries()) {
+              for (const [
+                mIndex,
+                milestone,
+              ] of keyResult.milestones.entries()) {
                 if (!milestone?.title || milestone.title.trim() === '') {
                   NotificationMessage.warning({
                     message: `On Number: ${index + 1} Title:${keyResult.title} Milestone ${mIndex + 1} must have a name.`,
