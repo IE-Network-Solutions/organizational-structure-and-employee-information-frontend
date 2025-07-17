@@ -149,7 +149,8 @@ export const useCreateApproverMutation = () => {
       });
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || 'Something went wrong';
+      const errorMessage =
+        error?.response?.data?.message || 'Something went wrong';
       NotificationMessage.error({
         message: 'Error',
         description: errorMessage,
@@ -185,7 +186,8 @@ export const useUpdateAssignedUserMutation = () => {
         });
       },
       onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || 'Something went wrong';
+        const errorMessage =
+          error?.response?.data?.message || 'Something went wrong';
         NotificationMessage.error({
           message: 'Error',
           description: errorMessage,
@@ -209,7 +211,8 @@ export const useAddApproverMutation = () => {
         });
       },
       onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || 'Something went wrong';
+        const errorMessage =
+          error?.response?.data?.message || 'Something went wrong';
         NotificationMessage.error({
           message: 'Error',
           description: errorMessage,

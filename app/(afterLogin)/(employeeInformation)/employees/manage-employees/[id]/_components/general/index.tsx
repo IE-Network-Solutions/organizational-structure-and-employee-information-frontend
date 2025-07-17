@@ -20,12 +20,26 @@ function General({ id }: { id: string }) {
   const [form] = Form.useForm();
   const { data: employeeInformationForm } = useGetEmployeInformationForms();
 
-  const mergedFields = employeeInformationForm?.items.flatMap((form) =>
-    form.form.map((field) => ({
-      ...field,
-      formTitle: form.formTitle, // Add formTitle to each field
-    })),
-  );
+  const mergedFields =
+    employeeInformationForm?.items.flatMap((form) =>
+      form.form.map((field) => {
+        // Handle both FormField and FormFieldWithFieldProperty types
+        if ('field' in field) {
+          // FormFieldWithFieldProperty case
+          return {
+            ...field.field,
+            formTitle: form.formTitle,
+            id: field.id,
+          };
+        } else {
+          // FormField case
+          return {
+            ...field,
+            formTitle: form.formTitle,
+          };
+        }
+      }),
+    ) || [];
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
