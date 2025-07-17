@@ -51,7 +51,7 @@ const CommentCard: React.FC<Props> = ({
       <div className="flex items-center  gap-1 text-sm cursor-pointer mb-2">
         {CommentAuthorsAvatars(data)}
         <span onClick={() => setViewComment(!viewComment)}>
-        {data?.length} Comments
+          {data?.length} Comments
         </span>
       </div>
       {loading ? (

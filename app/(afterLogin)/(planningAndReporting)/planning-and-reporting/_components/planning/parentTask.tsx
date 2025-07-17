@@ -28,7 +28,9 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
             {/* Task Title and Icon */}
             <div className="flex items-center gap-1 mb-1 w-full min-w-0">
               <span className="text-xs flex-1 min-w-0  text-gray-700 text-nowrap">
-              {task?.task?.length > 40 ? task.task.slice(0, 40) + '...' : task?.task}
+                {task?.task?.length > 40
+                  ? task.task.slice(0, 40) + '...'
+                  : task?.task}
               </span>
               {task?.achieveMK && (
                 <div className="flex-shrink-0">
@@ -61,7 +63,6 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                   {task?.weight || 0}
                 </Tag>
               </div>
-
             </div>
           </div>
 
@@ -137,7 +138,9 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
             <span className="rounded-full bg-blue w-0.5 h-0.5"></span>
           </div>
           <Text className="text-xs md:text-sm text-nowrap" strong>
-            {parentTaskName?.length > 40 ? parentTaskName.slice(0, 40) + '...' : parentTaskName}
+            {parentTaskName?.length > 40
+              ? parentTaskName.slice(0, 40) + '...'
+              : parentTaskName}
           </Text>
         </div>
       ),

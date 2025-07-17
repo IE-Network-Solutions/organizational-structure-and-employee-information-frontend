@@ -283,19 +283,23 @@ function Planning() {
                       const planDate = dayjs(dataItem?.createdAt);
                       const today = dayjs() || dayjs().subtract(1, 'day');
                       const thisFriday = dayjs().day(5); // 0 = Sunday, ..., 5 = Friday
-                      const adjustedThisFriday = today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+                      const adjustedThisFriday =
+                        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
                       const lastFriday = adjustedThisFriday.subtract(7, 'day');
 
-                      
-                      if (planDate.isSame(today, 'day') && 
-                                activeTabName === 'Daily') {
+                      if (
+                        planDate.isSame(today, 'day') &&
+                        activeTabName === 'Daily'
+                      ) {
                         return "Today's Plan";
                       } else if (
-                        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
-                        (planDate.isSame(adjustedThisFriday, 'day') || planDate.isBefore(adjustedThisFriday)) &&
+                        (planDate.isSame(lastFriday, 'day') ||
+                          planDate.isAfter(lastFriday)) &&
+                        (planDate.isSame(adjustedThisFriday, 'day') ||
+                          planDate.isBefore(adjustedThisFriday)) &&
                         activeTabName === 'Weekly'
                       ) {
-                        return "This Week Plan";
+                        return 'This Week Plan';
                       }
                     })()}
                   </div>
