@@ -116,11 +116,10 @@ const UserLeaveBalance: React.FC = () => {
               <div>
                 <p className="font-medium text-xs">{item.leaveType.title}</p>
                 <Tag
-                  className={`font-medium border-none ${
-                    item.leaveType.isFixed
-                      ? 'bg-[#b2b2ff] text-blue'
-                      : 'bg-green-200 text-green-700'
-                  }`}
+                  className={`font-medium border-none ${item.leaveType.isFixed
+                    ? 'bg-[#b2b2ff] text-blue'
+                    : 'bg-green-200 text-green-700'
+                    }`}
                 >
                   {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
@@ -144,43 +143,36 @@ const UserLeaveBalance: React.FC = () => {
       {/* Entitlement and Utilization */}
       <div className="grid grid-cols-12 gap-4 mt-4">
         <Card
-          bodyStyle={{ padding: '10px' }}
-          className="shadow col-span-3 space-y-2 h-44"
+          bodyStyle={{ padding: '16px' }}
+          className="shadow-sm rounded-lg col-span-3 h-fit"
           loading={userLeaveBalanceLoading}
         >
-          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
-            <p className="font-normal text-sm w-28">Entitled</p>
-            <p className="font-semibold text-[16px]">
-              {userLeaveBalance?.data?.totals?.totalEntitledDays}
-            </p>
-          </div>
-          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
-            <p className="font-normal text-sm w-28">Accrued</p>
-            <p className="font-semibold text-[16px]">
-              {userLeaveBalance?.data?.totals?.totalAccrued}
-            </p>
-          </div>
-          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2 ">
-            <p className="font-normal text-sm w-28">Carried over</p>
-            <p className="font-semibold text-[16px]">
-              {userLeaveBalance?.data?.totals?.totalCarriedOver}
-            </p>
-          </div>
-          <div className="flex flex-row gap-2 items-center justify-between border-b border-gray-300 pb-2 mb-2">
-            <p className="font-normal text-sm w-28">Total Utilized</p>
-            <p className="font-semibold text-[16px]">
-              {userLeaveBalance?.data?.totals?.totalUtilizedLeaves}
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-4 py-2 border-b border-gray-200">
+              <span className="text-sm text-gray-600 text-right w-24">Entitled</span>
+              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalEntitledDays || 0}</span>
+            </div>
+            <div className="flex items-center gap-4 py-2 border-b border-gray-200">
+              <span className="text-sm text-gray-600 text-right w-24">Accrued</span>
+              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalAccrued || 0}</span>
+            </div>
+            <div className="flex items-center gap-4 py-2 border-b border-gray-200">
+              <span className="text-sm text-gray-600 text-right w-24">Carried over</span>
+              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalCarriedOver || 0}</span>
+            </div>
+            <div className="flex items-center gap-4  py-2">
+              <p className="text-sm text-gray-600 text-right w-24">Total Utilized</p>
+              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalUtilizedLeaves || 0}</span>
+            </div>
           </div>
         </Card>
 
         <Card
           bodyStyle={{ padding: '10px' }}
           className="shadow col-span-9 space-y-2 "
+          title={"Utilization"}
         >
-          <p className="font-medium text-xs mb-2 border-b border-gray-300">
-            Utilization
-          </p>
+
           <Spin spinning={userLeaveBalanceLoading}>
             <div className="flex flex-col gap-2 h-96 overflow-y-auto scrollbar-none">
               {userLeaveBalanceLoading && <Skeleton active />}

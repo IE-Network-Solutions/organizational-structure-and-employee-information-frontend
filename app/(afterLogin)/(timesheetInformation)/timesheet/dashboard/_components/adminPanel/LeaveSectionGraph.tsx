@@ -126,13 +126,13 @@ const LeaveSectionGraph: React.FC = () => {
             }
             options={departmentOptions}
             maxTagCount={1}
-            className="w-full h-12"
+            className="w-32 h-12"
             onChange={(value) => setDepartmentOnLeave(value)}
           />
 
           <RangePicker
             allowClear
-            className="w-full h-12"
+            className="w-32 h-12"
             onChange={(value) => {
               if (value) {
                 setStartDate(value[0]?.format('YYYY-MM-DD') || '');

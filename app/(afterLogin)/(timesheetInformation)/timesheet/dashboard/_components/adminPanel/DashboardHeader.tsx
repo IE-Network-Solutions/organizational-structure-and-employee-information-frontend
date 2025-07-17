@@ -1,16 +1,20 @@
 import React from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
+import { useSearchParams } from 'next/navigation';
 
 const DashboardHeader: React.FC = () => {
   const { activeTab, setActiveTab } = TimeAndAttendaceDashboardStore();
+  const searchParams = useSearchParams();
+  const hasEmployeeAttendance = searchParams.has('employeeAttendance');
+
   return (
     <div className="mb-6">
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
           className="text-sm"
           title="Time and attendance"
-          subtitle="Manage your TimeSheet"
+          subtitle={hasEmployeeAttendance ? "Employee Employee Timesheet" : "Manage Your TimeSheet"}
         />
         <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3">
           <button

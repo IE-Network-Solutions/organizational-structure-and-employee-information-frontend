@@ -15,14 +15,16 @@ interface Employee {
   name: string;
   profileImage: string;
   department: string;
-  status: 'ON LEAVE' | 'Active';
+  status: 'late' | 'active' | 'absent' | 'on leave';
   absentDays: number;
   lateDays: number;
 }
 
 const statusColors = {
-  'ON LEAVE': 'bg-red-100 text-red-600',
-  Active: 'bg-green-100 text-green-600',
+  'late': 'bg-yellow-100 text-yellow-600',
+  "active": 'bg-green-100 text-green-600',
+  "absent": 'bg-red-100 text-red-600',
+  "on leave": 'bg-purple-100 text-purple-600',
 };
 
 export default function EmployeeAttendanceTable() {
@@ -116,7 +118,7 @@ export default function EmployeeAttendanceTable() {
       render: (days: number) => `${days} days`,
     },
   ];
-
+  console.log(adminAttendanceUsers, "adminAttendanceUsers");
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       {/* Filters */}
@@ -143,8 +145,7 @@ export default function EmployeeAttendanceTable() {
           onChange={(value) => setDepartmentOnAttendance(value)}
           className="w-52 h-12"
         >
-          <Option value="Active">Active</Option>
-          <Option value="ON LEAVE">ON LEAVE</Option>
+
         </Select>
         <RangePicker
           className="w-52 h-12 "

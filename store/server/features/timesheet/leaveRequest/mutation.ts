@@ -130,6 +130,7 @@ export const useSetLeaveRequest = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
       queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('userLeaveRequests');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

@@ -15,12 +15,14 @@ import dayjs from 'dayjs';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import LeaveSectionGraph from './LeaveSectionGraph';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement);
 
 const LeaveSection: React.FC = () => {
   const {
-    setDepartmentOnLeave,
+    setLeaveTypeOnLeave,
+    leaveTypeOnLeave,
     setUserIdOnLeave,
     departmentOnLeave,
     userIdOnLeave,
@@ -32,15 +34,16 @@ const LeaveSection: React.FC = () => {
     startDate: startDate,
     endDate: endDate,
     departmentId: departmentOnLeave,
+    leaveTypeId: leaveTypeOnLeave,
   });
 
   // Line chart data for employee trends
 
-  const { data: Departments } = useGetUserDepartment();
+  const { data: leaveTypes } = useGetLeaveTypes();
 
-  const departmentOptions = Departments?.map((i: any) => ({
+  const leaveTypeOption = leaveTypes?.items?.map((i: any) => ({
     value: i.id,
-    label: i?.name,
+    label: i?.title,
   }));
   const { data: Employees } = useGetEmployees();
   const employeeOptions = Employees?.items?.map((i: any) => ({
@@ -69,17 +72,17 @@ const LeaveSection: React.FC = () => {
             />
             <Select
               showSearch
-              placeholder="Select department"
+              placeholder="Select Leave Type"
               allowClear
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
                   ?.toLowerCase()
                   .includes(input.toLowerCase())
               }
-              options={departmentOptions}
+              options={leaveTypeOption}
               maxTagCount={1}
-              className="w-full h-12"
-              onChange={(value) => setDepartmentOnLeave(value)}
+              className="w-32 h-12"
+              onChange={(value) => setLeaveTypeOnLeave(value)}
             />
           </div>
           <Spin spinning={loading}>
@@ -114,7 +117,7 @@ const LeaveSection: React.FC = () => {
                     </div>
                     <div className="flex flex-col items-end gap-0">
                       <span className="text-sm font-medium text-sm">
-                        {leave.days}
+                        {leave.days} {leave.days > 1 ? 'days' : 'day'}
                       </span>
                       <Tag
                         style={{ marginInlineEnd: 0 }}

@@ -98,7 +98,7 @@ const LeaveRequestSidebar = () => {
       form.setFieldValue(
         'type',
         typeof leaveRequest?.leaveType !== 'string' &&
-          leaveRequest.leaveType?.id,
+        leaveRequest.leaveType?.id,
       );
       form.setFieldValue('isHalfday', leaveRequest.isHalfday);
       form.setFieldValue('startDate', dayjs(leaveRequest.startAt));
@@ -114,7 +114,7 @@ const LeaveRequestSidebar = () => {
         form.setFieldValue(
           'delegatee',
           typeof leaveRequest?.delegatee !== 'string' &&
-            leaveRequest?.delegatee?.id,
+          leaveRequest?.delegatee?.id,
         );
       }
     }

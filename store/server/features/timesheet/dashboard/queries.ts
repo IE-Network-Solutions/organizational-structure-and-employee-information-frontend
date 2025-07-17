@@ -76,6 +76,8 @@ export const getAdminOnLeave = async (params: {
   startDate?: string;
   endDate?: string;
   userId?: string;
+  leaveTypeId?: string;
+  departmentId?: string;
 }) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_ON_LEAVE_API}`,
@@ -90,6 +92,7 @@ export const useGetAdminOnLeave = (params: {
   endDate?: string;
   userId?: string;
   departmentId?: string;
+  leaveTypeId?: string;
 }) => {
   return useQuery(['adminOnLeave', params], () => getAdminOnLeave(params));
 };
@@ -99,6 +102,7 @@ export const getAdminPendingLeaveRequests = async (params?: {
   endDate?: string;
   userId?: string;
   departmentId?: string;
+  leaveTypeId?: string;
 }) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_PENDING_LEAVE_REQUESTS_API}`,
@@ -113,6 +117,7 @@ export const useGetAdminPendingLeaveRequests = (params?: {
   endDate?: string;
   userId?: string;
   departmentId?: string;
+  leaveTypeId?: string;
 }) => {
   return useQuery(['adminPendingLeaveRequests', params], () =>
     getAdminPendingLeaveRequests(params),
@@ -123,6 +128,7 @@ export const getAdminAttendanceStats = async (params: {
   startDate: string;
   endDate: string;
   departmentId?: string;
+  userId?: string;
 }) => {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_ATTENDANCE_STATS_API}`,
@@ -136,6 +142,7 @@ export const useGetAdminAttendanceStats = (params: {
   startDate: string;
   endDate: string;
   departmentId?: string;
+  userId?: string;
 }) => {
   return useQuery(['adminAttendanceStats', params], () =>
     getAdminAttendanceStats(params),

@@ -10,7 +10,7 @@ export default function Dashboard() {
   const { activeTab } = TimeAndAttendaceDashboardStore();
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen space-y-4">
+    <div className="min-h-screen space-y-4 bg-[#f5f5f5]">
       <DashboardHeader />
       {activeTab === 'admin' ? (
         <div className={`transition-all duration-500 ease-in-out`}>
