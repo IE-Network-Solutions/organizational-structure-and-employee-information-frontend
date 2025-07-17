@@ -13,6 +13,7 @@ import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { LuFileDown } from 'react-icons/lu';
 
 interface ApprovalRequestCardProps {
   name: string;
@@ -26,20 +27,20 @@ interface ApprovalRequestCardProps {
   id: string;
   approveRequesterId: string;
   requestType: string;
+  fileAttachment?: string;
 }
 
 const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   name,
-  days,
   startAt,
   endAt,
-  isHalfDay,
   leaveType,
   approvalWorkflowId,
   nextApprover,
   approveRequesterId,
   id,
   requestType,
+  fileAttachment,
 }) => {
   const { rejectComment, setRejectComment } = useApprovalStore();
   const { mutate: editApprover } = useSetApproveLeaveRequest();
@@ -147,31 +148,34 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           />
         </div>
         <div className="flex flex-col">
-          <p className="font-bold text-[12px]">
-            {employeeData?.firstName} {employeeData?.middleName}
-          </p>
-          <p className="font-bold text-gray-500 text-[12px]">
+          <p className="font-semibold text-xs">
             {leaveType?.length >= 15
               ? leaveType?.slice(0, 15) + '...'
               : leaveType}
           </p>
+          <p className="font-normal text-gray-500 text-[10px]">
+            {employeeData?.firstName} {employeeData?.middleName}
+          </p>
           {requestType === 'BranchTransfer' ? (
             <>
-              <p className="text-[10px] text-gray-500">
+              <p className="font-normal text-gray-500 text-[10px]">
                 {startAt || '-'} to {endAt || '-'}
               </p>
             </>
           ) : requestType === 'Leave' ? (
-            <>
-              <p className="text-[10px] text-gray-500">
+            <div className="flex justify-between items-center gap-5 font-normal text-gray-500 text-[10px]">
+              <p className="">
                 {isMobile || isTablet
                   ? `${dayjs(startAt).format('MMM DD') || '-'} to ${dayjs(endAt).format('MMM DD') || '-'}`
                   : `${dayjs(startAt).format('MMM DD, YYYY') || '-'} to ${dayjs(endAt).format('MMM DD, YYYY') || '-'}`}
               </p>
-              <p className="text-[10px] text-gray-500">
-                (for {days} day) {isHalfDay ? 'Half Day' : ''}
-              </p>
-            </>
+
+              {fileAttachment && (
+                <a href={fileAttachment} target="_blank">
+                  <LuFileDown className="text-[#2F78EE] text-base " />
+                </a>
+              )}
+            </div>
           ) : (
             ''
           )}
