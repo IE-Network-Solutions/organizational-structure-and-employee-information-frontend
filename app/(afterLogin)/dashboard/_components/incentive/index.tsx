@@ -48,7 +48,7 @@ const Incentive = () => {
       })) || []),
   ];
   const itemStatus: { key: string; label: string }[] = [
-    { key: 'null', label: 'All' },
+    { key: 'null', label: 'Status' },
     { key: 'true', label: 'True' },
     { key: 'false', label: 'False' },
   ];
@@ -117,7 +117,7 @@ const Incentive = () => {
       <div>
         <Select
           bordered={false}
-          value={status === null ? 'All' : status.toString()} // handle null, true, false
+          value={status === null ? 'Status' : status.toString()} // handle null, true, false
           className="text-gray-500 w-20"
           onChange={(value) => {
             const parsedValue =
@@ -159,7 +159,7 @@ const Incentive = () => {
           <div>
             <Select
               bordered={false}
-              defaultValue="All Recognitions"
+              defaultValue="Incentive Type"
               className="text-gray-500 w-36"
               onChange={(value) => setRecognitionType(value)}
             >
@@ -171,8 +171,8 @@ const Incentive = () => {
             </Select>
             <Select
               bordered={false}
-              className="text-gray-500 w-20"
-              defaultValue="All"
+              className="text-gray-500 w-24"
+              defaultValue="Status"
               onChange={(value) => {
                 const parsedValue =
                   value === 'true' ? true : value === 'false' ? false : null;

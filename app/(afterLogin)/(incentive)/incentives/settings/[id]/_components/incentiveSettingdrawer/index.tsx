@@ -13,7 +13,7 @@ import { Button, Col, Form, Input, Radio, Row } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { RadioChangeEvent } from 'antd/lib';
 import { useParams } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const plainOptions = ['Fixed', 'Formula'];
 type Params = {
@@ -47,6 +47,8 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     setFormulaError,
   } = useIncentiveStore();
 
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
   //   ===========> HTTP Requests <============
 
   const { data: incentiveData } = useIncentiveCriteria();
@@ -54,8 +56,14 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     useUpdateIncentiveFormula();
   const { mutate: createFormula, isLoading: createLoading } =
     useSetIncentiveFormula();
+
   const fallbackRecognitionId = recognitionData?.id;
-  const { data: formulaById } = useIncentiveFormulaByRecognitionId(
+
+  const {
+    data: formulaById,
+    isFetching,
+    refetch,
+  } = useIncentiveFormulaByRecognitionId(
     recognitionId || fallbackRecognitionId,
   );
 
@@ -137,10 +145,12 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   const handleOptionClick = (id: string, name: string, type: string) => {
     if (name === 'Clear') {
       setFormula([]);
+      if (textAreaRef.current) textAreaRef.current.focus();
       return;
     }
     if (type === 'criteria' || type === 'operand') {
       setFormula([...formula, { id, name, type }]);
+      if (textAreaRef.current) textAreaRef.current.focus();
     }
   };
 
@@ -227,7 +237,14 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   };
 
   useEffect(() => {
-    if (openIncentiveDrawer) {
+    if (openIncentiveDrawer && recognitionId) {
+      refetch();
+    }
+  }, [openIncentiveDrawer, recognitionId, refetch]);
+
+  useEffect(() => {
+    if (openIncentiveDrawer && !isFetching && formulaById && recognitionId) {
+      // Set value and form fields as before
       form.setFieldsValue({ fixedAmount: formulaById?.monetizedValue || '' });
       if (formulaById?.expression) {
         setValue('Formula');
@@ -239,8 +256,54 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
         setValue('Fixed');
         form.setFieldsValue({ amountType: 'Fixed' });
       }
+
+      // NEW: Set formula from API when opening
+      let parsedExpression = [];
+      if (formulaById && formulaById?.expression) {
+        try {
+          if (typeof formulaById.expression === 'string') {
+            const parsedString = JSON.parse(formulaById.expression);
+            if (typeof parsedString === 'string') {
+              const parts = parsedString.split(' ').filter(Boolean);
+              parsedExpression = parts.map((part: string) => {
+                const cleanPart = part.replace(/"/g, '');
+                const matchingCriteria =
+                  recognitionData?.recognitionCriteria?.find(
+                    (crit: any) => crit?.criteria?.id === cleanPart,
+                  );
+                if (matchingCriteria) {
+                  return {
+                    id: matchingCriteria.criteria.id,
+                    name: matchingCriteria.criteria.criteriaName,
+                    type: 'criteria',
+                  };
+                } else {
+                  return {
+                    id: cleanPart,
+                    name: cleanPart,
+                    type: 'operand',
+                  };
+                }
+              });
+            } else {
+              parsedExpression = parsedString;
+            }
+          } else if (Array.isArray(formulaById.expression)) {
+            parsedExpression = formulaById.expression;
+          }
+        } catch (error) {
+          parsedExpression = [];
+        }
+      }
+      setFormula(parsedExpression);
     }
-  }, [openIncentiveDrawer, formulaById]);
+  }, [
+    openIncentiveDrawer,
+    isFetching,
+    formulaById,
+    recognitionData,
+    recognitionId,
+  ]);
 
   useEffect(() => {
     setValue(value);
@@ -554,6 +617,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
             }
           >
             <TextArea
+              ref={textAreaRef}
               value={getDisplayValue()}
               onChange={handleTextAreaChange}
               placeholder="Type numbers or click criteria and operands to build a formula"

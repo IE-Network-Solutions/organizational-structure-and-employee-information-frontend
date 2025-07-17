@@ -2,15 +2,9 @@ import React from 'react';
 import type { BadgeProps, CalendarProps } from 'antd';
 import { Badge, Calendar } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useDelegationState } from '@/store/uistate/features/dashboard/delegation';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { useGetSchedule } from '@/store/server/features/dashboard/survey/queries';
-
-// Extend dayjs with necessary plugins
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
 
 const Calender = () => {
   const { data: scheduleData } = useGetSchedule();
@@ -41,28 +35,43 @@ const Calender = () => {
     ...addCategory(scheduleData?.actionPlans ?? [], 'actionPlans'),
   ];
 
-  // Filter events by date range (startAt to endAt)
+  // Filter events by exact match to start or end date
   const getListData = (value: Dayjs) => {
-    const current = value.startOf('day');
+    const current = value.format('YYYY-MM-DD'); // string
 
-    return allEvents
-      .filter((event) => {
-        const start = dayjs(event.startAt).startOf('day');
-        const end = event.endAt ? dayjs(event.endAt).endOf('day') : start;
-        return current.isSameOrAfter(start) && current.isSameOrBefore(end);
-      })
-      .map((event) => ({
-        type: getBadgeType(event.category),
-      }));
+    const eventsForDay = allEvents.filter((event) => {
+      const start = event.startAt.split('T')[0];
+      const end = event.endAt ? event.endAt.split('T')[0] : null;
+
+      return current === start || current === end;
+    });
+
+    const hasMeetings = eventsForDay.some((e) => e.category === 'meetings');
+    const hasSurveys = eventsForDay.some((e) => e.category === 'surveys');
+    const hasActionPlans = eventsForDay.some(
+      (e) => e.category === 'actionPlans',
+    );
+
+    const listData = [];
+
+    if (hasMeetings) listData.push({ type: getBadgeType('meetings') });
+    if (hasSurveys) listData.push({ type: getBadgeType('surveys') });
+    if (hasActionPlans) listData.push({ type: getBadgeType('actionPlans') });
+
+    return listData;
   };
 
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
     return (
-      <div className="flex gap-1">
-        {listData.map((item, index) => (
-          <Badge key={index} status={item.type} />
-        ))}
+      <div className="flex gap-1 justify-center min-h-[18px]">
+        {listData.length > 0 ? (
+          listData.map((item, index) => (
+            <Badge key={index} status={item.type} />
+          ))
+        ) : (
+          <Badge />
+        )}
       </div>
     );
   };
@@ -98,7 +107,7 @@ const Calender = () => {
   };
 
   return (
-    <div className="h-[350px]">
+    <div className="h-[385px]">
       <Calendar
         headerRender={headerRender}
         fullscreen={false}
