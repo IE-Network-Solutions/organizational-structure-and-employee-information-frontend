@@ -6,19 +6,21 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { BreakTypeList } from '@/types/timesheet/breakType';
 
 const setBreakType = async (data: Partial<BreakTypeList>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const deleteBreakType = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/break-type`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };

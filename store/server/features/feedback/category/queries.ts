@@ -171,8 +171,8 @@ export const useGetFormCategories = (formCatsId: string) => {
  * @param {string} createdById - The ID of the user to fetch.
  * @returns {UseQueryResult<any>} The Query object for fetching the user.
  */
-export const useGetUsersById = async () => {
-  const token = await getCurrentToken();
+export const useGetUsersById = () => {
+  const token = useAuthenticationStore.getState().token;
   return useQuery<any>('categories', fetchCatUsersById, {
     keepPreviousData: true,
     enabled: !!token,

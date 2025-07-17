@@ -54,10 +54,10 @@ export const useGetFiscalYearById = (id: string) =>
     keepPreviousData: true,
   });
 
-export const useGetActiveFiscalYears = async (
+export const useGetActiveFiscalYears =  (
   options?: QueryObserverOptions<FiscalYear>,
 ) => {
-  const token = await getCurrentToken();
+  const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
     enabled: token.length > 0 && tenantId.length > 0,
@@ -65,8 +65,8 @@ export const useGetActiveFiscalYears = async (
   });
 };
 
-export const useGetActiveFiscalYearsData = async () => {
-  const token = await getCurrentToken();
+export const useGetActiveFiscalYearsData = () => {
+  const token = useAuthenticationStore.getState().token;
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
     enabled: token.length > 0 && tenantId.length > 0,

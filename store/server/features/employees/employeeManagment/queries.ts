@@ -270,8 +270,8 @@ export const useGetAllUsersData = () =>
  * This hook uses `useQuery` to fetch a list of posts from the API. It returns
  * the query object containing the posts data and any loading or error states.
  */
-export const useGetEmployees = async () => {
-  const token = await getCurrentToken();
+export const useGetEmployees = () => {
+  const token = useAuthenticationStore.getState().token;
   return useQuery<any>('employees', getEmployees, {
     enabled: !!token,
   });

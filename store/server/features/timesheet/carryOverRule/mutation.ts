@@ -6,19 +6,21 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const createCarryOverRule = async (item: Partial<CarryOverRule>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { item },
   });
 };
 
 const deleteCarryOverRule = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };
@@ -27,10 +29,11 @@ const updateCarryOverRuleActive = async (data: {
   id: string;
   isActive: boolean;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule/active`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id: data.id },
     data: { isActive: data.isActive },
   });

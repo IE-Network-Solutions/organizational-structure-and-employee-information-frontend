@@ -49,11 +49,11 @@ const getSelfAttendance = async (
 
 const getAnnualAttendance = async () => {
   const userId = useAuthenticationStore.getState().userId;
-
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };

@@ -171,10 +171,11 @@ export const useSendEmail = () => {
 };
 
 const sendToPayroll = async (data: any) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${PAYROLL_URL}/variable-pay`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

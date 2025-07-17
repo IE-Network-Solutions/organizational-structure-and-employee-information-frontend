@@ -137,14 +137,16 @@ const deleteMilestone = async (deletedId: string) => {
 
 // Function to update the remaining key results
 const updateKeyResults = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives/${data?.objectiveId}`,
     method: 'PUT',
     data,
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 const downloadEmployeeOkrScore = async (data: any) => {
+  const requestHeaders = await requestHeader();
   try {
     // const payload = {
     //   ...data,
@@ -156,7 +158,7 @@ const downloadEmployeeOkrScore = async (data: any) => {
       data,
       {
         headers: {
-          ...requestHeader(),
+          ...requestHeaders,
         },
         responseType: 'blob', // Important for file download!
       },

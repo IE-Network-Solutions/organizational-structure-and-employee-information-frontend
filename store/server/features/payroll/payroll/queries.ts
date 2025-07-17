@@ -107,42 +107,47 @@ const getPensionRule = async () => {
 };
 
 const getMonthById = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/month/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getSessionById = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/session/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getCalendars = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getActiveMonth = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/month/active/month`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getVariablePay = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_URL}/vp-score-instance/filter`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -157,10 +162,11 @@ export const useGetAllCalendars = () => {
 const fetchActiveFiscalYearPayPeriods = async (
   activeFiscalYearId: string | undefined,
 ) => {
-  return await crudRequest({
+  const requestHeaders = await requestHeader();
+    return await crudRequest({
     url: `${PAYROLL_URL}/pay-period/get-active-pay-period/active-year-id/${activeFiscalYearId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

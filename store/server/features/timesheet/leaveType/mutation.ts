@@ -6,27 +6,30 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const createLeaveType = async (item: Partial<LeaveType>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-type`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { item },
   });
 };
 const updateLeaveType = async (id: string, values: Partial<LeaveType>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-type/${id}`,
     method: 'PATCH',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: values,
   });
 };
 
 const deleteLeaveType = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-type`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };
@@ -35,10 +38,11 @@ const updateLeaveTypeActive = async (data: {
   id: string;
   isActive: boolean;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-type/active`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id: data.id },
     data: { isActive: data.isActive },
   });

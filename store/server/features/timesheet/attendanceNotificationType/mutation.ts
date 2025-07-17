@@ -8,19 +8,21 @@ import { AttendanceNotificationType } from '@/types/timesheet/attendance';
 const setAttendanceNotificationType = async (
   item: Partial<AttendanceNotificationType>,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { item },
   });
 };
 
 const deleteAttendanceNotificationType = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/attendance-notification-type`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };
