@@ -216,13 +216,13 @@ function Reporting() {
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
         <div className="flex items-center my-4 gap-4">
-          {/* {hasPermission && ( */}
+          {hasPermission && (
           <EmployeeSearch
             optionArray1={employeeData?.items}
             optionArray2={ReportingType}
             optionArray3={departmentData}
           />
-          {/* )} */}
+          )}
           <Tooltip
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
