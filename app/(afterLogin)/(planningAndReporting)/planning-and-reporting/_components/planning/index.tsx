@@ -221,6 +221,30 @@ function Planning() {
       ).length ?? 0) === 0
     : false;
 
+    const getDateLabel = (createdAt: string, activeTabName: string): string => {
+      const planDate = dayjs(createdAt);
+      const today = dayjs();
+      
+      if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
+        return "Today's Plan";
+      }
+      
+      if (activeTabName === 'Weekly') {
+        const thisFriday = dayjs().day(5);
+        const adjustedThisFriday = today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+        const lastFriday = adjustedThisFriday.subtract(7, 'day');
+        
+        if (
+          (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
+          (planDate.isSame(adjustedThisFriday, 'day') || planDate.isBefore(adjustedThisFriday))
+        ) {
+          return 'This Week Plan';
+        }
+      }
+      
+      return '';
+    };
+
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
@@ -279,29 +303,8 @@ function Planning() {
               <div>
                 <Row className="flex justify-start mb-1 ">
                   <div className="text-gray-400 ">
-                    {(() => {
-                      const planDate = dayjs(dataItem?.createdAt);
-                      const today = dayjs() || dayjs().subtract(1, 'day');
-                      const thisFriday = dayjs().day(5); // 0 = Sunday, ..., 5 = Friday
-                      const adjustedThisFriday =
-                        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
-                      const lastFriday = adjustedThisFriday.subtract(7, 'day');
+                {getDateLabel(dataItem?.createdAt, activeTabName)}
 
-                      if (
-                        planDate.isSame(today, 'day') &&
-                        activeTabName === 'Daily'
-                      ) {
-                        return "Today's Plan";
-                      } else if (
-                        (planDate.isSame(lastFriday, 'day') ||
-                          planDate.isAfter(lastFriday)) &&
-                        (planDate.isSame(adjustedThisFriday, 'day') ||
-                          planDate.isBefore(adjustedThisFriday)) &&
-                        activeTabName === 'Weekly'
-                      ) {
-                        return 'This Week Plan';
-                      }
-                    })()}
                   </div>
                 </Row>
                 <Row gutter={16} className="items-center">

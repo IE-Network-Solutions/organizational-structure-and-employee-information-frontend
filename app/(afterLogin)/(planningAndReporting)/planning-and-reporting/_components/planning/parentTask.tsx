@@ -10,7 +10,7 @@ const getPriorityColor = (priority: string) => {
     case 'high':
       return 'red';
     case 'medium':
-      return 'orange';
+      return 'yellow';
     default:
       return 'green';
   }
@@ -80,7 +80,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
             </div>
 
             {/* Details */}
-            <div className="flex items-center gap-3 flex-shrink-">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <Tag
                 className="font-semibold border-none text-center capitalize px-3 py-1 h-6 text-sm"
                 color={getPriorityColor(task?.priority)}
