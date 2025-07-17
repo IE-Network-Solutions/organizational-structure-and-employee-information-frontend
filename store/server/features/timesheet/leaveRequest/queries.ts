@@ -18,7 +18,6 @@ import {
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { requestHeader } from '@/helpers/requestHeader';
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
-import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const getLeaveRequest = async (
