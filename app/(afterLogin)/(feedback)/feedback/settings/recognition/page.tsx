@@ -34,14 +34,14 @@ const Page = () => {
       ),
     },
     ...(recognitionType?.items
-      ?.filter((item: any) => item.parentTypeId !== null)
+      ?.filter((item: any) => item.parentTypeId === null)
       ?.map((recognitionType: any) => ({
         key: `${recognitionType?.id}`, // Ensure unique keys
         label: recognitionType?.name,
         children: <AllRecognition data={[recognitionType]} />,
       })) || []),
   ];
-
+ 
   const CategoryButton = (
     <AccessGuard permissions={[Permissions.CreateRecognition]}>
       <Button
