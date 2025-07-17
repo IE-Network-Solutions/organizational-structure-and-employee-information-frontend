@@ -80,7 +80,8 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           </Col>
 
           {/* This section is now justified to space between taskName and the rest */}
-          <Col>
+          { /* Desktop View */}
+          <Col className="hidden sm:block">
             <Text type="secondary" className="text-[10px]">
               <span className="text-xl" style={{ color: 'blue' }}>
                 &bull;
@@ -106,7 +107,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                     <span className="text-xl" style={{ color: 'blue' }}>
                       &bull;
                     </span>
-                    Actual
+                    Achieved
                   </Text>
                   <Tag
                     className="font-bold border-none w-16 text-center capitalize text-[10px]"
@@ -127,7 +128,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                     {Number(task?.targetValue)?.toLocaleString() || 'None'}
                   </Tag>
                 </>
-              )}{' '}
+              )}
             <Text type="secondary" className="text-[10px]">
               <span className="text-xl" style={{ color: 'blue' }}>
                 &bull;
@@ -140,6 +141,36 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             >
               {task?.weightPlan || 0}
             </Tag>
+          </Col>
+          { /* Mobile View */}
+          <Col className="block sm:hidden">
+          <div className='flex justify-between w-60 py-1'>
+          <div>
+            <Tag
+              className="font-bold border-none w-16 text-center capitalize text-[10px]"
+              color={
+                task?.priority === 'high'
+                  ? 'red'
+                  : task?.priority === 'medium'
+                    ? 'orange'
+                    : 'green'
+              }
+            >
+              {task?.priority || 'None'}
+            </Tag>
+            </div>
+            <div className='flex gap-2'>
+            <span className="text-xs text-gray-500">
+                  <span className="text-blue mr-1">&bull;</span>Weight
+                </span>
+            <Tag
+      className="font-semibold border-none text-blue px-1.5 py-0 h-4 text-xs"
+      color="#e7e7ff"
+      >
+              {task?.weightPlan || 0}
+            </Tag>
+            </div>
+            </div>
           </Col>
         </Row>
       ))}

@@ -277,6 +277,29 @@ function Planning() {
               loading={getPlanningLoading}
             >
               <div>
+                <Row className="flex justify-start mb-1 ">
+                  <div className="text-gray-400 ">
+                    {(() => {
+                      const planDate = dayjs(dataItem?.createdAt);
+                      const today = dayjs() || dayjs().subtract(1, 'day');
+                      const thisFriday = dayjs().day(5); // 0 = Sunday, ..., 5 = Friday
+                      const adjustedThisFriday = today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+                      const lastFriday = adjustedThisFriday.subtract(7, 'day');
+
+                      
+                      if (planDate.isSame(today, 'day') && 
+                                activeTabName === 'Daily') {
+                        return "Today's Plan";
+                      } else if (
+                        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
+                        (planDate.isSame(adjustedThisFriday, 'day') || planDate.isBefore(adjustedThisFriday)) &&
+                        activeTabName === 'Weekly'
+                      ) {
+                        return "This Week Plan";
+                      }
+                    })()}
+                  </div>
+                </Row>
                 <Row gutter={16} className="items-center">
                   <Col xs={4} sm={2} md={1}>
                     {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
@@ -296,7 +319,7 @@ function Planning() {
                   <Col xs={20} sm={22} md={23}>
                     <Row className="flex justify-between items-center">
                       <Row gutter={16} justify={'start'} align={'middle'}>
-                        <div className="flex flex-col text-xs ml-2">
+                        <div className="flex flex-col text-xs ml-2 font-bold">
                           {getEmployeeData(dataItem?.createdBy)?.firstName +
                             ' ' +
                             (getEmployeeData(dataItem?.createdBy)?.middleName
@@ -305,7 +328,7 @@ function Planning() {
                                   .toUpperCase()
                               : '')}
                           .
-                          <span className="text-gray-500 text-xs">
+                          <span className="text-xs font-light text-gray-500">
                             {dataItem?.createdBy
                               ? getEmployeeData(dataItem?.createdBy)
                                   ?.employeeJobInformation?.[0]?.department

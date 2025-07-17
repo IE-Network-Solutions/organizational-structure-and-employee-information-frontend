@@ -216,13 +216,13 @@ function Reporting() {
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
         <div className="flex items-center my-4 gap-4">
-          {hasPermission && (
+          {/* {hasPermission && ( */}
             <EmployeeSearch
               optionArray1={employeeData?.items}
               optionArray2={ReportingType}
               optionArray3={departmentData}
             />
-          )}
+          {/* )} */}
           <Tooltip
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
@@ -256,10 +256,35 @@ function Reporting() {
         {allReporting?.items?.map((dataItem: any, index: number) => (
           <>
             <Card
-              className="mb-2"
+              bodyStyle={{ padding: '12px' }}
+              headStyle={{ borderBottom: 'none' }}
+              className="mb-1 bg-[#fafafa]"
               key={index}
               title={
                 <div>
+                   <Row className="flex justify-start mb-1 ">
+                  <div className="text-gray-400 py-2">
+                    {(() => {
+                      const planDate = dayjs(dataItem?.createdAt);
+                      const today = dayjs() || dayjs().subtract(1, 'day');
+                      const thisFriday = dayjs().day(5); // 0 = Sunday, ..., 5 = Friday
+                      const adjustedThisFriday = today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+                      const lastFriday = adjustedThisFriday.subtract(7, 'day');
+
+                      
+                      if (planDate.isSame(today, 'day') && 
+                                activeTabName === 'Daily') {
+                        return "Today's Report";
+                      } else if (
+                        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
+                        (planDate.isSame(adjustedThisFriday, 'day') || planDate.isBefore(adjustedThisFriday)) &&
+                        activeTabName === 'Weekly'
+                      ) {
+                        return "This Week Report";
+                      }
+                    })()}
+                  </div>
+                </Row>
                   <Row gutter={16} className="items-center">
                     <Col xs={4} sm={2} md={1}>
                       {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
@@ -394,8 +419,15 @@ function Reporting() {
                   />
                 </>
               ))}
-              <div className="flex items-center justify-end mt-2 gap-2 text-sm">
-                <span className="text-black ">Total Point:</span>
+              <div className="flex justify-between gap-2 text-sm">
+              <CommentCard
+                planId={dataItem?.id}
+                data={dataItem?.comments}
+                loading={getReportLoading}
+                isPlanCard={false}
+              />
+              <div className='mt-2'>
+                <span className="text-black font-bold ">Total Point:</span>
                 <span
                   className={`${
                     getTotalWeightCalculation(dataItem?.reportTask) > 84
@@ -407,13 +439,8 @@ function Reporting() {
                 >
                   {getTotalWeightCalculation(dataItem?.reportTask)}%
                 </span>
+                </div>
               </div>
-              <CommentCard
-                planId={dataItem?.id}
-                data={dataItem?.comments}
-                loading={getReportLoading}
-                isPlanCard={false}
-              />
             </Card>
           </>
         ))}
