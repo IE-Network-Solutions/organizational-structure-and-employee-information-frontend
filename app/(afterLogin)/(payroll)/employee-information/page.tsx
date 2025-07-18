@@ -274,13 +274,13 @@ const EmployeeInformation = () => {
           pagination={false}
           scroll={{ x: 'max-content' }}
         />
-        {isMobile || isTablet ? (          
+        {isMobile || isTablet ? (
           <CustomMobilePagination
-          totalResults={filteredData?.length || 0}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
+            totalResults={filteredData?.length || 0}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
         ) : (
           <CustomPagination
             current={currentPage}
