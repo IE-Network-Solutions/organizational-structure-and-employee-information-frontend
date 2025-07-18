@@ -253,14 +253,10 @@ const EmployeeInformation = () => {
       setPageSize(pageSize);
     }
   };
-  const onPageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize);
-    setCurrentPage(1);
-  };
 
   return (
     <div className={isMobile ? 'p-1' : 'p-5'}>
-      <div className="flex justify-start items-center bg-gray-100 -mx-1">
+      <div className="flex justify-start items-center bg-[#ffffff] -mx-1">
         <span className="py-4 my-4 px-2 text-lg font-bold">
           Employees Payroll Information
         </span>
@@ -278,20 +274,23 @@ const EmployeeInformation = () => {
           pagination={false}
           scroll={{ x: 'max-content' }}
         />
-        {isMobile || isTablet ? (
+        {isMobile || isTablet ? (          
           <CustomMobilePagination
-            totalResults={filteredData?.length || 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageSizeChange}
-          />
+          totalResults={filteredData?.length || 0}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
         ) : (
           <CustomPagination
             current={currentPage}
             total={filteredData?.length || 0}
             pageSize={pageSize}
             onChange={onPageChange}
-            onShowSizeChange={onPageSizeChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
           />
         )}
       </Spin>
