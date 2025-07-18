@@ -221,29 +221,31 @@ function Planning() {
       ).length ?? 0) === 0
     : false;
 
-    const getDateLabel = (createdAt: string, activeTabName: string): string => {
-      const planDate = dayjs(createdAt);
-      const today = dayjs();
-      
-      if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
-        return "Today's Plan";
+  const getDateLabel = (createdAt: string, activeTabName: string): string => {
+    const planDate = dayjs(createdAt);
+    const today = dayjs();
+
+    if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
+      return "Today's Plan";
+    }
+
+    if (activeTabName === 'Weekly') {
+      const thisFriday = dayjs().day(5);
+      const adjustedThisFriday =
+        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+      const lastFriday = adjustedThisFriday.subtract(7, 'day');
+
+      if (
+        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
+        (planDate.isSame(adjustedThisFriday, 'day') ||
+          planDate.isBefore(adjustedThisFriday))
+      ) {
+        return 'This Week Plan';
       }
-      
-      if (activeTabName === 'Weekly') {
-        const thisFriday = dayjs().day(5);
-        const adjustedThisFriday = today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
-        const lastFriday = adjustedThisFriday.subtract(7, 'day');
-        
-        if (
-          (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
-          (planDate.isSame(adjustedThisFriday, 'day') || planDate.isBefore(adjustedThisFriday))
-        ) {
-          return 'This Week Plan';
-        }
-      }
-      
-      return '';
-    };
+    }
+
+    return '';
+  };
 
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
@@ -303,8 +305,7 @@ function Planning() {
               <div>
                 <Row className="flex justify-start mb-1 ">
                   <div className="text-gray-400 ">
-                {getDateLabel(dataItem?.createdAt, activeTabName)}
-
+                    {getDateLabel(dataItem?.createdAt, activeTabName)}
                   </div>
                 </Row>
                 <Row gutter={16} className="items-center">
