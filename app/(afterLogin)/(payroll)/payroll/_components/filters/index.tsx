@@ -345,7 +345,7 @@ const Filters: React.FC<FiltersProps> = ({
               </Col>
             )}
 
-            {disable?.includes('department') && (
+            {!disable?.includes('department') && (
               <Col
                 // style={{
                 //   flex: oneRow ? '0 0 auto' : '1 1 50%',
