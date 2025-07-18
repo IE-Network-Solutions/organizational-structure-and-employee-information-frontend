@@ -214,40 +214,42 @@ function Reporting() {
   );
 
   // utils/dateHelpers.ts
- const getDateLabel = (createdAt: string, activeTabName: string): string => {
-  const planDate = dayjs(createdAt);
-  const today = dayjs();
-  
-  if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
-    return activeTabName === 'Daily' ? "Today's Plan" : "Today's Report";
-  }
-  
-  if (activeTabName === 'Weekly') {
-    const thisFriday = dayjs().day(5);
-    const adjustedThisFriday = today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
-    const lastFriday = adjustedThisFriday.subtract(7, 'day');
-    
-    if (
-      (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
-      (planDate.isSame(adjustedThisFriday, 'day') || planDate.isBefore(adjustedThisFriday))
-    ) {
-      return 'This Week Plan';
+  const getDateLabel = (createdAt: string, activeTabName: string): string => {
+    const planDate = dayjs(createdAt);
+    const today = dayjs();
+
+    if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
+      return activeTabName === 'Daily' ? "Today's Plan" : "Today's Report";
     }
-  }
-  
-  return '';
-};
+
+    if (activeTabName === 'Weekly') {
+      const thisFriday = dayjs().day(5);
+      const adjustedThisFriday =
+        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+      const lastFriday = adjustedThisFriday.subtract(7, 'day');
+
+      if (
+        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
+        (planDate.isSame(adjustedThisFriday, 'day') ||
+          planDate.isBefore(adjustedThisFriday))
+      ) {
+        return 'This Week Plan';
+      }
+    }
+
+    return '';
+  };
 
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
         <div className="flex items-center my-4 gap-4">
           {hasPermission && (
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={ReportingType}
-            optionArray3={departmentData}
-          />
+            <EmployeeSearch
+              optionArray1={employeeData?.items}
+              optionArray2={ReportingType}
+              optionArray3={departmentData}
+            />
           )}
           <Tooltip
             title={

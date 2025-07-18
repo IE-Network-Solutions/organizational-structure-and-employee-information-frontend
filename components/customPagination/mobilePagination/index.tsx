@@ -16,7 +16,6 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   pageSize,
   currentPage = 1,
   onChange,
-  onShowSizeChange,
 }) => {
   const totalPages = Math.ceil(totalResults / pageSize);
 
