@@ -59,8 +59,11 @@ const AttendanceTable = () => {
     resetPagination();
   }, [pathname]);
 
-  const onPageChange = (page: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
 
   const userFilter: Partial<AttendanceRequestBody['filter']> = {

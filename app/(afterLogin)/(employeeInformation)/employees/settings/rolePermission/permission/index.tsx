@@ -50,9 +50,11 @@ const Permission: React.FC<any> = () => {
     }
   }, [debouncedTerm, refetch]);
 
-  const onPageChange = (page: number, pageSize: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setPermissionCurrentPage(page);
-    setPageSize(pageSize);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
   const hasSelected = selectedRowKeys?.length > 0;
   const columns = [

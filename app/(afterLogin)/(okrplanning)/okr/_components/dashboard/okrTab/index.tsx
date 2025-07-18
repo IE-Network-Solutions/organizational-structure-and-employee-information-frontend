@@ -165,7 +165,9 @@ export default function OkrTab() {
                         currentPage={currentPage}
                         onChange={(page, pageSize) => {
                           setCurrentPage(page);
-                          setPageSize(pageSize);
+                          if (pageSize) {
+                            setPageSize(pageSize);
+                          }
                         }}
                         onShowSizeChange={(size) => {
                           setPageSize(size);
@@ -229,7 +231,9 @@ export default function OkrTab() {
                               currentPage={teamCurrentPage}
                               onChange={(page, pageSize) => {
                                 setTeamCurrentPage(page);
-                                setTeamPageSize(pageSize);
+                                if (pageSize) {
+                                  setTeamPageSize(pageSize);
+                                }
                               }}
                               onShowSizeChange={(size) => {
                                 setTeamPageSize(size);
@@ -295,7 +299,9 @@ export default function OkrTab() {
                               currentPage={companyCurrentPage}
                               onChange={(page, pageSize) => {
                                 setCompanyCurrentPage(page);
-                                setCompanyPageSize(pageSize);
+                                if (pageSize) {
+                                  setCompanyPageSize(pageSize);
+                                }
                               }}
                               onShowSizeChange={(size) => {
                                 setCompanyPageSize(size);

@@ -272,7 +272,9 @@ const PlanAssignment: React.FC = () => {
             pageSize={pageSize}
             onChange={(page, pageSize) => {
               setPage(page);
-              setPageSize(pageSize);
+              if (pageSize) {
+                setPageSize(pageSize);
+              }
             }}
             onShowSizeChange={(size) => {
               setPageSize(size);

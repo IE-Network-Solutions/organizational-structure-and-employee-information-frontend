@@ -267,10 +267,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
 
-  const onPageChange = (page: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
-
   return (
     <>
       <div className="mb-6">

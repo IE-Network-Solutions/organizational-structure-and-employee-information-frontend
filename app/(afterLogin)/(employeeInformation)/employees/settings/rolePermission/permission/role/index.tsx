@@ -18,9 +18,11 @@ const RoleComponent: React.FC = () => {
     roleCurrentPage,
     pageSize,
   );
-  const onPageChange = (page: number, pageSize: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setRoleCurrentPage(page);
-    setPageSize(pageSize);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
   return (
     <Card>

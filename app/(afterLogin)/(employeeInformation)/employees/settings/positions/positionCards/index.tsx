@@ -49,9 +49,11 @@ const PositionCards: React.FC = () => {
     refetch();
   }, [currentPage, pageSize]);
 
-  const onPageChange = (page: number, pageSize: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
-    setPageSize(pageSize);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
 
   return (

@@ -460,7 +460,9 @@ function Reporting() {
             pageSize={pageSizeReporting}
             onChange={(page, pageSize) => {
               setPageReporting(page);
-              setPageSizeReporting(pageSize);
+              if (pageSize) {
+                setPageSizeReporting(pageSize);
+              }
             }}
             onShowSizeChange={(size) => {
               setPageSizeReporting(size);

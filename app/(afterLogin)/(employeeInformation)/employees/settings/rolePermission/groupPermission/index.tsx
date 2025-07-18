@@ -25,9 +25,11 @@ const GroupPermissionComponent = () => {
   const handleButtonClick = (id: string) => {
     setVisibleEditCardId(visibleEditCardId === id ? null : id);
   };
-  const onPageChange = (page: number, pageSize: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setPermissionGroupCurrentPage(page);
-    setPageSize(pageSize);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
 
   return (

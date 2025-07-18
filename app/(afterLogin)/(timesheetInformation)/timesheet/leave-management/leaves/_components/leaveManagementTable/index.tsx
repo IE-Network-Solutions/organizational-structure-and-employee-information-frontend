@@ -73,8 +73,11 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
   };
   const [tableData, setTableData] = useState<any[]>([]);
-  const onPageChange = (page: number) => {
+  const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
   };
   const [filter, setFilter] = useState<Partial<LeaveRequestBody['filter']>>({});
   const { data, isFetching } = useGetLeaveRequest(
