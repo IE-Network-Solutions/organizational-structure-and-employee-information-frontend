@@ -6,7 +6,7 @@ import { useGetAllLeaveBalanceWithFilter } from '@/store/server/features/timeshe
 const DownloadLeaveBalance: React.FC = () => {
   const { selectedUserId, leaveTypeId, isDownloading, setIsDownloading } =
     useLeaveBalanceStore();
-  const buttonClass = 'text-xs font-bold h-[54px] w-full';
+  const buttonClass = 'text-xs font-bold h-[40px] w-full px-5';
 
   const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } =
     useGetAllLeaveBalanceWithFilter(selectedUserId, leaveTypeId);
