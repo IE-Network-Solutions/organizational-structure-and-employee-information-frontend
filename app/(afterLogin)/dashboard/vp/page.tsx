@@ -1,8 +1,7 @@
-import React from 'react';
 import VPChart from '../../(okrplanning)/okr/dashboard/_components/vpDashboard/chart';
 import CriteriaCard from '../../(okrplanning)/okr/dashboard/_components/vpDashboard/criteriaCard';
 
-const VPDashBoard: React.FC<any> = () => {
+const VPDashBoard = () => {
   return (
     <>
       <div className="flex items-center justify-start px-4 ">
