@@ -38,28 +38,28 @@ const ApprovalFilter = () => {
     setApproverType('');
   };
   return (
-    <div className="flex sm:block gap-8">
-      <div className="w-4/5 sm:w-full">
+
+    <div className="flex justify-between gap-4 sm:block">
+      <div className="flex-1">
         <ApprovalFilterComponent
           searchParams={searchParams}
           handleSearchInput={handleSearchInput}
           handleDepartmentChange={handleDepartmentChange}
         />
       </div>
-      <div className="w-1/5 flex-1 items-center justify-center">
-        <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
-          <Button
-            title="Set Approval"
-            id="createUserButton"
-            className="h-10 w-10 sm:w-auto sm:hidden"
-            icon={<FaPlus />}
-            onClick={handleNavigation}
-            type="primary"
-          >
-            <span className="hidden sm:inline">Set Approval</span>
-          </Button>
-        </AccessGuard>
-      </div>
+
+      <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
+        <Button
+          title="Set Approval"
+          id="createUserButton"
+          className="h-10 w-10 sm:w-auto sm:hidden"
+          icon={<FaPlus />}
+          onClick={handleNavigation}
+          type="primary"
+        >
+          <span className="hidden sm:inline">Set Approval</span>
+        </Button>
+      </AccessGuard>
     </div>
   );
 };

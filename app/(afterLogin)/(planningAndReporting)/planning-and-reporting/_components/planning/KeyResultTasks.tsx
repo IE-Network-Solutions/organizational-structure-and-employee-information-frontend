@@ -78,7 +78,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
       </div>
       <div className="bg-white px-3 w-full sm:px-6">
         <div className="flex items-center gap-2 mb-1">
-          <BsKey size={32} className="text-blue flex-shrink-0" />
+          <BsKey size={32} className="text-[#3636f0] flex-shrink-0" />
           <h2 className="text-sm font-semibold truncate min-w-0 flex-1">
             {keyResult?.title}
           </h2>

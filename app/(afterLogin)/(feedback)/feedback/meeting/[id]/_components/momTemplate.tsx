@@ -49,10 +49,16 @@ const MeetingDiscussion = ({
   if (error || !meetingDiscussion) return <Text>-</Text>;
 
   const discussionHtml = meetingDiscussion?.items[0]?.discussion || '';
+  const styledHtml = `
+    <style>
+      img { display: none !important; }
+    </style>
+    ${discussionHtml}
+  `;
 
   return (
-    <View style={{ fontSize: 10, color: '#687588' }}>
-      <Html style={{ fontSize: 10, color: '#687588' }}>{discussionHtml}</Html>
+    <View>
+      <Html style={{ fontSize: 10, color: '#687588' }}>{styledHtml}</Html>
     </View>
   );
 };
@@ -268,7 +274,11 @@ const MomTemplate = ({ meetingData }: { meetingData: any }) => {
             {meetingData?.attendees?.map((attendee: any, index: number) => (
               <View style={styles.tableRow} key={index}>
                 <View style={styles.tableCol}>
-                  <EmployeeName userId={attendee.userId} />
+                  {attendee.userId ? (
+                    <EmployeeName userId={attendee.userId} />
+                  ) : (
+                    <Text>{attendee.guestUser?.name}</Text>
+                  )}
                 </View>
                 <View style={styles.tableCol}>
                   <EmployeeRole userId={attendee.userId} />
