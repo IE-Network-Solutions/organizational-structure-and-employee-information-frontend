@@ -242,9 +242,7 @@ export const useCreatePayPeriods = () => {
   const queryClient = useQueryClient();
   return useMutation(createPayPeriods, {
     onSuccess: (notused: any, variables: any) => {
-      // Invalidate specific pay period queries to avoid unnecessary revalidations
-      queryClient.invalidateQueries(['payPeriods']);
-      queryClient.invalidateQueries('pay-peroid'); // Also invalidate the general pay period query
+      queryClient.invalidateQueries('payPeriods');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -261,9 +259,7 @@ export const useDeletePayPeriod = () => {
   const queryClient = useQueryClient();
   return useMutation(deletePayPeriod, {
     onSuccess: (notused: any, variables: any) => {
-      // Invalidate specific pay period queries to avoid unnecessary revalidations
-      queryClient.invalidateQueries(['payPeriods']);
-      queryClient.invalidateQueries('pay-peroid'); // Also invalidate the general pay period query
+      queryClient.invalidateQueries('payPeriods');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -284,8 +280,7 @@ export const useChangePayPeriodStatus = () => {
       changePayPeriodStatus(payPeriodId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['payPeriods']);
-        queryClient.invalidateQueries('pay-peroid');
+        queryClient.invalidateQueries('payPeriods');
         handleSuccessMessage(`Pay period status changed to`);
       },
     },
