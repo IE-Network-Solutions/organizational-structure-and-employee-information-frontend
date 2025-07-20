@@ -7,10 +7,10 @@ import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 const createObjective = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective`,
@@ -33,6 +33,7 @@ const createObjective = async (values: any) => {
   }
 };
 export const UpdateObjective = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective/${values?.id}`,
@@ -54,6 +55,7 @@ export const UpdateObjective = async (values: any) => {
 };
 
 const deleteObjective = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -75,6 +77,7 @@ const deleteObjective = async (deletedId: string) => {
 };
 
 export const updateKeyResult = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/key-results/${values?.id}`,
@@ -95,6 +98,7 @@ export const updateKeyResult = async (values: any) => {
   }
 };
 const deleteKeyResult = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -115,6 +119,7 @@ const deleteKeyResult = async (deletedId: string) => {
   }
 };
 const deleteMilestone = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

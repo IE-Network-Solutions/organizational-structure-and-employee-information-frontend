@@ -5,12 +5,13 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 type ResponseData = {
   items: KeyResult[];
 };
 const getKeyResultByUser = async (id: number | string): Promise<any> => {
+const token = await getCurrentToken();
+
   if (id) {
     try {
       const headers = {
