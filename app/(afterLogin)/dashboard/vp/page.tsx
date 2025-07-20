@@ -1,3 +1,4 @@
+'use client';
 import VPChart from '../../(okrplanning)/okr/dashboard/_components/vpDashboard/chart';
 import CriteriaCard from '../../(okrplanning)/okr/dashboard/_components/vpDashboard/criteriaCard';
 
