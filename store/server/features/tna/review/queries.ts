@@ -64,7 +64,7 @@ export const singleCurrency = async (id: string) => {
 };
 export const allCurrency = async () => {
   const requestHeaders = await requestHeader();
-    const response = await crudRequest({
+  const response = await crudRequest({
     url: `${TNA_URL}/currency`,
     method: 'GET',
     headers: requestHeaders,

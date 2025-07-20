@@ -36,7 +36,7 @@ const updatePlanningPeriodStatus = async (planningPeriodId: string) => {
     },
   });
 };
-  const deletePlanningPeriod = async (id: string) => {
+const deletePlanningPeriod = async (id: string) => {
   const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/planning-periods/${id}`,
@@ -48,7 +48,7 @@ const updatePlanningPeriodStatus = async (planningPeriodId: string) => {
   });
 };
 const assignPlanningPeriodToUsers = async (values: string[]) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   return crudRequest({
     url: `${OKR_URL}/planning-periods/assignUser-multiple-planning-periods`,
@@ -63,7 +63,7 @@ const token = await getCurrentToken();
 };
 
 const updatePlanningPeriodToUsers = async (values: PlanningUserPayload) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   return crudRequest({
     url: `${OKR_URL}/planning-periods/update-users-assigned-planning-periods/${values.userIds[0]}`, // Accessing the first user ID correctly
@@ -77,7 +77,7 @@ const token = await getCurrentToken();
 };
 
 const deleteAssignPlanningPeriodToUsers = async (planningUserId: string) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   return crudRequest({
     url: `${OKR_URL}/planning-periods/planning-user/${planningUserId}`,

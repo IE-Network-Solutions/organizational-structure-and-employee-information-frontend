@@ -13,7 +13,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 /**
  * Create a new talent pool category.
  * @param data - Talent pool category data to be created.

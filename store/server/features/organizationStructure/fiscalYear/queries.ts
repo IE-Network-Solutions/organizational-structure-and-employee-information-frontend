@@ -54,7 +54,7 @@ export const useGetFiscalYearById = (id: string) =>
     keepPreviousData: true,
   });
 
-export const useGetActiveFiscalYears =  (
+export const useGetActiveFiscalYears = (
   options?: QueryObserverOptions<FiscalYear>,
 ) => {
   const token = useAuthenticationStore.getState().token;

@@ -8,7 +8,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 // Fetch token and tenantId from the authentication store
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 // Fetch all talent pool categories from the API
 const getAllTalentPoolCategory = async (
   pageSize: number,

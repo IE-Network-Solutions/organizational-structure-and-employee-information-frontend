@@ -5,7 +5,6 @@ import axios from 'axios';
 import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 

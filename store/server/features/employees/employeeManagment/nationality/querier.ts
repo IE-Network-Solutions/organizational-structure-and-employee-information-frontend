@@ -12,7 +12,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const getNationalities = async () => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/nationality`,
@@ -31,7 +31,7 @@ const token = await getCurrentToken();
  */
 
 const getNationality = async (id: string) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

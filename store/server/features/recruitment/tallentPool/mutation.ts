@@ -11,7 +11,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 // Fetch token and tenantId from the authentication store
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 /**
  * Create a new candidate in the talent pool.
  * @param data - Candidate data to be created.

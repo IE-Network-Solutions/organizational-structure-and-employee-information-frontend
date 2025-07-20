@@ -163,7 +163,7 @@ const fetchActiveFiscalYearPayPeriods = async (
   activeFiscalYearId: string | undefined,
 ) => {
   const requestHeaders = await requestHeader();
-    return await crudRequest({
+  return await crudRequest({
     url: `${PAYROLL_URL}/pay-period/get-active-pay-period/active-year-id/${activeFiscalYearId}`,
     method: 'GET',
     headers: requestHeaders,

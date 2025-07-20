@@ -90,7 +90,7 @@ const fetchAllChildrenRecognition = async () => {
 };
 const fetchParentRecognition = async () => {
   const requestHeaders = await requestHeader();
-    return await crudRequest({
+  return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type/parent-recognition-type/parent`,
     method: 'GET',
     headers: requestHeaders,

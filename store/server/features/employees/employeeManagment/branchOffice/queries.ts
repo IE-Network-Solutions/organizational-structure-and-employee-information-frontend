@@ -6,7 +6,6 @@ import { Meta } from '../../settings/groupPermission/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-
 const tenantId = useAuthenticationStore.getState().tenantId;
 type Item = {
   id: string;

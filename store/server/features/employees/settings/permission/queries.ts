@@ -60,7 +60,7 @@ const getSearchPermissions = async (searchTerm: {
   termKey: string | null;
   searchTerm: string | null;
 }) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   // const {searchTerm}=useSettingStore();
   return crudRequest({

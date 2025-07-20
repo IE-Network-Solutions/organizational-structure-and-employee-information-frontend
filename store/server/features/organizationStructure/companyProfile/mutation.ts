@@ -6,7 +6,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 /* eslint-disable @typescript-eslint/naming-convention */
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 /**
@@ -16,10 +15,10 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  */
 export const getCompanyProfileByTenantId = async (tenantId: string) => {
   const token = await getCurrentToken();
-const headers = {
-  tenantId,
-  Authorization: `Bearer ${token}`,
-};
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
 
   return await crudRequest({
     url: `${TENANT_BASE_URL}/api/v1/clients/${tenantId}`,
@@ -33,8 +32,6 @@ const headers = {
  * @param params - Object containing the ID and updated company profile.
  * @returns Promise with the updated company profile.
  */
-
-
 
 const updateCompanyProfile = async ({
   id,

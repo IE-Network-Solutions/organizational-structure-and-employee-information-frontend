@@ -9,8 +9,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
-
-
 /**
  * @constant {string} tenantId - The tenant ID retrieved from the authentication store.
  */
@@ -37,7 +35,7 @@ const fetchQuestions = async (formId: string) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-  
+
   return await crudRequest({
     url: `${ORG_DEV_URL}/forms/public/${formId}`,
     method: 'GET',

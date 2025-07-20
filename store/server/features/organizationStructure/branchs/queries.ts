@@ -31,11 +31,11 @@ const getAllBranches = async () => {
  * @returns Promise with the branch data.
  */
 const getBranch = async (id: string) => {
-const token = await getCurrentToken();
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/branches/${id}`,
     method: 'GET',

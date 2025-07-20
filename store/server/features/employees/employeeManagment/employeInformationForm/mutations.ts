@@ -13,7 +13,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const createEmployeeInformationForm = async (values: any) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'POST',

@@ -9,7 +9,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 /**
  * Create a new company info.
  * @param data - Company info data to create.
@@ -17,10 +16,10 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  */
 const createCompanyInfo = async (data: CompanyInfo) => {
   const token = await getCurrentToken();
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
     method: 'PUT',

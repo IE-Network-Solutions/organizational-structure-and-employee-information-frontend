@@ -8,7 +8,6 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { CreateEmployeeJobInformationInterface } from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to add a new post by sending a POST request to the API

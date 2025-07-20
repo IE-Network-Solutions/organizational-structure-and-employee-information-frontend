@@ -9,13 +9,12 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 const createSchedule = async (schedule: Schedule) => {
-const token = await getCurrentToken();
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules`,
     method: 'POST',
@@ -31,10 +30,10 @@ interface updateData {
 const updateSchedule = async (data: updateData) => {
   const { id, schedule } = data;
   const token = await getCurrentToken();
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules/${id}`,
     method: 'PATCH',

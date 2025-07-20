@@ -15,7 +15,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API, which contains details of the created permission group.
  */
 const createPermissionGroup = async (values: GroupPermissionkey) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group`,

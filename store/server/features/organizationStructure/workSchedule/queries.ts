@@ -8,7 +8,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 const fetchSchedule = async () => {
   const token = await getCurrentToken();
   const headers = {

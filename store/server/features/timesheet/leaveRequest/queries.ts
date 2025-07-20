@@ -130,7 +130,7 @@ export const useGetLeaveRequest = (
   );
 };
 
-export const useGetApprovalLeaveRequest =  (
+export const useGetApprovalLeaveRequest = (
   requesterId: string,
   page: number,
   limit: number,

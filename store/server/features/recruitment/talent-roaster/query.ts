@@ -8,7 +8,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 const getTalentRoaster = async (params?: {
   fullName?: string;
   dateRange?: string;

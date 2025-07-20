@@ -7,7 +7,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 // Fetch token and tenantId from the authentication store
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 const getIntern = async (params?: {
   fullName?: string;
   dateRange?: string;

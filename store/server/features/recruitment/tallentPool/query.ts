@@ -13,7 +13,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 /**
  * Fetch all talent pool data from the API.
  * @returns Promise with the list of talent pool candidates.

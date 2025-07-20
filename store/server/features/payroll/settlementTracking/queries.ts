@@ -92,7 +92,7 @@ export const useGetSettlementTracking = (
   );
 };
 
-export const useGetSettlementTrackingById =  (
+export const useGetSettlementTrackingById = (
   id: string,
   options?: UseQueryOptions<SettlementTrackingDetail>,
 ) => {
@@ -131,7 +131,6 @@ export const useCheckSettlementTrackingExists = (
   employeeId: string,
   payPeriod: string,
 ) => {
-
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery(
@@ -166,7 +165,6 @@ export const useEmployeeSettlementTracking = (
   entitlementId: string,
   employeeId: string,
 ) => {
-
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return useQuery(

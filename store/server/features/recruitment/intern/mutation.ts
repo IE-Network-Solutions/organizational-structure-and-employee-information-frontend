@@ -9,7 +9,6 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-
 const createIntern = async (data: any) => {
   const token = await getCurrentToken();
   const headers = {

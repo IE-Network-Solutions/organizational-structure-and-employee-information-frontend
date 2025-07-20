@@ -10,7 +10,7 @@ type ResponseData = {
   items: KeyResult[];
 };
 const getKeyResultByUser = async (id: number | string): Promise<any> => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   if (id) {
     try {

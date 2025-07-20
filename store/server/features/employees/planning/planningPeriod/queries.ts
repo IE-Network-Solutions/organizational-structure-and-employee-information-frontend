@@ -10,7 +10,6 @@ import {
 } from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchAllPlanningPeriods = async () => {

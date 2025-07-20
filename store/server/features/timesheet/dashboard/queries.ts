@@ -106,7 +106,7 @@ export const getAdminPendingLeaveRequests = async (params?: {
   departmentId?: string;
 }) => {
   const requestHeaders = await requestHeader();
-    return await crudRequest({
+  return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_PENDING_LEAVE_REQUESTS_API}`,
     method: 'GET',
     headers: requestHeaders,

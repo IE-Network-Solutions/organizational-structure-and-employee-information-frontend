@@ -12,7 +12,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const getEmpoyeInformationForms = async () => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
@@ -31,7 +31,7 @@ const token = await getCurrentToken();
  */
 
 const getEmpoyeInformationForm = async (id: string) => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
 
   try {
     const headers = {
@@ -54,7 +54,7 @@ const token = await getCurrentToken();
  */
 
 const getEmpoyeInformationFormForTenant = async () => {
-const token = await getCurrentToken();
+  const token = await getCurrentToken();
   try {
     // const tenantId = localStorage.getItem('tenantId');
     // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;
