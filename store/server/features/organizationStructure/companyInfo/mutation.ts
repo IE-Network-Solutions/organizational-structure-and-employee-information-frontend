@@ -7,12 +7,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 /* eslint-disable @typescript-eslint/naming-convention */
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+
 
 /**
  * Create a new company info.
@@ -20,6 +16,11 @@ const headers = {
  * @returns Promise with the created company info.
  */
 const createCompanyInfo = async (data: CompanyInfo) => {
+  const token = await getCurrentToken();
+const headers = {
+  tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
+};
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${tenantId}`,
     method: 'PUT',
@@ -40,6 +41,11 @@ const updateCompanyInfo = async ({
   id: string;
   companyInfo: CompanyInfo;
 }) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
     method: 'PUT',
@@ -54,6 +60,11 @@ const updateCompanyInfo = async ({
  * @returns Promise with the result of the deletion.
  */
 const deleteCompanyInfo = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
     method: 'DELETE',

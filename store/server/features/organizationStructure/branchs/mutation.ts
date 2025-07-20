@@ -6,12 +6,8 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+
 /* eslint-disable @typescript-eslint/naming-convention */
 
 /**
@@ -21,6 +17,11 @@ const headers = {
  */
 
 const createBranch = async (data: Branch) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/branchs`,
     method: 'POST',
@@ -36,6 +37,11 @@ const createBranch = async (data: Branch) => {
  * @returns Promise with the updated branch data.
  */
 const updateBranch = async (id: string, data: Branch) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/branchs/${id}`,
     method: 'PATCH',
@@ -50,6 +56,11 @@ const updateBranch = async (id: string, data: Branch) => {
  * @returns Promise confirming the deletion.
  */
 const deleteBranch = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/branchs/${id}`,
     method: 'DELETE',

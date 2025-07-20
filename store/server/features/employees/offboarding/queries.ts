@@ -5,10 +5,10 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import axios from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchOffBoardingTemplateTasks = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-tasks-template`,
     method: 'GET',
@@ -20,6 +20,7 @@ const fetchOffBoardingTemplateTasks = async () => {
 };
 
 const fetchOffBoardingTasks = async (userId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -36,6 +37,7 @@ const fetchOffBoardingTasks = async (userId: string) => {
 };
 
 const fetchUserTermination = async (userId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

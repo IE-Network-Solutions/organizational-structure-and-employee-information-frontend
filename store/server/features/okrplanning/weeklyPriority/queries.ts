@@ -6,7 +6,6 @@ import axios from 'axios';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 
@@ -36,6 +35,7 @@ type ResponseData = {
 };
 
 const getDepartmentChild = async (departmentId: string) => {
+  const token = await getCurrentToken();
   if (departmentId) {
     return crudRequest({
       url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/all-levels/${departmentId}`,
@@ -48,6 +48,7 @@ const getDepartmentChild = async (departmentId: string) => {
   }
 };
 const getWeeks = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/weekly-priorities-week`,
     method: 'GET',
@@ -64,6 +65,7 @@ const getWeeklyPriority = async (
   pageSize: number,
   currentPage: number,
 ) => {
+  const token = await getCurrentToken();
   try {
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,

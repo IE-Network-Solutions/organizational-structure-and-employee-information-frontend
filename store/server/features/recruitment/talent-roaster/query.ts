@@ -5,12 +5,9 @@ import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = await getCurrentToken();
+
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+
 
 const getTalentRoaster = async (params?: {
   fullName?: string;
@@ -19,6 +16,11 @@ const getTalentRoaster = async (params?: {
   page?: number;
   pageSize?: number;
 }) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   // Build query parameters
   const searchParams = new URLSearchParams();
 
@@ -51,6 +53,11 @@ const getTalentRoaster = async (params?: {
 };
 
 const getTalentRoasterById = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-roaster/${id}`,
     method: 'GET',

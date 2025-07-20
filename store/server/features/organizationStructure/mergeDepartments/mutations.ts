@@ -6,14 +6,15 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
+
+
+const transferDepartment = async (data: MergingDepartment) => {
+const token = await getCurrentToken();
 const headers = {
   tenantId: tenantId,
   Authorization: `Bearer ${token}`,
 };
-
-const transferDepartment = async (data: MergingDepartment) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/users/department/dissolve`,
     method: 'POST',
@@ -34,6 +35,11 @@ export const useTransferDepartment = () => {
 };
 
 const mergingDepartment = async (data: MergingDepartment) => {
+  const token = await getCurrentToken();
+const headers = {
+  tenantId: tenantId,
+  Authorization: `Bearer ${token}`,
+};
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/users/department/merge`,
     method: 'POST',

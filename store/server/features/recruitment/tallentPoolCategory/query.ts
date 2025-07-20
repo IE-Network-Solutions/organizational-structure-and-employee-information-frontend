@@ -6,18 +6,19 @@ import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+
 
 // Fetch all talent pool categories from the API
 const getAllTalentPoolCategory = async (
   pageSize: number,
   currentPage: number,
 ) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool-category?limit=${pageSize}&&page=${currentPage}`,
     method: 'GET',
@@ -27,6 +28,11 @@ const getAllTalentPoolCategory = async (
 
 // Fetch a specific talent pool category by ID from the API
 const getTalentPoolCategoryById = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool-category/${id}`,
     method: 'GET',

@@ -4,7 +4,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import axios from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = await getCurrentToken();
+// const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 
@@ -15,6 +15,7 @@ const getEmployeeSurvey = async (
   page: number,
   currentPage: number,
 ) => {
+  const token = await getCurrentToken();
   try {
     const response = await axios.post(
       `${ORG_DEV_URL}/survey-target-score/filtered-data/vp-score?page=${currentPage}&limit=${page}`,

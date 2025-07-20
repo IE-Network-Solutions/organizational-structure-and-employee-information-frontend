@@ -5,12 +5,8 @@ import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
+
 
 const getIntern = async (params?: {
   fullName?: string;
@@ -19,6 +15,11 @@ const getIntern = async (params?: {
   page?: number;
   pageSize?: number;
 }) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   const searchParams = new URLSearchParams();
 
   if (params?.fullName) {
@@ -49,6 +50,11 @@ const getIntern = async (params?: {
 };
 
 const getInternById = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/intern/${id}`,
     method: 'GET',
