@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Form } from './interface';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Adds a new form.
@@ -12,7 +13,7 @@ import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicFo
  * @returns The response from the server.
  */
 const addForm = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -33,7 +34,7 @@ const addForm = async (data: any) => {
  * @returns The response from the server.
  */
 const updateForm = async (data: Form, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -52,7 +53,7 @@ const updateForm = async (data: Form, id: string) => {
  * @returns The response from the server.
  */
 const deleteForm = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

@@ -14,10 +14,11 @@ const getInvoices = async (
   if (orderDirection) {
     url += `?orderDirection=${orderDirection}`;
   }
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -46,13 +47,15 @@ export const useGetInvoiceDetail = (
 ) => {
   return useQuery<ApiResponse<any>>(
     ['invoice-detail', invoiceId, exportType],
-    () =>
-      crudRequest({
+    async () => {
+      const requestHeaders = await requestHeader();
+      return await crudRequest({
         url: `${TENANT_MGMT_URL}/subscription/rest/invoices/${invoiceId}/detail`,
         method: 'GET',
-        headers: requestHeader(),
+        headers: requestHeaders,
         params: { exportType },
-      }),
+      });
+    },
     {
       enabled: !!invoiceId,
       retry: 1,

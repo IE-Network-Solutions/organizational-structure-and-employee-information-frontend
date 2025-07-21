@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
@@ -23,7 +24,7 @@ const getDelegation = async (
   start: string,
   end: string,
 ): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 

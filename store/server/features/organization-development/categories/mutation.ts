@@ -4,6 +4,7 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { DataItem } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Function to add a new post by sending a POST request to the API
@@ -17,7 +18,7 @@ const createActionPlan = async ({
   formId: string;
   values: DataItem[];
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -38,7 +39,7 @@ const updateActionPlan = async ({
   actionPlanId: any;
   values: any;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -52,7 +53,7 @@ const updateActionPlan = async ({
   });
 };
 const deleteActionPlan = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/action-plans/${id}`,
@@ -64,7 +65,7 @@ const deleteActionPlan = async (id: string) => {
   });
 };
 const resolveActionPlan = async (params: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/action-plans/${params?.id}`,

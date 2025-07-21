@@ -1274,26 +1274,26 @@
   resolved "https://registry.npmjs.org/@kurkle/color/-/color-0.3.2.tgz"
   integrity sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==
 
-"@napi-rs/canvas-win32-x64-msvc@0.1.73":
-  version "0.1.73"
-  resolved "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-0.1.73.tgz"
-  integrity sha512-YQmHXBufFBdWqhx+ympeTPkMfs3RNxaOgWm59vyjpsub7Us07BwCcmu1N5kildhO8Fm0syoI2kHnzGkJBLSvsg==
+"@napi-rs/canvas-win32-x64-msvc@0.1.74":
+  version "0.1.74"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-0.1.74.tgz"
+  integrity sha512-x6bhwlhn0wU7dfiP46mt5Bi6PowSUH4CJ4PTzGj58LRQ1HVasEIJgoMx7MLC48F738eJpzbfg3WR/D8+e9CeTA==
 
 "@napi-rs/canvas@^0.1.67":
-  version "0.1.73"
-  resolved "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-0.1.73.tgz"
-  integrity sha512-9iwPZrNlCK4rG+vWyDvyvGeYjck9MoP0NVQP6N60gqJNFA1GsN0imG05pzNsqfCvFxUxgiTYlR8ff0HC1HXJiw==
+  version "0.1.74"
+  resolved "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-0.1.74.tgz"
+  integrity sha512-pOIyzuS+5Bz1vAhD7tdhaw5/936mMJZUn4aVajojUdjYOGSWmfpDYSgt0nQLZPZVN5GLgWgutqXPOi7Jsm3k+Q==
   optionalDependencies:
-    "@napi-rs/canvas-android-arm64" "0.1.73"
-    "@napi-rs/canvas-darwin-arm64" "0.1.73"
-    "@napi-rs/canvas-darwin-x64" "0.1.73"
-    "@napi-rs/canvas-linux-arm-gnueabihf" "0.1.73"
-    "@napi-rs/canvas-linux-arm64-gnu" "0.1.73"
-    "@napi-rs/canvas-linux-arm64-musl" "0.1.73"
-    "@napi-rs/canvas-linux-riscv64-gnu" "0.1.73"
-    "@napi-rs/canvas-linux-x64-gnu" "0.1.73"
-    "@napi-rs/canvas-linux-x64-musl" "0.1.73"
-    "@napi-rs/canvas-win32-x64-msvc" "0.1.73"
+    "@napi-rs/canvas-android-arm64" "0.1.74"
+    "@napi-rs/canvas-darwin-arm64" "0.1.74"
+    "@napi-rs/canvas-darwin-x64" "0.1.74"
+    "@napi-rs/canvas-linux-arm-gnueabihf" "0.1.74"
+    "@napi-rs/canvas-linux-arm64-gnu" "0.1.74"
+    "@napi-rs/canvas-linux-arm64-musl" "0.1.74"
+    "@napi-rs/canvas-linux-riscv64-gnu" "0.1.74"
+    "@napi-rs/canvas-linux-x64-gnu" "0.1.74"
+    "@napi-rs/canvas-linux-x64-musl" "0.1.74"
+    "@napi-rs/canvas-win32-x64-msvc" "0.1.74"
 
 "@next/bundle-analyzer@^14.2.8":
   version "14.2.8"

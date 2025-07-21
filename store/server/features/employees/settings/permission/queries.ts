@@ -4,8 +4,8 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Permission, PermissionDataType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 /**
@@ -19,6 +19,7 @@ const getPermisssions = async (
   permissonCurrentPage: number,
   pageSize: number,
 ) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
@@ -36,6 +37,7 @@ const getPermisssions = async (
  * @returns The response data from the API, containing the list of all permissions.
  */
 const getPermisssionsWithOutPagination = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions`,
     method: 'GET',
@@ -58,6 +60,8 @@ const getSearchPermissions = async (searchTerm: {
   termKey: string | null;
   searchTerm: string | null;
 }) => {
+  const token = await getCurrentToken();
+
   // const {searchTerm}=useSettingStore();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permissions?columnName=${searchTerm?.termKey}&query=${searchTerm?.searchTerm}`,
@@ -78,6 +82,7 @@ const getSearchPermissions = async (searchTerm: {
  * @throws Error if the request fails.
  */
 const getPermission = async (id: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

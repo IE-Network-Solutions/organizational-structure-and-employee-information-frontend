@@ -2,6 +2,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { JobSummaryDashboard } from '@/store/uistate/features/dashboard/job-summary/interface';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 type ResponseData = JobSummaryDashboard[];
@@ -11,7 +12,7 @@ type ResponseData = JobSummaryDashboard[];
  * @returns The response data from the API
  */
 const getJobSummary = async (status: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {

@@ -4,14 +4,16 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { NationalityList } from '../employeInformationForm/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getNationalities = async () => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/nationality`,
     method: 'GET',
@@ -29,6 +31,7 @@ const getNationalities = async () => {
  */
 
 const getNationality = async (id: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

@@ -5,9 +5,10 @@ import { EMAIL_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { PaySlipData } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const createPayroll = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -31,7 +32,7 @@ const createPayroll = async (values: any) => {
   }
 };
 const sendingPayrollPaySlip = async ({ values }: { values: any }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     await crudRequest({
@@ -48,7 +49,7 @@ const sendingPayrollPaySlip = async ({ values }: { values: any }) => {
   }
 };
 const updatePensionRule = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -129,7 +130,7 @@ export const useUpdatePensionRule = () => {
 };
 
 const sendEmail = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -170,15 +171,16 @@ export const useSendEmail = () => {
 };
 
 const sendToPayroll = async (data: any) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${PAYROLL_URL}/variable-pay`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 const createBasicSalary = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -201,7 +203,7 @@ const createBasicSalary = async (values: any) => {
   }
 };
 const updateBasicSalary = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -254,7 +256,7 @@ export const useSendToPayroll = () => {
 };
 
 const deletePayroll = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {

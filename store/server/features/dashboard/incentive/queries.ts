@@ -9,7 +9,7 @@ const getIncentiveSummery = async (
   recognitionId: string,
 ) => {
   const userId = useAuthenticationStore.getState().userId;
-
+  const requestHeaders = await requestHeader();
   const params: any = {
     recognitionId,
     userId,
@@ -23,7 +23,7 @@ const getIncentiveSummery = async (
     params,
 
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };

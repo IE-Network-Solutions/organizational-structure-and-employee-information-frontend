@@ -3,7 +3,7 @@ import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplannin
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Card, Progress } from 'antd';
-// import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { GoGoal } from 'react-icons/go';
 
 const Header = () => {
@@ -11,10 +11,10 @@ const Header = () => {
   const { data: objectiveDashboard, isLoading } =
     useGetUserObjectiveDashboard(userId);
   const { data: vpScore } = useGetVPScore(userId);
-  // const router = useRouter();
+  const router = useRouter();
 
   const onDetail = () => {
-    // router.push(`/okr/vp`);
+    router.push(`/dashboard/vp`);
   };
 
   return (

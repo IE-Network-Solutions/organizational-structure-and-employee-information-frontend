@@ -3,8 +3,8 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import axios from 'axios';
 import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 
@@ -29,6 +29,7 @@ const getObjectiveByUser = async (
   currentPage: number,
   metricTypeId: string,
 ) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -53,6 +54,7 @@ const getObjectiveByTeam = async (
   userId: string,
   metricTypeId: string,
 ) => {
+  const token = await getCurrentToken();
   try {
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
@@ -84,6 +86,7 @@ const getObjectiveByCompany = async (
   userId: string,
   metricTypeId: string,
 ) => {
+  const token = await getCurrentToken();
   try {
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/objective/company/okr/${id}?page=${currentPage}&limit=${pageSize}`,
@@ -116,6 +119,7 @@ const getEmployeeOkr = async (
   page: number,
   currentPage: number,
 ) => {
+  const token = await getCurrentToken();
   try {
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/objective/get-okr-progress/all-employees?page=${currentPage}&limit=${page}`,

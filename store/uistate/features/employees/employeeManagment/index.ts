@@ -1,7 +1,7 @@
 // useStore.ts
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
 import { Dayjs } from 'dayjs';
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 export interface CustomFieldsProps {
   customFormData: FormData;
