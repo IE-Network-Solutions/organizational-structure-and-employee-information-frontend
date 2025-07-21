@@ -25,13 +25,13 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
-        className="absolute top-2 right-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-5 h-5 flex items-center justify-center shadow"
+        className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
         style={{ zIndex: 10 }}
         id={`remove-key-result-${index}`}
       >
         <svg
-          width="15"
-          height="15"
+          width="12"
+          height="12"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -47,10 +47,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
       <Form form={form} layout="vertical" initialValues={keyItem}>
         {/* Desktop Layout */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-1 items-center mt-4 mx-4`}
         >
           <Form.Item
-            className="flex-1 mb-0"
+            className="flex-1 mr-2 mb-0"
             name="title"
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
@@ -65,7 +65,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
             />
           </Form.Item>
-          <Form.Item className="flex-1 mb-0" id={`select-metric-${index}`}>
+          <Form.Item className="w-48 mb-0" id={`select-metric-${index}`}>
             <Select
               className="w-full h-10 rounded-lg text-base"
               onChange={(value) => {
@@ -87,7 +87,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             </Select>
           </Form.Item>
           <Form.Item
-            className="w-32 mb-0"
+            className="w-24 mb-0"
             name="weight"
             rules={[
               { required: true, message: 'Please enter the Weight' },
@@ -100,6 +100,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               min={0}
               max={100}
               suffix="%"
+              placeholder="100"
               aria-label="Weight"
               value={keyItem.weight}
               onChange={(value) => updateKeyResult(index, 'weight', value)}
@@ -135,7 +136,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
           </Form.Item>
         </div>
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4`}>
+        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}>
           {/* Row 1: Key Result Name */}
           <Form.Item
             className="mb-0"
@@ -154,9 +155,9 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             />
           </Form.Item>
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Form.Item
-              className="flex-1 mb-0"
+              className="w-48 mb-0"
               id={`select-metric-mobile-${index}`}
             >
               <Select
@@ -193,6 +194,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 min={0}
                 max={100}
                 suffix="%"
+                placeholder="100"
                 aria-label="Weight"
                 value={keyItem.weight}
                 onChange={(value) => updateKeyResult(index, 'weight', value)}

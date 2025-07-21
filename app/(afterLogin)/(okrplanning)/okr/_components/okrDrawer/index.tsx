@@ -215,7 +215,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
-        style={{ marginRight: 8 }}
+        style={{ marginRight: 8, height: '40px' }}
       />
       <CustomButton
         id="save-button"
@@ -223,6 +223,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         type="primary"
         onClick={onSubmit}
         loading={isLoading}
+        disabled={
+          !objectiveValue?.title ||
+          !objectiveValue?.deadline ||
+          !objective?.keyResults?.length
+        }
+        style={{ height: '40px' }}
       />
     </div>
   );
@@ -273,11 +279,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       footer={footer}
       title={modalHeader}
       centered
-      width={isMobile ? '100vw' : 900}
-      bodyStyle={{ padding: isMobile ? 12 : 32, minHeight: 400 }}
-      style={{ top: isMobile ? 0 : 32, padding: 0 }}
+      width={isMobile ? '100vw' : 1200}
+      bodyStyle={{ padding: isMobile ? 12 : 32 }}
+      style={{ top: isMobile ? 0 : 32, padding: 0, maxHeight: '95vh' }}
       maskClosable={false}
       destroyOnClose
+      closable={false}
     >
       <Form
         id="okr-form"
@@ -286,6 +293,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         initialValues={objectiveValue}
         className="w-full"
       >
+        {/* OKR Section Title */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Objective
+          </h2>
+        </div>
+
         {isMobile ? (
           <div className="flex flex-col w-full">
             <Form.Item
@@ -303,7 +317,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               <Input
                 id="title-input-field"
                 allowClear
-                className="h-11"
+                className="h-11 w-full"
                 onChange={(e) => {
                   handleObjectiveChange(e.target.value, 'title');
                 }}
@@ -385,131 +399,157 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   type="default"
                   id="add-keyresult-button"
                   className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
-                  icon={<GoPlus size={24} />}
                   aria-label="Add Key Result"
-                />
+                >
+                  <GoPlus size={24} />
+                </Button>
               </Dropdown>
             </div>
           </div>
         ) : (
-          <Row gutter={[16, 16]} className="w-full">
-            <Col xs={24} sm={8} md={8}>
-              <Form.Item
-                id="title-input"
-                className="h-11 mb-10"
-                name="title"
-                label="Objective"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
+          <div className="flex gap-4 w-full">
+            <Form.Item
+              id="title-input"
+              className="h-11 mb-10 flex-1"
+              name="title"
+              label="Objective"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter the Objective name',
+                },
+              ]}
+            >
+              <Input
+                id="title-input-field"
+                allowClear
+                className="h-11 w-full"
+                onChange={(e) => {
+                  handleObjectiveChange(e.target.value, 'title');
+                }}
+                style={{
+                  fontSize: isMobile ? '14px' : '12px',
+                  height: '44px',
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              id="alignment-select"
+              className="h-11 mb-10 w-1/4"
+              name="allignedKeyResultId"
+              label="Alignment"
+              rules={[
+                {
+                  required: reportsToId ? true : false,
+                  message: 'Please enter the Objective name',
+                },
+              ]}
+            >
+              <Select
+                id="alignment-select-dropdown"
+                className="h-11 w-full"
+                showSearch
+                placeholder="Search and select a Key Result"
+                value={objectiveValue?.allignedKeyResultId}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'allignedKeyResultId')
+                }
+                filterOption={(input: string, option: any) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+                style={{
+                  fontSize: isMobile ? '14px' : '12px',
+                  height: '44px',
+                }}
               >
-                <Input
-                  id="title-input-field"
-                  allowClear
-                  className="h-11"
-                  onChange={(e) => {
-                    handleObjectiveChange(e.target.value, 'title');
-                  }}
-                  style={{
-                    fontSize: isMobile ? '14px' : '12px',
-                    height: '44px',
-                  }}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={8} md={8}>
-              <Form.Item
-                id="alignment-select"
-                className="h-11 mb-10"
-                name="allignedKeyResultId"
-                label="Alignment"
-                rules={[
-                  {
-                    required: reportsToId ? true : false,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
-              >
-                <Select
-                  id="alignment-select-dropdown"
-                  className="h-11"
-                  showSearch
-                  placeholder="Search and select a Key Result"
-                  value={objectiveValue?.allignedKeyResultId}
-                  onChange={(value) =>
-                    handleObjectiveChange(value, 'allignedKeyResultId')
-                  }
-                  filterOption={(input: string, option: any) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  style={{
-                    fontSize: isMobile ? '14px' : '12px',
-                    height: '44px',
-                  }}
-                >
-                  {keyResultByUser?.items?.map((keyResult: any) => (
-                    <Select.Option key={keyResult.id} value={keyResult.id}>
-                      {keyResult.title}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={8} md={8}>
-              <Form.Item
-                id="deadline-picker"
-                className="h-11 mb-10"
-                name="ObjectiveDeadline"
-                label="Objective Deadline"
-                rules={[
-                  { required: true, message: 'Please select a deadline' },
-                ]}
-              >
-                <DatePicker
-                  id="deadline-picker-field"
-                  value={
-                    objectiveValue.deadline
-                      ? dayjs(objectiveValue.deadline)
-                      : null
-                  }
-                  onChange={(date) => {
-                    handleObjectiveChange(
-                      date?.format('YYYY-MM-DD'),
-                      'deadline',
-                    );
-                  }}
-                  className="w-full h-11"
-                  format="YYYY-MM-DD"
-                  disabledDate={(current) =>
-                    current && current < dayjs().startOf('day')
-                  }
-                  style={{
-                    fontSize: isMobile ? '14px' : '12px',
-                    height: '44px',
-                  }}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} className="flex justify-end items-center mb-4">
-              <Dropdown overlay={keyResultMenu} trigger={['click']}>
-                <Button
-                  type="default"
-                  id="add-keyresult-button"
-                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center text-sm"
-                  icon={<GoPlus size={18} />}
-                  aria-label="Add Key Result"
-                >
-                  Key Result
-                </Button>
-              </Dropdown>
-            </Col>
-          </Row>
+                {keyResultByUser?.items?.map((keyResult: any) => (
+                  <Select.Option key={keyResult.id} value={keyResult.id}>
+                    {keyResult.title}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              id="deadline-picker"
+              className="h-11 mb-10 w-1/4"
+              name="ObjectiveDeadline"
+              label="Objective Deadline"
+              rules={[{ required: true, message: 'Please select a deadline' }]}
+            >
+              <DatePicker
+                id="deadline-picker-field"
+                value={
+                  objectiveValue.deadline
+                    ? dayjs(objectiveValue.deadline)
+                    : null
+                }
+                onChange={(date) => {
+                  handleObjectiveChange(date?.format('YYYY-MM-DD'), 'deadline');
+                }}
+                className="w-full h-11"
+                format="YYYY-MM-DD"
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf('day')
+                }
+                style={{
+                  fontSize: isMobile ? '14px' : '12px',
+                  height: '44px',
+                }}
+              />
+            </Form.Item>
+          </div>
         )}
 
-        <div className={`rounded-lg mt-5 w-full`}>
+        {/* Key Result Section with inline title and button */}
+        <div className="flex justify-between items-center mb-6 mt-8">
+          <h2 className="text-xl font-semibold text-gray-800">Key Result</h2>
+          <Dropdown overlay={keyResultMenu} trigger={['click']}>
+            <Button
+              type="default"
+              id="add-keyresult-button"
+              className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
+              aria-label="Add Key Result"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-white"
+              >
+                <path
+                  d="M12 5V19M5 12H19"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Key Result
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-white"
+              >
+                <path
+                  d="M6 9L12 15L18 9"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Button>
+          </Dropdown>
+        </div>
+
+        <div
+          className={`rounded-lg mt-5 w-full min-h-64 ${objective?.keyResults?.length > 2 ? 'max-h-96 overflow-y-auto' : ''}`}
+        >
           {/* Show forms for key results */}
           {objective?.keyResults?.length > 0 &&
             objective?.keyResults.map((keyItem: any, index: number) => (
@@ -525,8 +565,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
           {/* Total Weight Display */}
           {objective?.keyResults?.length > 0 && (
-            <div className="flex justify-end mt-4">
-              <div className="text-sm text-gray-600 font-medium">
+            <div className="flex justify-end mt-4 mb-4">
+              <div className="text-sm text-gray-600 font-bold">
                 Total Weight:{' '}
                 <span
                   className={`font-bold ${totalWeight === 100 ? 'text-green-600' : 'text-red-600'}`}

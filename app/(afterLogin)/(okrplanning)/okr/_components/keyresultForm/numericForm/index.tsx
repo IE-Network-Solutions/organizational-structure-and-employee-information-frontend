@@ -25,13 +25,13 @@ const NumericForm: React.FC<OKRFormProps> = ({
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
-        className="absolute top-4 right-4 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-5 h-5 flex items-center justify-center shadow"
+        className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
         style={{ zIndex: 10 }}
         id={`remove-key-result-${index}`}
       >
         <svg
-          width="15"
-          height="15"
+          width="12"
+          height="12"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -57,10 +57,10 @@ const NumericForm: React.FC<OKRFormProps> = ({
       >
         {/* Desktop Layout */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4 mx-4`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-1 items-center mt-4 mx-4`}
         >
           <Form.Item
-            className="flex-1 mb-0"
+            className="flex-1 mr-2 mb-0"
             name="title"
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
@@ -76,7 +76,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
             />
           </Form.Item>
           <Form.Item
-            className="flex-1 mb-0"
+            className="w-48 mb-0"
             rules={[
               { required: true, message: 'Please select a Key Result type' },
             ]}
@@ -111,7 +111,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
             </Select>
           </Form.Item>
           <Form.Item
-            className="w-32 mb-0"
+            className="w-24 mb-0"
             name="weight"
             rules={[{ required: true, message: 'Please enter the weight' }]}
             id={`weight-input-${index}`}
@@ -121,6 +121,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
               min={0}
               max={100}
               suffix="%"
+              placeholder="100"
               value={keyItem.weight}
               onChange={(value) => updateKeyResult(index, 'weight', value)}
               aria-label="Weight"
@@ -158,10 +159,10 @@ const NumericForm: React.FC<OKRFormProps> = ({
         </div>
         {/* Desktop Numeric input row */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4 mx-4`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-6 items-center mt-4 mx-4`}
         >
           <Form.Item
-            className=" mb-0"
+            className="w-60 mb-0"
             name="initialValue"
             rules={[
               { required: true, message: 'Please enter the initial value' },
@@ -190,7 +191,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
             />
           </Form.Item>
           <Form.Item
-            className="mb-0"
+            className="w-60 mb-0"
             name="targetValue"
             rules={[
               { required: true, message: 'Please enter the target value' },
@@ -237,9 +238,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
             />
           </Form.Item>
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Form.Item
-              className="flex-1 mb-0"
+              className="w-48 mb-0"
               rules={[
                 { required: true, message: 'Please select a Key Result type' },
               ]}
@@ -284,6 +285,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 min={0}
                 max={100}
                 suffix="%"
+                placeholder="100"
                 value={keyItem.weight}
                 onChange={(value) => updateKeyResult(index, 'weight', value)}
                 aria-label="Weight"
@@ -320,7 +322,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 3: Initial Value and Target Value */}
-          <div className="flex gap-3">
+          <div className="flex gap-6 pl-4">
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"
