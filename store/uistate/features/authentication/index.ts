@@ -1,5 +1,5 @@
 import { setCookie } from '@/helpers/storageHelper';
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 interface StoreState {
