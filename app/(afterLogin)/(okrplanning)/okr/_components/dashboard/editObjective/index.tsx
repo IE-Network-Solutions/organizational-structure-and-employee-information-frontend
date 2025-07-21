@@ -146,24 +146,25 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      Edit Objective
+    <div className="flex justify-center text-2xl font-extrabold text-gray-800 p-4">
+      Edit OKR
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5">
       <CustomButton
         type="default"
         title="Cancel"
         onClick={props?.onClose}
-        style={{ marginRight: 8 }}
+        style={{ marginRight: 8, height: '40px' }}
       />
       <CustomButton
         loading={isLoading}
         title={'Save'}
         type="primary"
         onClick={onSubmit}
+        style={{ height: '40px' }}
       />
     </div>
   );
@@ -208,6 +209,11 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       width="50%"
     >
       <Form form={form} layout="vertical">
+        {/* OKR Section Title */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">OKR</h2>
+        </div>
+
         <Checkbox
           checked={alignment}
           onChange={() => handleAlignment()}
@@ -305,9 +311,16 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           )}
         </Row>
 
+        {/* Key Result Section Title */}
+        <div className="mb-6 mt-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Key Result
+          </h2>
+        </div>
+
         {/* Key Results Section */}
-        <div className="border border-gray-300 rounded-lg p-4 mt-5">
-          <div className="flex justify-between items-center">
+        <div className="rounded-lg mt-5 w-full max-h-96 overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
             <p className="font-bold text-xs h-6">Set Key Result</p>
             <Button
               onClick={() => addKeyResult()}
