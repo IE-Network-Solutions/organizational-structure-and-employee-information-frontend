@@ -133,6 +133,11 @@ export const useSetLeaveRequest = () => {
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: error?.response?.data?.message,
+      });
+    },
   });
 };
 
