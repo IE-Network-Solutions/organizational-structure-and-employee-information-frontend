@@ -35,9 +35,24 @@ export default function Home() {
 
   const mainLayout = (
     <div className="min-h-screen bg-gray-100 px-4">
-      <div className=" flex justify-between items-center">
-        <div className="">
-          {' '}
+      {isMobile || isTablet ? (
+        <div className=" flex justify-between items-center mb-4">
+          {userData?.firstName ? (
+            <h1 className="text-2xl font-bold text-gray-800">
+              Hi, {userData?.firstName}
+            </h1>
+          ) : (
+            ''
+          )}
+          <div
+            className=" text-primary text-base font-bold"
+            onClick={() => showAnnouncements()}
+          >
+            Announcements
+          </div>{' '}
+        </div>
+      ) : (
+        <div className=" flex justify-start">
           {userData?.firstName ? (
             <div className="mb-4">
               <h1 className="text-2xl font-bold text-gray-800">
@@ -48,17 +63,7 @@ export default function Home() {
             ''
           )}
         </div>
-        {isMobile || isTablet ? (
-          <div
-            className=" text-primary text-base font-bold"
-            onClick={() => showAnnouncements()}
-          >
-            Announcements
-          </div>
-        ) : (
-          ''
-        )}
-      </div>
+      )}
       <Header />
       {isMobile || isTablet ? (
         <div className="grid grid-cols-1 pb-3">

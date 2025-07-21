@@ -37,6 +37,9 @@ const SelfAttendance = () => {
           (month: any) => month.stats.leaves,
         ),
         backgroundColor: 'rgba(54, 54, 240, 0.7)',
+        barThickness: 20,
+        barPercentage: 0.4,
+        categoryPercentage: 0.4,
       },
 
       {
@@ -45,6 +48,9 @@ const SelfAttendance = () => {
           (month: any) => month.stats.lates,
         ),
         backgroundColor: 'rgba(2, 99, 255, 0.7)',
+        barThickness: 20,
+        barPercentage: 0.4,
+        categoryPercentage: 0.4,
       },
       {
         label: 'Absents',
@@ -52,6 +58,9 @@ const SelfAttendance = () => {
           (month: any) => month.stats.absents,
         ),
         backgroundColor: 'rgba(233, 233, 255, 0.7)',
+        barThickness: 20,
+        barPercentage: 0.4,
+        categoryPercentage: 0.4,
       },
     ],
   };
