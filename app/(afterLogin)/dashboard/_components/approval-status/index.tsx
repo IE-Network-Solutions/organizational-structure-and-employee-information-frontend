@@ -90,6 +90,7 @@ const ApprovalStatus: FC = () => {
                   approvalWorkflowId={request.approvalWorkflowId}
                   nextApprover={request.nextApprover?.[0]?.stepOrder}
                   requestType={approverType}
+                  fileAttachment={request?.justificationDocument}
                 />
               ))}
             </div>

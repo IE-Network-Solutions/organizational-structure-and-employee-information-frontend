@@ -83,6 +83,19 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 return; // Stop submission if no milestone is added
               }
 
+              // Validate that each milestone has a non-empty name/title
+              for (const [
+                mIndex,
+                milestone,
+              ] of keyResult.milestones.entries()) {
+                if (!milestone?.title || milestone.title.trim() === '') {
+                  NotificationMessage.warning({
+                    message: `On Number: ${index + 1} Title:${keyResult.title} Milestone ${mIndex + 1} must have a name.`,
+                  });
+                  return; // Stop submission if any milestone name is empty
+                }
+              }
+
               // Calculate the sum of milestone values
               const milestoneSum = keyResult.milestones.reduce(
                 (sum: number, milestone: Record<string, number>) =>
