@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button, DatePicker, Form, Input, InputNumber, Select } from 'antd';
-import { GoPlus } from 'react-icons/go';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
