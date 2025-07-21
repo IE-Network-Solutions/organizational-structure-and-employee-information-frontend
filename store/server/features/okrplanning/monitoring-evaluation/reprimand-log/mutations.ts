@@ -4,10 +4,11 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 const createRepLog = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/reprimand-log`,
@@ -30,6 +31,7 @@ const createRepLog = async (values: any) => {
   }
 };
 export const UpdateRepLog = async (values: Record<string, string>) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/reprimand-log/${values?.id}`,
@@ -51,6 +53,7 @@ export const UpdateRepLog = async (values: Record<string, string>) => {
 };
 
 const deleteRepLog = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

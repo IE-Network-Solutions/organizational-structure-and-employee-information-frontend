@@ -1,6 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 interface Dashboard {
@@ -22,7 +23,7 @@ type ResponseData = Dashboard;
  * @returns The response data from the API
  */
 const getObjectiveDashboardByUser = async (id: number | string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/objective/user/${id}`,
@@ -35,7 +36,7 @@ const getObjectiveDashboardByUser = async (id: number | string) => {
 };
 
 const getPlanningPeriods = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/planning-periods`,
@@ -48,7 +49,7 @@ const getPlanningPeriods = async () => {
 };
 
 const getPerformance = async (planningPeriodId: string, userId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/okr-report/performance/user?planningPeriodId=${planningPeriodId}&&userId=${userId}`,
@@ -61,7 +62,7 @@ const getPerformance = async (planningPeriodId: string, userId: string) => {
 };
 
 const getRockStars = async (planningPeriodId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/okr-report/rock-star/user?planningPeriodId=${planningPeriodId}`,
@@ -74,7 +75,7 @@ const getRockStars = async (planningPeriodId: string) => {
 };
 
 const getVariablePay = async (monthIds: string[]) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/vp-score-instance/filter?monthIds=${monthIds}`,
@@ -87,7 +88,7 @@ const getVariablePay = async (monthIds: string[]) => {
 };
 
 const getDueSoonKeyResults = async (userId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/objective/${userId}?page=1&limit=100&metricTypeId=`,

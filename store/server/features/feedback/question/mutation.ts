@@ -8,6 +8,7 @@ import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicFo
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -20,7 +21,7 @@ import { useMutation, useQueryClient } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const createQuestions = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
 
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -46,7 +47,7 @@ const createQuestions = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const updateQuestions = async (data: any, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
 
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -71,7 +72,7 @@ const updateQuestions = async (data: any, id: string) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteQuestion = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
 
   const tenantId = useAuthenticationStore.getState().tenantId;
 

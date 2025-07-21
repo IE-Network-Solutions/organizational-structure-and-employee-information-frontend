@@ -8,6 +8,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import {} from '@/types/timesheet/attendance';
 import { TrainingNeedAssessmentRecord } from '@/types/tna/tna';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 export const approvalFilter = async (
   pageSize: number,
@@ -16,7 +17,7 @@ export const approvalFilter = async (
   name: string,
   branch: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -30,7 +31,7 @@ export const approvalFilter = async (
   return response;
 };
 export const getLeaveRequestByWorkFlowId = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -45,7 +46,7 @@ export const getLeaveRequestByWorkFlowId = async (id: string) => {
 };
 
 export const getTraining = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const response = await crudRequest({
     url: `${TNA_URL}/tna`,
@@ -59,7 +60,7 @@ export const getTraining = async () => {
 };
 
 export const allApproval = async (entityId: string, branch: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -73,7 +74,7 @@ export const allApproval = async (entityId: string, branch: string) => {
   return response;
 };
 export const singleApproval = async (entityId: string, branch: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
@@ -90,7 +91,7 @@ export const currentApproval = async (
   approvalWorkflowId: string,
   requesterId: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({

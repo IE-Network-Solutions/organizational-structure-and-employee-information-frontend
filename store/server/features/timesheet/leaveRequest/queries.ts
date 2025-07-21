@@ -24,10 +24,11 @@ const getLeaveRequest = async (
   queryData: RequestCommonQueryData,
   data: LeaveRequestBody,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
     params: queryData,
   });
@@ -37,10 +38,11 @@ const getEmployeeLeave = async (
   currentPage: number,
   userId: string,
 ) => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all?page=${currentPage}&limit=${pageSize}&userId=${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
@@ -50,34 +52,38 @@ const getApprovalLeaveRequest = async (
   page: number,
   limit: number,
 ) => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/${requesterId}?page=${page}&limit=${limit}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
 const getSingleLeaveRequest = async (requestId: string) => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/${requestId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
 const getSingleApprovalLog = async (requestId: string, workflowId: string) => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${APPROVER_URL}/approver/status/${requestId}/${workflowId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
 const getSingleApproval = async (requestId: string) => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${APPROVER_URL}/approval-logs/${requestId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
@@ -86,10 +92,11 @@ const getApprovalTNARequest = async (
   page: number,
   limit: number,
 ) => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TNA_URL}/tna/tna-currentApprover/${userId}?page=${page}&limit=${limit}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };

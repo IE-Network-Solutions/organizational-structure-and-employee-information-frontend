@@ -2,8 +2,8 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 type User = {
   id: string;
@@ -25,6 +25,7 @@ type ResponseData = Department[];
  * @returns The response data from the API
  */
 const getDepartmentWithUsers = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/all/departments`,
     method: 'GET',

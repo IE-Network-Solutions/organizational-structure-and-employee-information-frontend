@@ -7,10 +7,11 @@ import { CommitmentRule } from '@/types/tna/tna';
 import { TnaCommitmentRequestBody } from '@/store/server/features/tna/commitment/interface';
 
 const getTnaCommitment = async (data: Partial<TnaCommitmentRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/commitment`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

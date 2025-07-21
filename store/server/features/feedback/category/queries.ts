@@ -5,6 +5,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 /**
@@ -23,7 +24,7 @@ const fetchCategories = async (
   description: string,
   createdBy: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId || '';
 
@@ -44,7 +45,7 @@ const fetchCategories = async (
  * @returns {Promise<any>} Promise with the list of users.
  */
 const fetchUsers = async (searchString: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -65,7 +66,7 @@ const fetchUsers = async (searchString: string) => {
  * @returns {Promise<any>} Promise with the category data.
  */
 const getFormCategoriesById = async (formCatsId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -86,7 +87,7 @@ const getFormCategoriesById = async (formCatsId: string) => {
  * @returns {Promise<any>} Promise with the user data.
  */
 const fetchCatUsersById = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId || '';
 
@@ -104,7 +105,7 @@ const fetchCatUsersById = async () => {
 };
 
 const getEmployeeDepartments = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({

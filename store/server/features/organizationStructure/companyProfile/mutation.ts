@@ -4,13 +4,9 @@ import { TENANT_BASE_URL, TENANT_MGMT_URL } from '@/utils/constants';
 import { CompanyProfileImage } from '@/store/uistate/features/organizationStructure/companyProfile/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 /* eslint-disable @typescript-eslint/naming-convention */
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 /**
  * Fetch company profile by tenant ID.
@@ -18,6 +14,12 @@ const headers = {
  * @returns Promise with the company profile.
  */
 export const getCompanyProfileByTenantId = async (tenantId: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${TENANT_BASE_URL}/api/v1/clients/${tenantId}`,
     method: 'GET',
@@ -31,12 +33,6 @@ export const getCompanyProfileByTenantId = async (tenantId: string) => {
  * @returns Promise with the updated company profile.
  */
 
-const multiPartFormDataheaders = {
-  tenantId: tenantId,
-  'Content-Type': 'multipart/form-data',
-  Authorization: `Bearer ${token}`,
-};
-
 const updateCompanyProfile = async ({
   id,
   companyProfileImage,
@@ -44,6 +40,12 @@ const updateCompanyProfile = async ({
   id: string;
   companyProfileImage: CompanyProfileImage;
 }) => {
+  const token = await getCurrentToken();
+  const multiPartFormDataheaders = {
+    tenantId: tenantId,
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/clients/${id}`,
     method: 'PUT',
@@ -99,6 +101,7 @@ const updateCompanyProfileWithStamp = async ({
   companyProfileImage?: CompanyProfileImage;
   companyStamp?: CompanyProfileImage;
 }): Promise<any> => {
+  const token = await getCurrentToken();
   const formData = new FormData();
   // Append DTO as JSON string
   if (updateClientDto) {

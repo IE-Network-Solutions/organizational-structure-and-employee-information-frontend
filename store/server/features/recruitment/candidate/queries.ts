@@ -1,6 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 const getCandidates = async (
@@ -13,7 +14,7 @@ const getCandidates = async (
   pageSize: number,
   currentPage: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -36,7 +37,7 @@ const getAllCandidates = async (
   pageSize: number,
   currentPage: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -51,7 +52,7 @@ const getAllCandidates = async (
 };
 
 const getCandidateById = async (candidateId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -65,7 +66,7 @@ const getCandidateById = async (candidateId: string) => {
 };
 
 const getTalentPoolCategory = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -78,7 +79,7 @@ const getTalentPoolCategory = async () => {
   });
 };
 const getStages = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     Authorization: `Bearer ${token}`,

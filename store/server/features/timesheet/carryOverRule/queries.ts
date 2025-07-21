@@ -6,18 +6,20 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { CarryOverRule } from '@/types/timesheet/settings';
 
 const getCarryOverRules = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getCarryOverRule = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/carry-over-rule`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };
