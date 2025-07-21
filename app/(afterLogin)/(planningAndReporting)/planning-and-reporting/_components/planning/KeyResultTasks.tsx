@@ -56,7 +56,10 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
                   )?.length || 0
                 : keyResult?.metricType?.name === 'Achieve'
                   ? keyResult?.progress
-                  : Number(keyResult?.currentValue)?.toLocaleString() || 0}
+                  : (
+                      Number(keyResult?.currentValue) +
+                      Number(keyResult?.initialValue)
+                    )?.toLocaleString() || 0}
             </Tag>
           </div>
 
