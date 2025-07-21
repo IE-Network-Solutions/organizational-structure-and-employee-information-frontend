@@ -1,6 +1,6 @@
 'use client';
 import { FC } from 'react';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import {
   auth,
   googleProvider,
@@ -41,13 +41,22 @@ const Login: FC = () => {
         },
       },
       {
-        onSuccess: (data) => {
-          setUser2FA({
-            email: values.email,
-            pass: values.password,
-          });
-          setLocalId(data?.uid);
-          setIs2FA(true);
+        onSuccess: async (data) => {
+         
+          if (data?.is2FAEnabled === false) {
+           return await handleSignIn(() =>
+              signInWithEmailAndPassword(auth, values.email, values.password),
+            );
+          } else {
+            setUser2FA({
+              email: values.email,
+              pass: values.password,
+            });
+            setLocalId(data?.uid);
+            setIs2FA(true);
+          }
+
+         
         },
       },
     );
