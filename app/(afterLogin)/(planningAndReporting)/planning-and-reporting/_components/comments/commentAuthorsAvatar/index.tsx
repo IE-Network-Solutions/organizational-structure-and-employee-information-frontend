@@ -27,10 +27,14 @@ const CommentAuthorsAvatars = (data: CommentsData[]) => {
         };
   };
 
+  // Get unique users who commented
+  const uniqueCommenters = data?.filter((comment, index, self) => 
+    index === self.findIndex(c => c.commentedBy === comment.commentedBy)
+  ) || [];
+
   const maxDisplayCount = 10;
-  const displayData = data?.slice(0, maxDisplayCount);
-  const extraCount =
-    data && data.length > maxDisplayCount ? data.length - maxDisplayCount : 0;
+  const displayData = uniqueCommenters.slice(0, maxDisplayCount);
+  const extraCount = uniqueCommenters.length > maxDisplayCount ? uniqueCommenters.length - maxDisplayCount : 0;
 
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
