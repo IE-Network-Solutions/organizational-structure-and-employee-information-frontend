@@ -162,6 +162,9 @@ const Payroll = () => {
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
     }
+    if (searchValues?.divisionId) {
+      queryParams.append('divisionId', searchValues.divisionId);
+    }
     if (searchValues?.payPeriodId) {
       queryParams.append('payPeriodId', searchValues.payPeriodId);
       const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
