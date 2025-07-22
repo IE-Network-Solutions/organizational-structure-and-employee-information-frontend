@@ -9,7 +9,7 @@ const VPDashBoard = () => {
         <div className="my-5">
           <div className="text-2xl font-bold">VP</div>
           <div className="text-sm text-gray-500 font-medium">
-            view your variable pay
+            Manage your variable pay
           </div>
         </div>
       </div>
