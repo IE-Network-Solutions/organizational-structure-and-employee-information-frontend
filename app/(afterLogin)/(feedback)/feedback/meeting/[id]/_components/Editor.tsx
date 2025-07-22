@@ -220,7 +220,7 @@ export default function Editor({
       )}
 
       <EditorContent
-        className="h-80 px-5 py-2"
+        className="px-5 py-2"
         disabled={canEdit}
         editor={editor}
       />
