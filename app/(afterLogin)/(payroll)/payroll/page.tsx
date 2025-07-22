@@ -30,7 +30,6 @@ import { useGenerateBankLetter } from './_components/Latter';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
-  useGetAllUsers,
   useGetAllUsersData,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
@@ -75,7 +74,6 @@ const Payroll = () => {
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
-  const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
