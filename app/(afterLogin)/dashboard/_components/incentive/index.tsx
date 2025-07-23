@@ -136,7 +136,7 @@ const Incentive = () => {
   );
 
   return (
-    <Card className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col">
+    <Card className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col shadow-lg">
       <div className="flex justify-between items-center mb-2 h-10 ">
         <h3 className="font-bold text-lg">Incentives</h3>
         {isMobile || isTablet ? (
@@ -247,7 +247,7 @@ const Incentive = () => {
           </Row>
         </Card>
       ) : (
-        <div className="text-sm font-light flex h-[100px] justify-center items-center ">
+        <div className="text-lg font-light flex h-full justify-center items-center min-h-40">
           No Incentive For this Month
         </div>
       )}{' '}

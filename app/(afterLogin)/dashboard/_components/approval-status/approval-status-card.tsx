@@ -217,7 +217,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           cancelText="Cancel"
           okButtonProps={{ disabled: !rejectComment }}
         >
-          <Button>Reject</Button>
+          <Button className="p-1 lg:p-4 text-xs lg:text-base">Reject</Button>
         </Popconfirm>
         <Popconfirm
           title="Approve Request"
@@ -237,7 +237,9 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           okText="Approve"
           cancelText="Cancel"
         >
-          <Button type="primary">Approve</Button>
+          <Button type="primary" className="p-1 lg:p-4 text-xs lg:text-base">
+            Approve
+          </Button>
         </Popconfirm>
       </div>
     </div>

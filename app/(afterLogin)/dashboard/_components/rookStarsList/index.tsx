@@ -27,8 +27,8 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title, data }) => {
   );
 
   return (
-    <div className="bg-white rounded-lg p-1">
-      <div className="text-lg font-bold gap-3 flex items-center px-3  ">
+    <div className="bg-white rounded-lg p-1   ">
+      <div className="text-base lg:text-lg font-bold gap-3 flex items-center px-3  ">
         <LuCrown className="text-primary" />
         Best {title} Board
       </div>
@@ -79,7 +79,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title, data }) => {
             )}
           </div>
         ) : (
-          <div className="text-sm font-light flex min-h-24 justify-center items-center ">
+          <div className="text-lg font-light flex min-h-24 justify-center items-center ">
             <div className=""> No rockstar {title} of the Week</div>
           </div>
         )}
