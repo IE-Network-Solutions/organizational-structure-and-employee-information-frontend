@@ -60,6 +60,7 @@ const getObjectiveByTeam = async (
       `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
       {
         users: users,
+        userId: userId,
         metricTypeId: metricTypeId,
         // updatedBy: logUserId,
         // createdBy: logUserId,
