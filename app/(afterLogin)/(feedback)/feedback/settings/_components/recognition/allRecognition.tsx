@@ -170,7 +170,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
               type="primary"
               onClick={showModal}
             >
-              Recognition
+              Recognitionmmmm
             </Button>
           </AccessGuard>
         )}
