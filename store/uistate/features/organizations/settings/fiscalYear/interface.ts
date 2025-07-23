@@ -61,4 +61,7 @@ export interface DrawerState {
 
   openDrawer: () => void;
   setIsOpenFiscalYearDrawer: (isOpen: boolean) => void;
+
+  hasOverlapError: boolean;
+  setHasOverlapError: (hasOverlapError: boolean) => void;
 }
