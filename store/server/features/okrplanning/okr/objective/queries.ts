@@ -60,7 +60,6 @@ const getObjectiveByTeam = async (
       `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
       {
         users: users,
-        userId: userId,
         metricTypeId: metricTypeId,
         // updatedBy: logUserId,
         // createdBy: logUserId,
@@ -69,6 +68,7 @@ const getObjectiveByTeam = async (
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
           tenantId: tenantId, // Pass tenantId in the headers
+          userId: userId, // Add userId to headers as per Postman test
         },
       },
     );
@@ -77,6 +77,11 @@ const getObjectiveByTeam = async (
     throw error;
   }
 };
+
+
+
+
+
 
 const getObjectiveByCompany = async (
   id: number | string,
@@ -204,6 +209,7 @@ export const useGetTeamObjective = (
       getObjectiveByTeam(pageSize, currentPage, users, userId, metricTypeId),
     {
       keepPreviousData: true,
+      enabled: users.length > 0 && !!userId, // Only enable when we have users and userId
     },
   );
 export const useGetCompanyObjective = (
