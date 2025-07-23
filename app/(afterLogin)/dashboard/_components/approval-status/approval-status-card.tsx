@@ -222,8 +222,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           cancelText="Cancel"
           okButtonProps={{ disabled: !rejectComment }}
         >
-
-          <Button 
+          <Button
             className="p-1 lg:p-4 text-xs lg:text-base"
             disabled={
               isLoadingEditApprover ||
@@ -252,7 +251,9 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           okText="Approve"
           cancelText="Cancel"
         >
-          <Button type="primary" className="p-1 lg:p-4 text-xs lg:text-base" 
+          <Button
+            type="primary"
+            className="p-1 lg:p-4 text-xs lg:text-base"
             disabled={
               isLoadingEditApprover ||
               isLoadingFinalLeaveApprover ||

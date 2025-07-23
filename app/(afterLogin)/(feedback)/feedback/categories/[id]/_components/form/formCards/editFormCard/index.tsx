@@ -107,18 +107,20 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
           />
         </Form.Item>
         <Form.Item name="users" label="Users">
-          <Select 
-          mode="multiple" 
-          placeholder="Select users" 
-          value={formDataByID?.formPermissions?.map((p: any) => p.userId) || []}
-          showSearch
-          optionFilterProp="children"
-          filterOption={(input, option) => {
-            return (option?.children ?? '')
-              .toString()
-              .toLowerCase()
-              .includes(input.toLowerCase());
-          }}
+          <Select
+            mode="multiple"
+            placeholder="Select users"
+            value={
+              formDataByID?.formPermissions?.map((p: any) => p.userId) || []
+            }
+            showSearch
+            optionFilterProp="children"
+            filterOption={(input, option) => {
+              return (option?.children ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase());
+            }}
           >
             {employees?.items.map((employee: any) => (
               <Option key={employee.id} value={employee.id}>

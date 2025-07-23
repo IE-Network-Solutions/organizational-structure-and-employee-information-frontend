@@ -6,7 +6,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/approval';
 import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
-import { APPROVALTYPES } from '@/types/enumTypes';
 
 const ApprovalStatus: FC = () => {
   const { userId } = useAuthenticationStore();
@@ -39,7 +38,7 @@ const ApprovalStatus: FC = () => {
             {`${
               approverType == 'Leave'
                 ? `${LeaveTransferData?.meta?.totalItems || LeaveTransferData?.items?.length} Leave `
-                : approverType == 'BranchTransfer'
+                : approverType == 'BranchRequest'
                   ? `${BranchTransferData?.meta?.totalItems || BranchTransferData?.items?.length} Branch `
                   : ''
             }`}

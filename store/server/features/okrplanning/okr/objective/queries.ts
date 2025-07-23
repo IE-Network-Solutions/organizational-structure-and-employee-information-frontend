@@ -78,11 +78,6 @@ const getObjectiveByTeam = async (
   }
 };
 
-
-
-
-
-
 const getObjectiveByCompany = async (
   id: number | string,
   pageSize: number,
