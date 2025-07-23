@@ -76,9 +76,12 @@ export default function OkrTab() {
     teamPageSize,
     teamCurrentPage,
     users,
-    searchObjParams.userId,
-    searchObjParams?.metricTypeId,
+    searchObjParams.userId || userId, // Use current userId if searchObjParams.userId is empty
+    searchObjParams?.metricTypeId || '', // Provide empty string as fallback
   );
+
+
+
   const {
     data: companyObjective,
     isLoading: companyLoading,
@@ -98,6 +101,8 @@ export default function OkrTab() {
   const canVieCompanyOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewCompanyOkr],
   });
+
+
 
   useEffect(() => {
     setIsMounted(true);
