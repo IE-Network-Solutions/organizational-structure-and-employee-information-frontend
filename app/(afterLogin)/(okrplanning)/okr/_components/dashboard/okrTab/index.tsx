@@ -51,7 +51,6 @@ export default function OkrTab() {
     companyCurrentPage,
     companyPageSize,
     setOkrTab,
-    okrTab,
   } = useOKRStore();
   const { isMobile, isTablet } = useIsMobile();
   const usersInDepartment =
