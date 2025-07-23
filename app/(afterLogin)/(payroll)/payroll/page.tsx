@@ -30,7 +30,6 @@ import { useGenerateBankLetter } from './_components/Latter';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
-  useGetAllUsers,
   useGetAllUsersData,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
@@ -75,7 +74,6 @@ const Payroll = () => {
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
-  const { data: employeeData } = useGetAllUsers();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
@@ -91,20 +89,41 @@ const Payroll = () => {
     useDeletePayroll();
 
   useEffect(() => {
-    if (payroll?.items && allEmployees?.items) {
-      const mergedData = payroll?.items.map((pay: any) => {
-        const employee = allEmployees.items.find(
-          (emp: any) => emp.id === pay.employeeId,
-        );
-        return {
-          ...pay,
-          employeeInfo: employee || null,
-        };
-      });
+    // Check if division filter is applied
+    const hasDivisionFilter = searchValue?.divisionId;
+    
+    if (payroll?.items) {
+      let mergedData;
+      
+      if (hasDivisionFilter && payroll?.divisionUsers) {
+        // Use division users from backend when division filter is applied
+        mergedData = payroll?.items.map((pay: any) => {
+          const employee = payroll.divisionUsers.find(
+            (emp: any) => emp.id === pay.employeeId,
+          );
+          return {
+            ...pay,
+            employeeInfo: employee || null,
+          };
+        });
+      } else if (allEmployees?.items) {
+        // Use all employees when no division filter is applied
+        mergedData = payroll?.items.map((pay: any) => {
+          const employee = allEmployees.items.find(
+            (emp: any) => emp.id === pay.employeeId,
+          );
+          return {
+            ...pay,
+            employeeInfo: employee || null,
+          };
+        });
+      }
 
-      setMergedPayroll(mergedData);
+      if (mergedData) {
+        setMergedPayroll(mergedData);
+      }
     }
-  }, [payroll, allEmployees]);
+  }, [payroll, allEmployees, searchValue?.divisionId]);
 
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
@@ -161,6 +180,9 @@ const Payroll = () => {
     }
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
+    }
+    if (searchValues?.divisionId) {
+      queryParams.append('divisionId', searchValues.divisionId);
     }
     if (searchValues?.payPeriodId) {
       queryParams.append('payPeriodId', searchValues.payPeriodId);
@@ -779,11 +801,14 @@ const Payroll = () => {
     });
   };
   const options =
-    employeeData?.items?.map((emp: Record<string, string>) => ({
+    (searchValue?.divisionId && payroll?.divisionUsers 
+      ? payroll.divisionUsers 
+      : allEmployees?.items || []
+    ).map((emp: any) => ({
       value: emp.id,
       label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
       employeeData: emp,
-    })) || [];
+    }));
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -826,16 +851,16 @@ const Payroll = () => {
                 description={
                   <div>
                     {mergedPayroll?.length > 0 ? (
-                      mergedPayroll?.length < allEmployees?.items?.length ? (
+                      mergedPayroll?.length < (searchValue?.divisionId ? payroll?.divisionUsers?.length : allEmployees?.items?.length) ? (
                         <p>
                           This will send payslips to {mergedPayroll?.length}{' '}
                           selected employees (filtered from{' '}
-                          {allEmployees?.items?.length} total).
+                          {searchValue?.divisionId ? payroll?.divisionUsers?.length : allEmployees?.items?.length} total).
                         </p>
                       ) : (
                         <p>
                           This will send payslips to ALL{' '}
-                          {allEmployees?.items?.length} employees.
+                          {searchValue?.divisionId ? payroll?.divisionUsers?.length : allEmployees?.items?.length} employees.
                         </p>
                       )
                     ) : (
@@ -844,7 +869,7 @@ const Payroll = () => {
                       </p>
                     )}
                     {mergedPayroll?.length > 0 &&
-                      mergedPayroll?.length < allEmployees?.items?.length && (
+                      mergedPayroll?.length < (searchValue?.divisionId ? payroll?.divisionUsers?.length : allEmployees?.items?.length) && (
                         <p style={{ color: 'orange', marginTop: '8px' }}>
                           Note: You&apos;re sending to a filtered subset. Clear
                           filters to send to everyone.
@@ -855,7 +880,7 @@ const Payroll = () => {
                 okText={
                   mergedPayroll?.length === 0
                     ? 'Cannot Send'
-                    : mergedPayroll?.length < allEmployees?.items?.length
+                    : mergedPayroll?.length < (searchValue?.divisionId ? payroll?.divisionUsers?.length : allEmployees?.items?.length)
                       ? 'Send to Filtered'
                       : 'Send to All'
                 }
@@ -873,7 +898,7 @@ const Payroll = () => {
                   title={
                     mergedPayroll?.length === 0
                       ? 'No employees selected. Please adjust your filters.'
-                      : mergedPayroll?.length < allEmployees?.items?.length
+                      : mergedPayroll?.length < (searchValue?.divisionId ? payroll?.divisionUsers?.length : allEmployees?.items?.length)
                         ? `Will send to ${mergedPayroll?.length} filtered employee(s)`
                         : 'Will send to all employees'
                   }

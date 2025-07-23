@@ -9,6 +9,7 @@ import {
 import dayjs from 'dayjs';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetLevel1Departments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 
 const { Option } = Select;
@@ -23,6 +24,7 @@ interface FiltersProps {
     sessionId?: string;
     monthId?: string;
     departmentId?: string;
+    divisionId?: string;
     payPeriodId?: string;
   };
 }
@@ -37,6 +39,7 @@ const Filters: React.FC<FiltersProps> = ({
   const { data: employeeData } = useGetAllUsers();
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: departmentData } = useGetDepartments();
+  const { data: level1Departments } = useGetLevel1Departments();
   const { searchQuery, pageSize, currentPage } = useEmployeeStore();
   const { data: payroll } = useGetActivePayroll(
     searchQuery,
@@ -187,6 +190,15 @@ const Filters: React.FC<FiltersProps> = ({
         onSearch(updated);
         return updated;
       });
+    } else if (key === 'divisionId') {
+      setSearchValue((prev) => {
+        const updated = {
+          ...prev,
+          divisionId: value,
+        };
+        onSearch(updated);
+        return updated;
+      });
     } else if (key === 'payPeriodId') {
       setSearchValue((prev) => {
         const updated = {
@@ -227,9 +239,9 @@ const Filters: React.FC<FiltersProps> = ({
             // }}
             xs={24}
             sm={24}
-            md={9}
-            lg={9}
-            xl={9}
+            md={6}
+            lg={6}
+            xl={6}
           >
             <Select
               showSearch
@@ -248,7 +260,7 @@ const Filters: React.FC<FiltersProps> = ({
             />
           </Col>
         )}
-        <Col xs={24} sm={24} md={15} lg={15} xl={15}>
+        <Col xs={24} sm={24} md={18} lg={18} xl={18}>
           <Row gutter={[16, 16]} justify="end">
             {!disable?.includes('year') && (
               <Col
@@ -321,9 +333,9 @@ const Filters: React.FC<FiltersProps> = ({
                 // }}
                 xs={24}
                 sm={24}
-                md={4}
-                lg={4}
-                xl={4}
+                md={3}
+                lg={3}
+                xl={3}
               >
                 <Select
                   placeholder="Month"
@@ -345,6 +357,32 @@ const Filters: React.FC<FiltersProps> = ({
               </Col>
             )}
 
+            {!disable?.includes('division') && (
+              <Col
+                xs={24}
+                sm={24}
+                md={3}
+                lg={3}
+                xl={3}
+              >
+                <Select
+                  placeholder="Select division"
+                  onChange={(value) =>
+                    handleSelectChange('divisionId', value)
+                  }
+                  value={searchValue.divisionId}
+                  allowClear
+                  style={{ width: '100%', height: '48px' }}
+                >
+                  {level1Departments?.map((division: any) => (
+                    <Option key={division.id} value={division.id}>
+                      {division?.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+            )}
+
             {!disable?.includes('department') && (
               <Col
                 // style={{
@@ -353,9 +391,9 @@ const Filters: React.FC<FiltersProps> = ({
                 // }}
                 xs={24}
                 sm={24}
-                md={4}
-                lg={4}
-                xl={4}
+                md={3}
+                lg={3}
+                xl={3}
               >
                 <Select
                   placeholder="Select department"
@@ -383,9 +421,9 @@ const Filters: React.FC<FiltersProps> = ({
                 // }}
                 xs={24}
                 sm={24}
-                md={8}
-                lg={8}
-                xl={8}
+                md={6}
+                lg={6}
+                xl={6}
               >
                 <Select
                   placeholder="Pay Period"
