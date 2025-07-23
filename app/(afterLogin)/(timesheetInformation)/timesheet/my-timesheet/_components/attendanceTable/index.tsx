@@ -71,7 +71,7 @@ const AttendanceTable = () => {
   const { data, isFetching, refetch } = useGetAttendances(
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
 
-    { filter },
+    { filter: { ...userFilter, ...filter } },
   );
   const { isMobile, isTablet } = useIsMobile();
 
