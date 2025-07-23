@@ -1,21 +1,9 @@
-import React from 'react';
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Row,
-  Col,
-} from 'antd';
-import { GoPlus } from 'react-icons/go';
+import React, { useState, useEffect } from 'react';
+import { Button, DatePicker, Form, Input, InputNumber, Select } from 'antd';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
-import cancelIcon from '../../../../../../../public/image/Button.svg';
-import Image from 'next/image';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const MilestoneForm: React.FC<OKRFormProps> = ({
@@ -23,120 +11,181 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   index,
   updateKeyResult,
   removeKeyResult,
-  addKeyResultValue,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { setKeyResult, objectiveValue } = useOKRStore();
+  const { objectiveValue } = useOKRStore();
   const { data: metrics } = useGetMetrics();
+  const [milestones, setMilestones] = useState(
+    keyItem.milestones && keyItem.milestones.length > 0
+      ? keyItem.milestones
+      : [{ title: '', weight: 100 }], // Default to 100 for first milestone
+  );
 
-  const metricTypeId = metrics?.items?.find(
-    (i: any) => i.name == 'Milestone',
-  )?.id;
+  useEffect(() => {
+    // Sync milestones with parent keyItem
+    updateKeyResult(index, 'milestones', milestones);
+    // eslint-disable-next-line
+  }, [milestones]);
 
-  const handleAddKeyResult = () => {
-    form
-      .validateFields()
-      .then((keyItem) => {
-        const NewValue = {
-          ...keyItem,
-          metricTypeId: metricTypeId,
-        };
-        addKeyResultValue(NewValue);
-        setKeyResult([]);
-      })
-      .catch(() => {});
+  // Function to calculate and distribute weights automatically
+  const calculateAndDistributeWeights = (milestoneList: any[]) => {
+    if (milestoneList.length === 0) return [];
+
+    const baseWeight = Math.floor(100 / milestoneList.length);
+    const remainder = 100 - baseWeight * milestoneList.length;
+
+    return milestoneList.map((milestone, index) => ({
+      ...milestone,
+      weight: baseWeight + (index < remainder ? 1 : 0),
+    }));
+  };
+
+  const handleAddMilestone = () => {
+    const newMilestone = { title: '', weight: 0 };
+    const updatedMilestones = [newMilestone, ...milestones];
+    const distributedMilestones =
+      calculateAndDistributeWeights(updatedMilestones);
+    setMilestones(distributedMilestones);
+  };
+
+  const handleMilestoneChange = (mIndex: number, field: string, value: any) => {
+    const updated = milestones.map((m, i) =>
+      i === mIndex ? { ...m, [field]: value } : m,
+    );
+    setMilestones(updated);
+  };
+
+  const handleRemoveMilestone = (mIndex: number) => {
+    const filteredMilestones = milestones.filter((noneUsed, i) => i !== mIndex);
+    const distributedMilestones =
+      calculateAndDistributeWeights(filteredMilestones);
+    setMilestones(distributedMilestones);
   };
 
   const { isMobile } = useIsMobile();
   return (
-    <div className="p-4 sm:p-6 lg:p-2">
+    <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">
+      <button
+        onClick={() => removeKeyResult(index)}
+        title="Remove Key Result"
+        aria-label="Remove Key Result"
+        className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+        style={{ zIndex: 10 }}
+        id={`cancel-key-result-${index}`}
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6 6L14 14M6 14L14 6"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
       <Form form={form} layout="vertical" initialValues={keyItem}>
-        <div className="border border-blue rounded-lg p-4 mx-0 lg:mx-8">
-          <div className="flex justify-end mb-2">
-            <div
-              onClick={() => removeKeyResult(index)}
-              title="Cancel"
-              aria-label="Cancel"
-              id={`cancel-key-result-${index}`}
-              className="cursor-pointer bg-[#3636F0] rounded-full flex items-center justify-center w-[20px] h-[20px]"
-            >
-              <Image
-                src={cancelIcon}
-                alt="Cancel Icon"
-                width={20}
-                height={20}
-                className="rounded-full"
-              />
-            </div>
-          </div>
-
-          <Form.Item
-            className="w-full"
-            rules={[
-              { required: true, message: 'Please select a Key Result type' },
-            ]}
-            id={`key-result-type-${index}`}
-          >
-            <Select
-              className="w-full text-xs"
-              placeholder="Please select a metric type"
-              onChange={(value) => {
-                const selectedMetric = metrics?.items?.find(
-                  (metric) => metric.id === value,
-                );
-                if (selectedMetric) {
-                  updateKeyResult(index, 'metricTypeId', value);
-                  updateKeyResult(index, 'key_type', selectedMetric.name);
-                }
-              }}
-              value={
-                metrics?.items?.find(
-                  (metric) => metric.name === keyItem.key_type,
-                )?.id || ''
-              }
-              id={`select-metric-type-${index}`}
-            >
-              <Option value="" disabled>
-                Please select a metric type
-              </Option>
-              {metrics?.items?.map((metric) => (
-                <Option key={metric?.id} value={metric?.id}>
-                  {metric?.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            className="w-full font-semibold text-xs mb-2"
-            name={`title-${index}`}
-            rules={[
-              { required: true, message: 'Please enter the Key Result name' },
-            ]}
-            id={`key-result-title-${index}`}
-          >
-            <Input
-              placeholder="Key Result Name"
-              aria-label="Key Result Name"
-              onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
-            />
-          </Form.Item>
-
-          <Row gutter={[16, 16]}>
-            <Col xs={24} md={12}>
+        {isMobile ? (
+          <div className="flex flex-col gap-2 mt-4 mx-4">
+            {/* Row 1: Key Result Name */}
+            <div>
               <Form.Item
+                className="mb-0"
+                name={`title-${index}`}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the Key Result name',
+                  },
+                ]}
+                id={`key-result-title-${index}`}
+              >
+                <Input
+                  placeholder="Key Result Name"
+                  aria-label="Key Result Name"
+                  className="h-10 rounded-lg text-base"
+                  value={keyItem.title === '' ? undefined : keyItem.title}
+                  onChange={(e) =>
+                    updateKeyResult(index, 'title', e.target.value)
+                  }
+                />
+              </Form.Item>
+            </div>
+            {/* Row 2: Type, Weight, Deadline */}
+            <div className="flex flex-row gap-2">
+              <Form.Item
+                className="flex-1 mb-0"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select a Key Result type',
+                  },
+                ]}
+                id={`key-result-type-${index}`}
+              >
+                <Select
+                  className="w-full h-10 rounded-lg text-base"
+                  placeholder="Please select a metric type"
+                  onChange={(value) => {
+                    const selectedMetric = metrics?.items?.find(
+                      (metric) => metric.id === value,
+                    );
+                    if (selectedMetric) {
+                      updateKeyResult(index, 'metricTypeId', value);
+                      updateKeyResult(index, 'key_type', selectedMetric.name);
+                    }
+                  }}
+                  value={
+                    metrics?.items?.find(
+                      (metric) => metric.name === keyItem.key_type,
+                    )?.id || ''
+                  }
+                  id={`select-metric-type-${index}`}
+                >
+                  <Option value="" disabled>
+                    Please select a metric type
+                  </Option>
+                  {metrics?.items?.map((metric) => (
+                    <Option key={metric?.id} value={metric?.id}>
+                      {metric?.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
+                className="w-24 mb-0"
+                name="weight"
+                rules={[
+                  { required: true, message: 'Please enter the Weight' },
+                  { type: 'number', message: 'Weight must be a number' },
+                ]}
+                id={`key-result-weight-${index}`}
+              >
+                <InputNumber
+                  className="w-full h-10 rounded-lg text-base"
+                  min={0}
+                  max={100}
+                  suffix="%"
+                  placeholder="100"
+                  value={keyItem.weight}
+                  onChange={(value) => updateKeyResult(index, 'weight', value)}
+                />
+              </Form.Item>
+              <Form.Item
+                className="w-32 mb-0"
                 name={`dead_line_${index}`}
-                label="Deadline"
-                layout={isMobile ? 'horizontal' : 'vertical'}
                 rules={[
                   { required: true, message: 'Please select a deadline' },
                 ]}
                 id={`key-result-deadline-${index}`}
-                className="text-xs font-semibold"
               >
                 <DatePicker
-                  className="w-full text-xs"
+                  className="w-full h-10 rounded-lg text-base"
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
@@ -157,44 +206,373 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   id={`deadline-picker-${index}`}
                 />
               </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12}>
+            </div>
+            {/* Row 3: Milestone fields and Add button */}
+            <div className="flex flex-col gap-2 pl-4">
+              {/* First milestone row (always present) */}
+              <div className="flex flex-row gap-2 items-center">
+                <Form.Item className="flex-1 mb-0">
+                  <Input
+                    className="h-10 rounded-lg text-base"
+                    placeholder="Set Milestone"
+                    value={
+                      milestones[0]?.title === ''
+                        ? undefined
+                        : milestones[0]?.title
+                    }
+                    onChange={(e) =>
+                      handleMilestoneChange(0, 'title', e.target.value)
+                    }
+                  />
+                </Form.Item>
+                <Form.Item className="w-24 mb-0">
+                  <InputNumber
+                    className="w-full h-10 rounded-lg text-base"
+                    min={0}
+                    max={100}
+                    placeholder="Weight"
+                    suffix="%"
+                    value={milestones[0]?.weight}
+                    onChange={(value) =>
+                      handleMilestoneChange(0, 'weight', value)
+                    }
+                  />
+                </Form.Item>
+                <button
+                  onClick={() => handleRemoveMilestone(0)}
+                  title="Remove Milestone"
+                  aria-label="Remove Milestone"
+                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                  style={{ zIndex: 10 }}
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6 6L14 14M6 14L14 6"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+                <Button
+                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center"
+                  aria-label="Add Milestone"
+                  onClick={handleAddMilestone}
+                  type="primary"
+                >
+                  Add
+                </Button>
+              </div>
+              {/* Additional milestones */}
+              {milestones.slice(1).map((milestone, mIndex) => (
+                <div
+                  key={mIndex + 1}
+                  className="flex flex-row gap-2 items-center"
+                >
+                  <Form.Item className="flex-1 mb-0">
+                    <Input
+                      className="h-10 rounded-lg text-base"
+                      placeholder="Set Milestone"
+                      value={
+                        milestone.title === '' ? undefined : milestone.title
+                      }
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          mIndex + 1,
+                          'title',
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item className="w-24 mb-0">
+                    <InputNumber
+                      className="w-full h-10 rounded-lg text-base"
+                      min={0}
+                      max={100}
+                      placeholder="Weight"
+                      suffix="%"
+                      value={milestone.weight}
+                      onChange={(value) =>
+                        handleMilestoneChange(mIndex + 1, 'weight', value)
+                      }
+                    />
+                  </Form.Item>
+                  <button
+                    onClick={() => handleRemoveMilestone(mIndex + 1)}
+                    title="Remove Milestone"
+                    aria-label="Remove Milestone"
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                    style={{ zIndex: 10 }}
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M6 6L14 14M6 14L14 6"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 mt-4 mx-4">
+            {/* Key Result row */}
+            <div className="flex flex-row gap-2 items-center">
               <Form.Item
+                className="flex-1 mr-2 mb-0"
+                name={`title-${index}`}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the Key Result name',
+                  },
+                ]}
+                id={`key-result-title-${index}`}
+              >
+                <Input
+                  placeholder="Key Result Name"
+                  aria-label="Key Result Name"
+                  className="h-10 rounded-lg  text-base"
+                  value={keyItem.title === '' ? undefined : keyItem.title}
+                  onChange={(e) =>
+                    updateKeyResult(index, 'title', e.target.value)
+                  }
+                />
+              </Form.Item>
+              <Form.Item
+                className="w-48 mb-0"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select a Key Result type',
+                  },
+                ]}
+                id={`key-result-type-${index}`}
+              >
+                <Select
+                  className="w-full h-10 rounded-lg text-base"
+                  placeholder="Please select a metric type"
+                  onChange={(value) => {
+                    const selectedMetric = metrics?.items?.find(
+                      (metric) => metric.id === value,
+                    );
+                    if (selectedMetric) {
+                      updateKeyResult(index, 'metricTypeId', value);
+                      updateKeyResult(index, 'key_type', selectedMetric.name);
+                    }
+                  }}
+                  value={
+                    metrics?.items?.find(
+                      (metric) => metric.name === keyItem.key_type,
+                    )?.id || ''
+                  }
+                  id={`select-metric-type-${index}`}
+                >
+                  <Option value="" disabled>
+                    Please select a metric type
+                  </Option>
+                  {metrics?.items?.map((metric) => (
+                    <Option key={metric?.id} value={metric?.id}>
+                      {metric?.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                className="w-24 mb-0"
                 name="weight"
-                label="Weight"
                 rules={[
                   { required: true, message: 'Please enter the Weight' },
                   { type: 'number', message: 'Weight must be a number' },
                 ]}
                 id={`key-result-weight-${index}`}
-                className="text-xs font-semibold"
               >
                 <InputNumber
-                  className="w-full text-xs"
+                  className="w-full h-10 rounded-lg text-base"
                   min={0}
                   max={100}
                   suffix="%"
+                  placeholder="100"
                   value={keyItem.weight}
                   onChange={(value) => updateKeyResult(index, 'weight', value)}
                 />
               </Form.Item>
-            </Col>
-          </Row>
-
-          <div className="flex justify-end mt-4">
-            <Button
-              onClick={handleAddKeyResult}
-              type="primary"
-              className="bg-blue-600 text-xs w-full md:w-32"
-              icon={<GoPlus />}
-              aria-label="Add Key Result"
-              id={`add-key-result-btn-${index}`}
-            >
-              Add Key Result
-            </Button>
+              <Form.Item
+                className="w-48 mb-0"
+                name={`dead_line_${index}`}
+                rules={[
+                  { required: true, message: 'Please select a deadline' },
+                ]}
+                id={`key-result-deadline-${index}`}
+              >
+                <DatePicker
+                  className="w-full h-10 rounded-lg text-base"
+                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
+                  format="YYYY-MM-DD"
+                  disabledDate={(current) => {
+                    const startOfToday = dayjs().startOf('day');
+                    const objectiveDeadline = dayjs(objectiveValue?.deadline);
+                    return (
+                      current &&
+                      (current < startOfToday || current > objectiveDeadline)
+                    );
+                  }}
+                  onChange={(date) =>
+                    updateKeyResult(
+                      index,
+                      'deadline',
+                      date ? date.format('YYYY-MM-DD') : null,
+                    )
+                  }
+                  id={`deadline-picker-${index}`}
+                />
+              </Form.Item>
+            </div>
+            {/* Milestone rows */}
+            <div className="flex flex-col gap-2 pl-4">
+              {/* First milestone row (always present) */}
+              <div className="flex flex-row gap-2 items-center">
+                <Form.Item className="flex-1 mb-0">
+                  <Input
+                    className="h-10 rounded-lg text-base"
+                    placeholder="Set Milestone"
+                    value={
+                      milestones[0]?.title === ''
+                        ? undefined
+                        : milestones[0]?.title
+                    }
+                    onChange={(e) =>
+                      handleMilestoneChange(0, 'title', e.target.value)
+                    }
+                  />
+                </Form.Item>
+                <Form.Item className="w-24 mb-0">
+                  <InputNumber
+                    className="w-full h-10 rounded-lg text-base"
+                    min={0}
+                    max={100}
+                    placeholder="Weight"
+                    suffix="%"
+                    value={milestones[0]?.weight}
+                    onChange={(value) =>
+                      handleMilestoneChange(0, 'weight', value)
+                    }
+                  />
+                </Form.Item>
+                <div className="w-48 flex gap-2 items-center">
+                  <button
+                    onClick={() => handleRemoveMilestone(0)}
+                    title="Remove Milestone"
+                    aria-label="Remove Milestone"
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                    style={{ zIndex: 10 }}
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M6 6L14 14M6 14L14 6"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <Button
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center flex-1"
+                    aria-label="Add Milestone"
+                    onClick={handleAddMilestone}
+                    type="primary"
+                  >
+                    Add Milestone
+                  </Button>
+                </div>
+              </div>
+              {/* Additional milestones */}
+              {milestones.slice(1).map((milestone, mIndex) => (
+                <div
+                  key={mIndex + 1}
+                  className="flex flex-row gap-2 items-center"
+                >
+                  <Form.Item className="flex-1 mb-0">
+                    <Input
+                      className="h-10 rounded-lg text-base"
+                      placeholder="Set Milestone"
+                      value={
+                        milestone.title === '' ? undefined : milestone.title
+                      }
+                      onChange={(e) =>
+                        handleMilestoneChange(
+                          mIndex + 1,
+                          'title',
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item className="w-24 mb-0">
+                    <InputNumber
+                      className="w-full h-10 rounded-lg text-base"
+                      min={0}
+                      max={100}
+                      placeholder="Weight"
+                      suffix="%"
+                      value={milestone.weight}
+                      onChange={(value) =>
+                        handleMilestoneChange(mIndex + 1, 'weight', value)
+                      }
+                    />
+                  </Form.Item>
+                  <div className="w-48 flex gap-2 items-center">
+                    <button
+                      onClick={() => handleRemoveMilestone(mIndex + 1)}
+                      title="Remove Milestone"
+                      aria-label="Remove Milestone"
+                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                      style={{ zIndex: 10 }}
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6 6L14 14M6 14L14 6"
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </Form>
     </div>
   );

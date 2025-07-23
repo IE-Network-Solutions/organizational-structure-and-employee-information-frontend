@@ -2,6 +2,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { Recognition, SuperStartProps } from '@/types/dashboard/okr';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 type ResponseData = SuperStartProps[];
@@ -12,7 +13,7 @@ type WeeklyStar = Recognition[];
  * @returns The response data from the API
  */
 const getSuperStar = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -31,7 +32,7 @@ const getSuperStar = async () => {
   }
 };
 const getRockStar = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -50,7 +51,7 @@ const getRockStar = async () => {
   }
 };
 const getWeeklyLeader = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {

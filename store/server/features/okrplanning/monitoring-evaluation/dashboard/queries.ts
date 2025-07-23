@@ -3,8 +3,8 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import axios from 'axios';
 import { Dashboard } from '@/store/uistate/features/okrplanning/monitoring-evaluation/dashboard/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = Dashboard;
@@ -14,6 +14,7 @@ type ResponseData = Dashboard;
  * @returns The response data from the API
  */
 const getAppRepDashboard = async (userId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

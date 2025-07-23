@@ -6,19 +6,21 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { CourseCategory } from '@/types/tna/course';
 
 const setCourseCategory = async (items: Partial<CourseCategory>[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course/category`,
     method: 'PUT',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { items },
   });
 };
 
 const deleteCourseCategory = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course/category`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { id },
   });
 };

@@ -6,19 +6,21 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Invoice } from '@/types/tenant-management';
 
 const setInvoices = async (items: Partial<Invoice>[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/invoices`,
     method: 'PUT',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { items },
   });
 };
 
 const deleteInvoices = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/invoices`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { id },
   });
 };

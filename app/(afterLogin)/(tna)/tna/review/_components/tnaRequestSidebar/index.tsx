@@ -27,6 +27,7 @@ import Filters from '@/app/(afterLogin)/(payroll)/payroll/_components/filters';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 const { Option } = Select;
 
 const TnaRequestSidebar = () => {
@@ -105,6 +106,16 @@ const TnaRequestSidebar = () => {
     }
   }, [singleTnaData, fiscalYearData, tnaId]);
 
+  const onSubmit = (): void => {
+    if (approvalUserData?.length < 1 && approvalDepartmentData?.length < 1) {
+      NotificationMessage.warning({
+        message: `You lack an assigned approver.`,
+      });
+      return;
+    }
+    form.submit();
+  };
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -115,18 +126,13 @@ const TnaRequestSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
-          ? 'You lack an assigned approver.'
-          : 'Request',
+      label: 'Request',
       key: 'request',
       className: 'h-12',
       type: 'primary',
       size: 'large',
       loading: isLoading || isTnaFetching,
-      onClick: () => form.submit(),
-      disabled:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
+      onClick: () => onSubmit(),
     },
   ];
 

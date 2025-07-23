@@ -6,6 +6,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -18,7 +19,7 @@ import { useMutation, useQueryClient } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const createAllowanceType = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -42,7 +43,7 @@ const createAllowanceType = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteAllowanceType = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -85,7 +86,7 @@ export const useDeleteAllowanceType = () => {
 };
 
 const updateCompensationStatus = async ({ id }: { id: string }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -104,7 +105,7 @@ const updateCompensation = async ({
   id: string;
   values: any;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,

@@ -8,11 +8,12 @@ import {
   UpdatePlanningPeriodFunction,
 } from './interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/Planning-periods/${id}`,
     method: 'patch',
@@ -25,6 +26,7 @@ const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
 };
 
 const updatePlanningPeriodStatus = async (planningPeriodId: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/planning-periods/update/planning-period/status/${planningPeriodId}`,
     method: 'get',
@@ -35,6 +37,7 @@ const updatePlanningPeriodStatus = async (planningPeriodId: string) => {
   });
 };
 const deletePlanningPeriod = async (id: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/planning-periods/${id}`,
     method: 'DELETE',
@@ -45,6 +48,8 @@ const deletePlanningPeriod = async (id: string) => {
   });
 };
 const assignPlanningPeriodToUsers = async (values: string[]) => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${OKR_URL}/planning-periods/assignUser-multiple-planning-periods`,
     method: 'post',
@@ -58,6 +63,8 @@ const assignPlanningPeriodToUsers = async (values: string[]) => {
 };
 
 const updatePlanningPeriodToUsers = async (values: PlanningUserPayload) => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${OKR_URL}/planning-periods/update-users-assigned-planning-periods/${values.userIds[0]}`, // Accessing the first user ID correctly
     method: 'patch',
@@ -70,6 +77,8 @@ const updatePlanningPeriodToUsers = async (values: PlanningUserPayload) => {
 };
 
 const deleteAssignPlanningPeriodToUsers = async (planningUserId: string) => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${OKR_URL}/planning-periods/planning-user/${planningUserId}`,
     method: 'delete',

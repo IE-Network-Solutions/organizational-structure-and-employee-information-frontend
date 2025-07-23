@@ -1,13 +1,13 @@
 'use client';
 import { FC } from 'react';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import {
   auth,
   googleProvider,
   microsoftProvider,
 } from '@/utils/firebaseConfig';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input, message } from 'antd';
+import { Button, Checkbox, Form, Input } from 'antd';
 import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -16,7 +16,6 @@ import Link from 'next/link';
 import TwoFactorAuth from './_components/2fa';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
 import { useGet2FACode } from '@/store/server/features/authentication/mutation';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 type FieldType = {
   email: string;
@@ -30,37 +29,34 @@ const Login: FC = () => {
   const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
     useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
-  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {
-    if (!executeRecaptcha) {
-      message.error('reCAPTCHA not yet available');
-      return;
-    }
-    const recaptchaToken = await executeRecaptcha('login');
-    if (!recaptchaToken) {
-      message.error('reCAPTCHA verification failed. Please try again.');
-      return;
-    }
     get2FACode(
       {
         values: {
           email: values.email,
           pass: values.password,
-          recaptchaToken,
         },
       },
       {
-        onSuccess: (data) => {
-          setUser2FA({
-            email: values.email,
-            pass: values.password,
-            recaptchaToken,
-          });
-          setLocalId(data?.uid);
-          setIs2FA(true);
+        onSuccess: async (data) => {
+         
+          if (data?.is2FAEnabled === false) {
+           return await handleSignIn(() =>
+              signInWithEmailAndPassword(auth, values.email, values.password),
+            );
+          } else {
+            setUser2FA({
+              email: values.email,
+              pass: values.password,
+            });
+            setLocalId(data?.uid);
+            setIs2FA(true);
+          }
+
+         
         },
       },
     );

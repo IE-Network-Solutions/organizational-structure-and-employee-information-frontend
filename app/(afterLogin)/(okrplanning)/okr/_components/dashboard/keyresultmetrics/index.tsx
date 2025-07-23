@@ -162,7 +162,10 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
                   )?.length || 0
                 : keyResult?.metricType?.name === 'Achieve'
                   ? keyResult?.progress
-                  : Number(keyResult?.currentValue)?.toLocaleString() || 0}
+                  : (
+                      Number(keyResult?.currentValue) +
+                      Number(keyResult?.initialValue)
+                    )?.toLocaleString() || 0}
             </div>
             <div className="flex items-center gap-0">
               <div className="text-[#3636f0] text-xl">&#x2022;</div>

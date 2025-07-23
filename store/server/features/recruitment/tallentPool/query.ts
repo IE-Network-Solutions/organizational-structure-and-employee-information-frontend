@@ -7,14 +7,11 @@ import {
   TalentPool,
   TalentPoolResponse,
 } from '@/types/dashboard/recruitment/talentPool';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
+
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 /**
  * Fetch all talent pool data from the API.
@@ -29,6 +26,11 @@ const getAllTalentPool = async (
   pageSize: number,
   currentPage: number,
 ) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&talentPoolCategoryId=${talentPoolCategory}&&jobTitle=${job}&&status=${stages}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
@@ -37,6 +39,11 @@ const getAllTalentPool = async (
 };
 
 const getAllCandidates = async () => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/job-candidate-information`,
     method: 'GET',
@@ -50,6 +57,11 @@ const getAllCandidates = async () => {
  * @returns Promise with the candidate's data.
  */
 const getTalentPoolCandidate = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/job/candidates/${id}`,
     method: 'GET',
@@ -58,6 +70,11 @@ const getTalentPoolCandidate = async (id: string) => {
 };
 
 const getApplicantStatusStages = async () => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/applicant-status-stages/`,
     method: 'GET',

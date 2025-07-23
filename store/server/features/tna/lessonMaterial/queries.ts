@@ -9,10 +9,11 @@ import { CourseLessonMaterialRequestBody } from '@/store/server/features/tna/les
 const getCoursesLessonMaterial = async (
   data: Partial<CourseLessonMaterialRequestBody>,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course/lesson/material`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

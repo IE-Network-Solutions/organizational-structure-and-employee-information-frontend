@@ -1,6 +1,6 @@
 // components/ApprovalStatus.tsx
 import { FC } from 'react';
-import { Select } from 'antd';
+import { Card, Select } from 'antd';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
@@ -10,12 +10,10 @@ import { APPROVALTYPES } from '@/types/enumTypes';
 
 const ApprovalStatus: FC = () => {
   const { userId } = useAuthenticationStore();
-  const { data: LeaveTransferData } = useGetApprovalLeaveRequest(userId, 1, 4);
-  const { data: BranchTransferData } = useGetBranchTransferApproveById(
-    userId,
-    4,
-    1,
-  );
+  const { data: LeaveTransferData, isLoading: isLoadingLeaveTransfer } =
+    useGetApprovalLeaveRequest(userId, 1, 4);
+  const { data: BranchTransferData, isLoading: isLoadingBranchTransfer } =
+    useGetBranchTransferApproveById(userId, 4, 1);
   const { approverType, setApproverType } = useDashboardApprovalStore();
   const requests = [
     {
@@ -67,7 +65,11 @@ const ApprovalStatus: FC = () => {
       <div className="max-h-[250px] min-h-[250px] overflow-y-auto scrollbar-none">
         {approverType === 'BranchTransfer' ? (
           BranchTransferData?.items?.length ? (
-            <div>
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingBranchTransfer}
+            >
               {BranchTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
                   key={index}
@@ -82,7 +84,7 @@ const ApprovalStatus: FC = () => {
                   requestType={approverType}
                 />
               ))}
-            </div>
+            </Card>
           ) : (
             <div className="flex items-center justify-center min-h-[250px]">
               <div className="text-xl font-thin">No Approval Found</div>
@@ -90,7 +92,11 @@ const ApprovalStatus: FC = () => {
           )
         ) : approverType === 'Leave' ? (
           LeaveTransferData?.items?.length ? (
-            <div>
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingLeaveTransfer}
+            >
               {LeaveTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
                   key={index}
@@ -108,7 +114,7 @@ const ApprovalStatus: FC = () => {
                   fileAttachment={request?.justificationDocument}
                 />
               ))}
-            </div>
+            </Card>
           ) : (
             <div className="flex items-center justify-center min-h-[250px]">
               <div className="text-xl font-thin">No Approval Found</div>

@@ -3,9 +3,10 @@ import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const approveOrRejectPlanningPeriods = async (planningData: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -20,7 +21,7 @@ const approveOrRejectPlanningPeriods = async (planningData: any) => {
 };
 
 const approveOrRejectReporting = async (reportingData: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -35,7 +36,7 @@ const approveOrRejectReporting = async (reportingData: any) => {
 };
 
 const deletePlanById = async (id: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -49,7 +50,7 @@ const deletePlanById = async (id: any) => {
   });
 };
 const deleteReportById = async (id: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -67,7 +68,7 @@ const createReportForUnReportedtasks = async (
   planningPeriodId: string,
   planId?: string,
 ) => {
-  const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
+  const token = await getCurrentToken(); // Assuming you have a way to get the token
   const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
   const userId = useAuthenticationStore.getState().userId; // Assuming you have a way to get the userId
 
@@ -87,7 +88,7 @@ const createReportForUnReportedtasks = async (
   });
 };
 const editReport = async (values: any, selectedReportId: string) => {
-  const token = useAuthenticationStore.getState().token; // Assuming you have a way to get the token
+  const token = await getCurrentToken(); // Assuming you have a way to get the token
   const tenantId = useAuthenticationStore.getState().tenantId; // Assuming you have a way to get the tenantId
 
   const headers = {
@@ -103,7 +104,7 @@ const editReport = async (values: any, selectedReportId: string) => {
 };
 
 const updateStatus = async (id: string, status: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

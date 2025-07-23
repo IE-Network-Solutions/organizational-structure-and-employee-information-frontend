@@ -43,9 +43,14 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   fileAttachment,
 }) => {
   const { rejectComment, setRejectComment } = useApprovalStore();
-  const { mutate: editApprover } = useSetApproveLeaveRequest();
-  const { mutate: finalLeaveApprover } = useSetFinalApproveLeaveRequest();
-  const { mutate: finalBranchApprover } = useSetFinalApproveBranchRequest();
+  const { mutate: editApprover, isLoading: isLoadingEditApprover } =
+    useSetApproveLeaveRequest();
+  const { mutate: finalLeaveApprover, isLoading: isLoadingFinalLeaveApprover } =
+    useSetFinalApproveLeaveRequest();
+  const {
+    mutate: finalBranchApprover,
+    isLoading: isLoadingFinalBranchApprover,
+  } = useSetFinalApproveBranchRequest();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
@@ -217,7 +222,17 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           cancelText="Cancel"
           okButtonProps={{ disabled: !rejectComment }}
         >
-          <Button className="p-1 lg:p-4 text-xs lg:text-base">Reject</Button>
+
+          <Button 
+            className="p-1 lg:p-4 text-xs lg:text-base"
+            disabled={
+              isLoadingEditApprover ||
+              isLoadingFinalLeaveApprover ||
+              isLoadingFinalBranchApprover
+            }
+          >
+            Reject
+          </Button>
         </Popconfirm>
         <Popconfirm
           title="Approve Request"
@@ -237,7 +252,13 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           okText="Approve"
           cancelText="Cancel"
         >
-          <Button type="primary" className="p-1 lg:p-4 text-xs lg:text-base">
+          <Button type="primary" className="p-1 lg:p-4 text-xs lg:text-base" 
+            disabled={
+              isLoadingEditApprover ||
+              isLoadingFinalLeaveApprover ||
+              isLoadingFinalBranchApprover
+            }
+          >
             Approve
           </Button>
         </Popconfirm>

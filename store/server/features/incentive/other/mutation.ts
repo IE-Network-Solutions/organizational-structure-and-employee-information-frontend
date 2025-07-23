@@ -5,36 +5,42 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
 const setIncentiveFormula = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 
 const updateIncentiveFormula = async (id: string, data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'PUT',
     data,
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const deleteIncentiveFormula = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentive-formulas/${id}`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 export const useSetIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(setIncentiveFormula, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('incentiveFormula');
+    onSuccess: (nonused, variables) => {
+      queryClient.invalidateQueries([
+        'incentiveFormula',
+        variables.recognitionTypeId,
+      ]);
       NotificationMessage.success({
         message: 'Incentive formula created successfully!',
         description: 'Incentive formula has been successfully created',
@@ -49,8 +55,12 @@ export const useUpdateIncentiveFormula = () => {
     ({ id, data }: { id: string; data: any }) =>
       updateIncentiveFormula(id, data),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('incentiveFormula');
+      onSuccess: (nonused, variables) => {
+        // This is the correct key!
+        queryClient.invalidateQueries([
+          'incentiveFormula',
+          variables.data.recognitionTypeId,
+        ]);
         NotificationMessage.success({
           message: 'Incentive formula updated successfully!',
           description: 'Incentive formula has been successfully updated',
