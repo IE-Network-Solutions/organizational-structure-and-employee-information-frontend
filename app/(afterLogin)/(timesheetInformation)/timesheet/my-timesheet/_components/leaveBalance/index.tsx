@@ -19,12 +19,13 @@ const LeaveBalance = () => {
   const [isEnd, setIsEnd] = useState(false);
   const { data } = useGetLeaveBalance(userId, '');
   const { isMobile } = useIsMobile();
-  
+
   if (!data) {
     return '';
   }
 
-  const filteredItems = data.items?.items?.filter((item: any) => item.leaveType) || [];
+  const filteredItems =
+    data.items?.items?.filter((item: any) => item.leaveType) || [];
   const hasMultipleItems = filteredItems.length > 1;
 
   return (

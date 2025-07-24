@@ -219,11 +219,7 @@ export default function Editor({
         </div>
       )}
 
-      <EditorContent
-        className="px-5 py-2"
-        disabled={canEdit}
-        editor={editor}
-      />
+      <EditorContent className="px-5 py-2" disabled={canEdit} editor={editor} />
     </div>
   );
 }

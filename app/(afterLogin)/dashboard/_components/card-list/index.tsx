@@ -32,7 +32,7 @@ const CardList: FC<CardListProps> = ({ title, people, type }) => {
     currentPersonIndex + cardsPerPage,
   );
   return (
-    <div className="bg-white rounded-lg p-1 h-[150px]">
+    <div className="bg-white rounded-lg p-1 h-[150px] shadow-lg">
       <div className="text-lg font-bold gap-3 flex items-center px-3  ">
         <span className="mr-2 text-2xl">🎉 </span>
         {title}

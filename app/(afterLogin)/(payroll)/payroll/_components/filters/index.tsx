@@ -358,18 +358,10 @@ const Filters: React.FC<FiltersProps> = ({
             )}
 
             {!disable?.includes('division') && (
-              <Col
-                xs={24}
-                sm={24}
-                md={3}
-                lg={3}
-                xl={3}
-              >
+              <Col xs={24} sm={24} md={3} lg={3} xl={3}>
                 <Select
                   placeholder="Select division"
-                  onChange={(value) =>
-                    handleSelectChange('divisionId', value)
-                  }
+                  onChange={(value) => handleSelectChange('divisionId', value)}
                   value={searchValue.divisionId}
                   allowClear
                   style={{ width: '100%', height: '48px' }}

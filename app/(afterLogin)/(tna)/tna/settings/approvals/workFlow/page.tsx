@@ -9,8 +9,6 @@ const Workflow = () => {
 
   const { setApproverType } = useApprovalTNAStore();
 
-
-
   const onChange = (value: string) => {
     setApproverType(value);
     if (value) {

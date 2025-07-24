@@ -68,7 +68,7 @@ const EmploymentStats: React.FC = () => {
   return (
     <Card
       loading={isLoading}
-      className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col p-4"
+      className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col p-4 shadow-lg"
       bodyStyle={{ padding: '0px', margin: '0px' }}
     >
       <div className="flex justify-between items-center mb-2 h-[20%] ">
@@ -90,7 +90,7 @@ const EmploymentStats: React.FC = () => {
 
       {employeeStatus?.length ? (
         <div className="flex-1 flex items-center justify-between h-[80%] gap-1 mt-5 ">
-          <div className="relative flex items-center justify-center w-[180px] h-[180px] overflow-visible z-10">
+          <div className="relative flex items-center justify-center w-[180px] h-[180px] overflow-visible z-10 ml-10">
             <Doughnut data={data} options={options} className="z-20" />
             <div
               className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
@@ -107,7 +107,7 @@ const EmploymentStats: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mr-4">
             {data.labels.map((label: string, i: number) => (
               <div key={i} className="flex items-center mb-2 gap-2">
                 <div

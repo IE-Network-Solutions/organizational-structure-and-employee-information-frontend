@@ -86,7 +86,6 @@ const EmployeeProfile = () => {
     });
   };
 
-
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
       const currentPayPeriod = payPeriodData.find(
@@ -272,7 +271,8 @@ const EmployeeProfile = () => {
                       No Employee Payroll Data
                     </Title>
                     <Text className="text-gray-400">
-                      No payroll data found for this employee in the current pay period.
+                      No payroll data found for this employee in the current pay
+                      period.
                     </Text>
                   </div>
                 ) : (
@@ -290,40 +290,36 @@ const EmployeeProfile = () => {
                         <div className="flex flex-col md:flex-row gap-2">
                           <Text className="min-w-[120px]">Base Salary:</Text>
                           <Text strong>
-                            {
-                              activeMergedPayroll?.employeeInfo?.basicSalaries[0]
-                                ?.basicSalary || '--'
-                            }
+                            {activeMergedPayroll?.employeeInfo?.basicSalaries[0]
+                              ?.basicSalary || '--'}
                           </Text>
                         </div>
                         {/* Bank Information Row */}
                         <div className="flex flex-col md:flex-row gap-2">
-                          <Text className="min-w-[120px]">Bank Information:</Text>
+                          <Text className="min-w-[120px]">
+                            Bank Information:
+                          </Text>
                           <Text strong>
-                            {
-                              activeMergedPayroll?.employeeInfo?.employeeInformation
-                                ?.bankInformation?.bankName || '--'
-                            }
+                            {activeMergedPayroll?.employeeInfo
+                              ?.employeeInformation?.bankInformation
+                              ?.bankName || '--'}
                           </Text>
                         </div>
                         {/* Branch Row */}
                         <div className="flex flex-col md:flex-row gap-2">
                           <Text className="min-w-[120px]">Branch:</Text>
                           <Text strong>
-                            {
-                              activeMergedPayroll?.employeeInfo
-                                ?.employeeJobInformation[0]?.branch?.name || '--'
-                            }
+                            {activeMergedPayroll?.employeeInfo
+                              ?.employeeJobInformation[0]?.branch?.name || '--'}
                           </Text>
                         </div>
                         {/* Account Number Row */}
                         <div className="flex flex-col md:flex-row gap-2">
                           <Text className="min-w-[120px]">Account Number:</Text>
                           <Text strong>
-                            {
-                              activeMergedPayroll?.employeeInfo?.employeeInformation
-                                ?.bankInformation?.accountNumber || '--'
-                            }
+                            {activeMergedPayroll?.employeeInfo
+                              ?.employeeInformation?.bankInformation
+                              ?.accountNumber || '--'}
                           </Text>
                         </div>
                       </div>
@@ -331,7 +327,8 @@ const EmployeeProfile = () => {
                     <Divider />
                     <div className="flex justify-between">
                       <Title level={4}>
-                        {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip
+                        {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay
+                        Slip
                       </Title>
                       <Button
                         type="primary"
@@ -350,7 +347,9 @@ const EmployeeProfile = () => {
                       </div>
                       <div className="flex flex-col gap-4 font-bold">
                         <Text>
-                          {dayjs(openPayPeriods?.[0]?.startDate).format('MMM-YYYY')}
+                          {dayjs(openPayPeriods?.[0]?.startDate).format(
+                            'MMM-YYYY',
+                          )}
                         </Text>
                         <Text>
                           {dayjs(openPayPeriods?.[0]?.updatedAt).format(
@@ -390,8 +389,10 @@ const EmployeeProfile = () => {
                               <div className="flex flex-col gap-2 font-bold">
                                 <Text>
                                   {[
-                                    activeMergedPayroll?.employeeInfo?.firstName,
-                                    activeMergedPayroll?.employeeInfo?.middleName,
+                                    activeMergedPayroll?.employeeInfo
+                                      ?.firstName,
+                                    activeMergedPayroll?.employeeInfo
+                                      ?.middleName,
                                   ]
                                     .filter(Boolean)
                                     .join(' ')}
@@ -449,7 +450,9 @@ const EmployeeProfile = () => {
                         <div>
                           <div className="flex flex-col w-full gap-4">
                             <div className=" pl-4 flex justify-between  items-center my-2">
-                              <Text className="text-xl">Employee Allowance</Text>
+                              <Text className="text-xl">
+                                Employee Allowance
+                              </Text>
                               <Text className="text-xl pr-10">Amount</Text>
                             </div>
                             <div className="flex justify-between">
@@ -480,7 +483,8 @@ const EmployeeProfile = () => {
                               </Text>
                               <Text className="text-purple">
                                 {totalAmount(
-                                  activeMergedPayroll?.breakdown?.allowances || [],
+                                  activeMergedPayroll?.breakdown?.allowances ||
+                                    [],
                                 )}{' '}
                               </Text>
                             </div>
@@ -501,11 +505,12 @@ const EmployeeProfile = () => {
                                     </Text>
                                   ),
                                 )}
-                                {activeMergedPayroll?.breakdown?.variablePay && (
+                                {activeMergedPayroll?.breakdown
+                                  ?.variablePay && (
                                   <Text className="text-gray-600">
                                     {
-                                      activeMergedPayroll?.breakdown?.variablePay
-                                        ?.type
+                                      activeMergedPayroll?.breakdown
+                                        ?.variablePay?.type
                                     }
                                   </Text>
                                 )}
@@ -518,11 +523,12 @@ const EmployeeProfile = () => {
                                     </Text>
                                   ),
                                 )}
-                                {activeMergedPayroll?.breakdown?.variablePay && (
+                                {activeMergedPayroll?.breakdown
+                                  ?.variablePay && (
                                   <Text className="font-bold">
                                     {parseFloat(
-                                      activeMergedPayroll?.breakdown?.variablePay
-                                        ?.amount,
+                                      activeMergedPayroll?.breakdown
+                                        ?.variablePay?.amount,
                                     ).toFixed(2)}{' '}
                                   </Text>
                                 )}
@@ -535,8 +541,10 @@ const EmployeeProfile = () => {
                               </Text>
                               <Text className="text-purple pr-10">
                                 {totalAmount([
-                                  ...(activeMergedPayroll?.breakdown?.merits || []),
-                                  ...(activeMergedPayroll?.breakdown?.variablePay
+                                  ...(activeMergedPayroll?.breakdown?.merits ||
+                                    []),
+                                  ...(activeMergedPayroll?.breakdown
+                                    ?.variablePay
                                     ? [
                                         {
                                           amount:
@@ -600,10 +608,14 @@ const EmployeeProfile = () => {
                             </div>
                           </div>
                           <div className="pl-4 my-6 flex justify-between ">
-                            <Text className="text-purple"> Total Deduction</Text>
+                            <Text className="text-purple">
+                              {' '}
+                              Total Deduction
+                            </Text>
                             <Text className="text-purple pr-10">
                               {totalAmount([
-                                ...(activeMergedPayroll?.breakdown?.pension || []),
+                                ...(activeMergedPayroll?.breakdown?.pension ||
+                                  []),
                                 ...(activeMergedPayroll?.breakdown
                                   ?.totalDeductionWithPension || []),
                               ])}{' '}
@@ -619,7 +631,9 @@ const EmployeeProfile = () => {
                         </header>
                         <div>
                           <div className=" p-4 flex justify-between  items-center my-2">
-                            <Text className="text-xl">Employee Bank Details</Text>
+                            <Text className="text-xl">
+                              Employee Bank Details
+                            </Text>
                             <Text className="text-xl pr-10">Details</Text>
                           </div>
                           <div className="flex justify-between  w-full">
@@ -631,7 +645,8 @@ const EmployeeProfile = () => {
                               <Text>
                                 {
                                   activeMergedPayroll?.employeeInfo
-                                    ?.employeeInformation?.bankInformation?.bankName
+                                    ?.employeeInformation?.bankInformation
+                                    ?.bankName
                                 }
                               </Text>
                               <Text>

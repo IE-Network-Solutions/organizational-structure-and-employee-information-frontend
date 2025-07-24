@@ -15,7 +15,7 @@ const RightBar = () => {
   const { data: weeklyLeaderData } = useGetWeeklyLeader();
 
   return (
-    <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
+    <div className="col-span-1 lg:col-span-6 flex flex-col gap-6">
       <ActionPlans />
       <ApprovalStatus />
       <SuperStart />

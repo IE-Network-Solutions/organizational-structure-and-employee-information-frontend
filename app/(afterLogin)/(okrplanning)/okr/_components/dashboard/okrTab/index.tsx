@@ -80,8 +80,6 @@ export default function OkrTab() {
     searchObjParams?.metricTypeId || '', // Provide empty string as fallback
   );
 
-
-
   const {
     data: companyObjective,
     isLoading: companyLoading,
@@ -101,8 +99,6 @@ export default function OkrTab() {
   const canVieCompanyOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewCompanyOkr],
   });
-
-
 
   useEffect(() => {
     setIsMounted(true);
