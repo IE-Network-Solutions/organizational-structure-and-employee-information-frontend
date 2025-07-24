@@ -63,7 +63,9 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <EmployeeDetails empId={record?.employeeId} />
+        <div data-testid={`allowance-employee-${record?.employeeId}`}>
+          <EmployeeDetails empId={record?.employeeId} />
+        </div>
       ),
     },
     ...(Array.isArray(allAllowanceEntitlementData)
@@ -71,7 +73,11 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
           title: item?.name,
           dataIndex: item?.id,
           key: item?.id,
-          render: (text: string) => <div>{text || '-'}</div>,
+          render: (text: string) => (
+            <div data-testid={`allowance-amount-${item?.id}`}>
+              {text || '-'}
+            </div>
+          ),
         }))
       : []),
   ];
@@ -82,28 +88,32 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
+    <div data-testid="all-allowance-table-container">
+      <Spin spinning={isLoading} data-testid="allowance-table-loading">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="allowance-table"
+        />
 
-      <CustomPagination
-        current={currentPage}
-        total={filteredDataSource.length}
-        pageSize={pageSize}
-        onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
-        }}
-        onShowSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
-      />
-    </Spin>
+        <CustomPagination
+          current={currentPage}
+          total={filteredDataSource.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          data-testid="allowance-pagination"
+        />
+      </Spin>
+    </div>
   );
 };
 

@@ -31,7 +31,7 @@ const AllowanceEntitlementTable = () => {
   }) => {
     const { data, error } = useGetBasicSalaryById(id);
     if (error || !data) {
-      return '--';
+      return <span data-testid="basic-salary-error">--</span>;
     }
     const employeeBasicSalary =
       Number(data.find((item: any) => item.status)?.basicSalary) || '--';
@@ -39,7 +39,7 @@ const AllowanceEntitlementTable = () => {
       typeof employeeBasicSalary === 'number'
         ? (employeeBasicSalary * Number(amount)) / 100
         : '--';
-    return calculatedSalary;
+    return <span data-testid={`basic-salary-${id}`}>{calculatedSalary}</span>;
   };
 
   const transformedData =
@@ -62,14 +62,20 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-      render: (userId: string) => <EmployeeDetails empId={userId} />,
+      render: (userId: string) => (
+        <div data-testid={`entitlement-employee-${userId}`}>
+          <EmployeeDetails empId={userId} />
+        </div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
       key: 'isRate',
       sorter: true,
-      render: (isRate: string) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
+      render: (isRate: string) => (
+        <div data-testid="entitlement-type">{isRate ? 'Rate' : 'Fixed'}</div>
+      ),
     },
     {
       title: 'Amount',
@@ -78,7 +84,9 @@ const AllowanceEntitlementTable = () => {
       sorter: true,
       render: (text: string, record: any) =>
         !record.isRate ? (
-          <div>{text ? `${text} ETB` : '-'}</div>
+          <div data-testid={`entitlement-amount-${record.id}`}>
+            {text ? `${text} ETB` : '-'}
+          </div>
         ) : (
           <EmployeeBasicSalary
             id={record?.userId}
@@ -97,12 +105,14 @@ const AllowanceEntitlementTable = () => {
             Permissions.DeleteAllowanceEntitlement,
           ]}
         >
-          <ActionButtons
-            id={record?.id ?? null}
-            onEdit={() => {}}
-            disableEdit
-            onDelete={() => handleDelete(record.id)}
-          />
+          <div data-testid={`entitlement-actions-${record.id}`}>
+            <ActionButtons
+              id={record?.id ?? null}
+              onEdit={() => {}}
+              disableEdit
+              onDelete={() => handleDelete(record.id)}
+            />
+          </div>
         </AccessGuard>
       ),
     },
@@ -121,29 +131,36 @@ const AllowanceEntitlementTable = () => {
   );
 
   return (
-    <Spin spinning={fiscalActiveYearFetchLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
+    <div data-testid="allowance-entitlement-table-container">
+      <Spin
+        spinning={fiscalActiveYearFetchLoading}
+        data-testid="entitlement-table-loading"
+      >
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="entitlement-table"
+        />
 
-      <CustomPagination
-        current={currentPage}
-        total={filteredDataSource.length}
-        pageSize={pageSize}
-        onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
-        }}
-        onShowSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
-      />
-      <AllowanceEntitlementSideBar />
-    </Spin>
+        <CustomPagination
+          current={currentPage}
+          total={filteredDataSource.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          data-testid="entitlement-pagination"
+        />
+        <AllowanceEntitlementSideBar />
+      </Spin>
+    </div>
   );
 };
 
