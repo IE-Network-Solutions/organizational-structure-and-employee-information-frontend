@@ -19,12 +19,12 @@ const Header = () => {
 
   return (
     <>
-      <div className="  w-full mb-4 flex overflow-x-auto  2xl:grid 2xl:grid-cols-5 gap-4 scrollbar-none">
+      <div className="  w-full pb-6 flex overflow-x-auto  2xl:grid 2xl:grid-cols-5 gap-4 scrollbar-none">
         <Card
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-56  sm:shrink-0"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-56  sm:shrink-0 shadow-lg"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -64,7 +64,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-xl"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-lg"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -112,7 +112,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-xl"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-lg"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -151,7 +151,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-xl "
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-lg "
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -195,7 +195,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-xl"
+          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-lg"
           onClick={() => onDetail()}
         >
           <div className="flex items-center justify-between">
