@@ -1,5 +1,5 @@
-import React from 'react';
-import { Row, Col, Typography, Tag } from 'antd';
+import React, { useRef, useState, useEffect } from 'react';
+import { Row, Col, Typography, Tag, Tooltip } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
 import ParentTask from './parentTask';
@@ -18,6 +18,46 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
+// TruncateWithTooltip: Dynamically truncates text based on width and shows tooltip if truncated
+const TruncateWithTooltip: React.FC<{
+  text: string;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ text, className = '', style = {} }) => {
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const checkTruncation = () => {
+      const el = textRef.current;
+      if (el) {
+        setIsTruncated(el.scrollWidth > el.clientWidth);
+      }
+    };
+    checkTruncation();
+    window.addEventListener('resize', checkTruncation);
+    return () => window.removeEventListener('resize', checkTruncation);
+  }, [text, className, style]);
+
+  const span = (
+    <span
+      ref={textRef}
+      className={`truncate ${className}`}
+      style={{ maxWidth: '100%', display: 'inline-block', ...style }}
+    >
+      {text}
+    </span>
+  );
+
+  return isTruncated ? (
+    <Tooltip title={text} placement="top">
+      {span}
+    </Tooltip>
+  ) : (
+    span
+  );
+};
+
 // Reusable Task Row Component
 const TaskRow = ({ task, keyResult }: any) => (
   <Row align="middle" justify="space-between" className={`w-full sm:px-10 `}>
@@ -27,8 +67,7 @@ const TaskRow = ({ task, keyResult }: any) => (
           <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF]">
             <span className="rounded-full bg-blue w-1 h-1"></span>
           </div>
-
-          <span className="truncate">{task?.task} </span>
+          <TruncateWithTooltip text={task?.task} />
         </div>
 
         {task?.achieveMK ? (

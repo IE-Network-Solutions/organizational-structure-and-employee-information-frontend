@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tree, Tag, Typography } from 'antd';
+import { Tree, Tag, Typography, Popover } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -17,7 +17,7 @@ const getPriorityColor = (priority: string) => {
 };
 
 const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
 
   const generateTreeData = (tasks: any[]): any[] => {
     return tasks.map((task, index) => ({
@@ -28,9 +28,27 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
             {/* Task Title and Icon */}
             <div className="flex items-center gap-1 mb-1 w-full min-w-0">
               <span className="text-xs flex-1 min-w-0  text-gray-700 text-nowrap">
-                {task?.task?.length > 40
-                  ? task.task.slice(0, 40) + '...'
-                  : task?.task}
+                {(() => {
+                  const isTruncated =
+                    isMobile || isTablet
+                      ? task?.task?.length > 40
+                      : task?.task?.length > 100;
+                  const displayText =
+                    isMobile || isTablet
+                      ? task?.task?.length > 40
+                        ? task.task.slice(0, 40) + '...'
+                        : task?.task
+                      : task?.task?.length > 100
+                        ? task.task.slice(0, 100) + '...'
+                        : task?.task;
+                  return isTruncated ? (
+                    <Popover content={task?.task} placement="topLeft">
+                      {displayText}
+                    </Popover>
+                  ) : (
+                    displayText
+                  );
+                })()}
               </span>
               {task?.achieveMK && (
                 <div className="flex-shrink-0">
@@ -67,10 +85,30 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
           </div>
 
           {/* Desktop Layout */}
-          <div className="sm:flex justify-between w-[900px] gap-3 hidden">
+          <div className="sm:flex justify-between gap-3 hidden">
             {/* Task Title and Icon */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-sm truncate">{task?.task}</span>
+              <span className="text-sm truncate">
+                {(() => {
+                  const isTruncated =
+                    isMobile || isTablet
+                      ? task?.task?.length > 40
+                      : task?.task?.length > 80;
+                  return isTruncated ? (
+                    <Popover content={task?.task} placement="topLeft">
+                      {isMobile || isTablet
+                        ? task?.task?.length > 40
+                          ? task.task.slice(0, 40) + '...'
+                          : task?.task
+                        : task?.task?.length > 80
+                          ? task.task.slice(0, 80) + '...'
+                          : task?.task}
+                    </Popover>
+                  ) : (
+                    task?.task
+                  );
+                })()}
+              </span>
               {task?.achieveMK &&
                 (keyResult?.metricType?.name === 'Milestone' ? (
                   <FaStar size={14} className="text-yellow-500 flex-shrink-0" />
@@ -137,11 +175,29 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
           <div className="border-2 rounded-full w-2.5 h-2.5 flex items-center justify-center border-[#B2B2FF] shrink-0">
             <span className="rounded-full bg-blue w-0.5 h-0.5"></span>
           </div>
-          <Text className="text-xs md:text-sm text-nowrap" strong>
-            {parentTaskName?.length > 40
-              ? parentTaskName.slice(0, 40) + '...'
-              : parentTaskName}
-          </Text>
+          <div className="text-xs md:text-sm text-nowrap text-bold">
+            {(() => {
+              const isTruncated =
+                isMobile || isTablet
+                  ? parentTaskName?.length > 40
+                  : parentTaskName?.length > 100;
+              const displayText =
+                isMobile || isTablet
+                  ? parentTaskName?.length > 40
+                    ? parentTaskName.slice(0, 40) + '...'
+                    : parentTaskName
+                  : parentTaskName?.length > 100
+                    ? parentTaskName.slice(0, 100) + '...'
+                    : parentTaskName;
+              return isTruncated ? (
+                <Popover content={parentTaskName} placement="topLeft">
+                  {displayText}
+                </Popover>
+              ) : (
+                displayText
+              );
+            })()}
+          </div>
         </div>
       ),
       key: parentTaskName,
