@@ -12,6 +12,8 @@ import { Layout, Button, theme, Tree, Skeleton, Dropdown } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import NavBar from './topNavBar';
+import SidebarSkeleton from './sidebarSkeleton';
+import SubscriptionExpiredPage from './subscriptionExpiredPage';
 import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
@@ -93,7 +95,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  const { data: subscriptionData } = useGetSubscriptions(
+  const { data: subscriptionData, isLoading: subscriptionLoading } = useGetSubscriptions(
     {
       filter: {
         tenantId: [tenantId],
@@ -104,6 +106,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   );
   const activeSubscription = subscriptionData?.items?.find((sub: any) => sub.isActive);
   const availableModules = activeSubscription?.plan?.modules || [];
+  console.log(activeSubscription, "activeSubscription");
+  const isSubscriptionExpired = activeSubscription?.endAt ? new Date(activeSubscription.endAt) < new Date() : false;
   // Check if user is admin
   const isAdmin = userData?.role?.slug?.toLowerCase() === 'owner' ||
     userData?.userPermissions?.some((permission: any) =>
@@ -133,20 +137,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/organization',
       className: 'font-bold',
       permissions: ['view_organization'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Org Structure</span>,
           key: '/organization/chart',
           className: 'font-bold',
           permissions: ['view_organization_chart'],
-          disabled: hasEndedFiscalYear,
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/organization/settings',
           className: 'font-bold',
           permissions: ['view_organization_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -163,25 +168,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees',
       className: 'font-bold',
       permissions: ['view_employees'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Manage Employees</span>,
           key: '/employees/manage-employees',
           className: 'font-bold',
           permissions: ['manage_employees'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Department Request</span>,
           key: '/employees/departmentRequest',
           className: 'font-bold',
           permissions: ['manage_department_requests'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/employees/settings',
           className: 'font-bold',
           permissions: ['manage_employee_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -198,31 +206,35 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/recruitment',
       className: 'font-bold',
       permissions: ['view_recruitment'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Jobs</span>,
           key: '/recruitment/jobs',
           className: 'font-bold',
           permissions: ['manage_recruitment_jobs'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Candidates</span>,
           key: '/recruitment/candidate',
           className: 'font-bold',
           permissions: ['manage_recruitment_candidates'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Talent Resource</span>,
           key: '/recruitment/talent-resource',
           className: 'font-bold',
           permissions: ['manage_recruitment_talent_pool'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/recruitment/settings',
-          className: 'font-bold',
+          className: 'fon t-bold',
           permissions: ['manage_recruitment_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -231,45 +243,50 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiStar
             size={18}
-            className={expandedKeys.includes('okr-menu') ? 'text-blue' : ''}
+            className={expandedKeys.includes('/okr') ? 'text-blue' : ''}
           />
           <span>OKR</span>
         </span>
       ),
-      key: 'okr-menu',
+      key: '/okr',
       className: 'font-bold',
       permissions: ['view_okr'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Dashboard</span>,
           key: '/okr/dashboard',
           className: 'font-bold',
           permissions: ['view_okr_dashboard'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>OKR</span>,
-          key: '/okr',
+          key: '/okr-menu',
           className: 'font-bold',
           permissions: ['view_okr_overview'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Planning and Reporting</span>,
           key: '/planning-and-reporting',
           className: 'font-bold',
           permissions: ['manage_planning_reporting'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Weekly Priority</span>,
           key: '/weekly-priority',
           className: 'font-bold h-8',
           permissions: ['view_weekly_priority'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/okr/settings',
           className: 'font-bold',
           permissions: ['manage_okr_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -279,40 +296,44 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <TbMessage2
             size={18}
             className={
-              expandedKeys.includes('feedback-menu') ? 'text-blue' : ''
+              expandedKeys.includes('/feedback') ? 'text-blue' : ''
             }
           />
           <span>CFR</span>
         </span>
       ),
-      key: 'feedback-menu',
+      key: '/feedback',
       className: 'font-bold',
       permissions: ['view_feedback'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Conversation</span>,
           key: '/feedback/conversation',
           className: 'font-bold',
           permissions: ['view_feedback_conversation'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Feedback</span>,
           key: '/feedback/feedback',
           className: 'font-bold',
           permissions: ['view_feedback_list'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Recognition</span>,
           key: '/feedback/recognition',
           className: 'font-bold',
           permissions: ['view_feedback_recognition'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: 'Settings',
           key: '/feedback/settings',
           className: 'font-bold',
           permissions: ['manage_feedback_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -321,39 +342,43 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiBookmark
             size={18}
-            className={expandedKeys.includes('tna-menu') ? 'text-blue' : ''}
+            className={expandedKeys.includes('/tna') ? 'text-blue' : ''}
           />
           <span>Learning & Growth</span>
         </span>
       ),
-      key: 'tna-menu',
+      key: '/tna',
       className: 'font-bold',
       permissions: ['view_learning_growth'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>My-TNA</span>,
           key: '/tna/my-training',
           className: 'font-bold',
           permissions: ['view_my_training'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Training Management</span>,
           key: '/tna/management',
           className: 'font-bold',
           permissions: ['manage_training'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>TNA</span>,
           key: '/tna/review',
           className: 'font-bold',
           permissions: ['view_tna_review'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/tna/settings/course-category',
           className: 'font-bold',
           permissions: ['manage_tna_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -362,38 +387,42 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <AiOutlineDollarCircle
             size={18}
-            className={expandedKeys.includes('payroll-menu') ? 'text-blue' : ''}
+            className={expandedKeys.includes('/payroll') ? 'text-blue' : ''}
           />
           <span>Payroll</span>
         </span>
       ),
-      key: 'payroll-menu',
+      key: '/payroll',
       className: 'font-bold',
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Employee Information</span>,
           key: '/employee-information',
           className: 'font-bold',
           permissions: ['view_employee_information'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Payroll</span>,
-          key: '/payroll',
+          key: 'payroll-menu',
           className: 'font-bold',
           permissions: ['view_payroll_overview'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>My Payroll</span>,
           key: '/myPayroll',
           className: 'font-bold',
           permissions: ['view_my_payroll'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/settings',
           className: 'font-bold',
           permissions: ['manage_payroll_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -403,40 +432,44 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <CiCalendar
             size={18}
             className={
-              expandedKeys.includes('timesheet-menu') ? 'text-blue' : ''
+              expandedKeys.includes('/timesheet') ? 'text-blue' : ''
             }
           />
           <span>Time & Attendance</span>
         </span>
       ),
-      key: 'timesheet-menu',
+      key: '/timesheet',
       className: 'font-bold',
       permissions: ['view_timesheet'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>My Timesheet</span>,
           key: '/timesheet/my-timesheet',
           className: 'font-bold',
           permissions: ['view_my_timesheet'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Employee Attendance</span>,
           key: '/timesheet/employee-attendance',
           className: 'font-bold',
           permissions: ['view_employee_attendance'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Leave Management</span>,
           key: '/timesheet/leave-management/leaves',
           className: 'font-bold',
           permissions: ['manage_leave_management'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/timesheet/settings/closed-date',
           className: 'font-bold',
           permissions: ['manage_timesheet_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -446,40 +479,44 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <PiMoneyLight
             size={18}
             className={
-              expandedKeys.includes('compensation-menu') ? 'text-blue' : ''
+              expandedKeys.includes('/compensation') ? 'text-blue' : ''
             }
           />
           <span>Compensation & Benefit</span>
         </span>
       ),
-      key: 'compensation-menu',
+      key: '/compensation',
       className: 'font-bold',
       permissions: ['view_compensation'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Allowance</span>,
           key: '/allowance',
           className: 'font-bold',
           permissions: ['view_allowance'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Benefit</span>,
           key: '/benefit',
           className: 'font-bold',
           permissions: ['view_benefit'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Deduction</span>,
           key: '/deduction',
           className: 'font-bold',
           permissions: ['view_deduction'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/compensationSetting',
           className: 'font-bold',
           permissions: ['manage_compensation_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -489,34 +526,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <LuCircleDollarSign
             size={18}
             className={
-              expandedKeys.includes('incentive-menu') ? 'text-blue' : ''
+              expandedKeys.includes('/incentive') ? 'text-blue' : ''
             }
           />
           <span>Incentives</span>
         </span>
       ),
-      key: 'incentive-menu',
+      key: '/incentive',
       className: 'font-bold',
       permissions: ['view_incentive'],
-      disabled: hasEndedFiscalYear,
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Incentive</span>,
-          key: '/incentives',
+          key: '/incentives-menu',
           className: 'font-bold',
           permissions: ['view_incentive_page'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Variable Pay</span>,
           key: '/variable-pay',
           className: 'font-bold',
           permissions: ['view_variable_pay'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
           title: <span>Settings</span>,
           key: '/incentives/settings',
           className: 'font-bold',
           permissions: ['manage_incentive_settings'],
+          disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
       ],
     },
@@ -583,8 +623,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       '/tna': '/tna',
       '/payroll': '/payroll',
       '/timesheet': '/timesheet',
-      '/compensationSetting': '/compensationSetting',
-      '/incentives': '/incentives',
+      '/compensation': '/compensation',
+      '/incentive': '/incentive',
       '/admin': '/admin',
     };
 
@@ -918,7 +958,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
-
+  console.log(filteredMenuItems, "filteredMenuItems");
   const getResponsiveTreeData = (
     data: CustomMenuItem[],
     collapsed: boolean,
@@ -1027,171 +1067,170 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   // Render the component with the layout and navigation on the left
-
+  console.log(isSubscriptionExpired, "isSubscriptionExpired");
   return (
     <Layout>
-      {shouldShowSidebar && (
-        <Sider
-          theme="light"
-          width={280}
-          style={{
-            overflow: 'auto',
-            height: '100vh',
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            zIndex: 1000,
-            transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
-            transition: 'transform 0.3s ease',
-            overflowX: 'hidden',
-          }}
-          trigger={null}
-          collapsible
-          collapsed={collapsed}
-          breakpoint="md"
-          onBreakpoint={(broken) => {
-            setIsMobile(broken);
-            if (broken) {
-              setMobileCollapsed(true);
-            }
-          }}
-          collapsedWidth={isMobile ? 80 : 80}
-        >
-          <div className="my-2">{collapsed && <SimpleLogo />}</div>
+      {isSubscriptionExpired && (isAdmin == true ? !isAdminPage : true) ? (
+        <SubscriptionExpiredPage isAdmin={isAdmin} />
+      ) : (
+        <>
+          <Sider
+            theme="light"
+            width={280}
+            style={{
+              overflow: 'auto',
+              height: '100vh',
+              position: 'fixed',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              zIndex: 1000,
+              transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
+              transition: 'transform 0.3s ease',
+              overflowX: 'hidden',
+            }}
+            trigger={null}
+            collapsible
+            collapsed={collapsed}
+            breakpoint="md"
+            onBreakpoint={(broken) => {
+              setIsMobile(broken);
+              if (broken) {
+                setMobileCollapsed(true);
+              }
+            }}
+            collapsedWidth={isMobile ? 80 : 80}
+          >
+            <div className="my-2">{collapsed && <SimpleLogo />}</div>
 
-          <div className="flex justify-between px-4 my-4">
-            <div className=" flex items-center gap-2">
-              {!collapsed && <Logo type="selamnew" />}
+            <div className="flex justify-between px-4 my-4">
+              <div className=" flex items-center gap-2">
+                {!collapsed && <Logo type="selamnew" />}
+              </div>
+
+              <div onClick={toggleCollapsed} className="text-black text-xl">
+                {collapsed ? (
+                  <MdOutlineKeyboardDoubleArrowRight />
+                ) : (
+                  <MdOutlineKeyboardDoubleArrowLeft />
+                )}
+              </div>
             </div>
+            {!collapsed && (
+              <Button
+                href="/dashboard"
+                className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
+              >
+                <div className="text-black font-bold font-['Manrope'] leading-normal">
+                  Dashboard
+                </div>
+                <AppstoreOutlined size={24} className="text-black" />
+              </Button>
+            )}
 
-            <div onClick={toggleCollapsed} className="text-black text-xl">
-              {collapsed ? (
-                <MdOutlineKeyboardDoubleArrowRight />
+            <div className="relative">
+              <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
+              {isLoading || subscriptionLoading ? (
+                <SidebarSkeleton />
               ) : (
-                <MdOutlineKeyboardDoubleArrowLeft />
+                <Tree
+                  treeData={getResponsiveTreeData(filteredMenuItems, collapsed)}
+                  showLine={{ showLeafIcon: false }}
+                  defaultExpandAll={false}
+                  expandedKeys={expandedKeys}
+                  selectedKeys={selectedKeys}
+                  onSelect={handleSelect}
+                  onDoubleClick={handleDoubleClick}
+                  className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
+                  switcherIcon={null}
+                />
               )}
             </div>
-          </div>
-          {!collapsed && (
-            <Button
-              href="/dashboard"
-              className="mt-12 flex justify-between items-center border-2 border-[#3636F0] px-4 py-5 mx-4 rounded-lg "
-            >
-              <div className="text-black font-bold font-['Manrope'] leading-normal">
-                Dashboard
-              </div>
-              <AppstoreOutlined size={24} className="text-black" />
-            </Button>
-          )}
+          </Sider>
 
-          <div className="relative">
-            <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
-            {isLoading ? (
-              <div className="px-5 w-full h-full flex justify-center items-center my-5">
-                <Skeleton active />{' '}
-              </div>
-            ) : (
-              <Tree
-                treeData={getResponsiveTreeData(filteredMenuItems, collapsed)}
-                showLine={{ showLeafIcon: false }}
-                defaultExpandAll={false}
-                expandedKeys={expandedKeys}
-                selectedKeys={selectedKeys}
-                onSelect={handleSelect}
-                onDoubleClick={handleDoubleClick}
-                className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
-                switcherIcon={null}
-              />
-            )}
-          </div>
-        </Sider>
-      )}
-      <Layout
-        style={{
-          marginLeft: shouldShowSidebar ? (isMobile ? 2 : collapsed ? 10 : 20) : 0,
-          transition: 'margin-left 0.3s ease',
-        }}
-      >
-        <Header
-          style={{
-            padding: 4,
-            background: colorBgContainer,
-            display: 'flex',
-            alignItems: 'center',
-            position: 'fixed',
-            width: shouldShowSidebar
-              ? (isMobile
-                ? '100%'
-                : collapsed
-                  ? 'calc(100% - 80px)'
-                  : 'calc(100% - 280px)')
-              : '100%',
-            zIndex: 1000,
-            top: 0,
-            left: shouldShowSidebar
-              ? (isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280)
-              : 0,
-            transition: 'left 0.3s ease, width 0.3s ease',
-            boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.15)', // Adjust shadow as needed
-          }}
-        >
-          {isMobile && (
-            <div className="w-full h-full p-[10px] flex justify-center items-center">
-              <Button
-                className="w-full h-full"
-                onClick={toggleMobileCollapsed}
-                icon={
-                  !mobileCollapsed ? (
-                    <IoCloseOutline
-                      size={24}
-                      className="text-gray-500 border-none"
-                    />
-                  ) : (
-                    <MenuOutlined
-                      size={24}
-                      className="text-gray-500 border-none"
-                    />
-                  )
-                }
-              />
-            </div>
-          )}
-
-          <NavBar page="" handleLogout={handleLogout} />
-        </Header>
-        <Content
-          className="overflow-y-hidden min-h-screen"
-          style={{
-            paddingInline: isMobile ? 8 : 24,
-            paddingLeft: shouldShowSidebar ? (isMobile ? 0 : collapsed ? 5 : 280) : 0,
-            transition: 'padding-left 0.3s ease',
-          }}
-        >
-          {isCheckingPermissions ? (
-            <div className="flex justify-center items-center h-screen">
-              <Skeleton active />
-            </div>
-          ) : (
-            <div
-              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+          <Layout
+            style={{
+              marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
+              transition: 'margin-left 0.3s ease',
+            }}
+          >
+            <Header
               style={{
-                borderRadius: borderRadiusLG,
-                marginTop: '94px',
-                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+                padding: 4,
+                background: colorBgContainer,
+                display: 'flex',
+                alignItems: 'center',
+                position: 'fixed',
+                width: isMobile
+                  ? '100%'
+                  : collapsed
+                    ? 'calc(100% - 80px)'
+                    : 'calc(100% - 280px)',
+                zIndex: 1000,
+                top: 0,
+                left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
+                transition: 'left 0.3s ease, width 0.3s ease',
+                boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.15)', // Adjust shadow as needed
               }}
             >
-              {children}
-            </div>
-          )}
-          <CreateEmployeeJobInformation
-            onInfoSubmition={() => {
-              handleUserInfoUpdate();
-            }}
-            id={userId}
-          />
-        </Content>
-      </Layout>
+              {isMobile && (
+                <div className="w-full h-full p-[10px] flex justify-center items-center">
+                  <Button
+                    className="w-full h-full"
+                    onClick={toggleMobileCollapsed}
+                    icon={
+                      !mobileCollapsed ? (
+                        <IoCloseOutline
+                          size={24}
+                          className="text-gray-500 border-none"
+                        />
+                      ) : (
+                        <MenuOutlined
+                          size={24}
+                          className="text-gray-500 border-none"
+                        />
+                      )
+                    }
+                  />
+                </div>
+              )}
+
+              <NavBar page="" handleLogout={handleLogout} />
+            </Header>
+            <Content
+              className="overflow-y-hidden min-h-screen"
+              style={{
+                paddingInline: isMobile ? 8 : 24,
+                paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+                transition: 'padding-left 0.3s ease',
+              }}
+            >
+              {isCheckingPermissions ? (
+                <div className="flex justify-center items-center h-screen">
+                  <Skeleton active />
+                </div>
+              ) : (
+                <div
+                  className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+                  style={{
+                    borderRadius: borderRadiusLG,
+                    marginTop: '94px',
+                    marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+                  }}
+                >
+                  {children}
+                </div>
+              )}
+              <CreateEmployeeJobInformation
+                onInfoSubmition={() => {
+                  handleUserInfoUpdate();
+                }}
+                id={userId}
+              />
+            </Content>
+          </Layout>
+        </>
+      )}
     </Layout>
   );
 };

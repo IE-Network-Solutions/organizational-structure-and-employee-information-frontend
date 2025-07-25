@@ -23,6 +23,7 @@ import {
   CalculateSubscriptionPriceResponse,
 } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
 import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
+import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 
 const PlanPage = () => {
   const router = useRouter();
@@ -50,6 +51,9 @@ const PlanPage = () => {
   const [currentPeriodType, setCurrentPeriodType] = useState<PeriodType | null>(
     null,
   );
+  const { data: employeeStatus } = useGetEmployeeStatus("");
+  const allUsers = (employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0);
+
 
   // Fetch subscriptions
   const {
@@ -294,11 +298,10 @@ const PlanPage = () => {
     // Always update the value, even if null
     setUpdatedQuota(value);
 
-    // Show error if value is less than current quota
+    // Show error if value is less than total number of users
     if (
       value !== null &&
-      activeSubscription?.slotTotal &&
-      value < activeSubscription.slotTotal
+      value < allUsers
     ) {
       setQuotaError('Your quota is below total number of user quota');
     } else if (value === null || value === undefined || value === 0) {
@@ -320,12 +323,8 @@ const PlanPage = () => {
     )
       return false;
 
-    // If value is less than current quota, it's not valid
-    if (
-      activeSubscription?.slotTotal &&
-      updatedQuota < activeSubscription.slotTotal
-    )
-      return false;
+    // If value is less than total number of users, it's not valid
+    if (updatedQuota < allUsers) return false;
 
     // Otherwise it's valid and changed
     return true;
@@ -1140,7 +1139,7 @@ const PlanPage = () => {
         return null;
     }
   };
-  console.log({ updatedSubscriptionValue, updatedQuota }, "updatedSubscriptionValue")
+  console.log({ updatedSubscriptionValue, updatedQuota, currentPeriodType, periodTypes }, "updatedSubscriptionValue")
   return (
 
     <div className="h-auto w-auto px-6 py-6">
