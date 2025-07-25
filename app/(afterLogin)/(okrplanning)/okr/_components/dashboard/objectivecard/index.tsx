@@ -92,9 +92,13 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   }));
 
   return (
-    <div className={`${isMobile ? 'p-0 grid gap-0' : 'p-2 grid gap-0'}`}>
+    <div
+      id={`objective-card-${objective?.id}`}
+      className={`${isMobile ? 'p-0 grid gap-0' : 'p-2 grid gap-0'}`}
+    >
       <div className="flex justify-center">
         <Card
+          id={`objective-card-container-${objective?.id}`}
           className={`bg-white shadow-sm rounded-lg w-full mb-3 ${isMobile ? 'p-0' : 'p-6'}`}
         >
           <div className="flex flex-col gap-4">
@@ -104,6 +108,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
             >
               <div className="flex flex-col">
                 <h2
+                  id={`objective-title-${objective?.id}`}
                   className={`font-bold text-black ${isMobile ? 'text-xs' : 'text-sm'}`}
                 >
                   {objective?.title}
@@ -115,7 +120,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   trigger={['click']}
                   placement="bottomRight"
                 >
-                  <MoreOutlined className="text-gray-500 text-lg cursor-pointer" />
+                  <MoreOutlined
+                    id={`objective-menu-button-${objective?.id}`}
+                    className="text-gray-500 text-lg cursor-pointer"
+                  />
                 </Dropdown>
               ) : null}
             </div>
@@ -131,6 +139,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 <div className={`${isMobile ? 'w-full' : 'grid items-center'}`}>
                   <div className="text-xs text-gray-600">
                     <span
+                      id={`objective-progress-text-${objective?.id}`}
                       className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue`}
                     >
                       {Number(objective?.objectiveProgress)?.toLocaleString()}%
@@ -144,7 +153,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     trailColor="#EDEDF6"
                     className={`${isMobile ? 'w-full' : 'w-full sm:w-32'}`}
                   />
-                  <div className="text-xs text-gray-600">
+                  <div
+                    id={`objective-key-results-count-${objective?.id}`}
+                    className="text-xs text-gray-600"
+                  >
                     {completedKeyResults}/{totalKeyResults} Key Result Done
                   </div>
                 </div>
@@ -156,6 +168,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   <div className="flex items-center">
                     <PiCalendarBold className="text-blue mt-1" />
                     <div
+                      id={`objective-days-left-${objective?.id}`}
                       className={`font-bold text-[#3636f0] ${isMobile ? 'text-lg ml-2' : 'text-2xl'}`}
                     >
                       {objective?.daysLeft}
@@ -167,11 +180,18 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
 
               {!myOkr && (
                 <div
+                  id={`objective-user-info-${objective?.id}`}
                   className={`flex items-center gap-1 ${isMobile ? 'mt-2' : 'mt-4 sm:mt-0'}`}
                 >
                   <div className="flex flex-col gap-0">
-                    <span className="text-xs text-normal">{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
-                    <span className="text-xs text-normal">
+                    <span
+                      id={`objective-user-name-${objective?.id}`}
+                      className="text-xs text-normal"
+                    >{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
+                    <span
+                      id={`objective-user-email-${objective?.id}`}
+                      className="text-xs text-normal"
+                    >
                       {objective?.user?.email}
                     </span>
                   </div>

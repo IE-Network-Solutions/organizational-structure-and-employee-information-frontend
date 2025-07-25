@@ -45,7 +45,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const { mutate: createObjective, isLoading } = useCreateObjective();
   const { isMobile } = useIsMobile();
   const modalHeader = (
-    <div className="flex justify-center text-2xl font-extrabold text-gray-800 p-4">
+    <div
+      id="okr-drawer-modal-header"
+      className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
+    >
       OKR
     </div>
   );
@@ -207,17 +210,20 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const totalWeight = calculateTotalWeight();
 
   const footer = (
-    <div className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5">
+    <div
+      id="okr-drawer-modal-footer"
+      className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
+    >
       <CustomButton
-        id="cancel-button"
+        id="okr-drawer-cancel-button"
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8, height: '40px' }}
       />
       <CustomButton
-        id="save-button"
-        title={'Add'}
+        id="okr-drawer-save-button"
+        title={'Save'}
         type="primary"
         onClick={onSubmit}
         loading={isLoading}
@@ -285,23 +291,29 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       closable={false}
     >
       <Form
-        id="okr-form"
+        id="okr-drawer-form"
         form={form}
         layout="vertical"
-        initialValues={objectiveValue}
         className="w-full"
+        initialValues={{
+          title: objectiveValue?.title || '',
+          allignedKeyResultId: objectiveValue?.allignedKeyResultId || null,
+          ObjectiveDeadline: objectiveValue?.deadline
+            ? dayjs(objectiveValue.deadline)
+            : null,
+        }}
       >
         {/* OKR Section Title */}
-        <div className="mb-6">
+        <div id="okr-drawer-objective-section-header" className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             Objective
           </h2>
         </div>
 
         {isMobile ? (
-          <div className="flex flex-col w-full">
+          <div id="okr-drawer-mobile-form" className="flex flex-col w-full">
             <Form.Item
-              id="title-input"
+              id="okr-drawer-mobile-title-input"
               className="h-11 mb-10"
               name="title"
               label="Objective"
@@ -313,7 +325,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               ]}
             >
               <Input
-                id="title-input-field"
+                id="okr-drawer-mobile-title-input-field"
                 allowClear
                 className="h-11 w-full"
                 onChange={(e) => {
@@ -324,7 +336,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             </Form.Item>
             <div className="flex w-full gap-4 mb-10">
               <Form.Item
-                id="alignment-select"
+                id="okr-drawer-mobile-alignment-select"
                 className="h-11 w-1/2 mb-0"
                 name="allignedKeyResultId"
                 label="Alignment"
@@ -336,7 +348,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 ]}
               >
                 <Select
-                  id="alignment-select-dropdown"
+                  id="okr-drawer-mobile-alignment-select-dropdown"
                   className="h-11"
                   showSearch
                   placeholder="Search and select a Key Result"
@@ -357,7 +369,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 </Select>
               </Form.Item>
               <Form.Item
-                id="deadline-picker"
+                id="okr-drawer-mobile-deadline-picker"
                 className="h-11 w-1/2 mb-0"
                 name="ObjectiveDeadline"
                 label="Objective Deadline"
@@ -366,7 +378,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 ]}
               >
                 <DatePicker
-                  id="deadline-picker-field"
+                  id="okr-drawer-mobile-deadline-picker-field"
                   value={
                     objectiveValue.deadline
                       ? dayjs(objectiveValue.deadline)
@@ -395,7 +407,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               >
                 <Button
                   type="default"
-                  id="add-keyresult-button"
+                  id="okr-drawer-mobile-add-keyresult-button"
                   className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
                   aria-label="Add Key Result"
                 >
@@ -405,9 +417,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             </div>
           </div>
         ) : (
-          <div className="flex gap-4 w-full">
+          <div id="okr-drawer-desktop-form" className="flex gap-4 w-full">
             <Form.Item
-              id="title-input"
+              id="okr-drawer-desktop-title-input"
               className="h-11 mb-10 flex-1"
               name="title"
               label="Objective"
@@ -419,7 +431,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               ]}
             >
               <Input
-                id="title-input-field"
+                id="okr-drawer-desktop-title-input-field"
                 allowClear
                 className="h-11 w-full"
                 onChange={(e) => {
@@ -432,7 +444,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               />
             </Form.Item>
             <Form.Item
-              id="alignment-select"
+              id="okr-drawer-desktop-alignment-select"
               className="h-11 mb-10 w-1/4"
               name="allignedKeyResultId"
               label="Alignment"
@@ -444,7 +456,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               ]}
             >
               <Select
-                id="alignment-select-dropdown"
+                id="okr-drawer-desktop-alignment-select-dropdown"
                 className="h-11 w-full"
                 showSearch
                 placeholder="Search and select a Key Result"
@@ -468,14 +480,14 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               </Select>
             </Form.Item>
             <Form.Item
-              id="deadline-picker"
+              id="okr-drawer-desktop-deadline-picker"
               className="h-11 mb-10 w-1/4"
               name="ObjectiveDeadline"
               label="Objective Deadline"
               rules={[{ required: true, message: 'Please select a deadline' }]}
             >
               <DatePicker
-                id="deadline-picker-field"
+                id="okr-drawer-desktop-deadline-picker-field"
                 value={
                   objectiveValue.deadline
                     ? dayjs(objectiveValue.deadline)
@@ -499,12 +511,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         )}
 
         {/* Key Result Section with inline title and button */}
-        <div className="flex justify-between items-center mb-6 mt-8">
+        <div
+          id="okr-drawer-key-result-section-header"
+          className="flex justify-between items-center mb-6 mt-8"
+        >
           <h2 className="text-xl font-semibold text-gray-800">Key Result</h2>
           <Dropdown overlay={keyResultMenu} trigger={['click']}>
             <Button
               type="default"
-              id="add-keyresult-button"
+              id="okr-drawer-desktop-add-keyresult-button"
               className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
               aria-label="Add Key Result"
             >
@@ -546,24 +561,30 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         </div>
 
         <div
+          id="okr-drawer-key-results-container"
           className={`rounded-lg mt-5 w-full min-h-64 ${objective?.keyResults?.length > 2 ? 'max-h-96 overflow-y-auto' : ''}`}
         >
           {/* Show forms for key results */}
-          {objective?.keyResults?.length > 0 &&
-            objective?.keyResults.map((keyItem: any, index: number) => (
-              <KeyResultForm
-                key={index}
-                keyItem={keyItem}
-                index={index}
-                updateKeyResult={updateKeyResult}
-                removeKeyResult={removeKeyResult}
-                addKeyResultValue={addKeyResultValue}
-              />
-            ))}
+          <div id="okr-drawer-key-results-list">
+            {objective?.keyResults?.length > 0 &&
+              objective?.keyResults.map((keyItem: any, index: number) => (
+                <KeyResultForm
+                  key={index}
+                  keyItem={keyItem}
+                  index={index}
+                  updateKeyResult={updateKeyResult}
+                  removeKeyResult={removeKeyResult}
+                  addKeyResultValue={addKeyResultValue}
+                />
+              ))}
+          </div>
 
           {/* Total Weight Display */}
           {objective?.keyResults?.length > 0 && (
-            <div className="flex justify-end mt-4 mb-4">
+            <div
+              id="okr-drawer-total-weight-display"
+              className="flex justify-end mt-4 mb-4"
+            >
               <div className="text-sm text-gray-600 font-bold">
                 Total Weight:{' '}
                 <span
