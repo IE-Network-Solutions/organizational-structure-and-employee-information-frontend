@@ -1,9 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { Row, Col, Typography, Tag } from 'antd';
+import React, { useRef, useState, useEffect } from 'react';
+import { Row, Col, Typography, Tag, Tooltip } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
 import ParentTask from './parentTask';
-import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
 const { Text } = Typography;
 
@@ -20,47 +19,40 @@ const getPriorityColor = (priority: string) => {
 };
 
 // TruncateWithTooltip: Dynamically truncates text based on width and shows tooltip if truncated
-const TruncateWithTooltip: React.FC<{ text: string; className?: string }> = ({
-  text,
-  className,
-}) => {
+const TruncateWithTooltip: React.FC<{
+  text: string;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ text, className = '', style = {} }) => {
   const textRef = useRef<HTMLSpanElement>(null);
-  const { isTruncated, setIsTruncated } = PlanningAndReportingStore();
+  const [isTruncated, setIsTruncated] = useState(false);
 
   useEffect(() => {
-    const el = textRef.current;
-    if (el) {
-      setIsTruncated(el.scrollWidth > el.clientWidth);
-    }
-  }, [text]);
+    const checkTruncation = () => {
+      const el = textRef.current;
+      if (el) {
+        setIsTruncated(el.scrollWidth > el.clientWidth);
+      }
+    };
+    checkTruncation();
+    window.addEventListener('resize', checkTruncation);
+    return () => window.removeEventListener('resize', checkTruncation);
+  }, [text, className, style]);
 
   const span = (
     <span
       ref={textRef}
-      className={`truncate ${className || ''}`}
-      style={{ maxWidth: '100%', display: 'inline-block' }}
+      className={`truncate ${className}`}
+      style={{ maxWidth: '100%', display: 'inline-block', ...style }}
     >
       {text}
     </span>
   );
 
   return isTruncated ? (
-    <span style={{ display: 'inline-block', maxWidth: '100%' }}>
-      <Row gutter={0} style={{ display: 'inline-flex', alignItems: 'center' }}>
-        <Col>
-          <span style={{ display: 'inline-block', maxWidth: '100%' }}>
-            <span style={{ verticalAlign: 'middle' }}>
-              <Tag
-                title={text}
-                style={{ border: 'none', background: 'none', padding: 0 }}
-              >
-                {span}
-              </Tag>
-            </span>
-          </span>
-        </Col>
-      </Row>
-    </span>
+    <Tooltip title={text} placement="top">
+      {span}
+    </Tooltip>
   ) : (
     span
   );
