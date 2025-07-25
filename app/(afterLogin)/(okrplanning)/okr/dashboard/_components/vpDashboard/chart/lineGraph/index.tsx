@@ -191,7 +191,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
       </div>
       <div className="hidden 2xl:flex ">
         {/* hidden 2xl:flex = zoom out max 80 -75 */}
-        <Bar data={data} options={options} height={122} />
+        <Bar data={data} options={options} height={130} />
       </div>{' '}
     </div>
   );
