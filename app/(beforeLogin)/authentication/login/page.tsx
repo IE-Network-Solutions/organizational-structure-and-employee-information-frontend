@@ -54,6 +54,7 @@ const Login: FC = () => {
             setLocalId(data?.uid);
             setIs2FA(true);
           }
+
         },
       },
     );
