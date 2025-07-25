@@ -3,6 +3,7 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useQuery } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
@@ -10,7 +11,7 @@ import { useQuery } from 'react-query';
  * @returns The response data from the API.
  */
 const getEmployeeBranches = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -28,7 +29,7 @@ const getEmployeeBranches = async () => {
  * @returns The response data from the API.
  */
 const getEmployeeDepartments = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -42,7 +43,7 @@ const getEmployeeDepartments = async () => {
 };
 
 const getAllUsersWithOutPagination = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -64,6 +65,9 @@ const getAllUsersWithOutPagination = async () => {
  * @param departmentId - The department ID for filtering.
  * @param searchString - The search string for filtering.
  * @param isDeleted - The deletion status for filtering.
+ * @param gender - The gender for filtering.
+ * @param joinedDate - The joined date for filtering.
+ * @param joinedDateType - The type of joined date for filtering.
  * @returns The response data from the API.
  */
 export const employeeAllFilter = async (
@@ -73,12 +77,23 @@ export const employeeAllFilter = async (
   isDeleted: string,
   branchId: string,
   searchString: string,
+  gender: string,
+  joinedDate: string,
+  joinedDateType: 'before' | 'after',
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
+  let joinedDateParam = '';
+  if (joinedDate) {
+    joinedDateParam =
+      joinedDateType === 'before'
+        ? `&joinedDateBefore=${joinedDate}`
+        : `&joinedDateAfter=${joinedDate}`;
+  }
+
   const response = await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&page=${currentPage}&limit=${pageSize}`,
+    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&gender=${gender}${joinedDateParam}&page=${currentPage}&limit=${pageSize}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -115,6 +130,9 @@ export const useEmployeeDepartments = () => {
  * @param branch - The branch ID to filter employees by.
  * @param isDeleted - The deletion status to filter employees.
  * @param department - The department ID to filter employees by.
+ * @param gender - The gender for filtering.
+ * @param joinedDate - The joined date for filtering.
+ * @param joinedDateType - The type of joined date for filtering.
  * @returns The query object containing the fetched data, loading status, and error information.
  */
 export const useEmployeeAllFilter = (
@@ -124,6 +142,9 @@ export const useEmployeeAllFilter = (
   branch: string,
   isDeleted: string,
   department: string,
+  gender: string,
+  joinedDate: string,
+  joinedDateType: 'before' | 'after',
 ) => {
   return useQuery<any>(
     [
@@ -134,6 +155,9 @@ export const useEmployeeAllFilter = (
       branch,
       isDeleted,
       department,
+      gender,
+      joinedDate,
+      joinedDateType,
     ],
     () =>
       employeeAllFilter(
@@ -143,6 +167,9 @@ export const useEmployeeAllFilter = (
         department,
         searchString,
         isDeleted,
+        gender,
+        joinedDate,
+        joinedDateType,
       ),
     {
       keepPreviousData: true,
@@ -155,7 +182,7 @@ export const useEmployeeAllFilter = (
  * @returns The response data from the API
  */
 const getEmployees = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -175,7 +202,7 @@ const getEmployees = async () => {
  */
 
 const getActiveEmployee = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -199,7 +226,7 @@ export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
 
 const getEmployee = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -220,7 +247,7 @@ export const useGetAllUsers = () =>
   useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
 
 const getAllUsersDataWithOutPagination = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/all-users/all`,

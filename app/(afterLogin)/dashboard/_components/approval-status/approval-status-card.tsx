@@ -12,6 +12,8 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { LuFileDown } from 'react-icons/lu';
 
 interface ApprovalRequestCardProps {
   name: string;
@@ -25,25 +27,30 @@ interface ApprovalRequestCardProps {
   id: string;
   approveRequesterId: string;
   requestType: string;
+  fileAttachment?: string;
 }
 
 const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   name,
-  days,
   startAt,
   endAt,
-  isHalfDay,
   leaveType,
   approvalWorkflowId,
   nextApprover,
   approveRequesterId,
   id,
   requestType,
+  fileAttachment,
 }) => {
   const { rejectComment, setRejectComment } = useApprovalStore();
-  const { mutate: editApprover } = useSetApproveLeaveRequest();
-  const { mutate: finalLeaveApprover } = useSetFinalApproveLeaveRequest();
-  const { mutate: finalBranchApprover } = useSetFinalApproveBranchRequest();
+  const { mutate: editApprover, isLoading: isLoadingEditApprover } =
+    useSetApproveLeaveRequest();
+  const { mutate: finalLeaveApprover, isLoading: isLoadingFinalLeaveApprover } =
+    useSetFinalApproveLeaveRequest();
+  const {
+    mutate: finalBranchApprover,
+    isLoading: isLoadingFinalBranchApprover,
+  } = useSetFinalApproveBranchRequest();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
@@ -116,6 +123,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   };
 
   const cancel: any = () => {};
+  const { isMobile, isTablet } = useIsMobile();
 
   return (
     <div className="flex items-center justify-between bg-white p-2 rounded-lg  overflow-y-auto scrollbar-none mb-3">
@@ -145,26 +153,34 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           />
         </div>
         <div className="flex flex-col">
-          <p className="font-bold text-[12px]">
+          <p className="font-semibold text-xs">
+            {leaveType?.length >= 15
+              ? leaveType?.slice(0, 15) + '...'
+              : leaveType}
+          </p>
+          <p className="font-normal text-gray-500 text-[10px]">
             {employeeData?.firstName} {employeeData?.middleName}
           </p>
-          <p className="font-bold text-gray-500 text-[12px]">{leaveType}</p>
           {requestType === 'BranchTransfer' ? (
             <>
-              <p className="text-[10px] text-gray-500">
+              <p className="font-normal text-gray-500 text-[10px]">
                 {startAt || '-'} to {endAt || '-'}
               </p>
             </>
           ) : requestType === 'Leave' ? (
-            <>
-              <p className="text-[10px] text-gray-500">
-                {dayjs(startAt).format('MMM DD, YYYY') || '-'} to{' '}
-                {dayjs(endAt).format('MMM DD, YYYY') || '-'}
+            <div className="flex justify-between items-center gap-5 font-normal text-gray-500 text-[10px]">
+              <p className="">
+                {isMobile || isTablet
+                  ? `${dayjs(startAt).format('MMM DD') || '-'} to ${dayjs(endAt).format('MMM DD') || '-'}`
+                  : `${dayjs(startAt).format('MMM DD, YYYY') || '-'} to ${dayjs(endAt).format('MMM DD, YYYY') || '-'}`}
               </p>
-              <p className="text-[10px] text-gray-500">
-                (for {days} day) {isHalfDay ? 'Half Day' : ''}
-              </p>
-            </>
+
+              {fileAttachment && (
+                <a href={fileAttachment} target="_blank">
+                  <LuFileDown className="text-[#2F78EE] text-base " />
+                </a>
+              )}
+            </div>
           ) : (
             ''
           )}
@@ -206,7 +222,16 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           cancelText="Cancel"
           okButtonProps={{ disabled: !rejectComment }}
         >
-          <Button danger>Reject</Button>
+          <Button
+            className="p-1 lg:p-4 text-xs lg:text-base"
+            disabled={
+              isLoadingEditApprover ||
+              isLoadingFinalLeaveApprover ||
+              isLoadingFinalBranchApprover
+            }
+          >
+            Reject
+          </Button>
         </Popconfirm>
         <Popconfirm
           title="Approve Request"
@@ -226,7 +251,17 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
           okText="Approve"
           cancelText="Cancel"
         >
-          <Button type="primary">Approve</Button>
+          <Button
+            type="primary"
+            className="p-1 lg:p-4 text-xs lg:text-base"
+            disabled={
+              isLoadingEditApprover ||
+              isLoadingFinalLeaveApprover ||
+              isLoadingFinalBranchApprover
+            }
+          >
+            Approve
+          </Button>
         </Popconfirm>
       </div>
     </div>

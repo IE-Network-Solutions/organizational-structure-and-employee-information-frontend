@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+        options {
+        timeout(time: 5, unit: 'MINUTES')
+    }
+
+
     stages {
         stage('Select Environment') {
             steps {

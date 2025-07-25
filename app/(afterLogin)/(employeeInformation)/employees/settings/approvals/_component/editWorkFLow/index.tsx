@@ -1,4 +1,3 @@
-'use client';
 import EditApproverComponent from '@/components/Approval/editApprover';
 import {
   useDeleteApprover,
@@ -30,7 +29,6 @@ const EditWorkFLow = () => {
   const { data: department } = useGetDepartments();
   const { data: users } = useGetAllUsers();
   const { mutate: EditApprover } = useUpdateAssignedUserMutation();
-
   const { mutate: deleteApprover } = useDeleteApprover();
   const { mutate: deleteParallelApprover } = useDeleteParallelApprover();
 
@@ -48,40 +46,25 @@ const EditWorkFLow = () => {
 
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
-    const jsonPayload = selections.SectionItemType.flatMap(
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
-        _,
-        idx,
-      ) => {
-        const approver = selectedItem?.approvers[idx];
-        const userIds = formValues[`assignedUser_${idx}`];
 
-        if (Array.isArray(userIds)) {
-          return userIds.map((userId) => {
-            const app = selectedItem?.approvers?.find(
-              (app) =>
-                app?.userId === userId && parseInt(app?.stepOrder) == idx + 1,
-            );
-            return app
-              ? { stepOrder: idx + 1, userId, id: app?.id }
-              : {
-                  stepOrder: idx + 1,
-                  userId,
-                };
-          });
-        }
-        return [
-          {
-            id: approver?.id,
-            stepOrder: Number(approver?.stepOrder),
-            userId: userIds,
-          },
-        ];
-      },
-    );
+    // Get the approvers from form values
+    const approvers = formValues?.approvers || [];
+
+    // Create the steps array in the correct format
+    const steps = approvers
+      .map((approver: any, index: number) => {
+        const stepOrder = index + 1;
+
+        return {
+          id: approver?.approverId,
+          stepOrder,
+          userId: approver?.assignedUser,
+        };
+      })
+      .filter((step: any) => step.userId); // Filter out empty entries
 
     EditApprover(
-      { values: { approvalWorkflowId: selectedItem?.id, steps: jsonPayload } },
+      { values: { approvalWorkflowId: selectedItem?.id, steps } },
       {
         onSuccess: () => {
           setEditModal(false);
@@ -90,8 +73,9 @@ const EditWorkFLow = () => {
     );
   };
 
-  const initialValues = selectedItem?.approvers.reduce(
-    (acc: Record<string, any>, item: any, index: number) => {
+  const initialValues = [...selectedItem?.approvers]
+    .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
+    .reduce((acc: Record<string, any>, item: any, index: number) => {
       if (approverType !== 'Parallel') {
         acc[`assignedUser_${index}`] = item.userId;
         acc[`level_${index}`] = item.stepOrder;
@@ -103,9 +87,7 @@ const EditWorkFLow = () => {
         acc[`assignedUser_${stepIndex}`].push(item.userId);
       }
       return acc;
-    },
-    {},
-  );
+    }, {});
 
   useEffect(() => {
     if (approverType === 'Parallel') {
@@ -114,13 +96,23 @@ const EditWorkFLow = () => {
       }
     }
   }, [initialValues, level]);
-
   const handleDeselect = (value: string, index: number) => {
-    const user = selectedItem?.approvers?.find(
-      (item: any) => item.stepOrder === index + 1 && item.userId === value,
-    );
+    const user = [...selectedItem?.approvers]
+      .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
+      ?.find(
+        (item: any) => item.stepOrder === index + 1 && item.userId === value,
+      );
     if (user) {
-      deleteParallelApprover(user.id);
+      deleteParallelApprover(user.id, {
+        onSuccess: () => {
+          // Remove only the specific deleted approver from the form
+          const currentApprovers = form.getFieldValue('approvers') || [];
+          const updatedApprovers = currentApprovers.filter(
+            (approver: any) => approver?.approverId !== user.id,
+          );
+          form.setFieldsValue({ approvers: updatedApprovers });
+        },
+      });
     }
   };
   const handleDeleteConfirm = (id: string, workFlowId: string) => {
@@ -129,10 +121,22 @@ const EditWorkFLow = () => {
     );
     if (user) {
       setDeleteModal(false);
-      deleteApprover({
-        id: user?.id,
-        workFlowId: { approvalWorkflowId: workFlowId },
-      });
+      deleteApprover(
+        {
+          id: user?.id,
+          workFlowId: { approvalWorkflowId: workFlowId },
+        },
+        {
+          onSuccess: () => {
+            // Remove only the specific deleted approver from the form
+            const currentApprovers = form.getFieldValue('approvers') || [];
+            const updatedApprovers = currentApprovers.filter(
+              (approver: any) => approver?.approverId !== user.id,
+            );
+            form.setFieldsValue({ approvers: updatedApprovers });
+          },
+        },
+      );
     }
   };
   return (

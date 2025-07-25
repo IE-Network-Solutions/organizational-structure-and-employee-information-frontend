@@ -42,9 +42,9 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
       formData: { ...state.formData, ...newData },
     })),
   fiscalYearEnd: null,
-  setFiscalYearEnd: (value: Dayjs) => set({ fiscalYearEnd: value }),
+  setFiscalYearEnd: (value: Dayjs | null) => set({ fiscalYearEnd: value }),
   fiscalYearStart: null,
-  setFiscalYearStart: (value: Dayjs) => set({ fiscalYearStart: value }),
+  setFiscalYearStart: (value: Dayjs | null) => set({ fiscalYearStart: value }),
   clearFormData: () => set({ formData: {} }),
 
   sessionData: [],
@@ -86,4 +86,8 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   openDrawer: () => set({ openfiscalYearDrawer: true }),
   setIsOpenFiscalYearDrawer: (isOpen: boolean) =>
     set({ openfiscalYearDrawer: isOpen }),
+  fiscalYearPayLoad: null,
+  setFiscalYearPayLoad: (value) => set({ fiscalYearPayLoad: value }),
+  hasOverlapError: false,
+  setHasOverlapError: (value: boolean) => set({ hasOverlapError: value }),
 }));

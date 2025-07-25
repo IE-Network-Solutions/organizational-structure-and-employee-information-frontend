@@ -13,6 +13,7 @@ import {
   useCompensationSettingStore,
   useCompensationTypeTablesStore,
 } from '@/store/uistate/features/compensation/settings';
+import CustomPagination from '@/components/customPagination';
 
 const AllowanceTypeTable = () => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -50,11 +51,6 @@ const AllowanceTypeTable = () => {
     setIsAllowanceOpen(true);
   };
 
-  const handleTableChange = (pagination: any) => {
-    setAllowanceCurrentPage(pagination.current);
-    setAllowancePageSize(pagination.pageSize);
-  };
-
   const updateStatus = (id: string) => {
     setLoadingId(id);
     updateCompensationStatus(
@@ -72,37 +68,49 @@ const AllowanceTypeTable = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="allowance-type-name">{text || '-'}</div>
+      ),
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="allowance-type-description">{text || '-'}</div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
       key: 'type',
       sorter: true,
-      render: (isRate: boolean) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
+      render: (isRate: boolean) => (
+        <div data-testid="allowance-type-type">{isRate ? 'Rate' : 'Fixed'}</div>
+      ),
     },
     {
       title: 'Amount',
       dataIndex: 'defaultAmount',
       key: 'amount',
       sorter: true,
-      render: (amount: number, record: any) =>
-        !record.isRate ? `${amount} ETB` : `${amount}% of base salary`,
+      render: (amount: number, record: any) => (
+        <div data-testid={`allowance-type-amount-${record.id}`}>
+          {!record.isRate ? `${amount} ETB` : `${amount}% of base salary`}
+        </div>
+      ),
     },
     {
       title: 'Applicable to',
       dataIndex: 'applicableTo',
       key: 'applicableTo',
       sorter: true,
-      render: (applicableTo: string) =>
-        applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees',
+      render: (applicableTo: string) => (
+        <div data-testid="allowance-type-applicable">
+          {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
+        </div>
+      ),
     },
     {
       title: 'Status',
@@ -119,6 +127,7 @@ const AllowanceTypeTable = () => {
             loading={loadingId === record.id}
             onClick={() => updateStatus(record.id)}
             checked={record.isActive}
+            data-testid={`allowance-type-status-${record.id}`}
           />
         </AccessGuard>
       ),
@@ -134,31 +143,48 @@ const AllowanceTypeTable = () => {
             Permissions.DeleteAllowanceType,
           ]}
         >
-          <ActionButtons
-            id={record?.id ?? null}
-            onEdit={() => handleAllowanceEdit(record)}
-            onDelete={() => handleDelete(record.id)}
-          />
+          <div data-testid={`allowance-type-actions-${record.id}`}>
+            <ActionButtons
+              id={record?.id ?? null}
+              onEdit={() => handleAllowanceEdit(record)}
+              onDelete={() => handleDelete(record.id)}
+            />
+          </div>
         </AccessGuard>
       ),
     },
   ];
+  const paginatedData = tableData.slice(
+    (allowanceCurrentPage - 1) * allowancePageSize,
+    allowanceCurrentPage * allowancePageSize,
+  );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={tableData}
-        pagination={{
-          current: allowanceCurrentPage,
-          pageSize: allowancePageSize,
-          total: tableData.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-    </Spin>
+    <div data-testid="allowance-type-table-container">
+      <Spin spinning={isLoading} data-testid="allowance-type-table-loading">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="allowance-type-table"
+        />
+        <CustomPagination
+          current={allowanceCurrentPage}
+          total={tableData.length}
+          pageSize={allowancePageSize}
+          onChange={(page, size) => {
+            setAllowanceCurrentPage(page);
+            setAllowancePageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setAllowancePageSize(size);
+            setAllowanceCurrentPage(1);
+          }}
+          data-testid="allowance-type-pagination"
+        />
+      </Spin>
+    </div>
   );
 };
 

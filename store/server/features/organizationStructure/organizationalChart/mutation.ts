@@ -5,6 +5,8 @@ import { OrgData } from '@/types/dashboard/organization';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OrgChart } from './interface';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 /* eslint-disable @typescript-eslint/naming-convention */
 
 /**
@@ -14,7 +16,7 @@ import { OrgChart } from './interface';
  */
 
 const createOrgChart = async (data: OrgData) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -35,7 +37,7 @@ const createOrgChart = async (data: OrgData) => {
  * @returns Promise with the updated organization chart data.
  */
 const updateOrgChart = async (id: string, data: OrgChart) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -58,7 +60,7 @@ const deleteOrgChart = async (
   departmentTobeDeletedId: string,
   departmentTobeShiftedId: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -126,8 +128,10 @@ export const useDeleteOrgChart = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('orgcharts');
-        // const method = variables?.method?.toUpperCase();
-        // handleSuccessMessage(method);
+        NotificationMessage.success({
+          message: 'Department deleted successfully!',
+          description: 'Department has been successfully deleted',
+        });
       },
     },
   );

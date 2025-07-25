@@ -7,10 +7,11 @@ import { useQuery, useMutation } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 
 const getPayments = async (data: Partial<PaymentRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/payments`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -48,10 +49,11 @@ const initiatePayment = async (
   invoiceId: string,
   data: InitiatePaymentRequest,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/payments/initiate/${invoiceId}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

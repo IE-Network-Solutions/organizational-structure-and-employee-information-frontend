@@ -4,9 +4,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import axios from 'axios';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+// const logUserId = useAuthenticationStore.getState().userId;
 
 type DepartmentData = {
   id: string;
@@ -21,13 +22,20 @@ type WeekData = {
   updatedAt: string;
   deletedAt: string | null;
   title: string;
+  failureReason?: string;
 }[];
 
 type ResponseData = {
   items?: DataItem[];
+  meta?: {
+    totalItems: number;
+    currentPage: number;
+    limit: number;
+  };
 };
 
 const getDepartmentChild = async (departmentId: string) => {
+  const token = await getCurrentToken();
   if (departmentId) {
     return crudRequest({
       url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/all-levels/${departmentId}`,
@@ -40,6 +48,7 @@ const getDepartmentChild = async (departmentId: string) => {
   }
 };
 const getWeeks = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/weekly-priorities-week`,
     method: 'GET',
@@ -53,11 +62,21 @@ const getWeeks = async () => {
 const getWeeklyPriority = async (
   departmentIds: string[],
   weeklyId: string[],
+  pageSize: number,
+  currentPage: number,
 ) => {
+  const token = await getCurrentToken();
   try {
     const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/weekly-priorities`,
-      { departmentId: departmentIds, weeklyPriorityWeekId: weeklyId }, // This is the request body
+      `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,
+      {
+        departmentId: departmentIds,
+        weeklyPriorityWeekId: weeklyId,
+        taskId: [],
+        planId: [],
+        // updatedBy: logUserId,
+        // createdBy: logUserId,
+      }, // This is the request body
       {
         headers: {
           Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -86,13 +105,14 @@ const getWeeklyPriority = async (
  * the query object containing the posts data and any loading or error states.
  */
 export const useGetWeeklyPriorities = (
-  // pageSize: number,
-  // currentPage: number,
   departmentIds: string[],
   weeklyId: string[],
+  pageSize: number,
+  currentPage: number,
 ) =>
-  useQuery<ResponseData>(['weeklyPriorities', departmentIds, weeklyId], () =>
-    getWeeklyPriority(departmentIds, weeklyId),
+  useQuery<ResponseData>(
+    ['weeklyPriorities', departmentIds, weeklyId, pageSize, currentPage],
+    () => getWeeklyPriority(departmentIds, weeklyId, pageSize, currentPage),
   );
 export const useGetDepartmentChild = (departmentId: string) =>
   useQuery<DepartmentData>(['departmentChild', departmentId], () =>

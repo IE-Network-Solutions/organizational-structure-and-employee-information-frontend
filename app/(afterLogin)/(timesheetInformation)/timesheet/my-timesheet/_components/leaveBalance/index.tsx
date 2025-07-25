@@ -15,11 +15,18 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 const LeaveBalance = () => {
   const { userId } = useAuthenticationStore();
   const [swiper, setSwiper] = useState<SwiperType>();
+  const [isBeginning, setIsBeginning] = useState(true);
+  const [isEnd, setIsEnd] = useState(false);
   const { data } = useGetLeaveBalance(userId, '');
   const { isMobile } = useIsMobile();
+
   if (!data) {
     return '';
   }
+
+  const filteredItems =
+    data.items?.items?.filter((item: any) => item.leaveType) || [];
+  const hasMultipleItems = filteredItems.length > 1;
 
   return (
     <>
@@ -30,7 +37,7 @@ const LeaveBalance = () => {
       </div>
       <div className="relative">
         <div className="flex items-center">
-          {data.items.length > 1 && (
+          {hasMultipleItems && !isBeginning && (
             <Button
               className="absolute left-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
@@ -64,21 +71,25 @@ const LeaveBalance = () => {
               }}
               onInit={(swiper) => {
                 setSwiper(swiper);
+                setIsBeginning(swiper.isBeginning);
+                setIsEnd(swiper.isEnd);
+              }}
+              onSlideChange={(swiper) => {
+                setIsBeginning(swiper.isBeginning);
+                setIsEnd(swiper.isEnd);
               }}
             >
-              {data.items
-                .filter((item) => item.leaveType)
-                .map((item) => (
-                  <SwiperSlide key={item.id}>
-                    <LeaveBalanceCard
-                      title={item?.leaveType?.title ?? ''}
-                      duration={parseFloat(item.totalBalance.toFixed(1))}
-                    />
-                  </SwiperSlide>
-                ))}
+              {filteredItems.map((item: any) => (
+                <SwiperSlide key={item.id}>
+                  <LeaveBalanceCard
+                    title={item?.leaveType?.title ?? ''}
+                    duration={parseFloat(item.totalBalance.toFixed(1))}
+                  />
+                </SwiperSlide>
+              ))}
             </Swiper>
           </div>
-          {data.items.length > 1 && (
+          {hasMultipleItems && !isEnd && (
             <Button
               className="absolute right-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"

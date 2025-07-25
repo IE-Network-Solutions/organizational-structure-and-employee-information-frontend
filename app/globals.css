@@ -11,6 +11,16 @@
   src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 }
 
+/* Hide scrollbar while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
 .ant-popconfirm-message {
   display: block !important;
 }
@@ -929,4 +939,57 @@ h6 {
     background: transparent;
     z-index: -1;
   }
+/* Hide the selected checkmark icon in Select dropdown */
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  display: none;
+}
+
+.ql-container {
+  border: none !important;
+  box-shadow: none !important;
+}
+.ql-editor {
+  border: none !important;
+}
+
+/* For mobile */
+.mobile-switcher .ant-tree-switcher {
+  width: 24px !important;
+}
+.mobile-switcher .ant-tree-switcher-leaf-line {
+  left: -14px !important;
+}
+.mobile-switcher
+  .ant-tree-switcher-open
+  .ant-tree-node-content-wrapper
+  .ant-tree-node-content-wrapper-open {
+  left: -10px !important;
+}
+
+/* Align parent task icon with tree lines in mobile view */
+@media (max-width: 768px) {
+  .mobile-switcher
+    .ant-tree-treenode:first-child
+    .ant-tree-node-content-wrapper {
+    padding-left: 4px !important;
+  }
+
+  .mobile-switcher .ant-tree-treenode:first-child .ant-tree-title {
+    margin-left: -12px !important;
+  }
+
+  /* Move all tree data closer to the horizontal lines */
+  .mobile-switcher .ant-tree-node-content-wrapper {
+    padding-left: 8px !important;
+  }
+
+  .mobile-switcher .ant-tree-title {
+    margin-left: -20px !important;
+  }
+}
+
+/* For desktop */
+.desktop-switcher .ant-tree-switcher {
+  width: 24px !important;
 }

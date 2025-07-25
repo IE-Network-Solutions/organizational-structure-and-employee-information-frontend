@@ -25,7 +25,7 @@ export const transformData = (data: any) => {
     },
     createEmployeeInformationDto: {
       gender: data.employeeGender,
-      martialStatus: data.martialStatus,
+      maritalStatus: data.maritalStatus,
       dateOfBirth: formatDate(data.dateOfBirth),
       joinedDate: formatDate(data.effectiveStartDate),
       nationalityId: data.nationalityId,
@@ -47,6 +47,7 @@ export const transformData = (data: any) => {
       departmentLeadOrNot: data.departmentLeadOrNot ?? true,
       employmentContractType: data.employmentContractType,
       workScheduleId: data.workScheduleId,
+      basicSalary: Number(data.basicSalary),
     },
     createEmployeeDocumentDto: {
       documentName: data?.documentName?.file?.originFileObj ?? '',

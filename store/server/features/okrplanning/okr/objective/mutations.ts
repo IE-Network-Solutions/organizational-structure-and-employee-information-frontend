@@ -5,10 +5,12 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
+// const logUserId = useAuthenticationStore.getState().userId;
 const createObjective = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective`,
@@ -31,6 +33,7 @@ const createObjective = async (values: any) => {
   }
 };
 export const UpdateObjective = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective/${values?.id}`,
@@ -52,6 +55,7 @@ export const UpdateObjective = async (values: any) => {
 };
 
 const deleteObjective = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -73,6 +77,7 @@ const deleteObjective = async (deletedId: string) => {
 };
 
 export const updateKeyResult = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/key-results/${values?.id}`,
@@ -93,6 +98,7 @@ export const updateKeyResult = async (values: any) => {
   }
 };
 const deleteKeyResult = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -113,6 +119,7 @@ const deleteKeyResult = async (deletedId: string) => {
   }
 };
 const deleteMilestone = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -135,21 +142,28 @@ const deleteMilestone = async (deletedId: string) => {
 
 // Function to update the remaining key results
 const updateKeyResults = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives/${data?.objectiveId}`,
     method: 'PUT',
     data,
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 const downloadEmployeeOkrScore = async (data: any) => {
+  const requestHeaders = await requestHeader();
   try {
+    // const payload = {
+    //   ...data,
+    //   updatedBy: logUserId,
+    //   createdBy: logUserId,
+    // };
     const response = await axios.post(
       `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
       data,
       {
         headers: {
-          ...requestHeader(),
+          ...requestHeaders,
         },
         responseType: 'blob', // Important for file download!
       },

@@ -1,7 +1,7 @@
 // useStore.ts
 import { MetaData } from '@/types/dashboard/tenant/clientAdministration';
 import { Dayjs } from 'dayjs';
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 export interface CustomFieldsProps {
   customFormData: FormData;
@@ -68,6 +68,9 @@ interface SearchParams {
   allOffices: string;
   allJobs: string;
   allStatus: string | null;
+  gender: string;
+  joinedDate: string;
+  joinedDateType: 'before' | 'after';
 }
 interface UserState {
   isBasicSalaryModalVisible: boolean;
@@ -187,6 +190,8 @@ interface UserState {
 
   isMobileFilterVisible: boolean;
   setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
+
+  setJoinedDateType: (type: 'before' | 'after') => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -339,6 +344,9 @@ export const useEmployeeManagementStore = create<UserState>()(
       allOffices: '',
       allJobs: '',
       allStatus: '',
+      gender: '',
+      joinedDate: '',
+      joinedDateType: 'after',
     },
     setSearchParams: (key, value) =>
       set((state) => ({
@@ -350,5 +358,9 @@ export const useEmployeeManagementStore = create<UserState>()(
     isMobileFilterVisible: false,
     setIsMobileFilterVisible: (isMobileFilterVisible: boolean) =>
       set({ isMobileFilterVisible }),
+    setJoinedDateType: (type: 'before' | 'after') =>
+      set((state) => ({
+        searchParams: { ...state.searchParams, joinedDateType: type },
+      })),
   })),
 );

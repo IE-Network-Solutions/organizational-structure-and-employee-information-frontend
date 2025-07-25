@@ -7,6 +7,7 @@ import {
   InputNumber,
   Tooltip,
   Select,
+  Popconfirm,
 } from 'antd';
 import dayjs from 'dayjs';
 import { VscClose } from 'react-icons/vsc';
@@ -14,14 +15,22 @@ import { OKRProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useDeleteKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
-const { Option } = Select;
-const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+
+const AchieveOrNotView: React.FC<OKRProps> = ({
+  keyValue,
+  index,
+  isEdit,
+  form,
+}) => {
   const {
     handleKeyResultChange,
     handleSingleKeyResultChange,
     removeKeyResultValue,
     objectiveValue,
   } = useOKRStore();
+
+  const { data: metrics } = useGetMetrics();
 
   const handleChange = (value: any, field: string) => {
     if (isEdit) {
@@ -41,142 +50,334 @@ const AchieveOrNotView: React.FC<OKRProps> = ({ keyValue, index, isEdit }) => {
     });
   }
   const { isMobile } = useIsMobile();
-  const isEditDisabled = keyValue && Number(keyValue?.progress) > 0;
 
   return (
     <div
-      className="py-4 border-b-[1px] border-gray-300"
-      id={`achieve-or-not-view-${index}`}
+      className={`py-3 rounded-lg p-4 relative pb-6 ${isEdit ? '' : 'bg-gray-50'}`}
+      id={`key-result-${index}`}
     >
-      <Form layout="vertical" className="space-y-1">
-        <div className="flex gap-3 items-center">
-          {!keyValue.id && (
-            <div className="rounded-lg border-gray-200 border bg-gray-300 w-10 h-8 flex justify-center items-center mt-2">
-              {index + 1}
-            </div>
-          )}
-          <Form.Item
-            label={
-              (keyValue.key_type == 'Achieve' && 'Achieved or Not Achieved') ||
-              keyValue.metricType?.name
-            }
-            className="w-full font-bold"
-            id={`key-result-title-${index}`}
-            rules={[
-              {
-                /* eslint-disable-next-line @typescript-eslint/naming-convention */
-                validator: (_, value) => {
-                  /* eslint-enable @typescript-eslint/naming-convention */
-                  if (!value) {
-                    return Promise.reject(
-                      new Error('Milestone title is required'),
-                    );
-                  }
-                  return Promise.resolve();
+      {/* Remove Button - positioned at top right */}
+      {!isEdit && (
+        <Tooltip title="Remove Key Result">
+          <Popconfirm
+            title="Are you sure you want to remove this key result?"
+            onConfirm={() => handleKeyResultDelete(keyValue?.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="text"
+              icon={<VscClose />}
+              className="absolute top-2 right-2 rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
+            />
+          </Popconfirm>
+        </Tooltip>
+      )}
+
+      <Form form={form} layout="vertical" className="space-y-1 mt-10">
+        {/* Main Key Result Row - all fields in single row */}
+        {/* Desktop Layout */}
+        <div
+          className={`${isMobile ? 'hidden' : 'flex'} items-center pb-3 px-6`}
+        >
+          {/* Title Input */}
+          <div className="flex-1">
+            <Form.Item
+              className="w-full font-bold mb-0"
+              rules={[
+                {
+                  required: true,
+                  message: 'Achieve title is required',
+                  validator: (notused, value) =>
+                    value && value.trim() !== ''
+                      ? Promise.resolve()
+                      : Promise.reject(new Error('Achieve title is required')),
                 },
-              },
-            ]}
-            validateTrigger="onBlur"
-          >
-            <Input
-              value={keyValue.title}
-              onChange={(e) => {
-                handleChange(e.target.value, 'title');
-              }}
-              aria-label="Key Result Title"
-            />
-            {!keyValue.title && (
-              <div className="text-red-500 font-semibold absolute top-[30px]">
-                Milestone title is required
-              </div>
-            )}
-          </Form.Item>
-          <Form.Item
-            className="w-24 font-bold"
-            label="Weight"
-            id={`key-result-weight-${index}`}
-          >
-            <InputNumber
-              min={0}
-              max={100}
-              value={keyValue?.weight || 0}
-              onChange={(value) => {
-                handleChange(value, 'weight');
-              }}
-              aria-label="Key Result Weight"
-            />
-          </Form.Item>
-          <div className="flex gap-2 mt-2">
-            <Tooltip color="gray" title="Remove Key Result">
-              <Button
-                className="rounded-full w-5 h-5"
-                icon={<VscClose size={20} />}
-                type="primary"
-                onClick={() =>
-                  keyValue?.id
-                    ? handleKeyResultDelete(keyValue?.id)
-                    : removeKeyResultValue(index)
-                }
-                id={`remove-key-result-${index}`}
-                aria-label="Remove Key Result"
-                disabled={isEditDisabled}
+              ]}
+            >
+              <Input
+                id={`key-result-title-${index}`}
+                value={keyValue.title || ''}
+                onChange={(e) => {
+                  handleChange(e.target.value, 'title');
+                }}
+                className="h-10 rounded-lg border-gray-300"
+                placeholder="Enter achieve title"
               />
-            </Tooltip>
+              {!keyValue.title && (
+                <div className="text-red-500 font-semibold absolute top-[30px]">
+                  Achieve title is required
+                </div>
+              )}
+            </Form.Item>
+          </div>
+
+          {/* Metric Type Dropdown */}
+          <div className="w-48 ml-6">
+            <Form.Item
+              className="w-full font-bold mb-0"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a Key Result type',
+                },
+              ]}
+            >
+              {isEdit ? (
+                <Select
+                  className="w-full h-10 rounded-lg text-base"
+                  placeholder="Please select a metric type"
+                  value={keyValue?.metricTypeId}
+                  onChange={(value) => {
+                    const selectedMetric = metrics?.items?.find(
+                      (metric: any) => metric.id === value,
+                    );
+                    if (selectedMetric) {
+                      handleChange(selectedMetric, 'metricType');
+                      handleChange(value, 'metricTypeId');
+                    }
+                  }}
+                >
+                  {metrics?.items?.map((metric: any) => (
+                    <Select.Option key={metric?.id} value={metric?.id}>
+                      {metric?.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              ) : (
+                <Button
+                  className="w-full h-10 rounded-lg text-base bg-gray-100 border-gray-300 text-gray-600"
+                  disabled
+                >
+                  Achieve
+                </Button>
+              )}
+            </Form.Item>
+          </div>
+
+          {/* Weight/Percentage */}
+          <div className="w-24 ml-2">
+            <Form.Item
+              className="w-full font-bold mb-0"
+              rules={[
+                { required: true, message: 'Weight is required' },
+                {
+                  type: 'number',
+                  min: 1,
+                  max: 100,
+                  message: 'Weight must be between 1 and 100',
+                },
+              ]}
+            >
+              <InputNumber
+                id={`key-result-weight-${index}`}
+                min={1}
+                max={100}
+                value={keyValue?.weight || 0}
+                onChange={(value) => {
+                  handleChange(value, 'weight');
+                }}
+                className="w-full h-10 rounded-lg border-gray-300"
+                suffix="%"
+              />
+            </Form.Item>
+          </div>
+
+          {/* Deadline */}
+          <div className="w-48 ml-2">
+            <Form.Item className="w-full font-bold mb-0">
+              <DatePicker
+                id={`key-result-deadline-${index}`}
+                value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
+                onChange={(dateString) => {
+                  handleChange(dateString, 'deadline');
+                }}
+                format="YYYY-MM-DD"
+                className="w-full h-10 rounded-lg border-gray-300"
+                disabledDate={(current) => {
+                  const startOfToday = dayjs().startOf('day');
+                  const objectiveDeadline = dayjs(objectiveValue?.deadline);
+
+                  return (
+                    current &&
+                    (current < startOfToday || current > objectiveDeadline)
+                  );
+                }}
+              />
+              {!keyValue.deadline && (
+                <div className="text-red-500 font-semibold absolute top-[30px]">
+                  Deadline is required
+                </div>
+              )}
+            </Form.Item>
           </div>
         </div>
 
-        <div className="flex justify-between">
+        {/* Mobile Layout */}
+        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
+          {/* Row 1: Title */}
           <Form.Item
-            layout="horizontal"
-            className="w-full font-bold"
-            label={isMobile ? undefined : 'Deadline'}
-            id={`key-result-deadline-${index}`}
+            className="w-full font-bold mb-0"
+            rules={[
+              {
+                required: true,
+                message: 'Achieve title is required',
+                validator: (notused, value) =>
+                  value && value.trim() !== ''
+                    ? Promise.resolve()
+                    : Promise.reject(new Error('Achieve title is required')),
+              },
+            ]}
           >
-            {isMobile && <span className="text-sm font-bold">Deadline</span>}
-            <DatePicker
-              value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
-              onChange={(dateString) => {
-                handleChange(dateString, 'deadline');
+            <Input
+              id={`key-result-title-mobile-${index}`}
+              value={keyValue.title || ''}
+              onChange={(e) => {
+                handleChange(e.target.value, 'title');
               }}
-              format="YYYY-MM-DD"
-              disabledDate={(current) => {
-                const startOfToday = dayjs().startOf('day');
-                const objectiveDeadline = dayjs(objectiveValue?.deadline); // Ensure this variable exists in your scope
-
-                // Disable dates before today and above the objective deadline
-                return (
-                  current &&
-                  (current < startOfToday || current > objectiveDeadline)
-                );
-              }}
-              aria-label="Key Result Deadline"
+              className="h-10 rounded-lg border-gray-300"
+              placeholder="Enter achieve title"
             />
-            {!keyValue.deadline && (
+            {!keyValue.title && (
               <div className="text-red-500 font-semibold absolute top-[30px]">
-                Deadline is required
+                Achieve title is required
               </div>
             )}
           </Form.Item>
 
-          <Form.Item
-            layout="horizontal"
-            className="w-full font-bold"
-            label="Target"
-            id={`key-result-target-${index}`}
-          >
-            <Select
-              disabled
-              value={0}
-              className="w-full text-xs"
-              onChange={(value) => {
-                handleChange(value, 'progress');
-              }}
-              aria-label="Key Result Target"
+          {/* Row 2: Type, Weight, Deadline */}
+          <div className="flex gap-2">
+            <Form.Item
+              className="w-48 font-bold mb-0"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a Key Result type',
+                },
+              ]}
             >
-              <Option value={0}>Not Achieved</Option>
-              <Option value={100}>Achieved</Option>
-            </Select>
+              {isEdit ? (
+                <Select
+                  className="w-full h-10 rounded-lg text-base"
+                  placeholder="Please select a metric type"
+                  value={keyValue?.metricTypeId}
+                  onChange={(value) => {
+                    const selectedMetric = metrics?.items?.find(
+                      (metric: any) => metric.id === value,
+                    );
+                    if (selectedMetric) {
+                      handleChange(selectedMetric, 'metricType');
+                      handleChange(value, 'metricTypeId');
+                    }
+                  }}
+                >
+                  {metrics?.items?.map((metric: any) => (
+                    <Select.Option key={metric?.id} value={metric?.id}>
+                      {metric?.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              ) : (
+                <Button
+                  className="w-full h-10 rounded-lg text-base bg-gray-100 border-gray-300 text-gray-600"
+                  disabled
+                >
+                  Achieve
+                </Button>
+              )}
+            </Form.Item>
+
+            <Form.Item
+              className="w-24 font-bold mb-0"
+              rules={[
+                { required: true, message: 'Weight is required' },
+                {
+                  type: 'number',
+                  min: 1,
+                  max: 100,
+                  message: 'Weight must be between 1 and 100',
+                },
+              ]}
+            >
+              <InputNumber
+                id={`key-result-weight-mobile-${index}`}
+                min={1}
+                max={100}
+                value={keyValue?.weight || 0}
+                onChange={(value) => {
+                  handleChange(value, 'weight');
+                }}
+                className="w-full h-10 rounded-lg border-gray-300"
+                suffix="%"
+              />
+            </Form.Item>
+
+            <Form.Item className="w-32 font-bold mb-0">
+              <DatePicker
+                id={`key-result-deadline-mobile-${index}`}
+                value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
+                onChange={(dateString) => {
+                  handleChange(dateString, 'deadline');
+                }}
+                format="YYYY-MM-DD"
+                className="w-full h-10 rounded-lg border-gray-300"
+                disabledDate={(current) => {
+                  const startOfToday = dayjs().startOf('day');
+                  const objectiveDeadline = dayjs(objectiveValue?.deadline);
+
+                  return (
+                    current &&
+                    (current < startOfToday || current > objectiveDeadline)
+                  );
+                }}
+              />
+              {!keyValue.deadline && (
+                <div className="text-red-500 font-semibold absolute top-[30px]">
+                  Deadline is required
+                </div>
+              )}
+            </Form.Item>
+          </div>
+        </div>
+
+        {/* Target Row */}
+        {/* Desktop Layout */}
+        <div
+          className={`${isMobile ? 'hidden' : 'flex'} gap-4 px-6`}
+          style={{ maxWidth: '51%' }}
+        >
+          <Form.Item className="flex-1 mb-0">
+            <InputNumber
+              id={`key-result-target-${index}`}
+              min={0}
+              max={1}
+              value={keyValue?.targetValue || 0}
+              onChange={(value) => {
+                handleChange(value, 'targetValue');
+              }}
+              className="w-full h-10 rounded-lg text-base"
+              placeholder="Target Value (0 or 1)"
+            />
           </Form.Item>
+        </div>
+
+        {/* Mobile Layout - Target Value */}
+        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
+          <div className="flex gap-4">
+            <Form.Item className="flex-1 mb-0">
+              <InputNumber
+                id={`key-result-target-mobile-${index}`}
+                min={0}
+                max={1}
+                value={keyValue?.targetValue || 0}
+                onChange={(value) => {
+                  handleChange(value, 'targetValue');
+                }}
+                className="w-full h-10 rounded-lg text-base"
+                placeholder="Target Value (0 or 1)"
+              />
+            </Form.Item>
+          </div>
         </div>
       </Form>
     </div>

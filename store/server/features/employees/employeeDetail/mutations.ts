@@ -2,12 +2,13 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 // Mutation function for updating profile image
 const updateProfileImageMutation = async (formData: FormData) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -52,8 +53,22 @@ export const useUpdateProfileImage = () => {
 };
 
 // Mutation function
+const createEmployeeMutation = async (values: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information`,
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: values,
+  });
+};
 const updateEmployeeMutation = async (id: string, values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -67,7 +82,7 @@ const updateEmployeeMutation = async (id: string, values: any) => {
   });
 };
 const updateEmployeeInformation = async (id: string, values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -85,7 +100,7 @@ const updateEmployeeRolePermissionMutation = async (
   id: string,
   values: any,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -102,7 +117,7 @@ const updateEmployeeJobInformationMutation = async (
   id: string,
   values: any,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}`,
@@ -116,7 +131,7 @@ const updateEmployeeJobInformationMutation = async (
 };
 
 const deleteEmployeeDocument = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
     const headers = {
@@ -134,7 +149,7 @@ const deleteEmployeeDocument = async (id: string) => {
 };
 
 const createEmployeeDocument = async (formData: FormData) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-document`,
@@ -184,6 +199,22 @@ export const useUpdateEmployee = () => {
   return useMutation(
     ({ id, values }: { id: string; values: any }) =>
       updateEmployeeMutation(id, values),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee');
+        NotificationMessage.success({
+          message: 'Successfully Updated',
+          description: 'Employee successfully updated',
+        });
+      },
+    },
+  );
+};
+export const useCreateEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ values }: { values: any }) => createEmployeeMutation(values),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');

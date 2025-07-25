@@ -1,11 +1,16 @@
 import { Card } from 'antd';
 import React from 'react';
-import { FaArrowUp } from 'react-icons/fa';
 
-const IssuedReprimand: React.FC = () => {
+const IssuedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
+  kpi,
+  engagement,
+}) => {
   return (
-    <Card>
-      <div className="text-md gap-4 flex justify-start mb-2">
+    <Card
+      className="text-md gap-2 flex flex-col  p-4 shadow-lg"
+      bodyStyle={{ padding: '0px', margin: '0px' }}
+    >
+      <div className="flex items-center gap-5 justify-start">
         <svg
           width="40"
           height="41"
@@ -38,23 +43,18 @@ const IssuedReprimand: React.FC = () => {
             </clipPath>
           </defs>
         </svg>
-        <div className="flex flex-col items-start justify-start">
-          <div className="flex items-center justify-start">
-            Issued Reprimand
-          </div>
-          <div className="flex gap-1 items-center justify-end">
-            <h3>56.02</h3>
-            <h5>%</h5>
-          </div>
+        <div className="flex items-center justify-start text-sm font-medium text-gray-600">
+          Issued Reprimand
         </div>
-        <div className="flex flex-col justify-between ">
-          <div className="flex items-center justify-end gap-[2px]">
-            <span className="text-green-500 font-light">12.7</span>
-            <FaArrowUp className="text-green-500 font-light" />
-          </div>
-          <span className="text-xs font-normal">
-            Updated: {new Date().toLocaleDateString()}
-          </span>
+      </div>
+      <div className="flex items-center justify-center gap-6 text-primary pl-10 lg:pl-0 ">
+        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
+          <div className="text-2xl font-extrabold">{kpi}</div>
+          <div className="text-sm font-bold">KPI</div>
+        </div>
+        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
+          <div className="text-2xl font-extrabold">{engagement}</div>
+          <div className="text-sm font-bold">Engagement</div>
         </div>
       </div>
     </Card>

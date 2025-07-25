@@ -3,19 +3,23 @@ import { TalentPoolCategoryResponse } from '@/types/dashboard/recruitment/talent
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 // Fetch all talent pool categories from the API
-const getAllTalentPoolCategory = async () => {
+const getAllTalentPoolCategory = async (
+  pageSize: number,
+  currentPage: number,
+) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/talent-pool-category`,
+    url: `${RECRUITMENT_URL}/talent-pool-category?limit=${pageSize}&&page=${currentPage}`,
     method: 'GET',
     headers,
   });
@@ -23,6 +27,11 @@ const getAllTalentPoolCategory = async () => {
 
 // Fetch a specific talent pool category by ID from the API
 const getTalentPoolCategoryById = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-pool-category/${id}`,
     method: 'GET',
@@ -35,10 +44,13 @@ const getTalentPoolCategoryById = async (id: string) => {
  * Uses React Query's useQuery to manage the query state.
  * @returns Query object containing the list of talent pool categories.
  */
-export const useGetTalentPoolCategory = () =>
+export const useGetTalentPoolCategory = (
+  pageSize: number,
+  currentPage: number,
+) =>
   useQuery<TalentPoolCategoryResponse>(
-    'talentPoolCategory',
-    getAllTalentPoolCategory,
+    ['talentPoolCategory', pageSize, currentPage],
+    () => getAllTalentPoolCategory(pageSize, currentPage),
   );
 
 /**

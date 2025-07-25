@@ -4,6 +4,7 @@ import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
+import CustomPagination from '@/components/customPagination';
 
 const AllDeductionTable = () => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
@@ -52,11 +53,6 @@ const AllDeductionTable = () => {
     return dataRow;
   });
 
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -64,7 +60,9 @@ const AllDeductionTable = () => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <EmployeeDetails empId={record?.employeeId} />
+        <div data-testid={`deduction-employee-${record?.employeeId}`}>
+          <EmployeeDetails empId={record?.employeeId} />
+        </div>
       ),
     },
     {
@@ -72,7 +70,9 @@ const AllDeductionTable = () => {
       dataIndex: 'role',
       key: 'role',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="deduction-role">{text || '-'}</div>
+      ),
     },
 
     ...(Array.isArray(allAllowanceEntitlementData)
@@ -80,26 +80,46 @@ const AllDeductionTable = () => {
           title: item?.name,
           dataIndex: item?.id,
           key: item?.id,
-          render: (text: string) => <div>{text || '-'}</div>,
+          render: (text: string) => (
+            <div data-testid={`deduction-amount-${item?.id}`}>
+              {text || '-'}
+            </div>
+          ),
         }))
       : []),
   ];
+  const paginatedData = dataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={dataSource}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: dataSource.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-    </Spin>
+    <div data-testid="all-deduction-table-container">
+      <Spin spinning={isLoading} data-testid="deduction-table-loading">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="deduction-table"
+        />
+
+        <CustomPagination
+          current={currentPage}
+          total={dataSource.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          data-testid="deduction-pagination"
+        />
+      </Spin>
+    </div>
   );
 };
 

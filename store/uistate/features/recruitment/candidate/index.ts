@@ -72,6 +72,10 @@ interface CandidateState {
   selectedRowKeys: React.Key[];
   setSelectedRowKeys: (keys: React.Key[]) => void;
   clearSelectedRowKeys: () => void;
+
+  // Download loading state
+  isDownloading: boolean;
+  setIsDownloading: (value: boolean) => void;
 }
 
 export const useCandidateState = create<CandidateState>((set) => ({
@@ -143,4 +147,8 @@ export const useCandidateState = create<CandidateState>((set) => ({
   selectedRowKeys: [],
   setSelectedRowKeys: (keys) => set({ selectedRowKeys: keys }),
   clearSelectedRowKeys: () => set({ selectedRowKeys: [] }),
+
+  // Download loading state
+  isDownloading: false,
+  setIsDownloading: (value) => set({ isDownloading: value }),
 }));

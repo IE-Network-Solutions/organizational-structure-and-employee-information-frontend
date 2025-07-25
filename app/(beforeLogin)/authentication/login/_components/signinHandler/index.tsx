@@ -7,6 +7,7 @@ import { handleFirebaseSignInError } from '@/utils/showErrorResponse';
 import { useTenantChecker } from '../tenantChecker';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useEffect } from 'react';
+import AccessGuard from '@/utils/permissionGuard';
 
 export const useHandleSignIn = () => {
   const {
@@ -112,9 +113,26 @@ export const useHandleSignIn = () => {
             router.push('/organization/settings/fiscalYear/fiscalYearCard');
           }
         } else {
-          // For all other roles
-          if (redirectPath) {
-            router.push(redirectPath);
+
+          if (
+            AccessGuard.checkAccess({
+              permissions: ['view_organization_settings'],
+            })
+          ) {
+            // For users with fiscal year management permission, check fiscal year status
+            if (
+              fiscalYearData?.data?.endDate &&
+              new Date(fiscalYearData?.data?.endDate) < new Date()
+            ) {
+              router.push('/organization/settings/fiscalYear/fiscalYearCard');
+              message.warning(
+                'Your active fiscal year has ended. Please set a new one.',
+              );
+            } else if (redirectPath) {
+              router.push(redirectPath);
+            } else {
+              router.push('/organization/settings/fiscalYear/fiscalYearCard');
+            }
           } else {
             router.push('/dashboard');
           }

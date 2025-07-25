@@ -76,6 +76,7 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
       open={visible}
       onCancel={handleClose}
       footer={null}
+      closeIcon={null}
       width="80vw"
       style={{
         top: 20,
@@ -99,6 +100,7 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
             loading={isLoading || updateLoading}
             onClick={handleClose}
             style={{ marginRight: '8px' }}
+            className="h-10"
           >
             Cancel
           </Button>
@@ -106,6 +108,7 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
             loading={isLoading || updateLoading}
             type="primary"
             onClick={handleSubmit}
+            className="h-10"
           >
             Submit
           </Button>

@@ -7,7 +7,7 @@ import {
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
-import { Form } from 'antd';
+import { Card, Form } from 'antd';
 import { useEffect } from 'react';
 
 const EditWorkFLow = () => {
@@ -26,8 +26,9 @@ const EditWorkFLow = () => {
     setLevel,
     setSelections,
   } = useApprovalStore();
-  const { data: department } = useGetDepartments();
-  const { data: users } = useGetAllUsers();
+  const { data: department, isLoading: departmentLoading } =
+    useGetDepartments();
+  const { data: users, isLoading: usersLoading } = useGetAllUsers();
   const { mutate: EditApprover } = useUpdateAssignedUserMutation();
   const { mutate: deleteApprover } = useDeleteApprover();
   const { mutate: deleteParallelApprover } = useDeleteParallelApprover();
@@ -46,43 +47,25 @@ const EditWorkFLow = () => {
 
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
-    const jsonPayload = selections.SectionItemType.flatMap(
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
-        _,
-        idx,
-      ) => {
-        const approver = [...selectedItem?.approvers].sort(
-          (a: any, b: any) => a?.stepOrder - b?.stepOrder,
-        )[idx];
-        const userIds = formValues[`assignedUser_${idx}`];
 
-        if (Array.isArray(userIds)) {
-          return userIds.map((userId) => {
-            const app = [...selectedItem?.approvers]
-              .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
-              ?.find(
-                (app) =>
-                  app?.userId === userId && parseInt(app?.stepOrder) == idx + 1,
-              );
-            return app
-              ? { stepOrder: idx + 1, userId, id: app?.id }
-              : {
-                  stepOrder: idx + 1,
-                  userId,
-                };
-          });
-        }
-        return [
-          {
-            id: approver?.id,
-            stepOrder: Number(approver?.stepOrder),
-            userId: userIds,
-          },
-        ];
-      },
-    );
+    // Get the approvers from form values
+    const approvers = formValues?.approvers || [];
+
+    // Create the steps array in the correct format
+    const steps = approvers
+      .map((approver: any, index: number) => {
+        const stepOrder = index + 1;
+
+        return {
+          id: approver?.approverId,
+          stepOrder,
+          userId: approver?.assignedUser,
+        };
+      })
+      .filter((step: any) => step.userId); // Filter out empty entries
+
     EditApprover(
-      { values: { approvalWorkflowId: selectedItem?.id, steps: jsonPayload } },
+      { values: { approvalWorkflowId: selectedItem?.id, steps } },
       {
         onSuccess: () => {
           setEditModal(false);
@@ -125,9 +108,9 @@ const EditWorkFLow = () => {
     }
   };
   const handleDeleteConfirm = (id: string, workFlowId: string) => {
-    const user = [...selectedItem?.approvers]
-      .sort((a: any, b: any) => a?.stepOrder - b?.stepOrder)
-      ?.find((item: any) => item.userId === id);
+    const user = selectedItem?.approvers?.find(
+      (item: any) => item.userId === id,
+    );
     if (user) {
       setDeleteModal(false);
       deleteApprover({
@@ -137,27 +120,35 @@ const EditWorkFLow = () => {
     }
   };
   return (
-    <EditApproverComponent
-      editModal={editModal}
-      handleSubmit={handleSubmit}
-      form={form}
-      onClose={onClose}
-      customFieldsDrawerHeader={'Edit Approval WorkFLow'}
-      selectedItem={selectedItem}
-      department={department}
-      users={users}
-      level={level}
-      workflowApplies={workflowApplies}
-      initialValues={initialValues}
-      approverType={approverType}
-      handleUserChange={handleUserChange}
-      handleDeselect={handleDeselect}
-      handleDeleteConfirm={handleDeleteConfirm}
-      deleteModal={deleteModal}
-      deletedApprover={deletedApprover}
-      setDeleteModal={setDeleteModal}
-      setDeletedApprover={setDeletedApprover}
-    />
+    <Card
+      loading={departmentLoading || usersLoading}
+      bodyStyle={{
+        padding: '0px',
+        margin: '0px',
+      }}
+    >
+      <EditApproverComponent
+        editModal={editModal}
+        handleSubmit={handleSubmit}
+        form={form}
+        onClose={onClose}
+        customFieldsDrawerHeader={'Edit Approval WorkFLow'}
+        selectedItem={selectedItem}
+        department={department}
+        users={users}
+        level={level}
+        workflowApplies={workflowApplies}
+        initialValues={initialValues}
+        approverType={approverType}
+        handleUserChange={handleUserChange}
+        handleDeselect={handleDeselect}
+        handleDeleteConfirm={handleDeleteConfirm}
+        deleteModal={deleteModal}
+        deletedApprover={deletedApprover}
+        setDeleteModal={setDeleteModal}
+        setDeletedApprover={setDeletedApprover}
+      />
+    </Card>
   );
 };
 

@@ -13,10 +13,11 @@ const getTna = async (
   data: Partial<TnaRequestBody>,
   searchQuery: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna${searchQuery}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
     params: query,
   });
@@ -26,35 +27,47 @@ const getTnaByUser = async (
   data: Partial<TnaRequestBody>,
 ) => {
   const userId = useAuthenticationStore.getState().userId;
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/by-user/${userId}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
     params: query,
   });
 };
+const singleTna = async (id: string) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TNA_URL}/tna/${id}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+};
 export const currency = async () => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TNA_URL}/currency`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
 export const singleCurrency = async (id: string) => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TNA_URL}/currency/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
 export const allCurrency = async () => {
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TNA_URL}/currency`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };
@@ -74,6 +87,14 @@ export const useGetTna = (
     },
   );
 };
+
+export const useGetTnaById = (id: string) => {
+  return useQuery<any>(['singleTna'], () => singleTna(id), {
+    keepPreviousData: true,
+    enabled: !!id,
+  });
+};
+
 export const useGetTnaByUser = (
   query: Partial<RequestCommonQueryData>,
   data: Partial<TnaRequestBody>,
@@ -89,11 +110,13 @@ export const useGetTnaByUser = (
     },
   );
 };
+
 export const useCurrency = () => {
   return useQuery<any>(['currency'], () => currency(), {
     keepPreviousData: true,
   });
 };
+
 export const useSingleCurrency = (id: string) => {
   return useQuery<any>(['singleCurrency'], () => singleCurrency(id), {
     keepPreviousData: true,

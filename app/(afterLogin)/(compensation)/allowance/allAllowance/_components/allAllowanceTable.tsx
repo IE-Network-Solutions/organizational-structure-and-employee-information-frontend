@@ -4,6 +4,7 @@ import { TableColumnsType } from '@/types/table/table';
 import { useFetchAllowances } from '@/store/server/features/compensation/allowance/queries';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
+import CustomPagination from '@/components/customPagination';
 
 const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
@@ -55,11 +56,6 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       )
     : dataSource;
 
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -67,7 +63,9 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <EmployeeDetails empId={record?.employeeId} />
+        <div data-testid={`allowance-employee-${record?.employeeId}`}>
+          <EmployeeDetails empId={record?.employeeId} />
+        </div>
       ),
     },
     ...(Array.isArray(allAllowanceEntitlementData)
@@ -75,26 +73,47 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
           title: item?.name,
           dataIndex: item?.id,
           key: item?.id,
-          render: (text: string) => <div>{text || '-'}</div>,
+          render: (text: string) => (
+            <div data-testid={`allowance-amount-${item?.id}`}>
+              {text || '-'}
+            </div>
+          ),
         }))
       : []),
   ];
 
+  const paginatedData = filteredDataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={filteredDataSource}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: dataSource.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-    </Spin>
+    <div data-testid="all-allowance-table-container">
+      <Spin spinning={isLoading} data-testid="allowance-table-loading">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="allowance-table"
+        />
+
+        <CustomPagination
+          current={currentPage}
+          total={filteredDataSource.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          data-testid="allowance-pagination"
+        />
+      </Spin>
+    </div>
   );
 };
 

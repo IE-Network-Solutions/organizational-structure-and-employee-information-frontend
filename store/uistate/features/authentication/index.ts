@@ -1,5 +1,5 @@
 import { setCookie } from '@/helpers/storageHelper';
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 interface StoreState {
@@ -27,18 +27,17 @@ interface StoreState {
   setLoggedUserRole: (loggedUserRole: string) => void;
   is2FA: boolean;
   setIs2FA: (is2FA: boolean) => void;
-  user2FA: { email: string; pass: string; recaptchaToken: string };
-  setUser2FA: (user2FA: {
-    email: string;
-    pass: string;
-    recaptchaToken: string;
-  }) => void;
+
+  user2FA: { email: string; pass: string };
+  setUser2FA: (user2FA: { email: string; pass: string }) => void;
   twoFactorAuthEmail: string;
   setTwoFactorAuthEmail: (twoFactorAuthEmail: string) => void;
   countdown: number;
   setCountdown: (value: number) => void;
   resetCountdown: () => void;
   decrementCountdown: () => void;
+  isCheckingPermissions: boolean;
+  setIsCheckingPermissions: (isCheckingPermissions: boolean) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -87,12 +86,10 @@ export const useAuthenticationStore = create<StoreState>()(
         },
         is2FA: false,
         setIs2FA: (is2FA: boolean) => set({ is2FA }),
-        user2FA: { email: '', pass: '', recaptchaToken: '' },
-        setUser2FA: (user2FA: {
-          email: string;
-          pass: string;
-          recaptchaToken: string;
-        }) => set({ user2FA }),
+
+        user2FA: { email: '', pass: '' },
+        setUser2FA: (user2FA: { email: string; pass: string }) =>
+          set({ user2FA }),
         twoFactorAuthEmail: '',
         setTwoFactorAuthEmail: (twoFactorAuthEmail: string) =>
           set({ twoFactorAuthEmail }),
@@ -103,12 +100,15 @@ export const useAuthenticationStore = create<StoreState>()(
           set((state) => ({
             countdown: state.countdown > 0 ? state.countdown - 1 : 0,
           })),
+        isCheckingPermissions: true,
+        setIsCheckingPermissions: (isCheckingPermissions: boolean) =>
+          set({ isCheckingPermissions }),
       }),
       {
         name: 'authentications-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
         partialize: (state) => ({
-          token: state.token,
+          tok: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,

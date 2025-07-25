@@ -1,6 +1,6 @@
 // components/ApprovalStatus.tsx
 import { FC } from 'react';
-import { Empty, Select } from 'antd';
+import { Card, Select } from 'antd';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
@@ -9,22 +9,19 @@ import { useGetBranchTransferApproveById } from '@/store/server/features/employe
 
 const ApprovalStatus: FC = () => {
   const { userId } = useAuthenticationStore();
-  const { data: LeaveTransferData } = useGetApprovalLeaveRequest(userId, 1, 4);
-  const { data: BranchTransferData } = useGetBranchTransferApproveById(
-    userId,
-    4,
-    1,
-  );
+  const { data: LeaveTransferData, isLoading: isLoadingLeaveTransfer } =
+    useGetApprovalLeaveRequest(userId, 1, 4);
+  const { data: BranchTransferData, isLoading: isLoadingBranchTransfer } =
+    useGetBranchTransferApproveById(userId, 4, 1);
   const { approverType, setApproverType } = useDashboardApprovalStore();
-
   const requests = [
     {
       type: 'Leave',
-      value: 'Leave Request',
+      value: 'Leave',
     },
     {
       type: 'BranchTransfer',
-      value: 'Branch Transfer Request',
+      value: 'Branch',
     },
   ];
   const handleChange = (value: string) => {
@@ -32,9 +29,23 @@ const ApprovalStatus: FC = () => {
   };
 
   return (
-    <div className="bg-white p-3 rounded-lg w-full">
+    <div className="bg-white p-3 rounded-lg w-full shadow-lg">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-semibold">Approval Status</h4>
+        <div className="">
+          {' '}
+          <div className="text-base lg:text-xl font-bold">Approval Status</div>
+          <div className="text-xs font-normal text-[#687588]">
+            {`${
+              approverType == 'Leave'
+                ? `${LeaveTransferData?.meta?.totalItems || LeaveTransferData?.items?.length || 0} Leave `
+                : approverType == 'BranchRequest'
+                  ? `${BranchTransferData?.meta?.totalItems || BranchTransferData?.items?.length || 0} Branch `
+                  : ''
+            }`}
+            Waiting For Your Approval
+          </div>
+        </div>
+
         <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
           <Select
             placeholder="select"
@@ -50,10 +61,14 @@ const ApprovalStatus: FC = () => {
           />
         </div>
       </div>
-      <div className="md:h-[325px] overflow-y-auto scrollbar-none">
+      <div className="max-h-[250px] min-h-[250px] overflow-y-auto scrollbar-none">
         {approverType === 'BranchTransfer' ? (
           BranchTransferData?.items?.length ? (
-            <div>
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingBranchTransfer}
+            >
               {BranchTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
                   key={index}
@@ -68,13 +83,19 @@ const ApprovalStatus: FC = () => {
                   requestType={approverType}
                 />
               ))}
-            </div>
+            </Card>
           ) : (
-            <Empty />
+            <div className="flex items-center justify-center min-h-[250px]">
+              <div className="text-xl font-thin">No Approval Found</div>
+            </div>
           )
         ) : approverType === 'Leave' ? (
           LeaveTransferData?.items?.length ? (
-            <div>
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingLeaveTransfer}
+            >
               {LeaveTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
                   key={index}
@@ -89,14 +110,19 @@ const ApprovalStatus: FC = () => {
                   approvalWorkflowId={request.approvalWorkflowId}
                   nextApprover={request.nextApprover?.[0]?.stepOrder}
                   requestType={approverType}
+                  fileAttachment={request?.justificationDocument}
                 />
               ))}
-            </div>
+            </Card>
           ) : (
-            <Empty />
+            <div className="flex items-center justify-center min-h-[250px]">
+              <div className="text-xl font-thin">No Approval Found</div>
+            </div>
           )
         ) : (
-          <Empty /> // Optional: Render this if `approverType` does not match any cases
+          <div className="flex items-center justify-center min-h-[250px]">
+            <div className="text-xl font-thin">No Approval Found</div>
+          </div>
         )}
       </div>
     </div>

@@ -11,6 +11,7 @@ import {
 } from '@/store/server/features/payroll/payroll/queries';
 import VariablePayFilter from './variablePayFilter';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import CustomPagination from '@/components/customPagination';
 
 const VariablePayTable = () => {
   const { currentPage, pageSize, searchParams, setCurrentPage, setPageSize } =
@@ -42,17 +43,15 @@ const VariablePayTable = () => {
       Benefit: '',
       Action: (
         <Link href={`okr/dashboard/${variablePay?.userId}`}>
-          <Button className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 border-none ">
+          <Button
+            className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 border-none"
+            data-testid={`view-vp-button-${variablePay?.userId}`}
+          >
             <FaEye />
           </Button>
         </Link>
       ),
     })) || [];
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   const columns: TableColumnsType<any> = [
     {
@@ -60,14 +59,20 @@ const VariablePayTable = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      render: (text: string) => <EmployeeDetails empId={text} />,
+      render: (text: string) => (
+        <div data-testid={`variable-pay-employee-${text}`}>
+          <EmployeeDetails empId={text} />
+        </div>
+      ),
     },
     {
       title: 'VP in %',
       dataIndex: 'VpInPercentile',
       key: 'VpInPercentile',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="variable-pay-percentage">{text || '-'}</div>
+      ),
     },
 
     {
@@ -75,14 +80,18 @@ const VariablePayTable = () => {
       dataIndex: 'VpScore',
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="variable-pay-score">{text || '-'}</div>
+      ),
     },
     {
       title: 'Benefit',
       dataIndex: 'Benefit',
       key: 'Benefit',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="variable-pay-benefit">{text || '-'}</div>
+      ),
     },
     {
       title: 'Action',
@@ -105,26 +114,45 @@ const VariablePayTable = () => {
     false,
   );
 
+  const paginatedData = filteredDataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
-    <>
+    <div data-testid="variable-pay-table-container">
       <VariablePayFilter tableData={tableData} />
-      <div className="overflow-x-auto">
-        <Spin spinning={isLoading || isFetching || refreshLoading}>
+      <div className="overflow-x-auto" data-testid="variable-pay-table-wrapper">
+        <Spin
+          spinning={isLoading || isFetching || refreshLoading}
+          data-testid="variable-pay-table-loading"
+        >
           <Table
             className="mt-6"
             columns={columns}
-            dataSource={filteredDataSource}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: tableData.length,
-            }}
-            onChange={handleTableChange}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="variable-pay-table"
           />
+          <CustomPagination
+            current={currentPage}
+            total={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            data-testid="variable-pay-pagination"
+          />
+
           <VariablePayModal data={filteredDataSource} />
         </Spin>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -2,6 +2,7 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { DayOfWeek } from '@/store/server/features/organizationStructure/workSchedule/interface';
 import { useUpdateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
 import { useCreateSchedule } from '@/store/server/features/organizationStructure/workSchedule/mutation';
+import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
 import { ScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
 import { showValidationErrors } from '@/utils/showValidationErrors';
@@ -27,15 +28,21 @@ const CustomWorkingScheduleDrawer = () => {
     id,
     scheduleName,
     standardHours,
+    validationError,
     isOpen,
     closeDrawer,
     isEditMode,
     setDetail,
     setScheduleName,
     setStandardHours,
+    setValidationError,
+    clearValidationError,
   } = useScheduleStore();
-  const { mutate: updateSchedule } = useUpdateSchedule();
-  const { mutate: createSchedule } = useCreateSchedule();
+  const { mutate: updateSchedule, isSuccess: isUpdateSuccess } =
+    useUpdateSchedule();
+  const { mutate: createSchedule, isSuccess: isCreateSuccess } =
+    useCreateSchedule();
+  const { refetch: refetchSchedules } = useFetchSchedule();
   const [form] = Form.useForm();
   const { detail } = useScheduleStore((state) => ({
     scheduleName: state.scheduleName,
@@ -49,6 +56,15 @@ const CustomWorkingScheduleDrawer = () => {
   };
 
   const handleSubmit = () => {
+    // Check if total working hours is 0
+    if (standardHours === 0) {
+      setValidationError(
+        'Cannot create work schedule with 0 working hours. Please enable at least one working day with valid time range.',
+      );
+      return;
+    }
+
+    clearValidationError();
     createWorkSchedule();
     const transformedDetails: DayOfWeek[] = useScheduleStore
       .getState()
@@ -72,7 +88,6 @@ const CustomWorkingScheduleDrawer = () => {
               detail: transformedDetails,
             },
           });
-          handleCancel();
         })
         .catch((errorInfo: any) => {
           showValidationErrors(errorInfo?.errorFields);
@@ -85,7 +100,6 @@ const CustomWorkingScheduleDrawer = () => {
             name: scheduleName,
             detail: transformedDetails,
           });
-          handleCancel();
         })
         .catch((errorInfo: any) => {
           showValidationErrors(errorInfo?.errorFields);
@@ -113,6 +127,26 @@ const CustomWorkingScheduleDrawer = () => {
     form.setFieldsValue(fieldValues);
   }, [form, scheduleName, detail]);
 
+  // Handle successful mutations with proper timing
+  useEffect(() => {
+    if (isUpdateSuccess || isCreateSuccess) {
+      // Force refetch the schedule data and wait for it to complete
+      refetchSchedules().then(() => {
+        // Only close after the data has been refetched
+        clearState();
+        form.resetFields();
+        closeDrawer();
+      });
+    }
+  }, [
+    isUpdateSuccess,
+    isCreateSuccess,
+    refetchSchedules,
+    clearState,
+    form,
+    closeDrawer,
+  ]);
+
   const handleValuesChange = (s: any, allValues: any) => {
     let totalHours = 0;
     detail.forEach((item) => {
@@ -124,6 +158,10 @@ const CustomWorkingScheduleDrawer = () => {
       }
     });
     setStandardHours(totalHours);
+    // Clear validation error when hours change
+    if (totalHours > 0 && validationError) {
+      clearValidationError();
+    }
   };
 
   const columns: ColumnsType<ScheduleDetail> = [
@@ -234,9 +272,16 @@ const CustomWorkingScheduleDrawer = () => {
             <span className="text-xs font-semibold text-nowrap ">
               Total Working hours:
             </span>
-            <span className="mr-4 text-primary text-xs font-semibold text-nowrap">
+            <span
+              className={`mr-4 text-xs font-semibold text-nowrap ${validationError ? 'text-red-500' : 'text-primary'}`}
+            >
               {standardHours.toFixed(1) ?? '-'} / Week
             </span>
+            {validationError && (
+              <span className="text-red-500 text-xs ml-2">
+                {validationError}
+              </span>
+            )}
           </div>
           <div className="flex gap-2 mt-4 mr-8">
             <Button type="default" className="font-md" onClick={handleCancel}>

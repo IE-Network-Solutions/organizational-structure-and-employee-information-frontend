@@ -2,8 +2,9 @@ import { TENANT_MGMT_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { Tenant } from '@/types/tenant-management';
 import axios from 'axios';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { notification } from 'antd';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 export interface UpdateClientDto {
   id?: string;
   companyName?: string;
@@ -30,7 +31,7 @@ export interface UpdateClientDto {
 }
 
 export const updateClient = async (id: string, data: UpdateClientDto) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
 
   // Remove the id from the data since it is already used in the URL
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

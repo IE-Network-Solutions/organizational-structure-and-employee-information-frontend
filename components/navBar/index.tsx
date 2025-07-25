@@ -18,7 +18,7 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { CiBookmark } from 'react-icons/ci';
 import { PiMoneyLight } from 'react-icons/pi';
 import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers2 } from 'react-icons/lu';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Logo from '../common/logo';
@@ -26,6 +26,13 @@ import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+import dayjs from 'dayjs';
+import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 
 interface CustomMenuItem {
   key: string;
@@ -52,6 +59,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
   const { isLoading } = useGetEmployee(userId);
+  const { userData } = useAuthenticationStore();
+  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -64,6 +73,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIs2FA,
     setTwoFactorAuthEmail,
     setUser2FA,
+    isCheckingPermissions,
+    setIsCheckingPermissions,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
@@ -89,6 +100,61 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     new Date(activeFiscalYear?.endDate) <= new Date();
 
   // ===========> Fiscal Year Ended Section <=================
+
+  // Separate array for routes that should be accessible but not shown in navigation
+  const hiddenRoutes: { key: string; permissions: string[] }[] = [
+    {
+      key: '/dashboard',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/employees/manage-employees/[id]',
+      permissions: [], // No permissions required
+    },
+    {
+      key: '/employee-information/[id]',
+      permissions: [], // No permissions required
+    },
+  ];
+
+  const getRoutesAndPermissions = (
+    menuItems: CustomMenuItem[],
+  ): { route: string; permissions: string[] }[] => {
+    const routes: { route: string; permissions: string[] }[] = [];
+
+    const traverse = (items: CustomMenuItem[]) => {
+      items.forEach((item) => {
+        if (item.key && item.permissions) {
+          routes.push({
+            route: item.key,
+            permissions: item.permissions,
+          });
+        }
+
+        if (item.children) {
+          traverse(item.children);
+        }
+      });
+    };
+
+    // First add hidden routes
+    hiddenRoutes.forEach((route) => {
+      if (route.key && route.permissions) {
+        routes.push({
+          route: route.key,
+          permissions: route.permissions,
+        });
+      }
+    });
+
+    // Then add visible menu routes
+    traverse(menuItems);
+    return routes;
+  };
 
   const treeData: CustomMenuItem[] = [
     {
@@ -126,7 +192,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <LuUsers2
+          <LuUsers
             size={18}
             className={expandedKeys.includes('/employees') ? 'text-blue' : ''}
           />
@@ -186,8 +252,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_recruitment_candidates'],
         },
         {
-          title: <span>Talent Pool</span>,
-          key: '/recruitment/talent-pool',
+          title: <span>Talent Resource</span>,
+          key: '/recruitment/talent-resource',
           className: 'font-bold',
           permissions: ['manage_recruitment_talent_pool'],
         },
@@ -496,7 +562,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span className="flex items-center gap-2 h-12">
-          <CiSettings size={18} />
+          <CiSettings
+            size={18}
+            className={expandedKeys.includes('admin-menu') ? 'text-blue' : ''}
+          />
           <span>Admin</span>
         </span>
       ),
@@ -526,6 +595,137 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ],
     },
   ];
+
+  // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
+  const isRouteMatch = (routePattern: string, pathname: string) => {
+    // Match [id] to UUIDs (or any non-slash segment)
+    if (routePattern.includes('[id]')) {
+      // UUID regex: [0-9a-fA-F-]{36} (simple version)
+      const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    // Generic dynamic segment: [something] => [^/]+
+    if (routePattern.match(/\[.*?\]/g)) {
+      const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+      const regex = new RegExp('^' + regexPattern + '$');
+      return regex.test(pathname);
+    }
+    return routePattern === pathname;
+  };
+
+  const checkPathnamePermissions = (pathname: string): boolean => {
+    // Get all routes and their permissions
+    const routesWithPermissions = getRoutesAndPermissions(treeData);
+
+    // Check if user is owner - owners have access to all routes
+    const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
+    if (isOwner) {
+      return true;
+    }
+
+    // First check if the pathname matches any defined route (supporting dynamic segments)
+    const matchingRoute = routesWithPermissions.find((route) => {
+      if (isRouteMatch(route.route, pathname)) {
+        return true;
+      }
+      // Check for parent-child relationship - allow any level of nesting
+      if (pathname.startsWith(route.route + '/')) {
+        return true;
+      }
+      return false;
+    });
+
+    // If no matching route found, check if it's a deeply nested route
+    if (!matchingRoute) {
+      // For deeply nested routes without explicit permissions,
+      // check if any parent route exists and has permissions
+      const pathParts = pathname.split('/').filter(Boolean);
+
+      // Try to find a parent route that has permissions
+      for (let i = pathParts.length - 1; i > 0; i--) {
+        const parentPath = '/' + pathParts.slice(0, i).join('/');
+        const parentRoute = routesWithPermissions.find((route) =>
+          isRouteMatch(route.route, parentPath),
+        );
+
+        if (parentRoute) {
+          // Check if user has permissions for parent route
+          const userPermissions = userData?.userPermissions || [];
+          const hasParentPermissions = parentRoute.permissions.every(
+            (requiredPermission: any) => {
+              const found = userPermissions?.find(
+                (permission: any) =>
+                  permission.permission.slug === requiredPermission,
+              );
+              return found;
+            },
+          );
+
+          if (hasParentPermissions) {
+            return true;
+          }
+        }
+      }
+
+      // If no parent route found or no permissions, deny access
+      return false;
+    }
+
+    // If route exists but has no permissions, allow access
+    if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
+      return true;
+    }
+
+    // Get user's permissions from the authentication store
+    const userPermissions = userData?.userPermissions || [];
+
+    // Check if user has ALL required permissions for this route
+    const hasAllPermissions = matchingRoute.permissions.every(
+      (requiredPermission: any) => {
+        const found = userPermissions?.find(
+          (permission: any) =>
+            permission.permission.slug === requiredPermission,
+        );
+        return found;
+      },
+    );
+    return hasAllPermissions;
+  };
+  const { data: departments } = useGetDepartments();
+  const { data: employeeData } = useGetEmployee(userId);
+  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
+    useEmployeeManagementStore();
+  useEffect(() => {
+    if (!departments || !employeeData) return;
+
+    if (departments.length === 0) {
+      router.push('/onboarding');
+    } else if (
+      !employeeData.employeeJobInformation ||
+      employeeData.employeeJobInformation.length === 0
+    ) {
+      setIsAddEmployeeJobInfoModalVisible(true);
+      setEmployeeJobInfoModalWidth('100%');
+    }
+  }, [departments, employeeData, router]);
+
+  // ✅ Check permission on pathname change
+  useEffect(() => {
+    const checkPermissions = async () => {
+      setIsCheckingPermissions(true);
+
+      if (pathname === '/') {
+        router.push('/dashboard');
+      } else if (!checkPathnamePermissions(pathname)) {
+        router.push('/unauthorized');
+      }
+
+      setIsCheckingPermissions(false);
+    };
+
+    checkPermissions();
+  }, [pathname, router]);
 
   const handleSelect = (keys: (string | number | bigint)[], info: any) => {
     const selectedKey = info?.node?.key;
@@ -574,7 +774,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      // First step: clear all state that might trigger queries
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
@@ -585,7 +784,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
       setTenantId('');
       setToken('');
-      setUser2FA({ email: '', pass: '', recaptchaToken: '' });
+      setUser2FA({ email: '', pass: '' });
+
 
       // Then remove cookies
       removeCookie('token');
@@ -700,6 +900,38 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       };
     });
   };
+  const { mutate: employeeInfo } = useCreateEmployee();
+  const handleUserInfoUpdate = () => {
+    const fullName = employeeData?.firstName?.split(' ') || [];
+    const payloadUser = {
+      firstName: fullName[0] || '-',
+      middleName: fullName[1] || '-',
+      lastName: fullName[2] || '-',
+    };
+    const payloadEmp = {
+      joinedDate: employeeData?.createdAt
+        ? new Date(employeeData?.createdAt).toISOString()
+        : new Date().toISOString(),
+      dateOfBirth: dayjs().subtract(30, 'year'),
+      employeeAttendanceId: 1,
+      gender: 'male',
+      maritalStatus: 'SINGLE',
+      addresses: {},
+      additionalInformation: {},
+      bankInformation: {},
+      userId: userId,
+    };
+
+    updateEmployeeInformation({
+      id: userId,
+      values: payloadUser,
+    });
+    employeeInfo({
+      values: payloadEmp,
+    });
+  };
+
+  // Render the component with the layout and navigation on the left
 
   return (
     <Layout>
@@ -835,16 +1067,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             transition: 'padding-left 0.3s ease',
           }}
         >
-          <div
-            className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-            style={{
-              borderRadius: borderRadiusLG,
-              marginTop: '94px',
-              marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+          {isCheckingPermissions ? (
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton active />
+            </div>
+          ) : (
+            <div
+              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              style={{
+                borderRadius: borderRadiusLG,
+                marginTop: '94px',
+                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+              }}
+            >
+              {children}
+            </div>
+          )}
+          <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
             }}
-          >
-            {children}
-          </div>
+            id={userId}
+          />
         </Content>
       </Layout>
     </Layout>

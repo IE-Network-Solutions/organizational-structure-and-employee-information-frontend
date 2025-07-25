@@ -2,27 +2,56 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
 import axios from 'axios';
 import { useMutation, useQuery } from 'react-query';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/utils/firebaseConfig';
-import { message } from 'antd';
+import { crudRequest } from '@/utils/crudRequest';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 export const usePasswordReset = () => {
   return useMutation(
-    async (email: string) => {
+    async ({
+      email,
+      loginTenantId,
+    }: {
+      email: string;
+      loginTenantId: string;
+    }) => {
       const domainName = window.location.hostname;
       const dynamicLink = `https://${domainName}/authentication/reset-password`;
-      const actionCodeSettings = {
+
+      if (!loginTenantId || loginTenantId.length <= 0) {
+        NotificationMessage.error({
+          message: 'This tenant is unknown.',
+        });
+        throw new Error('Missing tenant ID'); // Needed to prevent mutation from continuing
+      }
+
+      const values = {
+        email: email,
         url: dynamicLink,
-        handleCodeInApp: true,
+        loginTenantId: loginTenantId,
       };
-      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+
+      const response = await crudRequest({
+        url: `${ORG_AND_EMP_URL}/users/resetPassword`,
+        method: 'POST',
+        data: values,
+      });
+
+      return response;
     },
     {
-      onSuccess: () => {
-        message.success('Password reset email sent! Please check your inbox.');
+      onSuccess: (data) => {
+        NotificationMessage.success({
+          message:
+            data || 'Password reset email sent! Please check your inbox.',
+        });
       },
-      onError: () => {
-        message.error('Error sending password reset email. Please try again.');
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message:
+            error?.response?.data?.message ||
+            'Error sending password reset email. Please try again.',
+        });
       },
     },
   );
@@ -36,7 +65,7 @@ export const usePasswordReset = () => {
 const getTenantId = async (token: string) => {
   const localId = useAuthenticationStore.getState().localId;
   if (!token || token.length === 0) {
-    token = useAuthenticationStore.getState().token;
+    token = await getCurrentToken();
   }
   try {
     const headers = {
