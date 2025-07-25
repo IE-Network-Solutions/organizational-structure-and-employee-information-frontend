@@ -56,12 +56,12 @@ const CriteriaDoughnut = () => {
     },
   };
   return (
-    <div className=" border-[1px] border-gray-200 rounded-lg p-1 ">
+    <div className=" border-[1px] border-gray-200 rounded-lg p-1 px-2 ">
       <div className="text-lg font-bold">Criteria Contribution</div>{' '}
       <div className=" ">
         {vpScore?.criteria?.length ? (
-          <div className="flex items-center justify-between gap-1 mt-5 ">
-            <div className="relative flex items-center justify-center w-[180px] h-[180px] overflow-visible z-10">
+          <div className="flex items-center justify-between gap-3 lg:gap-1 mt-[13px] ">
+            <div className="relative flex items-center justify-center w-[150px] 2xl:w-[180px] h-[150px] 2xl:h-[180px] overflow-visible z-10">
               <Doughnut data={data} options={options} className="z-20" />
               <div
                 className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
@@ -87,7 +87,9 @@ const CriteriaDoughnut = () => {
                     }}
                     className="w-2 h-2 rounded-full mr-2"
                   />
-                  <span className="text-xs font-normal">{label}</span>
+                  <span className="text-[10px] 2xl:text-xs font-normal">
+                    {label}
+                  </span>
                 </div>
               ))}
             </div>

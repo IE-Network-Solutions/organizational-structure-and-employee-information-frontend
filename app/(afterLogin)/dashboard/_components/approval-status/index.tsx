@@ -37,9 +37,9 @@ const ApprovalStatus: FC = () => {
           <div className="text-xs font-normal text-[#687588]">
             {`${
               approverType == 'Leave'
-                ? `${LeaveTransferData?.meta?.totalItems || LeaveTransferData?.items?.length} Leave `
+                ? `${LeaveTransferData?.meta?.totalItems || LeaveTransferData?.items?.length || 0} Leave `
                 : approverType == 'BranchRequest'
-                  ? `${BranchTransferData?.meta?.totalItems || BranchTransferData?.items?.length} Branch `
+                  ? `${BranchTransferData?.meta?.totalItems || BranchTransferData?.items?.length || 0} Branch `
                   : ''
             }`}
             Waiting For Your Approval

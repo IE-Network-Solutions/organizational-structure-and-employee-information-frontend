@@ -88,7 +88,9 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
                     : 'text-red-500'
                 }`}
               >
-                {vpScore?.score - vpScore?.previousScore}
+                {(
+                  (vpScore?.score ?? 0) - (vpScore?.previousScore ?? 0)
+                ).toFixed(2)}
                 {vpScore?.score - vpScore?.previousScore >= 0 ? (
                   <GoArrowUp />
                 ) : (
