@@ -1,5 +1,5 @@
 // useStore.ts
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { useAuthenticationStore } from '../authentication';
 type MkAsATask = {
@@ -59,6 +59,9 @@ export interface PlanningAndReporting {
 
   selectedReportId: string;
   setSelectedReportId: (selectedReportId: string) => void;
+
+  isTruncated: boolean;
+  setIsTruncated: (isTruncated: boolean) => void;
 }
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -147,5 +150,8 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
       }),
 
     resetWeights: () => set({ weights: {}, totalWeight: 0 }),
+
+    isTruncated: false,
+    setIsTruncated: (value: boolean) => set({ isTruncated: value }),
   })),
 );

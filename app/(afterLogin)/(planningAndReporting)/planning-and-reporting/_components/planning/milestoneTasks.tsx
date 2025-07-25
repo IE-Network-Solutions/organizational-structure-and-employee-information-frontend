@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Row, Col, Typography, Tag } from 'antd';
 import { MdKey } from 'react-icons/md';
 import { FaStar } from 'react-icons/fa';
 import ParentTask from './parentTask';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
 const { Text } = Typography;
 
@@ -18,6 +19,53 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
+// TruncateWithTooltip: Dynamically truncates text based on width and shows tooltip if truncated
+const TruncateWithTooltip: React.FC<{ text: string; className?: string }> = ({
+  text,
+  className,
+}) => {
+  const textRef = useRef<HTMLSpanElement>(null);
+  const { isTruncated, setIsTruncated } = PlanningAndReportingStore();
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (el) {
+      setIsTruncated(el.scrollWidth > el.clientWidth);
+    }
+  }, [text]);
+
+  const span = (
+    <span
+      ref={textRef}
+      className={`truncate ${className || ''}`}
+      style={{ maxWidth: '100%', display: 'inline-block' }}
+    >
+      {text}
+    </span>
+  );
+
+  return isTruncated ? (
+    <span style={{ display: 'inline-block', maxWidth: '100%' }}>
+      <Row gutter={0} style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <Col>
+          <span style={{ display: 'inline-block', maxWidth: '100%' }}>
+            <span style={{ verticalAlign: 'middle' }}>
+              <Tag
+                title={text}
+                style={{ border: 'none', background: 'none', padding: 0 }}
+              >
+                {span}
+              </Tag>
+            </span>
+          </span>
+        </Col>
+      </Row>
+    </span>
+  ) : (
+    span
+  );
+};
+
 // Reusable Task Row Component
 const TaskRow = ({ task, keyResult }: any) => (
   <Row align="middle" justify="space-between" className={`w-full sm:px-10 `}>
@@ -27,8 +75,7 @@ const TaskRow = ({ task, keyResult }: any) => (
           <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF]">
             <span className="rounded-full bg-blue w-1 h-1"></span>
           </div>
-
-          <span className="truncate">{task?.task} </span>
+          <TruncateWithTooltip text={task?.task} />
         </div>
 
         {task?.achieveMK ? (
