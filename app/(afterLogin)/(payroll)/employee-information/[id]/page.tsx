@@ -162,7 +162,7 @@ const EmployeeProfile = () => {
       >
         <Row gutter={[32, 32]}>
           <Col lg={8} md={10} xs={24}>
-            <Card loading={isLoading} className="mb-3">
+            <Card loading={isLoading} className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`} style={isMobile ? { width: '100%' } : {}} bordered={!isMobile}>
               <div className="flex flex-col gap-3 items-center">
                 <div className="relative group">
                   <Avatar
@@ -194,7 +194,7 @@ const EmployeeProfile = () => {
 
               <div className="flex gap-5 my-2 items-center">
                 <HiOutlineMail color="#BFBFBF" />
-                <p className="font-semibold">{employee?.email}</p>
+                <p className="font-semibold break-all">{employee?.email}</p>
               </div>
               <div className="flex gap-5 my-2 items-center">
                 <PhoneOutlined className="text-[#BFBFBF]" />
