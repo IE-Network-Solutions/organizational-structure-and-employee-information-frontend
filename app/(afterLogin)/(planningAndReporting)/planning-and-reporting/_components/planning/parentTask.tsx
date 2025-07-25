@@ -90,15 +90,18 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="text-sm truncate">
                 {(() => {
-                  const isTruncated = task?.task?.length > 80;
+                  const isTruncated =
+                    isMobile || isTablet
+                      ? task?.task?.length > 40
+                      : task?.task?.length > 80;
                   return isTruncated ? (
                     <Popover content={task?.task} placement="topLeft">
                       {isMobile || isTablet
                         ? task?.task?.length > 40
                           ? task.task.slice(0, 40) + '...'
                           : task?.task
-                        : task?.task?.length > 100
-                          ? task.task.slice(0, 100) + '...'
+                        : task?.task?.length > 80
+                          ? task.task.slice(0, 80) + '...'
                           : task?.task}
                     </Popover>
                   ) : (
