@@ -284,13 +284,13 @@ const ApprovalTable = () => {
     <>
       {data?.items?.length > 0 ? (
         <>
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-2 px-3">
             <div className="text-2xl font-bold text-gray-900">
               Waiting for my approval
             </div>
           </div>
-          <div className="flex items-center justify-end mb-6">
-            <div className="flex items-center gap-10 mb-6">
+          <div className="flex items-center sm:justify-end justify-between mb-2 px-3 sm:px-0">
+            <div className="flex items-center gap-4 mb-2">
               <Popconfirm
                 title="All Approve Request"
                 description="Are you sure to approve all leave request?"
@@ -304,7 +304,7 @@ const ApprovalTable = () => {
                 <Button disabled={allApproveIsLoading} type="primary">
                   <Spin spinning={allApproveIsLoading} />
                   Approve All
-                </Button>{' '}
+                </Button>
               </Popconfirm>
               <Popconfirm
                 title="All Reject Request"

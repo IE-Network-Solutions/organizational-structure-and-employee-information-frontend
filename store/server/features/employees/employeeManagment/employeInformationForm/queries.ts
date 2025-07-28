@@ -4,13 +4,16 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { EmployeeInformationForm } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-const token = useAuthenticationStore.getState().token;
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getEmpoyeInformationForms = async () => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'GET',
@@ -28,6 +31,8 @@ const getEmpoyeInformationForms = async () => {
  */
 
 const getEmpoyeInformationForm = async (id: string) => {
+  const token = await getCurrentToken();
+
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -49,6 +54,7 @@ const getEmpoyeInformationForm = async (id: string) => {
  */
 
 const getEmpoyeInformationFormForTenant = async () => {
+  const token = await getCurrentToken();
   try {
     // const tenantId = localStorage.getItem('tenantId');
     // const headers: Record<string, string> | undefined = tenantId ? { 'tenantId': tenantId } : undefined;

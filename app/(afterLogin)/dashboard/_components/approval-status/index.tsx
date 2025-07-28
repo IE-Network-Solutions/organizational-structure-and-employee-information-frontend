@@ -16,7 +16,6 @@ const ApprovalStatus: FC = () => {
     1,
   );
   const { approverType, setApproverType } = useDashboardApprovalStore();
-
   const requests = [
     {
       type: 'Leave',
@@ -91,6 +90,7 @@ const ApprovalStatus: FC = () => {
                   approvalWorkflowId={request.approvalWorkflowId}
                   nextApprover={request.nextApprover?.[0]?.stepOrder}
                   requestType={approverType}
+                  fileAttachment={request?.justificationDocument}
                 />
               ))}
             </div>

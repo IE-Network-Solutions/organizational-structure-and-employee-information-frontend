@@ -5,11 +5,12 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
 const grantObjectiveEditPermission = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${OKR_URL}/objective/update-status`,
     method: 'PATCH',
     data,
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

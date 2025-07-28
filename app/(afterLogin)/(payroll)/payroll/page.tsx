@@ -952,7 +952,7 @@ const Payroll = () => {
                     <Button
                       type="default"
                       loading={sendingPaySlipLoading}
-                      className="text-white bg-primary border-none p-5 flex flex-col items-start disabled:opacity-50"
+                      className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
                       disabled={mergedPayroll?.length === 0}
                     >
                       <span className="text-base font-semibold">

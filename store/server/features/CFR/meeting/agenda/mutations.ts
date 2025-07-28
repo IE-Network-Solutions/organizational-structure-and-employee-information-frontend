@@ -3,11 +3,12 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 const createMeetingAgenda = async (values: {
   name: string;
   description: string;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -25,7 +26,7 @@ const createMeetingAgendaBulk = async (values: {
   name: string;
   description: string;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -41,7 +42,7 @@ const createMeetingAgendaBulk = async (values: {
 };
 
 const deleteMeetingAgenda = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -56,7 +57,7 @@ const deleteMeetingAgenda = async (id: string) => {
 };
 
 const updateMeetingAgenda = async (values: { id?: string; name: string }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {

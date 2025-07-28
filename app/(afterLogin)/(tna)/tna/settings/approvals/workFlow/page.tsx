@@ -7,11 +7,13 @@ import React from 'react';
 const Workflow = () => {
   const router = useRouter();
 
-  const { approverType, setApproverType } = useApprovalTNAStore();
+  const { setApproverType } = useApprovalTNAStore();
+
+
 
   const onChange = (value: string) => {
     setApproverType(value);
-    if (approverType) {
+    if (value) {
       router.push('/tna/settings/approvals/workFlow/approvalSetting');
     }
   };

@@ -115,6 +115,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees/manage-employees/[id]',
       permissions: [], // No permissions required
     },
+    {
+      key: '/employee-information/[id]',
+      permissions: [], // No permissions required
+    },
   ];
 
   const getRoutesAndPermissions = (
@@ -780,7 +784,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
       setTenantId('');
       setToken('');
-      setUser2FA({ email: '', pass: '', recaptchaToken: '' });
+      setUser2FA({ email: '', pass: '' });
 
       // Then remove cookies
       removeCookie('token');

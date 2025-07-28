@@ -6,19 +6,21 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { AccrualRule } from '@/types/timesheet/settings';
 
 const setAccrualRule = async (item: Partial<AccrualRule>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/accrual-rules`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { item },
   });
 };
 
 const deleteAccrualRule = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/accrual-rules`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { id },
   });
 };

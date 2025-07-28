@@ -2,9 +2,10 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const fetchForms = async (pageSize: number, currentPage: number) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -26,7 +27,7 @@ const getFormsByCategoryId = async (
   pageSize: number,
   current: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -41,7 +42,7 @@ const getFormsByCategoryId = async (
 };
 
 const getFormsById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {

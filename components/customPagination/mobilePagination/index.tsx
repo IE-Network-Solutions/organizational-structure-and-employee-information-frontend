@@ -7,6 +7,7 @@ import { usePaginationStore } from '@/store/uistate/features/pagination';
 interface CustomPaginationProps {
   totalResults: number;
   pageSize: number;
+  currentPage?: number;
   onChange?: (page: number, pageSize: number) => void;
   onShowSizeChange?: (current: number, size: number) => void;
 }
@@ -14,26 +15,34 @@ interface CustomPaginationProps {
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   totalResults,
   pageSize,
+  currentPage,
   onChange,
   onShowSizeChange,
 }) => {
-  const { currentPage, setCurrentPage } = usePaginationStore();
+  const { currentPage: globalCurrentPage, setCurrentPage } =
+    usePaginationStore();
+
+  const activeCurrentPage = currentPage ?? globalCurrentPage;
 
   const totalPages = Math.ceil(totalResults / pageSize);
 
   const handlePrevious = () => {
-    if (currentPage > 1) {
-      const newPage = currentPage - 1;
-      setCurrentPage(newPage);
+    if (activeCurrentPage > 1) {
+      const newPage = activeCurrentPage - 1;
+      if (currentPage === undefined) {
+        setCurrentPage(newPage);
+      }
       onChange?.(newPage, pageSize);
       onShowSizeChange?.(newPage, pageSize);
     }
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) {
-      const newPage = currentPage + 1;
-      setCurrentPage(newPage);
+    if (activeCurrentPage < totalPages) {
+      const newPage = activeCurrentPage + 1;
+      if (currentPage === undefined) {
+        setCurrentPage(newPage);
+      }
       onChange?.(newPage, pageSize);
       onShowSizeChange?.(newPage, pageSize);
     }
@@ -45,16 +54,16 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
         <Button
           icon={<LeftOutlined />}
           onClick={handlePrevious}
-          disabled={currentPage === 1}
+          disabled={activeCurrentPage === 1}
           className="border-gray-200"
         />
         <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 font-medium">
-          {currentPage}
+          {activeCurrentPage}
         </div>
         <Button
           icon={<RightOutlined className="text-gray-800" />}
           onClick={handleNext}
-          disabled={currentPage === totalPages}
+          disabled={activeCurrentPage === totalPages}
           className="border-gray-200"
         />
       </div>

@@ -14,10 +14,11 @@ import { notification } from 'antd';
 const getSubscriptionByTenant = async (
   data: GetSubscriptionByTenantRequest,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/get`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -39,10 +40,11 @@ export const useGetSubscriptionByTenant = (
 const calculateSubscriptionPrice = async (
   data: CalculateSubscriptionPriceDto,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/slot-transactions/calculation`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

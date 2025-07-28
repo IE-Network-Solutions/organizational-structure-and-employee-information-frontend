@@ -2,10 +2,11 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 
 const getPositions = async (currentPage: number, pageSize: number) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -20,7 +21,7 @@ const getPositions = async (currentPage: number, pageSize: number) => {
   });
 };
 const getAllPositions = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -35,7 +36,7 @@ const getAllPositions = async () => {
 };
 
 const getPositionsByID = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const pageSize = usePositionState.getState().pageSize;
   const currentPage = usePositionState.getState().currentPage;

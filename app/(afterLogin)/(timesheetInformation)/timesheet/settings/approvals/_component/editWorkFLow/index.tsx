@@ -1,5 +1,4 @@
 import EditApproverComponent from '@/components/Approval/editApprover';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   useDeleteApprover,
   useDeleteParallelApprover,
@@ -70,13 +69,7 @@ const EditWorkFLow = () => {
         onSuccess: () => {
           setEditModal(false);
         },
-        onError: (error: any) => {
-          NotificationMessage.error({
-            message: 'Error',
-            description: error?.response?.data?.message ?? 'Something went wrong',
 
-          });
-        },
       },
     );
   };

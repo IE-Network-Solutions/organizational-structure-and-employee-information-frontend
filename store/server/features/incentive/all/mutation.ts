@@ -6,16 +6,18 @@ import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 const importData = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/imported-data`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 // const logUserId = useAuthenticationStore.getState().userId;
 
 const exportData = async (data: any) => {
+  const requestHeaders = await requestHeader();
   try {
     // const payload = {
     //   ...data,
@@ -27,7 +29,7 @@ const exportData = async (data: any) => {
       data,
       {
         headers: {
-          ...requestHeader(),
+          ...requestHeaders,
         },
         responseType: 'blob', // Important for file download!
       },
@@ -55,10 +57,11 @@ const exportData = async (data: any) => {
 };
 
 const sendIncentiveToPayroll = async (data: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     method: 'POST',
     url: `${INCENTIVE_URL}/incentives/send-to-payroll/incentive/data`,
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { incentiveId: data },
   });
 };

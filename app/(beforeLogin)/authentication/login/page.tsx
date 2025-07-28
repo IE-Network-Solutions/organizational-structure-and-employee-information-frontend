@@ -13,6 +13,10 @@ import { Google } from '@/components/Icons/google';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useHandleSignIn } from './_components/signinHandler';
 import Link from 'next/link';
+import TwoFactorAuth from './_components/2fa';
+import SimpleLogo from '@/components/common/logo/simpleLogo';
+import { useGet2FACode } from '@/store/server/features/authentication/mutation';
+
 
 type FieldType = {
   email: string;
@@ -23,11 +27,36 @@ type FieldType = {
 const Login: FC = () => {
   const { loading } = useAuthenticationStore();
   const { handleSignIn } = useHandleSignIn();
+
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {
-    await handleSignIn(() =>
-      signInWithEmailAndPassword(auth, values.email, values.password),
+    get2FACode(
+      {
+        values: {
+          email: values.email,
+          pass: values.password,
+        },
+      },
+      {
+        onSuccess: async (data) => {
+         
+          if (data?.is2FAEnabled === false) {
+           return await handleSignIn(() =>
+              signInWithEmailAndPassword(auth, values.email, values.password),
+            );
+          } else {
+            setUser2FA({
+              email: values.email,
+              pass: values.password,
+            });
+            setLocalId(data?.uid);
+            setIs2FA(true);
+          }
+
+         
+        },
+      },
     );
   };
 

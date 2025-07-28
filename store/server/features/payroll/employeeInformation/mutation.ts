@@ -5,11 +5,12 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
 const updateAllowance = async (data: { employeeId: string; data: any }) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${PAYROLL_URL}/compensation-item-entitlement/update/employee-allowance-entitlement/${data?.employeeId}`,
     method: 'PUT',
     data: data?.data,
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

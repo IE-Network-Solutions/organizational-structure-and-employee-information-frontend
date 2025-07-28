@@ -3,8 +3,8 @@ import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import axios from 'axios';
 import { ReprimandLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-log/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {
@@ -23,6 +23,7 @@ type ResponseDataDetail = ReprimandLog;
  * @returns The response data from the API
  */
 const getReprimandLog = async (userId: string, typeId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -46,6 +47,7 @@ const getReprimandLog = async (userId: string, typeId: string) => {
  * @returns The response data from the API
  */
 const getReprimandLogById = async (id: number | string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
