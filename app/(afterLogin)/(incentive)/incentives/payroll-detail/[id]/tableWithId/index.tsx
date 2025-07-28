@@ -79,6 +79,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       searchParams?.byYear || ' ',
       searchParams?.bySession,
       searchParams?.byMonth || '',
+      searchParams?.byRecognition || '',
       pageSize,
       currentPage,
     );

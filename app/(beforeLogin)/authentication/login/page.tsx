@@ -17,6 +17,7 @@ import TwoFactorAuth from './_components/2fa';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
 import { useGet2FACode } from '@/store/server/features/authentication/mutation';
 
+
 type FieldType = {
   email: string;
   password: string;
@@ -24,10 +25,7 @@ type FieldType = {
 };
 
 const Login: FC = () => {
-  const { loading, is2FA, setIs2FA, setLocalId, setUser2FA } =
-    useAuthenticationStore();
-  const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
-    useGet2FACode();
+  const { loading } = useAuthenticationStore();
   const { handleSignIn } = useHandleSignIn();
 
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
@@ -66,17 +64,14 @@ const Login: FC = () => {
   const handleMicrosoftSignIn = async () => {
     await handleSignIn(() => signInWithPopup(auth, microsoftProvider));
   };
-
-  return is2FA ? (
-    <TwoFactorAuth />
-  ) : (
+  return (
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
     >
       <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
-        <p className="flex justify-center font-semibold">
-          <SimpleLogo />
+        <p className="text-center font-semibold">
+          <span className="text-blue">Selamnew</span> Workspace
         </p>
         <h5 className="text-center my-2">Login</h5>
         <Form
@@ -131,7 +126,7 @@ const Login: FC = () => {
 
           <Form.Item>
             <Button
-              loading={loading || isGet2FACodeLoading}
+              loading={loading}
               className="py-5 my-4"
               type="primary"
               htmlType="submit"
@@ -164,8 +159,7 @@ const Login: FC = () => {
         </div>
       </div>
       <div className="text-xs font-thin text-center">
-        © {new Date().getFullYear().toString()} Selamnew Workspace . All-rights
-        reserved.
+        Selamnew Workspace, All-rights reserved.
         {/* <span className="font-semibold ml-1 cursor-pointer">
           Terms & Conditions
         </span>
