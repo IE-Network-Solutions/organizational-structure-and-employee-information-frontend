@@ -68,7 +68,7 @@ export const usePWA = (): PWAHookReturn => {
   useEffect(() => {
     const checkInstallationStatus = () => {
       setIsCheckingInstallStatus(true);
-      
+
       const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true ||
@@ -76,13 +76,13 @@ export const usePWA = (): PWAHookReturn => {
 
       setIsStandalone(isStandaloneMode);
       setIsInstalled(isStandaloneMode);
-      
+
       // If app is installed/standalone, it's not installable
       if (isStandaloneMode) {
         setIsInstallable(false);
         setDeferredPrompt(null);
       }
-      
+
       setIsCheckingInstallStatus(false);
     };
 
@@ -109,7 +109,7 @@ export const usePWA = (): PWAHookReturn => {
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      
+
       // Only set as installable if not already installed
       if (!isInstalled && !isStandalone) {
         setDeferredPrompt(e as PWAInstallPrompt);

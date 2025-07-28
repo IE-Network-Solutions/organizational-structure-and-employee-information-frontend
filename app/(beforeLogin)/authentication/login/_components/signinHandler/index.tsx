@@ -113,7 +113,6 @@ export const useHandleSignIn = () => {
             router.push('/organization/settings/fiscalYear/fiscalYearCard');
           }
         } else {
-
           if (
             AccessGuard.checkAccess({
               permissions: ['view_organization_settings'],

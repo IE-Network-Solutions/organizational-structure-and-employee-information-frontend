@@ -4,12 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(
-    135deg,
-    #1890ff 0%,
-    #096dd9 50%,
-    #0050b3 100%
-  );
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 50%, #0050b3 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -166,7 +161,8 @@
 }
 
 @keyframes dotPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.8;
   }
@@ -177,7 +173,8 @@
 }
 
 @keyframes floatMove {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) translateX(0px);
   }
   25% {
@@ -210,11 +207,11 @@
   .floating {
     animation: none;
   }
-  
+
   .logoContainer {
     transform: scale(1);
   }
-  
+
   .appName,
   .loadingDots {
     opacity: 1;

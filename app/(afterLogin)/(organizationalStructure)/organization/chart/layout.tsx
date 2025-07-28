@@ -151,10 +151,10 @@ export default function ChartLayout({
           >
             <div className="flex justify-end">
               <Menu
-                className="w-[250px] rounded-2xl pl-24 sm:pl-20 h-max border-none"
+                className="w-full"
                 items={items}
                 mode="horizontal"
-                defaultActiveFirst
+                selectedKeys={[selectedKey]}
                 onClick={onMenuClick}
               />
             </div>

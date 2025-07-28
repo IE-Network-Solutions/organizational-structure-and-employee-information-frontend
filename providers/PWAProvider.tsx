@@ -33,11 +33,11 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       navigator.serviceWorker
         .register('/sw.js', {
           scope: '/',
-          updateViaCache: 'none' // Disable cache for service worker updates
+          updateViaCache: 'none', // Disable cache for service worker updates
         })
         .then((registration) => {
           console.log('Service Worker registered successfully:', registration);
-          
+
           // Force immediate activation for better data persistence
           if (registration.waiting) {
             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -60,11 +60,11 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
     const handleAppFocus = () => {
       const now = Date.now();
       const timeDiff = now - lastActiveTime;
-      
+
       // If app was inactive for more than 5 minutes, refresh the page
       if (timeDiff > 5 * 60 * 1000) {
         console.log('App reopened after long inactivity, refreshing data...');
-        
+
         // Trigger data refresh by reloading the current page
         window.location.reload();
       } else {
@@ -80,7 +80,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
     // Listen for app focus/blur events
     window.addEventListener('focus', handleAppFocus);
     window.addEventListener('blur', handleAppBlur);
-    
+
     // Listen for visibility change (more reliable on mobile)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -89,7 +89,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
         handleAppBlur();
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // PWA-specific app state management
@@ -102,9 +102,9 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           window.location.reload();
         }
       };
-      
+
       window.addEventListener('pageshow', handlePageShow);
-      
+
       // Cleanup
       return () => {
         window.removeEventListener('pageshow', handlePageShow);
@@ -160,7 +160,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
         localStorage.removeItem('pendingNavigation');
       }
     };
-    
+
     clearNavigationState();
 
     return () => {

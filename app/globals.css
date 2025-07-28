@@ -444,11 +444,14 @@ h6 {
 
 /* Floating button animation */
 @keyframes floatPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
   }
   50% {
-    box-shadow: 0 8px 24px rgba(24, 144, 255, 0.6), 0 0 0 8px rgba(24, 144, 255, 0.1);
+    box-shadow:
+      0 8px 24px rgba(24, 144, 255, 0.6),
+      0 0 0 8px rgba(24, 144, 255, 0.1);
   }
 }
 
@@ -611,7 +614,8 @@ h6 {
   }
 
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px) rotate(0deg);
       opacity: 0.1;
     }
@@ -650,7 +654,9 @@ h6 {
   }
 
   @keyframes dotBounce {
-    0%, 60%, 100% {
+    0%,
+    60%,
+    100% {
       transform: scale(1);
       opacity: 0.8;
     }
@@ -689,7 +695,7 @@ h6 {
     .pwa-floating-element {
       display: none; /* Hide floating elements on mobile for better performance */
     }
-    
+
     .pwa-logo-animation {
       transform: scale(0.8);
     }
@@ -705,16 +711,16 @@ h6 {
     .pwa-progress-fill {
       animation: none !important;
     }
-    
+
     .pwa-logo-animation {
       transform: scale(1);
     }
-    
+
     .pwa-text-animation {
       opacity: 1;
       transform: translateY(0);
     }
-    
+
     .pwa-loading-animation {
       opacity: 1;
     }
@@ -875,7 +881,7 @@ h6 {
     width: 100%;
     height: 100%;
   }
-  
+
   body {
     width: 100vw;
     height: 100vh;
@@ -888,7 +894,8 @@ h6 {
 
 /* PWA Mode - Complete URL Bar Removal WITH SCROLLING */
 @media (display-mode: standalone), (display-mode: fullscreen) {
-  html, body {
+  html,
+  body {
     height: 100vh !important;
     height: -webkit-fill-available !important;
     margin: 0 !important;
@@ -897,14 +904,14 @@ h6 {
     /* Allow vertical scrolling */
     overflow-y: auto !important;
   }
-  
+
   /* Ensure main content can scroll */
   #__next {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
-  
+
   main {
     flex: 1;
     overflow-y: auto;
@@ -918,7 +925,7 @@ h6 {
     height: 100vh;
     height: -webkit-fill-available;
   }
-  
+
   body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
@@ -927,7 +934,7 @@ h6 {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Force scroll to hide address bar but maintain scrollability */
   body::before {
     content: '';
@@ -939,6 +946,7 @@ h6 {
     background: transparent;
     z-index: -1;
   }
+}
 /* Hide the selected checkmark icon in Select dropdown */
 .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-state {
