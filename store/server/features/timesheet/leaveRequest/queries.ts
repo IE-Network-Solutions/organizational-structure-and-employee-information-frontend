@@ -137,7 +137,7 @@ export const useGetApprovalLeaveRequest = (
 ) => {
   const token = useAuthenticationStore.getState().token;
   return useQuery<any>(
-    ['current_approval', requesterId, limit, page],
+    ['current_approval'],
     () => getApprovalLeaveRequest(requesterId, page, limit),
     {
       keepPreviousData: true,
