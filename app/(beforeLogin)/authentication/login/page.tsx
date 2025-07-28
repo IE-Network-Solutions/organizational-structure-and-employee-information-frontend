@@ -40,9 +40,8 @@ const Login: FC = () => {
       },
       {
         onSuccess: async (data) => {
-         
           if (data?.is2FAEnabled === false) {
-           return await handleSignIn(() =>
+            return await handleSignIn(() =>
               signInWithEmailAndPassword(auth, values.email, values.password),
             );
           } else {
@@ -53,8 +52,6 @@ const Login: FC = () => {
             setLocalId(data?.uid);
             setIs2FA(true);
           }
-
-         
         },
       },
     );

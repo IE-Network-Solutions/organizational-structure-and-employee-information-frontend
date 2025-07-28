@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Col, Row, Select } from 'antd';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -54,6 +54,7 @@ const Filters: React.FC<FiltersProps> = ({
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
   const { setMonthId, setYearId, setSessionId } = useTnaReviewStore();
+  const initialSearchTriggered = useRef(false);
 
   useEffect(() => {
     setMonthId(searchValue.monthId);
@@ -89,12 +90,20 @@ const Filters: React.FC<FiltersProps> = ({
           setSessions(selectedYear.sessions || []);
           setMonths(selectedSession?.months || []);
 
-          setSearchValue((prev) => ({
-            ...prev,
-            yearId: prev.yearId || selectedYear.id || '',
-            sessionId: prev.sessionId || selectedSession?.id || '',
-            monthId: prev.monthId || selectedMonth?.id || '',
-          }));
+          const newSearchValue = {
+            ...searchValue,
+            yearId: selectedYear.id || '',
+            sessionId: selectedSession?.id || '',
+            monthId: selectedMonth?.id || '',
+          };
+
+          setSearchValue(newSearchValue);
+
+          // Only trigger onSearch once on mount
+          if (!initialSearchTriggered.current) {
+            onSearch(newSearchValue);
+            initialSearchTriggered.current = true;
+          }
         }
       } else {
         // If yearId/sessionId/monthId are already set, update sessions/months for the selected year/session
@@ -358,18 +367,10 @@ const Filters: React.FC<FiltersProps> = ({
             )}
 
             {!disable?.includes('division') && (
-              <Col
-                xs={24}
-                sm={24}
-                md={3}
-                lg={3}
-                xl={3}
-              >
+              <Col xs={24} sm={24} md={3} lg={3} xl={3}>
                 <Select
                   placeholder="Select division"
-                  onChange={(value) =>
-                    handleSelectChange('divisionId', value)
-                  }
+                  onChange={(value) => handleSelectChange('divisionId', value)}
                   value={searchValue.divisionId}
                   allowClear
                   style={{ width: '100%', height: '48px' }}

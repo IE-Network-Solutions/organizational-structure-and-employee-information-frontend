@@ -10,7 +10,7 @@ const CoursePermitted: React.FC = () => {
   return (
     <Card
       loading={isLoading}
-      className="w-full mx-auto min-h-28  py-3 px-5"
+      className="w-full mx-auto min-h-28  py-3 px-5 shadow-lg"
       bodyStyle={{ padding: '0px', margin: '0px' }}
     >
       <div className="flex justify-between items-center mb-2"></div>

@@ -38,7 +38,6 @@ const ApprovalFilter = () => {
     setApproverType('');
   };
   return (
-
     <div className="flex justify-between gap-4 sm:block">
       <div className="flex-1">
         <ApprovalFilterComponent

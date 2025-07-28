@@ -29,9 +29,23 @@ const ApprovalStatus: FC = () => {
   };
 
   return (
-    <div className="bg-white p-3 rounded-lg w-full">
+    <div className="bg-white p-3 rounded-lg w-full shadow-lg">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-lg font-bold">Approval Status</h4>
+        <div className="">
+          {' '}
+          <div className="text-base lg:text-xl font-bold">Approval Status</div>
+          <div className="text-xs font-normal text-[#687588]">
+            {`${
+              approverType == 'Leave'
+                ? `${LeaveTransferData?.meta?.totalItems || LeaveTransferData?.items?.length || 0} Leave `
+                : approverType == 'BranchRequest'
+                  ? `${BranchTransferData?.meta?.totalItems || BranchTransferData?.items?.length || 0} Branch `
+                  : ''
+            }`}
+            Waiting For Your Approval
+          </div>
+        </div>
+
         <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
           <Select
             placeholder="select"
