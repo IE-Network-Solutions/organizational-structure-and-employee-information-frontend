@@ -25,8 +25,10 @@ export interface RecruitmentDashboardState {
     setJobPostJobId: (jobPostJobId: string) => void;
     jobPostSearch: string;
     setJobPostSearch: (jobPostSearch: string) => void;
-
-
+    jobPostStartDate: string;
+    setJobPostStartDate: (jobPostStartDate: string) => void;
+    jobPostEndDate: string;
+    setJobPostEndDate: (jobPostEndDate: string) => void;
 }
 
 export const useRecruitmentDashboardStore = create<RecruitmentDashboardState>(
@@ -55,5 +57,9 @@ export const useRecruitmentDashboardStore = create<RecruitmentDashboardState>(
         setJobPostJobId: (jobPostJobId: string) => set({ jobPostJobId }),
         jobPostSearch: '',
         setJobPostSearch: (jobPostSearch: string) => set({ jobPostSearch }),
+        jobPostStartDate: '',
+        setJobPostStartDate: (jobPostStartDate: string) => set({ jobPostStartDate }),
+        jobPostEndDate: '',
+        setJobPostEndDate: (jobPostEndDate: string) => set({ jobPostEndDate }),
     }),
 );

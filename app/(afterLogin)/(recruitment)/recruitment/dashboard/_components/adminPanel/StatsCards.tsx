@@ -1,23 +1,28 @@
 import React from 'react';
-import { Card } from 'antd';
+import { Card, Skeleton } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
+import { useGetRecruitmentDashboard } from '@/store/server/features/recruitment/dashboard/queries';
 
 interface StatData {
   title: string;
-  value: string;
-  OtherValue: string;
+  value: number;
+  OtherValue: number;
   icon: React.ReactNode;
   color: string;
   otherTitle: string;
 }
 
 const StatsCards: React.FC = () => {
+  const { data: statsDatas, isLoading } = useGetRecruitmentDashboard();
+
+  const dashboardData = statsDatas?.dashboard;
+
   const statsData: StatData[] = [
     {
       title: 'Posted Job',
       otherTitle: 'Department',
-      OtherValue: '6',
-      value: '206',
+      OtherValue: dashboardData?.posted_jobDepartments || 0,
+      value: dashboardData?.posted_totalJobs || 0,
       icon: <TeamOutlined className="text-blue" />,
       color: ' text-purple-600',
     },
@@ -25,8 +30,8 @@ const StatsCards: React.FC = () => {
     {
       title: 'Active Job',
       otherTitle: 'Department',
-      OtherValue: '6',
-      value: '206',
+      OtherValue: dashboardData?.departments || 0,
+      value: dashboardData?.active_open_jobs || 0,
       icon: <TeamOutlined className="text-blue" />,
       color: ' text-purple-600',
     },
@@ -34,8 +39,8 @@ const StatsCards: React.FC = () => {
     {
       title: 'Total Participants',
       otherTitle: 'Applied Job',
-      OtherValue: '6',
-      value: '206',
+      OtherValue: dashboardData?.appliedJobs || 0,
+      value: dashboardData?.totalCandidates || 0,
       icon: <TeamOutlined className="text-blue" />,
       color: ' text-purple-600',
     },
@@ -43,8 +48,8 @@ const StatsCards: React.FC = () => {
     {
       title: 'Hired Candidates',
       otherTitle: 'Department',
-      OtherValue: '6',
-      value: '206',
+      OtherValue: dashboardData?.jobCandidate_Departments || 0,
+      value: dashboardData?.hired_totalJobCandidaten || 0,
       icon: <TeamOutlined className="text-blue" />,
       color: ' text-purple-600',
     },
@@ -52,11 +57,13 @@ const StatsCards: React.FC = () => {
 
   return (
     <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+
       {statsData.map((stat, index) => (
         <Card
           bodyStyle={{ padding: 10 }}
           key={index}
-          className="h-full hover:shadow-md transition-shadow "
+          className="h-full hover:shadow-md transition-shadow"
+          loading={isLoading}
         >
           <div className="flex justify-between">
             <div className="flex flex-col">

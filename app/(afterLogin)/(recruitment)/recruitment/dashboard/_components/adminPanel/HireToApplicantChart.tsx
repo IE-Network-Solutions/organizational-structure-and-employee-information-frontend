@@ -1,7 +1,7 @@
 'use client';
 
 import { Bar } from 'react-chartjs-2';
-import { Card } from 'antd';
+import { Card, Spin } from 'antd';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { useGetHiredApplicantTrend } from '@/store/server/features/recruitment/dashboard/queries';
 
 ChartJS.register(
   CategoryScale,
@@ -20,35 +21,6 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-
-const data = {
-  labels: [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'June',
-    'July',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ],
-  datasets: [
-    {
-      label: 'Hired',
-      data: [60, 70, 50, 40, 80, 90, 85, 30, 40, 70, 80, 90],
-      backgroundColor: '#4A6CF7',
-    },
-    {
-      label: 'Applicant',
-      data: [30, 20, 60, 70, 90, 70, 75, 60, 50, 80, 60, 95],
-      backgroundColor: '#FA916B',
-    },
-  ],
-};
 
 const options = {
   responsive: true,
@@ -66,12 +38,39 @@ const options = {
 };
 
 export default function HireToApplicantChart() {
+  const { data: hiredApplicantTrend, isLoading } = useGetHiredApplicantTrend();
+
+  // Transform API data to chart format
+  const chartData = {
+    labels: hiredApplicantTrend?.map((item: any) => item.month) || [],
+    datasets: [
+      {
+        label: 'Hired',
+        data: hiredApplicantTrend?.map((item: any) => item.hired) || [],
+        backgroundColor: '#4A6CF7',
+      },
+      {
+        label: 'Applicant',
+        data: hiredApplicantTrend?.map((item: any) => item.applicant) || [],
+        backgroundColor: '#FA916B',
+      },
+    ],
+  };
+
+  console.log(hiredApplicantTrend, 'hiredApplicantTrend');
+
   return (
     <Card className="shadow-sm">
       <h3 className="font-semibold mb-4 text-[16px]">
         Hire to applicant Trend
       </h3>
-      <Bar options={options} data={data} height={180} />
+      {isLoading ? (
+        <div className="flex justify-center items-center h-[180px]">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Bar options={options} data={chartData} height={180} />
+      )}
     </Card>
   );
 }

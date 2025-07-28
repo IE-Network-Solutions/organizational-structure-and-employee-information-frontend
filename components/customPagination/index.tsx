@@ -40,11 +40,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
-              current === i
-                ? 'bg-[#F8F8F8] text-[#111827] '
-                : 'bg-white text-[#111827]'
-            }`}
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${current === i
+              ? 'bg-[#F8F8F8] text-[#111827] '
+              : 'bg-white text-[#111827]'
+              }`}
           >
             {i}
           </button>,
@@ -56,11 +55,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
-            current === 1
-              ? 'bg-[#F8F8F8] text-[#111827]'
-              : 'bg-white text-[#111827]'
-          }`}
+          className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${current === 1
+            ? 'bg-[#F8F8F8] text-[#111827]'
+            : 'bg-white text-[#111827]'
+            }`}
         >
           1
         </button>,
@@ -94,11 +92,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${
-              current === i
-                ? 'bg-[#F8F8F8] text-[#111827] '
-                : 'bg-white text-[#111827] '
-            }`}
+            className={`w-8 h-8 flex items-center justify-center rounded-[10px] ${current === i
+              ? 'bg-[#F8F8F8] text-[#111827] '
+              : 'bg-white text-[#111827] '
+              }`}
           >
             {i}
           </button>,
@@ -119,11 +116,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          className={`w-8 h-8 flex items-center justify-center  rounded-[10px] ${
-            current === totalPages
-              ? 'bg-[#F8F8F8] text-[#111827] '
-              : 'bg-white text-[#111827]  hover:bg-gray-100'
-          }`}
+          className={`w-8 h-8 flex items-center justify-center  rounded-[10px] ${current === totalPages
+            ? 'bg-[#F8F8F8] text-[#111827] '
+            : 'bg-white text-[#111827]  hover:bg-gray-100'
+            }`}
         >
           {totalPages}
         </button>,
@@ -140,11 +136,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
-          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
-            current === 1
-              ? 'text-[#111827] border-gray-200'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100'
-          }`}
+          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${current === 1
+            ? 'text-[#111827] border-gray-200'
+            : 'text-[#111827] border-gray-300 hover:bg-gray-100'
+            }`}
         >
           <LeftOutlined />
         </button>
@@ -152,11 +147,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
-          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
-            current === totalPages
-              ? 'text-[#111827] border-gray-200'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100'
-          }`}
+          className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${current === totalPages
+            ? 'text-[#111827] border-gray-200'
+            : 'text-[#111827] border-gray-300 hover:bg-gray-100'
+            }`}
         >
           <RightOutlined />
         </button>
@@ -164,8 +158,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       <div className="flex items-center">
         {!isMobile && (
           <span className="mr-2 text-xs text-[#718096]">
-            Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
-            {Math.min(total, current * pageSize)} out of {total} entries
+            Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
+            {Math.min(total, current * pageSize) || 0} out of {total || 0} entries
           </span>
         )}
         <Select
@@ -173,8 +167,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           className="w-24 h-8"
           onChange={(value) => handleSizeChange(value)}
         >
-          <Option value={4}>
-            <span className="text-xs text-[#111827]">Show 4</span>
+          <Option value={5}>
+            <span className="text-xs text-[#111827]">Show 5</span>
           </Option>
           <Option value={10}>
             <span className="text-xs text-[#111827]">Show 10</span>
