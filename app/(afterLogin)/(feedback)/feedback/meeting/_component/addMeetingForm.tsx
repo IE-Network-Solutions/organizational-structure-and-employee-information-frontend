@@ -142,7 +142,7 @@ export default function AddNewMeetingForm() {
   const meetingTypeId = Form.useWatch('meetingTypeId', form);
 
   // You can now use meetingTypeId reactively anywhere in your component
-  useEffect(() => {}, [meetingTypeId]);
+  useEffect(() => { }, [meetingTypeId]);
   const { data: meetingAgendaTemplate } = useGetMeetingAgendaTemplate(
     meetingTypeId || '',
   );
@@ -351,9 +351,12 @@ export default function AddNewMeetingForm() {
             <Form.Item
               label="Date"
               name="date"
-              rules={[{ required: true, message: 'Please select date' }]}
+              rules={[{ required: true, message: 'Please select date1' }]}
             >
-              <DatePicker className="w-full h-[54px]" />
+              <DatePicker
+                className="w-full h-[54px]"
+                disabledDate={(current) => current && current < dayjs().startOf('day')}
+              />
             </Form.Item>
 
             <Form.Item
@@ -616,7 +619,7 @@ export default function AddNewMeetingForm() {
           <Form.Item
             label="Templates"
             name="template"
-            // rules={[{ required: true, message: 'Please select a template' }]}
+          // rules={[{ required: true, message: 'Please select a template' }]}
           >
             <Select
               showSearch
