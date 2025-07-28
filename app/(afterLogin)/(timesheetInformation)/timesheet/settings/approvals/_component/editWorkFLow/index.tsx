@@ -7,7 +7,7 @@ import {
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
-import { Form } from 'antd';
+import { Card, Form } from 'antd';
 import { useEffect } from 'react';
 
 const EditWorkFLow = () => {
@@ -26,8 +26,9 @@ const EditWorkFLow = () => {
     setLevel,
     setSelections,
   } = useApprovalStore();
-  const { data: department } = useGetDepartments();
-  const { data: users } = useGetAllUsers();
+  const { data: department, isLoading: departmentLoading } =
+    useGetDepartments();
+  const { data: users, isLoading: usersLoading } = useGetAllUsers();
   const { mutate: EditApprover } = useUpdateAssignedUserMutation();
   const { mutate: deleteApprover } = useDeleteApprover();
   const { mutate: deleteParallelApprover } = useDeleteParallelApprover();
@@ -120,27 +121,35 @@ const EditWorkFLow = () => {
     }
   };
   return (
-    <EditApproverComponent
-      editModal={editModal}
-      handleSubmit={handleSubmit}
-      form={form}
-      onClose={onClose}
-      customFieldsDrawerHeader={'Edit Approval WorkFLow'}
-      selectedItem={selectedItem}
-      department={department}
-      users={users}
-      level={level}
-      workflowApplies={workflowApplies}
-      initialValues={initialValues}
-      approverType={approverType}
-      handleUserChange={handleUserChange}
-      handleDeselect={handleDeselect}
-      handleDeleteConfirm={handleDeleteConfirm}
-      deleteModal={deleteModal}
-      deletedApprover={deletedApprover}
-      setDeleteModal={setDeleteModal}
-      setDeletedApprover={setDeletedApprover}
-    />
+    <Card
+      loading={departmentLoading || usersLoading}
+      bodyStyle={{
+        padding: '0px',
+        margin: '0px',
+      }}
+    >
+      <EditApproverComponent
+        editModal={editModal}
+        handleSubmit={handleSubmit}
+        form={form}
+        onClose={onClose}
+        customFieldsDrawerHeader={'Edit Approval WorkFLow'}
+        selectedItem={selectedItem}
+        department={department}
+        users={users}
+        level={level}
+        workflowApplies={workflowApplies}
+        initialValues={initialValues}
+        approverType={approverType}
+        handleUserChange={handleUserChange}
+        handleDeselect={handleDeselect}
+        handleDeleteConfirm={handleDeleteConfirm}
+        deleteModal={deleteModal}
+        deletedApprover={deletedApprover}
+        setDeleteModal={setDeleteModal}
+        setDeletedApprover={setDeletedApprover}
+      />
+    </Card>
   );
 };
 
