@@ -351,7 +351,7 @@ export default function AddNewMeetingForm() {
             <Form.Item
               label="Date"
               name="date"
-              rules={[{ required: true, message: 'Please select date1' }]}
+              rules={[{ required: true, message: 'Please select date' }]}
             >
               <DatePicker
                 className="w-full h-[54px]"
