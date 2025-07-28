@@ -180,6 +180,7 @@ const PercentageView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
+                disabled={isEdit}
               />
             </Form.Item>
           </div>
@@ -310,6 +311,7 @@ const PercentageView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
+                disabled={isEdit}
               />
             </Form.Item>
 
