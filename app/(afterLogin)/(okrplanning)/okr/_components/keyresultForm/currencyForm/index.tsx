@@ -267,7 +267,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     (metric) => metric.name === keyItem.key_type,
                   )?.id || ''
                 }
-
               >
                 <Option value="" disabled>
                   Please select a metric type

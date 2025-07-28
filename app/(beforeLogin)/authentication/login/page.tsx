@@ -13,10 +13,6 @@ import { Google } from '@/components/Icons/google';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useHandleSignIn } from './_components/signinHandler';
 import Link from 'next/link';
-import TwoFactorAuth from './_components/2fa';
-import SimpleLogo from '@/components/common/logo/simpleLogo';
-import { useGet2FACode } from '@/store/server/features/authentication/mutation';
-
 
 type FieldType = {
   email: string;

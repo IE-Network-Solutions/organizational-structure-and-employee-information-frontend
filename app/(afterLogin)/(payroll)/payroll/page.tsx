@@ -841,7 +841,6 @@ const Payroll = () => {
     employeeData: emp,
   }));
 
-
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
@@ -927,7 +926,6 @@ const Payroll = () => {
                             ? payroll?.divisionUsers?.length
                             : allEmployees?.items?.length}{' '}
                           total).
-
                         </p>
                       ) : (
                         <p>
@@ -936,7 +934,6 @@ const Payroll = () => {
                             ? payroll?.divisionUsers?.length
                             : allEmployees?.items?.length}{' '}
                           employees.
-
                         </p>
                       )
                     ) : (
@@ -963,7 +960,6 @@ const Payroll = () => {
                         (searchValue?.divisionId
                           ? payroll?.divisionUsers?.length
                           : allEmployees?.items?.length)
-
                       ? 'Send to Filtered'
                       : 'Send to All'
                 }
@@ -985,7 +981,6 @@ const Payroll = () => {
                           (searchValue?.divisionId
                             ? payroll?.divisionUsers?.length
                             : allEmployees?.items?.length)
-
                         ? `Will send to ${mergedPayroll?.length} filtered employee(s)`
                         : 'Will send to all employees'
                   }
