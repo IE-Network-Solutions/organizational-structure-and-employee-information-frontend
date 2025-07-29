@@ -35,15 +35,20 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { usePathname } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
+import { Key } from 'react';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
   isImport: boolean;
+  selectedRowKeys?: Key[];
+  setSelectedRowKeys?: (keys: Key[]) => void;
 }
 
 const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   setBodyRequest,
   isImport,
+  selectedRowKeys,
+  setSelectedRowKeys,
 }) => {
   const [tableData, setTableData] = useState<any[]>([]);
   const pathname = usePathname();
@@ -270,6 +275,22 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
+  const handleRowSelection = (selectedKeys: Key[]) => {
+    const currentPageKeys = tableData.map((row) => row.key);
+
+    const previousSelectedKeys =
+      selectedRowKeys?.filter((key) => !currentPageKeys.includes(key)) || [];
+
+    const allSelectedKeys = [...previousSelectedKeys, ...selectedKeys];
+
+    setSelectedRowKeys?.(allSelectedKeys);
+  };
+  const getCurrentPageSelectedKeys = () => {
+    const currentPageKeys = tableData.map((row) => row.key);
+    return (
+      selectedRowKeys?.filter((key) => currentPageKeys.includes(key)) || []
+    );
+  };
 
   return (
     <>
@@ -282,7 +303,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             loading={isFetching}
             columns={columns}
             dataSource={tableData}
-            rowSelection={{ checkStrictly: false }}
+            rowSelection={{
+              checkStrictly: false,
+              selectedRowKeys: getCurrentPageSelectedKeys(),
+              onChange: handleRowSelection,
+            }}
             pagination={false}
             rowClassName={() => 'h-[60px]'}
             scroll={{ x: 'max-content' }}
