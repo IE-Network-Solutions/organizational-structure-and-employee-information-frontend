@@ -400,11 +400,40 @@ h6 {
   border: none !important;
 }
 
-
-
 /* For mobile */
 .mobile-switcher .ant-tree-switcher {
-  width: 10px !important;
+  width: 24px !important;
+}
+.mobile-switcher .ant-tree-switcher-leaf-line {
+  left: -14px !important;
+}
+.mobile-switcher
+  .ant-tree-switcher-open
+  .ant-tree-node-content-wrapper
+  .ant-tree-node-content-wrapper-open {
+  left: -10px !important;
+}
+
+/* Align parent task icon with tree lines in mobile view */
+@media (max-width: 768px) {
+  .mobile-switcher
+    .ant-tree-treenode:first-child
+    .ant-tree-node-content-wrapper {
+    padding-left: 4px !important;
+  }
+
+  .mobile-switcher .ant-tree-treenode:first-child .ant-tree-title {
+    margin-left: -12px !important;
+  }
+
+  /* Move all tree data closer to the horizontal lines */
+  .mobile-switcher .ant-tree-node-content-wrapper {
+    padding-left: 8px !important;
+  }
+
+  .mobile-switcher .ant-tree-title {
+    margin-left: -20px !important;
+  }
 }
 
 /* For desktop */

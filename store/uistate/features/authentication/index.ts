@@ -1,5 +1,5 @@
 import { setCookie } from '@/helpers/storageHelper';
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 interface StoreState {
@@ -106,7 +106,7 @@ export const useAuthenticationStore = create<StoreState>()(
         name: 'authentications-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
         partialize: (state) => ({
-          token: state.token,
+          tok: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,

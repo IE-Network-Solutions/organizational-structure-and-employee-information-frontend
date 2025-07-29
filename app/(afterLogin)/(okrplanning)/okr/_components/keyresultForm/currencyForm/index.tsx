@@ -25,13 +25,13 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
-        className="absolute top-2 right-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-5 h-5 flex items-center justify-center shadow"
+        className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
         style={{ zIndex: 10 }}
         id={`remove-key-result-${index}`}
       >
         <svg
-          width="15"
-          height="15"
+          width="12"
+          height="12"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -44,13 +44,23 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
           />
         </svg>
       </button>
-      <Form form={form} initialValues={keyItem} layout="vertical">
+      <Form
+        form={form}
+        initialValues={{
+          ...keyItem,
+          initialValue:
+            keyItem.initialValue === 0 ? undefined : keyItem.initialValue,
+          targetValue:
+            keyItem.targetValue === 0 ? undefined : keyItem.targetValue,
+        }}
+        layout="vertical"
+      >
         {/* Desktop Layout */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-2 items-center mt-4 mx-4`}
         >
           <Form.Item
-            className="flex-1 mb-0"
+            className="flex-1 mr-2 mb-0"
             name={`key_name_${index}`}
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
@@ -66,7 +76,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             />
           </Form.Item>
           <Form.Item
-            className="flex-1 mb-0"
+            className="w-48 mb-0"
             rules={[
               { required: true, message: 'Please select a Key Result type' },
             ]}
@@ -101,7 +111,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             </Select>
           </Form.Item>
           <Form.Item
-            className="w-32 mb-0"
+            className="w-24 mb-0"
             name={`weight_${index}`}
             rules={[{ required: true, message: 'Please enter the weight' }]}
             id={`weight-input-${index}`}
@@ -111,6 +121,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               min={0}
               max={100}
               suffix="%"
+              placeholder="100"
               value={keyItem.weight}
               onChange={(value) => updateKeyResult(index, 'weight', value)}
               aria-label="Weight"
@@ -148,33 +159,71 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         </div>
         {/* Desktop Currency input row */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4 mx-4`}
         >
-          <Form.Item className="mb-0" name="initialValue">
+          <Form.Item
+            className="w-60 mb-0"
+            name="initialValue"
+            rules={[
+              { required: true, message: 'Please enter the initial value' },
+            ]}
+          >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
               min={0}
               placeholder="Initial Value"
               addonAfter={<span className="text-base">$</span>}
-              value={keyItem.initialValue}
+              value={
+                keyItem.initialValue === 0 ? undefined : keyItem.initialValue
+              }
               onChange={(value) =>
                 updateKeyResult(index, 'initialValue', value)
               }
+              onKeyPress={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  e.key !== 'Backspace' &&
+                  e.key !== 'Delete' &&
+                  e.key !== 'Tab' &&
+                  e.key !== '.'
+                ) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Form.Item>
-          <Form.Item className="mb-0" name="targetValue">
+          <Form.Item
+            className="w-60 mb-0"
+            name="targetValue"
+            rules={[
+              { required: true, message: 'Please enter the target value' },
+            ]}
+          >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
               min={0}
               placeholder="Target Value"
               addonAfter={<span className="text-base">$</span>}
-              value={keyItem.targetValue}
+              value={
+                keyItem.targetValue === 0 ? undefined : keyItem.targetValue
+              }
               onChange={(value) => updateKeyResult(index, 'targetValue', value)}
+              onKeyPress={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  e.key !== 'Backspace' &&
+                  e.key !== 'Delete' &&
+                  e.key !== 'Tab' &&
+                  e.key !== '.'
+                ) {
+                  e.preventDefault();
+                }
+              }}
             />
           </Form.Item>
         </div>
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4`}>
+        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}>
           {/* Row 1: Key Result Name */}
           <Form.Item
             className="mb-0"
@@ -193,9 +242,9 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             />
           </Form.Item>
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Form.Item
-              className="flex-1 mb-0"
+              className="w-48 mb-0"
               rules={[
                 { required: true, message: 'Please select a Key Result type' },
               ]}
@@ -240,6 +289,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 min={0}
                 max={100}
                 suffix="%"
+                placeholder="100"
                 value={keyItem.weight}
                 onChange={(value) => updateKeyResult(index, 'weight', value)}
                 aria-label="Weight"
@@ -276,29 +326,67 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 3: Initial Value and Target Value */}
-          <div className="flex gap-3">
-            <Form.Item className="flex-1 mb-0" name="initialValue">
+          <div className="flex gap-4 pl-4">
+            <Form.Item
+              className="flex-1 mb-0"
+              name="initialValue"
+              rules={[
+                { required: true, message: 'Please enter the initial value' },
+              ]}
+            >
               <InputNumber
                 className="w-full h-10 rounded-lg text-base"
                 min={0}
                 placeholder="Initial Value"
                 addonAfter={<span className="text-base">$</span>}
-                value={keyItem.initialValue}
+                value={
+                  keyItem.initialValue === 0 ? undefined : keyItem.initialValue
+                }
                 onChange={(value) =>
                   updateKeyResult(index, 'initialValue', value)
                 }
+                onKeyPress={(e) => {
+                  if (
+                    !/[0-9]/.test(e.key) &&
+                    e.key !== 'Backspace' &&
+                    e.key !== 'Delete' &&
+                    e.key !== 'Tab' &&
+                    e.key !== '.'
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </Form.Item>
-            <Form.Item className="flex-1 mb-0" name="targetValue">
+            <Form.Item
+              className="flex-1 mb-0"
+              name="targetValue"
+              rules={[
+                { required: true, message: 'Please enter the target value' },
+              ]}
+            >
               <InputNumber
                 className="w-full h-10 rounded-lg text-base"
                 min={0}
                 placeholder="Target Value"
                 addonAfter={<span className="text-base">$</span>}
-                value={keyItem.targetValue}
+                value={
+                  keyItem.targetValue === 0 ? undefined : keyItem.targetValue
+                }
                 onChange={(value) =>
                   updateKeyResult(index, 'targetValue', value)
                 }
+                onKeyPress={(e) => {
+                  if (
+                    !/[0-9]/.test(e.key) &&
+                    e.key !== 'Backspace' &&
+                    e.key !== 'Delete' &&
+                    e.key !== 'Tab' &&
+                    e.key !== '.'
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </Form.Item>
           </div>

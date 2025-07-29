@@ -34,11 +34,12 @@ const Plan = () => {
 
   return (
     <Card
+      bodyStyle={{ padding: '0px' }}
       loading={plannedTaskForReportLoading}
-      className="bg-white  rounded-lg p-1 "
+      className="bg-white shadow-lg rounded-lg p-1 lg:p-5 "
     >
       <div className="flex justify-between p-2 items-center ">
-        <div className="text-lg  font-bold ">My Plan</div>
+        <div className="text-lg  font-bold ">My Plans</div>
         <div className="pl-2 ">
           <Select
             defaultValue={planType}

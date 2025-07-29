@@ -3,10 +3,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { PAYROLL_URL } from '@/utils/constants';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Create settlement tracking
 const createSettlementTracking = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -57,7 +58,7 @@ const updateSettlementTracking = async ({
   id: string;
   values: any;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -102,7 +103,7 @@ export const useUpdateSettlementTracking = () => {
 };
 
 const deleteSettlementTrackingByEmployeeId = async (employeeId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
@@ -120,7 +121,7 @@ const deleteSettlementTrackingByEmployeeId = async (employeeId: string) => {
 };
 // Delete settlement tracking
 const deleteSettlementTracking = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {

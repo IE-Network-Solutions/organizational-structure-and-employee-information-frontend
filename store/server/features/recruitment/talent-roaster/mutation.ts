@@ -3,16 +3,17 @@ import { RECRUITMENT_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // Fetch token and tenantId from the authentication store
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 const createTalentRoaster = async (data: any) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-roaster`,
     method: 'POST',
@@ -22,6 +23,11 @@ const createTalentRoaster = async (data: any) => {
 };
 
 const updateTalentRoaster = async (id: string, data: any) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-roaster/${id}`,
     method: 'PUT',
@@ -31,6 +37,11 @@ const updateTalentRoaster = async (id: string, data: any) => {
 };
 
 const deleteTalentRoaster = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${RECRUITMENT_URL}/talent-roaster/${id}`,
     method: 'DELETE',

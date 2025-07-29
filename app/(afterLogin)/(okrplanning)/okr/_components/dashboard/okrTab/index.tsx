@@ -76,9 +76,10 @@ export default function OkrTab() {
     teamPageSize,
     teamCurrentPage,
     users,
-    searchObjParams.userId,
-    searchObjParams?.metricTypeId,
+    searchObjParams.userId || userId, // Use current userId if searchObjParams.userId is empty
+    searchObjParams?.metricTypeId || '', // Provide empty string as fallback
   );
+
   const {
     data: companyObjective,
     isLoading: companyLoading,
@@ -131,8 +132,9 @@ export default function OkrTab() {
   }
 
   return (
-    <div className="mt-6">
+    <div id="okr-tab-container" className="mt-6">
       <DynamicTabs
+        id="okr-tabs"
         defaultActiveKey="1"
         onChange={(key) => setOkrTab(key)}
         items={[
@@ -140,7 +142,7 @@ export default function OkrTab() {
             key: '1',
             label: 'My OKR',
             children: (
-              <div>
+              <div id="my-okr-tab-content">
                 <OkrProgress />
                 {isLoading && (
                   <Spin
@@ -150,7 +152,7 @@ export default function OkrTab() {
                   />
                 )}
                 {userObjectives?.items?.length !== 0 && (
-                  <div>
+                  <div id="my-okr-objectives-list">
                     {userObjectives?.items?.map((obj: any) => (
                       <ObjectiveCard
                         key={obj.id}
@@ -189,7 +191,7 @@ export default function OkrTab() {
                   </div>
                 )}
                 {userObjectives?.items?.length === 0 && (
-                  <div className="flex justify-center">
+                  <div id="my-okr-empty-state" className="flex justify-center">
                     <EmptyImage />
                   </div>
                 )}
@@ -202,7 +204,7 @@ export default function OkrTab() {
                   key: '2',
                   label: 'Team OKR',
                   children: (
-                    <div>
+                    <div id="team-okr-tab-content">
                       <OkrProgress />
                       {teamLoading && (
                         <Spin
@@ -212,7 +214,7 @@ export default function OkrTab() {
                         />
                       )}
                       {teamObjective?.items?.length !== 0 && (
-                        <div>
+                        <div id="team-okr-objectives-list">
                           {teamObjective?.items?.map((obj: any) => (
                             <ObjectiveCard
                               key={obj.id}
@@ -253,7 +255,10 @@ export default function OkrTab() {
                         </div>
                       )}
                       {teamObjective?.items?.length === 0 && (
-                        <div className="flex justify-center">
+                        <div
+                          id="team-okr-empty-state"
+                          className="flex justify-center"
+                        >
                           <EmptyImage />
                         </div>
                       )}
@@ -268,7 +273,7 @@ export default function OkrTab() {
                   key: '3',
                   label: 'Company OKR',
                   children: (
-                    <div>
+                    <div id="company-okr-tab-content">
                       {companyLoading && (
                         <Spin
                           size="large"
@@ -278,7 +283,7 @@ export default function OkrTab() {
                       )}
                       <OkrProgress />
                       {companyObjective?.items?.length !== 0 && (
-                        <div>
+                        <div id="company-okr-objectives-list">
                           {companyObjective?.items?.map((obj: any) => (
                             <ObjectiveCard
                               key={obj.id}
@@ -319,7 +324,10 @@ export default function OkrTab() {
                         </div>
                       )}
                       {companyObjective?.items?.length === 0 && (
-                        <div className="flex justify-center">
+                        <div
+                          id="company-okr-empty-state"
+                          className="flex justify-center"
+                        >
                           <EmptyImage />
                         </div>
                       )}
@@ -330,7 +338,7 @@ export default function OkrTab() {
                   key: '4',
                   label: 'All Employee OKR',
                   children: (
-                    <div>
+                    <div id="all-employee-okr-tab-content">
                       <EmployeeOKRTable />
                     </div>
                   ),

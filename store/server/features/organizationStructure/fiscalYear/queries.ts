@@ -4,9 +4,10 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { FiscalYear, FiscalYearResponse } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { requestHeader } from '@/helpers/requestHeader';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getAllFiscalYears = async (pageSize?: number, currentPage?: number) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -21,7 +22,7 @@ const getAllFiscalYears = async (pageSize?: number, currentPage?: number) => {
 
 //fetching active calendars
 const getActiveFiscalYear = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -35,10 +36,11 @@ const getActiveFiscalYear = async () => {
 };
 
 const getFiscalYear = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import React, { useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,11 +13,13 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import {
-  useGetVPLineGraphData,
   useGetAllMonth,
+  useGetVPLineGraphData,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import { Skeleton } from 'antd';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useDashboardVPStore } from '@/store/uistate/features/dashboard/vp';
+import { Select } from 'antd';
 import dayjs from 'dayjs';
 
 ChartJS.register(
@@ -45,123 +48,151 @@ interface PayCardInterface {
 
 const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   const userId = useAuthenticationStore?.getState().userId;
-  const { data: getAllMonth } = useGetAllMonth();
-  const identifier = id ?? userId;
 
-  const { data: lineGraph, isLoading: isGraphLoading } =
-    useGetVPLineGraphData(identifier);
-  const getMonthName = (id: string) => {
-    return (
-      getAllMonth?.items?.find((monthItem: any) => monthItem?.id === id) ?? {}
-    );
+  const { data: activeFiscalYear } = useGetActiveFiscalYears();
+  const { data: monthData } = useGetAllMonth();
+
+  const identifier = id ?? userId;
+  const { data: lineGraph } = useGetVPLineGraphData(identifier);
+  const { type, displayData, setDisplayData, setType } = useDashboardVPStore();
+  const requests = [
+    {
+      type: 'Quarterly',
+      value: 'Quarterly',
+    },
+    {
+      type: 'Yearly',
+      value: 'Yearly',
+    },
+  ];
+  const handleChange = (value: string) => {
+    setType(value);
   };
 
-  const dataValue = lineGraph?.map((item: any) => {
-    const monthData = getMonthName(item?.monthId);
+  useEffect(() => {
+    if (type === 'Quarterly') {
+      const session = activeFiscalYear?.sessions?.find(
+        (item: any) => item.active,
+      );
+      const month = session?.months;
 
-    if (!monthData?.startDate || !monthData?.endDate) {
-      return {
-        ...item,
-        monthName: '',
-        MonthsName: '',
-      };
+      if (month) {
+        const filteredData = lineGraph
+          ?.filter((item: any) =>
+            month?.some((m: any) => m.id === item.monthId),
+          )
+          ?.map((item: any) => {
+            const matchedMonth = month?.find((m: any) => m.id === item.monthId);
+            return {
+              ...item,
+              monthName: matchedMonth?.startDate
+                ? dayjs(matchedMonth.startDate).format('MMMM')
+                : matchedMonth?.name,
+            };
+          });
+
+        setDisplayData(filteredData);
+      } else {
+        setDisplayData([]);
+      }
+    } else if (type === 'Yearly') {
+      if (monthData) {
+        const filteredData = lineGraph?.map((item: any) => {
+          const matchedMonth = monthData?.items?.find(
+            (m: any) => m.id === item.monthId,
+          );
+          return {
+            ...item,
+            monthName: matchedMonth?.startDate
+              ? dayjs(matchedMonth.startDate).format('MMMM')
+              : matchedMonth?.name,
+          };
+        });
+        setDisplayData(filteredData);
+      } else {
+        setDisplayData(lineGraph);
+      }
     }
-
-    const startDate = dayjs(monthData?.startDate);
-    const endDate = dayjs(monthData?.endDate);
-
-    const formattedStartDate = startDate.format('MMM D');
-    const formattedEndDate = endDate.format('MMM D');
-
-    return {
-      ...item,
-      monthName: monthData?.name ?? '',
-      monthRange: `${formattedStartDate} - ${formattedEndDate}`,
-    };
-  });
-  if (isGraphLoading) {
-    return (
-      <div>
-        <Skeleton active />
-      </div>
-    );
-  }
-
-  // Legend color references
-  const legendItems = [
-    { color: '#4C4CFF', label: 'Highest Average Score' },
-    { color: '#A5A6F6', label: 'Average Score' },
-    { color: '#E9E9FF', label: 'Low Average Score' },
-  ];
-
-  // Find highest and lowest values
-  const scores = dataValue?.map((item: any) => item?.vpScore) || [];
-
-  // Assign colors: first bar is #4C4CFF (Highest), last bar is #E9E9FF (Lowest), all others are #A5A6F6 (Average)
-  const barColors = scores.map((score: number, idx: number) => {
-    if (idx === 0) return '#4C4CFF'; // Highest (first bar)
-    if (idx === scores.length - 1) return '#E9E9FF'; // Lowest (last bar)
-    return '#A5A6F6'; // Average
-  });
+  }, [type, activeFiscalYear, lineGraph]);
 
   const data = {
-    labels: dataValue?.map((item: any) => item?.monthRange),
+    labels: displayData?.map((month: any) =>
+      month.monthName ? month.monthName.toUpperCase().slice(0, 3) : 'Unknown',
+    ),
     datasets: [
       {
-        label: 'Score Data',
-        data: scores,
-        backgroundColor: barColors,
-        borderColor: '#fff',
-        borderWidth: 1,
-        fill: false,
+        label: 'Actual Value',
+        data: displayData?.map((item: any) => item.vpScore),
+        backgroundColor: 'rgba(54, 54, 240, 0.7)',
+        barPercentage: 0.5,
       },
     ],
   };
 
+  const options = {
+    responsive: true,
+
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { family: 'inherit', size: 14 } },
+      },
+      y: {
+        max: 30,
+        ticks: { stepSize: 10 },
+        beginAtZero: true,
+        grid: { color: '#9ca3af' },
+      },
+    },
+
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'rect', // 'circle' | 'rect' | 'line' | etc.
+          boxWidth: 14,
+        },
+      },
+      title: {
+        display: false,
+      },
+      datalabels: { display: false },
+    },
+  };
+
   return (
-    <div>
-      <Bar options={options} data={data} />
-      <div className="flex items-center justify-between mt-4 w-full">
-        <div className="flex items-center gap-4">
-          <span
-            className="inline-block rounded-full"
-            style={{
-              width: 18,
-              height: 12,
-              backgroundColor: legendItems[0].color,
-            }}
+    <div className="border-[1px] border-gray-200 rounded-lg p-3">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-bold">Actual Value </h4>
+        <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
+          <Select
+            placeholder="select"
+            allowClear
+            className="min-w-10   text-sm font-semibold border-none"
+            options={requests.map((item) => ({
+              value: item.type,
+              label: item.value,
+            }))}
+            bordered={false}
+            defaultValue="Quarterly"
+            onChange={handleChange}
           />
-          <span className="text-sm text-gray-500 font-normal">
-            {legendItems[0].label}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span
-            className="inline-block rounded-full"
-            style={{
-              width: 18,
-              height: 12,
-              backgroundColor: legendItems[1].color,
-            }}
-          />
-          <span className="text-sm text-gray-500 font-normal">
-            {legendItems[1].label}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span
-            className="inline-block rounded-full"
-            style={{
-              width: 18,
-              height: 12,
-              backgroundColor: legendItems[2].color,
-            }}
-          />
-          <span className="text-sm text-gray-500 font-normal">
-            {legendItems[2].label}
-          </span>
         </div>
       </div>
+      {/* <Bar options={options} data={data} height={180} /> */}
+      <div className="flex  xl:hidden">
+        {/* flex xl:hidden zoom in min 110{' '} */}
+        <Bar data={data} options={options} height={220} />{' '}
+      </div>
+      <div className="hidden xl:flex 2xl:hidden">
+        {/* hidden xl:flex 2xl:hidden mid 90 - 100 */}
+        <Bar data={data} options={options} height={180} />{' '}
+      </div>
+      <div className="hidden 2xl:flex ">
+        {/* hidden 2xl:flex = zoom out max 80 -75 */}
+        <Bar data={data} options={options} height={130} />
+      </div>{' '}
     </div>
   );
 };

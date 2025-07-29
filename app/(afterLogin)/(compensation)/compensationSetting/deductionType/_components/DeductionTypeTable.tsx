@@ -68,21 +68,27 @@ const DeductionTypeTable = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="deduction-type-name">{text || '-'}</div>
+      ),
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="deduction-type-description">{text || '-'}</div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
       key: 'type',
       sorter: true,
-      render: (isRate: boolean) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
+      render: (isRate: boolean) => (
+        <div data-testid="deduction-type-type">{isRate ? 'Rate' : 'Fixed'}</div>
+      ),
     },
     {
       title: 'Mode',
@@ -90,7 +96,9 @@ const DeductionTypeTable = () => {
       key: 'mode',
       sorter: true,
       render: (mode: string) => (
-        <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>
+        <div data-testid="deduction-type-mode">
+          {mode == 'CREDIT' ? 'Credit' : 'Debit'}
+        </div>
       ),
     },
     {
@@ -98,20 +106,26 @@ const DeductionTypeTable = () => {
       dataIndex: 'defaultAmount',
       key: 'defaultAmount',
       sorter: true,
-      render: (amount: number, record: any) =>
-        amount && amount != 0
-          ? !record.isRate
-            ? `${amount} ETB`
-            : `${amount}% of base salary`
-          : '-',
+      render: (amount: number, record: any) => (
+        <div data-testid={`deduction-type-amount-${record.id}`}>
+          {amount && amount != 0
+            ? !record.isRate
+              ? `${amount} ETB`
+              : `${amount}% of base salary`
+            : '-'}
+        </div>
+      ),
     },
     {
       title: 'Applied to',
       dataIndex: 'applicableTo',
       key: 'applicableTo',
       sorter: true,
-      render: (applicableTo: string) =>
-        applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees',
+      render: (applicableTo: string) => (
+        <div data-testid="deduction-type-applicable">
+          {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
+        </div>
+      ),
     },
     {
       title: 'Status',
@@ -128,6 +142,7 @@ const DeductionTypeTable = () => {
             loading={loadingId === record.id}
             onClick={() => updateStatus(record.id)}
             checked={record.isActive}
+            data-testid={`deduction-type-status-${record.id}`}
           />
         </AccessGuard>
       ),
@@ -143,11 +158,13 @@ const DeductionTypeTable = () => {
             Permissions.DeleteBenefitType,
           ]}
         >
-          <ActionButtons
-            id={record?.id ?? null}
-            onEdit={() => handleDeductionEdit(record)}
-            onDelete={() => handleDelete(record.id)}
-          />
+          <div data-testid={`deduction-type-actions-${record.id}`}>
+            <ActionButtons
+              id={record?.id ?? null}
+              onEdit={() => handleDeductionEdit(record)}
+              onDelete={() => handleDelete(record.id)}
+            />
+          </div>
         </AccessGuard>
       ),
     },
@@ -159,27 +176,31 @@ const DeductionTypeTable = () => {
   );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
-      <CustomPagination
-        current={benefitCurrentPage}
-        total={tableData.length}
-        pageSize={benefitPageSize}
-        onChange={(page, size) => {
-          setBenefitCurrentPage(page);
-          setBenefitPageSize(size);
-        }}
-        onShowSizeChange={(size) => {
-          setBenefitPageSize(size);
-          setBenefitCurrentPage(1);
-        }}
-      />
-    </Spin>
+    <div data-testid="deduction-type-table-container">
+      <Spin spinning={isLoading} data-testid="deduction-type-table-loading">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="deduction-type-table"
+        />
+        <CustomPagination
+          current={benefitCurrentPage}
+          total={tableData.length}
+          pageSize={benefitPageSize}
+          onChange={(page, size) => {
+            setBenefitCurrentPage(page);
+            setBenefitPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setBenefitPageSize(size);
+            setBenefitCurrentPage(1);
+          }}
+          data-testid="deduction-type-pagination"
+        />
+      </Spin>
+    </div>
   );
 };
 

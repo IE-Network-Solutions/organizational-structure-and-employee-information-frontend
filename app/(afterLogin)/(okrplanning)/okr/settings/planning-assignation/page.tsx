@@ -125,7 +125,6 @@ const PlanAssignment: React.FC = () => {
 
     return {
       id: index + 1,
-      // name: getEmployeeData(item?.userId),
       name: (
         <Tooltip title={getEmployeeData(item?.userId)}>
           <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
@@ -158,6 +157,7 @@ const PlanAssignment: React.FC = () => {
           </div>
         </Tooltip>
       ),
+      nameString: getEmployeeData(item?.userId),
       plans: item?.items
         ?.map((plan: any) => getPlanningPeriod(plan.planningPeriodId))
         .join(', '),
@@ -181,7 +181,7 @@ const PlanAssignment: React.FC = () => {
           {employeeDataLoading ? <Spin size="small" /> : record?.name}
         </span>
       ),
-      sorter: (a, b) => (a.name || '').localeCompare(b.name || ''),
+      sorter: (a, b) => (a.nameString || '').localeCompare(b.nameString || ''),
     },
     {
       title: 'Plans', // Assuming you want to display plan names

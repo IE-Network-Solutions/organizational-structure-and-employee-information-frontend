@@ -201,16 +201,64 @@ export const useOKRStore = create<OKRState>()(
 
     // Remove a specific key result from objective
     removeKeyResult: (index: number) =>
-      set((state) => ({
-        objective: {
-          ...state.objective,
-          /* eslint-disable @typescript-eslint/no-unused-vars */
-          keyResults: state.objective.keyResults.filter(
-            (form: any, i: number) => i !== index,
-            /* eslint-enable @typescript-eslint/no-unused-vars */
-          ),
-        },
-      })),
+      set((state) => {
+        const currentKeyResults = [...state.objective.keyResults];
+        const removedKeyResult = currentKeyResults[index];
+        const remainingKeyResults = currentKeyResults.filter(
+          (form: any, i: number) => i !== index,
+        );
+
+        // Redistribute the weight of the removed key result
+        if (remainingKeyResults.length > 0 && removedKeyResult) {
+          const removedWeight = Number(removedKeyResult.weight || 0);
+          const weightPerRemaining = Math.round(
+            removedWeight / remainingKeyResults.length,
+          );
+
+          let redistributedKeyResults = remainingKeyResults.map((kr: any) => ({
+            ...kr,
+            weight: Number(kr.weight || 0) + weightPerRemaining,
+          }));
+
+          // Check if there's a rounding discrepancy and add 1% to the first key result
+          const totalWeight = redistributedKeyResults.reduce(
+            (sum: number, kr: any) => sum + Number(kr.weight || 0),
+            0,
+          );
+
+          // Calculate the expected total (original total should be 100%)
+          const originalTotal =
+            remainingKeyResults.reduce(
+              (sum: number, kr: any) => sum + Number(kr.weight || 0),
+              0,
+            ) + Number(removedKeyResult.weight || 0);
+
+          // Only add 1% if we lost weight due to rounding and we're below the original total
+          if (
+            totalWeight < originalTotal &&
+            redistributedKeyResults.length > 0
+          ) {
+            redistributedKeyResults[0] = {
+              ...redistributedKeyResults[0],
+              weight: Number(redistributedKeyResults[0].weight || 0) + 1,
+            };
+          }
+
+          return {
+            objective: {
+              ...state.objective,
+              keyResults: redistributedKeyResults,
+            },
+          };
+        }
+
+        return {
+          objective: {
+            ...state.objective,
+            keyResults: remainingKeyResults,
+          },
+        };
+      }),
 
     // Remove a specific key result from keyResultValue
     removeKeyResultValue: (index: number) =>
@@ -222,14 +270,55 @@ export const useOKRStore = create<OKRState>()(
           /* eslint-enable @typescript-eslint/no-unused-vars */
         );
 
-        // Also update objectiveValue's keyResults array
+        // Handle weight redistribution for objectiveValue's keyResults
+        const currentKeyResults = [...(state.objectiveValue.keyResults || [])];
+        const removedKeyResult = currentKeyResults[index];
+        const remainingKeyResults = currentKeyResults.filter(
+          (form: any, i: number) => i !== index,
+        );
+
+        let redistributedKeyResults = remainingKeyResults;
+
+        // Redistribute the weight of the removed key result
+        if (remainingKeyResults.length > 0 && removedKeyResult) {
+          const removedWeight = Number(removedKeyResult.weight || 0);
+          const weightPerRemaining = Math.round(
+            removedWeight / remainingKeyResults.length,
+          );
+
+          redistributedKeyResults = remainingKeyResults.map((kr: any) => ({
+            ...kr,
+            weight: Number(kr.weight || 0) + weightPerRemaining,
+          }));
+
+          // Check if there's a rounding discrepancy and add 1% to the first key result
+          const totalWeight = redistributedKeyResults.reduce(
+            (sum: number, kr: any) => sum + Number(kr.weight || 0),
+            0,
+          );
+
+          // Calculate the expected total (original total should be 100%)
+          const originalTotal =
+            remainingKeyResults.reduce(
+              (sum: number, kr: any) => sum + Number(kr.weight || 0),
+              0,
+            ) + Number(removedKeyResult.weight || 0);
+
+          // Only add 1% if we lost weight due to rounding and we're below the original total
+          if (
+            totalWeight < originalTotal &&
+            redistributedKeyResults.length > 0
+          ) {
+            redistributedKeyResults[0] = {
+              ...redistributedKeyResults[0],
+              weight: Number(redistributedKeyResults[0].weight || 0) + 1,
+            };
+          }
+        }
+
         const updatedObjectiveValue = {
           ...state.objectiveValue,
-          keyResults: state.objectiveValue.keyResults.filter(
-            /* eslint-disable @typescript-eslint/no-unused-vars */
-            (form: any, i: number) => i !== index,
-            /* eslint-enable @typescript-eslint/no-unused-vars */
-          ),
+          keyResults: redistributedKeyResults,
         };
 
         return {

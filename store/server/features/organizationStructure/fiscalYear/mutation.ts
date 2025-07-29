@@ -6,9 +6,10 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const createFiscalYear = async (fiscalYear: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -23,7 +24,7 @@ const createFiscalYear = async (fiscalYear: any) => {
 };
 
 const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -38,7 +39,7 @@ const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
 };
 
 const deleteFiscalYear = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -90,7 +91,7 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-
+      queryClient.invalidateQueries('fiscalActiveYear');
       handleSuccessMessage('DELETE');
     },
   });
@@ -100,7 +101,7 @@ const updateClosedDate = async (
   fiscalYearId: string,
   closedDates: ClosedDates[],
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

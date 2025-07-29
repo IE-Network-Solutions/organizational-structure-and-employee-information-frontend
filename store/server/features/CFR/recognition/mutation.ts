@@ -1,11 +1,12 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
 const addRecognitionType = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
   const headers = {
@@ -21,7 +22,7 @@ const addRecognitionType = async (data: any) => {
   });
 };
 const updateRecognitionTypeWithCriteria = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -36,7 +37,7 @@ const updateRecognitionTypeWithCriteria = async (data: any) => {
 };
 
 const updateRecognitionType = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -51,7 +52,7 @@ const updateRecognitionType = async (data: any) => {
 };
 
 const updateCriteria = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -66,7 +67,7 @@ const updateCriteria = async (data: any) => {
 };
 
 const deleteCriteria = async (id: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -80,7 +81,7 @@ const deleteCriteria = async (id: any) => {
 };
 
 const createRecognition = async ({ value }: { value: any }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -95,7 +96,7 @@ const createRecognition = async ({ value }: { value: any }) => {
   });
 };
 const createEmployeeRecognition = async ({ value }: { value: any }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -111,7 +112,7 @@ const createEmployeeRecognition = async ({ value }: { value: any }) => {
 };
 
 const createRecognitionCriteria = async ({ value }: { value: any }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -125,7 +126,7 @@ const createRecognitionCriteria = async ({ value }: { value: any }) => {
   });
 };
 const deleteRecognitionType = async (id: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
   const headers = {
@@ -252,7 +253,7 @@ const downloadCertificate = async ({
   recognitionId: string;
   tenantId?: string;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const headers = {
     ...(tenantId ? { tenantId: tenantId } : {}),
     Authorization: `Bearer ${token}`,

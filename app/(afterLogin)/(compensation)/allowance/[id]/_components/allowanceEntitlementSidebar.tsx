@@ -79,7 +79,10 @@ const AllowanceEntitlementSideBar = () => {
         open={isAllowanceEntitlementSidebarOpen}
         onClose={onClose}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start">
+          <CustomDrawerHeader
+            className="flex justify-start"
+            data-testid="entitlement-sidebar-header"
+          >
             <span>Add Allowance Entitlement</span>
           </CustomDrawerHeader>
         }
@@ -87,17 +90,23 @@ const AllowanceEntitlementSideBar = () => {
           <CustomDrawerFooterButton
             className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
+            data-testid="entitlement-sidebar-footer"
           />
         }
         width="600px"
         customMobileHeight="37vh"
+        data-testid="allowance-entitlement-sidebar"
       >
-        <Spin spinning={allUserLoading}>
+        <Spin
+          spinning={allUserLoading}
+          data-testid="entitlement-sidebar-loading"
+        >
           <Form
             layout="vertical"
             form={form}
             onFinish={(values) => onFormSubmit(values)}
             requiredMark={CustomLabel}
+            data-testid="entitlement-form"
           >
             {/* <Form.Item
               name="department"
@@ -123,6 +132,7 @@ const AllowanceEntitlementSideBar = () => {
               name="employees"
               label="Select Employees"
               rules={[{ required: true, message: 'Please select employees' }]}
+              data-testid="employees-form-item"
             >
               <Select
                 showSearch
@@ -141,6 +151,7 @@ const AllowanceEntitlementSideBar = () => {
                   label: item?.firstName + ' ' + item?.lastName,
                 }))}
                 loading={allUserLoading}
+                data-testid="employees-select"
               />
             </Form.Item>
             {/* <Form.Item

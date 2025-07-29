@@ -48,7 +48,7 @@ const Incentive = () => {
       })) || []),
   ];
   const itemStatus: { key: string; label: string }[] = [
-    { key: 'null', label: 'All' },
+    { key: 'null', label: 'Status' },
     { key: 'true', label: 'True' },
     { key: 'false', label: 'False' },
   ];
@@ -117,7 +117,7 @@ const Incentive = () => {
       <div>
         <Select
           bordered={false}
-          value={status === null ? 'All' : status.toString()} // handle null, true, false
+          value={status === null ? 'Status' : status.toString()} // handle null, true, false
           className="text-gray-500 w-20"
           onChange={(value) => {
             const parsedValue =
@@ -136,7 +136,7 @@ const Incentive = () => {
   );
 
   return (
-    <Card className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col">
+    <Card className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col shadow-lg">
       <div className="flex justify-between items-center mb-2 h-10 ">
         <h3 className="font-bold text-lg">Incentives</h3>
         {isMobile || isTablet ? (
@@ -159,7 +159,7 @@ const Incentive = () => {
           <div>
             <Select
               bordered={false}
-              defaultValue="All Recognitions"
+              defaultValue="Incentive Type"
               className="text-gray-500 w-36"
               onChange={(value) => setRecognitionType(value)}
             >
@@ -171,8 +171,8 @@ const Incentive = () => {
             </Select>
             <Select
               bordered={false}
-              className="text-gray-500 w-20"
-              defaultValue="All"
+              className="text-gray-500 w-24"
+              defaultValue="Status"
               onChange={(value) => {
                 const parsedValue =
                   value === 'true' ? true : value === 'false' ? false : null;
@@ -247,7 +247,7 @@ const Incentive = () => {
           </Row>
         </Card>
       ) : (
-        <div className="text-sm font-light flex h-[100px] justify-center items-center ">
+        <div className="text-lg font-light flex h-full justify-center items-center min-h-40">
           No Incentive For this Month
         </div>
       )}{' '}
