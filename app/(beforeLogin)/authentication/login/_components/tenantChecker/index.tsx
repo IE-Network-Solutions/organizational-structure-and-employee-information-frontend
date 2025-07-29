@@ -6,16 +6,29 @@ import { useEffect } from 'react';
 
 export const useTenantChecker = () => {
   const { hostname, setHostName } = useAuthenticationStore();
+
   useEffect(() => {
     setHostName(window.location.hostname);
-  }, []);
-  const domainName = hostname?.split('.')[0] || hostname;
-  const { data: tenantInfo, refetch } = useGetTenantByDomain(domainName || '');
+  }, [setHostName]);
+
+  const domainName = hostname?.split('.')[0];
+  const isPwa = domainName === 'pwa';
+
+  // Only run the query if isPwa is true
+  const { data: tenantInfo, refetch } = useGetTenantByDomain({
+    domain: domainName || '',
+    isPwa: isPwa,
+  });
   useEffect(() => {
-    if (domainName) refetch();
-  }, [domainName]);
+    if (isPwa && domainName) {
+      refetch(); // Only refetch if PWA is true
+    }
+  }, [domainName, isPwa, refetch]);
 
   return {
-    tenant: tenantInfo,
+    tenant: {
+      ...tenantInfo,
+      isPwa,
+    },
   };
 };
