@@ -5,11 +5,14 @@ import { useFetchAllowances } from '@/store/server/features/compensation/allowan
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 const AllDeductionTable = () => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllAllowanceStore();
+  const { isMobile, isTablet } = useIsMobile();
 
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
@@ -96,15 +99,46 @@ const AllDeductionTable = () => {
   return (
     <div data-testid="all-deduction-table-container">
       <Spin spinning={isLoading} data-testid="deduction-table-loading">
-        <Table
-          className="mt-6"
-          columns={columns}
-          dataSource={paginatedData}
-          pagination={false}
-          data-testid="deduction-table"
-        />
+        <div className="overflow-x-auto scrollbar-hide">
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="deduction-table"
+          />
+        </div>
 
-        <CustomPagination
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={dataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={dataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        )}
+
+        {/* <CustomPagination
           current={currentPage}
           total={dataSource.length}
           pageSize={pageSize}
@@ -117,7 +151,7 @@ const AllDeductionTable = () => {
             setCurrentPage(1);
           }}
           data-testid="deduction-pagination"
-        />
+        /> */}
       </Spin>
     </div>
   );

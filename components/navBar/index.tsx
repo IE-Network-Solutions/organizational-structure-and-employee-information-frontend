@@ -1059,7 +1059,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <NavBar page="" handleLogout={handleLogout} />
         </Header>
         <Content
-          className="overflow-y-hidden min-h-screen"
+          className="overflow-y-hidden min-h-screen bg-[#fafafa]"
           style={{
             paddingInline: isMobile ? 8 : 24,
             paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
