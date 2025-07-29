@@ -386,6 +386,567 @@ h6 {
   font-size: 12px !important;
 }
 
+/* PWA Specific Styles */
+
+/* Install prompt styles */
+.install-modal .ant-modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.install-modal .ant-modal-header {
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+  color: white;
+  border: none;
+}
+
+.install-modal .ant-modal-title {
+  color: white !important;
+}
+
+.install-modal .ant-modal-close {
+  color: white;
+}
+
+.install-button-minimal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  border-radius: 50px;
+  height: 48px;
+  padding: 0 20px;
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.3);
+  border: none;
+}
+
+/* Enhanced Floating Install Button */
+.install-button-floating {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 1000 !important;
+  border-radius: 50px !important;
+  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4) !important;
+  border: none !important;
+  animation: floatPulse 3s ease-in-out infinite !important;
+  transition: all 0.3s ease !important;
+}
+
+.install-button-floating:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 32px rgba(24, 144, 255, 0.5) !important;
+}
+
+.install-button-floating:active {
+  transform: translateY(0) !important;
+}
+
+/* Floating button animation */
+@keyframes floatPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 8px 24px rgba(24, 144, 255, 0.6),
+      0 0 0 8px rgba(24, 144, 255, 0.1);
+  }
+}
+
+/* Mobile optimizations for install button */
+@media (max-width: 768px) {
+  .install-button-floating {
+    bottom: 16px !important;
+    right: 16px !important;
+    height: 48px !important;
+    font-size: 14px !important;
+    padding: 0 16px !important;
+  }
+}
+
+/* Standalone mode adjustments */
+@media (display-mode: standalone) {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Hide scrollbars in standalone mode for better app-like experience */
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+
+  /* Hide install buttons when in standalone mode */
+  .install-button-floating,
+  .install-button-minimal {
+    display: none !important;
+  }
+
+  /* Add safe area padding for devices with notches */
+  .main-content {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* PWA-specific splash screen styles */
+  .pwa-splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 50%, #0050b3 100%);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: splashFadeIn 0.5s ease-out;
+  }
+
+  .pwa-splash-container.exiting {
+    animation: splashFadeOut 0.5s ease-in forwards;
+  }
+
+  .pwa-logo-animation {
+    transform: scale(0);
+    animation: logoScale 1s ease-out 0.3s forwards;
+  }
+
+  .pwa-text-animation {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: textSlideUp 0.8s ease-out 1s forwards;
+  }
+
+  .pwa-loading-animation {
+    opacity: 0;
+    animation: loadingFadeIn 0.5s ease-out 1.5s forwards;
+  }
+
+  /* Keyframe animations for PWA splash */
+  @keyframes splashFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes splashFadeOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes logoScale {
+    0% {
+      transform: scale(0) rotate(-180deg);
+    }
+    70% {
+      transform: scale(1.1) rotate(0deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  @keyframes textSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes loadingFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Floating background elements */
+  .pwa-floating-element {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .pwa-floating-element:nth-child(1) {
+    width: 200px;
+    height: 200px;
+    top: 10%;
+    left: -100px;
+    animation-delay: 0s;
+  }
+
+  .pwa-floating-element:nth-child(2) {
+    width: 150px;
+    height: 150px;
+    top: 60%;
+    right: -75px;
+    animation-delay: 2s;
+  }
+
+  .pwa-floating-element:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.1;
+    }
+    50% {
+      transform: translateY(-20px) rotate(180deg);
+      opacity: 0.2;
+    }
+  }
+
+  /* Loading dots animation */
+  .pwa-loading-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .pwa-loading-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: dotBounce 1.4s infinite ease-in-out;
+  }
+
+  .pwa-loading-dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .pwa-loading-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .pwa-loading-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes dotBounce {
+    0%,
+    60%,
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    30% {
+      transform: scale(1.3);
+      opacity: 1;
+    }
+  }
+
+  /* Progress bar animation */
+  .pwa-progress-bar {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+
+  .pwa-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffffff, #f0f9ff);
+    border-radius: 2px;
+    width: 0;
+    animation: progressFill 2.5s ease-out 1.8s forwards;
+  }
+
+  @keyframes progressFill {
+    to {
+      width: 100%;
+    }
+  }
+
+  /* Responsive adjustments for PWA splash */
+  @media (max-width: 768px) {
+    .pwa-floating-element {
+      display: none; /* Hide floating elements on mobile for better performance */
+    }
+
+    .pwa-logo-animation {
+      transform: scale(0.8);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pwa-splash-container,
+    .pwa-logo-animation,
+    .pwa-text-animation,
+    .pwa-loading-animation,
+    .pwa-floating-element,
+    .pwa-loading-dot,
+    .pwa-progress-fill {
+      animation: none !important;
+    }
+
+    .pwa-logo-animation {
+      transform: scale(1);
+    }
+
+    .pwa-text-animation {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pwa-loading-animation {
+      opacity: 1;
+    }
+  }
+}
+
+/* Enhanced PWA app icon animations */
+@media (display-mode: standalone) {
+  .pwa-app-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: iconGlow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes iconGlow {
+    from {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    to {
+      box-shadow: 0 10px 30px rgba(24, 144, 255, 0.4);
+    }
+  }
+}
+
+/* Mobile PWA optimizations */
+@media (max-width: 768px) {
+  /* Touch target sizes for better mobile interaction */
+  .ant-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .ant-menu-item {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Better mobile scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent zoom on input focus */
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='url'],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Offline indicator styles */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #faad14;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  z-index: 9999;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.offline-indicator.hidden {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* App update notification */
+.update-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: #1890ff;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* iOS specific adjustments */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific styles */
+  .ios-install-instructions {
+    background: #f0f8ff;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+  }
+
+  /* Fix for iOS viewport height issues */
+  .full-height {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+}
+
+/* Desktop PWA window controls overlay */
+@media (display-mode: window-controls-overlay) {
+  .app-header {
+    padding-left: env(titlebar-area-x);
+    padding-right: calc(
+      100vw - env(titlebar-area-x) - env(titlebar-area-width)
+    );
+    padding-top: env(titlebar-area-y);
+    min-height: env(titlebar-area-height);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .install-modal .ant-modal-content {
+    border: 2px solid currentColor;
+  }
+
+  .install-button-minimal {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .install-modal .ant-modal-content,
+  .update-notification,
+  .offline-indicator {
+    transition: none;
+  }
+}
+
+/* Print styles for PWA */
+@media print {
+  .install-button-minimal,
+  .offline-indicator,
+  .update-notification {
+    display: none !important;
+  }
+}
+
+/* FORCE HIDE URL BAR COMPLETELY - ALLOW SCROLLING */
+@media screen {
+  /* Hide all browser UI elements but allow scrolling */
+  html {
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    /* Remove position fixed to allow scrolling */
+  }
+}
+
+/* PWA Mode - Complete URL Bar Removal WITH SCROLLING */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  html,
+  body {
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    /* Allow vertical scrolling */
+    overflow-y: auto !important;
+  }
+
+  /* Ensure main content can scroll */
+  #__next {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Mobile Browser - Force Hide Address Bar WITH SCROLLING */
+@media screen and (max-width: 768px) {
+  html {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+    /* Allow scrolling */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Force scroll to hide address bar but maintain scrollability */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -1px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: transparent;
+    z-index: -1;
+  }
+}
 /* Hide the selected checkmark icon in Select dropdown */
 .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-state {
