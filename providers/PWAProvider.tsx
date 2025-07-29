@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { InstallPrompt } from '@/components/PWA/InstallPrompt';
 import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
 import { AnimatedSplashScreen } from '@/components/PWA/AnimatedSplashScreen';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 
 interface PWAProviderProps {
   children: React.ReactNode;
@@ -25,7 +25,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 }) => {
   const [showMainContent, setShowMainContent] = useState(false);
   const [lastActiveTime, setLastActiveTime] = useState(Date.now());
-  const router = useRouter();
+  // const router = useRouter();
 
   useEffect(() => {
     // Register service worker (enable in both dev and production for PWA testing)
@@ -36,22 +36,23 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           updateViaCache: 'none', // Disable cache for service worker updates
         })
         .then((registration) => {
-          console.log('Service Worker registered successfully:', registration);
+          // console.log('Service Worker registered successfully:', registration);
 
           // Force immediate activation for better data persistence
           if (registration.waiting) {
             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
           }
         })
-        .catch((error) => {
-          console.log('Service Worker registration failed:', error);
+        .catch((e) => {
+          alert(e);
+          // console.log('Service Worker registration failed:', error);
         });
 
       // Handle service worker messages for better app state management
       navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'CACHE_UPDATED') {
           // App cache updated, no action needed
-          console.log('Cache updated successfully');
+          // console.log('Cache updated successfully');
         }
       });
     }
@@ -63,7 +64,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 
       // If app was inactive for more than 5 minutes, refresh the page
       if (timeDiff > 5 * 60 * 1000) {
-        console.log('App reopened after long inactivity, refreshing data...');
+        // console.log('App reopened after long inactivity, refreshing data...');
 
         // Trigger data refresh by reloading the current page
         window.location.reload();
@@ -98,7 +99,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       const handlePageShow = (event: PageTransitionEvent) => {
         if (event.persisted) {
           // Page was loaded from cache, refresh data
-          console.log('PWA page loaded from cache, refreshing...');
+          // console.log('PWA page loaded from cache, refreshing...');
           window.location.reload();
         }
       };
@@ -118,18 +119,18 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
     const sharedUrl = urlParams.get('url');
 
     if (sharedTitle || sharedText || sharedUrl) {
-      console.log('App opened via share target:', {
-        sharedTitle,
-        sharedText,
-        sharedUrl,
-      });
+      // console.log('App opened via share target:', {
+      //   sharedTitle,
+      //   sharedText,
+      //   sharedUrl,
+      // });
       // Handle shared content here
     }
 
     // Handle protocol handlers
     const protocol = urlParams.get('protocol');
     if (protocol) {
-      console.log('App opened via protocol handler:', protocol);
+      // console.log('App opened via protocol handler:', protocol);
       // Handle protocol here
     }
 

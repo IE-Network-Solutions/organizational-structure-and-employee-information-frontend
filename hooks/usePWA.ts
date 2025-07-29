@@ -160,7 +160,7 @@ export const usePWA = (): PWAHookReturn => {
       setDeferredPrompt(null);
       setIsInstallable(false);
     } catch (error) {
-      console.error('Error installing app:', error);
+      // console.error('Error installing app:', error);
     }
   }, [deferredPrompt]);
 
@@ -176,7 +176,7 @@ export const usePWA = (): PWAHookReturn => {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error('Error sharing:', error);
+        // console.error('Error sharing:', error);
       }
     } else {
       // Fallback: copy to clipboard
