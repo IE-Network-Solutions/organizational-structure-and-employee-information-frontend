@@ -34,7 +34,8 @@ const PlanPage = () => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [updatedQuota, setUpdatedQuota] = useState<number | null>(null);
   const [updatedPeriod, setUpdatedPeriod] = useState<string | null>(null);
-  const [updatedSubscription, setUpdatedSubscription] = useState<Subscription | null>(null);
+  const [updatedSubscription, setUpdatedSubscription] =
+    useState<Subscription | null>(null);
   const [selectedPeriodType, setSelectedPeriodType] =
     useState<PeriodType | null>(null);
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
@@ -51,9 +52,9 @@ const PlanPage = () => {
   const [currentPeriodType, setCurrentPeriodType] = useState<PeriodType | null>(
     null,
   );
-  const { data: employeeStatus } = useGetEmployeeStatus("");
-  const allUsers = (employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0);
-
+  const { data: employeeStatus } = useGetEmployeeStatus('');
+  const allUsers =
+    employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
 
   // Fetch subscriptions
   const {
@@ -291,7 +292,6 @@ const PlanPage = () => {
       setCurrentStep((prev) => prev + 1);
     }
   };
-  console.log(transactionType, "transactionType")
   const handlePreviousStep = () => setCurrentStep((prev) => prev - 1);
 
   const handleQuotaChange = (value: number | null) => {
@@ -299,10 +299,7 @@ const PlanPage = () => {
     setUpdatedQuota(value);
 
     // Show error if value is less than total number of users
-    if (
-      value !== null &&
-      value < allUsers
-    ) {
+    if (value !== null && value < allUsers) {
       setQuotaError('Your quota is below total number of user quota');
     } else if (value === null || value === undefined || value === 0) {
       setQuotaError('Please enter a valid number');
@@ -544,8 +541,8 @@ const PlanPage = () => {
 
         response = await upgradeSubscriptionMutation.mutateAsync(upgradeData, {
           onSuccess: (data) => {
-            setUpdatedSubscription(data)
-          }
+            setUpdatedSubscription(data);
+          },
         });
       }
 
@@ -575,7 +572,6 @@ const PlanPage = () => {
   };
 
   const updatedSubscriptionValue = updatedSubscription;
-  console.log(updatedSubscriptionValue, "updatedSubscriptionValue")
   // PDF download handler
   const handleDownloadPdf = async () => {
     // Check if we have an invoice ID
@@ -672,14 +668,16 @@ const PlanPage = () => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className={`flex items-center gap-2 w-full text-center ${index === currentStep
-                ? 'text-black'
-                : 'text-gray-400 opacity-50'
-                }`}
+              className={`flex items-center gap-2 w-full text-center ${
+                index === currentStep
+                  ? 'text-black'
+                  : 'text-gray-400 opacity-50'
+              }`}
             >
               <span
-                className={`text-lg font-bold ${index === currentStep ? 'text-primary' : 'text-gray-400'
-                  }`}
+                className={`text-lg font-bold ${
+                  index === currentStep ? 'text-primary' : 'text-gray-400'
+                }`}
               >
                 {index + 1}
               </span>
@@ -923,7 +921,7 @@ const PlanPage = () => {
                       Total Amount for{' '}
                       {activeSubscription
                         ? (updatedQuota || 0) -
-                        (activeSubscription?.slotTotal || 0)
+                          (activeSubscription?.slotTotal || 0)
                         : updatedQuota || 0}{' '}
                       User Quota
                     </span>
@@ -1033,13 +1031,14 @@ const PlanPage = () => {
                         [
                           'Billing Period:',
                           updatedSubscriptionValue?.startAt &&
-                            updatedSubscriptionValue?.endAt
+                          updatedSubscriptionValue?.endAt
                             ? `${formatDate(updatedSubscriptionValue?.startAt)} - ${formatDate(updatedSubscriptionValue?.endAt)}`
                             : '-',
                         ],
                         [
                           'Number of Users:',
-                          updatedSubscriptionValue?.invoices[0]?.paymentMetadata?.targetState?.slotTotal || 0,
+                          updatedSubscriptionValue?.invoices[0]?.paymentMetadata
+                            ?.targetState?.slotTotal || 0,
                         ],
                         [
                           'Amount:',
@@ -1139,9 +1138,7 @@ const PlanPage = () => {
         return null;
     }
   };
-  console.log({ updatedSubscriptionValue, updatedQuota, currentPeriodType, periodTypes }, "updatedSubscriptionValue")
   return (
-
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb
         title="Plan Management"

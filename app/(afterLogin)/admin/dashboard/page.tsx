@@ -37,7 +37,7 @@ const AdminDashboard = () => {
     useState<Subscription | null>(null);
 
   const [lastInvoice, setLastInvoice] = useState<Invoice | null>(null);
-  const { transactionType, setTransactionType } = usePaymentStore();
+  const { setTransactionType } = usePaymentStore();
   const router = useRouter();
 
   const { data: invoicesData, isLoading: isInvoicesLoading } = useGetInvoices(
@@ -216,8 +216,8 @@ const AdminDashboard = () => {
         id: 'subscriptionStatus',
         value: activeSubscription
           ? getFormattedSubscriptionStatus(
-            activeSubscription.subscriptionStatus,
-          )
+              activeSubscription.subscriptionStatus,
+            )
           : 'No Subscription',
       },
     ];
@@ -234,7 +234,6 @@ const AdminDashboard = () => {
   const activeSubscriptionData = subscriptionsData?.items?.find(
     (sub) => sub.isActive === true,
   );
-  console.log({ plansWithSameCurrency, plansData, currentPlan, subscriptionsData }, "plansWithSameCurrency");
   return (
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb
@@ -357,12 +356,12 @@ const AdminDashboard = () => {
                                   className={
                                     new Date(
                                       activeSubscription.trialEndAt &&
-                                        activeSubscription.isTrial
+                                      activeSubscription.isTrial
                                         ? activeSubscription.trialEndAt
                                         : activeSubscription.endAt,
                                     ).getTime() -
                                       Date.now() <
-                                      10 * 24 * 60 * 60 * 1000 // Less than 10 days
+                                    10 * 24 * 60 * 60 * 1000 // Less than 10 days
                                       ? 'text-red-500'
                                       : 'text-green-500'
                                   }
@@ -370,12 +369,12 @@ const AdminDashboard = () => {
                                   {Math.ceil(
                                     (new Date(
                                       activeSubscription.trialEndAt &&
-                                        activeSubscription.isTrial
+                                      activeSubscription.isTrial
                                         ? activeSubscription.trialEndAt
                                         : activeSubscription.endAt,
                                     ).getTime() -
                                       Date.now()) /
-                                    (24 * 60 * 60 * 1000),
+                                      (24 * 60 * 60 * 1000),
                                   )}{' '}
                                   days
                                 </span>
@@ -390,10 +389,10 @@ const AdminDashboard = () => {
                               {plan.currency.symbol}
                               {plan.id === currentPlan?.id
                                 ? plan.periods?.find(
-                                  (period) =>
-                                    period.id ==
-                                    activeSubscriptionData?.planPeriodId,
-                                )?.periodSlotPrice
+                                    (period) =>
+                                      period.id ==
+                                      activeSubscriptionData?.planPeriodId,
+                                  )?.periodSlotPrice
                                 : plan.slotPrice}
                             </div>
                             <div className="text-sm text-gray-500">
@@ -507,15 +506,14 @@ const AdminDashboard = () => {
                             <CustomButton
                               title={
                                 hasSelectedPlan &&
-                                  plan.slotPrice < Number(currentPlan?.slotPrice)
+                                plan.slotPrice < Number(currentPlan?.slotPrice)
                                   ? 'Downgrade Plan'
                                   : 'Upgrade Plan'
                               }
                               onClick={() => {
-                                setTransactionType("purchase_subscription");
-                                router.push(`/admin/plan?planId=${plan.id}`)
-                              }
-                              }
+                                setTransactionType('purchase_subscription');
+                                router.push(`/admin/plan?planId=${plan.id}`);
+                              }}
                               className="w-full text-center flex justify-center items-center"
                               type="primary"
                               disabled={!isLatestInvoicePaid()}

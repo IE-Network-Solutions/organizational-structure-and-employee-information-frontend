@@ -16,7 +16,7 @@ import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee
 
 const ManageEmployees: React.FC<any> = () => {
   const { setOpen } = useEmployeeManagementStore();
-  const { data: employeeStatus, isLoading } = useGetEmployeeStatus("");
+  const { data: employeeStatus, isLoading } = useGetEmployeeStatus('');
 
   const showDrawer = () => {
     setOpen(true);
@@ -25,20 +25,22 @@ const ManageEmployees: React.FC<any> = () => {
     setOpen(false);
   };
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const { data: subscriptionData, isLoading: subscriptionLoading } = useGetSubscriptions(
-    {
-      filter: {
-        tenantId: [tenantId],
+  const { data: subscriptionData, isLoading: subscriptionLoading } =
+    useGetSubscriptions(
+      {
+        filter: {
+          tenantId: [tenantId],
+        },
       },
-    },
-    true,
-    true,
-  );
+      true,
+      true,
+    );
 
-  const totalSlots = subscriptionData?.items?.find((sub: any) => sub.isActive)?.slotTotal || 0;
-  const allUsers = (employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0);
+  const totalSlots =
+    subscriptionData?.items?.find((sub: any) => sub.isActive)?.slotTotal || 0;
+  const allUsers =
+    employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
   const isAvailableSlots = totalSlots >= allUsers;
-  console.log({ totalSlots, allUsers, isAvailableSlots, subscriptionData }, "availableSlots");
   return (
     <div className="h-auto w-full px-3 sm:px-6">
       <BlockWrapper className="h-auto w-full bg-white">
@@ -49,7 +51,13 @@ const ManageEmployees: React.FC<any> = () => {
           />
           <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
             <AccessGuard permissions={[Permissions.RegisterNewEmployee]}>
-              <Tooltip title={isAvailableSlots ? null : "User limit reached. Purchase additional slots or contact support."}>
+              <Tooltip
+                title={
+                  isAvailableSlots
+                    ? null
+                    : 'User limit reached. Purchase additional slots or contact support.'
+                }
+              >
                 <Button
                   type="primary"
                   size="large"
@@ -63,7 +71,6 @@ const ManageEmployees: React.FC<any> = () => {
                   <span className="hidden sm:inline">Create user</span>
                 </Button>
               </Tooltip>
-
             </AccessGuard>
             <UserSidebar onClose={onClose} />
           </div>

@@ -252,7 +252,7 @@ const InvoiceItem = () => {
                     [
                       'Billing Period:',
                       invoiceData?.subscription?.startAt &&
-                        invoiceData?.subscription?.endAt
+                      invoiceData?.subscription?.endAt
                         ? `${formatDate(invoiceData?.subscription?.startAt)} - ${formatDate(invoiceData?.subscription?.endAt)}`
                         : '-',
                     ],

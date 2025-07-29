@@ -35,7 +35,6 @@ import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInform
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
-import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 
 interface CustomMenuItem {
@@ -95,28 +94,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { data: activeFiscalYear, refetch } = useGetActiveFiscalYearsData();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  const { data: subscriptionData, isLoading: subscriptionLoading } = useGetSubscriptions(
-    {
-      filter: {
-        tenantId: [tenantId],
+  const { data: subscriptionData, isLoading: subscriptionLoading } =
+    useGetSubscriptions(
+      {
+        filter: {
+          tenantId: [tenantId],
+        },
       },
-    },
-    true,
-    true,
+      true,
+      true,
+    );
+  const activeSubscription = subscriptionData?.items?.find(
+    (sub: any) => sub.isActive,
   );
-  const activeSubscription = subscriptionData?.items?.find((sub: any) => sub.isActive);
   const availableModules = activeSubscription?.plan?.modules || [];
-  console.log(activeSubscription, "activeSubscription");
-  const isSubscriptionExpired = activeSubscription?.endAt ? new Date(activeSubscription.endAt) < new Date() : false;
+  const isSubscriptionExpired = activeSubscription?.endAt
+    ? new Date(activeSubscription.endAt) < new Date()
+    : false;
   // Check if user is admin
-  const isAdmin = userData?.role?.slug?.toLowerCase() === 'owner' ||
-    userData?.userPermissions?.some((permission: any) =>
-      permission.permission.slug === 'view_admin_configuration'
+  const isAdmin =
+    userData?.role?.slug?.toLowerCase() === 'owner' ||
+    userData?.userPermissions?.some(
+      (permission: any) =>
+        permission.permission.slug === 'view_admin_configuration',
     );
 
-  const shouldShowSidebar = (activeSubscription && availableModules.length > 0) || isAdmin;
-
-  console.log(subscriptionData, "subscriptionData");
   const hasEndedFiscalYear =
     !!activeFiscalYear?.isActive &&
     !!activeFiscalYear?.endDate &&
@@ -295,9 +297,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <TbMessage2
             size={18}
-            className={
-              expandedKeys.includes('/feedback') ? 'text-blue' : ''
-            }
+            className={expandedKeys.includes('/feedback') ? 'text-blue' : ''}
           />
           <span>CFR</span>
         </span>
@@ -431,9 +431,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiCalendar
             size={18}
-            className={
-              expandedKeys.includes('/timesheet') ? 'text-blue' : ''
-            }
+            className={expandedKeys.includes('/timesheet') ? 'text-blue' : ''}
           />
           <span>Time & Attendance</span>
         </span>
@@ -525,9 +523,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <LuCircleDollarSign
             size={18}
-            className={
-              expandedKeys.includes('/incentive') ? 'text-blue' : ''
-            }
+            className={expandedKeys.includes('/incentive') ? 'text-blue' : ''}
           />
           <span>Incentives</span>
         </span>
@@ -598,9 +594,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   ];
   // Get active subscription and its modules
 
-  console.log(availableModules, "availableModules");
-  console.log(shouldShowSidebar, "shouldShowSidebar");
-  console.log(isAdmin, "isAdmin");
   // Function to check if a menu item is available in the subscription
   const isMenuItemAvailable = (menuKey: string): boolean => {
     // Admin menu should always be visible for admin users
@@ -634,15 +627,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
 
     // Check if any module in the subscription matches the menu path
-    return availableModules.some(module =>
-      module.module?.description === modulePath
+    return availableModules.some(
+      (module) => module.module?.description === modulePath,
     );
   };
 
   // Filter treeData based on available modules
   const getFilteredTreeData = (): CustomMenuItem[] => {
     return treeData
-      .map(item => {
+      .map((item) => {
         // Check if the main menu item is available
         const isMainItemAvailable = isMenuItemAvailable(item.key);
 
@@ -651,7 +644,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }
 
         // Filter children based on availability
-        const filteredChildren = item.children?.filter(child => {
+        const filteredChildren = item.children?.filter(() => {
           // For child items, we can be more permissive or use the same logic
           // For now, if parent is available, show all children
           return true;
@@ -666,15 +659,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const filteredTreeData = getFilteredTreeData();
-  console.log(filteredTreeData, "filteredTreeData");
 
   // Check if we should show the sidebar at all
 
   useEffect(() => {
     refetch();
   }, [token]);
-
-
 
   // ===========> Fiscal Year Ended Section <=================
 
@@ -728,8 +718,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     traverse(menuItems);
     return routes;
   };
-
-
 
   // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
   const isRouteMatch = (routePattern: string, pathname: string) => {
@@ -813,19 +801,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
 
     // Get user's permissions from the authentication store
-    const userPermissions = userData?.userPermissions || [];
-
-    // Check if user has ALL required permissions for this route
-    const hasAllPermissions = matchingRoute.permissions.every(
-      (requiredPermission: any) => {
-        const found = userPermissions?.find(
-          (permission: any) =>
-            permission.permission.slug === requiredPermission,
-        );
-        return found;
-      },
-    );
-    console.log(hasAllPermissions, "hasAllPermissions");
+    // // Check if user has ALL required permissions for this route
+    // const hasAllPermissions = matchingRoute.permissions.every(
+    //   (requiredPermission: any) => {
+    //     const found = userPermissions?.find(
+    //       (permission: any) =>
+    //         permission.permission.slug === requiredPermission,
+    //     );
+    //     return found;
+    //   },
+    // );
     return true;
   };
   const { data: departments } = useGetDepartments();
@@ -845,7 +830,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setEmployeeJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router]);
-
 
   // ✅ Check permission on pathname change
   useEffect(() => {
@@ -935,7 +919,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const filteredMenuItems = filteredTreeData
@@ -950,15 +934,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-            AccessGuard.checkAccess({
-              permissions: child.permissions,
-            }),
-          )
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
           : [],
       };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
-  console.log(filteredMenuItems, "filteredMenuItems");
   const getResponsiveTreeData = (
     data: CustomMenuItem[],
     collapsed: boolean,
@@ -970,8 +953,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                  }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
+                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);
@@ -1067,7 +1051,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   // Render the component with the layout and navigation on the left
-  console.log(isSubscriptionExpired, "isSubscriptionExpired");
   return (
     <Layout>
       {isSubscriptionExpired && (isAdmin == true ? !isAdminPage : true) ? (
@@ -1085,7 +1068,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               top: 0,
               bottom: 0,
               zIndex: 1000,
-              transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
+              transform:
+                isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
               transition: 'transform 0.3s ease',
               overflowX: 'hidden',
             }}
