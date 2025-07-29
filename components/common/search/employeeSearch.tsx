@@ -43,7 +43,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
     return [];
   };
 
-  const onSearchChange = (value: any, key: string, isSelect: boolean) => {
+  const onSearchChange = (value: any, key: string) => {
     setSelectedUser(['']);
 
     if (key === 'employee') {
@@ -82,7 +82,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
               <AccessGuard permissions={[Permissions.ViewAllEmployeePlan]}>
                 <Select
                   placeholder="Select employee"
-                  onChange={(value) => onSearchChange(value, 'employee', true)}
+                  onChange={(value) => onSearchChange(value, 'employee')}
                   allowClear
                   showSearch
                   className="w-full h-10"
@@ -122,7 +122,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
               <AccessGuard permissions={[Permissions.ViewAllEmployeePlan]}>
                 <Select
                   placeholder="Select Employee"
-                  onChange={(value) => onSearchChange(value, 'employee', true)}
+                  onChange={(value) => onSearchChange(value, 'employee')}
                   allowClear
                   showSearch
                   className="w-full h-14"
@@ -162,7 +162,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                       ? optionArray2?.[0]?.key
                       : undefined
                   }
-                  onChange={(value) => onSearchChange(value, 'type', true)}
+                  onChange={(value) => onSearchChange(value, 'type')}
                   allowClear
                   className="w-full h-14"
                 >
@@ -182,7 +182,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   value={selectedDepartment}
                   onChange={(value) => {
                     setSelectedDepartment(value);
-                    onSearchChange(value, 'status', true);
+                    onSearchChange(value, 'status');
                   }}
                   allowClear
                   showSearch
@@ -240,7 +240,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                     ? optionArray2?.[0]?.key
                     : undefined
                 }
-                onChange={(value) => onSearchChange(value, 'type', true)}
+                onChange={(value) => onSearchChange(value, 'type')}
                 allowClear
                 className="w-full h-14"
               >
@@ -261,7 +261,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                 value={selectedDepartment}
                 onChange={(value) => {
                   setSelectedDepartment(value);
-                  onSearchChange(value, 'status', true);
+                  onSearchChange(value, 'status');
                 }}
                 allowClear
                 showSearch
