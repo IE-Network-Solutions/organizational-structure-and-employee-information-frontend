@@ -25,6 +25,7 @@ import {
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
+import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
 
 const AdminDashboard = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
     useState<Subscription | null>(null);
 
   const [lastInvoice, setLastInvoice] = useState<Invoice | null>(null);
+  const { setTransactionType } = usePaymentStore();
   const router = useRouter();
 
   const { data: invoicesData, isLoading: isInvoicesLoading } = useGetInvoices(
@@ -232,7 +234,6 @@ const AdminDashboard = () => {
   const activeSubscriptionData = subscriptionsData?.items?.find(
     (sub) => sub.isActive === true,
   );
-
   return (
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb
@@ -509,9 +510,10 @@ const AdminDashboard = () => {
                                   ? 'Downgrade Plan'
                                   : 'Upgrade Plan'
                               }
-                              onClick={() =>
-                                router.push(`/admin/plan?planId=${plan.id}`)
-                              }
+                              onClick={() => {
+                                setTransactionType('purchase_subscription');
+                                router.push(`/admin/plan?planId=${plan.id}`);
+                              }}
                               className="w-full text-center flex justify-center items-center"
                               type="primary"
                               disabled={!isLatestInvoicePaid()}
