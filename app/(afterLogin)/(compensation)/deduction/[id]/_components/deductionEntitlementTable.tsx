@@ -12,7 +12,7 @@ import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensat
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AllowanceEntitlementTable = () => {
   const { currentPage, pageSize, setCurrentPage, setPageSize } =

@@ -1,6 +1,6 @@
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { IoMdSwitch } from 'react-icons/io';
 
 interface TargetFiltersProps {

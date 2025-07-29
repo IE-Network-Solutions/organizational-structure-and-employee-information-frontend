@@ -8,7 +8,7 @@ import {
 import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { GroupPermissionItem } from '@/store/server/features/employees/settings/groupPermission/interface';
 import useDebounce from '@/store/uistate/features/useDebounce';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { LuSettings2 } from 'react-icons/lu';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';

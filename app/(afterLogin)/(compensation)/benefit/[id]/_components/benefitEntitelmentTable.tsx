@@ -15,7 +15,7 @@ import BenefitTracking from './benefitTracker';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 type BenefitPropTypes = {
   title: string;
 };

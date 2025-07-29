@@ -32,7 +32,7 @@ import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { IoChevronBackSharp } from 'react-icons/io5';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
