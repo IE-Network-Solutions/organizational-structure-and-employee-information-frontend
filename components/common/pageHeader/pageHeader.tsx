@@ -2,7 +2,7 @@
 import React from 'react';
 import { classNames } from '@/utils/classNames';
 import { Tooltip } from 'antd';
-import { useIsMobile } from '../hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 interface PageHeaderProps {
   title: React.ReactNode;
   description?: string;

@@ -47,5 +47,9 @@
       }
     ]
   },
-  "ignorePatterns": ["public/workbox-*.js", "public/sw.js", "public/fallback-*.js"]
+  "ignorePatterns": [
+    "public/workbox-*.js",
+    "public/sw.js",
+    "public/fallback-*.js"
+  ]
 }
