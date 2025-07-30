@@ -1001,3 +1001,41 @@ h6 {
 .desktop-switcher .ant-tree-switcher {
   width: 24px !important;
 }
+
+/* Tablet landscape modal styles for 1024 x 1366 dimension */
+.tablet-landscape-modal .ant-modal-body {
+  padding: 16px;
+}
+
+.tablet-landscape-modal .ant-row {
+  flex-direction: column !important;
+}
+
+.tablet-landscape-modal .ant-col {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-bottom: 16px !important;
+}
+
+.tablet-landscape-modal .ant-select,
+.tablet-landscape-modal .ant-picker {
+  width: 100% !important;
+}
+
+/* Specific media query for 1024 x 1366 dimension */
+@media screen and (width: 1024px) and (height: 1366px) {
+  .tablet-landscape-modal .ant-row {
+    flex-direction: column !important;
+  }
+
+  .tablet-landscape-modal .ant-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 16px !important;
+  }
+
+  .tablet-landscape-modal .ant-select,
+  .tablet-landscape-modal .ant-picker {
+    width: 100% !important;
+  }
+}
