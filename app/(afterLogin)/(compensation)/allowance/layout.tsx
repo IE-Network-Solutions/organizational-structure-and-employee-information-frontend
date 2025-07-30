@@ -24,9 +24,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <div title={allowance.name} 
-              className=" font-bold"
-              >
+              <div title={allowance.name} className=" font-bold">
                 {allowance.name?.length > 15
                   ? allowance.name?.slice(0, 15) + '...'
                   : allowance.name || 'Unnamed Allowance'}
@@ -40,9 +38,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allAllowance',
-          label: <div 
-          className=" font-bold"
-          >All Allowances</div>,
+          label: <div className=" font-bold">All Allowances</div>,
           className: 'px-1',
         },
         link: '/allowance/allAllowance',
@@ -63,10 +59,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           className="hidden sm:block"
         />
 
-        <div 
-
-        className="flex flex-col lg:flex-row gap-0 sm:gap-6"
-        >
+        <div className="flex flex-col lg:flex-row gap-0 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
           <BlockWrapper className="flex-1 h-max overflow-x-auto">
