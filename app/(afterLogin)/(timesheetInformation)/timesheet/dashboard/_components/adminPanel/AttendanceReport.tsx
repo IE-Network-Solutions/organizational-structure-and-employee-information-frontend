@@ -35,6 +35,7 @@ const AttendanceReport: React.FC = () => {
   } = TimeAndAttendaceDashboardStore();
   const { data: attendanceStats, isLoading: loading } =
     useGetAdminAttendanceStats({
+      userId: userIdOnAttendanceReport,
       startDate: startDateAttendanceReport,
       endDate: endDateAttendanceReport,
       departmentId: departmentOnAttendanceReport,
@@ -62,11 +63,16 @@ const AttendanceReport: React.FC = () => {
     plugins: {
       legend: {
         position: 'right',
+
         labels: {
           usePointStyle: true,
-          boxWidth: 8,
-          padding: 20,
+          boxWidth: 6,
+          padding: 8,
+          font: {
+            size: 10,
+          },
         },
+        align: 'center',
       },
       tooltip: {
         callbacks: {
@@ -84,8 +90,12 @@ const AttendanceReport: React.FC = () => {
           size: 14,
         },
         formatter: (value: number, context: any) => {
-          const label = context.chart.data.labels?.[context.dataIndex];
-          return `${label}\n${value}`;
+          // Only show label if value is greater than 0
+          if (value > 0) {
+            const label = context.chart.data.labels?.[context.dataIndex];
+            return `${label}\n${value}`;
+          }
+          return '';
         },
       },
     },
@@ -104,17 +114,20 @@ const AttendanceReport: React.FC = () => {
   return (
     <Card title={false} className="h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start mb-4 gap-4 w-full">
-        <p className="text-sm text-black font-semibold w-64">Attendance report</p>
+        <p className="text-sm text-black font-semibold w-64">
+          Attendance report
+        </p>
 
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:items-center">
-
           <div className="w-full">
             <Select
               showSearch
               placeholder="Select employee"
               allowClear
               filterOption={(input: any, option: any) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
               options={employeeOptions}
               maxTagCount={1}
@@ -129,7 +142,9 @@ const AttendanceReport: React.FC = () => {
               placeholder="Select department"
               allowClear
               filterOption={(input: any, option: any) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
               options={departmentOptions}
               maxTagCount={1}
@@ -143,8 +158,12 @@ const AttendanceReport: React.FC = () => {
               className="w-full h-12"
               onChange={(value) => {
                 if (value) {
-                  setStartDateAttendanceReport(value[0]?.format('YYYY-MM-DD') || '');
-                  setEndDateAttendanceReport(value[1]?.format('YYYY-MM-DD') || '');
+                  setStartDateAttendanceReport(
+                    value[0]?.format('YYYY-MM-DD') || '',
+                  );
+                  setEndDateAttendanceReport(
+                    value[1]?.format('YYYY-MM-DD') || '',
+                  );
                 } else {
                   setStartDateAttendanceReport('');
                   setEndDateAttendanceReport('');
@@ -152,7 +171,6 @@ const AttendanceReport: React.FC = () => {
               }}
             />
           </div>
-
         </div>
       </div>
 
@@ -168,7 +186,7 @@ const AttendanceReport: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <div className="w-72 h-72 md:w-96 md:h-96">
+                <div className="w-72 h-72 md:w-[340px] md:h-[340px] pr-8">
                   <Doughnut data={doughnutChartData} options={options} />
                 </div>
               )}
@@ -177,7 +195,7 @@ const AttendanceReport: React.FC = () => {
 
           {/* Attendance List */}
 
-          <div className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none">
+          <div className="space-y-3 col-span-12 md:col-span-5 h-80 overflow-y-auto scrollbar-none">
             {attendanceStats?.users?.length === 0 ? (
               <div className="flex justify-center items-center h-64">
                 <p className="text-gray-500 text-[14px] font-semibold">
@@ -193,11 +211,14 @@ const AttendanceReport: React.FC = () => {
                   {/* Left Side */}
                   <div className="flex items-center space-x-3">
                     {item.profileImage ? (
-                      <Avatar className="w-7 h-7" src={item.profileImage}>
-                      </Avatar>
+                      <Avatar
+                        className="w-7 h-7"
+                        src={item.profileImage}
+                      ></Avatar>
                     ) : (
                       <Avatar className="w-7 h-7">
-                        {item.name.split(' ')[0].charAt(0) + item.name.split(' ')[1].charAt(0)}
+                        {item.name.split(' ')[0].charAt(0) +
+                          item.name.split(' ')[1].charAt(0)}
                       </Avatar>
                     )}
                     <div>

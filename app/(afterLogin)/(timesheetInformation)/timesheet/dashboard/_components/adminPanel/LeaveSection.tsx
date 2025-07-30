@@ -12,7 +12,6 @@ import {
 import { useGetAdminOnLeave } from '@/store/server/features/timesheet/dashboard/queries';
 import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 import dayjs from 'dayjs';
-import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import LeaveSectionGraph from './LeaveSectionGraph';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';

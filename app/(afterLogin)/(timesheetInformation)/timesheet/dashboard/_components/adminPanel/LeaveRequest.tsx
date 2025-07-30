@@ -24,7 +24,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 const LeaveRequest = () => {
@@ -61,10 +61,9 @@ const LeaveRequest = () => {
   const barData = useMemo(() => {
     const graphData = pendingLeaveRequests?.monthlyStats || [];
 
-    const allMonths = Array.from({ length: 12 }, (_, index) =>
-      dayjs().month(index).format('MMM')
+    const allMonths = Array.from({ length: 12 }, (notused, index) =>
+      dayjs().month(index).format('MMM'),
     );
-
 
     const allLeaveTypes =
       graphData.length > 0 ? Object.keys(graphData[0].leaveTypes) : [];
@@ -79,9 +78,8 @@ const LeaveRequest = () => {
 
     const datasets = allLeaveTypes.map((leaveType) => {
       const data = allMonths.map(
-        (monthLabel) => monthDataMap[monthLabel]?.[leaveType] || 0
+        (monthLabel) => monthDataMap[monthLabel]?.[leaveType] || 0,
       );
-      console.log(`Data for ${leaveType}:`, data);
 
       // Assign random color to leave type if not already assigned
       if (!leaveTypeColors[leaveType]) {
@@ -107,7 +105,7 @@ const LeaveRequest = () => {
     let maxY = 100;
     if (pendingLeaveRequests?.monthlyStats) {
       const maxCount = Math.max(
-        ...pendingLeaveRequests.monthlyStats.map((item: any) => item.count)
+        ...pendingLeaveRequests.monthlyStats.map((item: any) => item.count),
       );
       maxY = Math.ceil(maxCount * 1.2) || 10;
     }
@@ -205,10 +203,10 @@ const LeaveRequest = () => {
                 onChange={(value: any) => {
                   if (value) {
                     setStartDateOnLeaveRequest(
-                      value[0]?.format('YYYY-MM-DD') || ''
+                      value[0]?.format('YYYY-MM-DD') || '',
                     );
                     setEndDateOnLeaveRequest(
-                      value[1]?.format('YYYY-MM-DD') || ''
+                      value[1]?.format('YYYY-MM-DD') || '',
                     );
                   }
                 }}
@@ -233,12 +231,13 @@ const LeaveRequest = () => {
                           style={{
                             backgroundColor: (() => {
                               if (!leaveTypeColors[item.leaveType]) {
-                                leaveTypeColors[item.leaveType] = generateRandomColor();
+                                leaveTypeColors[item.leaveType] =
+                                  generateRandomColor();
                               }
                               return leaveTypeColors[item.leaveType];
                             })(),
                             color: '#ffffff',
-                            border: '1px solid rgba(255,255,255,0.2)'
+                            border: '1px solid rgba(255,255,255,0.2)',
                           }}
                         >
                           {item.leaveType}

@@ -20,6 +20,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useAllApproval } from '@/store/server/features/approver/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 
 const LeaveRequestSidebar = () => {
   const {
@@ -27,7 +28,6 @@ const LeaveRequestSidebar = () => {
     setFilter,
     isShowLeaveRequestSidebar,
     setIsShowLeaveRequestSidebar,
-    leaveTypes,
     leaveRequestSidebarData,
     setLeaveRequestSidebarData,
   } = useMyTimesheetStore();
@@ -39,6 +39,7 @@ const LeaveRequestSidebar = () => {
   );
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetAllUsers();
+  const { data: leaveTypesData } = useGetLeaveTypes();
   const userData = employeeData?.items?.find((item: any) => item.id === userId);
 
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
@@ -98,7 +99,7 @@ const LeaveRequestSidebar = () => {
       form.setFieldValue(
         'type',
         typeof leaveRequest?.leaveType !== 'string' &&
-        leaveRequest.leaveType?.id,
+          leaveRequest.leaveType?.id,
       );
       form.setFieldValue('isHalfday', leaveRequest.isHalfday);
       form.setFieldValue('startDate', dayjs(leaveRequest.startAt));
@@ -114,7 +115,7 @@ const LeaveRequestSidebar = () => {
         form.setFieldValue(
           'delegatee',
           typeof leaveRequest?.delegatee !== 'string' &&
-          leaveRequest?.delegatee?.id,
+            leaveRequest?.delegatee?.id,
         );
       }
     }
@@ -188,7 +189,8 @@ const LeaveRequestSidebar = () => {
     });
   };
 
-  const typeOptions = () => formatToOptions(leaveTypes ?? [], 'title', 'id');
+  const typeOptions = () =>
+    formatToOptions(leaveTypesData?.items ?? [], 'title', 'id');
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';

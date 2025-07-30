@@ -176,6 +176,7 @@ export const useGetAdminAttendanceUsers = (params: {
   endDate?: string;
   page?: number;
   limit?: number;
+  currentStatus?: string;
 }) => {
   return useQuery(['adminAttendanceUsers', params], () =>
     getAdminAttendanceUsers(params),

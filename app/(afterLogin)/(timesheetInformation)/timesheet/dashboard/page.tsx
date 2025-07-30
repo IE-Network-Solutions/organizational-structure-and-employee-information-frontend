@@ -12,6 +12,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen space-y-4 bg-[#f5f5f5]">
       <DashboardHeader />
+
       {activeTab === 'admin' ? (
         <div className={`transition-all duration-500 ease-in-out`}>
           <AdminPanel />

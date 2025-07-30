@@ -55,6 +55,8 @@ export interface TimeAndAttendanceDashboardUseState {
   setUserIdOnLeaveBalance: (userIdOnLeaveBalance: string) => void;
   statusOnAttendance: string;
   setStatusOnAttendance: (statusOnAttendance: string) => void;
+  currentStatusOnAttendance: string;
+  setCurrentStatusOnAttendance: (currentStatusOnAttendance: string) => void;
   // handleSearchChange:(item:string,value:any)=>void;
 }
 
@@ -133,4 +135,7 @@ export const TimeAndAttendaceDashboardStore =
     statusOnAttendance: '',
     setStatusOnAttendance: (statusOnAttendance: string) =>
       set({ statusOnAttendance }),
+    currentStatusOnAttendance: '',
+    setCurrentStatusOnAttendance: (currentStatusOnAttendance: string) =>
+      set({ currentStatusOnAttendance }),
   }));

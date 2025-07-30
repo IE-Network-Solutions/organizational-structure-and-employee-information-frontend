@@ -44,10 +44,11 @@ const MyleaveBalance: React.FC = () => {
               <div>
                 <p className="font-medium text-xs">{item.leaveType.title}</p>
                 <Tag
-                  className={`font-medium border-none ${item.leaveType.isFixed
-                    ? 'bg-[#b2b2ff] text-blue'
-                    : 'bg-green-200 text-green-700'
-                    }`}
+                  className={`font-medium border-none ${
+                    item.leaveType.isFixed
+                      ? 'bg-[#b2b2ff] text-blue'
+                      : 'bg-green-200 text-green-700'
+                  }`}
                 >
                   {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
@@ -71,26 +72,58 @@ const MyleaveBalance: React.FC = () => {
       {/* Entitlement and Utilization */}
       <div className="grid grid-cols-12 gap-4 mt-4">
         <Card
-          bodyStyle={{ padding: '16px' }}
+          bodyStyle={{ padding: '0px' }}
           className="shadow-sm rounded-lg col-span-3 h-fit"
           loading={userLeaveBalanceLoading}
         >
-          <div className="space-y-3">
-            <div className="flex items-center gap-4 py-2 border-b border-gray-200">
-              <span className="text-sm text-gray-600 text-right w-24">Entitled</span>
-              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalEntitledDays || 0}</span>
+          <div className="space-y-3 flex flex-col gap-2">
+            <div className="py-2 border-b border-gray-200">
+              <div className="flex justify-center items-center gap-2 text-center">
+                <span className="text-sm text-gray-600 text-right">
+                  Entitled
+                </span>
+                <span className="font-bold text-lg">
+                  {Number(
+                    userLeaveBalance?.data?.totals?.totalEntitledDays,
+                  )?.toLocaleString() || 0}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-4 py-2 border-b border-gray-200">
-              <span className="text-sm text-gray-600 text-right w-24">Accrued</span>
-              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalAccrued || 0}</span>
+            <div className=" py-2 border-b border-gray-200">
+              <div className="flex justify-center items-center gap-2 text-center">
+                <span className="text-sm text-gray-600 text-right w-20">
+                  Accrued
+                </span>
+                <span className="font-bold text-lg">
+                  {Number(
+                    userLeaveBalance?.data?.totals?.totalAccrued,
+                  )?.toLocaleString() || 0}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-4 py-2 border-b border-gray-200">
-              <span className="text-sm text-gray-600 text-right w-24">Carried over</span>
-              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalCarriedOver || 0}</span>
+            <div className="py-2 border-b border-gray-200">
+              <div className="flex justify-center items-center gap-2 text-center">
+                <span className="text-sm text-gray-600 text-right w-20">
+                  Carried over
+                </span>
+                <span className="font-bold text-lg">
+                  {Number(
+                    userLeaveBalance?.data?.totals?.totalCarriedOver,
+                  )?.toLocaleString() || 0}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-4  py-2">
-              <p className="text-sm text-gray-600 text-right w-24">Total Utilized</p>
-              <span className="font-bold text-lg">{userLeaveBalance?.data?.totals?.totalUtilizedLeaves || 0}</span>
+            <div className=" py-2">
+              <div className="flex justify-center items-center gap-2 text-center">
+                <p className="text-sm text-gray-600 text-right w-24">
+                  Total Utilized
+                </p>
+                <span className="font-bold text-lg">
+                  {Number(
+                    userLeaveBalance?.data?.totals?.totalUtilizedLeaves,
+                  )?.toLocaleString() || 0}
+                </span>
+              </div>
             </div>
           </div>
         </Card>
@@ -98,9 +131,8 @@ const MyleaveBalance: React.FC = () => {
         <Card
           bodyStyle={{ padding: '10px' }}
           className="shadow col-span-9 space-y-2 "
-          title={" Utilization"}
+          title={' Utilization'}
         >
-
           <div className="flex flex-col gap-2 h-36 overflow-y-auto scrollbar-none">
             <Spin spinning={userLeaveBalanceLoading}>
               <div className="flex flex-col gap-2 h-36 overflow-y-auto scrollbar-none">
