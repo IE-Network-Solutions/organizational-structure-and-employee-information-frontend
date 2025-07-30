@@ -923,7 +923,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const filteredMenuItems = filteredTreeData
@@ -938,10 +938,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-            AccessGuard.checkAccess({
-              permissions: child.permissions,
-            }),
-          )
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
           : [],
       };
     })
@@ -957,8 +957,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                  }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
+                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);
@@ -1185,7 +1186,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               <NavBar page="" handleLogout={handleLogout} />
             </Header>
             <Content
-              className="overflow-y-hidden min-h-screen bg-[#fafafa]"
+              className="overflow-y-hidden min-h-screen"
               style={{
                 paddingInline: isMobile ? 8 : 24,
                 paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,

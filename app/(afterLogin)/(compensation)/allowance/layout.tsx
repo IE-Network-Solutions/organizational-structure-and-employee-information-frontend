@@ -24,11 +24,11 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <p title={allowance.name} className="menu-item-label">
+              <div title={allowance.name} className=" font-bold">
                 {allowance.name?.length > 15
                   ? allowance.name?.slice(0, 15) + '...'
                   : allowance.name || 'Unnamed Allowance'}
-              </p>
+              </div>
             ),
             className: 'px-1',
           },
@@ -38,7 +38,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allAllowance',
-          label: <p className="menu-item-label">All Allowances</p>,
+          label: <div className=" font-bold">All Allowances</div>,
           className: 'px-1',
         },
         link: '/allowance/allAllowance',
@@ -51,15 +51,15 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <div className="h-auto w-auto">
+    <div className="min-h-screen bg-[#f5f5f5]">
+      <div className="h-auto w-auto bg-[#f5f5f5]">
         <PageHeader
           title="Allowance"
           description="Allowance"
           className="hidden sm:block"
         />
 
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-0 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
           <BlockWrapper className="flex-1 h-max overflow-x-auto">
