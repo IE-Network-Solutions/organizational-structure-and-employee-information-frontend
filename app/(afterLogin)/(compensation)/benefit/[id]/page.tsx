@@ -47,7 +47,7 @@ const BenefitEntitlemetPage = () => {
     })) || [];
 
   return (
-    <>
+    <div className="bg-white rounded-lg px-1 py-2 sm:px-6">
       <div>
         {/* PageHeader for mobile only */}
         <div className="block sm:hidden mb-4">
@@ -82,11 +82,11 @@ const BenefitEntitlemetPage = () => {
           {/* Select and Button layout */}
           <div className="flex flex-row w-full sm:w-auto gap-2">
             {/* Select - takes 75% on mobile, fixed width on desktop */}
-            <div className="w-3/4 sm:w-72">
+            <div className="w-10/12 sm:w-72">
               <Select
                 showSearch
                 allowClear
-                className="min-h-12 w-full"
+                className="min-h-10 w-full"
                 placeholder="Search by name"
                 onChange={handleSearchChange}
                 filterOption={(input, option) => {
@@ -101,12 +101,12 @@ const BenefitEntitlemetPage = () => {
             </div>
 
             {/* Button - takes 25% on mobile, auto on desktop */}
-            <div className="w-1/4 sm:w-auto">
+            <div className="w-auto">
               <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
                 <Button
                   size="large"
                   type="primary"
-                  className="min-h-12 w-full sm:w-auto"
+                  className="h-10 w-full sm:w-auto"
                   id="createNewClosedHolidayFieldId"
                   icon={<FaPlus />}
                   onClick={handleBenefitEntitlementAdd}
@@ -126,7 +126,7 @@ const BenefitEntitlemetPage = () => {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

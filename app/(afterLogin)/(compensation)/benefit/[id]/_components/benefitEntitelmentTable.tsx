@@ -14,6 +14,8 @@ import BenefitEntitlementSideBarEdit from './benefitEntitlementSidebarEdit';
 import BenefitTracking from './benefitTracker';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 type BenefitPropTypes = {
   title: string;
 };
@@ -26,6 +28,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
     setPageSize,
     setEditBenefitData,
   } = useBenefitEntitlementStore();
+  const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
   const { id } = useParams();
   const { data: benefitEntitlementsData, isLoading } =
@@ -146,25 +149,42 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
     <Spin spinning={isLoading}>
       {employeeBenefitData == null ? (
         <>
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-          />
-          <CustomPagination
-            current={currentPage}
-            total={filteredDataSource.length}
-            pageSize={pageSize}
-            onChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-          />
+          <div className="overflow-x-auto scrollbar-hide">
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+            />
+          </div>
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+            />
+          ) : (
+            <CustomPagination
+              current={currentPage}
+              total={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          )}
         </>
       ) : (
         <BenefitTracking />

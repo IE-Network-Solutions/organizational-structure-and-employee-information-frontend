@@ -33,10 +33,14 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const { userId } = useAuthenticationStore();
   const { isMobile } = useIsMobile();
-  const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
+  const [selectedDepartment, setSelectedDepartment] = useState<
+    string | undefined
+  >(undefined);
 
   const getUserIdsByDepartmentId = (selectedDepartmentId: string) => {
-    const department = optionArray3.find((dep: any) => dep.id === selectedDepartmentId);
+    const department = optionArray3.find(
+      (dep: any) => dep.id === selectedDepartmentId,
+    );
     if (department && department.users) {
       return department.users.map((user: any) => user.id);
     }
@@ -88,7 +92,10 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   className="w-full h-10"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
-                    option?.children?.toString()?.toLowerCase().includes(input.toLowerCase()) ?? false
+                    option?.children
+                      ?.toString()
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase()) ?? false
                   }
                 >
                   {optionArray1?.map((item: any) => {
@@ -96,15 +103,22 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                     let displayMiddleName = item?.middleName || '';
                     const maxNameLength = 10;
                     if (displayFirstName.length > maxNameLength) {
-                      displayFirstName = displayFirstName.substring(0, maxNameLength) + '...';
+                      displayFirstName =
+                        displayFirstName.substring(0, maxNameLength) + '...';
                     }
                     if (displayMiddleName.length > maxNameLength) {
-                      displayMiddleName = displayMiddleName.substring(0, maxNameLength) + '...';
+                      displayMiddleName =
+                        displayMiddleName.substring(0, maxNameLength) + '...';
                     }
-                    const fullName = displayFirstName || displayMiddleName
-                      ? `${displayFirstName} ${displayMiddleName}`.trim()
-                      : 'Unnamed Employee';
-                    return <Option key={item.id} value={item.id}>{fullName}</Option>;
+                    const fullName =
+                      displayFirstName || displayMiddleName
+                        ? `${displayFirstName} ${displayMiddleName}`.trim()
+                        : 'Unnamed Employee';
+                    return (
+                      <Option key={item.id} value={item.id}>
+                        {fullName}
+                      </Option>
+                    );
                   })}
                 </Select>
               </AccessGuard>
@@ -128,7 +142,10 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   className="w-full h-14"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
-                    option?.children?.toString()?.toLowerCase().includes(input.toLowerCase()) ?? false
+                    option?.children
+                      ?.toString()
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase()) ?? false
                   }
                 >
                   {optionArray1?.map((item: any) => {
@@ -136,15 +153,22 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                     let displayMiddleName = item?.middleName || '';
                     const maxNameLength = 10;
                     if (displayFirstName.length > maxNameLength) {
-                      displayFirstName = displayFirstName.substring(0, maxNameLength) + '...';
+                      displayFirstName =
+                        displayFirstName.substring(0, maxNameLength) + '...';
                     }
                     if (displayMiddleName.length > maxNameLength) {
-                      displayMiddleName = displayMiddleName.substring(0, maxNameLength) + '...';
+                      displayMiddleName =
+                        displayMiddleName.substring(0, maxNameLength) + '...';
                     }
-                    const fullName = displayFirstName || displayMiddleName
-                      ? `${displayFirstName} ${displayMiddleName}`.trim()
-                      : 'Unnamed Employee';
-                    return <Option key={item.id} value={item.id}>{fullName}</Option>;
+                    const fullName =
+                      displayFirstName || displayMiddleName
+                        ? `${displayFirstName} ${displayMiddleName}`.trim()
+                        : 'Unnamed Employee';
+                    return (
+                      <Option key={item.id} value={item.id}>
+                        {fullName}
+                      </Option>
+                    );
                   })}
                 </Select>
               </AccessGuard>
@@ -157,10 +181,11 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                     selectedUser.includes('all')
                       ? 'All User'
                       : selectedUser.includes('subordinate')
-                      ? 'Subordinate'
-                      : selectedUser.length === 1 && selectedUser.includes(userId)
-                      ? optionArray2?.[0]?.key
-                      : undefined
+                        ? 'Subordinate'
+                        : selectedUser.length === 1 &&
+                            selectedUser.includes(userId)
+                          ? optionArray2?.[0]?.key
+                          : undefined
                   }
                   onChange={(value) => onSearchChange(value, 'type')}
                   allowClear
@@ -189,7 +214,9 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   className="w-full h-14"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
-                    (option?.children as any).toLowerCase().includes(input.toLowerCase()) ?? false
+                    (option?.children as any)
+                      .toLowerCase()
+                      .includes(input.toLowerCase()) ?? false
                   }
                 >
                   {optionArray3?.map((item: any) => (
@@ -235,10 +262,11 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   selectedUser.includes('all')
                     ? 'All User'
                     : selectedUser.includes('subordinate')
-                    ? 'Subordinate'
-                    : selectedUser.length === 1 && selectedUser.includes(userId)
-                    ? optionArray2?.[0]?.key
-                    : undefined
+                      ? 'Subordinate'
+                      : selectedUser.length === 1 &&
+                          selectedUser.includes(userId)
+                        ? optionArray2?.[0]?.key
+                        : undefined
                 }
                 onChange={(value) => onSearchChange(value, 'type')}
                 allowClear
@@ -268,7 +296,9 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                 className="w-full h-14"
                 optionFilterProp="children"
                 filterOption={(input, option) =>
-                  (option?.children as any).toLowerCase().includes(input.toLowerCase()) ?? false
+                  (option?.children as any)
+                    .toLowerCase()
+                    .includes(input.toLowerCase()) ?? false
                 }
               >
                 {optionArray3?.map((item: any) => (

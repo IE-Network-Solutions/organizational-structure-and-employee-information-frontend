@@ -51,14 +51,18 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-[#fafafa]">
       <div className="h-auto w-auto ">
-        <PageHeader title="Deduction" description="Deduction" />
+        <PageHeader
+          title="Deduction"
+          description="Deduction"
+          className="hidden sm:block"
+        />
 
-        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto scrollbar-hide">
             {children}
           </BlockWrapper>
         </div>
