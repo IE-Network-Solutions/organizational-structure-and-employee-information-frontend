@@ -70,16 +70,16 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
   ]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <div className="h-auto w-auto ">
+    <div className="min-h-screen bg-[#f5f5f5]">
+      <div className="h-auto w-auto bg-[#f5f5f5]">
         <PageHeader
           title="Settings"
           description="Compensation Settings"
           className="hidden sm:block"
         ></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-0 sm:gap-6">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto">
             {children}
           </BlockWrapper>
         </div>

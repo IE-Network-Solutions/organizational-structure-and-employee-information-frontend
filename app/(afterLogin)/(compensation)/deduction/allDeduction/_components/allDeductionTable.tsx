@@ -80,7 +80,7 @@ const AllDeductionTable = () => {
 
     ...(Array.isArray(allAllowanceEntitlementData)
       ? allAllowanceEntitlementData.map((item: any) => ({
-          title: item?.name,
+          title: <span className="text-xs truncate">{item?.name}</span>,
           dataIndex: item?.id,
           key: item?.id,
           render: (text: string) => (
