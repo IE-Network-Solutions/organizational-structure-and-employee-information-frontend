@@ -264,7 +264,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         },
         {
           title: <span>OKR</span>,
-          key: '/okr-menu',
+          key: '/okr',
           className: 'font-bold',
           permissions: ['view_okr_overview'],
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
@@ -405,7 +405,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         },
         {
           title: <span>Payroll</span>,
-          key: 'payroll-menu',
+          key: 'payroll',
           className: 'font-bold',
           permissions: ['view_payroll_overview'],
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
@@ -535,7 +535,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       children: [
         {
           title: <span>Incentive</span>,
-          key: '/incentives-menu',
+          key: '/incentives',
           className: 'font-bold',
           permissions: ['view_incentive_page'],
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
@@ -923,7 +923,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const filteredMenuItems = filteredTreeData
@@ -938,10 +938,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-              }),
-            )
+            AccessGuard.checkAccess({
+              permissions: child.permissions,
+            }),
+          )
           : [],
       };
     })
@@ -957,9 +957,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
-                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                  }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);
