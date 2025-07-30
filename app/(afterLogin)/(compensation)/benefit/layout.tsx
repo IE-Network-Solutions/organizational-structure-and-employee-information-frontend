@@ -49,7 +49,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#f5f5f5]">
       <div className="h-auto w-auto bg-[#f5f5f5]">
         <PageHeader
           title="Benefit"
