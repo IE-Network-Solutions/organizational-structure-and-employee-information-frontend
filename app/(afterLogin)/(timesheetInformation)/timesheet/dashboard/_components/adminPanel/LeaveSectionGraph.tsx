@@ -46,8 +46,16 @@ const LeaveSectionGraph: React.FC = () => {
   });
 
   // Line chart data for employee trends
-  const labels = employeeAdminLeave?.monthlyStats?.map((i: any) => i.month);
-  const dataSet = employeeAdminLeave?.monthlyStats?.map((i: any) => i.count);
+  const leaveTypeArray = employeeAdminLeave?.leaveTypeStats
+    ? Object.entries(employeeAdminLeave?.leaveTypeStats).map(
+        ([leaveType, count]) => ({
+          leaveType,
+          count,
+        }),
+      )
+    : [];
+  const labels = leaveTypeArray?.map((i: any) => i?.leaveType?.split(' ')[0]);
+  const dataSet = leaveTypeArray?.map((i: any) => i.count);
   const lineChartData = {
     labels: labels,
     datasets: [
@@ -78,7 +86,7 @@ const LeaveSectionGraph: React.FC = () => {
       y: {
         beginAtZero: true,
         min: 0,
-        max: 100,
+        max: dataSet?.length > 0 ? Math.max(...dataSet) + 10 : 100,
         ticks: {
           stepSize: 20,
           color: '#333',
@@ -126,13 +134,13 @@ const LeaveSectionGraph: React.FC = () => {
             }
             options={departmentOptions}
             maxTagCount={1}
-            className="w-full h-12"
+            className="w-32 h-12"
             onChange={(value) => setDepartmentOnLeave(value)}
           />
 
           <RangePicker
             allowClear
-            className="w-full h-12"
+            className="w-32 h-12"
             onChange={(value) => {
               if (value) {
                 setStartDate(value[0]?.format('YYYY-MM-DD') || '');
