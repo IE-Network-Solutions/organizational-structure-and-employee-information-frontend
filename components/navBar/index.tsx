@@ -454,6 +454,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
+          title: <span>Dashboard</span>,
+          key: '/timesheet/dashboard',
+          className: 'font-bold',
+          permissions: ['view_timesheet_dashboard'],
+        },
+        {
           title: <span>My Timesheet</span>,
           key: '/timesheet/my-timesheet',
           className: 'font-bold',

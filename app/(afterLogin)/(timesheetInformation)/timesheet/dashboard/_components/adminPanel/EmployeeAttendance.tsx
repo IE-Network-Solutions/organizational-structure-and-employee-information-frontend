@@ -3,10 +3,8 @@ import { Table, Select, Pagination, Avatar, Tag, DatePicker } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useGetAdminAttendanceUsers } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
-import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 
-const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 interface Employee {
@@ -15,14 +13,16 @@ interface Employee {
   name: string;
   profileImage: string;
   department: string;
-  status: 'ON LEAVE' | 'Active';
+  status: 'late' | 'active' | 'absent' | 'onleave';
   absentDays: number;
   lateDays: number;
 }
 
 const statusColors = {
-  'ON LEAVE': 'bg-red-100 text-red-600',
-  Active: 'bg-green-100 text-green-600',
+  late: 'bg-yellow-100 text-yellow-600',
+  active: 'bg-green-100 text-green-600',
+  absent: 'bg-red-100 text-red-600',
+  onleave: 'bg-purple text-light_purple',
 };
 
 export default function EmployeeAttendanceTable() {
@@ -30,8 +30,8 @@ export default function EmployeeAttendanceTable() {
   const {
     searchOnAttendance,
     setsearchOnAttendance,
-    departmentOnAttendance,
-    setDepartmentOnAttendance,
+    currentStatusOnAttendance,
+    setCurrentStatusOnAttendance,
     startDateOnAttendance,
     setStartDateOnAttendance,
     endDateOnAttendance,
@@ -46,23 +46,28 @@ export default function EmployeeAttendanceTable() {
       sortBy: 'name',
       sortOrder: 'asc',
       userId: searchOnAttendance,
-      departmentId: departmentOnAttendance,
+      ...(currentStatusOnAttendance && {
+        currentStatus: currentStatusOnAttendance,
+      }),
       startDate: startDateOnAttendance,
       endDate: endDateOnAttendance,
       page: currentPageOnAttendance,
       limit: pageSizeOnAttendance,
     });
 
-  const { data: departments } = useGetUserDepartment();
-  const departmentOptions = departments?.map((i: any) => ({
-    value: i.id,
-    label: i?.name,
-  }));
   const { data: employees } = useGetEmployees();
   const employeeOptions = employees?.items?.map((i: any) => ({
     value: i.id,
     label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
   }));
+
+  // Attendance type options
+  const attendanceTypeOptions = [
+    { value: 'active', label: 'Active' },
+    { value: 'late', label: 'Late' },
+    { value: 'absent', label: 'Absent' },
+    { value: 'onleave', label: 'On Leave' },
+  ];
 
   const columns = [
     {
@@ -116,7 +121,6 @@ export default function EmployeeAttendanceTable() {
       render: (days: number) => `${days} days`,
     },
   ];
-
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       {/* Filters */}
@@ -134,18 +138,15 @@ export default function EmployeeAttendanceTable() {
         />
         <Select
           showSearch
-          placeholder="Select department"
+          placeholder="Type"
           allowClear
           filterOption={(input: any, option: any) =>
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
           }
-          options={departmentOptions}
-          onChange={(value) => setDepartmentOnAttendance(value)}
+          options={attendanceTypeOptions}
+          onChange={(value) => setCurrentStatusOnAttendance(value)}
           className="w-52 h-12"
-        >
-          <Option value="Active">Active</Option>
-          <Option value="ON LEAVE">ON LEAVE</Option>
-        </Select>
+        />
         <RangePicker
           className="w-52 h-12 "
           onChange={(dates) => {
