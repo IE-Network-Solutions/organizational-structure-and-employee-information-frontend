@@ -100,10 +100,7 @@ const EmployeeProfile = () => {
     if (payroll?.items && employee) {
       const mergedData = payroll.items
         .filter((pay: any) => pay.employeeId === employee.id)
-        .map((pay: any) => ({
-          ...pay,
-          employeeInfo: employee || null,
-        }));
+        .map((pay: any) => ({ ...pay, employeeInfo: employee || null }));
 
       setMergedPayroll(mergedData);
 
@@ -161,7 +158,7 @@ const EmployeeProfile = () => {
         bordered={false}
       >
         <Row gutter={[32, 32]}>
-          <Col lg={8} md={10} xs={24}>
+          <Col sm={24} md={24} xs={24} lg={10} xl={10}>
             <Card
               loading={isLoading}
               className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`}
@@ -245,7 +242,7 @@ const EmployeeProfile = () => {
             </Card>
           </Col>
 
-          <Col xs={24} md={16}>
+          <Col xs={24} sm={24} md={24} lg={14} xl={14}>
             <Tabs defaultActiveKey="1">
               <TabPane
                 tab="Information"
