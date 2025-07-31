@@ -11,7 +11,6 @@ import { Form, Input, TimePicker, Switch, Table, Button } from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 // interface WorkScheduleFormProps {
 //   form: FormInstance;
@@ -38,14 +37,12 @@ const CustomWorkingScheduleDrawer = () => {
     setStandardHours,
     setValidationError,
     clearValidationError,
-    pageSize,
-    currentPage,
   } = useScheduleStore();
   const { mutate: updateSchedule, isSuccess: isUpdateSuccess } =
     useUpdateSchedule();
   const { mutate: createSchedule, isSuccess: isCreateSuccess } =
     useCreateSchedule();
-  const { refetch: refetchSchedules } = useFetchSchedule(currentPage, pageSize);
+  const { refetch: refetchSchedules } = useFetchSchedule();
   const [form] = Form.useForm();
   const { detail } = useScheduleStore((state) => ({
     scheduleName: state.scheduleName,
@@ -59,22 +56,11 @@ const CustomWorkingScheduleDrawer = () => {
   };
 
   const handleSubmit = () => {
-    const errorMessage =
-      'Cannot create work schedule with 0 working hours. Please enable at least one working day with valid time range.';
-
-    // Check if there are any working days enabled
-    const hasWorkingDays = detail.some((item) => item.status);
-
-    if (!hasWorkingDays) {
-      setValidationError(errorMessage);
-      NotificationMessage.warning({ message: errorMessage });
-      return;
-    }
-
     // Check if total working hours is 0
     if (standardHours === 0) {
-      setValidationError(errorMessage);
-      NotificationMessage.warning({ message: errorMessage });
+      setValidationError(
+        'Cannot create work schedule with 0 working hours. Please enable at least one working day with valid time range.',
+      );
       return;
     }
 
@@ -316,12 +302,12 @@ const CustomWorkingScheduleDrawer = () => {
       >
         <Form.Item
           name="scheduleName"
-          label={<span className="text-sm font-semibold">Schedule Name</span>}
+          label="Schedule Name"
           rules={[{ required: true, message: 'Please input schedule name!' }]}
         >
           <Input
             size="large"
-            className="h-10 mt-2 w-full font-normal text-sm"
+            className="h-10"
             placeholder="Enter your schedule name"
             value={scheduleName}
             onChange={(e) => setScheduleName(e.target.value)}
