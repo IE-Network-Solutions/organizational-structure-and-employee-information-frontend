@@ -35,7 +35,7 @@ apiClient.interceptors.response.use(async (response) => {
       const decryptedPayload = decrypt(data.data);
       response.data = JSON.parse(await decryptedPayload);
     } catch (err) {
-      throw err
+      throw err;
     }
   }
 

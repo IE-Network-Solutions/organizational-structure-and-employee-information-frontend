@@ -56,7 +56,7 @@ const exportAttendanceData = async (data: any) => {
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    let fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
+    const fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
 
     link.href = url;
     link.setAttribute('download', fileName);

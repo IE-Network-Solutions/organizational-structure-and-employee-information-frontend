@@ -1,11 +1,7 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useQuery } from 'react-query';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
-
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchOffBoardingTemplateTasks = async () => {
   return crudRequest({

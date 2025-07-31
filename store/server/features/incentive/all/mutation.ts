@@ -30,7 +30,7 @@ const exportData = async (data: any) => {
     });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    let fileName = 'Incentive Data Export.xlsx';
+    const fileName = 'Incentive Data Export.xlsx';
     link.href = url;
     link.setAttribute('download', fileName);
     document.body.appendChild(link);

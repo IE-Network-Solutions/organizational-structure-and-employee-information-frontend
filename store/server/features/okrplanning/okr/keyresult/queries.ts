@@ -1,12 +1,8 @@
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { KeyResult } from '@/store/uistate/features/okrplanning/okr/interface';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
-
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {
   items: KeyResult[];

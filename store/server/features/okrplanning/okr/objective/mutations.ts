@@ -131,7 +131,7 @@ const downloadEmployeeOkrScore = async (data: any) => {
     });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    let fileName = 'Employee okr score export.xlsx';
+    const fileName = 'Employee okr score export.xlsx';
     link.href = url;
     link.setAttribute('download', fileName);
     document.body.appendChild(link);

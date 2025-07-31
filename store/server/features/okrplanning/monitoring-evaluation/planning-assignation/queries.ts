@@ -1,12 +1,8 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { PlanningAssignation } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer/interface';
-
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {
   items: PlanningAssignation[];

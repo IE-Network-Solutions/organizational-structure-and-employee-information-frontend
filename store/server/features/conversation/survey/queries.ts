@@ -1,11 +1,8 @@
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 
-const token = useAuthenticationStore.getState().token;
-const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 
 const getEmployeeSurvey = async (

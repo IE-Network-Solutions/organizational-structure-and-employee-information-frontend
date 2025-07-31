@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
