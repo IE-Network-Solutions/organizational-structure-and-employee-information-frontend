@@ -6,10 +6,6 @@ import { useRecruitmentDashboardStore } from '@/store/uistate/features/recruitme
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { LoadingOutlined } from '@ant-design/icons';
 
-
-
-
-
 export default function JobPerformance({
   data,
   isLoading,
@@ -19,7 +15,6 @@ export default function JobPerformance({
 }) {
   const { jobPostPage, setJobPostPage, jobPostLimit, setJobPostLimit } =
     useRecruitmentDashboardStore();
-  console.log(data, 'data');
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const getDepartmentName = (id: string) => {
@@ -50,7 +45,7 @@ export default function JobPerformance({
       key: 'recruiter',
     },
     {
-      title: 'Number of Employee',
+      title: 'No of applicants',
       dataIndex: 'noOfApplicants',
       key: 'noOfApplicants',
     },
@@ -63,6 +58,9 @@ export default function JobPerformance({
       title: 'Close Date',
       dataIndex: 'closedDate',
       key: 'closedDate',
+      render: (notused: string, record: any) => {
+        return record.closedDate ? record.closedDate : '-';
+      },
     },
   ];
   return (
@@ -73,6 +71,7 @@ export default function JobPerformance({
         loading={isLoading}
         pagination={false}
         bordered={false}
+        className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0"
       />
       <CustomPagination
         total={data?.total}

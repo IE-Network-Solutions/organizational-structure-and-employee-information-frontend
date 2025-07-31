@@ -47,29 +47,32 @@ export default function HireToApplicantChart() {
       {
         label: 'Hired',
         data: hiredApplicantTrend?.map((item: any) => item.hired) || [],
-        backgroundColor: '#4A6CF7',
+        backgroundColor: '#8979FF',
       },
       {
         label: 'Applicant',
         data: hiredApplicantTrend?.map((item: any) => item.applicant) || [],
-        backgroundColor: '#FA916B',
+        backgroundColor: '#FF928A',
       },
     ],
   };
 
-  console.log(hiredApplicantTrend, 'hiredApplicantTrend');
-
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-lg mx-1 ">
       <h3 className="font-semibold mb-4 text-[16px]">
         Hire to applicant Trend
       </h3>
       {isLoading ? (
-        <div className="flex justify-center items-center h-[180px]">
+        <div className="flex justify-center items-center ">
           <Spin size="large" />
         </div>
       ) : (
-        <Bar options={options} data={chartData} height={180} />
+        <div
+          className="flex justify-center items-center"
+          style={{ height: '300px' }}
+        >
+          <Bar options={options} data={chartData} />
+        </div>
       )}
     </Card>
   );

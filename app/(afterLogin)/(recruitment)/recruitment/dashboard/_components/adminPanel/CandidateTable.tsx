@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Table, Spin, Select } from 'antd';
+import { Table, Spin } from 'antd';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { LoadingOutlined } from '@ant-design/icons';
 import CustomPagination from '@/components/customPagination';
@@ -61,6 +61,7 @@ export default function CandidateTable({
           dataSource={data?.results}
           pagination={false}
           bordered={false}
+          className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0"
         />
         <CustomPagination
           total={data?.total}

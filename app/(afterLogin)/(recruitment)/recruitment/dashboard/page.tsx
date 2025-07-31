@@ -6,7 +6,7 @@ import DashboardComponent from './_components/adminPanel';
 
 export default function Dashboard() {
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen space-y-4">
+    <div className="min-h-screen space-y-4 bg-[#f4f4f4]">
       <DashboardHeader />
 
       <DashboardComponent />
