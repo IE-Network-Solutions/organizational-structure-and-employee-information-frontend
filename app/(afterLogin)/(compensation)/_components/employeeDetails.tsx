@@ -33,7 +33,7 @@ export const EmployeeDetails = ({
         icon={<UserOutlined />}
         data-testid="employee-avatar"
       />
-      <span data-testid="employee-name">{userName}</span>
+      <span data-testid="employee-name" className="truncate">{userName}</span>
     </Space>
   );
 };

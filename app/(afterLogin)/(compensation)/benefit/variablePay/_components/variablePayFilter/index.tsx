@@ -159,7 +159,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
         {/* Desktop layout: visible from md and up */}
         <Col
           xs={24}
-          className="hidden md:flex gap-4"
+          className="hidden md:flex gap-3"
           data-testid="desktop-filter-layout"
         >
           {/* Search Select */}

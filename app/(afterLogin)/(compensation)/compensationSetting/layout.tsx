@@ -29,7 +29,6 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Allowance Type</p>
           </div>
         ),
-        className: 'px-1',
       },
       link: '/compensationSetting/allowanceType',
     },
@@ -46,7 +45,6 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Benefit Type</p>
           </div>
         ),
-        className: 'px-1',
       },
       link: '/compensationSetting/benefitType',
     },
@@ -63,7 +61,6 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Deduction Type</p>
           </div>
         ),
-        className: 'px-1',
       },
       link: '/compensationSetting/deductionType',
     },

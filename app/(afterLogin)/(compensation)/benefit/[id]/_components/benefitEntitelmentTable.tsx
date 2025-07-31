@@ -62,7 +62,6 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
       dataIndex: 'userId',
       key: 'userId',
       sorter: true,
-
       render: (rule: any, record: any) => (
         <div onClick={() => handleEmployeeData(record)}>
           {' '}
@@ -75,6 +74,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
       dataIndex: 'isRate',
       key: 'isRate',
       sorter: true,
+      width: 100,
       render: (isRate: string) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
     },
     {
@@ -82,6 +82,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
       dataIndex: 'mode',
       key: 'mode',
       sorter: true,
+      width: 100,
       render: (mode: string) => (
         <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>
       ),
@@ -91,6 +92,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({ title }) => {
       dataIndex: 'Amount',
       key: 'Amount',
       sorter: true,
+      width: 150,
       render: (amount: string, record) => (
         <div>
           {amount

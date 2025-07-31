@@ -31,7 +31,7 @@ const AllowanceEntitlementSideBar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-12',
+      className: 'h-10',
       size: 'large',
       loading: allUserLoading,
       onClick: () => onClose(),
@@ -39,7 +39,7 @@ const AllowanceEntitlementSideBar = () => {
     {
       label: <span>Create</span>,
       key: 'create',
-      className: 'h-12',
+      className: 'h-10',
       type: 'primary',
       size: 'large',
       loading: allUserLoading,
@@ -80,7 +80,7 @@ const AllowanceEntitlementSideBar = () => {
         onClose={onClose}
         modalHeader={
           <CustomDrawerHeader
-            className="flex justify-start"
+            className="flex justify-center"
             data-testid="entitlement-sidebar-header"
           >
             <span>Add Allowance Entitlement</span>
@@ -88,12 +88,12 @@ const AllowanceEntitlementSideBar = () => {
         }
         footer={
           <CustomDrawerFooterButton
-            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            className="w-full bg-[#fff] flex justify-center"
             buttons={footerModalItems}
             data-testid="entitlement-sidebar-footer"
           />
         }
-        width="600px"
+        width="35%"
         customMobileHeight="37vh"
         data-testid="allowance-entitlement-sidebar"
       >

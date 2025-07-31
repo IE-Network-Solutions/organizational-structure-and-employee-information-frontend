@@ -23,24 +23,24 @@ const AllAllowancePage: React.FC = () => {
     })) || [];
 
   return (
-    <div className="bg-white rounded-lg px-1 py-4 sm:px-6">
+    <div className="bg-white rounded-lg px-1 py-4 sm:px-6 sm:mr-4">
       <div>
         {/* Mobile: PageHeader on top */}
         <div className="block sm:hidden pb-3">
-          <PageHeader title="All Allowance" horizontalPadding="0px" />
+          <PageHeader title="All Allowance Entitlement" horizontalPadding="0px" />
         </div>
 
         {/* Main layout for sm and up */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           {/* Desktop PageHeader */}
           <div className="hidden sm:block bg-white">
-            <PageHeader title="All Allowance" horizontalPadding="0px" />
+            <PageHeader title="All Allowance Entitlement" horizontalPadding="0px" />
           </div>
 
           {/* Right Section: Select + Button */}
           <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
             {/* Select: 75% on mobile */}
-            <div className="w-10/12 sm:w-72 mr-2">
+            <div className="w-10/12 mr-2 sm:hidden">
               <Select
                 showSearch
                 allowClear
@@ -77,7 +77,25 @@ const AllAllowancePage: React.FC = () => {
               </AccessGuard>
             </div>
           </div>
+          
         </div>
+        <div className="w-full sm:block hidden mt-2">
+              <Select
+                showSearch
+                allowClear
+                className="h-10 w-full"
+                placeholder="Search by name"
+                onChange={handleSearchChange}
+                filterOption={(input, option) => {
+                  const label = option?.label;
+                  return (
+                    typeof label === 'string' &&
+                    label.toLowerCase().includes(input.toLowerCase())
+                  );
+                }}
+                options={options}
+              />
+            </div>
       </div>
 
       <div>

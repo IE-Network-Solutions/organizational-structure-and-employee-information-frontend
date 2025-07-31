@@ -30,7 +30,6 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                   : allowance.name || 'Unnamed Allowance'}
               </div>
             ),
-            className: 'px-1',
           },
           link: `/allowance/${allowance.id}`,
         })) || [];
@@ -39,7 +38,6 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         item: {
           key: 'allAllowance',
           label: <div className=" font-bold">All Allowances</div>,
-          className: 'px-1',
         },
         link: '/allowance/allAllowance',
       };

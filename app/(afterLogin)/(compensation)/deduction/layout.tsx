@@ -30,7 +30,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                   : deduction.name || 'Unnamed Allowance'}
               </div>
             ),
-            className: 'px-1',
           },
           link: `/deduction/${deduction.id}`,
         })) || [];
@@ -39,7 +38,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         item: {
           key: 'allDeduction',
           label: <div className=" font-bold">All Deductions</div>,
-          className: 'px-1',
         },
         link: '/deduction/allDeduction',
       };
