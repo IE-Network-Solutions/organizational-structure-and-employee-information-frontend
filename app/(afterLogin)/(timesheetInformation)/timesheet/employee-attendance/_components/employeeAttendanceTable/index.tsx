@@ -252,6 +252,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       nFilter['type'] = val.type;
     }
 
+    if (val.breakTypeId) {
+      nFilter['breakTypeId'] = val.breakTypeId;
+    }
+
     if (val.employeeId) {
       nFilter['userIds'] = Array.isArray(val.employeeId)
         ? val.employeeId
