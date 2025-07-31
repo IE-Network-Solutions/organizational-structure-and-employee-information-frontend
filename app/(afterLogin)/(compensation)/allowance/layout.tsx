@@ -57,7 +57,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           className="hidden sm:block"
         />
 
-        <div className="flex flex-col lg:flex-row gap-0 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
           <BlockWrapper className="flex-1 h-max overflow-x-auto">
