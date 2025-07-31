@@ -36,6 +36,11 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   validationError: '',
   detail: initializeDetail(),
 
+  currentPage: 1,
+  pageSize: 5,
+  setCurrentPage: (page) => set({ currentPage: page }),
+  setPageSize: (size) => set({ pageSize: size }),
+
   setStandardHours: (standardHours) => set({ standardHours }),
   setId: (id) => set({ id }),
   toggleDrawer: () => set((state) => ({ isOpen: !state.isOpen })),
