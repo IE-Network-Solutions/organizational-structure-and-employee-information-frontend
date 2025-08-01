@@ -18,6 +18,7 @@ import {
   useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
   useGetPlanningPeriodsHierarchy,
+  useGetUserChildPlans,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
@@ -26,6 +27,7 @@ import { NAME } from '@/types/enumTypes';
 import { FaStar } from 'react-icons/fa';
 import { MdKey } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useEffect } from 'react';
 const { Text } = Typography;
 
 const { TextArea } = Input;
@@ -42,6 +44,8 @@ function CreateReport() {
     selectedStatuses,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
+
+  // Set initial form values based on selectedStatuses
 
   const onClose = () => {
     setOpenReportModal(false);
@@ -63,22 +67,24 @@ function CreateReport() {
   };
   const planningPeriodId =
     activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
-
+    const {
+      data: allPlannedTaskForReport,
+      isLoading: plannedTaskForReportLoading,
+    } = useGetPlannedTaskForReport(planningPeriodId);
+  
   const planningPeriodName = getPlanningPeriodDetail(activePlanPeriodId)?.name;
 
   // const { data: allUnReportedPlanningTask } =
   //   useGetUnReportedPlanning(planningPeriodId,activeTab);
 
-  const {
-    data: allPlannedTaskForReport,
-    isLoading: plannedTaskForReportLoading,
-  } = useGetPlannedTaskForReport(planningPeriodId);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
       Create {planningPeriodName} Report
     </div>
   );
+
+  console.log(allPlannedTaskForReport, 'allPlannedTaskForReport');
 
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&
@@ -97,10 +103,57 @@ function CreateReport() {
         },
       );
   };
-
   const formattedData =
-    allPlannedTaskForReport &&
-    groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
+  allPlannedTaskForReport &&
+  groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
+  
+  useEffect(() => {
+    if (formattedData && Object.keys(selectedStatuses).length > 0) {
+      const initialValues: Record<string, any> = {};
+      
+      formattedData.forEach((objective: any) => {
+        objective?.keyResults?.forEach((keyresult: any) => {
+          // Handle milestone tasks
+          keyresult?.milestones?.forEach((milestone: any) => {
+            milestone?.tasks?.forEach((task: any) => {
+              if (selectedStatuses[task.taskId]) {
+                if (selectedStatuses[task.taskId] === 'Done') {
+                  initialValues[task.taskId] = {
+                    actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
+                  };
+                } else if (selectedStatuses[task.taskId] === 'Not') {
+                  initialValues[task.taskId] = {
+                    actualValue: Number(task?.actualValue ?? 0)?.toLocaleString(),
+                  };
+                }
+              }
+            });
+          });
+          
+          // Handle regular tasks
+          keyresult?.tasks?.forEach((task: any) => {
+            if (selectedStatuses[task.taskId]) {
+              if (selectedStatuses[task.taskId] === 'Done') {
+                initialValues[task.taskId] = {
+                  actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
+                };
+              } else if (selectedStatuses[task.taskId] === 'Not') {
+                initialValues[task.taskId] = {
+                  actualValue: 0,
+                };
+              }
+            }
+          });
+        });
+      });
+      
+      if (Object.keys(initialValues).length > 0) {
+        form.setFieldsValue(initialValues);
+      }
+    }
+  }, [formattedData, selectedStatuses, form]);
+
+ 
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
       sum +
@@ -145,6 +198,23 @@ function CreateReport() {
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
     (i: any) => i.isReported === false,
   )?.id;
+
+  const { data: childPlans } = useGetUserChildPlans(
+    allPlannedTaskForReport?.[0]?.plan?.id
+  );
+
+  // const planProgress = childPlans?.reduce((grandTotal: number, childPlan: any) => {
+  //   const planTotal = childPlan?.tasks?.reduce((sum: number, task: any) => {
+  //     const actualValue = Number(task?.actualValue || 0);
+  //     return sum + actualValue;
+  //   }, 0) || 0;
+    
+  //   return grandTotal + planTotal;
+  // }, 0) || 0;
+  
+  // console.log('Child Plans:', childPlans);
+  
+  console.log(selectedStatuses,"**************************");
   return (
     openReportModal && (
       <CustomDrawerLayout
@@ -246,12 +316,29 @@ function CreateReport() {
 
                                                 <Radio.Group
                                                   className="text-xs"
-                                                  onChange={(e) =>
+                                                  onChange={(e) => {
                                                     setStatus(
                                                       task.taskId,
                                                       e.target.value,
-                                                    )
-                                                  }
+                                                    );
+                                                    if (e.target.value === 'Done') {
+                                                      form.setFieldsValue({
+                                                        [task.taskId]: {
+                                                          actualValue: Number(
+                                                            task?.targetValue ?? 0,
+                                                          )?.toLocaleString(),
+                                                        },
+                                                      });
+                                                    } else if (
+                                                      e.target.value === 'Not'
+                                                    ) {
+                                                      form.setFieldsValue({
+                                                        [task.taskId]: {
+                                                          actualValue: 0,
+                                                        },
+                                                      });
+                                                    }
+                                                  }}
                                                   value={
                                                     selectedStatuses[
                                                       task.taskId
@@ -329,6 +416,19 @@ function CreateReport() {
                                                     </Tag>
                                                   </div>
                                                 )}
+                                                {keyresult?.metricType?.name !==
+                                                NAME.ACHIEVE &&
+                                                keyresult?.metricType?.name !==
+                                                  NAME.MILESTONE && (
+                                                  <div className="text-xs">
+                                                    Actual
+                                                    <Tag className="uppercase mt-1 ml-1 test-xs">
+                                                      {Number(
+                                                        task?.actualValue,
+                                                      )?.toLocaleString()}
+                                                    </Tag>
+                                                  </div>
+                                                )}
                                             </Row>
                                           </div>
                                         </Form.Item>
@@ -338,7 +438,7 @@ function CreateReport() {
                                             NAME.ACHIEVE &&
                                           keyresult?.metricType?.name !==
                                             NAME.MILESTONE &&
-                                          !parentParentId && (
+                                          // !parentParentId && (
                                             <Form.Item
                                               key={`${task.taskId}-actualValue`}
                                               name={[
@@ -454,7 +554,8 @@ function CreateReport() {
                                                 }}
                                               />
                                             </Form.Item>
-                                          )}
+                                          // )
+                                          }
                                         {/* Comment Form Item, only with the 'Not' status condition */}
                                         {selectedStatuses[task.taskId] ===
                                           'Not' && (
@@ -549,8 +650,9 @@ function CreateReport() {
                                             if (e.target.value === 'Done') {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
-                                                  actualValue:
-                                                    task?.targetValue,
+                                                  actualValue: Number(
+                                                    task?.targetValue ?? 0,
+                                                  )?.toLocaleString(),
                                                 },
                                               });
                                             } else if (
@@ -640,13 +742,16 @@ function CreateReport() {
                                     NAME.ACHIEVE &&
                                   keyresult?.metricType?.name !==
                                     NAME.MILESTONE &&
-                                  !parentParentId && (
+                                  // !parentParentId && (
                                     <Form.Item
                                       key={`${task.taskId}-actualValue`}
                                       name={[task.taskId, 'actualValue']}
                                       className="mb-2"
                                       label="Actual value:"
-                                      rules={[
+                                      initialValue={Number(
+                                        task?.actualValue,
+                                      )?.toLocaleString() || 0}
+                                    rules={[
                                         {
                                           validator(notused, value) {
                                             if (
@@ -748,7 +853,8 @@ function CreateReport() {
                                         }}
                                       />
                                     </Form.Item>
-                                  )}
+                                  // )
+                                  }
                                 {/* Comment Form Item, only with the 'Not' status condition */}
                                 {selectedStatuses[task.taskId] === 'Not' && (
                                   <Form.Item

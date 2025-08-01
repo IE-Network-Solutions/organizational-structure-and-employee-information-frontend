@@ -92,6 +92,9 @@ function CreatePlan() {
     }
   };
   const handleOnFinish = (values: Record<string, any>) => {
+    console.log(values, 'values');
+
+
     const mergeValues = (obj: any) => {
       return Object.entries(obj)
         .filter(([key]) => key.startsWith('names-'))
@@ -100,6 +103,9 @@ function CreatePlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
+
+    console.log(finalValues, 'finalValues');
+    // return;
     createTask(
       { tasks: finalValues },
       {

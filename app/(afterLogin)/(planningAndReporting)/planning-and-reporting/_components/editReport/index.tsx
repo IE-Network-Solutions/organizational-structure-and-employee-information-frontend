@@ -349,7 +349,7 @@ function EditReport() {
                                             NAME.ACHIEVE &&
                                             keyresult?.metricType?.name !==
                                               NAME.MILESTONE &&
-                                            !parentParentId && (
+                                            // !parentParentId && (
                                               <Form.Item
                                                 key={`${task.taskId}-actualValue`}
                                                 name={[
@@ -470,7 +470,8 @@ function EditReport() {
                                                   }}
                                                 />
                                               </Form.Item>
-                                            )}
+                                            // )
+                                            }
                                           {/* Comment Form Item, only with the 'Not' status condition */}
                                           {form.getFieldValue([
                                             task.taskId,
@@ -662,7 +663,7 @@ function EditReport() {
                                       NAME.ACHIEVE &&
                                     keyresult?.metricType?.name !==
                                       NAME.MILESTONE &&
-                                    !parentParentId && (
+                                    // !parentParentId && (
                                       <Form.Item
                                         key={`${task.taskId}-actualValue`}
                                         name={[task.taskId, 'actualValue']}
@@ -771,7 +772,8 @@ function EditReport() {
                                           }}
                                         />
                                       </Form.Item>
-                                    )}
+                                    // )
+                                    }
 
                                   {/* Reason Field (Only When Status is "Not") */}
                                   {form.getFieldValue([task.id, 'status']) ===
