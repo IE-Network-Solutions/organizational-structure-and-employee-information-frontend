@@ -55,6 +55,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           title="Deduction"
           description="Deduction"
           className="hidden sm:block"
+          horizontalPadding="0px"
         />
 
         <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">

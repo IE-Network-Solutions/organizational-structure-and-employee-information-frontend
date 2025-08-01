@@ -73,6 +73,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
           title="Settings"
           description="Compensation Settings"
           className="hidden sm:block"
+          horizontalPadding="0px"
         ></PageHeader>
         <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={menuItems} />
