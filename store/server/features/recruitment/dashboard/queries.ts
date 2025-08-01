@@ -8,11 +8,13 @@ import axios from 'axios';
 import { useMutation } from 'react-query';
 
 // For /job-information/dashboard
+
 const getRecruitmentDashboard = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${RECRUITMENT_URL}/${DASHBOARD_API.GET_RECRUITMENT_DASHBOARD_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -27,10 +29,11 @@ const getRecruitmentStages = async (params?: {
   jobId?: string;
   stages?: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${RECRUITMENT_URL}/${DASHBOARD_API.GET_RECRUITMENT_STAGES_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -59,10 +62,11 @@ const getJobPostPerformance = async (params: {
   startDate?: string;
   endDate?: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${RECRUITMENT_URL}/${DASHBOARD_API.GET_JOB_POST_PERFORMANCE_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -95,10 +99,11 @@ const getRecruitmentPipeline = async (params: {
   page?: number;
   limit?: number;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${RECRUITMENT_URL}/${DASHBOARD_API.GET_RECRUITMENT_PIPELINE_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -116,10 +121,11 @@ export const useGetRecruitmentPipeline = (params: {
   );
 };
 const getHiredApplicantTrend = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${RECRUITMENT_URL}/${DASHBOARD_API.GET_HIRED_APPLICANT_TREND_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -138,10 +144,11 @@ const getJobPostPerformanceExport = async (params: {
   startDate?: string;
   endDate?: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${RECRUITMENT_URL}/${DASHBOARD_API.GET_JOB_POST_PERFORMANCE_EXPORT_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -170,10 +177,11 @@ const getRecruitmentPipelineExport = async (params: {
   stages?: string;
   jobId?: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${RECRUITMENT_URL}/${DASHBOARD_API.GET_RECRUITMENT_PIPELINE_EXPORT_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
