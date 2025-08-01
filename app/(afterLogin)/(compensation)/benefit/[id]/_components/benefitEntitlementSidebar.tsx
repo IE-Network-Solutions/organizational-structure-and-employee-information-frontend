@@ -95,8 +95,6 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     }
   };
 
-  
-
   useEffect(() => {
     if (!payPeriods?.length) return;
 
@@ -210,22 +208,22 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           </CustomDrawerHeader>
         }
         footer={
-          <div className="flex flex-row gap-4 justify-center py-3">                                                   
-      <Button
+          <div className="flex flex-row gap-4 justify-center py-3">
+            <Button
               type="default"
               className="h-10 px-3 w-40"
               size="large"
-              loading={allUserLoading}
+              loading={createBenefitLoading}
               onClick={() => onClose()}
             >
-              Cancel  
+              Cancel
             </Button>
             <Button
               type="primary"
               key="create"
               className="h-10 px-3 w-40"
               size="large"
-              loading={allUserLoading}
+              loading={createBenefitLoading}
               onClick={() => form.submit()}
             >
               Create

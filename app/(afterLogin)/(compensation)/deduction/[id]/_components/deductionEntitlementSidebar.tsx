@@ -1,4 +1,3 @@
-
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Button, Form, Input, Select, Spin, Switch } from 'antd';
@@ -29,7 +28,6 @@ const AllowanceEntitlementSideBar = () => {
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
 
   const { id } = useParams();
-
 
   const onClose = () => {
     form.resetFields();
@@ -87,7 +85,7 @@ const AllowanceEntitlementSideBar = () => {
               disabled={createAllowanceEntitlementLoading}
             >
               Cancel
-            </Button> 
+            </Button>
 
             <Button
               type="primary"

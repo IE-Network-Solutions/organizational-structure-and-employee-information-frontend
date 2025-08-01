@@ -1,7 +1,4 @@
 'use client';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Button, Form, Input, InputNumber, Select, Spin, Table } from 'antd';
@@ -75,8 +72,6 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       );
     }
   };
-
-  
 
   useEffect(() => {
     const payments = employeeEntitlementData?.settlementTracking.map(
@@ -194,7 +189,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
               onClick={() => onClose()}
             >
               Cancel
-            </Button> 
+            </Button>
 
             <Button
               type="primary"
@@ -207,8 +202,6 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
               Create
             </Button>
           </div>
-
-
         }
         width="40%"
       >
