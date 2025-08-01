@@ -29,7 +29,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
         <Button
           className="action-button-edit bg-blue"
           type="primary"
-          icon={<GrFormEdit className="text-white" />}
+          icon={<GrFormEdit size={16} className="text-white" />}
           id={`${id}buttonPopOverActionForOnEditActionId`}
           loading={loading}
           disabled={disableEdit}

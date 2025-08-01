@@ -1,10 +1,7 @@
 'use client';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, InputNumber, Select, Spin, Table } from 'antd';
+import { Button, Form, Input, InputNumber, Select, Spin, Table } from 'antd';
 import { useUpdatedBenefitEntitlementSettlement } from '@/store/server/features/compensation/benefit/mutations';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
@@ -75,26 +72,6 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       );
     }
   };
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-12',
-      size: 'large',
-      loading: updateBenefitLoading,
-      onClick: () => onClose(),
-    },
-    {
-      label: <span>Update</span>,
-      key: 'create',
-      className: 'h-12',
-      type: 'primary',
-      size: 'large',
-      loading: updateBenefitLoading,
-      onClick: () => form.submit(),
-    },
-  ];
 
   useEffect(() => {
     const payments = employeeEntitlementData?.settlementTracking.map(
@@ -203,12 +180,30 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
           </CustomDrawerHeader>
         }
         footer={
-          <CustomDrawerFooterButton
-            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
-            buttons={footerModalItems}
-          />
+          <div className="flex flex-row gap-4 justify-center py-3">
+            <Button
+              type="default"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={updateBenefitLoading}
+              onClick={() => onClose()}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="primary"
+              key="update"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={updateBenefitLoading}
+              onClick={() => form.submit()}
+            >
+              Update
+            </Button>
+          </div>
         }
-        width="600px"
+        width="40%"
       >
         <Spin spinning={allUserLoading || payLoading || isLoading}>
           <Form
