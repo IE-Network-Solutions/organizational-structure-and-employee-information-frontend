@@ -193,13 +193,13 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
 
             <Button
               type="primary"
-              key="create"
+              key="update"
               className="h-10 px-3 w-40"
               size="large"
               loading={updateBenefitLoading}
               onClick={() => form.submit()}
             >
-              Create
+              Update
             </Button>
           </div>
         }
