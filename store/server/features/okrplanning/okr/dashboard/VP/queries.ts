@@ -97,6 +97,20 @@ const getAllMonth = async () => {
   });
 };
 
+const getLineGraphDataByMonth = async (id: string, month: Array<string>) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/vp-score-instance/by-month/${id}`,
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: month,
+  });
+};
+
 export const useGetVPLineGraphData = (userId: string) => {
   return useQuery<any>(
     ['VPLineGraph', userId],
@@ -106,6 +120,7 @@ export const useGetVPLineGraphData = (userId: string) => {
     },
   );
 };
+
 export const useGetAllMonth = () => {
   return useQuery<any>('getAllMonth', getAllMonth, {
     keepPreviousData: true,
@@ -214,4 +229,13 @@ export const fetchMonthById = async (id: string) => {
   }
   const data = await response.json();
   return data.name;
+};
+
+export const useGetVPLineGraphDataByMonth = (
+  userId: string,
+  month: Array<string>,
+) => {
+  return useQuery<any>(['VPLineGraph', userId, month], () =>
+    getLineGraphDataByMonth(userId, month),
+  );
 };
