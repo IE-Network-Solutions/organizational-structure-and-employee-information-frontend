@@ -109,7 +109,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           <Select
             showSearch
             allowClear
-            className="flex-1 h-12"
+            className="flex-1 h-10"
             placeholder="Search by name"
             onChange={(value) => handleSearchInput(value, 'employeeName')}
             filterOption={(input, option) => {
@@ -124,8 +124,10 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           />
 
           {/* Toggle filter icon */}
-          <LuSettings2
-            className="cursor-pointer w-10 h-10 rounded-md border-gray-100 border-2"
+          <Button
+            type="default"
+            className="flex justify-center w-10 h-10 hover:bg-gray-100 border-gray-200"
+            icon={<LuSettings2 />}
             onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
             data-testid="mobile-filter-toggle"
           />
@@ -157,7 +159,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
         {/* Desktop layout: visible from md and up */}
         <Col
           xs={24}
-          className="hidden md:flex gap-4"
+          className="hidden md:flex gap-3"
           data-testid="desktop-filter-layout"
         >
           {/* Search Select */}

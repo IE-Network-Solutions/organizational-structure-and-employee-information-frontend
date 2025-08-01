@@ -12,11 +12,13 @@ import {
 import VariablePayFilter from './variablePayFilter';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 const VariablePayTable = () => {
   const { currentPage, pageSize, searchParams, setCurrentPage, setPageSize } =
     useVariablePayStore();
-
+  const { isMobile, isTablet } = useIsMobile();
   const { data: activeMonth } = useGetActiveMonth();
 
   const selectedMonthIds =
@@ -120,34 +122,55 @@ const VariablePayTable = () => {
   );
 
   return (
-    <div data-testid="variable-pay-table-container">
+    <div
+      className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4"
+      data-testid="variable-pay-table-container"
+    >
       <VariablePayFilter tableData={tableData} />
-      <div className="overflow-x-auto" data-testid="variable-pay-table-wrapper">
+      <div data-testid="variable-pay-table-wrapper">
         <Spin
           spinning={isLoading || isFetching || refreshLoading}
           data-testid="variable-pay-table-loading"
         >
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="variable-pay-table"
-          />
-          <CustomPagination
-            current={currentPage}
-            total={filteredDataSource.length}
-            pageSize={pageSize}
-            onChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-            data-testid="variable-pay-pagination"
-          />
+          <div className="overflow-x-auto">
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="variable-pay-table"
+            />
+          </div>
+
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+            />
+          ) : (
+            <CustomPagination
+              current={currentPage}
+              total={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              data-testid="variable-pay-pagination"
+            />
+          )}
 
           <VariablePayModal data={filteredDataSource} />
         </Spin>

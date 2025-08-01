@@ -1,18 +1,21 @@
 'use client';
-import { Table, Button, Popconfirm, Form, Select, Spin, Tooltip } from 'antd';
+import {
+  Table,
+  Button,
+  Popconfirm,
+  Form,
+  Select,
+  Spin,
+  Tooltip,
+  Avatar,
+} from 'antd';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
-import {
-  useGetAllAssignedUser,
-  useGetAllPlanningPeriods,
-} from '@/store/server/features/employees/planning/planningPeriod/queries';
-import {
-  GroupedUser,
-  PlanningPeriodUser,
-} from '@/store/server/features/employees/planning/planningPeriod/interface';
+import { useGetAllAssignedUserGroupedByUser } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import { GroupedUserWithPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
@@ -21,8 +24,6 @@ import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSett
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { FaPlus } from 'react-icons/fa';
-import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
@@ -41,25 +42,17 @@ const PlanAssignment: React.FC = () => {
   } = useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
   const {
-    data: allUserWithPlanningPeriod,
-    isLoading: allUserPlanningPeriodLoading,
-  } = useGetAllAssignedUser(page, pageSize, userId || '');
-  const { data: getAllPlanningPeriod } = useGetAllPlanningPeriods();
+    data: allUserWithPlanningPeriodGroupedByUser,
+    isLoading: allUserPlanningPeriodGroupedByUserLoading,
+  } = useGetAllAssignedUserGroupedByUser(page, pageSize, userId || '');
+
   const { data: employeeData, isLoading: employeeDataLoading } =
     useGetAllUsers();
   const { isMobile, isTablet } = useIsMobile();
-  const userToPlanning = allUserWithPlanningPeriod?.items.reduce(
-    (acc: GroupedUser[], item: PlanningPeriodUser) => {
-      let group = acc.find((group) => group.userId === item.userId);
-      if (!group) {
-        group = { userId: item.userId, items: [] };
-        acc.push(group);
-      }
-      group.items.push(item);
-      return acc;
-    },
-    [] as GroupedUser[],
-  );
+
+  // Use the grouped data directly since it's already in the correct format
+  const userToPlanning: GroupedUserWithPlanningPeriods[] =
+    allUserWithPlanningPeriodGroupedByUser?.items || [];
 
   const getEmployeeData = (userId: string) => {
     const employee = employeeData?.items?.find(
@@ -72,13 +65,6 @@ const PlanAssignment: React.FC = () => {
     const lastName = employee?.lastName || '';
 
     return `${firstName} ${middleName} ${lastName}`;
-  };
-
-  const getPlanningPeriod = (planningPeriodId: string) => {
-    const planningPeriod = getAllPlanningPeriod?.items?.find(
-      (planning: any) => planning.id === planningPeriodId,
-    );
-    return planningPeriod?.name;
   };
 
   const handleEdit = (item: any) => {
@@ -112,64 +98,53 @@ const PlanAssignment: React.FC = () => {
     const id = value ? value : null;
     setUserId(id);
   };
-
-  const dataSources = userToPlanning?.map((item: any, index: number) => {
-    const latestUpdatedAt = item?.items
-      ? item.items.reduce((latest: any, currentItem: any) => {
-          return !latest ||
-            new Date(currentItem.updatedAt) > new Date(latest.updatedAt)
-            ? currentItem
-            : latest;
-        }, null)?.updatedAt
-      : null;
-
-    return {
-      id: index + 1,
-      name: (
-        <Tooltip title={getEmployeeData(item?.userId)}>
-          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
-            <div className="relative w-6 h-6 rounded-full overflow-hidden">
-              <Image
-                src={
-                  item?.profileImage && typeof item?.profileImage === 'string'
-                    ? (() => {
-                        try {
-                          const parsed = JSON.parse(item.profileImage);
-                          return parsed.url && parsed.url.startsWith('http')
-                            ? parsed.url
-                            : Avatar;
-                        } catch {
-                          return item.profileImage.startsWith('http')
-                            ? item.profileImage
-                            : Avatar;
-                        }
-                      })()
-                    : Avatar
-                }
-                alt="Description of image"
-                layout="fill"
-                className="object-cover"
-              />
+  const dataSources = userToPlanning?.map(
+    (item: GroupedUserWithPlanningPeriods, index: number) => {
+      return {
+        id: index + 1,
+        name: (
+          <Tooltip title={getEmployeeData(item?.userId)}>
+            <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
+              <div className="flex items-center justify-start gap-2">
+                <div>
+                  {item?.profileImage ? (
+                    <Avatar size={20} src={item?.profileImage} />
+                  ) : (
+                    <Avatar size={20}>
+                      {getEmployeeData(item?.userId)
+                        .split(' ')
+                        .map((name: string) => name[0]?.toUpperCase())
+                        .join('')
+                        .slice(0, 2)}
+                    </Avatar>
+                  )}
+                </div>
+                <span>{getEmployeeData(item?.userId)}</span>
+              </div>
             </div>
-            <div className="flex flex-wrap flex-col justify-center">
-              <p>{getEmployeeData(item?.userId)}</p>
-            </div>
-          </div>
-        </Tooltip>
-      ),
-      nameString: getEmployeeData(item?.userId),
-      plans: item?.items
-        ?.map((plan: any) => getPlanningPeriod(plan.planningPeriodId))
-        .join(', '),
-      key: item?.userId,
-      createdAt: item?.items?.[0]?.createdAt,
-      updatedAt: latestUpdatedAt, // Assign latest updatedAt
-      actions: {
-        edit: () => handleEdit(item),
-        delete: () => handleDelete(item),
-      },
-    };
-  });
+          </Tooltip>
+        ),
+        nameString: getEmployeeData(item?.userId),
+        plans:
+          item?.planningPeriod?.map((plan: any) => plan?.name).join(', ') ||
+          '-',
+        key: item?.userId,
+        createdAt: item?.planningPeriod?.[0]?.createdAt,
+        updatedAt: item?.lastUpdated, // Assign latest updatedAt
+        actions: {
+          edit: () => handleEdit(item),
+          delete: () => handleDelete(item),
+        },
+      };
+    },
+  );
+
+  const onPageChange = (page: number, pageSize?: number) => {
+    setPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
 
   const columns: ColumnsType<any> = [
     {
@@ -261,35 +236,31 @@ const PlanAssignment: React.FC = () => {
 
       <div className="overflow-x-auto scrollbar-none w-full">
         <Table
-          loading={allUserPlanningPeriodLoading}
+          loading={allUserPlanningPeriodGroupedByUserLoading}
           dataSource={dataSources}
           columns={columns}
           pagination={false}
         />
+
         {isMobile || isTablet ? (
           <CustomMobilePagination
-            totalResults={allUserWithPlanningPeriod?.meta.totalItems ?? 0}
+            totalResults={
+              allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
+            }
             pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
           />
         ) : (
           <CustomPagination
-            current={allUserWithPlanningPeriod?.meta.currentPage || 1}
-            total={allUserWithPlanningPeriod?.meta.totalItems || 1}
+            current={page}
+            total={
+              allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
+            }
             pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setPage(page);
+            onChange={onPageChange}
+            onShowSizeChange={(pageSize) => {
               setPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
               setPage(1);
             }}
           />

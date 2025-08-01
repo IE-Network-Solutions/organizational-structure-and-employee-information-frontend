@@ -12,8 +12,11 @@ import {
 import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const DeductionTypeTable = () => {
+  const { isMobile, isTablet } = useIsMobile();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
@@ -69,7 +72,9 @@ const DeductionTypeTable = () => {
       key: 'name',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="deduction-type-name">{text || '-'}</div>
+        <div data-testid="deduction-type-name" className="text-xs truncate">
+          {text || '-'}
+        </div>
       ),
     },
     {
@@ -78,7 +83,12 @@ const DeductionTypeTable = () => {
       key: 'description',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="deduction-type-description">{text || '-'}</div>
+        <div
+          data-testid="deduction-type-description"
+          className="text-xs truncate"
+        >
+          {text || '-'}
+        </div>
       ),
     },
     {
@@ -122,7 +132,10 @@ const DeductionTypeTable = () => {
       key: 'applicableTo',
       sorter: true,
       render: (applicableTo: string) => (
-        <div data-testid="deduction-type-applicable">
+        <div
+          data-testid="deduction-type-applicable"
+          className="text-xs truncate"
+        >
           {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
         </div>
       ),
@@ -178,27 +191,44 @@ const DeductionTypeTable = () => {
   return (
     <div data-testid="deduction-type-table-container">
       <Spin spinning={isLoading} data-testid="deduction-type-table-loading">
-        <Table
-          className="mt-6"
-          columns={columns}
-          dataSource={paginatedData}
-          pagination={false}
-          data-testid="deduction-type-table"
-        />
-        <CustomPagination
-          current={benefitCurrentPage}
-          total={tableData.length}
-          pageSize={benefitPageSize}
-          onChange={(page, size) => {
-            setBenefitCurrentPage(page);
-            setBenefitPageSize(size);
-          }}
-          onShowSizeChange={(size) => {
-            setBenefitPageSize(size);
-            setBenefitCurrentPage(1);
-          }}
-          data-testid="deduction-type-pagination"
-        />
+        <div className="flex overflow-x-auto scrollbar-none w-full ">
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="deduction-type-table"
+          />
+        </div>
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={tableData.length}
+            pageSize={benefitPageSize}
+            onChange={(page, size) => {
+              setBenefitCurrentPage(page);
+              setBenefitPageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setBenefitCurrentPage(page);
+              setBenefitPageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={benefitCurrentPage}
+            total={tableData.length}
+            pageSize={benefitPageSize}
+            onChange={(page, size) => {
+              setBenefitCurrentPage(page);
+              setBenefitPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setBenefitPageSize(size);
+              setBenefitCurrentPage(1);
+            }}
+            data-testid="deduction-type-pagination"
+          />
+        )}
       </Spin>
     </div>
   );

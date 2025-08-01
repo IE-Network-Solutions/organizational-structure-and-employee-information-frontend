@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Button, Modal, Select } from 'antd';
+import { VscSettings } from 'react-icons/vsc';
 
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -8,9 +9,9 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { VscSettings } from 'react-icons/vsc';
 
 const { Option } = Select;
+
 interface Option {
   key: string;
   value: string;
@@ -32,29 +33,34 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const { userId } = useAuthenticationStore();
   const { isMobile } = useIsMobile();
-  /*eslint-disable @typescript-eslint/no-unused-vars */
+  const [selectedDepartment, setSelectedDepartment] = useState<
+    string | undefined
+  >(undefined);
+
   const getUserIdsByDepartmentId = (selectedDepartmentId: string) => {
     const department = optionArray3.find(
       (dep: any) => dep.id === selectedDepartmentId,
     );
     if (department && department.users) {
-      return department.users.map((user: any) => user.id); // Returns array of user IDs
+      return department.users.map((user: any) => user.id);
     }
-    return []; // Returns empty array if no department or users found
+    return [];
   };
 
-  // const onSearchChange = useDebounce(handleSearchEmployee, 2000);
-  const onSearchChange = (value: any, key: string, isSelect: boolean) => {
+  const onSearchChange = (value: any, key: string) => {
     setSelectedUser(['']);
+
     if (key === 'employee') {
       setSelectedUser([value]);
     } else if (key === 'type') {
+      setSelectedDepartment(undefined); // Reset department when type changes
+
       if (value === 'allPlan' || value === 'allReport') {
         setSelectedUser(['all']);
       } else if (value === 'subordinatePlan' || value === 'subordinateReport') {
         const subordinates = employeeData.items
           .filter((employee: any) => employee.reportingTo?.id === userId)
-          .map((employee: any) => employee.id); // Get the IDs of subordinates
+          .map((employee: any) => employee.id);
 
         setSelectedUser(
           subordinates.length > 0
@@ -80,22 +86,21 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
               <AccessGuard permissions={[Permissions.ViewAllEmployeePlan]}>
                 <Select
                   placeholder="Select employee"
-                  onChange={(value) => onSearchChange(value, 'employee', true)}
+                  onChange={(value) => onSearchChange(value, 'employee')}
                   allowClear
                   showSearch
                   className="w-full h-10"
                   optionFilterProp="children"
-                  filterOption={(input: any, option: any) => {
-                    const optionText = option?.children?.toString();
-                    return optionText
+                  filterOption={(input, option) =>
+                    option?.children
+                      ?.toString()
                       ?.toLowerCase()
-                      .includes(input.toLowerCase());
-                  }}
+                      .includes(input.toLowerCase()) ?? false
+                  }
                 >
                   {optionArray1?.map((item: any) => {
                     let displayFirstName = item?.firstName || '';
                     let displayMiddleName = item?.middleName || '';
-
                     const maxNameLength = 10;
                     if (displayFirstName.length > maxNameLength) {
                       displayFirstName =
@@ -105,14 +110,12 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                       displayMiddleName =
                         displayMiddleName.substring(0, maxNameLength) + '...';
                     }
-
                     const fullName =
                       displayFirstName || displayMiddleName
                         ? `${displayFirstName} ${displayMiddleName}`.trim()
                         : 'Unnamed Employee';
-
                     return (
-                      <Option value={item.id} key={item.id}>
+                      <Option key={item.id} value={item.id}>
                         {fullName}
                       </Option>
                     );
@@ -133,22 +136,21 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
               <AccessGuard permissions={[Permissions.ViewAllEmployeePlan]}>
                 <Select
                   placeholder="Select Employee"
-                  onChange={(value) => onSearchChange(value, 'employee', true)}
+                  onChange={(value) => onSearchChange(value, 'employee')}
                   allowClear
                   showSearch
                   className="w-full h-14"
                   optionFilterProp="children"
-                  filterOption={(input: any, option: any) => {
-                    const optionText = option?.children?.toString();
-                    return optionText
+                  filterOption={(input, option) =>
+                    option?.children
+                      ?.toString()
                       ?.toLowerCase()
-                      .includes(input.toLowerCase());
-                  }}
+                      .includes(input.toLowerCase()) ?? false
+                  }
                 >
                   {optionArray1?.map((item: any) => {
                     let displayFirstName = item?.firstName || '';
                     let displayMiddleName = item?.middleName || '';
-
                     const maxNameLength = 10;
                     if (displayFirstName.length > maxNameLength) {
                       displayFirstName =
@@ -158,14 +160,12 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                       displayMiddleName =
                         displayMiddleName.substring(0, maxNameLength) + '...';
                     }
-
                     const fullName =
                       displayFirstName || displayMiddleName
                         ? `${displayFirstName} ${displayMiddleName}`.trim()
                         : 'Unnamed Employee';
-
                     return (
-                      <Option value={item.id} key={item.id}>
+                      <Option key={item.id} value={item.id}>
                         {fullName}
                       </Option>
                     );
@@ -187,7 +187,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                           ? optionArray2?.[0]?.key
                           : undefined
                   }
-                  onChange={(value) => onSearchChange(value, 'type', true)}
+                  onChange={(value) => onSearchChange(value, 'type')}
                   allowClear
                   className="w-full h-14"
                 >
@@ -202,9 +202,13 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
             <div className="w-full md:w-1/4 p-2" id="subscriptionStatusFilter">
               <AccessGuard permissions={[Permissions.ViewAllStatusPlan]}>
                 <Select
-                  id={`selectDepartment`}
+                  id="selectDepartment"
                   placeholder="Select Department"
-                  onChange={(value) => onSearchChange(value, 'status', true)}
+                  value={selectedDepartment}
+                  onChange={(value) => {
+                    setSelectedDepartment(value);
+                    onSearchChange(value, 'status');
+                  }}
                   allowClear
                   showSearch
                   className="w-full h-14"
@@ -212,13 +216,13 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                   filterOption={(input, option) =>
                     (option?.children as any)
                       .toLowerCase()
-                      .includes(input.toLowerCase())
+                      .includes(input.toLowerCase()) ?? false
                   }
                 >
                   {optionArray3?.map((item: any) => (
-                    <Select.Option key={item?.id} value={item?.id}>
-                      {item?.name}
-                    </Select.Option>
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
                   ))}
                 </Select>
               </AccessGuard>
@@ -227,6 +231,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         )}
       </div>
 
+      {/* MODAL FOR MOBILE */}
       <Modal
         title="Filters"
         open={isFilterModalOpen}
@@ -263,7 +268,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                         ? optionArray2?.[0]?.key
                         : undefined
                 }
-                onChange={(value) => onSearchChange(value, 'type', true)}
+                onChange={(value) => onSearchChange(value, 'type')}
                 allowClear
                 className="w-full h-14"
               >
@@ -279,9 +284,13 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
           <div>
             <AccessGuard permissions={[Permissions.ViewAllStatusPlan]}>
               <Select
-                id={`selectDepartment`}
+                id="selectDepartment"
                 placeholder="Select Department"
-                onChange={(value) => onSearchChange(value, 'status', true)}
+                value={selectedDepartment}
+                onChange={(value) => {
+                  setSelectedDepartment(value);
+                  onSearchChange(value, 'status');
+                }}
                 allowClear
                 showSearch
                 className="w-full h-14"
@@ -289,13 +298,13 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                 filterOption={(input, option) =>
                   (option?.children as any)
                     .toLowerCase()
-                    .includes(input.toLowerCase())
+                    .includes(input.toLowerCase()) ?? false
                 }
               >
                 {optionArray3?.map((item: any) => (
-                  <Select.Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Select.Option>
+                  <Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Option>
                 ))}
               </Select>
             </AccessGuard>

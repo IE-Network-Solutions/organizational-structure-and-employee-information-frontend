@@ -135,7 +135,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   const { isMobile } = useIsMobile();
   return (
-    <div className="flex justify-between items-center py-6 px-4  bg-white">
+    <div className="flex justify-between items-center py-6  bg-white">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
