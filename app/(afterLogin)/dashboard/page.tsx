@@ -34,7 +34,7 @@ export default function Home() {
   };
 
   const mainLayout = (
-    <div className="min-h-screen bg-gray-100 px-4">
+    <div className="min-h-screen bg-gray-100  pl-2 pr-3">
       {isMobile || isTablet ? (
         <div className=" flex justify-between items-center mb-4">
           {userData?.firstName ? (
