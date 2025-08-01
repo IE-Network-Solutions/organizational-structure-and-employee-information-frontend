@@ -1,6 +1,3 @@
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Button, Form, Select, Spin } from 'antd';
@@ -27,25 +24,7 @@ const AllowanceEntitlementSideBar = () => {
   const { id } = useParams();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
 
-  // const footerModalItems: CustomDrawerFooterButtonProps[] = [
-  //   {
-  //     label: 'Cancel',
-  //     key: 'cancel',
-  //     className: 'h-10',
-  //     size: 'large',
-  //     loading: allUserLoading,
-  //     onClick: () => onClose(),
-  //   },
-  //   {
-  //     label: <span>Create</span>,
-  //     key: 'create',
-  //     className: 'h-10',
-  //     type: 'primary',
-  //     size: 'large',
-  //     loading: allUserLoading,
-  //     onClick: () => form.submit(),
-  //   },
-  // ];
+ 
 
   const onClose = () => {
     form.resetFields();
@@ -88,7 +67,6 @@ const AllowanceEntitlementSideBar = () => {
         }
         footer={
           <div className="flex flex-row gap-4 justify-center py-3">
-           
             <Button
               type="default"
               className="h-10 px-3 w-40"

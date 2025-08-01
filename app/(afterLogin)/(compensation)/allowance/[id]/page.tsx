@@ -78,7 +78,7 @@ const SingleAllowancePage = () => {
           </div>
 
           <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
-              <div className="w-10/12 mr-2 sm:hidden">
+            <div className="w-10/12 mr-2 sm:hidden">
               <Select
                 showSearch
                 allowClear
@@ -116,28 +116,25 @@ const SingleAllowancePage = () => {
                 </Button>
               </AccessGuard>
             </div>
-
-            
           </div>
-         
         </div>
         <div className="w-full hidden sm:block mt-2">
-              <Select
-                showSearch
-                allowClear
-                className="h-10 w-full"
-                placeholder="Search by name"
-                onChange={handleSearchChange}
-                filterOption={(input, option) => {
-                  const label = option?.label;
-                  return (
-                    typeof label === 'string' &&
-                    label.toLowerCase().includes(input.toLowerCase())
-                  );
-                }}
-                options={options}
-              />
-            </div>
+          <Select
+            showSearch
+            allowClear
+            className="h-10 w-full"
+            placeholder="Search by name"
+            onChange={handleSearchChange}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
+          />
+        </div>
       </div>
 
       <div>

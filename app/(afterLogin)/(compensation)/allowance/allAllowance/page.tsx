@@ -27,14 +27,20 @@ const AllAllowancePage: React.FC = () => {
       <div>
         {/* Mobile: PageHeader on top */}
         <div className="block sm:hidden pb-3">
-          <PageHeader title="All Allowance Entitlement" horizontalPadding="0px" />
+          <PageHeader
+            title="All Allowance Entitlement"
+            horizontalPadding="0px"
+          />
         </div>
 
         {/* Main layout for sm and up */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           {/* Desktop PageHeader */}
           <div className="hidden sm:block bg-white">
-            <PageHeader title="All Allowance Entitlement" horizontalPadding="0px" />
+            <PageHeader
+              title="All Allowance Entitlement"
+              horizontalPadding="0px"
+            />
           </div>
 
           {/* Right Section: Select + Button */}
@@ -77,25 +83,24 @@ const AllAllowancePage: React.FC = () => {
               </AccessGuard>
             </div>
           </div>
-          
         </div>
         <div className="w-full sm:block hidden mt-2">
-              <Select
-                showSearch
-                allowClear
-                className="h-10 w-full"
-                placeholder="Search by name"
-                onChange={handleSearchChange}
-                filterOption={(input, option) => {
-                  const label = option?.label;
-                  return (
-                    typeof label === 'string' &&
-                    label.toLowerCase().includes(input.toLowerCase())
-                  );
-                }}
-                options={options}
-              />
-            </div>
+          <Select
+            showSearch
+            allowClear
+            className="h-10 w-full"
+            placeholder="Search by name"
+            onChange={handleSearchChange}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
+          />
+        </div>
       </div>
 
       <div>
