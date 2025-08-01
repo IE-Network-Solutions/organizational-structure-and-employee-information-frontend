@@ -211,6 +211,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
+          title: <span>Dashboard</span>,
+          key: '/recruitment/dashboard',
+          className: 'font-bold',
+          permissions: ['view_recruitment_dashboard'],
+        },
+        {
           title: <span>Jobs</span>,
           key: '/recruitment/jobs',
           className: 'font-bold',
