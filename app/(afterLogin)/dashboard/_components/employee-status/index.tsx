@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Empty, Select } from 'antd';
+import { Card, Select } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
@@ -68,10 +68,10 @@ const EmploymentStats: React.FC = () => {
   return (
     <Card
       loading={isLoading}
-      className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col p-4 shadow-lg"
+      className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col shadow-lg"
       bodyStyle={{ padding: '0px', margin: '0px' }}
     >
-      <div className="flex justify-between items-center mb-2 h-[20%] ">
+      <div className="flex justify-between items-center mb-2 pl-4 h-[20%] ">
         <h3 className=" font-bold text-lg">Employee Status</h3>
         <Select
           bordered={false}
@@ -90,10 +90,10 @@ const EmploymentStats: React.FC = () => {
 
       {employeeStatus?.length ? (
         <div className="flex-1 flex items-center justify-between h-[80%] gap-1 mt-5 ">
-          <div className="relative flex items-center justify-center w-[180px] h-[180px] overflow-visible z-10 ml-10">
+          <div className="relative flex items-center justify-center w-[180px] h-[180px] overflow-visible z-10 pl-2 2xl:pl-10">
             <Doughnut data={data} options={options} className="z-20" />
             <div
-              className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
+              className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0 pl-2 2xl:pl-10"
               style={{ transform: 'translate(-50%, -50%)' }}
             >
               <div
@@ -107,7 +107,7 @@ const EmploymentStats: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2 mr-4">
+          <div className="flex flex-col gap-2 pr-1 2xl:pr-4">
             {data.labels.map((label: string, i: number) => (
               <div key={i} className="flex items-center mb-2 gap-2">
                 <div
@@ -122,7 +122,9 @@ const EmploymentStats: React.FC = () => {
           </div>
         </div>
       ) : (
-        <Empty />
+        <div className="flex items-center justify-center h-10">
+          <div className="text-gray-400 text-sm">No data available</div>
+        </div>
       )}
     </Card>
   );

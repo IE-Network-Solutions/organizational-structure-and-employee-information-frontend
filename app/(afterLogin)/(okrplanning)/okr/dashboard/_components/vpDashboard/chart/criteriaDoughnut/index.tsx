@@ -77,7 +77,7 @@ const CriteriaDoughnut = () => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-1 ">
+            <div className="flex flex-col gap-1 pr-5 ">
               {data.labels.map((label: string, i: number) => (
                 <div key={i} className="flex items-center gap-1">
                   <div

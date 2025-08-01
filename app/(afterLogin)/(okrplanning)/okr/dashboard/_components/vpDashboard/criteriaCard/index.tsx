@@ -47,9 +47,7 @@ const CriteriaCard: React.FC<CriteriaCardProps> = ({ id }) => {
                       <Progress
                         percent={achievedPercentage}
                         showInfo={false}
-                        strokeColor={
-                          achievedPercentage < 100 ? '#3636F0' : '#52c41a'
-                        }
+                        strokeColor={item?.isDeduction ? '#ff0000' : '#3636F0'}
                       />
                     </div>
                   </div>
