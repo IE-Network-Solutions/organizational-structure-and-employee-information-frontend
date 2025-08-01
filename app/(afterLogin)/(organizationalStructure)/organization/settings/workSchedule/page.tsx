@@ -13,6 +13,7 @@ import { InfoLine } from '@/app/(afterLogin)/(employeeInformation)/employees/man
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useEffect } from 'react';
 
 interface ScheduleDetail {
   id: string;
@@ -28,8 +29,8 @@ interface ScheduleDetail {
 interface WorkingHours {
   day: string;
   hours: number;
-  endTime: number;
-  startTime: number;
+  endTime: string;
+  startTime: string;
 }
 
 interface ScheduleItem {
@@ -64,28 +65,47 @@ function WorkScheduleTab() {
   } = useScheduleStore();
   const { isMobile, isTablet } = useIsMobile();
 
-  const { data: workScheudleData } = useFetchSchedule(currentPage, pageSize);
+  const { data: workScheudleData, refetch: refetchSchedules } =
+    useFetchSchedule(currentPage, pageSize);
   const { Panel } = Collapse;
+
+  // Refetch data when drawer closes to ensure we have the latest data
+  const { isOpen } = useScheduleStore();
+  useEffect(() => {
+    if (!isOpen) {
+      // Small delay to ensure any mutations have completed
+      setTimeout(() => {
+        refetchSchedules();
+      }, 200);
+    }
+  }, [isOpen, refetchSchedules]);
 
   const handleEditSchedule = (data: ScheduleItem) => {
     setScheduleName(data.name);
     if (data.id) {
       setId(data.id);
     }
+
+    // Reset standard hours before calculating
+    setStandardHours(0);
+
     let updatedDetails: UpdatedDetails;
     data.detail.forEach((dayData: ScheduleDetail) => {
+      const hours = dayData.duration ? parseFloat(dayData.duration) : 0;
       updatedDetails = {
         id: dayData.id,
         dayOfWeek: dayData.day,
-        hours: dayData.duration ? parseFloat(dayData.duration) : 0,
+        hours: hours,
         startTime: dayData.startTime || '',
         endTime: dayData.endTime || '',
         status: dayData.workDay,
       };
       setDetail(dayData.day, updatedDetails);
-      setStandardHours(
-        useScheduleStore.getState().standardHours + Number(dayData.duration),
-      );
+
+      // Add hours only for working days
+      if (dayData.workDay && hours > 0) {
+        setStandardHours(useScheduleStore.getState().standardHours + hours);
+      }
     });
     openDrawer();
     setEditMode(true);
@@ -130,13 +150,16 @@ function WorkScheduleTab() {
       details?.map((day: ScheduleDetail) => {
         return {
           day: day.day || '',
-          hours: day.hours
-            ? parseFloat(day.hours)
-            : day.duration
-              ? parseFloat(day.duration)
-              : 0,
-          startTime: day.startTime ? parseFloat(day.startTime) : 0,
-          endTime: day.endTime ? parseFloat(day.endTime) : 0,
+          hours: day.workDay
+            ? day.hours
+              ? parseFloat(day.hours)
+              : day.duration
+                ? parseFloat(day.duration)
+                : 0
+            : 0,
+          startTime: day.workDay ? day.startTime || '' : '',
+          endTime: day.workDay ? day.endTime || '' : '',
+          workDay: day.workDay,
         };
       }) || [];
     return result;
@@ -144,6 +167,9 @@ function WorkScheduleTab() {
 
   const getTotalWorkingHours = (details: ScheduleDetail[]): number => {
     return details.reduce((total: number, day: ScheduleDetail) => {
+      // Only count hours for working days
+      if (!day.workDay) return total;
+
       const hours = day?.hours ? parseFloat(day.hours) : 0;
       const duration = day?.duration ? parseFloat(day.duration) : 0;
       return total + (hours || duration || 0);
@@ -214,17 +240,26 @@ function WorkScheduleTab() {
                     title="Standard working hours/day"
                     value={
                       <div className="text-xs">
-                        {scheduleItem.detail
-                          ?.filter((i) => Number(i.hours ?? i.duration) !== 0)
-                          .reduce(
+                        {(() => {
+                          const workingDays =
+                            scheduleItem.detail?.filter(
+                              (i) =>
+                                Number(i.hours ?? i.duration) !== 0 &&
+                                i.workDay,
+                            ) || [];
+                          const totalHours = workingDays.reduce(
                             (total, i) =>
                               total + Number((i.hours ?? i.duration) || 0),
                             0,
-                          ) /
-                          scheduleItem.detail.filter(
-                            (i) => Number(i.hours ?? i.duration) !== 0,
-                          ).length || 0}
-                        h 00m
+                          );
+                          const avgHours =
+                            workingDays.length > 0
+                              ? totalHours / workingDays.length
+                              : 0;
+                          const hours = Math.floor(avgHours);
+                          const minutes = Math.round((avgHours - hours) * 60);
+                          return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
+                        })()}
                       </div>
                     }
                   />
@@ -232,7 +267,14 @@ function WorkScheduleTab() {
                     title="Total working hours/week"
                     value={
                       <div className="text-xs">
-                        {getTotalWorkingHours(scheduleItem?.detail || [])}
+                        {(() => {
+                          const totalHours = getTotalWorkingHours(
+                            scheduleItem?.detail || [],
+                          );
+                          const hours = Math.floor(totalHours);
+                          const minutes = Math.round((totalHours - hours) * 60);
+                          return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
+                        })()}
                       </div>
                     }
                   />
@@ -278,7 +320,13 @@ function WorkScheduleTab() {
                               key={`${item?.day}-hours`}
                               className="whitespace-nowrap"
                             >
-                              {item?.hours || 0}h 00m
+                              {(() => {
+                                const hours = Math.floor(item.hours || 0);
+                                const minutes = Math.round(
+                                  ((item.hours || 0) - hours) * 60,
+                                );
+                                return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
+                              })()}
                             </div>
                           ))}
                         </div>
