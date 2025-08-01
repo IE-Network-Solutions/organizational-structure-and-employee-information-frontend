@@ -189,6 +189,7 @@ const UserLeaveBalance: React.FC = () => {
                   Carried over
                 </span>
                 <span className="text-[16px] font-bold text-black w-20">
+
                   {Number(
                     userLeaveBalance?.data?.totals?.totalCarriedOver,
                   )?.toLocaleString() || 0}

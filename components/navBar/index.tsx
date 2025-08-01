@@ -211,6 +211,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
+          title: <span>Dashboard</span>,
+          key: '/recruitment/dashboard',
+          className: 'font-bold',
+          permissions: ['view_recruitment_dashboard'],
+        },
+        {
           title: <span>Jobs</span>,
           key: '/recruitment/jobs',
           className: 'font-bold',
@@ -825,7 +831,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
   const { data: departments } = useGetDepartments();
   const { data: employeeData } = useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
+  const { setIsNavBarJobInfoModalVisible, setNavBarJobInfoModalWidth } =
     useEmployeeManagementStore();
   useEffect(() => {
     if (!departments || !employeeData) return;
@@ -836,8 +842,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       !employeeData.employeeJobInformation ||
       employeeData.employeeJobInformation.length === 0
     ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
+      setIsNavBarJobInfoModalVisible(true);
+      setNavBarJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router]);
 
@@ -1167,64 +1173,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.15)', // Adjust shadow as needed
               }}
             >
-              {isMobile && (
-                <div className="w-full h-full p-[10px] flex justify-center items-center">
-                  <Button
-                    className="w-full h-full"
-                    onClick={toggleMobileCollapsed}
-                    icon={
-                      !mobileCollapsed ? (
-                        <IoCloseOutline
-                          size={24}
-                          className="text-gray-500 border-none"
-                        />
-                      ) : (
-                        <MenuOutlined
-                          size={24}
-                          className="text-gray-500 border-none"
-                        />
-                      )
-                    }
-                  />
-                </div>
-              )}
-
-              <NavBar page="" handleLogout={handleLogout} />
-            </Header>
-            <Content
-              className="overflow-y-hidden min-h-screen"
-              style={{
-                paddingInline: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
-                transition: 'padding-left 0.3s ease',
-              }}
-            >
-              {isCheckingPermissions ? (
-                <div className="flex justify-center items-center h-screen">
-                  <Skeleton active />
-                </div>
-              ) : (
-                <div
-                  className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-                  style={{
-                    borderRadius: borderRadiusLG,
-                    marginTop: `${isMobile ? '85px' : '94px'}`,
-                    marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-                  }}
-                >
-                  {children}
-                </div>
-              )}
-              <CreateEmployeeJobInformation
-                onInfoSubmition={() => {
-                  handleUserInfoUpdate();
-                }}
-                id={userId}
-              />
-            </Content>
-          </Layout>
-        </>
-      )}
+              {children}
+            </div>
+          )}
+          <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
+            }}
+            id={userId}
+            isNavBarModal={true}
+          />
+        </Content>
+      </Layout>
     </Layout>
   );
 };

@@ -15,7 +15,6 @@ import dayjs from 'dayjs';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import LeaveSectionGraph from './LeaveSectionGraph';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
-import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement);
 

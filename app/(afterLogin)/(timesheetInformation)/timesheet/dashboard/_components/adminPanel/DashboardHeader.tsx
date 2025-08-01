@@ -40,6 +40,7 @@ const DashboardHeader: React.FC = () => {
               className={
                 activeTab === 'personal'
                   ? ' px-8 h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md'
+
                   : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >

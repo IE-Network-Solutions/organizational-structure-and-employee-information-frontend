@@ -183,7 +183,6 @@ const LeaveRequest = () => {
           <div className="col-span-12 md:col-span-5">
             <h2 className="text-[16px] font-bold">Leave Request</h2>
             <p className="text-[12px] mb-4">Pending Requests</p>
-
             <div className="flex gap-2 mb-4">
               <Select
                 showSearch

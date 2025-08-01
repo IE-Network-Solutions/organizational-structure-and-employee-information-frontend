@@ -149,8 +149,31 @@ const AttendanceReport: React.FC = () => {
                 setStartDateAttendanceReport('');
                 setEndDateAttendanceReport('');
               }
-            }}
-          />
+              options={departmentOptions}
+              maxTagCount={1}
+              className="w-full h-12"
+              onChange={(value) => setDepartmentOnAttendanceReport(value)}
+            />
+          </div>
+
+          <div className="w-48">
+            <RangePicker
+              className="w-full h-12"
+              onChange={(value) => {
+                if (value) {
+                  setStartDateAttendanceReport(
+                    value[0]?.format('YYYY-MM-DD') || '',
+                  );
+                  setEndDateAttendanceReport(
+                    value[1]?.format('YYYY-MM-DD') || '',
+                  );
+                } else {
+                  setStartDateAttendanceReport('');
+                  setEndDateAttendanceReport('');
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -167,6 +190,7 @@ const AttendanceReport: React.FC = () => {
                 </div>
               ) : (
                 <div className=" md:w-[340px] md:h-[340px]  flex justify-center items-center">
+
                   <Doughnut data={doughnutChartData} options={options} />
                   <div className="flex flex-col gap-0 ml-16">
                     {doughnutChartData.labels.map(
@@ -196,6 +220,7 @@ const AttendanceReport: React.FC = () => {
           {/* Attendance List */}
 
           <div className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none">
+
             {attendanceStats?.users?.length === 0 ? (
               <div className="flex justify-center items-center h-64">
                 <p className="text-gray-500 text-[14px] font-semibold">
@@ -224,6 +249,7 @@ const AttendanceReport: React.FC = () => {
                       )}
                       <p className="text-[12px] font-medium ">{item.name}</p>
                     </div>
+
                     <div>
                       <span
                         className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
