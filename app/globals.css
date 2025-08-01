@@ -13,12 +13,15 @@
 
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  display: none;
+  /* Safari and Chrome */
 }
 
 .ant-popconfirm-message {
@@ -204,7 +207,7 @@ h6 {
   @apply text-[#4DAEF0] !important;
 }
 
-.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+.ant-collapse>.ant-collapse-item>.ant-collapse-header {
   align-items: center !important;
 }
 
@@ -275,6 +278,7 @@ h6 {
 .quill-editor-container {
   min-height: 200px;
 }
+
 .my-custom-datepicker {
   max-width: 90vw;
   font-size: 14px;
@@ -295,6 +299,7 @@ h6 {
 
 @layer components {
   @media (max-width: 640px) {
+
     /* Ant Design menu active item */
     .ant-menu-item-selected {
       @apply text-primary;
@@ -358,19 +363,23 @@ h6 {
 .ql-mention-list-item.selected {
   background-color: #e9f5ff;
 }
+
 .mention {
   color: black;
   font-weight: bold;
   font-size: 10px;
 }
+
 .ProseMirror {
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
 }
+
 .ProseMirror:focus {
   outline: none !important;
 }
+
 .ProseMirror p.is-empty::before {
   content: attr(data-placeholder);
   color: #999;
@@ -378,6 +387,7 @@ h6 {
   height: 0;
   pointer-events: none;
 }
+
 .custom-timepicker .ant-picker-input input {
   font-size: 12px !important;
 }
@@ -948,8 +958,7 @@ h6 {
   }
 }
 /* Hide the selected checkmark icon in Select dropdown */
-.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
-  .ant-select-item-option-state {
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
   display: none;
 }
 
@@ -957,6 +966,7 @@ h6 {
   border: none !important;
   box-shadow: none !important;
 }
+
 .ql-editor {
   border: none !important;
 }
