@@ -34,7 +34,9 @@ export const EmployeeDetails = ({
         data-testid="employee-avatar"
         className="w-6 h-6"
       />
-      <span data-testid="employee-name" className="truncate">{userName}</span>
+      <span data-testid="employee-name" className="truncate">
+        {userName}
+      </span>
     </Space>
   );
 };

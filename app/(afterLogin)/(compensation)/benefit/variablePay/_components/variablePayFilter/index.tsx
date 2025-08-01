@@ -167,7 +167,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             <Select
               showSearch
               allowClear
-              className="w-full h-14"
+              className="w-full h-10"
               placeholder="Search by name"
               onChange={(value) => handleSearchInput(value, 'employeeName')}
               filterOption={(input, option) => {
@@ -188,7 +188,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               placeholder="Select Session"
               onChange={handleSessionChange}
               allowClear
-              className="w-full h-14"
+              className="w-full h-10"
               data-testid="session-select"
             >
               {activeCalender?.sessions?.map((session) => (
@@ -205,7 +205,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               placeholder="Select Month"
               onChange={handleMonthChange}
               allowClear
-              className="w-full h-14"
+              className="w-full h-10"
               disabled={
                 !searchParams?.selectedSession || sessionMonths.length === 0
               }
@@ -223,7 +223,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           <Col md={4}>
             <Button
               title="Refresh VP"
-              className="w-full h-14"
+              className="w-full h-10"
               type="primary"
               onClick={() => refetch()}
               disabled={refreshLoading || isFetching}
@@ -239,7 +239,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           <Col md={4}>
             <Button
               title="Send to Payroll"
-              className="w-full h-14 flex items-center justify-center gap-2"
+              className="w-full h-10 flex items-center justify-center gap-2"
               type="primary"
               onClick={handleOpenModal}
               data-testid="desktop-send-payroll-button"

@@ -53,8 +53,9 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           title="Benefit"
           description="Benefit"
           className="hidden sm:block"
+          horizontalPadding="0px"
         />
-          <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
           <BlockWrapper className="flex-1 h-max overflow-x-auto">

@@ -1039,3 +1039,24 @@ h6 {
     width: 100% !important;
   }
 }
+/* Custom styles for action buttons */
+.action-button-edit {
+  height: 30px !important;
+  width: 30px !important;
+  
+}
+
+.action-button-delete {
+  height: 30px !important;
+  width: 30px !important;
+ 
+}
+
+/* Override Ant Design's mobile styles */
+@media (max-width: 768px) {
+  .action-button-edit,
+  .action-button-delete {
+    min-height: unset !important;
+    min-width: unset !important;
+  }
+}
