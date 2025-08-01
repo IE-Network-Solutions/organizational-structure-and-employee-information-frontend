@@ -24,12 +24,13 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <div title={allowance.name} className=" font-bold">
+              <p title={allowance.name} className="menu-item-label">
                 {allowance.name?.length > 15
                   ? allowance.name?.slice(0, 15) + '...'
                   : allowance.name || 'Unnamed Allowance'}
-              </div>
+              </p>
             ),
+            className: 'px-1',
           },
           link: `/allowance/${allowance.id}`,
         })) || [];
@@ -37,7 +38,8 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allAllowance',
-          label: <div className=" font-bold">All Allowances</div>,
+          label: <p className="menu-item-label">All Allowances</p>,
+          className: 'px-1',
         },
         link: '/allowance/allAllowance',
       };
@@ -49,19 +51,14 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="h-auto w-auto bg-[#f5f5f5]">
-        <PageHeader
-          title="Allowance"
-          description="Allowance"
-          className="hidden sm:block"
-          horizontalPadding="0px"
-        />
+    <div className="min-h-screen bg-[#fafafa] p-2">
+      <div className="h-auto w-auto">
+        <PageHeader title="Allowance" description="Allowance" />
 
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 mt-3">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto p-0">
             {children}
           </BlockWrapper>
         </div>

@@ -175,7 +175,6 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
               />
             </Form.Item>
           </div>
@@ -306,7 +305,6 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
               />
             </Form.Item>
 

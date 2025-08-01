@@ -49,7 +49,7 @@ const MyAttendanceReport: React.FC = () => {
   ];
 
   return (
-    <Card bodyStyle={{ padding: '10px 16px' }} className="shadow">
+    <Card className="shadow">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-[16px] font-semibold">My Attendance Report</h3>
         <div className="space-x-2 flex items-center ">
@@ -97,19 +97,19 @@ const MyAttendanceReport: React.FC = () => {
               <div key={req.id} className="mb-2 border p-4 rounded-md">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold text-sm">
+                    <p className="font-medium text-sm">
                       {dayjs(req.date).format('DD MMM YYYY')}
                     </p>
                   </div>
                   <div className="flex flex-col justify-end items-end">
                     <Tag
                       style={{ marginInlineEnd: 0, border: 'none' }}
-                      className={` py-1 capitalize ${
+                      className={` capitalize ${
                         status === 'on time'
-                          ? ' text-[#3636F0] bg-[#B2B2FF]/10 font-bold'
+                          ? ' bg-purple/20 text-purple font-semibold'
                           : status === 'late'
-                            ? 'text-[#FFD023] bg-[#FFDE6533] font-bold '
-                            : 'text-[#e03137] bg-[#f9d6d7] font-bold'
+                            ? 'text-yellow-500 bg-yellow-500/20 font-semibold '
+                            : 'text-red-500 bg-red-500/20 font-semibold'
                       }`}
                     >
                       {status}{' '}

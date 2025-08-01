@@ -258,8 +258,7 @@ const InvoiceItem = () => {
                     ],
                     [
                       'Number of users:',
-                      invoiceData?.paymentMetadata?.targetState?.slotTotal || 0,
-                      ,
+                      invoiceData?.subscription?.slotTotal || '-',
                     ],
                     ['Amount', `${invoiceData?.totalAmount}`],
                   ].map(([label, value], index) => (

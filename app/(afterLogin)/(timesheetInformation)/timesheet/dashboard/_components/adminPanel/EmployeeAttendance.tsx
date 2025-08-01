@@ -22,7 +22,7 @@ const statusColors = {
   late: 'bg-yellow-100 text-yellow-600',
   active: 'bg-green-100 text-green-600',
   absent: 'bg-red-100 text-red-600',
-  onleave: 'bg-light_purple text-purple',
+  onleave: 'bg-purple text-light_purple',
 };
 
 export default function EmployeeAttendanceTable() {
@@ -74,13 +74,13 @@ export default function EmployeeAttendanceTable() {
       title: 'Employee',
       dataIndex: 'name',
       key: 'name',
-      sorter: (a: Employee, b: Employee) => a?.name?.localeCompare(b?.name),
+      sorter: (a: Employee, b: Employee) => a.name.localeCompare(b.name),
       render: (notused: any, record?: Employee) => (
         <div className="flex items-center space-x-3">
           {record?.profileImage ? (
-            <Avatar src={record?.profileImage} />
+            <Avatar src={record.profileImage} />
           ) : (
-            <Avatar>{record?.name?.charAt(0)?.toUpperCase()}</Avatar>
+            <Avatar>{record?.name?.charAt(0).toUpperCase()}</Avatar>
           )}
           <span>{record?.name}</span>
         </div>
@@ -91,18 +91,18 @@ export default function EmployeeAttendanceTable() {
       dataIndex: 'department',
       key: 'department',
       sorter: (a: Employee, b: Employee) =>
-        a?.department?.localeCompare(b?.department),
+        a.department.localeCompare(b.department),
     },
     {
       title: 'Status',
       dataIndex: 'currentStatus',
       key: 'currentStatus',
-      sorter: (a: Employee, b: Employee) => a?.status?.localeCompare(b?.status),
+      sorter: (a: Employee, b: Employee) => a.status.localeCompare(b.status),
       render: (status: Employee['status']) => (
         <Tag
-          className={`capitalize px-3 font-semibold rounded-md border-none ${statusColors[status]}`}
+          className={`uppercase px-3 font-semibold rounded-md border-none ${statusColors[status]}`}
         >
-          {status === 'onleave' ? 'On Leave' : status}
+          {status}
         </Tag>
       ),
     },
@@ -110,14 +110,14 @@ export default function EmployeeAttendanceTable() {
       title: 'Absentisms',
       dataIndex: 'absentDays',
       key: 'absentDays',
-      sorter: (a: Employee, b: Employee) => a?.absentDays - b?.absentDays,
+      sorter: (a: Employee, b: Employee) => a.absentDays - b.absentDays,
       render: (days: number) => `${days} days`,
     },
     {
       title: 'Late Arrivals',
       dataIndex: 'totalLateRecords',
       key: 'totalLateRecords',
-      sorter: (a: Employee, b: Employee) => a?.lateDays - b?.lateDays,
+      sorter: (a: Employee, b: Employee) => a.lateDays - b.lateDays,
       render: (days: number) => `${days} days`,
     },
   ];

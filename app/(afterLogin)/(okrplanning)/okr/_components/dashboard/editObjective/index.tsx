@@ -11,7 +11,6 @@ import {
 } from 'antd';
 import { GoPlus } from 'react-icons/go';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import dayjs from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
 import KeyResultView from '../../keyresultView';
@@ -35,7 +34,6 @@ interface OkrDrawerProps {
 const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const {
     setObjectiveValue,
-    setObjective,
     objectiveValue,
     objective,
     addKeyResult,
@@ -52,7 +50,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const { mutate: updateObjective, isLoading } = useUpdateObjective();
   const { isMobile } = useIsMobile();
   const { data: metrics } = useGetMetrics();
-
   const isEditDisabled =
     objectiveValue && Number(objectiveValue?.objectiveProgress) > 0;
   const objectiveValueNew = { ...objectiveValue }; // Create a copy of objectiveValue
@@ -62,8 +59,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
 
   const handleModalClose = () => {
     form.resetFields(); // Reset all form fields
-    setObjectiveValue(defaultObjective); // Reset the objectiveValue state
-    setObjective(defaultObjective); // Reset the objective state (which contains keyResults)
     props.onClose(); // Close the modal
   };
 
@@ -71,24 +66,20 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     form
       .validateFields()
       .then(() => {
-        // Combine existing key results with newly added key results
-        const existingKeyResults = objectiveValue?.keyResults || [];
-        const newKeyResults = objective?.keyResults || [];
-        const allKeyResults = [...existingKeyResults, ...newKeyResults];
-
-        const keyResultSum = allKeyResults.reduce(
+        const keyResults = objectiveValue?.keyResults;
+        const keyResultSum = keyResults?.reduce(
           (sum: number, keyResult: Record<string, number>) =>
-            sum + Number(keyResult.weight || 0),
+            sum + Number(keyResult.weight),
           0,
         );
         if (keyResultSum !== 100) {
           NotificationMessage.warning({
-            message: `The sum of key result should equal to 100. Current sum: ${keyResultSum}%`,
+            message: `The sum of key result should equal to 100.`,
           });
           return;
         }
-        if (allKeyResults && allKeyResults.length !== 0) {
-          for (const [index, keyResult] of allKeyResults.entries()) {
+        if (keyResults && keyResults.length !== 0) {
+          for (const [index, keyResult] of keyResults.entries()) {
             const keyType = keyResult?.metricType?.name || keyResult?.key_type;
             if (keyType === 'Milestone') {
               if (!keyResult.milestones || keyResult.milestones.length === 0) {
@@ -142,13 +133,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           }
 
           // If all checks pass, proceed with the objective creation
-          // Combine existing and new key results for submission
-          const submissionData = {
-            ...objectiveValueNew,
-            keyResults: allKeyResults,
-          };
-
-          updateObjective(submissionData, {
+          updateObjective(objectiveValueNew, {
             onSuccess: () => {
               handleModalClose();
             },
@@ -269,12 +254,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       title={modalHeader}
       centered
       width={isMobile ? '100vw' : 1200}
-      bodyStyle={{
-        padding: isMobile ? 12 : 32,
-        maxHeight: '80vh',
-        overflow: 'hidden',
-      }}
-      style={{ top: isMobile ? 0 : 32, padding: 0 }}
+      bodyStyle={{ padding: isMobile ? 12 : 32 }}
+      style={{ top: isMobile ? 0 : 32, padding: 0, maxHeight: '95vh' }}
       maskClosable={false}
       destroyOnClose
       closable={false}
@@ -532,11 +513,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         {/* Key Results Section */}
         <div
           id="key-results-container"
-          className="bg-white rounded-lg mt-5 w-full h-96 overflow-y-auto scrollbar-hide"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-          }}
+          className="bg-white rounded-lg mt-5 w-full min-h-64"
         >
           <div id="key-results-list" className="space-y-4">
             {objectiveValue.keyResults?.map((keyValue: any, index: number) => (
@@ -561,27 +538,24 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           </div>
 
           {/* Total Key Results Weight */}
-          {(objectiveValue.keyResults?.length > 0 ||
-            objective?.keyResults?.length > 0) && (
-            <div
-              id="total-weight-display"
-              className="flex justify-end mt-4 mb-4"
-            >
-              <span className="text-sm text-gray-500">
-                Total Key Results Weight:{' '}
-                <strong>
-                  {[
-                    ...(objectiveValue.keyResults || []),
-                    ...(objective?.keyResults || []),
-                  ].reduce(
-                    (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-                    0,
-                  )}{' '}
-                  %
-                </strong>
-              </span>
-            </div>
-          )}
+          {objectiveValue.keyResults &&
+            objectiveValue.keyResults.length > 0 && (
+              <div
+                id="total-weight-display"
+                className="flex justify-end mt-4 mb-4"
+              >
+                <span className="text-sm text-gray-500">
+                  Total Key Results Weight:{' '}
+                  <strong>
+                    {objectiveValue.keyResults.reduce(
+                      (sum: number, kr: any) => sum + Number(kr?.weight || 0),
+                      0,
+                    )}{' '}
+                    %
+                  </strong>
+                </span>
+              </div>
+            )}
         </div>
       </Form>
     </Modal>

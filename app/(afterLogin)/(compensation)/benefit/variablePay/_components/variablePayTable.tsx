@@ -12,13 +12,11 @@ import {
 import VariablePayFilter from './variablePayFilter';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import CustomPagination from '@/components/customPagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 const VariablePayTable = () => {
   const { currentPage, pageSize, searchParams, setCurrentPage, setPageSize } =
     useVariablePayStore();
-  const { isMobile, isTablet } = useIsMobile();
+
   const { data: activeMonth } = useGetActiveMonth();
 
   const selectedMonthIds =
@@ -44,7 +42,7 @@ const VariablePayTable = () => {
       VpScore: variablePay?.vpScore,
       Benefit: '',
       Action: (
-        <Link href={`/okr/dashboard/${variablePay?.userId}`}>
+        <Link href={`okr/dashboard/${variablePay?.userId}`}>
           <Button
             className="bg-sky-600 px-[10px]  text-white disabled:bg-gray-400 border-none"
             data-testid={`view-vp-button-${variablePay?.userId}`}
@@ -68,8 +66,7 @@ const VariablePayTable = () => {
       ),
     },
     {
-      title: <span className="truncate">VP in %</span>,
-      className: 'text-center',
+      title: 'VP in %',
       dataIndex: 'VpInPercentile',
       key: 'VpInPercentile',
       sorter: true,
@@ -79,7 +76,7 @@ const VariablePayTable = () => {
     },
 
     {
-      title: <span className="truncate">VP Score</span>,
+      title: 'VP Score',
       dataIndex: 'VpScore',
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),
@@ -123,55 +120,34 @@ const VariablePayTable = () => {
   );
 
   return (
-    <div
-      className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4"
-      data-testid="variable-pay-table-container"
-    >
+    <div data-testid="variable-pay-table-container">
       <VariablePayFilter tableData={tableData} />
-      <div data-testid="variable-pay-table-wrapper">
+      <div className="overflow-x-auto" data-testid="variable-pay-table-wrapper">
         <Spin
           spinning={isLoading || isFetching || refreshLoading}
           data-testid="variable-pay-table-loading"
         >
-          <div className="overflow-x-auto">
-            <Table
-              className="mt-6"
-              columns={columns}
-              dataSource={paginatedData}
-              pagination={false}
-              data-testid="variable-pay-table"
-            />
-          </div>
-
-          {isMobile || isTablet ? (
-            <CustomMobilePagination
-              totalResults={filteredDataSource.length}
-              pageSize={pageSize}
-              onChange={(page, size) => {
-                setCurrentPage(page);
-                setPageSize(size);
-              }}
-              onShowSizeChange={(page, size) => {
-                setCurrentPage(page);
-                setPageSize(size);
-              }}
-            />
-          ) : (
-            <CustomPagination
-              current={currentPage}
-              total={filteredDataSource.length}
-              pageSize={pageSize}
-              onChange={(page, size) => {
-                setCurrentPage(page);
-                setPageSize(size);
-              }}
-              onShowSizeChange={(size) => {
-                setPageSize(size);
-                setCurrentPage(1);
-              }}
-              data-testid="variable-pay-pagination"
-            />
-          )}
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="variable-pay-table"
+          />
+          <CustomPagination
+            current={currentPage}
+            total={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            data-testid="variable-pay-pagination"
+          />
 
           <VariablePayModal data={filteredDataSource} />
         </Spin>

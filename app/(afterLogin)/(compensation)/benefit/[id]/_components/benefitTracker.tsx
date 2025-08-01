@@ -1,4 +1,4 @@
-import { Table, Select, Divider, Form } from 'antd';
+import { Table, Select, Pagination, Divider, Form } from 'antd';
 import { Card } from 'antd';
 import React, { useEffect } from 'react';
 import { FiChevronLeft } from 'react-icons/fi';
@@ -7,9 +7,6 @@ import { EmployeeDetails } from '../../../_components/employeeDetails';
 import dayjs from 'dayjs';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import { useEmployeeSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
-import CustomPagination from '@/components/customPagination';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -28,8 +25,6 @@ const BenefitTracking = () => {
   const handleBackData = () => {
     setEmployeeBenefitData(null);
   };
-
-  const { isMobile, isTablet } = useIsMobile();
 
   const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
   const compensationItemEntitlementId =
@@ -74,8 +69,7 @@ const BenefitTracking = () => {
     : '';
   return (
     <Card
-      bodyStyle={{ padding: 0, margin: 0 }}
-      headStyle={{ padding: 0, margin: 0 }}
+      bodyStyle={{ padding: 0 }}
       title={
         <div className="flex items-center gap-3 cursor-pointer">
           <FiChevronLeft onClick={handleBackData} size={20} />
@@ -86,51 +80,44 @@ const BenefitTracking = () => {
       className="px-4 max-w-5xl mx-auto bg-white"
     >
       <div className="grid gap-4 text-sm my-3">
-        {/* Name */}
-        <div className="grid grid-cols-3 items-center space-x-7">
-          <span className="text-gray-500">Name</span>
-          <div className="col-span-2 font-medium flex items-start gap-2">
-            <EmployeeDetails empId={employeeEntitlementData?.employeeId} />
+        <div className="flex items-center justify-between">
+          <span className="text-gray-500">Full Name</span>
+          <div className="font-medium max-w-[150px] sm:max-w-none">
+            <div className="truncate">
+              <EmployeeDetails empId={employeeEntitlementData?.employeeId} />
+            </div>
           </div>
         </div>
-
-        {/* Total Amount Take */}
-        <div className="grid grid-cols-3 items-center space-x-7">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Total Amount Take</span>
-          <div className="font-medium text-start text-nowrap px-1">
+          <div className="font-medium">
             {Number(
               settlementTracking.reduce(
                 (acc: any, item: any) => acc + (Number(item.amount) || 0),
                 0,
               ) || 0,
-            ).toLocaleString()}
+            )?.toLocaleString()}
           </div>
         </div>
-
-        {/* Expected pay per period */}
-        <div className="grid grid-cols-3 items-center space-x-7">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Expected pay per period</span>
-          <div className="font-medium text-start text-nowrap px-1">
+          <div className="font-medium">
             {Number(
               settlementTracking.find((item: any) => item.isPaid === false)
                 ?.amount || 0,
-            ).toLocaleString()}
+            )?.toLocaleString()}
           </div>
         </div>
-
-        {/* Period */}
-        <div className="grid grid-cols-3 items-center space-x-7">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Period</span>
-          <div className="font-medium text-start text-nowrap px-1">
+          <div className="font-medium">
             {dayjs(earliestStart).format('MMM DD, YYYY')} -{' '}
             {dayjs(latestEnd).format('MMM DD, YYYY')}
           </div>
         </div>
-
-        {/* Total paid amount */}
-        <div className="grid grid-cols-3 items-center space-x-7">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Total paid amount</span>
-          <div className="text-green-600 font-medium text-start col-span-1 px-1">
+          <div className="text-green-600 font-medium">
             {Number(
               settlementTracking
                 .filter((item: any) => item.isPaid === true)
@@ -138,14 +125,12 @@ const BenefitTracking = () => {
                   (acc: any, item: any) => acc + (Number(item.amount) || 0),
                   0,
                 ) || 0,
-            ).toLocaleString()}
+            )?.toLocaleString()}
           </div>
         </div>
-
-        {/* Remaining amount */}
-        <div className="grid grid-cols-3 items-center space-x-7">
+        <div className="flex items-center justify-between">
           <span className="text-gray-500">Remaining amount</span>
-          <div className="text-yellow-500 font-medium text-start col-span-1 px-1">
+          <div className="text-yellow-500 font-medium">
             {Number(
               settlementTracking
                 .filter((item: any) => item.isPaid === false)
@@ -153,7 +138,7 @@ const BenefitTracking = () => {
                   (acc: any, item: any) => acc + (Number(item.amount) || 0),
                   0,
                 ) || 0,
-            ).toLocaleString()}
+            )?.toLocaleString()}
           </div>
         </div>
       </div>
@@ -259,26 +244,32 @@ const BenefitTracking = () => {
         </div>
       </div>
 
-      <div className=" items-center my-6">
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={settlementTracking.length}
-            pageSize={detailPageSize}
-            onChange={(page) => setDetailCurrentPage(page)}
-            onShowSizeChange={(page) => setDetailCurrentPage(page)}
-          />
-        ) : (
-          <CustomPagination
-            current={detailCurrentPage}
-            total={settlementTracking.length}
-            pageSize={detailPageSize}
-            onChange={(page) => setDetailCurrentPage(page)}
-            onShowSizeChange={(pageSize) => {
-              setDetailPageSize(pageSize);
-              setDetailCurrentPage(1);
+      <div className="flex justify-between items-center my-6">
+        <Pagination
+          current={detailCurrentPage}
+          total={settlementTracking.length}
+          pageSize={detailPageSize}
+          onChange={(page) => setDetailCurrentPage(page)}
+          showSizeChanger={false}
+        />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Show</span>
+          <Select
+            value={detailPageSize.toString()}
+            size="small"
+            className="w-16"
+            onChange={(value) => {
+              setDetailPageSize(Number(value));
+              setDetailCurrentPage(1); // reset to first page when pageSize changes
             }}
-          />
-        )}
+          >
+            <Option value="5">5</Option>
+            <Option value="10">10</Option>
+            <Option value="20">20</Option>
+            <Option value="20">50</Option>
+            <Option value="20">10</Option>
+          </Select>
+        </div>
       </div>
     </Card>
   );

@@ -2,7 +2,7 @@
 import React from 'react';
 import { classNames } from '@/utils/classNames';
 import { Tooltip } from 'antd';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useIsMobile } from '../hooks/useIsMobile';
 interface PageHeaderProps {
   title: React.ReactNode;
   description?: string;
@@ -10,7 +10,6 @@ interface PageHeaderProps {
   size?: 'small' | 'medium';
   toolTip?: string;
   horizontalPadding?: string;
-  className?: string;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -20,12 +19,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   children,
   toolTip,
   horizontalPadding = 'px-2',
-  className,
 }) => {
   const { isMobile } = useIsMobile();
   return (
     <div
-      className={`flex justify-between flex-wrap items-center ${horizontalPadding} ${className}`}
+      className={`flex justify-between flex-wrap items-center ${horizontalPadding}`}
     >
       <div className={`flex-1 ${horizontalPadding}`}>
         {isMobile ? (

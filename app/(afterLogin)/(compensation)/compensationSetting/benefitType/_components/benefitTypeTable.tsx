@@ -12,11 +12,8 @@ import {
 import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import CustomPagination from '@/components/customPagination';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const BenefitTypeTable = () => {
-  const { isMobile, isTablet } = useIsMobile();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
@@ -67,9 +64,7 @@ const BenefitTypeTable = () => {
       key: 'name',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="benefit-type-name" className="text-xs truncate">
-          {text || '-'}
-        </div>
+        <div data-testid="benefit-type-name">{text || '-'}</div>
       ),
     },
     {
@@ -78,12 +73,7 @@ const BenefitTypeTable = () => {
       key: 'description',
       sorter: true,
       render: (text: string) => (
-        <div
-          data-testid="benefit-type-description"
-          className="text-xs truncate"
-        >
-          {text || '-'}
-        </div>
+        <div data-testid="benefit-type-description">{text || '-'}</div>
       ),
     },
     {
@@ -127,7 +117,7 @@ const BenefitTypeTable = () => {
       key: 'applicableTo',
       sorter: true,
       render: (applicableTo: string) => (
-        <div data-testid="benefit-type-applicable" className="text-xs truncate">
+        <div data-testid="benefit-type-applicable">
           {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
         </div>
       ),
@@ -183,45 +173,14 @@ const BenefitTypeTable = () => {
   return (
     <div data-testid="benefit-type-table-container">
       <Spin spinning={isLoading} data-testid="benefit-type-table-loading">
-        <div className="flex overflow-x-auto scrollbar-none w-full ">
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="benefit-type-table"
-          />
-        </div>
-
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={tableData.length}
-            pageSize={benefitPageSize}
-            onChange={(page, size) => {
-              setBenefitCurrentPage(page);
-              setBenefitPageSize(size);
-            }}
-            onShowSizeChange={(page, size) => {
-              setBenefitCurrentPage(page);
-              setBenefitPageSize(size);
-            }}
-          />
-        ) : (
-          <CustomPagination
-            current={benefitCurrentPage}
-            total={tableData.length}
-            pageSize={benefitPageSize}
-            onChange={(page, size) => {
-              setBenefitCurrentPage(page);
-              setBenefitPageSize(size);
-            }}
-            onShowSizeChange={(size) => {
-              setBenefitPageSize(size);
-              setBenefitCurrentPage(1);
-            }}
-          />
-        )}
-        {/* <CustomPagination
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="benefit-type-table"
+        />
+        <CustomPagination
           current={benefitCurrentPage}
           total={tableData.length}
           pageSize={benefitPageSize}
@@ -234,7 +193,7 @@ const BenefitTypeTable = () => {
             setBenefitCurrentPage(1);
           }}
           data-testid="benefit-type-pagination"
-        /> */}
+        />
       </Spin>
     </div>
   );

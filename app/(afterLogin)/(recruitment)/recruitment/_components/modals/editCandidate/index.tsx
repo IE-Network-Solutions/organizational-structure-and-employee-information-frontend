@@ -79,8 +79,7 @@ const EditCandidate: React.FC = () => {
 
     const formattedValues = {
       ...formValues,
-      jobCandidateId: editCandidate?.jobCandidate?.[0]?.id,
-      jobInformationId: editCandidate?.jobCandidate?.[0]?.jobInformationId,
+      jobCandidate: editCandidate?.jobCandidate?.map((item: any) => item?.id),
       updatedBy: updatedBy,
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
@@ -100,7 +99,9 @@ const EditCandidate: React.FC = () => {
         jobInformationId: editCandidate?.jobCandidate?.map(
           (item: any) => item?.jobInformation?.jobTitle,
         ),
-        coverLetter: editCandidate?.jobCandidate?.[0]?.coverLetter || '',
+        coverLetter: editCandidate?.jobCandidate?.map(
+          (item: any) => item?.coverLetter,
+        ),
         resumeUrl: editCandidate?.resumeUrl
           ? {
               uid: editCandidate?.resumeUrl,

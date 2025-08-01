@@ -29,6 +29,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Allowance Type</p>
           </div>
         ),
+        className: 'px-1',
       },
       link: '/compensationSetting/allowanceType',
     },
@@ -45,6 +46,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Benefit Type</p>
           </div>
         ),
+        className: 'px-1',
       },
       link: '/compensationSetting/benefitType',
     },
@@ -61,23 +63,22 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Deduction Type</p>
           </div>
         ),
+        className: 'px-1',
       },
       link: '/compensationSetting/deductionType',
     },
   ]);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="h-auto w-auto bg-[#f5f5f5]">
+    <div className="min-h-screen bg-[#fafafa] p-3">
+      <div className="h-auto w-auto ">
         <PageHeader
           title="Settings"
           description="Compensation Settings"
-          className="hidden sm:block"
-          horizontalPadding="0px"
         ></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 mt-3">
           <SidebarMenu menuItems={menuItems} />
-          <BlockWrapper className="flex-1 h-max overflow-x-auto sm:mr-4">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0">
             {children}
           </BlockWrapper>
         </div>

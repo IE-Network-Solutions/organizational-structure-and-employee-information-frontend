@@ -50,68 +50,46 @@ export const useHandleSignIn = () => {
       setLocalId(uid);
 
       const fetchedData = await fetchTenantId(token);
+
       if (fetchedData.isError) {
         message.error('Failed to fetch user data. Please try again.');
         setToken('');
-        return;
-      }
-
-      // Check if user belongs to the current tenant (if it's not a PWA)
-      if (tenant?.isPWA === false && tenant?.id !== user?.tenantId) {
-        message.error(
-          'This user does not belong to this tenant. Please contact your administrator.',
-        );
-        setToken('');
-        return;
-      }
-
-      // Set essential user-related states
-      setTenantId(fetchedData?.data.tenantId);
-      setUserId(fetchedData?.data.id);
-      setUserData(fetchedData?.data);
-      setLoggedUserRole(fetchedData?.data?.role?.slug || '');
-
-      // Fetch and validate fiscal year
-      const fiscalYearData = await refetchFiscalYear();
-      const fiscalYearEndDate = fiscalYearData?.data?.endDate;
-
-      if (fiscalYearEndDate) {
-        setActiveCalendar(fiscalYearEndDate);
-      }
-
-      message.success('Welcome!');
-      message.loading({ content: 'Redirecting...', key: 'redirect' });
-
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      sessionStorage.removeItem('redirectAfterLogin');
-
-      // Redirect based on user account status
-      if (!user.hasCompany) {
-        router.push('/onboarding');
-      } else if (!user.hasChangedPassword) {
-        router.push('/authentication/new-password');
-      } else if (
-        user.hasCompany &&
-        user.hasChangedPassword &&
-        fiscalYearEndDate &&
-        new Date(fiscalYearEndDate) > new Date()
-      ) {
-        router.push('/dashboard');
+        // setLocalId('');
       } else {
-        const userRole = user?.role?.slug;
+        if (tenant?.id !== fetchedData?.data?.tenantId) {
+          message.error(
+            'This user does not belong to this tenant. Please contact your administrator.',
+          );
+          setToken('');
+          // setLocalId('');
+          return;
+        }
+        setTenantId(fetchedData?.data?.tenantId);
+        setUserId(fetchedData?.data?.id);
+        setUserData(fetchedData?.data);
+        setLoggedUserRole(fetchedData?.data?.role?.slug || '');
 
-        // Admin or owner role logic
-        if (userRole === 'owner' || userRole === 'admin') {
-          if (fiscalYearEndDate && new Date(fiscalYearEndDate) < new Date()) {
-            message.warning(
-              'Your active fiscal year has ended. Please set a new one.',
-            );
-            router.push('/organization/settings/fiscalYear/fiscalYearCard');
-          } else if (redirectPath) {
-            router.push(redirectPath);
-          } else {
-            router.push('/organization/settings/fiscalYear/fiscalYearCard');
-          }
+        const fiscalYearData = await refetchFiscalYear();
+        if (fiscalYearData?.data) {
+          setActiveCalendar(fiscalYearData?.data?.endDate);
+        }
+
+        message.success('Welcome!');
+        message.loading({ content: 'Redirecting...', key: 'redirect' });
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.removeItem('redirectAfterLogin');
+
+        if (fetchedData?.data?.hasCompany === false) {
+          router.push('/onboarding');
+        } else if (fetchedData?.data?.hasChangedPassword === false) {
+          router.push('/authentication/new-password');
+        } else if (
+          fetchedData?.data?.hasCompany === true &&
+          fetchedData?.data?.hasChangedPassword === true &&
+          fiscalYearData?.data?.endDate &&
+          new Date(fiscalYearData?.data?.endDate) > new Date()
+        ) {
+          router.push('/dashboard');
         } else {
           if (
             AccessGuard.checkAccess({
@@ -133,7 +111,12 @@ export const useHandleSignIn = () => {
               router.push('/organization/settings/fiscalYear/fiscalYearCard');
             }
           } else {
-            router.push('/dashboard');
+            // For other roles, go to dashboard
+            if (redirectPath) {
+              router.push(redirectPath);
+            } else {
+              router.push('/dashboard');
+            }
           }
         }
       }

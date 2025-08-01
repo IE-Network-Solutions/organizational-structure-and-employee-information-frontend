@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Spin } from 'antd';
+import { Select, DatePicker, Spin } from 'antd';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -14,22 +14,8 @@ import {
   Legend,
 } from 'chart.js';
 import { useGetAdminOnLeave } from '@/store/server/features/timesheet/dashboard/queries';
+import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
-
-const shadowLinePlugin = {
-  id: 'shadowLinePlugin',
-  beforeDatasetsDraw: (chart: any) => {
-    const { ctx } = chart;
-    ctx.save();
-    ctx.shadowColor = '#8C62FF';
-    ctx.shadowBlur = 5;
-    ctx.shadowOffsetX = 1;
-    ctx.shadowOffsetY = 1;
-  },
-  afterDatasetsDraw: (chart: any) => {
-    chart.ctx.restore();
-  },
-};
 // Register Chart.js components
 ChartJS.register(
   CategoryScale,
@@ -41,10 +27,17 @@ ChartJS.register(
   Legend,
 );
 
-const LeaveSectionGraph: React.FC = () => {
-  const { departmentOnLeave, startDate, endDate } =
-    TimeAndAttendaceDashboardStore();
+const { RangePicker } = DatePicker;
 
+const LeaveSectionGraph: React.FC = () => {
+  const {
+    setDepartmentOnLeave,
+    departmentOnLeave,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+  } = TimeAndAttendaceDashboardStore();
   const { data: employeeAdminLeave, isLoading: loading } = useGetAdminOnLeave({
     userId: '',
     startDate: startDate,
@@ -52,33 +45,30 @@ const LeaveSectionGraph: React.FC = () => {
     departmentId: departmentOnLeave,
   });
 
+  // Line chart data for employee trends
   const leaveTypeArray = employeeAdminLeave?.leaveTypeStats
-    ? Object.entries(employeeAdminLeave.leaveTypeStats).map(
+    ? Object.entries(employeeAdminLeave?.leaveTypeStats).map(
         ([leaveType, count]) => ({
           leaveType,
           count,
         }),
       )
     : [];
-  const labels = leaveTypeArray.map((i: any) => i.leaveType.split(' ')[0]);
-  const dataSet = leaveTypeArray.map((i: any) => i.count);
+  const labels = leaveTypeArray?.map((i: any) => i?.leaveType?.split(' ')[0]);
+  const dataSet = leaveTypeArray?.map((i: any) => i.count);
   const lineChartData = {
     labels: labels,
     datasets: [
       {
-        // label: 'Number of Employees on leave', // Removed to suppress legend and tooltip title
+        label: 'Number of Employees on leave',
         data: dataSet,
-        borderColor: '#8979FF',
-        backgroundColor: 'rgba(137, 121, 255, 0.1)',
-        borderWidth: 1,
+        borderColor: '#8979FF', // New line color (e.g., Indigo-600)
+        backgroundColor: 'rgba(79, 70, 229, 0.1)', // Lighter fill
+        borderWidth: 1.5, // Line thickness
         tension: 0.4,
-        fill: false,
-        pointRadius: 3.5,
-        pointBackgroundColor: '#ffffff',
-        pointBorderColor: '#8979FF',
-        pointBorderWidth: 1,
-        pointHoverRadius: 2,
-        pointHoverBorderWidth: 3,
+        fill: true,
+        pointRadius: 2.5, // Optional: increase point size
+        pointBackgroundColor: '#ffffff', // Point color
       },
     ],
   };
@@ -87,71 +77,40 @@ const LeaveSectionGraph: React.FC = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: false },
-      datalabels: { display: false },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        titleColor: '#333',
-        bodyColor: '#333',
-        borderColor: '#e5e7eb',
-        borderWidth: 1,
-        cornerRadius: 8,
-        displayColors: false,
-        titleFont: { size: 14, weight: 'bold' as const },
-        bodyFont: { size: 13 },
-        padding: 12,
+      legend: {
+        display: false,
       },
+      datalabels: { display: false },
     },
     scales: {
       y: {
         beginAtZero: true,
         min: 0,
-        max: dataSet.length > 0 ? Math.max(...dataSet) + 10 : 100,
+        max: dataSet?.length > 0 ? Math.max(...dataSet) + 10 : 100,
         ticks: {
           stepSize: 20,
-          color: '#666',
-          font: {
-            size: 12,
-            weight: 'normal' as const,
-          },
-          padding: 8,
+          color: '#333',
         },
         grid: {
-          color: 'rgba(0, 0, 0, 0.08)',
-          lineWidth: 1,
-          drawBorder: false,
-          borderDash: [4, 4],
-        },
-        border: {
-          display: false,
+          color: 'rgba(0, 0, 0, 0.1)',
         },
       },
       x: {
-        ticks: {
-          color: '#666',
-          font: {
-            size: 12,
-            weight: 'normal' as const,
-          },
-          padding: 8,
-        },
         grid: {
-          color: 'rgba(0, 0, 0, 0.08)',
-          lineWidth: 1,
-          drawBorder: false,
-          borderDash: [4, 4],
+          display: true,
         },
       },
     },
-    interaction: {
-      intersect: false,
-      mode: 'index' as const,
-    },
   };
+  const { data: Departments } = useGetUserDepartment();
 
+  const departmentOptions = Departments?.map((i: any) => ({
+    value: i.id,
+    label: i?.name,
+  }));
   return (
     <div className="col-span-7">
-      <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4 w-full">
+      <div className="flex flex-col sm:flex-row justify-between items-end mb-4 gap-4 w-full">
         <p className="text-purple-600 text-[12px] flex items-center gap-2">
           <svg
             width="16"
@@ -165,8 +124,35 @@ const LeaveSectionGraph: React.FC = () => {
           </svg>
           Number of Employees on leave
         </p>
-      </div>
+        <div className="space-x-2 flex items-center ">
+          <Select
+            showSearch
+            placeholder="Select department"
+            allowClear
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+            }
+            options={departmentOptions}
+            maxTagCount={1}
+            className="w-32 h-12"
+            onChange={(value) => setDepartmentOnLeave(value)}
+          />
 
+          <RangePicker
+            allowClear
+            className="w-32 h-12"
+            onChange={(value) => {
+              if (value) {
+                setStartDate(value[0]?.format('YYYY-MM-DD') || '');
+                setEndDate(value[1]?.format('YYYY-MM-DD') || '');
+              } else {
+                setStartDate('');
+                setEndDate('');
+              }
+            }}
+          />
+        </div>
+      </div>
       <Spin spinning={loading}>
         {employeeAdminLeave?.monthlyStats?.length === 0 ? (
           <div className="flex justify-center items-center h-64">
@@ -176,10 +162,9 @@ const LeaveSectionGraph: React.FC = () => {
           </div>
         ) : (
           <Line
-            className="h-80 "
+            className="h-64"
             data={lineChartData}
             options={lineChartOptions}
-            plugins={[shadowLinePlugin]}
           />
         )}
       </Spin>

@@ -12,8 +12,8 @@ const AllowanceTypePage = () => {
   const { setIsAllowanceOpen } = useCompensationSettingStore();
 
   return (
-    <div className="bg-white rounded-lg px-1 py-4 sm:px-6 ">
-      <div className="flex justify-between mb-3 items-center">
+    <div className="p-5 rounded-2xl bg-white ">
+      <div className="flex justify-between mb-4">
         <h1 className="text-lg font-bold">Allowance Types</h1>
         <AccessGuard permissions={[Permissions.CreateAllowanceType]}>
           <Button
@@ -25,13 +25,13 @@ const AllowanceTypePage = () => {
               setIsAllowanceOpen(true);
             }}
           >
-            <span className="hidden lg:inline"> Allowance</span>
+            <span className="hidden lg:inline"> New Allowance Type</span>
           </Button>
         </AccessGuard>
       </div>
 
       <AllowanceTypeSideBar />
-      <div>
+      <div className="flex overflow-x-auto scrollbar-none w-full ">
         <AllowanceTypeTable />
       </div>
     </div>

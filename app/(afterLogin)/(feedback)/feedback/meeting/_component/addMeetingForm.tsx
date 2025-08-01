@@ -353,12 +353,7 @@ export default function AddNewMeetingForm() {
               name="date"
               rules={[{ required: true, message: 'Please select date' }]}
             >
-              <DatePicker
-                className="w-full h-[54px]"
-                disabledDate={(current) =>
-                  current && current < dayjs().startOf('day')
-                }
-              />
+              <DatePicker className="w-full h-[54px]" />
             </Form.Item>
 
             <Form.Item

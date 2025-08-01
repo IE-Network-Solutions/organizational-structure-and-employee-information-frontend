@@ -4,7 +4,6 @@ export interface AttendanceRequestBody {
     attendanceRecordIds?: string[];
     userIds?: string[];
     type?: 'late' | 'early' | 'absent' | 'present';
-    breakTypeId?: string;
     date?: {
       from: string;
       to: string;

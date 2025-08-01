@@ -137,10 +137,7 @@ export const useAssignPlanningPeriodToUsers = () => {
     (planningPeriodId: any) => assignPlanningPeriodToUsers(planningPeriodId),
     {
       onSuccess: () => {
-        // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
-        queryClient.invalidateQueries(['allPlanningPeriodUser']);
-        queryClient.invalidateQueries(['planningPeriods']);
-        queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
+        queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key as necessary
         NotificationMessage.success({
           message: 'Successfully Assigned',
           description: 'Planning period successfully assigned to users.',
@@ -155,20 +152,16 @@ export const useUpdateAssignPlanningPeriodToUsers = () => {
     (values: PlanningUserPayload) => updatePlanningPeriodToUsers(values),
     {
       onSuccess: () => {
-        // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
-        queryClient.invalidateQueries(['allPlanningPeriodUser']);
-        queryClient.invalidateQueries(['planningPeriods']);
-        queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
+        queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key if needed
         NotificationMessage.success({
-          message: 'Successfully Updated',
-          description: 'Planning period assignment successfully updated.',
+          message: 'Successfully Assigned',
+          description: 'Planning period successfully assigned to users.',
         });
       },
       onError: () => {
         NotificationMessage.error({
-          message: 'Update Failed',
-          description:
-            'There was an error updating the planning period assignment.',
+          message: 'Assignment Failed',
+          description: 'There was an error assigning the planning period.',
         });
       },
     },
@@ -182,10 +175,7 @@ export const useDeletePlanningUser = () => {
       deleteAssignPlanningPeriodToUsers(planningPeriodId),
     {
       onSuccess: () => {
-        // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
-        queryClient.invalidateQueries(['allPlanningPeriodUser']);
-        queryClient.invalidateQueries(['planningPeriods']);
-        queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
+        queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key as necessary
         NotificationMessage.success({
           message: 'Successfully Deleted',
           description: 'Planning User successfully Deleted.',

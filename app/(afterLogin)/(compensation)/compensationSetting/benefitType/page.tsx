@@ -12,8 +12,8 @@ const BenefitTypePage = () => {
   const { setIsBenefitOpen } = useCompensationSettingStore();
 
   return (
-    <div className="bg-white rounded-lg px-1 py-4 sm:px-6">
-      <div className="flex justify-between mb-3 items-center">
+    <div className="p-5 rounded-2xl bg-white ">
+      <div className="flex justify-between mb-4">
         <h1 className="text-lg font-bold">Benefit Types</h1>
         <AccessGuard permissions={[Permissions.CreateBenefitType]}>
           <Button
@@ -25,11 +25,11 @@ const BenefitTypePage = () => {
               setIsBenefitOpen(true);
             }}
           >
-            <span className="hidden lg:inline">Benefit</span>
+            <span className="hidden lg:inline"> New Benefit Type</span>
           </Button>
         </AccessGuard>
       </div>
-      <div>
+      <div className="flex overflow-x-auto scrollbar-none w-full ">
         <BenefitTypeTable />
       </div>
       <BenefitypeSideBar />

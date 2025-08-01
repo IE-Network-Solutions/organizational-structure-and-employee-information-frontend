@@ -1,7 +1,7 @@
 import { Button } from 'antd';
 import { ButtonProps } from 'antd/lib/button';
 import type { ConfigProviderProps } from 'antd';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 type SizeType = ConfigProviderProps['componentSize'];
 

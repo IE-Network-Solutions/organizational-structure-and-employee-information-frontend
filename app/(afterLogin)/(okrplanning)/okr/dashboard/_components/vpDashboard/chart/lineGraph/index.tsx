@@ -14,7 +14,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import {
   useGetAllMonth,
-  useGetVPLineGraphDataByMonth,
+  useGetVPLineGraphData,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -48,23 +48,13 @@ interface PayCardInterface {
 
 const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   const userId = useAuthenticationStore?.getState().userId;
-  const {
-    type,
-    displayData,
-    setDisplayData,
-    setType,
-    selectedMonth,
-    setSelectedMonth,
-  } = useDashboardVPStore();
+
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const { data: monthData } = useGetAllMonth();
 
   const identifier = id ?? userId;
-  const { data: lineGraphByMonth } = useGetVPLineGraphDataByMonth(
-    identifier,
-    selectedMonth,
-  );
-
+  const { data: lineGraph } = useGetVPLineGraphData(identifier);
+  const { type, displayData, setDisplayData, setType } = useDashboardVPStore();
   const requests = [
     {
       type: 'Quarterly',
@@ -78,18 +68,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   const handleChange = (value: string) => {
     setType(value);
   };
-  useEffect(() => {
-    if (type === 'Quarterly') {
-      const months = activeFiscalYear?.sessions?.find(
-        (item: any) => item.active,
-      )?.months;
-      setSelectedMonth(months?.map((month: any) => month.id) ?? []);
-    } else if (type === 'Yearly') {
-      const months = monthData?.items?.map((month: any) => month.id);
 
-      setSelectedMonth(months ?? []);
-    }
-  }, [type, activeFiscalYear, monthData]);
   useEffect(() => {
     if (type === 'Quarterly') {
       const session = activeFiscalYear?.sessions?.find(
@@ -98,23 +77,27 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
       const month = session?.months;
 
       if (month) {
-        const filteredData = lineGraphByMonth?.map((item: any) => {
-          const matchedMonth = month?.find((m: any) => m.id === item.monthId);
-          return {
-            ...item,
-            monthName: matchedMonth?.startDate
-              ? dayjs(matchedMonth.startDate).format('MMMM')
-              : matchedMonth?.name,
-          };
-        });
+        const filteredData = lineGraph
+          ?.filter((item: any) =>
+            month?.some((m: any) => m.id === item.monthId),
+          )
+          ?.map((item: any) => {
+            const matchedMonth = month?.find((m: any) => m.id === item.monthId);
+            return {
+              ...item,
+              monthName: matchedMonth?.startDate
+                ? dayjs(matchedMonth.startDate).format('MMMM')
+                : matchedMonth?.name,
+            };
+          });
 
         setDisplayData(filteredData);
       } else {
         setDisplayData([]);
       }
     } else if (type === 'Yearly') {
-      if (monthData?.items) {
-        const filteredData = lineGraphByMonth?.map((item: any) => {
+      if (monthData) {
+        const filteredData = lineGraph?.map((item: any) => {
           const matchedMonth = monthData?.items?.find(
             (m: any) => m.id === item.monthId,
           );
@@ -125,13 +108,12 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
               : matchedMonth?.name,
           };
         });
-
         setDisplayData(filteredData);
       } else {
-        setDisplayData(lineGraphByMonth);
+        setDisplayData(lineGraph);
       }
     }
-  }, [type, activeFiscalYear, lineGraphByMonth]);
+  }, [type, activeFiscalYear, lineGraph]);
 
   const data = {
     labels: displayData?.map((month: any) =>
@@ -156,8 +138,8 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
         ticks: { font: { family: 'inherit', size: 14 } },
       },
       y: {
-        max: 100,
-        ticks: { stepSize: 20 },
+        max: 30,
+        ticks: { stepSize: 10 },
         beginAtZero: true,
         grid: { color: '#9ca3af' },
       },
@@ -198,14 +180,18 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
           />
         </div>
       </div>
+      {/* <Bar options={options} data={data} height={180} /> */}
       <div className="flex  xl:hidden">
-        <Bar data={data} options={options} height={230} />{' '}
+        {/* flex xl:hidden zoom in min 110{' '} */}
+        <Bar data={data} options={options} height={220} />{' '}
       </div>
       <div className="hidden xl:flex 2xl:hidden">
-        <Bar data={data} options={options} height={172} />{' '}
+        {/* hidden xl:flex 2xl:hidden mid 90 - 100 */}
+        <Bar data={data} options={options} height={180} />{' '}
       </div>
       <div className="hidden 2xl:flex ">
-        <Bar data={data} options={options} height={140} />
+        {/* hidden 2xl:flex = zoom out max 80 -75 */}
+        <Bar data={data} options={options} height={130} />
       </div>{' '}
     </div>
   );

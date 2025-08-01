@@ -56,7 +56,7 @@ const SidebarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
       <div className={`${isMobile && 'overflow-x-auto w-full '}`}>
         <Menu
           style={isMobile ? { marginInlineStart: 0 } : {}}
-          className={`${isMobile ? 'min-w-max flex justify-start bg-[#f5f5f5]' : ''} rounded-2xl sm:py-2 px-0 sm:px-6 h-max gap-2 sm:w-[300px] sm:mb-4`}
+          className={`${isMobile ? 'min-w-max flex justify-start bg-[#fafafa]' : ''} rounded-2xl py-2 px-0 sm:px-6 h-max gap-2 sm:w-[300px] `}
           items={menuItems.onlyItems}
           overflowedIndicator={false}
           mode={isMobile ? 'horizontal' : 'inline'}

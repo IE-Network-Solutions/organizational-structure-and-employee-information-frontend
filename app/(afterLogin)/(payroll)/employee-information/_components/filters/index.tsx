@@ -1,4 +1,4 @@
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import {
   useEmployeeDepartments,
   useGetAllUsers,

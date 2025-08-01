@@ -1,6 +1,6 @@
 import { Col, Input, Row, Select } from 'antd';
 import React from 'react';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { VscSettings } from 'react-icons/vsc';
 
 interface CriteriaFiltersProps {

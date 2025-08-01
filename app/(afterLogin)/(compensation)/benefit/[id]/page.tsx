@@ -45,90 +45,48 @@ const BenefitEntitlemetPage = () => {
       label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
       employeeData: emp,
     })) || [];
-  const { employeeBenefitData } = useBenefitEntitlementStore();
+
   return (
-    <div className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4">
+    <>
       <div>
-        {employeeBenefitData == null && (
-          <div>
-            {/* PageHeader for mobile only */}
-            <div className="block sm:hidden mb-4">
-              <PageHeader
-                title={
-                  benefitData?.name
-                    ? benefitData.name.length > 15
-                      ? benefitData.name.slice(0, 15) + '...'
-                      : benefitData.name
-                    : ''
-                }
-                toolTip={benefitData?.name}
-                horizontalPadding="0px"
-              />
-            </div>
+        {/* PageHeader for mobile only */}
+        <div className="block sm:hidden mb-4">
+          <PageHeader
+            title={
+              benefitData?.name
+                ? benefitData.name.length > 15
+                  ? benefitData.name.slice(0, 15) + '...'
+                  : benefitData.name
+                : ''
+            }
+            toolTip={benefitData?.name}
+          />
+        </div>
 
-            {/* Header and controls layout for larger screens */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-2">
-              {/* PageHeader for larger screens only */}
-              <div className="hidden sm:block">
-                <PageHeader
-                  title={
-                    benefitData?.name
-                      ? benefitData.name.length > 15
-                        ? benefitData.name.slice(0, 15) + '...'
-                        : benefitData.name
-                      : ''
-                  }
-                  toolTip={benefitData?.name}
-                  horizontalPadding="0px"
-                />
-              </div>
+        {/* Header and controls layout for larger screens */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          {/* PageHeader for larger screens only */}
+          <div className="hidden sm:block">
+            <PageHeader
+              title={
+                benefitData?.name
+                  ? benefitData.name.length > 15
+                    ? benefitData.name.slice(0, 15) + '...'
+                    : benefitData.name
+                  : ''
+              }
+              toolTip={benefitData?.name}
+            />
+          </div>
 
-              {/* Select and Button layout */}
-              <div className="flex flex-row w-full sm:w-auto gap-2">
-                {/* Select - takes 75% on mobile, fixed width on desktop */}
-                <div className="w-10/12 mr-2 sm:hidden">
-                  <Select
-                    showSearch
-                    allowClear
-                    className="min-h-10 w-full"
-                    placeholder="Search by name"
-                    onChange={handleSearchChange}
-                    filterOption={(input, option) => {
-                      const label = option?.label;
-                      return (
-                        typeof label === 'string' &&
-                        label.toLowerCase().includes(input.toLowerCase())
-                      );
-                    }}
-                    options={options}
-                  />
-                </div>
-
-                {/* Button - takes 25% on mobile, auto on desktop */}
-                <div className="w-auto">
-                  <AccessGuard
-                    permissions={[Permissions.CreateBenefitEntitlement]}
-                  >
-                    <Button
-                      size="large"
-                      type="primary"
-                      className="h-10 w-full sm:w-auto"
-                      id="createNewClosedHolidayFieldId"
-                      icon={<FaPlus />}
-                      onClick={handleBenefitEntitlementAdd}
-                      disabled={BenefitApplicableTo === 'GLOBAL'}
-                    >
-                      <span className="hidden sm:inline">Employees</span>
-                    </Button>
-                  </AccessGuard>
-                </div>
-              </div>
-            </div>
-            <div className="w-full sm:block hidden mt-2">
+          {/* Select and Button layout */}
+          <div className="flex flex-row w-full sm:w-auto gap-2">
+            {/* Select - takes 75% on mobile, fixed width on desktop */}
+            <div className="w-3/4 sm:w-72">
               <Select
                 showSearch
                 allowClear
-                className="min-h-10 w-full"
+                className="min-h-12 w-full"
                 placeholder="Search by name"
                 onChange={handleSearchChange}
                 filterOption={(input, option) => {
@@ -141,8 +99,25 @@ const BenefitEntitlemetPage = () => {
                 options={options}
               />
             </div>
+
+            {/* Button - takes 25% on mobile, auto on desktop */}
+            <div className="w-1/4 sm:w-auto">
+              <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
+                <Button
+                  size="large"
+                  type="primary"
+                  className="min-h-12 w-full sm:w-auto"
+                  id="createNewClosedHolidayFieldId"
+                  icon={<FaPlus />}
+                  onClick={handleBenefitEntitlementAdd}
+                  disabled={BenefitApplicableTo === 'GLOBAL'}
+                >
+                  <span className="hidden sm:inline">Employees</span>
+                </Button>
+              </AccessGuard>
+            </div>
           </div>
-        )}
+        </div>
 
         {/* Table Section */}
         <div className="overflow-x-auto mt-4">
@@ -151,7 +126,7 @@ const BenefitEntitlemetPage = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -5,7 +5,7 @@ import { IoSearch } from 'react-icons/io5';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
 import { IoMdSwitch } from 'react-icons/io';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 
 interface CourseFilterProps {
   onChange: (value: CommonObject) => void;

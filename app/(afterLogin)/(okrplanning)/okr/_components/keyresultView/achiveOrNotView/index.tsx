@@ -179,7 +179,6 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
               />
             </Form.Item>
           </div>
@@ -310,7 +309,6 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
               />
             </Form.Item>
 
@@ -338,6 +336,46 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                   Deadline is required
                 </div>
               )}
+            </Form.Item>
+          </div>
+        </div>
+
+        {/* Target Row */}
+        {/* Desktop Layout */}
+        <div
+          className={`${isMobile ? 'hidden' : 'flex'} gap-4 px-6`}
+          style={{ maxWidth: '51%' }}
+        >
+          <Form.Item className="flex-1 mb-0">
+            <InputNumber
+              id={`key-result-target-${index}`}
+              min={0}
+              max={1}
+              value={keyValue?.targetValue || 0}
+              onChange={(value) => {
+                handleChange(value, 'targetValue');
+              }}
+              className="w-full h-10 rounded-lg text-base"
+              placeholder="Target Value (0 or 1)"
+            />
+          </Form.Item>
+        </div>
+
+        {/* Mobile Layout - Target Value */}
+        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
+          <div className="flex gap-4">
+            <Form.Item className="flex-1 mb-0">
+              <InputNumber
+                id={`key-result-target-mobile-${index}`}
+                min={0}
+                max={1}
+                value={keyValue?.targetValue || 0}
+                onChange={(value) => {
+                  handleChange(value, 'targetValue');
+                }}
+                className="w-full h-10 rounded-lg text-base"
+                placeholder="Target Value (0 or 1)"
+              />
             </Form.Item>
           </div>
         </div>

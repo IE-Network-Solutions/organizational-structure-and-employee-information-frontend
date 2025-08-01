@@ -1,4 +1,3 @@
-import { Key } from 'react';
 import { create, StateCreator } from 'zustand';
 
 type EmployeeAttendanceState = {
@@ -23,8 +22,6 @@ type EmployeeAttendanceStateAction = {
   filter: any;
   setFilter: (filter: any) => void;
   setIsShowMobileFilters: (isShowMobileFilters: boolean) => void;
-  selectedRowKeys: Key[];
-  setSelectedRowKeys: (selectedRowKeys: Key[]) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -60,10 +57,6 @@ const employeeAttendanceSlice: StateCreator<
   isShowMobileFilters: false,
   setIsShowMobileFilters: (isShowMobileFilters: boolean) => {
     set({ isShowMobileFilters });
-  },
-  selectedRowKeys: [],
-  setSelectedRowKeys: (selectedRowKeys: Key[]) => {
-    set({ selectedRowKeys });
   },
 });
 

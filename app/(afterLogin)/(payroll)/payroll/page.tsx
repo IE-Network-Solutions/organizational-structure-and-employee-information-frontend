@@ -35,7 +35,7 @@ import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { useExportData } from './_components/excel';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { PiExportLight } from 'react-icons/pi';
 import { LuSettings2 } from 'react-icons/lu';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';

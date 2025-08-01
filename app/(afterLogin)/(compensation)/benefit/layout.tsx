@@ -22,12 +22,13 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: allowance.id,
             label: (
-              <div className=" font-bold" title={allowance.name}>
+              <p className="menu-item-label" title={allowance.name}>
                 {allowance.name?.length > 15
                   ? allowance.name?.slice(0, 15) + '...'
                   : allowance.name || 'Unnamed Allowance'}
-              </div>
+              </p>
             ),
+            className: 'px-1',
           },
           link: `/benefit/${allowance.id}`,
         })) || [];
@@ -35,7 +36,8 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'variablePay',
-          label: <div className=" font-bold">Variable Pay</div>,
+          label: <p className="menu-item-label">Variable Pay</p>,
+          className: 'px-1',
         },
         link: '/benefit/variablePay',
       };
@@ -47,15 +49,11 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="h-auto w-auto bg-[#f5f5f5]">
-        <PageHeader
-          title="Benefit"
-          description="Benefit"
-          className="hidden sm:block"
-          horizontalPadding="0px"
-        />
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="h-auto w-auto">
+        <PageHeader title="Benefit" description="Benefit" />
+
+        <div className="flex flex-col lg:flex-row gap-6 mt-8">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
           <BlockWrapper className="flex-1 h-max overflow-x-auto">

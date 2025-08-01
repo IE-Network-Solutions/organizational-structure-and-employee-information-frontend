@@ -24,13 +24,9 @@ const SingleDeductionPage = () => {
       setIsAllowanceGlobal(false);
     }
   }, [deductionData, setIsAllowanceGlobal]);
-  const { employeeBenefitData } = useBenefitEntitlementStore();
-
 
   return (
-    <div className="bg-white rounded-lg px-1 py-4 sm:p-6">
-  <div>
-    {employeeBenefitData == null && (
+    <>
       <div>
         {/* PageHeader for mobile */}
         <div className="block sm:hidden mb-4">
@@ -44,12 +40,10 @@ const SingleDeductionPage = () => {
             }
             size="small"
             toolTip={deductionData?.name}
-            horizontalPadding="px-0"
-          />
+          ></PageHeader>
         </div>
-
         {/* Main layout for larger screens */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div className="hidden sm:block">
             <PageHeader
               title={
@@ -61,25 +55,28 @@ const SingleDeductionPage = () => {
               }
               size="small"
               toolTip={deductionData?.name}
-              horizontalPadding="px-0"
-            />
+            ></PageHeader>
           </div>
           <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
-            <div className="w-5/6 sm:w-72 mr-2">
+            <div className="w-3/4 sm:w-72 mr-2">
+              {/* <Input addonBefore={<SearchOutlined />} placeholder="Search by name" size='small' /> */}
               <Select
                 showSearch
                 allowClear
-                className="h-10 w-full"
+                className="h-12 w-full"
                 placeholder="Search by name"
               />
             </div>
-            <div className="w-auto">
-              <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
+            {/* Button: 25% on mobile */}
+            <div className="w-1/4 sm:w-auto">
+              <AccessGuard
+                permissions={[Permissions.CreateAllowanceEntitlement]}
+              >
                 <Button
                   size="large"
                   type="primary"
                   id="createNewClosedHolidayFieldId"
-                  className="h-10 w-10 sm:w-full"
+                  className="h-12 w-full"
                   icon={<FaPlus />}
                   onClick={() => {
                     setIsBenefitEntitlementSidebarOpen(true);
@@ -93,14 +90,14 @@ const SingleDeductionPage = () => {
           </div>
         </div>
       </div>
-    )}
+      <div className="overflow-x-auto">
+        {/* <DeductionEntitlementTable /> */}
 
-    <BenefitEntitlementTable
-      title={deductionData?.name ? deductionData?.name : ''}
-    />
-  </div>
-</div>
-
+        <BenefitEntitlementTable
+          title={deductionData?.name ? deductionData?.name : ''}
+        />
+      </div>
+    </>
   );
 };
 

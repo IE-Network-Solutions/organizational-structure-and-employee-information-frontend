@@ -4,6 +4,7 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { Form, Select, Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+
 import React, { useEffect } from 'react';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import {
@@ -11,7 +12,6 @@ import {
   useUpdateAssignPlanningPeriodToUsers,
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
-import { PlanningPeriodItem } from '@/store/uistate/features/okrplanning/okrSetting/interface';
 interface RepDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -53,13 +53,12 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       </div>
     );
   };
-
   useEffect(() => {
     if (selectedPlanningUser) {
       form.setFieldsValue({
         userIds: [selectedPlanningUser.userId], // Wrapping userId in an array to match the expected structure
-        planningPeriods: selectedPlanningUser.planningPeriod.map(
-          (item: PlanningPeriodItem) => item.id,
+        planningPeriods: selectedPlanningUser.items.map(
+          (item) => item.planningPeriodId,
         ),
       });
     } else {
@@ -111,7 +110,6 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       />
     </div>
   );
-
   return (
     <CustomDrawerLayout
       open={open}
@@ -139,6 +137,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
             placeholder="Select Employees"
             optionLabelProp="label"
             tagRender={customTagRender}
+            // className="h-12"
             optionFilterProp="label"
           >
             {allUsers?.items.map((option: any) => (
@@ -167,6 +166,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
           <Select
             mode="multiple"
             placeholder="Select Plans"
+            className="h-12"
             dropdownClassName="bg-white shadow-lg rounded-md"
           >
             {allPlanningperiod?.items

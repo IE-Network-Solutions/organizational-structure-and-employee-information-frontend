@@ -11,13 +11,10 @@ import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensat
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import CustomPagination from '@/components/customPagination';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AllowanceEntitlementTable = () => {
   const { currentPage, pageSize, setCurrentPage, searchQuery, setPageSize } =
     useAllowanceEntitlementStore();
-  const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
   const { id } = useParams();
@@ -139,44 +136,28 @@ const AllowanceEntitlementTable = () => {
         spinning={fiscalActiveYearFetchLoading}
         data-testid="entitlement-table-loading"
       >
-        <div className="overflow-x-auto">
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="entitlement-table"
-          />
-        </div>
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={filteredDataSource.length}
-            pageSize={pageSize}
-            onChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
-            onShowSizeChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
-          />
-        ) : (
-          <CustomPagination
-            current={currentPage}
-            total={filteredDataSource.length}
-            pageSize={pageSize}
-            onChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-          />
-        )}
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="entitlement-table"
+        />
 
+        <CustomPagination
+          current={currentPage}
+          total={filteredDataSource.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          data-testid="entitlement-pagination"
+        />
         <AllowanceEntitlementSideBar />
       </Spin>
     </div>

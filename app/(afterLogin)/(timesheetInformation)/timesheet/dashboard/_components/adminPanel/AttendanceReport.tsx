@@ -59,10 +59,20 @@ const AttendanceReport: React.FC = () => {
 
   const options: ChartOptions<'doughnut'> = {
     responsive: true,
-    cutout: '45%',
+    cutout: '50%',
     plugins: {
       legend: {
-        display: false,
+        position: 'right',
+
+        labels: {
+          usePointStyle: true,
+          boxWidth: 6,
+          padding: 8,
+          font: {
+            size: 10,
+          },
+        },
+        align: 'center',
       },
       tooltip: {
         callbacks: {
@@ -102,52 +112,39 @@ const AttendanceReport: React.FC = () => {
     label: i?.firstName + ' ' + i?.middleName + ' ' + i?.lastName,
   }));
   return (
-    <Card title={false} className="h-[522px]">
-      <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-4 gap-4 w-full">
-        <p className="text-[16px] text-black font-semibold w-64">
+    <Card title={false} className="h-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start mb-4 gap-4 w-full">
+        <p className="text-sm text-black font-semibold w-64">
           Attendance report
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-2  sm:items-center">
-          <Select
-            showSearch
-            placeholder="Select employee"
-            allowClear
-            filterOption={(input: any, option: any) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-            options={employeeOptions}
-            maxTagCount={1}
-            className="w-[400px] h-14"
-            onChange={(value) => setUserIdOnAttendanceReport(value)}
-          />
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:items-center">
+          <div className="w-full">
+            <Select
+              showSearch
+              placeholder="Select employee"
+              allowClear
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={employeeOptions}
+              maxTagCount={1}
+              className="w-full h-12"
+              onChange={(value) => setUserIdOnAttendanceReport(value)}
+            />
+          </div>
 
-          <Select
-            showSearch
-            placeholder="Select department"
-            allowClear
-            filterOption={(input: any, option: any) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-            options={departmentOptions}
-            maxTagCount={1}
-            className="w-40 h-14"
-            onChange={(value) => setDepartmentOnAttendanceReport(value)}
-          />
-
-          <RangePicker
-            className="w-40 h-14"
-            onChange={(value) => {
-              if (value) {
-                setStartDateAttendanceReport(
-                  value[0]?.format('YYYY-MM-DD') || '',
-                );
-                setEndDateAttendanceReport(
-                  value[1]?.format('YYYY-MM-DD') || '',
-                );
-              } else {
-                setStartDateAttendanceReport('');
-                setEndDateAttendanceReport('');
+          <div className="w-48">
+            <Select
+              showSearch
+              placeholder="Select department"
+              allowClear
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
               options={departmentOptions}
               maxTagCount={1}
@@ -189,29 +186,8 @@ const AttendanceReport: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <div className=" md:w-[340px] md:h-[340px]  flex justify-center items-center">
-
+                <div className="w-72 h-72 md:w-[340px] md:h-[340px] pr-8">
                   <Doughnut data={doughnutChartData} options={options} />
-                  <div className="flex flex-col gap-0 ml-16">
-                    {doughnutChartData.labels.map(
-                      (label: string, i: number) => (
-                        <div key={i} className="flex items-center mb-1 gap-2">
-                          <div
-                            style={{
-                              backgroundColor:
-                                doughnutChartData.datasets[0].backgroundColor[
-                                  i
-                                ],
-                            }}
-                            className="w-2 h-2 rounded-full mr-2"
-                          />
-                          <span className="text-xs font-medium text-gray-500">
-                            {label}
-                          </span>
-                        </div>
-                      ),
-                    )}
-                  </div>
                 </div>
               )}
             </div>
@@ -219,8 +195,7 @@ const AttendanceReport: React.FC = () => {
 
           {/* Attendance List */}
 
-          <div className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none">
-
+          <div className="space-y-3 col-span-12 md:col-span-5 h-80 overflow-y-auto scrollbar-none">
             {attendanceStats?.users?.length === 0 ? (
               <div className="flex justify-center items-center h-64">
                 <p className="text-gray-500 text-[14px] font-semibold">
@@ -231,47 +206,46 @@ const AttendanceReport: React.FC = () => {
               attendanceStats?.users?.map((item: any, index: any) => (
                 <div
                   key={index}
-                  className="bg-white rounded-xl px-4 min-h-[70px] border flex items-center justify-between  "
+                  className="bg-white rounded-xl px-4 py-2 border flex items-center justify-between shadow-sm "
                 >
                   {/* Left Side */}
-                  <div className="flex flex-col space-y-1">
-                    <div className="flex items-center gap-1">
-                      {item.profileImage ? (
-                        <Avatar
-                          className="w-6 h-6"
-                          src={item.profileImage}
-                        ></Avatar>
-                      ) : (
-                        <Avatar className="w-6 h-6 text-[12px]">
-                          {item.name.split(' ')[0].charAt(0) +
-                            item.name.split(' ')[1].charAt(0)}
-                        </Avatar>
-                      )}
-                      <p className="text-[12px] font-medium ">{item.name}</p>
-                    </div>
-
+                  <div className="flex items-center space-x-3">
+                    {item.profileImage ? (
+                      <Avatar
+                        className="w-7 h-7"
+                        src={item.profileImage}
+                      ></Avatar>
+                    ) : (
+                      <Avatar className="w-7 h-7">
+                        {item.name.split(' ')[0].charAt(0) +
+                          item.name.split(' ')[1].charAt(0)}
+                      </Avatar>
+                    )}
                     <div>
+                      <p className="text-xs font-medium text-gray-800">
+                        {item.name}
+                      </p>
                       <span
-                        className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
+                        className={`text-xs px-2 py-0.5 rounded font-medium inline-block capitalize ${item.status === 'late' ? 'bg-yellow-100 text-yellow-700' : item.status === 'absent' ? 'bg-red-100 text-red-700' : 'bg-indigo-100 text-indigo-700'}`}
                       >
-                        {item.status === 'ontime' ? 'On Time' : item.status}{' '}
+                        {item.status}{' '}
                         {item.status === 'late' || item.status === 'ontime'
-                          ? `${dayjs(item.recordTime, 'HH:mm:ss').format('hh:mm A')}`
+                          ? `${item.recordTime}`
                           : ''}
                       </span>
                     </div>
                   </div>
 
                   {/* Right Side */}
-                  <div className="flex flex-col space-y-2">
-                    <p className="text-[16px] font-medium text-black">
+                  <div className="text-right">
+                    <p className="text-xs font-semibold text-gray-700">
                       {`${dayjs(item.lateDate).format('DD MMM YYYY')}`}
                     </p>
                     <div className="mt-1 flex justify-end gap-2">
-                      <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                      <span className="text-xs bg-yellow-100 text-yellow-700 font-medium px-2 py-0.5 rounded">
                         L: {item.totalLates}
                       </span>
-                      <span className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                      <span className="text-xs bg-red-100 text-red-700 font-medium px-2 py-0.5 rounded">
                         A: {item.totalAbsences}
                       </span>
                     </div>

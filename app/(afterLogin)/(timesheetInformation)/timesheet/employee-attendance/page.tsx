@@ -54,12 +54,8 @@ const EmployeeAttendance = () => {
     isSuccess,
   } = useAttendanceImport();
 
-  const {
-    setIsShowBreakAttendanceImportSidebar,
-    filter,
-    selectedRowKeys,
-    setSelectedRowKeys,
-  } = useEmployeeAttendanceStore();
+  const { setIsShowBreakAttendanceImportSidebar, filter } =
+    useEmployeeAttendanceStore();
 
   const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -67,13 +63,7 @@ const EmployeeAttendance = () => {
     try {
       exportAttendanceData({
         exportType: type,
-        filter: {
-          ...filter,
-          attendanceRecordIds:
-            selectedRowKeys.length > 0
-              ? selectedRowKeys.map((key) => key.toString())
-              : filter?.attendanceRecordIds,
-        },
+        filter: filter || null,
       });
     } catch (error) {
       message.error('Failed to export. Please try again.');
@@ -260,8 +250,6 @@ const EmployeeAttendance = () => {
         {/* Table Section */}
         <BlockWrapper className="p-4 bg-white">
           <EmployeeAttendanceTable
-            selectedRowKeys={selectedRowKeys}
-            setSelectedRowKeys={setSelectedRowKeys}
             setBodyRequest={setBodyRequest}
             isImport={isSuccess}
           />

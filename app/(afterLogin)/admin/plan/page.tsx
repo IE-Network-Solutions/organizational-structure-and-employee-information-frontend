@@ -22,20 +22,15 @@ import {
   CalculateSubscriptionPriceDto,
   CalculateSubscriptionPriceResponse,
 } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
-import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
-import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 
 const PlanPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { transactionType } = usePaymentStore();
   const initialStep = parseInt(searchParams.get('step') || '0');
   const updateSource = searchParams.get('source') || 'default'; // 'quota' or 'period'
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [updatedQuota, setUpdatedQuota] = useState<number | null>(null);
   const [updatedPeriod, setUpdatedPeriod] = useState<string | null>(null);
-  const [updatedSubscription, setUpdatedSubscription] =
-    useState<Subscription | null>(null);
   const [selectedPeriodType, setSelectedPeriodType] =
     useState<PeriodType | null>(null);
   const [availablePeriods, setAvailablePeriods] = useState<PeriodType[]>([]);
@@ -52,9 +47,6 @@ const PlanPage = () => {
   const [currentPeriodType, setCurrentPeriodType] = useState<PeriodType | null>(
     null,
   );
-  const { data: employeeStatus } = useGetEmployeeStatus('');
-  const allUsers =
-    employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
 
   // Fetch subscriptions
   const {
@@ -272,9 +264,7 @@ const PlanPage = () => {
       const dto: CalculateSubscriptionPriceDto = {
         planId: currentPlan.id,
         planPeriodId: selectedPlanPeriod.id,
-        slotTotal: updatedQuota,
-        newSlotTotal: updatedQuota - (activeSubscription?.slotTotal ?? 0), // Use updatedQuota directly
-        transactionType: transactionType,
+        slotTotal: updatedQuota - (activeSubscription?.slotTotal || 0),
         ...(activeSubscription
           ? { subscriptionId: activeSubscription.id }
           : {}),
@@ -292,14 +282,19 @@ const PlanPage = () => {
       setCurrentStep((prev) => prev + 1);
     }
   };
+
   const handlePreviousStep = () => setCurrentStep((prev) => prev - 1);
 
   const handleQuotaChange = (value: number | null) => {
     // Always update the value, even if null
     setUpdatedQuota(value);
 
-    // Show error if value is less than total number of users
-    if (value !== null && value < allUsers) {
+    // Show error if value is less than current quota
+    if (
+      value !== null &&
+      activeSubscription?.slotTotal &&
+      value < activeSubscription.slotTotal
+    ) {
       setQuotaError('Your quota is below total number of user quota');
     } else if (value === null || value === undefined || value === 0) {
       setQuotaError('Please enter a valid number');
@@ -320,8 +315,12 @@ const PlanPage = () => {
     )
       return false;
 
-    // If value is less than total number of users, it's not valid
-    if (updatedQuota < allUsers) return false;
+    // If value is less than current quota, it's not valid
+    if (
+      activeSubscription?.slotTotal &&
+      updatedQuota < activeSubscription.slotTotal
+    )
+      return false;
 
     // Otherwise it's valid and changed
     return true;
@@ -534,16 +533,11 @@ const PlanPage = () => {
           subscriptionId: activeSubscription.id,
           planId: currentPlan.id,
           planPeriodId: selectedPlanPeriod.id,
-          slots: updatedQuota,
-          newSlots: updatedQuota - (activeSubscription?.slotTotal ?? 0),
+          slotTotal: updatedQuota,
           tenantId: DEFAULT_TENANT_ID,
         };
 
-        response = await upgradeSubscriptionMutation.mutateAsync(upgradeData, {
-          onSuccess: (data) => {
-            setUpdatedSubscription(data);
-          },
-        });
+        response = await upgradeSubscriptionMutation.mutateAsync(upgradeData);
       }
 
       if (response && (response.id || response.data?.id)) {
@@ -571,7 +565,8 @@ const PlanPage = () => {
     }
   };
 
-  const updatedSubscriptionValue = updatedSubscription;
+  const updatedSubscriptionValue = subscriptionsData?.items[0];
+
   // PDF download handler
   const handleDownloadPdf = async () => {
     // Check if we have an invoice ID
@@ -919,10 +914,8 @@ const PlanPage = () => {
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
                     <span>
                       Total Amount for{' '}
-                      {activeSubscription
-                        ? (updatedQuota || 0) -
-                          (activeSubscription?.slotTotal || 0)
-                        : updatedQuota || 0}{' '}
+                      {(updatedQuota || 0) -
+                        (activeSubscription?.slotTotal || 0)}{' '}
                       User Quota
                     </span>
                     <span>
@@ -1037,8 +1030,7 @@ const PlanPage = () => {
                         ],
                         [
                           'Number of Users:',
-                          updatedSubscriptionValue?.invoices[0]?.paymentMetadata
-                            ?.targetState?.slotTotal || 0,
+                          updatedSubscriptionValue?.slotTotal || 0,
                         ],
                         [
                           'Amount:',
@@ -1138,6 +1130,7 @@ const PlanPage = () => {
         return null;
     }
   };
+
   return (
     <div className="h-auto w-auto px-6 py-6">
       <CustomBreadcrumb

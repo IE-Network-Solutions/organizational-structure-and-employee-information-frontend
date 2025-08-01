@@ -6,7 +6,6 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useMediaQuery } from 'react-responsive';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { LuSettings2 } from 'react-icons/lu';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 
@@ -18,7 +17,6 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const [form] = Form.useForm();
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
   const { data: employeeData } = useGetAllUsers();
-  const { data: breakTypeData } = useGetBreakTypes();
   const { isShowMobileFilters, setIsShowMobileFilters } =
     useEmployeeAttendanceStore();
 
@@ -26,12 +24,6 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     employeeData?.items?.map((employee: any) => ({
       value: employee.id,
       label: `${employee?.firstName} ${employee?.middleName} ${employee?.lastName}`,
-    })) || [];
-
-  const breakTypeOptions =
-    breakTypeData?.items?.map((breakType: any) => ({
-      value: breakType.id,
-      label: breakType.title,
     })) || [];
 
   const MobileFilters = () => (
@@ -60,11 +52,11 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           />
         </Form.Item>
       </div>
-      <div className="mb-4">
-        <p className="text-sm text-gray-600 mb-2">Attendance Status</p>
+      <div>
+        <p className="text-sm text-gray-600 mb-2">Break Type</p>
         <Form.Item name="type" className="mb-0">
           <Select
-            placeholder="Select Attendance Status"
+            placeholder="Select Break Type"
             allowClear
             className="w-full"
             options={attendanceRecordTypeOption}
@@ -73,22 +65,6 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               onChange(form.getFieldsValue());
             }}
             value={form.getFieldValue('type')}
-          />
-        </Form.Item>
-      </div>
-      <div>
-        <p className="text-sm text-gray-600 mb-2">Break Type</p>
-        <Form.Item name="breakTypeId" className="mb-0">
-          <Select
-            placeholder="Select Break Type"
-            allowClear
-            className="w-full"
-            options={breakTypeOptions}
-            onChange={(value) => {
-              form.setFieldsValue({ breakTypeId: value });
-              onChange(form.getFieldsValue());
-            }}
-            value={form.getFieldValue('breakTypeId')}
           />
         </Form.Item>
       </div>
@@ -159,26 +135,13 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           <Col flex="200px">
             <Form.Item name="type" className="mb-0">
               <Select
-                placeholder="Attendance Status"
-                allowClear
-                className="w-full h-[42px]"
-                suffixIcon={
-                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
-                }
-                options={attendanceRecordTypeOption}
-              />
-            </Form.Item>
-          </Col>
-          <Col flex="200px">
-            <Form.Item name="breakTypeId" className="mb-0">
-              <Select
                 placeholder="Break Type"
                 allowClear
                 className="w-full h-[42px]"
                 suffixIcon={
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
                 }
-                options={breakTypeOptions}
+                options={attendanceRecordTypeOption}
               />
             </Form.Item>
           </Col>

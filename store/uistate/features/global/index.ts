@@ -4,14 +4,12 @@ import { create } from 'zustand';
 export interface GlobalStateProps {
   isMobile: boolean;
   isTablet: boolean;
-  isTabletLandscape: boolean;
   collapsed: boolean;
   isMobileCollapsed: boolean;
   isAdminPage: boolean;
   theme: 'light' | 'dark'; // Restrict theme to specific values
   setIsMobile: (isMobile: boolean) => void;
   setIsTablet: (isTablet: boolean) => void;
-  setIsTabletLandscape: (isTabletLandscape: boolean) => void;
   setCollapsed: (collapsed: boolean) => void;
   setIsMobileCollapsed: (isMobileCollapsed: boolean) => void;
   setIsAdminPage: (isAdminPage: boolean) => void;
@@ -23,7 +21,6 @@ export const GlobalStateStore = create<GlobalStateProps>((set) => ({
   // Responsive state
   isMobile: false,
   isTablet: false,
-  isTabletLandscape: false,
   collapsed: false,
   isMobileCollapsed: false,
 
@@ -36,7 +33,6 @@ export const GlobalStateStore = create<GlobalStateProps>((set) => ({
   // Actions
   setIsMobile: (isMobile) => set({ isMobile }),
   setIsTablet: (isTablet) => set({ isTablet }),
-  setIsTabletLandscape: (isTabletLandscape) => set({ isTabletLandscape }),
   setCollapsed: (collapsed) => set({ collapsed }),
   setIsMobileCollapsed: (isMobileCollapsed) => set({ isMobileCollapsed }),
   setIsAdminPage: (isAdminPage) => set({ isAdminPage }),

@@ -10,7 +10,7 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useIsMobile } from '@/components/common/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';

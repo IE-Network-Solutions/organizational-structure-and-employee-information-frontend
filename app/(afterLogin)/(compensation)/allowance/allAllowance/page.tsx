@@ -23,30 +23,24 @@ const AllAllowancePage: React.FC = () => {
     })) || [];
 
   return (
-    <div className="bg-white rounded-lg px-1 py-4 sm:px-6 sm:mr-4">
-      <div>
+    <>
+      <div className="mt-3">
         {/* Mobile: PageHeader on top */}
-        <div className="block sm:hidden pb-3">
-          <PageHeader
-            title="All Allowance Entitlement"
-            horizontalPadding="0px"
-          />
+        <div className="block sm:hidden mb-4">
+          <PageHeader title="All Allowance" />
         </div>
 
         {/* Main layout for sm and up */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           {/* Desktop PageHeader */}
-          <div className="hidden sm:block bg-white">
-            <PageHeader
-              title="All Allowance Entitlement"
-              horizontalPadding="0px"
-            />
+          <div className="hidden sm:block">
+            <PageHeader title="All Allowance" />
           </div>
 
           {/* Right Section: Select + Button */}
           <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
             {/* Select: 75% on mobile */}
-            <div className="w-10/12 mr-2 sm:hidden">
+            <div className="w-3/4 sm:w-72 mr-2">
               <Select
                 showSearch
                 allowClear
@@ -65,14 +59,14 @@ const AllAllowancePage: React.FC = () => {
             </div>
 
             {/* Button: 25% on mobile */}
-            <div className="w-auto">
+            <div className="w-1/4 sm:w-auto">
               <AccessGuard
                 permissions={[Permissions.CreateAllowanceEntitlement]}
               >
                 <Button
                   size="large"
                   type="primary"
-                  className="h-10 w-10 sm:w-auto"
+                  className="h-10 w-full"
                   id="createNewClosedHolidayFieldId"
                   icon={<FaPlus />}
                   onClick={() => {}}
@@ -84,29 +78,12 @@ const AllAllowancePage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="w-full sm:block hidden mt-2">
-          <Select
-            showSearch
-            allowClear
-            className="h-10 w-full"
-            placeholder="Search by name"
-            onChange={handleSearchChange}
-            filterOption={(input, option) => {
-              const label = option?.label;
-              return (
-                typeof label === 'string' &&
-                label.toLowerCase().includes(input.toLowerCase())
-              );
-            }}
-            options={options}
-          />
-        </div>
       </div>
 
-      <div>
+      <div className="overflow-x-auto">
         <AllAllowanceTable searchQuery={searchQuery} />
       </div>
-    </div>
+    </>
   );
 };
 

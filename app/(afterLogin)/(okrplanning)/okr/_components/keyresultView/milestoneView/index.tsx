@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Button,
   Input,
@@ -42,18 +42,6 @@ const MilestoneView: React.FC<OKRProps> = ({
   } = useOKRStore();
 
   const { data: metrics } = useGetMetrics();
-
-  // Sync form values with milestone data
-  useEffect(() => {
-    if (keyValue?.milestones && form) {
-      const milestoneValues: any = {};
-      keyValue.milestones.forEach((milestone: any, mindex: number) => {
-        milestoneValues[`milestones.${index}.${mindex}.title`] =
-          milestone.title;
-      });
-      form.setFieldsValue(milestoneValues);
-    }
-  }, [keyValue?.milestones, form, index]);
 
   const handleAddMilestone = (index: number) => {
     const newMilestone: Milestone = {
@@ -238,22 +226,8 @@ const MilestoneView: React.FC<OKRProps> = ({
   ) => {
     if (isEdit) {
       handleMilestoneSingleChange(value, milestoneId, field);
-      // Update form field value to prevent validation errors
-      if (form && field === 'title') {
-        form.setFieldValue(
-          `milestones.${keyResultIndex}.${milestoneId}.title`,
-          value,
-        );
-      }
     } else {
       handleMilestoneChange(value, keyResultIndex, milestoneId, field);
-      // Update form field value for non-edit mode as well
-      if (form && field === 'title') {
-        form.setFieldValue(
-          `milestones.${keyResultIndex}.${milestoneId}.title`,
-          value,
-        );
-      }
     }
   };
   const milestoneRemove = (index: number, mindex: number) => {
@@ -418,7 +392,6 @@ const MilestoneView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
               />
             </Form.Item>
           </div>
@@ -549,7 +522,6 @@ const MilestoneView: React.FC<OKRProps> = ({
                 }}
                 className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
-                disabled={isEdit}
               />
             </Form.Item>
 
@@ -602,12 +574,12 @@ const MilestoneView: React.FC<OKRProps> = ({
                       },
                     ]}
                     className="flex-1 mb-0"
-                    initialValue={milestone.title}
                   >
                     <Input
                       disabled={milestone?.status == 'Completed'}
                       id={`milestone-title-${index}-${mindex}`}
                       placeholder="Set Milestone"
+                      defaultValue={`${milestone.title}`}
                       onChange={(e) =>
                         milestoneChange(e.target.value, index, mindex, 'title')
                       }

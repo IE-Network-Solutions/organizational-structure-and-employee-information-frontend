@@ -8,14 +8,14 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
-const fetchSchedule = async (page: number, limit: number) => {
+const fetchSchedule = async () => {
   const token = await getCurrentToken();
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/work-schedules?page=${page}&limit=${limit}`,
+    url: `${ORG_AND_EMP_URL}/work-schedules`,
     method: 'GET',
     headers,
   });
@@ -34,14 +34,8 @@ const fetchScheduleById = async (id: string) => {
   });
 };
 
-export const useFetchSchedule = (page: number, limit: number) => {
-  return useQuery<ScheduleResponse>(
-    ['schedule', page, limit],
-    () => fetchSchedule(page, limit),
-    {
-      keepPreviousData: true,
-    },
-  );
+export const useFetchSchedule = () => {
+  return useQuery<ScheduleResponse>('schedule', fetchSchedule);
 };
 
 export const useFetchScheduleById = (id: string) => {

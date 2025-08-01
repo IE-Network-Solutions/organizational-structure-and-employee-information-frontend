@@ -59,7 +59,7 @@ export const useCreateSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation(createSchedule, {
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries(['schedule']);
+      queryClient.invalidateQueries('schedule');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -70,7 +70,7 @@ export const useUpdateSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation(updateSchedule, {
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries(['schedule']);
+      queryClient.invalidateQueries('schedule');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -81,7 +81,7 @@ export const useDeleteSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation((id: string) => deleteSchedule(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(['schedule']);
+      queryClient.invalidateQueries('schedule');
       // const method = variables?.method?.toUpperCase();
       // handleSuccessMessage(method);
     },

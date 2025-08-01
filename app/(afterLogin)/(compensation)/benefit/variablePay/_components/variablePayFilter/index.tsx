@@ -109,7 +109,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           <Select
             showSearch
             allowClear
-            className="flex-1 h-10"
+            className="flex-1 h-12"
             placeholder="Search by name"
             onChange={(value) => handleSearchInput(value, 'employeeName')}
             filterOption={(input, option) => {
@@ -124,10 +124,8 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           />
 
           {/* Toggle filter icon */}
-          <Button
-            type="default"
-            className="flex justify-center w-10 h-10 hover:bg-gray-100 border-gray-200"
-            icon={<LuSettings2 />}
+          <LuSettings2
+            className="cursor-pointer w-10 h-10 rounded-md border-gray-100 border-2"
             onClick={() => setIsMobileFilterVisible(!isMobileFilterVisible)}
             data-testid="mobile-filter-toggle"
           />
@@ -159,7 +157,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
         {/* Desktop layout: visible from md and up */}
         <Col
           xs={24}
-          className="hidden md:flex gap-3"
+          className="hidden md:flex gap-4"
           data-testid="desktop-filter-layout"
         >
           {/* Search Select */}
@@ -167,7 +165,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
             <Select
               showSearch
               allowClear
-              className="w-full h-10"
+              className="w-full h-14"
               placeholder="Search by name"
               onChange={(value) => handleSearchInput(value, 'employeeName')}
               filterOption={(input, option) => {
@@ -188,7 +186,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               placeholder="Select Session"
               onChange={handleSessionChange}
               allowClear
-              className="w-full h-10"
+              className="w-full h-14"
               data-testid="session-select"
             >
               {activeCalender?.sessions?.map((session) => (
@@ -205,7 +203,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
               placeholder="Select Month"
               onChange={handleMonthChange}
               allowClear
-              className="w-full h-10"
+              className="w-full h-14"
               disabled={
                 !searchParams?.selectedSession || sessionMonths.length === 0
               }
@@ -223,7 +221,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           <Col md={4}>
             <Button
               title="Refresh VP"
-              className="w-full h-10"
+              className="w-full h-14"
               type="primary"
               onClick={() => refetch()}
               disabled={refreshLoading || isFetching}
@@ -239,7 +237,7 @@ const VariablePayFilter: React.FC<VPFilterParams> = ({ tableData }) => {
           <Col md={4}>
             <Button
               title="Send to Payroll"
-              className="w-full h-10 flex items-center justify-center gap-2"
+              className="w-full h-14 flex items-center justify-center gap-2"
               type="primary"
               onClick={handleOpenModal}
               data-testid="desktop-send-payroll-button"

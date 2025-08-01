@@ -19,7 +19,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <div
-          className={`transition-all duration-500 ease-in-out mb-4 
+          className={`transition-all duration-500 ease-in-out 
                     `}
         >
           <PersonalDashboard />
