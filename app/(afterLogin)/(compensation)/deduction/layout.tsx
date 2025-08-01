@@ -60,7 +60,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto scrollbar-hide">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto sm:mr-4">
             {children}
           </BlockWrapper>
         </div>

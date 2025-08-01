@@ -45,10 +45,13 @@ const BenefitEntitlemetPage = () => {
       label: `${emp?.firstName || ''} ${emp?.middleName} ${emp?.lastName}`, // Full name as label
       employeeData: emp,
     })) || [];
-
+    const { employeeBenefitData } =
+    useBenefitEntitlementStore();
   return (
     <div className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4">
       <div>
+      {employeeBenefitData == null && (
+        <div>
         {/* PageHeader for mobile only */}
         <div className="block sm:hidden mb-4">
           <PageHeader
@@ -138,7 +141,11 @@ const BenefitEntitlemetPage = () => {
                 }}
                 options={options}
               />
+
             </div>
+            </div>
+        )}
+
         {/* Table Section */}
         <div className="overflow-x-auto mt-4">
           <BenefitEntitlementTable
