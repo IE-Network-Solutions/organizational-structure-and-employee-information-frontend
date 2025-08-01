@@ -14,6 +14,8 @@ import {
   useCompensationTypeTablesStore,
 } from '@/store/uistate/features/compensation/settings';
 import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
 const AllowanceTypeTable = () => {
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -32,7 +34,7 @@ const AllowanceTypeTable = () => {
     tableData,
     setTableData,
   } = useCompensationSettingStore();
-
+  const { isMobile, isTablet } = useIsMobile();
   useEffect(() => {
     if (data) {
       const filteredData = data.filter(
@@ -69,7 +71,9 @@ const AllowanceTypeTable = () => {
       key: 'name',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="allowance-type-name">{text || '-'}</div>
+        <div data-testid="allowance-type-name" className="text-xs truncate">
+          {text || '-'}
+        </div>
       ),
     },
     {
@@ -78,7 +82,12 @@ const AllowanceTypeTable = () => {
       key: 'description',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="allowance-type-description">{text || '-'}</div>
+        <div
+          data-testid="allowance-type-description"
+          className="text-xs truncate"
+        >
+          {text || '-'}
+        </div>
       ),
     },
     {
@@ -87,7 +96,9 @@ const AllowanceTypeTable = () => {
       key: 'type',
       sorter: true,
       render: (isRate: boolean) => (
-        <div data-testid="allowance-type-type">{isRate ? 'Rate' : 'Fixed'}</div>
+        <div data-testid="allowance-type-type" className="text-xs truncate">
+          {isRate ? 'Rate' : 'Fixed'}
+        </div>
       ),
     },
     {
@@ -97,7 +108,9 @@ const AllowanceTypeTable = () => {
       sorter: true,
       render: (amount: number, record: any) => (
         <div data-testid={`allowance-type-amount-${record.id}`}>
-          {!record.isRate ? `${amount} ETB` : `${amount}% of base salary`}
+          <div className="text-xs truncate">
+            {!record.isRate ? `${amount} ETB` : `${amount}% of base salary`}
+          </div>
         </div>
       ),
     },
@@ -108,7 +121,9 @@ const AllowanceTypeTable = () => {
       sorter: true,
       render: (applicableTo: string) => (
         <div data-testid="allowance-type-applicable">
-          {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
+          <div className="text-xs truncate">
+            {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
+          </div>
         </div>
       ),
     },
@@ -162,27 +177,44 @@ const AllowanceTypeTable = () => {
   return (
     <div data-testid="allowance-type-table-container">
       <Spin spinning={isLoading} data-testid="allowance-type-table-loading">
-        <Table
-          className="mt-6"
-          columns={columns}
-          dataSource={paginatedData}
-          pagination={false}
-          data-testid="allowance-type-table"
-        />
-        <CustomPagination
-          current={allowanceCurrentPage}
-          total={tableData.length}
-          pageSize={allowancePageSize}
-          onChange={(page, size) => {
-            setAllowanceCurrentPage(page);
-            setAllowancePageSize(size);
-          }}
-          onShowSizeChange={(size) => {
-            setAllowancePageSize(size);
-            setAllowanceCurrentPage(1);
-          }}
-          data-testid="allowance-type-pagination"
-        />
+        <div className="flex overflow-x-auto scrollbar-none w-full ">
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="allowance-type-table"
+          />
+        </div>
+
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={tableData.length}
+            pageSize={allowancePageSize}
+            onChange={(page, size) => {
+              setAllowanceCurrentPage(page);
+              setAllowancePageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setAllowanceCurrentPage(page);
+              setAllowancePageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={allowanceCurrentPage}
+            total={tableData.length}
+            pageSize={allowancePageSize}
+            onChange={(page, size) => {
+              setAllowanceCurrentPage(page);
+              setAllowancePageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setAllowancePageSize(size);
+              setAllowanceCurrentPage(1);
+            }}
+          />
+        )}
       </Spin>
     </div>
   );

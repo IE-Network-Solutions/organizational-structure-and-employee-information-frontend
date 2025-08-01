@@ -1,6 +1,6 @@
 import AllRecognition from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/recognition/allRecognition';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
+import { useGetIncentivizeRecognition } from '@/store/server/features/CFR/recognitionCriteria/queries';
 import { useGetIncentiveSummery } from '@/store/server/features/dashboard/incentive/queries';
 import { useDashboardIncentiveStore } from '@/store/uistate/features/dashboard/incentive';
 import { Card, Row, Col, Select, TabsProps, Dropdown, Menu } from 'antd';
@@ -18,39 +18,33 @@ const Incentive = () => {
     setStatus,
   } = useDashboardIncentiveStore();
 
-  const { data: recognitionData } = useGetAllRecognitionWithRelations();
+  const { data: incentivizeRecognition } = useGetIncentivizeRecognition();
   const { data: IncentiveData, isLoading: incentiveIsLoading } =
     useGetIncentiveSummery(status, recognitionType);
   const { isMobile, isTablet } = useIsMobile();
-
   const items: TabsProps['items'] = [
     {
       key: '',
       label: 'All Recognitions',
       children: (
         <AllRecognition
-          data={recognitionData?.items?.filter(
-            (item: any) =>
-              item.parentTypeId !== null && item?.isMonetized === true,
-          )}
+          data={incentivizeRecognition?.recognitionTypes}
           all={true}
         />
       ),
     },
-    ...(recognitionData?.items
-      ?.filter(
-        (item: any) => item.parentTypeId !== null && item?.isMonetized === true,
-      )
-      ?.map((recognitionType: any) => ({
+    ...(incentivizeRecognition?.recognitionTypes?.map(
+      (recognitionType: any) => ({
         key: `${recognitionType?.id}`, // Ensure unique keys
         label: recognitionType?.name,
         children: <AllRecognition data={[recognitionType]} />,
-      })) || []),
+      }),
+    ) || []),
   ];
   const itemStatus: { key: string; label: string }[] = [
     { key: 'null', label: 'Status' },
-    { key: 'true', label: 'True' },
-    { key: 'false', label: 'False' },
+    { key: 'true', label: 'Paid' },
+    { key: 'false', label: 'Unpaid' },
   ];
   const totalCount =
     IncentiveData?.summary?.reduce(
