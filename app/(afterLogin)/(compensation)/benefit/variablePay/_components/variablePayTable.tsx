@@ -123,7 +123,7 @@ const VariablePayTable = () => {
 
   return (
     <div
-      className="bg-white rounded-lg px-1 py-2 sm:px-6"
+      className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4"
       data-testid="variable-pay-table-container"
     >
       <VariablePayFilter tableData={tableData} />

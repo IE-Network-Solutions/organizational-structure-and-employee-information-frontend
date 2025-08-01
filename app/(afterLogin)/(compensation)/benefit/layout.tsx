@@ -28,7 +28,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                   : allowance.name || 'Unnamed Allowance'}
               </div>
             ),
-            className: 'px-1',
           },
           link: `/benefit/${allowance.id}`,
         })) || [];
@@ -37,7 +36,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         item: {
           key: 'variablePay',
           label: <div className=" font-bold">Variable Pay</div>,
-          className: 'px-1',
         },
         link: '/benefit/variablePay',
       };
@@ -56,8 +54,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           description="Benefit"
           className="hidden sm:block"
         />
-
-        <div className="flex flex-col lg:flex-row gap-0 sm:gap-6">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
           <BlockWrapper className="flex-1 h-max overflow-x-auto">

@@ -47,7 +47,7 @@ const BenefitEntitlemetPage = () => {
     })) || [];
 
   return (
-    <div className="bg-white rounded-lg px-1 py-2 sm:px-6">
+    <div className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4">
       <div>
         {/* PageHeader for mobile only */}
         <div className="block sm:hidden mb-4">
@@ -60,11 +60,12 @@ const BenefitEntitlemetPage = () => {
                 : ''
             }
             toolTip={benefitData?.name}
+            horizontalPadding="0px"
           />
         </div>
 
         {/* Header and controls layout for larger screens */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-2">
           {/* PageHeader for larger screens only */}
           <div className="hidden sm:block">
             <PageHeader
@@ -76,13 +77,14 @@ const BenefitEntitlemetPage = () => {
                   : ''
               }
               toolTip={benefitData?.name}
+              horizontalPadding="0px"
             />
           </div>
 
           {/* Select and Button layout */}
           <div className="flex flex-row w-full sm:w-auto gap-2">
             {/* Select - takes 75% on mobile, fixed width on desktop */}
-            <div className="w-10/12 sm:w-72">
+            <div className="w-10/12 mr-2 sm:hidden">
               <Select
                 showSearch
                 allowClear
@@ -117,8 +119,26 @@ const BenefitEntitlemetPage = () => {
               </AccessGuard>
             </div>
           </div>
-        </div>
+          
 
+        </div>
+        <div className="w-full sm:block hidden mt-2">
+              <Select
+                showSearch
+                allowClear
+                className="min-h-10 w-full"
+                placeholder="Search by name"
+                onChange={handleSearchChange}
+                filterOption={(input, option) => {
+                  const label = option?.label;
+                  return (
+                    typeof label === 'string' &&
+                    label.toLowerCase().includes(input.toLowerCase())
+                  );
+                }}
+                options={options}
+              />
+            </div>
         {/* Table Section */}
         <div className="overflow-x-auto mt-4">
           <BenefitEntitlementTable

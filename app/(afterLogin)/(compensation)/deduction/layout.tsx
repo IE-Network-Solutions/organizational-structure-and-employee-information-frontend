@@ -30,7 +30,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                   : deduction.name || 'Unnamed Allowance'}
               </div>
             ),
-            className: 'px-1',
           },
           link: `/deduction/${deduction.id}`,
         })) || [];
@@ -39,7 +38,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         item: {
           key: 'allDeduction',
           label: <div className=" font-bold">All Deductions</div>,
-          className: 'px-1',
         },
         link: '/deduction/allDeduction',
       };
@@ -59,7 +57,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           className="hidden sm:block"
         />
 
-        <div className="flex flex-col lg:flex-row gap-0 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
           <BlockWrapper className="flex-1 h-max overflow-x-auto scrollbar-hide">

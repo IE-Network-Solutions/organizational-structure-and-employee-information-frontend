@@ -25,7 +25,7 @@ const AllowanceTypePage = () => {
               setIsAllowanceOpen(true);
             }}
           >
-            <span className="hidden lg:inline"> New Allowance Type</span>
+            <span className="hidden lg:inline"> Allowance</span>
           </Button>
         </AccessGuard>
       </div>

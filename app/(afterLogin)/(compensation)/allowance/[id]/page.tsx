@@ -42,7 +42,7 @@ const SingleAllowancePage = () => {
     })) || [];
 
   return (
-    <div className="bg-white rounded-lg px-1 py-4 sm:px-6">
+    <div className="bg-white rounded-lg px-1 py-4 sm:px-6 sm:mr-4">
       <div>
         {/* PageHeader for mobile */}
         <div className="block sm:hidden mb-4">

@@ -25,7 +25,7 @@ const BenefitTypePage = () => {
               setIsBenefitOpen(true);
             }}
           >
-            <span className="hidden lg:inline"> New Benefit Type</span>
+            <span className="hidden lg:inline">Benefit</span>
           </Button>
         </AccessGuard>
       </div>

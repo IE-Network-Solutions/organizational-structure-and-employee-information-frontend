@@ -29,7 +29,6 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Allowance Type</p>
           </div>
         ),
-        className: 'px-1',
       },
       link: '/compensationSetting/allowanceType',
     },
@@ -46,7 +45,6 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Benefit Type</p>
           </div>
         ),
-        className: 'px-1',
       },
       link: '/compensationSetting/benefitType',
     },
@@ -63,7 +61,6 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
             <p className="menu-item-label">Deduction Type</p>
           </div>
         ),
-        className: 'px-1',
       },
       link: '/compensationSetting/deductionType',
     },
@@ -77,7 +74,7 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
           description="Compensation Settings"
           className="hidden sm:block"
         ></PageHeader>
-        <div className="flex flex-col lg:flex-row gap-0 sm:gap-6">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={menuItems} />
           <BlockWrapper className="flex-1 h-max overflow-x-auto">
             {children}
