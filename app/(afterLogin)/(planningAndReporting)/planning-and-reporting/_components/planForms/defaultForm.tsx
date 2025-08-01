@@ -237,9 +237,8 @@ function DefaultCardForm({
                 </Col>
               </Row>
               {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                keyResult?.metricType?.name !== NAME.MILESTONE &&
-                // !parentPlanId &&
-                 (
+                keyResult?.metricType?.name !== NAME.MILESTONE && (
+                  // !parentPlanId &&
                   <Form.Item
                     className="mb-4"
                     label={<div className="text-xs">Target</div>}
@@ -302,7 +301,6 @@ function DefaultCardForm({
                       }
                     />
                   </Form.Item>
-
                 )}
 
               {/* {planningPeriodId && planningUserId && (

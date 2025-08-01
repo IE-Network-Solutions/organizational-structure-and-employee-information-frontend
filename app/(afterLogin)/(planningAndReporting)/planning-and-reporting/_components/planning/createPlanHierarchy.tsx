@@ -76,8 +76,6 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
   )?.id;
   const { statuses, setClickStatus } = useClickStatus();
 
-
-  console.log(formattedData,"formattedData")
   return (
     <Collapse>
       {formattedData.map((objective) => (
@@ -138,7 +136,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                               Add Plan Task
                             </Button>
                             {task?.achieveMK && (
-                                <Tooltip title="Plan Milestone as a Task">
+                              <Tooltip title="Plan Milestone as a Task">
                                 <Button
                                   id="plan-milestone-as-task"
                                   disabled={
@@ -157,7 +155,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                       handleAddBoard(
                                         `${keyResult.id}${milestone.id}${task.id}`,
                                       );
-                                    setClickStatus(milestone?.id + '', true); // Store click status in Zustand
+                                      setClickStatus(milestone?.id + '', true); // Store click status in Zustand
                                     }
                                   }}
                                   size="small"
@@ -165,7 +163,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                   icon={<FaPlus />}
                                 />
                               </Tooltip>
-                              )}
+                            )}
                             <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                               {weights[
                                 `names-${keyResult.id}${milestone.id}${task.id}`
@@ -232,12 +230,15 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           id={`plan-as-task_${keyResult?.id ?? ''}${task?.id ?? ''}`}
                           disabled={
                             Number(keyResult?.progress) == 100 ||
-                              form?.getFieldValue(`names-${keyResult?.id}`)?.[0]
-                                ?.achieveMK 
+                            form?.getFieldValue(`names-${keyResult?.id}`)?.[0]
+                              ?.achieveMK
                             // task?.achieveMK && keyResult?.id && keyResult?.status === 'Completed'
                           }
                           onClick={() => {
-                            setMKAsATask({ title: keyResult?.title, mid: keyResult?.id });
+                            setMKAsATask({
+                              title: keyResult?.title,
+                              mid: keyResult?.id,
+                            });
                             handleAddBoard(keyResult?.id);
                           }}
                           type="link"
@@ -249,22 +250,23 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
 
                         {task?.achieveMK && (
                           <Tooltip title="Plan key result as a Task">
-                          <Button
-                            id="plan-key-result-as-task"
-                            disabled={
-                              Number(keyResult?.progress) == 100 ||
-                              form?.getFieldValue(`names-${keyResult?.id}`)?.[taskIndex]
-                                ?.achieveMK
-                            }
-                            size="small"
-                            className="text-[10px] text-primary"
-                            icon={<FaPlus />}
-                            onClick={() => {
-                              setMKAsATask(true);
-                              handleAddBoard(`${keyResult.id}${task.id}`);
-                            }}
-                          />
-                        </Tooltip>
+                            <Button
+                              id="plan-key-result-as-task"
+                              disabled={
+                                Number(keyResult?.progress) == 100 ||
+                                form?.getFieldValue(`names-${keyResult?.id}`)?.[
+                                  taskIndex
+                                ]?.achieveMK
+                              }
+                              size="small"
+                              className="text-[10px] text-primary"
+                              icon={<FaPlus />}
+                              onClick={() => {
+                                setMKAsATask(true);
+                                handleAddBoard(`${keyResult.id}${task.id}`);
+                              }}
+                            />
+                          </Tooltip>
                         )}
                         <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                           {weights[`names-${keyResult.id}${task.id}`] || 0}%
