@@ -6,10 +6,11 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { DASHBOARD_API } from './api';
 
 export const getAttendanceStats = async (userId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ATTENDANCE_STATS_API}/${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -20,10 +21,11 @@ export const useGetAttendanceStats = (userId: string) => {
 };
 
 export const getAdminLeaveBalanceDashboard = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_LEAVE_BALANCE_DASHBOARD_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -39,10 +41,11 @@ export const getUserLeaveBalance = async (
   startDate: string,
   endDate: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_USER_LEAVE_BALANCE_API}/${userId}?leaveTypeId=${leaveTypeId}&startDate=${startDate}&endDate=${endDate}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -59,10 +62,11 @@ export const useGetUserLeaveBalance = (
 };
 
 export const getUserLeaveRequests = async (userId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_USER_LEAVE_REQUESTS_API}/${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -79,10 +83,11 @@ export const getAdminOnLeave = async (params: {
   leaveTypeId?: string;
   departmentId?: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_ON_LEAVE_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -104,10 +109,11 @@ export const getAdminPendingLeaveRequests = async (params?: {
   departmentId?: string;
   leaveTypeId?: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_PENDING_LEAVE_REQUESTS_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -130,10 +136,11 @@ export const getAdminAttendanceStats = async (params: {
   departmentId?: string;
   userId?: string;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_ATTENDANCE_STATS_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -159,10 +166,11 @@ export const getAdminAttendanceUsers = async (params: {
   page?: number;
   limit?: number;
 }) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_ATTENDANCE_USERS_API}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };
@@ -191,10 +199,11 @@ export const getUserAttendanceHistory = async (
     status?: string;
   },
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_USER_ATTENDANCE_HISTORY_API}/${userId}/history`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params,
   });
 };

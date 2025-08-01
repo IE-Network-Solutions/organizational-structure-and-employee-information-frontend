@@ -83,7 +83,9 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               }
               description={
                 <div className="text-base text-gray-600 line-clamp-1">
-                  {item?.overview}
+                  {item?.overview && !/^[a-f0-9-]{16,}$/.test(item.overview)
+                    ? item.overview
+                    : 'No overview available'}
                 </div>
               }
             />

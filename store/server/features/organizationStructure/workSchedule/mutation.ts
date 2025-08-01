@@ -5,15 +5,16 @@ import { crudRequest } from '@/utils/crudRequest';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 const createSchedule = async (schedule: Schedule) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules`,
     method: 'POST',
@@ -28,6 +29,11 @@ interface updateData {
 }
 const updateSchedule = async (data: updateData) => {
   const { id, schedule } = data;
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules/${id}`,
     method: 'PATCH',
@@ -37,6 +43,11 @@ const updateSchedule = async (data: updateData) => {
 };
 
 const deleteSchedule = async (id: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules/${id}`,
     method: 'DELETE',
@@ -48,7 +59,7 @@ export const useCreateSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation(createSchedule, {
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('schedule');
+      queryClient.invalidateQueries(['schedule']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -59,7 +70,7 @@ export const useUpdateSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation(updateSchedule, {
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('schedule');
+      queryClient.invalidateQueries(['schedule']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -70,7 +81,7 @@ export const useDeleteSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation((id: string) => deleteSchedule(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries('schedule');
+      queryClient.invalidateQueries(['schedule']);
       // const method = variables?.method?.toUpperCase();
       // handleSuccessMessage(method);
     },

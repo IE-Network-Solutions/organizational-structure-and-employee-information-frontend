@@ -7,10 +7,11 @@ import { useQuery } from 'react-query';
 import { CurrencyRequestBody } from './interface';
 
 const getCurrencies = async (data: Partial<CurrencyRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/currencies`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -33,10 +34,11 @@ export const useGetCurrencies = (
 };
 
 const allCurrencies = async (data: Partial<CurrencyRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/currencies/all`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

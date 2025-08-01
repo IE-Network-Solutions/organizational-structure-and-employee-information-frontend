@@ -3,6 +3,7 @@ import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { AssignedPlanningPeriodLogArray } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 interface DataType {
   userId: string[] | [] | string;
   planPeriodId: string;
@@ -13,7 +14,7 @@ interface DataType {
 }
 
 const getPlanningData = async (params: DataType) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -36,7 +37,7 @@ const getPlanningData = async (params: DataType) => {
   });
 };
 const getUserPlanningData = async (planPeriodId: string, forPlan: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
   const headers = {
@@ -54,7 +55,7 @@ const getPlanningPeriodsHierarchy = async (
   userId: string,
   planningPeriodId: string,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -68,11 +69,25 @@ const getPlanningPeriodsHierarchy = async (
   });
 };
 
+const getUserChildPlans = async (planId: string | undefined) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/plan/get-user-child-plans/${planId}`,
+    method: 'get',
+    headers,
+  });
+};
 const getAllUnReportedPlanningTask = async (
   planningPeriodId: string | undefined,
   forPlan: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
@@ -90,7 +105,7 @@ const getAllUnReportedPlanningTask = async (
 const getAllPlannedTasksForReport = async (
   planningPeriodId: string | undefined,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
@@ -105,7 +120,7 @@ const getAllPlannedTasksForReport = async (
   });
 };
 const getAllReportedPlanningTask = async (planId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -119,7 +134,7 @@ const getAllReportedPlanningTask = async (planId: string) => {
   });
 };
 const getPlanningDataById = async (planningId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -134,7 +149,7 @@ const getPlanningDataById = async (planningId: string) => {
 };
 
 const getReportingData = async (params: DataType) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -150,7 +165,7 @@ const getReportingData = async (params: DataType) => {
 };
 
 const getReportingDataById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -165,7 +180,7 @@ const getReportingDataById = async (id: string) => {
 };
 
 const getAllPlanningPeriods = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
@@ -189,7 +204,7 @@ export const AllPlanningPeriods = () => {
 };
 
 const getDefaultPlanningPeriods = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -240,6 +255,15 @@ export const useGetPlanningPeriodsHierarchy = (
   );
 };
 
+export const useGetUserChildPlans = (planId: string | undefined) => {
+  return useQuery<any>(
+    ['childPlans', { planId }],
+    () => getUserChildPlans(planId),
+    {
+      enabled: !!planId, // Ensure both are truthy
+    },
+  );
+};
 export const useGetPlanningById = (planningId: string) => {
   return useQuery<any>(
     ['okrPlan', planningId],

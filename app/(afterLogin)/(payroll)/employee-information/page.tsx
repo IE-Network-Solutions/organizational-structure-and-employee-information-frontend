@@ -10,7 +10,7 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
@@ -253,14 +253,10 @@ const EmployeeInformation = () => {
       setPageSize(pageSize);
     }
   };
-  const onPageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize);
-    setCurrentPage(1);
-  };
 
   return (
     <div className={isMobile ? 'p-1' : 'p-5'}>
-      <div className="flex justify-start items-center bg-gray-100 -mx-1">
+      <div className="flex justify-start items-center bg-[#ffffff] -mx-1">
         <span className="py-4 my-4 px-2 text-lg font-bold">
           Employees Payroll Information
         </span>
@@ -283,7 +279,7 @@ const EmployeeInformation = () => {
             totalResults={filteredData?.length || 0}
             pageSize={pageSize}
             onChange={onPageChange}
-            onShowSizeChange={onPageSizeChange}
+            onShowSizeChange={onPageChange}
           />
         ) : (
           <CustomPagination
@@ -291,7 +287,10 @@ const EmployeeInformation = () => {
             total={filteredData?.length || 0}
             pageSize={pageSize}
             onChange={onPageChange}
-            onShowSizeChange={onPageSizeChange}
+            onShowSizeChange={(pageSize) => {
+              setPageSize(pageSize);
+              setCurrentPage(1);
+            }}
           />
         )}
       </Spin>

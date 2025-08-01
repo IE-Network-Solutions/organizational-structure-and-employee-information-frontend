@@ -38,12 +38,15 @@ const ApprovalFilter = () => {
     setApproverType('');
   };
   return (
-    <div className="flex sm:block">
-      <ApprovalFilterComponent
-        searchParams={searchParams}
-        handleSearchInput={handleSearchInput}
-        handleDepartmentChange={handleDepartmentChange}
-      />
+    <div className="flex justify-between gap-4 sm:block">
+      <div className="flex-1">
+        <ApprovalFilterComponent
+          searchParams={searchParams}
+          handleSearchInput={handleSearchInput}
+          handleDepartmentChange={handleDepartmentChange}
+        />
+      </div>
+
       <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
         <Button
           title="Set Approval"

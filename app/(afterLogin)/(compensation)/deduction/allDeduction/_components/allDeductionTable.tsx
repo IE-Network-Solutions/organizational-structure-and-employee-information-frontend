@@ -5,11 +5,14 @@ import { useFetchAllowances } from '@/store/server/features/compensation/allowan
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AllDeductionTable = () => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllAllowanceStore();
+  const { isMobile, isTablet } = useIsMobile();
 
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
@@ -60,7 +63,9 @@ const AllDeductionTable = () => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <EmployeeDetails empId={record?.employeeId} />
+        <div data-testid={`deduction-employee-${record?.employeeId}`}>
+          <EmployeeDetails empId={record?.employeeId} />
+        </div>
       ),
     },
     {
@@ -68,15 +73,21 @@ const AllDeductionTable = () => {
       dataIndex: 'role',
       key: 'role',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="deduction-role">{text || '-'}</div>
+      ),
     },
 
     ...(Array.isArray(allAllowanceEntitlementData)
       ? allAllowanceEntitlementData.map((item: any) => ({
-          title: item?.name,
+          title: <span className="text-xs truncate">{item?.name}</span>,
           dataIndex: item?.id,
           key: item?.id,
-          render: (text: string) => <div>{text || '-'}</div>,
+          render: (text: string) => (
+            <div data-testid={`deduction-amount-${item?.id}`}>
+              {text || '-'}
+            </div>
+          ),
         }))
       : []),
   ];
@@ -86,28 +97,63 @@ const AllDeductionTable = () => {
   );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
+    <div data-testid="all-deduction-table-container">
+      <Spin spinning={isLoading} data-testid="deduction-table-loading">
+        <div className="overflow-x-auto scrollbar-hide">
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="deduction-table"
+          />
+        </div>
 
-      <CustomPagination
-        current={currentPage}
-        total={dataSource.length}
-        pageSize={pageSize}
-        onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
-        }}
-        onShowSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
-      />
-    </Spin>
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={dataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={dataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        )}
+
+        {/* <CustomPagination
+          current={currentPage}
+          total={dataSource.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          data-testid="deduction-pagination"
+        /> */}
+      </Spin>
+    </div>
   );
 };
 

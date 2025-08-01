@@ -136,14 +136,34 @@ const LeaveRequestSidebar = () => {
     setIsShowLeaveRequestSidebar(false);
   };
 
+  useEffect(() => {
+    // If opening the drawer for "add" (not edit)
+    if (isShowLeaveRequestSidebar && !leaveRequestSidebarData) {
+      setLeaveRequest(undefined);
+      form.resetFields();
+    }
+  }, [isShowLeaveRequestSidebar, leaveRequestSidebarData]);
+
+  useEffect(() => {
+    // If the sidebar is open for edit, but the leave request is not editable, close and clear
+    if (
+      isShowLeaveRequestSidebar &&
+      leaveRequestSidebarData && // means it's edit mode
+      leaveRequest &&
+      leaveRequest.status !== LeaveRequestStatus.PENDING // or whatever status means "editable"
+    ) {
+      onClose(); // This will clear the form and state
+    }
+  }, [isShowLeaveRequestSidebar, leaveRequestSidebarData, leaveRequest]);
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
       className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
-      loading: isLoadingRequest || isLoading,
       onClick: () => onClose(),
+      disabled: isLoadingRequest || isLoading,
     },
     {
       label:

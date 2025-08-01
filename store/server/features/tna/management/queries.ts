@@ -9,10 +9,11 @@ import { Course } from '@/types/tna/course';
 const getCoursesManagement = async (
   data: Partial<CourseManagementRequestBody>,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/learning/course`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

@@ -8,11 +8,12 @@ import {
   UpdatePlanningPeriodFunction,
 } from './interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/Planning-periods/${id}`,
     method: 'patch',
@@ -25,6 +26,7 @@ const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
 };
 
 const updatePlanningPeriodStatus = async (planningPeriodId: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/planning-periods/update/planning-period/status/${planningPeriodId}`,
     method: 'get',
@@ -35,6 +37,7 @@ const updatePlanningPeriodStatus = async (planningPeriodId: string) => {
   });
 };
 const deletePlanningPeriod = async (id: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/planning-periods/${id}`,
     method: 'DELETE',
@@ -45,6 +48,8 @@ const deletePlanningPeriod = async (id: string) => {
   });
 };
 const assignPlanningPeriodToUsers = async (values: string[]) => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${OKR_URL}/planning-periods/assignUser-multiple-planning-periods`,
     method: 'post',
@@ -58,6 +63,8 @@ const assignPlanningPeriodToUsers = async (values: string[]) => {
 };
 
 const updatePlanningPeriodToUsers = async (values: PlanningUserPayload) => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${OKR_URL}/planning-periods/update-users-assigned-planning-periods/${values.userIds[0]}`, // Accessing the first user ID correctly
     method: 'patch',
@@ -70,6 +77,8 @@ const updatePlanningPeriodToUsers = async (values: PlanningUserPayload) => {
 };
 
 const deleteAssignPlanningPeriodToUsers = async (planningUserId: string) => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${OKR_URL}/planning-periods/planning-user/${planningUserId}`,
     method: 'delete',
@@ -128,7 +137,10 @@ export const useAssignPlanningPeriodToUsers = () => {
     (planningPeriodId: any) => assignPlanningPeriodToUsers(planningPeriodId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key as necessary
+        // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
+        queryClient.invalidateQueries(['allPlanningPeriodUser']);
+        queryClient.invalidateQueries(['planningPeriods']);
+        queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
         NotificationMessage.success({
           message: 'Successfully Assigned',
           description: 'Planning period successfully assigned to users.',
@@ -143,16 +155,20 @@ export const useUpdateAssignPlanningPeriodToUsers = () => {
     (values: PlanningUserPayload) => updatePlanningPeriodToUsers(values),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key if needed
+        // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
+        queryClient.invalidateQueries(['allPlanningPeriodUser']);
+        queryClient.invalidateQueries(['planningPeriods']);
+        queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
         NotificationMessage.success({
-          message: 'Successfully Assigned',
-          description: 'Planning period successfully assigned to users.',
+          message: 'Successfully Updated',
+          description: 'Planning period assignment successfully updated.',
         });
       },
       onError: () => {
         NotificationMessage.error({
-          message: 'Assignment Failed',
-          description: 'There was an error assigning the planning period.',
+          message: 'Update Failed',
+          description:
+            'There was an error updating the planning period assignment.',
         });
       },
     },
@@ -166,7 +182,10 @@ export const useDeletePlanningUser = () => {
       deleteAssignPlanningPeriodToUsers(planningPeriodId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('allPlanningPeriodUser'); // Adjust the query key as necessary
+        // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
+        queryClient.invalidateQueries(['allPlanningPeriodUser']);
+        queryClient.invalidateQueries(['planningPeriods']);
+        queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
         NotificationMessage.success({
           message: 'Successfully Deleted',
           description: 'Planning User successfully Deleted.',

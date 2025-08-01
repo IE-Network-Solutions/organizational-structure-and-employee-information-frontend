@@ -4,9 +4,10 @@ import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const createCandidate = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -23,7 +24,7 @@ const createCandidate = async (data: any) => {
 };
 
 const updateCandidate = async (data: any, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -38,7 +39,7 @@ const updateCandidate = async (data: any, id: string) => {
 };
 
 const deleteCandidate = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const deleteCandidateId = useCandidateState.getState().deleteCandidateId;
   const headers = {
@@ -53,7 +54,7 @@ const deleteCandidate = async () => {
 };
 
 const moveToTalentPool = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -68,7 +69,7 @@ const moveToTalentPool = async (data: any) => {
 };
 
 const changeCandidateStatus = async (data: any, id: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

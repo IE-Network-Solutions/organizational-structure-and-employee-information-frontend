@@ -66,6 +66,7 @@ const CourseAddLessonSidebar = () => {
   useEffect(() => {
     if (lesson && lessonData?.items?.length && form) {
       const item = lessonData.items[0];
+
       setLesson(item);
       form.setFieldValue('lessons', [item]);
     }
@@ -151,6 +152,7 @@ const CourseAddLessonSidebar = () => {
         key: `lesson-${lesson.order}`,
       })) || []),
   ];
+
   const onFinish = () => {
     const value = form.getFieldsValue();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -241,6 +243,7 @@ const CourseAddLessonSidebar = () => {
                         aria-label="Lesson order selection"
                       />
                     </Form.Item>
+
                     <Form.Item
                       {...restField}
                       name={[name, 'description']}

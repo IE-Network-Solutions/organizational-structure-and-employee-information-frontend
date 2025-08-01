@@ -3,12 +3,15 @@ import { KeyResult } from '@/store/uistate/features/okrplanning/okr/interface';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-const token = useAuthenticationStore.getState().token;
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 const tenantId = useAuthenticationStore.getState().tenantId;
 type ResponseData = {
   items: KeyResult[];
 };
 const getKeyResultByUser = async (id: number | string): Promise<any> => {
+  const token = await getCurrentToken();
+
   if (id) {
     try {
       const headers = {

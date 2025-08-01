@@ -21,7 +21,8 @@ const LeaveManagement = () => {
   const [bodyRequest, setBodyRequest] = useState<LeaveRequestBody>(
     {} as LeaveRequestBody,
   );
-  const { setLeaveTypes } = useMyTimesheetStore();
+  const { setLeaveTypes, selectedRowKeys, setSelectedRowKeys } =
+    useMyTimesheetStore();
   const { mutate: sendNotification, isLoading } =
     useSetAllLeaveRequestNotification();
 
@@ -78,19 +79,26 @@ const LeaveManagement = () => {
     setBodyRequest((prev) => ({
       ...prev,
       exportType: type,
+      filter: {
+        ...prev.filter,
+        leaveRequestsIds:
+          selectedRowKeys.length > 0
+            ? selectedRowKeys.map((key) => key.toString())
+            : prev.filter?.leaveRequestsIds,
+      },
     }));
   };
 
   return (
     <>
-      <div className="h-auto w-auto pb-6 bg-[#fafafa]">
-        <BlockWrapper>
-          <PageHeader title="Leave Management">
+      <div className="h-auto w-auto pb-6 bg-white rounded-lg">
+        <BlockWrapper className="bg-white p-2">
+          <PageHeader title="Leave Management" horizontalPadding="px-0">
             <Space size={20}>
               <CustomButton
                 title={!isSmallScreen ? 'Email Reminder' : ' '} // Hide text on small screens
                 id="emailNotification"
-                className={isSmallScreen ? 'w-[65px]' : ''}
+                className={isSmallScreen ? 'w-10 h-10' : ''}
                 icon={<MdMarkEmailRead size={20} />}
                 onClick={() => sendNotification()}
                 loading={isLoading}
@@ -137,7 +145,7 @@ const LeaveManagement = () => {
                 <CustomButton
                   title={!isSmallScreen ? 'Download CSV' : ' '} // Hide text on small screens
                   id="downloadCsvFileId"
-                  className={isSmallScreen ? 'w-[65px]' : ''}
+                  className={isSmallScreen ? 'w-10 h-10' : ''}
                   icon={<TbFileDownload size={20} />}
                   loading={isFetching}
                 />
@@ -145,7 +153,11 @@ const LeaveManagement = () => {
             </Space>
           </PageHeader>
 
-          <LeaveManagementTable setBodyRequest={setBodyRequest} />
+          <LeaveManagementTable
+            setBodyRequest={setBodyRequest}
+            selectedRowKeys={selectedRowKeys}
+            setSelectedRowKeys={setSelectedRowKeys}
+          />
         </BlockWrapper>
       </div>
 

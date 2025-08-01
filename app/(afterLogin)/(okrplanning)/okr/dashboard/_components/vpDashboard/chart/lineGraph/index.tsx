@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import React, { useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,11 +13,13 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import {
-  useGetVPLineGraphData,
   useGetAllMonth,
+  useGetVPLineGraphDataByMonth,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import { Skeleton } from 'antd';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useDashboardVPStore } from '@/store/uistate/features/dashboard/vp';
+import { Select } from 'antd';
 import dayjs from 'dayjs';
 
 ChartJS.register(
@@ -45,123 +48,165 @@ interface PayCardInterface {
 
 const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   const userId = useAuthenticationStore?.getState().userId;
-  const { data: getAllMonth } = useGetAllMonth();
+  const {
+    type,
+    displayData,
+    setDisplayData,
+    setType,
+    selectedMonth,
+    setSelectedMonth,
+  } = useDashboardVPStore();
+  const { data: activeFiscalYear } = useGetActiveFiscalYears();
+  const { data: monthData } = useGetAllMonth();
+
   const identifier = id ?? userId;
+  const { data: lineGraphByMonth } = useGetVPLineGraphDataByMonth(
+    identifier,
+    selectedMonth,
+  );
 
-  const { data: lineGraph, isLoading: isGraphLoading } =
-    useGetVPLineGraphData(identifier);
-  const getMonthName = (id: string) => {
-    return (
-      getAllMonth?.items?.find((monthItem: any) => monthItem?.id === id) ?? {}
-    );
-  };
-
-  const dataValue = lineGraph?.map((item: any) => {
-    const monthData = getMonthName(item?.monthId);
-
-    if (!monthData?.startDate || !monthData?.endDate) {
-      return {
-        ...item,
-        monthName: '',
-        MonthsName: '',
-      };
-    }
-
-    const startDate = dayjs(monthData?.startDate);
-    const endDate = dayjs(monthData?.endDate);
-
-    const formattedStartDate = startDate.format('MMM D');
-    const formattedEndDate = endDate.format('MMM D');
-
-    return {
-      ...item,
-      monthName: monthData?.name ?? '',
-      monthRange: `${formattedStartDate} - ${formattedEndDate}`,
-    };
-  });
-  if (isGraphLoading) {
-    return (
-      <div>
-        <Skeleton active />
-      </div>
-    );
-  }
-
-  // Legend color references
-  const legendItems = [
-    { color: '#4C4CFF', label: 'Highest Average Score' },
-    { color: '#A5A6F6', label: 'Average Score' },
-    { color: '#E9E9FF', label: 'Low Average Score' },
+  const requests = [
+    {
+      type: 'Quarterly',
+      value: 'Quarterly',
+    },
+    {
+      type: 'Yearly',
+      value: 'Yearly',
+    },
   ];
+  const handleChange = (value: string) => {
+    setType(value);
+  };
+  useEffect(() => {
+    if (type === 'Quarterly') {
+      const months = activeFiscalYear?.sessions?.find(
+        (item: any) => item.active,
+      )?.months;
+      setSelectedMonth(months?.map((month: any) => month.id) ?? []);
+    } else if (type === 'Yearly') {
+      const months = monthData?.items?.map((month: any) => month.id);
 
-  // Find highest and lowest values
-  const scores = dataValue?.map((item: any) => item?.vpScore) || [];
+      setSelectedMonth(months ?? []);
+    }
+  }, [type, activeFiscalYear, monthData]);
+  useEffect(() => {
+    if (type === 'Quarterly') {
+      const session = activeFiscalYear?.sessions?.find(
+        (item: any) => item.active,
+      );
+      const month = session?.months;
 
-  // Assign colors: first bar is #4C4CFF (Highest), last bar is #E9E9FF (Lowest), all others are #A5A6F6 (Average)
-  const barColors = scores.map((score: number, idx: number) => {
-    if (idx === 0) return '#4C4CFF'; // Highest (first bar)
-    if (idx === scores.length - 1) return '#E9E9FF'; // Lowest (last bar)
-    return '#A5A6F6'; // Average
-  });
+      if (month) {
+        const filteredData = lineGraphByMonth?.map((item: any) => {
+          const matchedMonth = month?.find((m: any) => m.id === item.monthId);
+          return {
+            ...item,
+            monthName: matchedMonth?.startDate
+              ? dayjs(matchedMonth.startDate).format('MMMM')
+              : matchedMonth?.name,
+          };
+        });
+
+        setDisplayData(filteredData);
+      } else {
+        setDisplayData([]);
+      }
+    } else if (type === 'Yearly') {
+      if (monthData?.items) {
+        const filteredData = lineGraphByMonth?.map((item: any) => {
+          const matchedMonth = monthData?.items?.find(
+            (m: any) => m.id === item.monthId,
+          );
+          return {
+            ...item,
+            monthName: matchedMonth?.startDate
+              ? dayjs(matchedMonth.startDate).format('MMMM')
+              : matchedMonth?.name,
+          };
+        });
+
+        setDisplayData(filteredData);
+      } else {
+        setDisplayData(lineGraphByMonth);
+      }
+    }
+  }, [type, activeFiscalYear, lineGraphByMonth]);
 
   const data = {
-    labels: dataValue?.map((item: any) => item?.monthRange),
+    labels: displayData?.map((month: any) =>
+      month.monthName ? month.monthName.toUpperCase().slice(0, 3) : 'Unknown',
+    ),
     datasets: [
       {
-        label: 'Score Data',
-        data: scores,
-        backgroundColor: barColors,
-        borderColor: '#fff',
-        borderWidth: 1,
-        fill: false,
+        label: 'Actual Value',
+        data: displayData?.map((item: any) => item.vpScore),
+        backgroundColor: 'rgba(54, 54, 240, 0.7)',
+        barPercentage: 0.5,
       },
     ],
   };
 
+  const options = {
+    responsive: true,
+
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { family: 'inherit', size: 14 } },
+      },
+      y: {
+        max: 100,
+        ticks: { stepSize: 20 },
+        beginAtZero: true,
+        grid: { color: '#9ca3af' },
+      },
+    },
+
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'rect', // 'circle' | 'rect' | 'line' | etc.
+          boxWidth: 14,
+        },
+      },
+      title: {
+        display: false,
+      },
+      datalabels: { display: false },
+    },
+  };
+
   return (
-    <div>
-      <Bar options={options} data={data} />
-      <div className="flex items-center justify-between mt-4 w-full">
-        <div className="flex items-center gap-4">
-          <span
-            className="inline-block rounded-full"
-            style={{
-              width: 18,
-              height: 12,
-              backgroundColor: legendItems[0].color,
-            }}
+    <div className="border-[1px] border-gray-200 rounded-lg p-3">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-bold">Actual Value </h4>
+        <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
+          <Select
+            placeholder="select"
+            allowClear
+            className="min-w-10   text-sm font-semibold border-none"
+            options={requests.map((item) => ({
+              value: item.type,
+              label: item.value,
+            }))}
+            bordered={false}
+            defaultValue="Quarterly"
+            onChange={handleChange}
           />
-          <span className="text-sm text-gray-500 font-normal">
-            {legendItems[0].label}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span
-            className="inline-block rounded-full"
-            style={{
-              width: 18,
-              height: 12,
-              backgroundColor: legendItems[1].color,
-            }}
-          />
-          <span className="text-sm text-gray-500 font-normal">
-            {legendItems[1].label}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span
-            className="inline-block rounded-full"
-            style={{
-              width: 18,
-              height: 12,
-              backgroundColor: legendItems[2].color,
-            }}
-          />
-          <span className="text-sm text-gray-500 font-normal">
-            {legendItems[2].label}
-          </span>
         </div>
       </div>
+      <div className="flex  xl:hidden">
+        <Bar data={data} options={options} height={230} />{' '}
+      </div>
+      <div className="hidden xl:flex 2xl:hidden">
+        <Bar data={data} options={options} height={172} />{' '}
+      </div>
+      <div className="hidden 2xl:flex ">
+        <Bar data={data} options={options} height={140} />
+      </div>{' '}
     </div>
   );
 };

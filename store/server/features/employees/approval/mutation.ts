@@ -3,11 +3,13 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
+// const token = await getCurrentToken();
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const createBranchTransferRequest = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/branch-request`,
     method: 'POST',
@@ -19,6 +21,7 @@ const createBranchTransferRequest = async (values: any) => {
   });
 };
 const deleteBranchTransferRequest = async (id: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/branch-request/${id}`,
     method: 'DELETE',

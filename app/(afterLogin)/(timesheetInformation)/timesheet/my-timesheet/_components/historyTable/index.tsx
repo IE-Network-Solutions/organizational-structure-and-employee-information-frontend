@@ -70,6 +70,11 @@ const HistoryTable = () => {
         NotificationMessage.warning({
           message: `The Approval Process has been begin you can't continue to edit the leave request`,
         });
+        // Clear sidebar state to prevent stale data in add drawer
+        setLeaveRequestSidebarData(null);
+        // Optionally, if you have access to setLeaveRequest and form, also call:
+        // setLeaveRequest(undefined);
+        // form.resetFields();
       } else {
         isShow(true);
       }

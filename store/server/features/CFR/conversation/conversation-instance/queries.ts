@@ -2,9 +2,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-
+import { getCurrentToken } from '@/utils/getCurrentToken';
 const getConversationInstanceById = async (id: string | null) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -24,7 +24,7 @@ const getConversationInstanceByQuestionSetId = async (
   page?: number,
   pageSize?: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   // Build the URL dynamically based on non-empty parameters
@@ -57,7 +57,7 @@ const getConversationInstanceByQuestionSetId = async (
 };
 
 const getAllConversationInstances = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({

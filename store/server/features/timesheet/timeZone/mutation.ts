@@ -6,10 +6,11 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const updateTimeZone = async (data: Partial<TimeZoneDataType>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/time-zone/${data.id}`,
     method: 'PATCH',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

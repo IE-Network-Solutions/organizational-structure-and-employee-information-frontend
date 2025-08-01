@@ -4,8 +4,8 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Meta } from '../../settings/groupPermission/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 type Item = {
   id: string;
@@ -30,6 +30,7 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getBranches = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/branchs`,
     method: 'GET',
@@ -47,6 +48,7 @@ const getBranches = async () => {
  */
 
 const getBranch = async (id: number) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

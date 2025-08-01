@@ -1,4 +1,4 @@
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useEmployeeDepartments,
   useGetAllUsers,
@@ -54,7 +54,7 @@ const Filters: React.FC<FiltersProps> = () => {
             <Select
               showSearch
               allowClear
-              className="min-h-12 w-[100%]"
+              className="h-10 w-[100%]"
               placeholder="Search by name"
               onChange={(value) => handleEmployeeSelect(value)}
               filterOption={(input, option) => {
@@ -68,9 +68,9 @@ const Filters: React.FC<FiltersProps> = () => {
             />
           </div>
           <Button
-            className="p-5 min-h-12  text-gray-500 border border-gray-300"
+            className="p-5 h-10  text-gray-500 border border-gray-300"
             onClick={() => setIsModalOpen(true)}
-            icon={<LuSettings2 size={20} />}
+            icon={<LuSettings2 />}
           />
         </div>
 

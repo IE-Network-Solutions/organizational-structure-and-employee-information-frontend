@@ -12,8 +12,11 @@ import {
 import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const BenefitTypeTable = () => {
+  const { isMobile, isTablet } = useIsMobile();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const { data, isLoading } = useFetchAllowanceTypes();
   const { mutate: deleteAllowanceType } = useDeleteAllowanceType();
@@ -63,21 +66,34 @@ const BenefitTypeTable = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="benefit-type-name" className="text-xs truncate">
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div
+          data-testid="benefit-type-description"
+          className="text-xs truncate"
+        >
+          {text || '-'}
+        </div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
       key: 'type',
       sorter: true,
-      render: (isRate: boolean) => <div>{isRate ? 'Rate' : 'Fixed'}</div>,
+      render: (isRate: boolean) => (
+        <div data-testid="benefit-type-type">{isRate ? 'Rate' : 'Fixed'}</div>
+      ),
     },
     {
       title: 'Mode',
@@ -85,7 +101,9 @@ const BenefitTypeTable = () => {
       key: 'mode',
       sorter: true,
       render: (mode: string) => (
-        <div>{mode == 'CREDIT' ? 'Credit' : 'Debit'}</div>
+        <div data-testid="benefit-type-mode">
+          {mode == 'CREDIT' ? 'Credit' : 'Debit'}
+        </div>
       ),
     },
     {
@@ -93,20 +111,26 @@ const BenefitTypeTable = () => {
       dataIndex: 'defaultAmount',
       key: 'defaultAmount',
       sorter: true,
-      render: (amount: number, record: any) =>
-        amount && amount != 0
-          ? !record.isRate
-            ? `${amount} ETB`
-            : `${amount}% of base salary`
-          : '-',
+      render: (amount: number, record: any) => (
+        <div data-testid={`benefit-type-amount-${record.id}`}>
+          {amount && amount != 0
+            ? !record.isRate
+              ? `${amount} ETB`
+              : `${amount}% of base salary`
+            : '-'}
+        </div>
+      ),
     },
     {
       title: 'Applied to',
       dataIndex: 'applicableTo',
       key: 'applicableTo',
       sorter: true,
-      render: (applicableTo: string) =>
-        applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees',
+      render: (applicableTo: string) => (
+        <div data-testid="benefit-type-applicable" className="text-xs truncate">
+          {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
+        </div>
+      ),
     },
     {
       title: 'Status',
@@ -123,6 +147,7 @@ const BenefitTypeTable = () => {
             loading={loadingId === record.id}
             onClick={() => updateStatus(record.id)}
             checked={record.isActive}
+            data-testid={`benefit-type-status-${record.id}`}
           />
         </AccessGuard>
       ),
@@ -138,11 +163,13 @@ const BenefitTypeTable = () => {
             Permissions.DeleteBenefitType,
           ]}
         >
-          <ActionButtons
-            id={record?.id ?? null}
-            onEdit={() => handleBenefitEdit(record)}
-            onDelete={() => handleDelete(record.id)}
-          />
+          <div data-testid={`benefit-type-actions-${record.id}`}>
+            <ActionButtons
+              id={record?.id ?? null}
+              onEdit={() => handleBenefitEdit(record)}
+              onDelete={() => handleDelete(record.id)}
+            />
+          </div>
         </AccessGuard>
       ),
     },
@@ -154,27 +181,62 @@ const BenefitTypeTable = () => {
   );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
-      <CustomPagination
-        current={benefitCurrentPage}
-        total={tableData.length}
-        pageSize={benefitPageSize}
-        onChange={(page, size) => {
-          setBenefitCurrentPage(page);
-          setBenefitPageSize(size);
-        }}
-        onShowSizeChange={(size) => {
-          setBenefitPageSize(size);
-          setBenefitCurrentPage(1);
-        }}
-      />
-    </Spin>
+    <div data-testid="benefit-type-table-container">
+      <Spin spinning={isLoading} data-testid="benefit-type-table-loading">
+        <div className="flex overflow-x-auto scrollbar-none w-full ">
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="benefit-type-table"
+          />
+        </div>
+
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={tableData.length}
+            pageSize={benefitPageSize}
+            onChange={(page, size) => {
+              setBenefitCurrentPage(page);
+              setBenefitPageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setBenefitCurrentPage(page);
+              setBenefitPageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={benefitCurrentPage}
+            total={tableData.length}
+            pageSize={benefitPageSize}
+            onChange={(page, size) => {
+              setBenefitCurrentPage(page);
+              setBenefitPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setBenefitPageSize(size);
+              setBenefitCurrentPage(1);
+            }}
+          />
+        )}
+        {/* <CustomPagination
+          current={benefitCurrentPage}
+          total={tableData.length}
+          pageSize={benefitPageSize}
+          onChange={(page, size) => {
+            setBenefitCurrentPage(page);
+            setBenefitPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setBenefitPageSize(size);
+            setBenefitCurrentPage(1);
+          }}
+          data-testid="benefit-type-pagination"
+        /> */}
+      </Spin>
+    </div>
   );
 };
 

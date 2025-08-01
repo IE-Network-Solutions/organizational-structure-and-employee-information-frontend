@@ -4,6 +4,7 @@
  */
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { OKR_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -18,7 +19,7 @@ import { useMutation, useQueryClient } from 'react-query';
  * @returns {Promise<any>} The response from the API.
  */
 const createBenefitEntitlement = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -33,7 +34,7 @@ const createBenefitEntitlement = async (data: any) => {
   });
 };
 const createBenefitEntitlementSettlement = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -48,7 +49,7 @@ const createBenefitEntitlementSettlement = async (data: any) => {
   });
 };
 const updateBenefitEntitlementSettlement = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -72,7 +73,7 @@ const updateBenefitEntitlementSettlement = async (data: any) => {
  * @returns {Promise<any>} The response from the API.
  */
 const deleteBenefitEntitlement = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,
@@ -141,7 +142,7 @@ export const useCreateBenefitEntitlementSettlement = () => {
 };
 
 const filterVpScoreInstance = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId,

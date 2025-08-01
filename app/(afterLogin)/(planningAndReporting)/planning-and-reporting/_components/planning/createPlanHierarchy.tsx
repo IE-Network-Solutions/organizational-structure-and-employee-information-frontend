@@ -1,9 +1,11 @@
 import React from 'react';
-import { Collapse, Button, Divider } from 'antd';
+import { Collapse, Button, Divider, Tooltip } from 'antd';
 import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from '../planForms/boardFormView';
 import DefaultCardForm from '../planForms/defaultForm';
 import { groupParentTasks } from '../dataTransformer/plan';
+import { FaPlus } from 'react-icons/fa';
+import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface Plan {
   id: string;
@@ -72,6 +74,8 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
     (i: any) => i.isReported === false,
   )?.id;
+  const { statuses, setClickStatus } = useClickStatus();
+
   return (
     <Collapse>
       {formattedData.map((objective) => (
@@ -118,6 +122,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           <div className="flex items-center">
                             <Button
                               id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
+                              disabled={milestone?.status === 'Completed'}
                               onClick={() => {
                                 setMKAsATask(null);
                                 handleAddBoard(
@@ -130,6 +135,35 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             >
                               Add Plan Task
                             </Button>
+                            {task?.achieveMK && (
+                              <Tooltip title="Plan Milestone as a Task">
+                                <Button
+                                  id="plan-milestone-as-task"
+                                  disabled={
+                                    statuses[milestone?.id] ||
+                                    milestone?.status === 'Completed' ||
+                                    form?.getFieldValue(
+                                      `names-${keyResult?.id + milestone?.id}`,
+                                    )?.[0]?.achieveMK
+                                  }
+                                  onClick={() => {
+                                    if (!statuses[milestone?.id]) {
+                                      setMKAsATask({
+                                        title: milestone?.title,
+                                        mid: milestone?.id,
+                                      });
+                                      handleAddBoard(
+                                        `${keyResult.id}${milestone.id}${task.id}`,
+                                      );
+                                      setClickStatus(milestone?.id + '', true); // Store click status in Zustand
+                                    }
+                                  }}
+                                  size="small"
+                                  className="text-[10px] text-primary"
+                                  icon={<FaPlus />}
+                                />
+                              </Tooltip>
+                            )}
                             <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                               {weights[
                                 `names-${keyResult.id}${milestone.id}${task.id}`
@@ -194,9 +228,18 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       <div className="flex items-center">
                         <Button
                           id={`plan-as-task_${keyResult?.id ?? ''}${task?.id ?? ''}`}
+                          disabled={
+                            Number(keyResult?.progress) == 100 ||
+                            form?.getFieldValue(`names-${keyResult?.id}`)?.[0]
+                              ?.achieveMK
+                            // task?.achieveMK && keyResult?.id && keyResult?.status === 'Completed'
+                          }
                           onClick={() => {
-                            setMKAsATask(null);
-                            handleAddBoard(`${keyResult.id}${task.id}`);
+                            setMKAsATask({
+                              title: keyResult?.title,
+                              mid: keyResult?.id,
+                            });
+                            handleAddBoard(keyResult?.id);
                           }}
                           type="link"
                           icon={<BiPlus size={14} />}
@@ -204,6 +247,27 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                         >
                           Add Plan Task
                         </Button>
+
+                        {task?.achieveMK && (
+                          <Tooltip title="Plan key result as a Task">
+                            <Button
+                              id="plan-key-result-as-task"
+                              disabled={
+                                Number(keyResult?.progress) == 100 ||
+                                form?.getFieldValue(`names-${keyResult?.id}`)?.[
+                                  taskIndex
+                                ]?.achieveMK
+                              }
+                              size="small"
+                              className="text-[10px] text-primary"
+                              icon={<FaPlus />}
+                              onClick={() => {
+                                setMKAsATask(true);
+                                handleAddBoard(`${keyResult.id}${task.id}`);
+                              }}
+                            />
+                          </Tooltip>
+                        )}
                         <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                           {weights[`names-${keyResult.id}${task.id}`] || 0}%
                         </div>

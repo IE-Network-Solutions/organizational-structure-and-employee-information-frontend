@@ -1,6 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
@@ -25,7 +26,7 @@ type AllMeetingResponseData = AllMeeting;
  * @returns The response data from the API
  */
 const getSurvey = async (start: string, end: string): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
@@ -48,7 +49,7 @@ const getSurvey = async (start: string, end: string): Promise<ResponseData> => {
   }
 };
 const getSchedule = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
@@ -72,7 +73,7 @@ const getSchedule = async () => {
   }
 };
 const getScheduleByDate = async (date: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
