@@ -55,7 +55,9 @@ const Page = () => {
       {data && (
         <Spin spinning={isFetching}>
           <div className="rounded-lg border border-gray-200 py-5  empty:hidden">
-            {data.items?.map((item) => <LogCard key={item.id} item={item} />)}
+            {data.items?.map((item) => (
+              <LogCard key={item.id} item={item} />
+            ))}
           </div>
         </Spin>
       )}

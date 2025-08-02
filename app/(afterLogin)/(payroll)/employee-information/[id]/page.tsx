@@ -32,7 +32,7 @@ import { RcFile } from 'antd/es/upload';
 import { HiOutlineMail } from 'react-icons/hi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import SettlementDetail from './_components/settlementDetail';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { IoChevronBackSharp } from 'react-icons/io5';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
@@ -100,10 +100,7 @@ const EmployeeProfile = () => {
     if (payroll?.items && employee) {
       const mergedData = payroll.items
         .filter((pay: any) => pay.employeeId === employee.id)
-        .map((pay: any) => ({
-          ...pay,
-          employeeInfo: employee || null,
-        }));
+        .map((pay: any) => ({ ...pay, employeeInfo: employee || null }));
 
       setMergedPayroll(mergedData);
 
@@ -161,8 +158,13 @@ const EmployeeProfile = () => {
         bordered={false}
       >
         <Row gutter={[32, 32]}>
-          <Col lg={8} md={10} xs={24}>
-            <Card loading={isLoading} className="mb-3">
+          <Col sm={24} md={24} xs={24} lg={10} xl={10}>
+            <Card
+              loading={isLoading}
+              className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`}
+              style={isMobile ? { width: '100%' } : {}}
+              bordered={!isMobile}
+            >
               <div className="flex flex-col gap-3 items-center">
                 <div className="relative group">
                   <Avatar
@@ -194,7 +196,7 @@ const EmployeeProfile = () => {
 
               <div className="flex gap-5 my-2 items-center">
                 <HiOutlineMail color="#BFBFBF" />
-                <p className="font-semibold">{employee?.email}</p>
+                <p className="font-semibold break-all">{employee?.email}</p>
               </div>
               <div className="flex gap-5 my-2 items-center">
                 <PhoneOutlined className="text-[#BFBFBF]" />
@@ -240,7 +242,7 @@ const EmployeeProfile = () => {
             </Card>
           </Col>
 
-          <Col xs={24} md={16}>
+          <Col xs={24} sm={24} md={24} lg={14} xl={14}>
             <Tabs defaultActiveKey="1">
               <TabPane
                 tab="Information"

@@ -6,12 +6,12 @@ import { useQuery } from 'react-query';
 
 const getIncentiveSummery = async (
   status: boolean | null,
-  recognitionId: string,
+  recognitionTypeId: string,
 ) => {
   const userId = useAuthenticationStore.getState().userId;
   const requestHeaders = await requestHeader();
   const params: any = {
-    recognitionId,
+    recognitionTypeId,
     userId,
   };
 
