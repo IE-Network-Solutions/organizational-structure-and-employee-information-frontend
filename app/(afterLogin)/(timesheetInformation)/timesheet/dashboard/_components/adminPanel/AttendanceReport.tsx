@@ -136,7 +136,7 @@ const AttendanceReport: React.FC = () => {
           />
 
           <RangePicker
-            className="w-40 h-14"
+            className="w-48 h-14"
             onChange={(value) => {
               if (value) {
                 setStartDateAttendanceReport(
@@ -224,6 +224,7 @@ const AttendanceReport: React.FC = () => {
                       )}
                       <p className="text-[12px] font-medium ">{item.name}</p>
                     </div>
+
                     <div>
                       <span
                         className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
@@ -239,7 +240,7 @@ const AttendanceReport: React.FC = () => {
                   {/* Right Side */}
                   <div className="flex flex-col space-y-2">
                     <p className="text-[16px] font-medium text-black">
-                      {`${dayjs(item.lateDate).format('DD MMM YYYY')}`}
+                      {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
                     </p>
                     <div className="mt-1 flex justify-end gap-2">
                       <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">

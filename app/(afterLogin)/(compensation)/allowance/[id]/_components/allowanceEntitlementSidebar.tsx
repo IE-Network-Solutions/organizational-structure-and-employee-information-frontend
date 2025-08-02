@@ -24,8 +24,6 @@ const AllowanceEntitlementSideBar = () => {
   const { id } = useParams();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
 
- 
-
   const onClose = () => {
     form.resetFields();
     resetStore();
