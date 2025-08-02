@@ -3,6 +3,7 @@ import { ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
 import { useMutation, useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 export const usePasswordReset = () => {
   return useMutation(
@@ -63,7 +64,7 @@ export const usePasswordReset = () => {
 const getTenantId = async (token: string) => {
   const localId = useAuthenticationStore.getState().localId;
   if (!token || token.length === 0) {
-    token = useAuthenticationStore.getState().token;
+    token = await getCurrentToken();
   }
 
   return crudRequest({

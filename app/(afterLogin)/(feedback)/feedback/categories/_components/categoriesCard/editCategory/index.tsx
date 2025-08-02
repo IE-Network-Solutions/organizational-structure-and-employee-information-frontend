@@ -24,6 +24,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
   const { data: users, isLoading: usersLoading } = useFetchUsers(
     searchParams?.category_name,
   );
+
   const { mutateAsync: updateCategory, isLoading: isUpdatingCategory } =
     useUpdateFormCategory();
 
@@ -47,6 +48,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
         ...values,
         users: selectedUsers,
       };
+
       const editingCategory =
         CategoriesManagementStore.getState().editingCategory;
       if (editingCategory) {
@@ -96,6 +98,15 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
             mode="multiple"
             style={{ width: '100%' }}
             placeholder="Select users"
+            value={selectedUsers.map((user) => user.userId)}
+            showSearch
+            optionFilterProp="children"
+            filterOption={(input, option) => {
+              return (option?.children ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase());
+            }}
             onChange={(userIds: string[]) =>
               setSelectedUsers(userIds.map((id) => ({ userId: id })))
             }

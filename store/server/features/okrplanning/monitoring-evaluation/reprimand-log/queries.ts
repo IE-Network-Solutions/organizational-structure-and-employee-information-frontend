@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { ReprimandLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-log/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 type ResponseData = {
   items: ReprimandLog[];
@@ -20,10 +21,11 @@ type ResponseDataDetail = ReprimandLog;
  * @returns The response data from the API
  */
 const getReprimandLog = async (userId: string, typeId: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/reprimand-log?userId=${userId}&typeId=${typeId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -33,10 +35,11 @@ const getReprimandLog = async (userId: string, typeId: string) => {
  * @returns The response data from the API
  */
 const getReprimandLogById = async (id: number | string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/reprimand-log/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 /**

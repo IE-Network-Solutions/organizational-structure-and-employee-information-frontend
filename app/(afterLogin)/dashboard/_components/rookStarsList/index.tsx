@@ -6,106 +6,11 @@ import { LuCrown } from 'react-icons/lu';
 import { useState } from 'react';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 
-const RookStarsList: React.FC<RookStarsListProps> = ({ title }) => {
-  // const dameData: any = [
-  //   {
-  //     report_reportScore: '85%',
-  //     user: {
-  //       profileImage:
-  //         'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
-  //       firstName: 'Alice',
-  //       middleName: 'Johnson',
-  //       role: {
-  //         name: 'Developer',
-  //       },
-  //     },
-  //   },
-  //   {
-  //     report_reportScore: '42%',
-  //     user: {
-  //       profileImage:
-  //         'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/msg303358723-356583.jpg',
-  //       firstName: 'Charlie',
-  //       middleName: 'puth',
-  //       role: {
-  //         name: 'tester',
-  //       },
-  //     },
-  //   },
-  //   {
-  //     report_reportScore: '92%',
-  //     user: {
-  //       profileImage:
-  //         'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
-  //       firstName: 'Bob',
-  //       middleName: 'Smith',
-  //       role: {
-  //         name: 'Project Manager',
-  //       },
-  //     },
-  //   },
-
-  //   {
-  //     report_reportScore: '78%',
-  //     user: {
-  //       profileImage: null,
-  //       firstName: 'new',
-  //       middleName: 'test',
-  //       role: {
-  //         name: 'BI',
-  //       },
-  //     },
-  //   },
-  //   {
-  //     report_reportScore: '78%',
-  //     user: {
-  //       profileImage: null,
-  //       firstName: 'new',
-  //       middleName: 'test',
-  //       role: {
-  //         name: 'BI',
-  //       },
-  //     },
-  //   },
-  //   {
-  //     report_reportScore: '78%',
-  //     user: {
-  //       profileImage: null,
-  //       firstName: 'new',
-  //       middleName: 'test',
-  //       role: {
-  //         name: 'BI',
-  //       },
-  //     },
-  //   },
-  //   {
-  //     report_reportScore: '78%',
-  //     user: {
-  //       profileImage: null,
-  //       firstName: 'new',
-  //       middleName: 'test',
-  //       role: {
-  //         name: 'BI',
-  //       },
-  //     },
-  //   },
-  //   {
-  //     report_reportScore: '78%',
-  //     user: {
-  //       profileImage: null,
-  //       firstName: 'new',
-  //       middleName: 'test',
-  //       role: {
-  //         name: 'BI',
-  //       },
-  //     },
-  //   },
-  // ];
-  const dameData: any = [];
+const RookStarsList: React.FC<RookStarsListProps> = ({ title, data }) => {
   const [currentPersonIndex, setCurrentPersonIndex] = useState(0);
   const cardsPerPage = 3;
 
-  const totalCards = dameData?.length || 0;
+  const totalCards = data?.length || 0;
   const maxIndex = totalCards - cardsPerPage;
 
   const handlePrevious = () => {
@@ -116,14 +21,14 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title }) => {
     setCurrentPersonIndex((prev) => Math.min(prev + 1, maxIndex));
   };
 
-  const visibleCards = dameData?.slice(
+  const visibleCards = data?.slice(
     currentPersonIndex,
     currentPersonIndex + cardsPerPage,
   );
 
   return (
-    <div className="bg-white rounded-lg p-1">
-      <div className="text-lg font-bold gap-3 flex items-center px-3  ">
+    <div className="bg-white rounded-lg p-1   ">
+      <div className="text-base lg:text-lg font-bold gap-3 flex items-center px-3  ">
         <LuCrown className="text-primary" />
         Best {title} Board
       </div>
@@ -174,7 +79,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title }) => {
             )}
           </div>
         ) : (
-          <div className="text-sm font-light flex min-h-24 justify-center items-center ">
+          <div className="text-lg font-light flex min-h-24 justify-center items-center ">
             <div className=""> No rockstar {title} of the Week</div>
           </div>
         )}

@@ -3,9 +3,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getPayRoll = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${PAYROLL_URL}/payroll`,
@@ -19,7 +20,7 @@ const getPayRoll = async () => {
 export const useGetPayRoll = () => useQuery('payroll', getPayRoll);
 
 const getAllActiveBasicSalary = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     // url: `${ORG_AND_EMP_URL}/basic-salary/active`,
@@ -39,7 +40,7 @@ const getActivePayroll = async (
   limit: number,
   page: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${PAYROLL_URL}/payroll/find-all-payroll-by-pay-period?limit=${limit}&page=${page}${searchParams}`,
@@ -63,8 +64,41 @@ export const useGetActivePayroll = (
     },
   );
 
-const getPayrollHistory = async (id = '') => {
+const getAllPayrollForExport = async (searchParams = '') => {
   const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  // Handle searchParams that start with & (from handleSearch function)
+  // Convert &employeeId=123&payPeriodId=456 to ?employeeId=123&payPeriodId=456
+  const queryString = searchParams
+    ? searchParams.startsWith('&')
+      ? `?${searchParams.substring(1)}`
+      : `?${searchParams}`
+    : '';
+
+  return crudRequest({
+    url: `${PAYROLL_URL}/payroll/find-all-payroll-by-pay-period${queryString}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAllPayrollForExport = (searchParams = '') =>
+  useQuery(
+    ['payroll-export', searchParams],
+    () => getAllPayrollForExport(searchParams),
+    {
+      enabled: false,
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
+    },
+  );
+
+const getPayrollHistory = async (id = '') => {
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${PAYROLL_URL}/payroll/by-employee/${id}`,
@@ -81,7 +115,7 @@ export const useGetPayrollHistory = (id = '') =>
   });
 
 const getPayPeroid = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${PAYROLL_URL}/pay-period`,
@@ -93,7 +127,7 @@ const getPayPeroid = async () => {
   });
 };
 const getPensionRule = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${PAYROLL_URL}/pension-rule`,
@@ -106,42 +140,47 @@ const getPensionRule = async () => {
 };
 
 const getMonthById = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/month/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getSessionById = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/session/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getCalendars = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getActiveMonth = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/month/active/month`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getVariablePay = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_URL}/vp-score-instance/filter`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
@@ -156,10 +195,11 @@ export const useGetAllCalendars = () => {
 const fetchActiveFiscalYearPayPeriods = async (
   activeFiscalYearId: string | undefined,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${PAYROLL_URL}/pay-period/get-active-pay-period/active-year-id/${activeFiscalYearId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -179,7 +219,7 @@ export const useGetAllPensionRule = () =>
   useQuery('pension-rule', getPensionRule);
 
 const getEmployeeInfo = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/simple-info/all-user-net-pay/with-tenant`,
@@ -197,10 +237,10 @@ export const useFetchActiveFiscalYearPayPeriods = (
   activeFiscalYearId: string | undefined,
 ) => {
   return useQuery(
-    ['payPeriods', activeFiscalYearId], // Use the fiscal year ID as part of the query key
+    ['payPeriods', activeFiscalYearId],
     () => fetchActiveFiscalYearPayPeriods(activeFiscalYearId!),
     {
-      enabled: !!activeFiscalYearId, // Ensure the query only runs when the ID is defined
+      enabled: !!activeFiscalYearId,
     },
   );
 };

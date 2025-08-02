@@ -22,18 +22,20 @@ type ResponseDataDetail = AppreciationLog;
  * @returns The response data from the API
  */
 const getAppreciationLog = async (userId: string, typeId: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/appreciation-log?userId=${userId}&typeId=${typeId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getAppRepAll = async (userId: string, typeId: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/appreciation-log/all?userId=${userId}&typeId=${typeId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -43,10 +45,11 @@ const getAppRepAll = async (userId: string, typeId: string) => {
  * @returns The response data from the API
  */
 const getAppreciationLogById = async (id: number | string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/appreciation-log/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

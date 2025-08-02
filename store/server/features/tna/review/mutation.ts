@@ -5,35 +5,39 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 
 const setTna = async (items: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna`,
     method: 'PUT',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { items: items },
   });
 };
 
 const deleteTna = async (id: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { id },
   });
 };
 const setFinalApproveTnaRequest = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna`,
     method: 'PATCH',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 const setAllFinalApproveTnaRequest = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TNA_URL}/tna/updateAllTnaApprovedOrRejected`,
     method: 'PATCH',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

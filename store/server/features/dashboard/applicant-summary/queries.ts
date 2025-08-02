@@ -29,17 +29,11 @@ type ResponseData = ApplicantData;
  * @returns The response data from the API
  */
 const getApplicantSummary = async (status: string): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

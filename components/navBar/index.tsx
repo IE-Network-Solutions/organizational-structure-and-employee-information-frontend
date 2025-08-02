@@ -115,6 +115,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees/manage-employees/[id]',
       permissions: [], // No permissions required
     },
+    {
+      key: '/employee-information/[id]',
+      permissions: [], // No permissions required
+    },
   ];
 
   const getRoutesAndPermissions = (
@@ -450,6 +454,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       disabled: hasEndedFiscalYear,
       children: [
         {
+          title: <span>Dashboard</span>,
+          key: '/timesheet/dashboard',
+          className: 'font-bold',
+          permissions: ['view_timesheet_dashboard'],
+        },
+        {
           title: <span>My Timesheet</span>,
           key: '/timesheet/my-timesheet',
           className: 'font-bold',
@@ -690,7 +700,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
   const { data: departments } = useGetDepartments();
   const { data: employeeData } = useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
+  const { setIsNavBarJobInfoModalVisible, setNavBarJobInfoModalWidth } =
     useEmployeeManagementStore();
   useEffect(() => {
     if (!departments || !employeeData) return;
@@ -701,8 +711,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       !employeeData.employeeJobInformation ||
       employeeData.employeeJobInformation.length === 0
     ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
+      setIsNavBarJobInfoModalVisible(true);
+      setNavBarJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router]);
 
@@ -780,7 +790,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
       setTenantId('');
       setToken('');
-      setUser2FA({ email: '', pass: '', recaptchaToken: '' });
+      setUser2FA({ email: '', pass: '' });
 
       // Then remove cookies
       removeCookie('token');
@@ -1083,6 +1093,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               handleUserInfoUpdate();
             }}
             id={userId}
+            isNavBarModal={true}
           />
         </Content>
       </Layout>

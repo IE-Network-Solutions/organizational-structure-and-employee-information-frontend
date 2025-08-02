@@ -1,3 +1,4 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -24,21 +25,12 @@ type ResponseData = BirthDayData[];
  * @returns The response data from the API
  */
 const getBirthDay = async (): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
 
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
   const response = await crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information/users/birth-day`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
   });
   return response;
 };

@@ -20,6 +20,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useAllApproval } from '@/store/server/features/approver/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
+import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 
 const LeaveRequestSidebar = () => {
   const {
@@ -27,7 +28,6 @@ const LeaveRequestSidebar = () => {
     setFilter,
     isShowLeaveRequestSidebar,
     setIsShowLeaveRequestSidebar,
-    leaveTypes,
     leaveRequestSidebarData,
     setLeaveRequestSidebarData,
   } = useMyTimesheetStore();
@@ -39,6 +39,7 @@ const LeaveRequestSidebar = () => {
   );
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetAllUsers();
+  const { data: leaveTypesData } = useGetLeaveTypes();
   const userData = employeeData?.items?.find((item: any) => item.id === userId);
 
   const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
@@ -135,14 +136,34 @@ const LeaveRequestSidebar = () => {
     setIsShowLeaveRequestSidebar(false);
   };
 
+  useEffect(() => {
+    // If opening the drawer for "add" (not edit)
+    if (isShowLeaveRequestSidebar && !leaveRequestSidebarData) {
+      setLeaveRequest(undefined);
+      form.resetFields();
+    }
+  }, [isShowLeaveRequestSidebar, leaveRequestSidebarData]);
+
+  useEffect(() => {
+    // If the sidebar is open for edit, but the leave request is not editable, close and clear
+    if (
+      isShowLeaveRequestSidebar &&
+      leaveRequestSidebarData && // means it's edit mode
+      leaveRequest &&
+      leaveRequest.status !== LeaveRequestStatus.PENDING // or whatever status means "editable"
+    ) {
+      onClose(); // This will clear the form and state
+    }
+  }, [isShowLeaveRequestSidebar, leaveRequestSidebarData, leaveRequest]);
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
       key: 'cancel',
       className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
-      loading: isLoadingRequest || isLoading,
       onClick: () => onClose(),
+      disabled: isLoadingRequest || isLoading,
     },
     {
       label:
@@ -188,7 +209,8 @@ const LeaveRequestSidebar = () => {
     });
   };
 
-  const typeOptions = () => formatToOptions(leaveTypes ?? [], 'title', 'id');
+  const typeOptions = () =>
+    formatToOptions(leaveTypesData?.items ?? [], 'title', 'id');
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';

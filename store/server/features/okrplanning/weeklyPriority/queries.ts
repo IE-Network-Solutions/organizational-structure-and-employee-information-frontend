@@ -4,8 +4,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 
@@ -35,6 +35,7 @@ type ResponseData = {
 };
 
 const getDepartmentChild = async (departmentId: string) => {
+  const token = await getCurrentToken();
   if (departmentId) {
     return crudRequest({
       url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/all-levels/${departmentId}`,
@@ -47,6 +48,7 @@ const getDepartmentChild = async (departmentId: string) => {
   }
 };
 const getWeeks = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/weekly-priorities-week`,
     method: 'GET',
@@ -63,10 +65,11 @@ const getWeeklyPriority = async (
   pageSize: number,
   currentPage: number,
 ) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: {
       departmentId: departmentIds,
       weeklyPriorityWeekId: weeklyId,

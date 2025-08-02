@@ -5,23 +5,23 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 
 const importData = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${ORG_DEV_URL}/imported-data`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };
 // const logUserId = useAuthenticationStore.getState().userId;
 
 const exportData = async (data: any) => {
+  const requestHeaders = await requestHeader();
   try {
     const response = await crudRequest({
       url: `${INCENTIVE_URL}/incentives/export/incentive-data`,
       method: 'POST',
-      headers: {
-        ...requestHeader(),
-      },
+      headers: requestHeaders,
       data,
       skipEncryption: true, // For file download
     });
@@ -43,10 +43,11 @@ const exportData = async (data: any) => {
 };
 
 const sendIncentiveToPayroll = async (data: string[]) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     method: 'POST',
     url: `${INCENTIVE_URL}/incentives/send-to-payroll/incentive/data`,
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: { incentiveId: data },
   });
 };

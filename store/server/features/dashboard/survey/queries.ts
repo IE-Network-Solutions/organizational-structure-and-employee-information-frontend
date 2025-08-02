@@ -1,3 +1,4 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -24,65 +25,36 @@ type AllMeetingResponseData = AllMeeting;
  * @returns The response data from the API
  */
 const getSurvey = async (start: string, end: string): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
   const userId = useAuthenticationStore.getState().userId;
 
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
   const response = await crudRequest({
     url: `${ORG_DEV_URL}/forms/user/form?userId=${userId}&start=${start}&end=${end}`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
   });
   return response;
 };
 const getSchedule = async () => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
   const userId = useAuthenticationStore.getState().userId;
-
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
 
   return await crudRequest({
     url: `${ORG_DEV_URL}/my-meetings/${userId}`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
   });
 };
 const getScheduleByDate = async (date: string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
   const userId = useAuthenticationStore.getState().userId;
 
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
   const params = { date: date };
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
 
   return await crudRequest({
     url: `${ORG_DEV_URL}/my-meetings/${userId}/by-date`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
     params,
   });
 };

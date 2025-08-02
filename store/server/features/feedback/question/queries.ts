@@ -6,12 +6,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
-
-/**
- * @constant {string} token - The authentication token retrieved from the authentication store.
- */
-const token = useAuthenticationStore.getState().token;
 
 /**
  * @constant {string} tenantId - The tenant ID retrieved from the authentication store.
@@ -23,10 +19,6 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @property {string} tenantId - Tenant ID for API requests. Defaults to a hardcoded value if not found.
  * @property {string} Authorization - Authorization header with Bearer token.
  */
-const headers = {
-  tenantId: tenantId,
-  Authorization: `Bearer ${token}`,
-};
 
 /**
  * Fetches a dynamic form by its ID.
@@ -38,6 +30,12 @@ const headers = {
  * @returns {Promise<any>} The response containing the form data from the API.
  */
 const fetchQuestions = async (formId: string) => {
+  const token = await getCurrentToken();
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
   return await crudRequest({
     url: `${ORG_DEV_URL}/forms/public/${formId}`,
     method: 'GET',

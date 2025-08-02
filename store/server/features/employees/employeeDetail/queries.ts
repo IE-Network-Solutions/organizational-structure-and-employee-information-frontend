@@ -3,20 +3,23 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getEmployee = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getSimpleEmployee = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/simple-info/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

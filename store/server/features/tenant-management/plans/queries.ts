@@ -10,10 +10,11 @@ const getPlans = async (
   data: Partial<PlanRequestBody>,
   orderDirection: 'ASC' | 'DESC' = 'ASC',
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/plans?orderDirection=${orderDirection}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

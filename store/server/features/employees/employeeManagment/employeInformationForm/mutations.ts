@@ -3,8 +3,9 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import { requestHeader } from '@/helpers/requestHeader';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to add a new post by sending a POST request to the API
@@ -12,6 +13,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns The response data from the API
  */
 const createEmployeeInformationForm = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form`,
     method: 'POST',
@@ -33,13 +35,11 @@ const deleteEmployeeInformationForm = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
+    headers: requestHeaders,
   });
   setCurrentModal(null);
   setDeletedId(null);

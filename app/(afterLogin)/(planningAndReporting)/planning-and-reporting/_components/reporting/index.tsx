@@ -10,7 +10,6 @@ import {
   Row,
   Spin,
   Tooltip,
-  Typography,
 } from 'antd';
 import React, { useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
@@ -45,8 +44,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-
-const { Title } = Typography;
 
 function Reporting() {
   const {
@@ -215,11 +212,45 @@ function Reporting() {
       </Popconfirm> */}
     </Menu>
   );
+
+  // utils/dateHelpers.ts
+  const getDateLabel = (createdAt: string, activeTabName: string): string => {
+    const planDate = dayjs(createdAt);
+    const today = dayjs();
+
+    if (planDate.isSame(today, 'day') && activeTabName === 'Daily') {
+      return activeTabName === 'Daily' ? "Today's Plan" : "Today's Report";
+    }
+
+    if (activeTabName === 'Weekly') {
+      const thisFriday = dayjs().day(5);
+      const adjustedThisFriday =
+        today.day() > 5 ? thisFriday.add(7, 'day') : thisFriday;
+      const lastFriday = adjustedThisFriday.subtract(7, 'day');
+
+      if (
+        (planDate.isSame(lastFriday, 'day') || planDate.isAfter(lastFriday)) &&
+        (planDate.isSame(adjustedThisFriday, 'day') ||
+          planDate.isBefore(adjustedThisFriday))
+      ) {
+        return 'This Week Plan';
+      }
+    }
+
+    return '';
+  };
+
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
-        <div className="flex flex-wrap justify-between items-center my-4 gap-4">
-          <Title level={5}>Reporting</Title>
+        <div className="flex items-center my-4 gap-4">
+          {hasPermission && (
+            <EmployeeSearch
+              optionArray1={employeeData?.items}
+              optionArray2={ReportingType}
+              optionArray3={departmentData}
+            />
+          )}
           <Tooltip
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
@@ -229,37 +260,41 @@ function Reporting() {
                 : ''
             }
           >
-            <div style={{ display: 'inline-block' }}>
+            <div className="flex-1" style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
                   // selectedUser.includes(userId) &&
                   allUserPlanning && allUserPlanning.length < 1
                 }
-                title={`Create ${activeTabName} report`}
+                title={
+                  <span className="hidden sm:block">
+                    {`Create ${activeTabName} Report`}
+                  </span>
+                }
                 id="createActiveTabName"
-                icon={<FaPlus className="mr-2" />}
+                icon={<FaPlus className="ml-2 sm:ml-0" />}
                 onClick={() => setOpenReportModal(true)}
-                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700`}
+                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:w-auto`}
                 loading={getUserPlanningLoading}
               />
             </div>
           </Tooltip>
         </div>
-        {hasPermission && (
-          <EmployeeSearch
-            optionArray1={employeeData?.items}
-            optionArray2={ReportingType}
-            optionArray3={departmentData}
-          />
-        )}
 
         {allReporting?.items?.map((dataItem: any, index: number) => (
           <>
             <Card
-              className="mb-2"
+              bodyStyle={{ padding: '12px' }}
+              headStyle={{ borderBottom: 'none' }}
+              className="mb-1 bg-[#fafafa]"
               key={index}
               title={
                 <div>
+                  <Row className="flex justify-start mb-1 ">
+                    <div className="text-gray-400 py-2">
+                      {getDateLabel(dataItem?.createdAt, activeTabName)}
+                    </div>
+                  </Row>
                   <Row gutter={16} className="items-center">
                     <Col xs={4} sm={2} md={1}>
                       {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
@@ -315,12 +350,12 @@ function Reporting() {
                             </div>
                           </Col>
                           <div className="flex flex-col text-xs ml-2">
-                            <span className="mr-4">
+                            <span className="mr-4 hidden sm:block">
                               {dataItem?.plan?.isReportValidated
                                 ? 'Closed'
                                 : 'Open'}
                             </span>
-                            <span className="mr-4 text-gray-500">
+                            <span className="mr-4 text-gray-500 hidden sm:block">
                               {dayjs(dataItem?.createdAt).format(
                                 'MMMM DD YYYY, h:mm:ss A',
                               )}
@@ -394,26 +429,28 @@ function Reporting() {
                   />
                 </>
               ))}
-              <div className="flex items-center justify-end mt-2 gap-2 text-sm">
-                <span className="text-black ">Total Point:</span>
-                <span
-                  className={`${
-                    getTotalWeightCalculation(dataItem?.reportTask) > 84
-                      ? 'text-green-500'
-                      : getTotalWeightCalculation(dataItem?.reportTask) >= 64
-                        ? 'text-orange'
-                        : 'text-red-500'
-                  }`}
-                >
-                  {getTotalWeightCalculation(dataItem?.reportTask)}%
-                </span>
+              <div className="flex justify-between gap-2 text-sm">
+                <CommentCard
+                  planId={dataItem?.id}
+                  data={dataItem?.comments}
+                  loading={getReportLoading}
+                  isPlanCard={false}
+                />
+                <div className="mt-2">
+                  <span className="text-black font-bold ">Total Point:</span>
+                  <span
+                    className={`${
+                      getTotalWeightCalculation(dataItem?.reportTask) > 84
+                        ? 'text-green-500'
+                        : getTotalWeightCalculation(dataItem?.reportTask) >= 64
+                          ? 'text-orange'
+                          : 'text-red-500'
+                    }`}
+                  >
+                    {getTotalWeightCalculation(dataItem?.reportTask)}%
+                  </span>
+                </div>
               </div>
-              <CommentCard
-                planId={dataItem?.id}
-                data={dataItem?.comments}
-                loading={getReportLoading}
-                isPlanCard={false}
-              />
             </Card>
           </>
         ))}

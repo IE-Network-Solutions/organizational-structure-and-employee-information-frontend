@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { PlanningAssignation } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 type ResponseData = {
   items: PlanningAssignation[];
@@ -20,10 +21,11 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getPlanningAssignation = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/recognition-type?type=appreciation`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

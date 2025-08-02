@@ -3,14 +3,17 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { NationalityList } from '../employeInformationForm/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import { requestHeader } from '@/helpers/requestHeader';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getNationalities = async () => {
+  const token = await getCurrentToken();
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/nationality`,
     method: 'GET',
@@ -28,13 +31,11 @@ const getNationalities = async () => {
  */
 
 const getNationality = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/nationality/${id}`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
+    headers: requestHeaders,
   });
 };
 

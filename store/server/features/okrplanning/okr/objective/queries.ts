@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // const logUserId = useAuthenticationStore.getState().userId;
 
@@ -27,10 +28,11 @@ const getObjectiveByUser = async (
   currentPage: number,
   metricTypeId: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/objective/${id}?page=${currentPage}&limit=${pageSize}&metricTypeId=${metricTypeId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -41,10 +43,11 @@ const getObjectiveByTeam = async (
   userId: string,
   metricTypeId: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: {
       users: users,
       userId: userId,
@@ -61,10 +64,11 @@ const getObjectiveByCompany = async (
   userId: string,
   metricTypeId: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/objective/company/okr/${id}?page=${currentPage}&limit=${pageSize}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: {
       users: users,
       userId: userId,
@@ -83,10 +87,11 @@ const getEmployeeOkr = async (
   page: number,
   currentPage: number,
 ) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/objective/get-okr-progress/all-employees?page=${currentPage}&limit=${page}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: {
       sessions,
       userId: searchObjParams?.userId,
@@ -156,6 +161,7 @@ export const useGetTeamObjective = (
       getObjectiveByTeam(pageSize, currentPage, users, userId, metricTypeId),
     {
       keepPreviousData: true,
+      enabled: users.length > 0 && !!userId, // Only enable when we have users and userId
     },
   );
 export const useGetCompanyObjective = (

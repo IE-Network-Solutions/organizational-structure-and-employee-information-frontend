@@ -20,10 +20,11 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getAppType = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/recognition-type?type=appreciation`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

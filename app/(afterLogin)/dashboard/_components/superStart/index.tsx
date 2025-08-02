@@ -1,60 +1,56 @@
 import { Avatar } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { LuCrown } from 'react-icons/lu';
 import { GoGoal } from 'react-icons/go';
 import { BsLightningCharge } from 'react-icons/bs';
 import { TbAward } from 'react-icons/tb';
-
-type User = {
-  profileImage?: string;
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  role?: {
-    name?: string;
-  };
-};
+import { useGetSuperStar } from '@/store/server/features/dashboard/recognitions/queries';
+import { useDashboardRecognitionStore } from '@/store/uistate/features/dashboard/recognition';
 
 const SuperStart = () => {
-  // const user:User = {
-  //   profileImage:
-  //     'https://files.ienetworks.co/view/production/9b320d7d-bece-4dd4-bb87-dd226f70daef/surafelmain.jpg',
-  //   firstName: 'Alice',
-  //   middleName: 'Johnson',
-  //   lastName: 'Smith',
-  //   role: {
-  //     name: 'Developer',
-  //   },
-  // };
-  const user: User = {}; // or null
+  const { data: superStarData } = useGetSuperStar();
+  const { currentIndex, setCurrentIndex } = useDashboardRecognitionStore();
 
-  const isUserValid = user && Object.keys(user).length > 0;
+  useEffect(() => {
+    if (!superStarData || superStarData.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex(
+        currentIndex + 1 >= superStarData.length ? 0 : currentIndex + 1,
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [superStarData, currentIndex]); // include currentIndex in deps
+
+  const currentUser = superStarData?.[currentIndex]?.user;
+  const isUserValid = !!currentUser;
 
   return (
-    <div className="bg-white flex flex-col rounded-lg p-1 gap-5">
-      <div className="text-xl font-bold gap-10 flex items-center justify-center">
-        <LuCrown className="text-primary" /> Achievement Unlocked
+    <div className="bg-white flex flex-col rounded-lg p-1 gap-5 shadow-lg">
+      <div className="text-base lg:text-xl font-bold gap-10 flex items-center justify-center">
+        <LuCrown className="text-primary" /> Achievement Unlocked{' '}
         <LuCrown className="text-primary" />
       </div>
 
       {isUserValid ? (
         <div className="flex flex-col justify-between gap-5">
-          <div className="flex flex-col items-center gap-2 min-w-28">
-            {user.profileImage ? (
+          <div className="flex flex-col items-center gap-2 min-w-28 transition-all duration-500">
+            {currentUser.profileImage ? (
               <Avatar
-                src={user.profileImage}
-                alt={`${user.firstName || ''}`}
+                src={currentUser.profileImage}
+                alt={`${currentUser.firstName || ''}`}
                 className="w-16 h-16 rounded-full"
               />
             ) : (
               <Avatar
-                icon={<UserOutlined size={40} />}
+                icon={<UserOutlined />}
                 className="w-16 h-16 rounded-full"
               />
             )}
             <p className="font-medium text-center text-base">
-              {`${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`}
+              {`${currentUser.firstName || ''} ${currentUser.middleName || ''} ${currentUser.lastName || ''}`}
             </p>
           </div>
 
@@ -85,7 +81,7 @@ const SuperStart = () => {
           </div>
         </div>
       ) : (
-        <div className="text-sm font-light flex h-full justify-center items-center min-h-32">
+        <div className="text-lg font-light flex h-full justify-center items-center min-h-32">
           No rockstar of the Quarter
         </div>
       )}

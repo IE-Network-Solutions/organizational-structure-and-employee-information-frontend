@@ -3,10 +3,11 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 const createAppLog = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/appreciation-log`,
@@ -29,6 +30,7 @@ const createAppLog = async (values: any) => {
   }
 };
 export const UpdateAppLog = async (values: Record<string, string>) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/appreciation-log/${values?.id}`,
@@ -50,6 +52,7 @@ export const UpdateAppLog = async (values: Record<string, string>) => {
 };
 
 const deleteAppLog = async (deletedId: string) => {
+  const token = await getCurrentToken();
   await crudRequest({
     url: `${OKR_AND_PLANNING_URL}/appreciation-log/${deletedId}`,
     method: 'DELETE',

@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { OkrRule } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule/interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 type ResponseData = {
   items: OkrRule[];
@@ -20,10 +21,11 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getOkrRule = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/average-okr-rule`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

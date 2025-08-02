@@ -11,7 +11,7 @@ const DefaultIncentiveSettingCard: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-4 m-2">
         <PageHeader
           title={recognitionData?.[0]?.name ? recognitionData?.[0]?.name : '-'}
           size="small"

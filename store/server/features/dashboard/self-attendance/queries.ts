@@ -22,33 +22,24 @@ const getSelfAttendance = async (
   start: string,
   end: string,
 ): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
   const userId = useAuthenticationStore.getState().userId;
 
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
   });
   return response;
 };
 
 const getAnnualAttendance = async () => {
   const userId = useAuthenticationStore.getState().userId;
-
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   return response;
 };

@@ -94,7 +94,11 @@ const FiscalYearListCard: React.FC = () => {
 
       {fiscalYears?.items && fiscalYears.items.length > 0 ? (
         fiscalYears.items.map((fYear: FiscalYear) => (
-          <Card key={fYear?.id} className="my-3">
+          <Card
+            key={fYear?.id}
+            className="my-3"
+            bodyStyle={{ padding: 0, margin: 0 }}
+          >
             <div className="flex items-center justify-between">
               <div className="flex flex-col w-full ">
                 <div
@@ -190,34 +194,37 @@ const FiscalYearListCard: React.FC = () => {
                     </div>
                   ))}
               </div>
-              {fYear.isActive && (
-                <AccessGuard
-                  permissions={[
-                    Permissions.UpdateCalendar,
-                    Permissions.DeleteCalendar,
-                  ]}
+              {/* Dropdown for edit/delete actions */}
+              <AccessGuard
+                permissions={[
+                  Permissions.UpdateCalendar,
+                  Permissions.DeleteCalendar,
+                ]}
+              >
+                <Dropdown
+                  menu={{
+                    items: [
+                      ...(fYear.isActive
+                        ? [
+                            {
+                              key: 'edit',
+                              label: 'Edit',
+                              onClick: () => handleMenuClick('edit', fYear),
+                            },
+                          ]
+                        : []),
+                      {
+                        key: 'delete',
+                        label: <span className="text-red-500">Delete</span>,
+                        onClick: () => handleMenuClick('delete', fYear),
+                      },
+                    ],
+                  }}
+                  trigger={['click']}
                 >
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          key: 'edit',
-                          label: 'Edit',
-                          onClick: () => handleMenuClick('edit', fYear),
-                        },
-                        {
-                          key: 'delete',
-                          label: <span className="text-red-500">Delete</span>,
-                          onClick: () => handleMenuClick('delete', fYear),
-                        },
-                      ],
-                    }}
-                    trigger={['click']}
-                  >
-                    <MoreOutlined className="text-lg cursor-pointer" />
-                  </Dropdown>
-                </AccessGuard>
-              )}
+                  <MoreOutlined className="text-lg cursor-pointer" />
+                </Dropdown>
+              </AccessGuard>
             </div>
           </Card>
         ))

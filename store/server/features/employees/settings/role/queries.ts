@@ -3,8 +3,8 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { Role, RoleType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch a paginated list of roles by sending a GET request to the API.
@@ -16,6 +16,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  */
 
 const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles?page=${permissonCurrentPage}&limit=${pageSize}`,
     method: 'GET',
@@ -33,6 +34,7 @@ const getRoles = async (permissonCurrentPage: number, pageSize: number) => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithOutPagination = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles`,
     headers: {
@@ -49,6 +51,7 @@ const getRolesWithOutPagination = async () => {
  * @returns The response data from the API containing all roles.
  */
 const getRolesWithPermisison = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/find-all-role-with-permissions/role-permissions`,
     headers: {
@@ -68,6 +71,7 @@ const getRolesWithPermisison = async () => {
  * @throws Error if the request fails.
  */
 const getRole = async (id: string | null) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
     method: 'GET',

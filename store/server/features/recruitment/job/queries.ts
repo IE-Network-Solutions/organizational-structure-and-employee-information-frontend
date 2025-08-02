@@ -3,13 +3,14 @@ import { ORG_AND_EMP_URL, RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import axios from 'axios';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getJobs = async (
   whatYouNeed: string,
   currentPage: number,
   pageSize: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -28,7 +29,7 @@ const getAllJobs = async (
   currentPage?: number,
   pageSize?: number,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -53,7 +54,7 @@ const getAllJobs = async (
 };
 
 const getJobsByID = async (jobId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -67,7 +68,7 @@ const getJobsByID = async (jobId: string) => {
 };
 
 const getDepartmentById = async (depId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -92,7 +93,7 @@ const downloadJobCandidatesExcel = async (
     page?: number;
   },
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 

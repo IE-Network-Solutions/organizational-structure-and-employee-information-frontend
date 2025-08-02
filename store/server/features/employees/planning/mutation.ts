@@ -3,11 +3,12 @@ import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const createPlanTasks = async (values: any) => {
+  const token = await getCurrentToken();
   const updatedData = {
     ...values,
     tasks: values.tasks.map((task: any) => ({
@@ -49,6 +50,7 @@ export const useCreatePlanTasks = () => {
 };
 
 const updatePlanTasks = async (values: any) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/plan-tasks`,
     method: 'PATCH',

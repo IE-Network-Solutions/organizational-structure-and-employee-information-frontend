@@ -4,13 +4,15 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
-const token = useAuthenticationStore.getState().token;
+import { getCurrentToken } from '@/utils/getCurrentToken';
+
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
 const getWorkSchedules = async (): Promise<WorkScheduleData> => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules`,
     headers: {
@@ -28,10 +30,11 @@ const getWorkSchedules = async (): Promise<WorkScheduleData> => {
  */
 
 const getWorkSchedule = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/work-schedules/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

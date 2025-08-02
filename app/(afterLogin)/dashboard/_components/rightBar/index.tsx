@@ -3,29 +3,24 @@ import React from 'react';
 import ActionPlans from '../action-plan';
 import ApprovalStatus from '../approval-status';
 import SuperStart from '../superStart';
-import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
-import RookStarsList from '@/app/(afterLogin)/(okr)/_components/rookStarsList';
+import RookStarsList from '../rookStarsList';
 import JobSummary from '../job-summary';
+import {
+  useGetRockStar,
+  useGetWeeklyLeader,
+} from '@/store/server/features/dashboard/recognitions/queries';
 
 const RightBar = () => {
-  const { data: allPlanningPeriods } = useGetAllPlanningPeriods();
+  const { data: rockStarData } = useGetRockStar();
+  const { data: weeklyLeaderData } = useGetWeeklyLeader();
 
-  const planningPeriod = allPlanningPeriods?.items?.find(
-    (planningPeriod) => planningPeriod.name == 'Weekly',
-  );
   return (
-    <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
+    <div className="col-span-1 lg:col-span-6 flex flex-col gap-6">
       <ActionPlans />
       <ApprovalStatus />
       <SuperStart />
-      <RookStarsList
-        planningPeriodId={planningPeriod ? planningPeriod.id : ''}
-        title="Leaders"
-      />
-      <RookStarsList
-        planningPeriodId={planningPeriod ? planningPeriod.id : ''}
-        title="Employee"
-      />
+      <RookStarsList title="Leaders" data={weeklyLeaderData ?? []} />
+      <RookStarsList title="Employee" data={rockStarData ?? []} />
       <JobSummary />
     </div>
   );

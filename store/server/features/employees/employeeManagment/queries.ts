@@ -2,6 +2,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import { requestHeader } from '@/helpers/requestHeader';
 
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
@@ -9,7 +11,7 @@ import { useQuery } from 'react-query';
  * @returns The response data from the API.
  */
 const getEmployeeBranches = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -27,7 +29,7 @@ const getEmployeeBranches = async () => {
  * @returns The response data from the API.
  */
 const getEmployeeDepartments = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -41,7 +43,7 @@ const getEmployeeDepartments = async () => {
 };
 
 const getAllUsersWithOutPagination = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -79,7 +81,7 @@ export const employeeAllFilter = async (
   joinedDate: string,
   joinedDateType: 'before' | 'after',
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   let joinedDateParam = '';
@@ -180,7 +182,7 @@ export const useEmployeeAllFilter = (
  * @returns The response data from the API
  */
 const getEmployees = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -200,10 +202,11 @@ const getEmployees = async () => {
  */
 
 const getActiveEmployee = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -211,10 +214,11 @@ export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
 
 const getEmployee = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
@@ -222,7 +226,7 @@ export const useGetAllUsers = () =>
   useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
 
 const getAllUsersDataWithOutPagination = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/all-users/all`,

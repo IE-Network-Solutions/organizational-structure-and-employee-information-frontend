@@ -1,3 +1,4 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TNA_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -22,22 +23,13 @@ type ResponseData = Coursers[];
  * @returns The response data from the API
  */
 const getCourse = async (): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
   const userId = useAuthenticationStore.getState().userId;
 
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
   const response = await crudRequest({
     url: `${TNA_URL}/learning/course/user-courses/${userId}`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
   });
   return response;
 };

@@ -4,11 +4,12 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 const createObjective = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective`,
@@ -31,6 +32,7 @@ const createObjective = async (values: any) => {
   }
 };
 export const UpdateObjective = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective/${values?.id}`,
@@ -52,10 +54,11 @@ export const UpdateObjective = async (values: any) => {
 };
 
 const deleteObjective = async (deletedId: string) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${OKR_AND_PLANNING_URL}/objective/${deletedId}`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   NotificationMessage.success({
     message: 'Successfully Deleted',
@@ -64,6 +67,7 @@ const deleteObjective = async (deletedId: string) => {
 };
 
 export const updateKeyResult = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/key-results/${values?.id}`,
@@ -84,10 +88,11 @@ export const updateKeyResult = async (values: any) => {
   }
 };
 const deleteKeyResult = async (deletedId: string) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${OKR_AND_PLANNING_URL}/key-results/${deletedId}`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   NotificationMessage.success({
     message: 'Successfully Deleted',
@@ -95,10 +100,11 @@ const deleteKeyResult = async (deletedId: string) => {
   });
 };
 const deleteMilestone = async (deletedId: string) => {
+  const requestHeaders = await requestHeader();
   await crudRequest({
     url: `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
   NotificationMessage.success({
     message: 'Successfully Deleted',
@@ -108,21 +114,21 @@ const deleteMilestone = async (deletedId: string) => {
 
 // Function to update the remaining key results
 const updateKeyResults = async (data: any) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${OKR_AND_PLANNING_URL}/key-results/bulk-update/objectives/${data?.objectiveId}`,
     method: 'PUT',
     data,
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 const downloadEmployeeOkrScore = async (data: any) => {
+  const requestHeaders = await requestHeader();
   try {
     const response = await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
       method: 'POST',
-      headers: {
-        ...requestHeader(),
-      },
+      headers: requestHeaders,
       data,
       skipEncryption: true, // For file download
     });

@@ -1,3 +1,4 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EmployeeStatusDashboard } from '@/store/uistate/features/dashboard/employee-status/interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
@@ -12,17 +13,11 @@ type ResponseData = EmployeeStatusDashboard[];
  * @returns The response data from the API
  */
 const getEmployeeStatus = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
+  const requestHeaders = await requestHeader();
   const response = await crudRequest({
     url: `${ORG_AND_EMP_URL}/employement-type/type/employee?type=${id}`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
   });
   return response;
 };

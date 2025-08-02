@@ -3,8 +3,6 @@ import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 
-// const logUserId = useAuthenticationStore.getState().userId;
-
 const getEmployeeSurvey = async (
   userId: string | null,
   monthId: string | null,
@@ -12,10 +10,11 @@ const getEmployeeSurvey = async (
   page: number,
   currentPage: number,
 ) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_DEV_URL}/survey-target-score/filtered-data/vp-score?page=${currentPage}&limit=${page}`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: {
       userId,
       departmentId,

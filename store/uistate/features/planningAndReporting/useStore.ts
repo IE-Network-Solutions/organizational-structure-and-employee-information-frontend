@@ -1,5 +1,5 @@
 // useStore.ts
-import create from 'zustand';
+import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { useAuthenticationStore } from '../authentication';
 type MkAsATask = {

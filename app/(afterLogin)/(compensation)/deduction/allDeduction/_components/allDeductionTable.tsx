@@ -60,7 +60,9 @@ const AllDeductionTable = () => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <EmployeeDetails empId={record?.employeeId} />
+        <div data-testid={`deduction-employee-${record?.employeeId}`}>
+          <EmployeeDetails empId={record?.employeeId} />
+        </div>
       ),
     },
     {
@@ -68,7 +70,9 @@ const AllDeductionTable = () => {
       dataIndex: 'role',
       key: 'role',
       sorter: true,
-      render: (text: string) => <div>{text || '-'}</div>,
+      render: (text: string) => (
+        <div data-testid="deduction-role">{text || '-'}</div>
+      ),
     },
 
     ...(Array.isArray(allAllowanceEntitlementData)
@@ -76,7 +80,11 @@ const AllDeductionTable = () => {
           title: item?.name,
           dataIndex: item?.id,
           key: item?.id,
-          render: (text: string) => <div>{text || '-'}</div>,
+          render: (text: string) => (
+            <div data-testid={`deduction-amount-${item?.id}`}>
+              {text || '-'}
+            </div>
+          ),
         }))
       : []),
   ];
@@ -86,28 +94,32 @@ const AllDeductionTable = () => {
   );
 
   return (
-    <Spin spinning={isLoading}>
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-      />
+    <div data-testid="all-deduction-table-container">
+      <Spin spinning={isLoading} data-testid="deduction-table-loading">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          data-testid="deduction-table"
+        />
 
-      <CustomPagination
-        current={currentPage}
-        total={dataSource.length}
-        pageSize={pageSize}
-        onChange={(page, size) => {
-          setCurrentPage(page);
-          setPageSize(size);
-        }}
-        onShowSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
-      />
-    </Spin>
+        <CustomPagination
+          current={currentPage}
+          total={dataSource.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+          data-testid="deduction-pagination"
+        />
+      </Spin>
+    </div>
   );
 };
 

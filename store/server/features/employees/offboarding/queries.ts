@@ -4,26 +4,29 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 
 const fetchOffBoardingTemplateTasks = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-tasks-template`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const fetchOffBoardingTasks = async (userId: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/offboarding-employee-tasks/termination/${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const fetchUserTermination = async (userId: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-termination/users/${userId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

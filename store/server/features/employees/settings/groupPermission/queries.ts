@@ -3,8 +3,8 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { GroupPermissionType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
  * Function to fetch Permission Groups by sending a GET request to the API
@@ -14,6 +14,7 @@ const getPermissionGroups = async (
   permissonGroupCurrentPage: number,
   pageSize: number,
 ) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group?page=${permissonGroupCurrentPage}&limit=${pageSize}`,
     method: 'GET',
@@ -25,6 +26,7 @@ const getPermissionGroups = async (
 };
 
 const getPermissionGroupswithOutPagination = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group`,
     method: 'GET',
@@ -41,6 +43,7 @@ const getPermissionGroupswithOutPagination = async () => {
  */
 
 const getPermissionGroup = async (id: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/permission-group/${id}`,
     method: 'GET',

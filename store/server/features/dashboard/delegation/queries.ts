@@ -1,3 +1,4 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
@@ -23,22 +24,13 @@ const getDelegation = async (
   start: string,
   end: string,
 ): Promise<ResponseData> => {
-  const token = useAuthenticationStore.getState().token;
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
   const userId = useAuthenticationStore.getState().userId;
 
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    tenantId: tenantId,
-  };
   const response = await crudRequest({
     url: `${ORG_DEV_URL}/action-plans/user/plan?userId=${userId}&start=${start}&end=${end}`,
     method: 'GET',
-    headers,
+    headers: requestHeaders,
   });
   return response;
 };

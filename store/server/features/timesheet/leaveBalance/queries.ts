@@ -9,26 +9,29 @@ const getLeaveBalanceTableData = async (
   userId: string,
   leaveTypeId: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all-leaves`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { userId, leaveTypeId },
   });
 };
 const getLeaveBalance = async (userId: string, leaveTypeId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { userId, leaveTypeId },
   });
 };
 const getAllLeaveBalance = async () => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     // params: { userId },
   });
 };
@@ -36,10 +39,11 @@ const getAllLeaveBalanceWithFilter = async (
   userId: string,
   leaveTypeId: string,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all/with-filter?userId=${userId}&leaveTypeId=${leaveTypeId}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 export const useGetLeaveBalance = (userId: string, leaveTypeId: string) =>

@@ -8,11 +8,12 @@ import {
   PlanningPeriodUserArray,
   ResponsePlanningPeriod,
 } from './interface';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 
 const fetchAllPlanningPeriods = async () => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/planning-periods`,
     method: 'GET',
@@ -24,6 +25,7 @@ const fetchAllPlanningPeriods = async () => {
 };
 
 const fetchPlanningPeriod = async (id: string) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/planning-periods/${id}`,
     method: 'GET',
@@ -34,6 +36,7 @@ const fetchPlanningPeriod = async (id: string) => {
   });
 };
 const fetchPlanningPeriodAssignedForSingleUser = async () => {
+  const token = await getCurrentToken();
   const userId = useAuthenticationStore.getState().userId;
 
   return crudRequest({
@@ -51,6 +54,7 @@ const fetchPlanningPeriodWithUser = async (
   pageSize: number,
   userId: string,
 ) => {
+  const token = await getCurrentToken();
   return crudRequest({
     url: `${OKR_URL}/Planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}&userId=${userId}`,
     method: 'GET',
