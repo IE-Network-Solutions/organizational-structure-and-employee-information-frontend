@@ -3,7 +3,6 @@ import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { PlanningAssignation } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer/interface';
-import { getCurrentToken } from '@/utils/getCurrentToken';
 
 type ResponseData = {
   items: PlanningAssignation[];

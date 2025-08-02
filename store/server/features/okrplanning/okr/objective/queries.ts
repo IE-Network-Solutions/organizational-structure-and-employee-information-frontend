@@ -3,7 +3,6 @@ import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
-import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // const logUserId = useAuthenticationStore.getState().userId;
 

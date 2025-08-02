@@ -3,7 +3,6 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
-import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getEmployee = async (id: string) => {
   const requestHeaders = await requestHeader();
