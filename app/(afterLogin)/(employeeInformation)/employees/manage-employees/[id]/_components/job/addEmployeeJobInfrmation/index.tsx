@@ -10,10 +10,12 @@ import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryFor
 interface Ids {
   id: string;
   onInfoSubmition?: () => void;
+  isNavBarModal?: boolean;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   id: id,
   onInfoSubmition: onInfoSubmition,
+  isNavBarModal = false,
 }) => {
   const [form] = Form.useForm();
   const {
@@ -21,15 +23,33 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     setIsAddEmployeeJobInfoModalVisible,
     setEmployeeJobInfoModalWidth,
     employeeJobInfoModalWidth,
+    isNavBarJobInfoModalVisible,
+    setIsNavBarJobInfoModalVisible,
+    setNavBarJobInfoModalWidth,
+    navBarJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
   const { data: employeeData } = useGetEmployee(id);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
+  // Use the appropriate modal state based on context
+  const isModalVisible = isNavBarModal
+    ? isNavBarJobInfoModalVisible
+    : isAddEmployeeJobInfoModalVisible;
+  const setIsModalVisible = isNavBarModal
+    ? setIsNavBarJobInfoModalVisible
+    : setIsAddEmployeeJobInfoModalVisible;
+  const modalWidth = isNavBarModal
+    ? navBarJobInfoModalWidth
+    : employeeJobInfoModalWidth;
+  const setModalWidth = isNavBarModal
+    ? setNavBarJobInfoModalWidth
+    : setEmployeeJobInfoModalWidth;
+
   const handleClose = () => {
-    setIsAddEmployeeJobInfoModalVisible(false);
-    setEmployeeJobInfoModalWidth(null);
+    setIsModalVisible(false);
+    setModalWidth(null);
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
@@ -55,8 +75,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       <Modal
         title="Add Employee Job Information"
         centered
-        width={employeeJobInfoModalWidth || undefined}
-        open={isAddEmployeeJobInfoModalVisible}
+        width={modalWidth || undefined}
+        open={isModalVisible}
         onCancel={handleClose}
         footer={false}
         destroyOnClose

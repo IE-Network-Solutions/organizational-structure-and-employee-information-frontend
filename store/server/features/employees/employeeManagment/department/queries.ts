@@ -1,8 +1,6 @@
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { requestHeader } from '@/helpers/requestHeader';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 
 /**
@@ -10,16 +8,12 @@ import { useQuery } from 'react-query';
  * @returns The response data from the API
  */
 const getLevel1Departments = async () => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/level-1`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    },
+    headers: requestHeaders,
   });
 };
 
@@ -28,30 +22,22 @@ const getLevel1Departments = async () => {
  * @returns The response data from the API
  */
 const getDepartments = async () => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    },
+    headers: requestHeaders,
   });
 };
 
 const getDepartmentsWithUsers = async () => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/all/departments`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    },
+    headers: requestHeaders,
   });
 };
 
@@ -62,21 +48,12 @@ const getDepartmentsWithUsers = async () => {
  */
 
 const getDepartment = async (id: string) => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/departments/tenant/departments/${id}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/departments/tenant/departments/${id}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
 };
 
 /**
