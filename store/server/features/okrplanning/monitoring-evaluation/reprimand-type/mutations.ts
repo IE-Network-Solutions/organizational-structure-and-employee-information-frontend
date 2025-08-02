@@ -2,7 +2,6 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -54,24 +53,18 @@ export const UpdateRepType = async (values: any) => {
 
 const deleteRepType = async (deletedId: string) => {
   const token = await getCurrentToken();
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/recognition-type/${deletedId}`,
-      { headers },
-    );
-    NotificationMessage.success({
-      message: 'Successfully Deleted',
-      description: 'Reprimand Type successfully deleted.',
-    });
-
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/recognition-type/${deletedId}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+  NotificationMessage.success({
+    message: 'Successfully Deleted',
+    description: 'Reprimand Type successfully deleted.',
+  });
 };
 
 export const useDeleteRepType = () => {
