@@ -115,10 +115,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employees/manage-employees/[id]',
       permissions: [], // No permissions required
     },
-    {
-      key: '/employee-information/[id]',
-      permissions: [], // No permissions required
-    },
   ];
 
   const getRoutesAndPermissions = (
@@ -239,6 +235,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       permissions: ['view_recruitment'],
       disabled: hasEndedFiscalYear,
       children: [
+        {
+          title: <span>Dashboard</span>,
+          key: '/recruitment/dashboard',
+          className: 'font-bold',
+          permissions: ['view_recruitment_dashboard'],
+        },
         {
           title: <span>Jobs</span>,
           key: '/recruitment/jobs',
@@ -700,7 +702,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
   const { data: departments } = useGetDepartments();
   const { data: employeeData } = useGetEmployee(userId);
-  const { setIsNavBarJobInfoModalVisible, setNavBarJobInfoModalWidth } =
+  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
     useEmployeeManagementStore();
   useEffect(() => {
     if (!departments || !employeeData) return;
@@ -711,8 +713,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       !employeeData.employeeJobInformation ||
       employeeData.employeeJobInformation.length === 0
     ) {
-      setIsNavBarJobInfoModalVisible(true);
-      setNavBarJobInfoModalWidth('100%');
+      setIsAddEmployeeJobInfoModalVisible(true);
+      setEmployeeJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router]);
 
@@ -804,7 +806,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const filteredMenuItems = treeData
@@ -819,10 +821,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-              }),
-            )
+            AccessGuard.checkAccess({
+              permissions: child.permissions,
+            }),
+          )
           : [],
       };
     })
@@ -839,9 +841,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
-                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                  }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);
@@ -1093,7 +1094,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               handleUserInfoUpdate();
             }}
             id={userId}
-            isNavBarModal={true}
           />
         </Content>
       </Layout>

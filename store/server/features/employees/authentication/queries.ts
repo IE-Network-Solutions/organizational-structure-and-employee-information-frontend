@@ -104,11 +104,18 @@ const getTenant = async (tenantId?: string) => {
   });
 };
 
-export const useGetTenantByDomain = (domain: string) =>
-  useQuery<any>(['domain', domain], () => getTenantByDomainName(domain), {
+export const useGetTenantByDomain = ({
+  domain,
+  isPwa,
+}: {
+  domain: string;
+  isPwa: boolean;
+}) => {
+  return useQuery(['domain', domain], () => getTenantByDomainName(domain), {
+    enabled: !!domain && isPwa, // ✅ only fetch if isPwa is true and domain exists
     keepPreviousData: true,
-    enabled: false,
   });
+};
 export const useGetTenantId = () => {
   const { refetch } = useQuery<any>(
     ['tenantId'],

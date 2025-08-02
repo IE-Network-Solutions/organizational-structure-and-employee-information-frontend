@@ -24,13 +24,12 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           item: {
             key: deduction.id,
             label: (
-              <p title={deduction?.name} className="menu-item-label">
+              <div title={deduction?.name} className=" font-bold">
                 {deduction?.name?.length > 15
                   ? deduction.name?.slice(0, 15) + '...'
                   : deduction.name || 'Unnamed Allowance'}
-              </p>
+              </div>
             ),
-            className: 'px-1',
           },
           link: `/deduction/${deduction.id}`,
         })) || [];
@@ -38,8 +37,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       const allAllowanceItem = {
         item: {
           key: 'allDeduction',
-          label: <p className="menu-item-label">All Deductions</p>,
-          className: 'px-1',
+          label: <div className=" font-bold">All Deductions</div>,
         },
         link: '/deduction/allDeduction',
       };
@@ -51,14 +49,19 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="h-auto w-auto ">
-        <PageHeader title="Deduction" description="Deduction" />
+    <div className="min-h-screen bg-[#f5f5f5]">
+      <div className="h-auto w-auto bg-[#f5f5f5]">
+        <PageHeader
+          title="Deduction"
+          description="Deduction"
+          className="hidden sm:block"
+          horizontalPadding="0px"
+        />
 
-        <div className="flex flex-col lg:flex-row gap-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
           <SidebarMenu menuItems={sidebarMenuItems} />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+          <BlockWrapper className="flex-1 h-max overflow-x-auto sm:mr-4">
             {children}
           </BlockWrapper>
         </div>

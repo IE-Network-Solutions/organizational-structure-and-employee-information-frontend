@@ -17,6 +17,8 @@ package-lock.json
 /.next/
 /out/
 
+/.cursor
+
 # production
 /build
 
