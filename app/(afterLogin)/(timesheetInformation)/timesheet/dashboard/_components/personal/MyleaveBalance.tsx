@@ -84,7 +84,6 @@ const MyleaveBalance: React.FC = () => {
                   Entitled
                 </span>
                 <span className="text-[16px] font-bold text-black w-20">
-
                   {Number(
                     userLeaveBalance?.data?.totals?.totalEntitledDays,
                   )?.toLocaleString() || 0}
@@ -109,7 +108,6 @@ const MyleaveBalance: React.FC = () => {
                   Carried over
                 </span>
                 <span className="text-[16px] font-bold text-black w-20">
-
                   {Number(
                     userLeaveBalance?.data?.totals?.totalCarriedOver,
                   )?.toLocaleString() || 0}
