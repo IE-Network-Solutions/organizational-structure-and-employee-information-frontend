@@ -2,8 +2,6 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -24,27 +22,15 @@ const getSelfAttendance = async (
   start: string,
   end: string,
 ): Promise<ResponseData> => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  const requestHeaders = await requestHeader();
   const userId = useAuthenticationStore.getState().userId;
 
-  if (!token || !tenantId) {
-    throw new Error('Missing authentication information.');
-  }
-
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get<ResponseData>(
-      `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(`Error fetching applicant summary: ${error}`);
-  }
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+  return response;
 };
 
 const getAnnualAttendance = async () => {

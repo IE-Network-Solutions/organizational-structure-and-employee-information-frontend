@@ -147,13 +147,14 @@ export type IncentiveDetail = {
 export interface Records {
   Records: RecordType[];
 }
-interface SearchParams {
+export interface SearchParams {
   employee_name: string;
   byProject: string;
   byRecognition: string;
   byYear: string;
   bySession: any;
   byMonth: string;
+  recognitionId: string;
 }
 
 export type CertificateDetails = {
@@ -247,7 +248,7 @@ export interface ProjectData {
   updatedAt: string;
 }
 
-type IncentiveState = {
+export interface IncentiveState {
   searchParams: SearchParams;
   currentPage: number;
   pageSize: number;
@@ -282,12 +283,11 @@ type IncentiveState = {
   showMobileFilter: boolean;
   selectedYear: string | null;
   formulaError: string;
-};
-
-type IncentiveActions = {
-  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
-  setCurrentPage: (currentPage: number) => void;
-  setPageSize: (pageSize: number) => void;
+}
+export interface IncentiveActions {
+  setSearchParams: (key: keyof SearchParams, value: any) => void;
+  setCurrentPage: (page: number) => void;
+  setPageSize: (size: number) => void;
   setOpenIncentiveDrawer: (open: boolean) => void;
   setFile: (file: string) => void;
   setActiveKey: (key: string) => void;
@@ -322,7 +322,7 @@ type IncentiveActions = {
   setShowMobileFilter: (value: boolean) => void;
   setSelectedYear: (value: string | null) => void;
   setFormulaError: (error: string) => void;
-};
+}
 
 const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
   set,
@@ -334,6 +334,7 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
     byYear: '',
     bySession: [],
     byMonth: '',
+    recognitionId: '',
   },
   setSearchParams: (key, value) =>
     set((state) => ({

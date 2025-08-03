@@ -64,6 +64,39 @@ export const useGetActivePayroll = (
     },
   );
 
+const getAllPayrollForExport = async (searchParams = '') => {
+  const token = useAuthenticationStore.getState().token;
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  // Handle searchParams that start with & (from handleSearch function)
+  // Convert &employeeId=123&payPeriodId=456 to ?employeeId=123&payPeriodId=456
+  const queryString = searchParams
+    ? searchParams.startsWith('&')
+      ? `?${searchParams.substring(1)}`
+      : `?${searchParams}`
+    : '';
+
+  return crudRequest({
+    url: `${PAYROLL_URL}/payroll/find-all-payroll-by-pay-period${queryString}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAllPayrollForExport = (searchParams = '') =>
+  useQuery(
+    ['payroll-export', searchParams],
+    () => getAllPayrollForExport(searchParams),
+    {
+      enabled: false,
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
+    },
+  );
+
 const getPayrollHistory = async (id = '') => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -204,10 +237,10 @@ export const useFetchActiveFiscalYearPayPeriods = (
   activeFiscalYearId: string | undefined,
 ) => {
   return useQuery(
-    ['payPeriods', activeFiscalYearId], // Use the fiscal year ID as part of the query key
+    ['payPeriods', activeFiscalYearId],
     () => fetchActiveFiscalYearPayPeriods(activeFiscalYearId!),
     {
-      enabled: !!activeFiscalYearId, // Ensure the query only runs when the ID is defined
+      enabled: !!activeFiscalYearId,
     },
   );
 };

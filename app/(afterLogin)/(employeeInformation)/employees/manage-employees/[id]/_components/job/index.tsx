@@ -172,7 +172,7 @@ function Job({ id }: { id: string }) {
         />
       </Card>
       <WorkScheduleComponent id={id} />
-      <CreateEmployeeJobInformation id={id} />
+      <CreateEmployeeJobInformation id={id} isNavBarModal={false} />
       <BasicSalary id={id} />
     </>
   );
