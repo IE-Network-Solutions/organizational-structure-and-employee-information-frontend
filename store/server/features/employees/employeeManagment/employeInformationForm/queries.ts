@@ -1,10 +1,10 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { EmployeeInformationForm } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { requestHeader } from '@/helpers/requestHeader';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
@@ -31,21 +31,12 @@ const getEmpoyeInformationForms = async () => {
  */
 
 const getEmpoyeInformationForm = async (id: string) => {
-  const token = await getCurrentToken();
-
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/employee-information-form/${id}`,
-      { headers },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information-form/${id}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
 };
 /**
  * Function to fetch a single post by sending a GET request to the API
