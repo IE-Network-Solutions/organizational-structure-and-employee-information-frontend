@@ -19,10 +19,11 @@ const getPlanComments = async () => {
  */
 
 const getComment = async (id: number) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_URL}/plan-comments/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

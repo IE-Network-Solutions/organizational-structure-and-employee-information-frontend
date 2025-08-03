@@ -23,10 +23,11 @@ const addPost = async (newPost: AddPostData) => {
  * @returns The response data from the API
  */
 const deletePost = async (postId: string) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/posts/${postId}`,
     method: 'DELETE',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

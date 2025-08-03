@@ -20,10 +20,11 @@ const getPosts = async () => {
  */
 
 const getPost = async (id: number) => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/posts/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
