@@ -2,7 +2,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
-import axios from 'axios';
+import { requestHeader } from '@/helpers/requestHeader';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -65,29 +65,18 @@ const getWeeklyPriority = async (
   pageSize: number,
   currentPage: number,
 ) => {
-  const token = await getCurrentToken();
-  try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,
-      {
-        departmentId: departmentIds,
-        weeklyPriorityWeekId: weeklyId,
-        taskId: [],
-        planId: [],
-        // updatedBy: logUserId,
-        // createdBy: logUserId,
-      }, // This is the request body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-        },
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,
+    method: 'POST',
+    headers: requestHeaders,
+    data: {
+      departmentId: departmentIds,
+      weeklyPriorityWeekId: weeklyId,
+      taskId: [],
+      planId: [],
+    },
+  });
 };
 /**
  * Function to fetch a single post by sending a GET request to the API
