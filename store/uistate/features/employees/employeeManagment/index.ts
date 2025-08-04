@@ -76,6 +76,12 @@ interface UserState {
   isBasicSalaryModalVisible: boolean;
   setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
 
+  selectedDepartmentId: string | null;
+  setSelectedDepartmentId: (selectedDepartmentId: string | null) => void;
+
+  switchValue:boolean;
+  setSwitchValue:(switchValue:boolean)=>void;
+
   basicSalaryData: any | null;
   setBasicSalaryData: (basicSalaryData: any) => void;
   open: boolean;
@@ -219,6 +225,9 @@ export const useEmployeeManagementStore = create<UserState>()(
     searchValue: null,
     setSearchValue: (searchValue: string | null) => set({ searchValue }),
 
+    selectedDepartmentId: null,
+    setSelectedDepartmentId: (selectedDepartmentId: string | null) =>
+      set({ selectedDepartmentId }),
     open: false,
     deleteModal: false,
     current: 0,
@@ -251,6 +260,9 @@ export const useEmployeeManagementStore = create<UserState>()(
     workSchedule: null,
     setWorkSchedule: (workSchedule: string | null) => set({ workSchedule }),
 
+    switchValue:false,
+    setSwitchValue:(switchValue:boolean)=>set({switchValue}),
+  
     prefix: '251',
     setPrefix: (prefix: string) => set({ prefix }),
     deletedItem: null,

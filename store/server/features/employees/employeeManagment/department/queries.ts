@@ -56,6 +56,23 @@ const getDepartment = async (id: string) => {
   });
 };
 
+const getDepartmentLead = async (id: string|null) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/users/get-department-lead/${id}`,
+      { headers },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 /**
  * Custom hook to fetch level-1 departments (divisions) using useQuery from react-query.
  *
@@ -102,3 +119,9 @@ export const useGetDepartment = (departmentID: string) =>
 
 export const useGetDepartmentsWithUsers = () =>
   useQuery<any>('departmentsWithUsers', getDepartmentsWithUsers);
+
+export const useGetDepartmentLead = (id: string|null) =>
+  useQuery<any>(['departmentLead', id], () => getDepartmentLead(id), {
+    keepPreviousData: true,
+    enabled: !!id,
+  });
