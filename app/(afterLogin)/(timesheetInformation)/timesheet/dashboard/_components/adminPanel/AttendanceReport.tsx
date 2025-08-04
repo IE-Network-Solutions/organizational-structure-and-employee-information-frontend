@@ -176,7 +176,7 @@ const AttendanceReport: React.FC = () => {
                             style={{
                               backgroundColor:
                                 doughnutChartData.datasets[0].backgroundColor[
-                                  i
+                                i
                                 ],
                             }}
                             className="w-2 h-2 rounded-full mr-2"
@@ -239,7 +239,7 @@ const AttendanceReport: React.FC = () => {
                   {/* Right Side */}
                   <div className="flex flex-col space-y-2">
                     <p className="text-[16px] font-medium text-black">
-                      {`${dayjs(item.lateDate).format('DD MMM YYYY')}`}
+                      {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
                     </p>
                     <div className="mt-1 flex justify-end gap-2">
                       <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
