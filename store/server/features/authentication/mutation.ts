@@ -6,7 +6,6 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 interface Get2FACodeProps {
   email: string;
   pass: string;
-  recaptchaToken: string;
   skipEncryption?: boolean;
 }
 const get2FACode = async (values: Get2FACodeProps) => {

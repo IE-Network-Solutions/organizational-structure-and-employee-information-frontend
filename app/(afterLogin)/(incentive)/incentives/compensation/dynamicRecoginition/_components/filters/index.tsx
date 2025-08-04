@@ -1,5 +1,5 @@
 import { Col, Modal, Row, Select } from 'antd';
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React from 'react';
 import { useDebounce } from '@/utils/useDebounce';
 import {
   CalendarData,
@@ -13,231 +13,204 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useMediaQuery } from 'react-responsive';
 import { IoMdSwitch } from 'react-icons/io';
-import { useRecognitionByParentId } from '@/store/server/features/incentive/other/queries';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const DynamicIncentiveFilter: React.FC = () => {
   const {
+    searchParams,
+    setSearchParams,
+    selectedSessions,
+    setSelectedSessions,
     currentPage,
     pageSize,
     showMobileFilter,
     setShowMobileFilter,
-    setSearchParams,
+    selectedYear,
+    setSelectedYear,
   } = useIncentiveStore();
 
   const isSmallScreen = useMediaQuery({ maxWidth: 768 });
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // Extract search parameters directly
-  // const activeKey = searchParams.get('tab') || '';
-  // const user = searchParams.get('user') || '';
-  // const recognition = searchParams.get('recognition') || '';
-  // const year = searchParams.get('year') || '';
-  // const session = searchParams.getAll('session');
-  // const month = searchParams.get('month') || '';
-  const activeKey = searchParams.get('tab') || '';
-  const user = searchParams.get('user') || '';
-  const recognition = searchParams.get('recognition') || '';
-  const year = searchParams.get('year') || '';
-  const session = searchParams.getAll('session');
-  const month = searchParams.get('month') || '';
   const { data: employeeData } = useGetAllUsers();
   const { data: allSessions } = useFetchIncentiveSessions();
   const { data: activeCalender } = useGetActiveFiscalYears();
   const { data: fiscalYear } = useGetAllFiscalYears(pageSize, currentPage);
-  const { data: parentRecognition } = useRecognitionByParentId(activeKey);
 
-  const createQueryString = useCallback(
-    (paramsToUpdate: Record<string, string | string[] | null>) => {
-      const params = new URLSearchParams(searchParams.toString());
-      for (const [name, value] of Object.entries(paramsToUpdate)) {
-        if (value === null || (Array.isArray(value) && value.length === 0)) {
-          params.delete(name);
-        } else if (Array.isArray(value)) {
-          params.delete(name);
-          value.forEach((val) => params.append(name, val));
-        } else {
-          params.set(name, value);
-        }
-      }
-      return params.toString();
-    },
-    [searchParams],
-  );
+  const activeFiscalYearName = activeCalender
+    ? activeCalender?.name
+    : 'Select Year';
 
-  const updateUrl = useCallback(
-    (paramsToUpdate: Record<string, string | string[] | null>) => {
-      const queryString = createQueryString(paramsToUpdate);
-      router.push(`${pathname}?${queryString}`);
-    },
-    [createQueryString, pathname, router],
-  );
-
-  const debouncedUpdateUrl = useDebounce(updateUrl, 500);
-
-  const handleSearchInput = (value: string | null) => {
-    debouncedUpdateUrl({ user: value || '' });
-    setSearchParams('employee_name', value || '');
+  const handleSearchCategory = async (
+    value: string | boolean | any,
+    keyValue: keyof typeof searchParams,
+  ) => {
+    setSearchParams(keyValue, value);
   };
 
-  const handleRecognitionChange = (value: string | null) => {
-    debouncedUpdateUrl({ recognition: value || '' });
-    setSearchParams('byRecognition', value || '');
+  const onSearchChange = useDebounce(handleSearchCategory, 2000);
+  const onSelectChange = handleSearchCategory;
+
+  const handleSearchInput = (
+    value: string,
+    keyValue: keyof typeof searchParams,
+  ) => {
+    const trimmedValue = value.trim();
+    onSearchChange(trimmedValue, keyValue);
   };
 
-  const handleCreatedByYear = (yearId: string | null) => {
-    updateUrl({ year: yearId || '', session: null, month: null });
-    setSearchParams('byYear', yearId || '');
+  const handleCreatedByMonth = (value: string) => {
+    onSelectChange(value, 'byMonth');
   };
-
-  const handleCreatedBySession = (sessionIds: string[] | null) => {
-    updateUrl({ session: sessionIds || [] });
-    setSearchParams('bySession', sessionIds || []);
-  };
-
-  const handleCreatedByMonth = (value: string | null) => {
-    updateUrl({ month: value || '' });
-    setSearchParams('byMonth', value || '');
-  };
-
-  const selectedSessionMonths = useMemo(() => {
-    return (
-      allSessions?.items
-        ?.filter((s: CalendarData) => session.includes(s?.id))
-        .flatMap((s: CalendarData) => s?.months) || []
+  const handleCreatedByYear = (yearId: string) => {
+    setSelectedYear(yearId);
+    const selectedFiscalYear = fiscalYear?.items?.find(
+      (year: any) => year?.id === yearId,
     );
-  }, [allSessions, session]);
 
-  useEffect(() => {
-    if (activeCalender?.id && !year) {
-      updateUrl({ year: activeCalender.id });
+    if (selectedFiscalYear) {
+      const sessionIds =
+        selectedFiscalYear?.sessions?.map((session: any) => session?.id) || [];
+
+      setSelectedSessions(sessionIds);
+      onSelectChange(sessionIds, 'bySession');
+    } else {
+      setSelectedSessions([]);
+      onSelectChange([], 'bySession');
     }
-  }, [activeCalender, year, updateUrl]);
 
-  // useEffect(() => {
-  //   setSearchParams('employee_name', user);
-  //   setSearchParams('byRecognition', recognition);
-  //   setSearchParams('byYear', year);
-  //   setSearchParams('bySession', session);
-  //   setSearchParams('byMonth', month);
-  // }, [user, recognition, year, session, month, setSearchParams]);
+    onSelectChange(yearId, 'byYear');
+  };
 
-  // Sync URL to Zustand state ONCE
-  useEffect(() => {
-    setSearchParams('employee_name', user || '');
-    setSearchParams('byRecognition', recognition || '');
-    setSearchParams('byYear', year || '');
-    setSearchParams('bySession', session || []);
-    setSearchParams('byMonth', month || '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recognition]);
-  const FilterForm = (
-    <Row gutter={[16, 10]} justify="space-between">
-      <Col xs={24} sm={24} md={24} lg={10} xl={10}>
-        <Select
-          onChange={handleSearchInput}
-          value={user || undefined}
-          placeholder="Search Employee"
-          allowClear
-          showSearch
-          className="w-full h-14"
-          optionFilterProp="children"
-          filterOption={(input: any, option: any) =>
-            option?.children
-              ?.toString()
-              .toLowerCase()
-              .includes(input.toLowerCase())
-          }
-        >
-          {employeeData?.items?.map((emp: any) => (
-            <Select.Option key={emp?.id} value={emp?.id}>
-              {emp?.firstName + ' ' + emp?.middleName}
-            </Select.Option>
-          ))}
-        </Select>
-      </Col>
+  const handleCreatedBySession = (value: any) => {
+    const sessionIds = Array.isArray(value) ? value : [value];
+    setSelectedSessions(sessionIds);
+    onSelectChange(value, 'bySession');
+  };
 
-      <Col xs={24} sm={24} md={24} lg={14} xl={14}>
-        <Row gutter={[8, 16]}>
-          <Col span={6}>
-            <Select
-              allowClear
-              placeholder="Select Recognition"
-              className="w-full h-14"
-              onChange={handleRecognitionChange}
-              value={recognition || undefined}
-              disabled={!activeKey}
-            >
-              {parentRecognition?.map((rec: any) => (
-                <Select.Option key={rec?.id} value={rec?.id}>
-                  {rec?.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={6}>
-            <Select
-              allowClear
-              placeholder="Select Fiscal Year"
-              className="w-full h-14"
-              onChange={handleCreatedByYear}
-              value={year || undefined}
-            >
-              {fiscalYear?.items?.map((y: any) => (
-                <Select.Option key={y.id} value={y.id}>
-                  {y?.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={6}>
-            <Select
-              mode="multiple"
-              allowClear
-              placeholder="Select Session"
-              className="w-full h-14"
-              onChange={handleCreatedBySession}
-              value={session}
-              disabled={!year}
-            >
-              {year &&
-                fiscalYear?.items
-                  ?.find((y: any) => y.id === year)
-                  ?.sessions?.map((s: any) => (
-                    <Select.Option key={s.id} value={s.id}>
-                      {s.name}
-                    </Select.Option>
-                  ))}
-            </Select>
-          </Col>
-          <Col span={6}>
-            <Select
-              allowClear
-              placeholder="Select Month"
-              className="w-full h-14"
-              onChange={handleCreatedByMonth}
-              value={month || undefined}
-              disabled={!selectedSessionMonths.length}
-            >
-              {selectedSessionMonths?.map((m: any) => (
-                <Select.Option key={m?.id} value={m?.id}>
-                  {m?.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Col>
-        </Row>
-      </Col>
-    </Row>
+  const selectedSessionMonths = allSessions?.items
+    ?.filter((session: CalendarData) => selectedSessions?.includes(session?.id))
+    .flatMap((session: CalendarData) => session?.months);
+
+  React.useEffect(() => {
+    if (activeCalender?.sessions?.length) {
+      const defaultSessionIds = activeCalender?.sessions?.map(
+        (session: any) => session?.id,
+      );
+      setSelectedSessions(defaultSessionIds);
+      onSelectChange(defaultSessionIds, 'bySession');
+    }
+    if (!selectedYear) {
+      onSelectChange('', 'byMonth');
+    }
+  }, [activeCalender]);
+
+  const Filters = (
+    <>
+      <Row gutter={[16, 10]} justify="space-between">
+        <Col xs={24} sm={24} md={24} lg={10} xl={10}>
+          <Select
+            onChange={(value) => handleSearchInput(value, 'employee_name')}
+            placeholder="Search Employee"
+            allowClear
+            showSearch
+            className="w-full h-14"
+            optionFilterProp="children"
+            filterOption={(input: any, option: any) =>
+              option?.children
+                ?.toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
+            {employeeData?.items?.map((items: any) => (
+              <Select.Option key={items?.id} value={items?.id}>
+                {items?.firstName + ' ' + items?.middleName}
+              </Select.Option>
+            ))}
+          </Select>
+        </Col>
+        <Col xs={24} sm={24} md={24} lg={14} xl={14}>
+          <Row gutter={[8, 16]}>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+              <Select
+                allowClear
+                placeholder={activeFiscalYearName}
+                className="w-full h-14"
+                onChange={handleCreatedByYear}
+              >
+                {fiscalYear?.items?.map((year: any) => (
+                  <Select.Option key={year.id} value={year.id}>
+                    {year?.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder="Select Session"
+                className="w-full h-14"
+                onChange={(value) =>
+                  handleCreatedBySession(Array.isArray(value) ? value : [value])
+                }
+                disabled={!selectedYear}
+              >
+                {selectedYear &&
+                  fiscalYear?.items
+                    ?.find((year: any) => year.id === selectedYear)
+                    ?.sessions?.map((session: any) => (
+                      <Select.Option key={session.id} value={session.id}>
+                        {session.name}
+                      </Select.Option>
+                    ))}
+              </Select>
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+              <Select
+                allowClear
+                placeholder="Select Month "
+                className="w-full h-14"
+                onChange={handleCreatedByMonth}
+                disabled={!selectedSessionMonths?.length}
+              >
+                {selectedSessionMonths?.map((month: any) => (
+                  <Select.Option key={month?.id} value={month?.id}>
+                    {month?.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </>
   );
 
   return (
     <div className="my-7 mx-1">
       {isSmallScreen ? (
         <div className="flex justify-end m-2 space-x-4">
-          <div className="flex items-center justify-center rounded-lg border border-gray-200 p-3">
+          <Select
+            onChange={(value) => handleSearchInput(value, 'employee_name')}
+            placeholder="Search Employee"
+            allowClear
+            showSearch
+            className="w-full h-14"
+            optionFilterProp="children"
+            filterOption={(input: any, option: any) =>
+              option?.children
+                ?.toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
+            {employeeData?.items?.map((items: any) => (
+              <Select.Option key={items?.id} value={items?.id}>
+                {items?.firstName + ' ' + items?.middleName}
+              </Select.Option>
+            ))}
+          </Select>
+          <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
             <IoMdSwitch
               onClick={() => setShowMobileFilter(true)}
               className="text-xl cursor-pointer"
@@ -255,11 +228,11 @@ const DynamicIncentiveFilter: React.FC = () => {
             )}
             footer={null}
           >
-            {FilterForm}
+            {Filters}
           </Modal>
         </div>
       ) : (
-        FilterForm
+        Filters
       )}
     </div>
   );

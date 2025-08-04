@@ -1,9 +1,9 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import axios from 'axios';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import { requestHeader } from '@/helpers/requestHeader';
 
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
@@ -202,24 +202,45 @@ const getEmployees = async () => {
  */
 
 const getActiveEmployee = async () => {
-  const requestHeaders = await requestHeader();
-  return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
-    method: 'GET',
-    headers: requestHeaders,
-  });
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
+      {
+        headers,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
 
 const getEmployee = async (id: string) => {
-  const requestHeaders = await requestHeader();
-  return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/${id}`,
-    method: 'GET',
-    headers: requestHeaders,
-  });
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
+    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`, {
+      headers,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const useGetAllUsers = () =>
