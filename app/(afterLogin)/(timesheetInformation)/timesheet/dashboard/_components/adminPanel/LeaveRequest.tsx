@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Card, DatePicker, Select, Avatar, Spin } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Card, DatePicker, Select, Avatar, Spin, Modal } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -17,6 +17,8 @@ import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timeshe
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import randomColor from 'random-color';
+import CustomButton from '@/components/common/buttons/customButton';
+import { LuSettings2 } from 'react-icons/lu';
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +30,7 @@ ChartJS.register(
 );
 
 const LeaveRequest = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     userIdOnLeaveRequest,
     setUserIdOnLeaveRequest,
@@ -173,141 +176,271 @@ const LeaveRequest = () => {
     label: i?.title,
   }));
 
-  // Generate random colors for leave types (component level)
+  const MobileFilterContent = () => (
+    <div className="flex flex-col gap-4">
+      <h3 className="text-lg font-medium mb-2">Filter</h3>
+
+      {/* Leave Type */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Leave Type</label>
+        <Select
+          showSearch
+          placeholder="Select Leave Type"
+          allowClear
+          value={leaveTypeOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={leaveTypeOption}
+        />
+      </div>
+
+      {/* Department */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Department</label>
+        <Select
+          showSearch
+          placeholder="Select Department"
+          allowClear
+          value={departmentOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setDepartmentOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={departmentOptions}
+        />
+      </div>
+
+      {/* Date Range */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Date Range</label>
+        <DatePicker.RangePicker
+          allowClear
+          className="w-full h-12"
+          onChange={(value: any) => {
+            if (value) {
+              setStartDateOnLeaveRequest(value[0]?.format('YYYY-MM-DD') || '');
+              setEndDateOnLeaveRequest(value[1]?.format('YYYY-MM-DD') || '');
+            } else {
+              setStartDateOnLeaveRequest('');
+              setEndDateOnLeaveRequest('');
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <Spin spinning={loading}>
-      <Card bodyStyle={{ padding: 16 }}>
-        <div className="grid grid-cols-12 gap-12 mb-4">
-          {/* Left Panel */}
-          <div className="col-span-12 md:col-span-5">
-            <h2 className="text-[16px] font-bold">Leave Request</h2>
-            <p className="text-[12px] mb-4">Pending Requests</p>
-            <div className="flex gap-2 mb-4">
-              <Select
-                showSearch
-                placeholder="Select employee"
-                allowClear
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={employeeOptions}
-                maxTagCount={1}
-                className="w-full h-12"
-                onChange={(value: any) => setUserIdOnLeaveRequest(value)}
-              />
-              <DatePicker.RangePicker
-                className="w-44 h-12"
-                onChange={(value: any) => {
-                  if (value) {
-                    setStartDateOnLeaveRequest(
-                      value[0]?.format('YYYY-MM-DD') || '',
-                    );
-                    setEndDateOnLeaveRequest(
-                      value[1]?.format('YYYY-MM-DD') || '',
-                    );
-                  }
-                }}
-              />
-            </div>
-
-            {pendingLeaveRequests?.users?.length > 0 ? (
-              <div className="h-64 overflow-y-auto scrollbar-none space-y-4">
-                {pendingLeaveRequests.users.map((item: any, index: any) => (
-                  <div
-                    key={index}
-                    className="bg-white border rounded-xl px-4 py-1  items-center"
-                  >
-                    <div className="space-y-2 flex justify-between w-full">
-                      <div className="flex items-center space-x-2 mb-1 ">
-                        <Avatar
-                          src={item.profileImage}
-                          className=" w-6 h-6 text-[12px]"
-                        >
-                          {item.name.charAt(0)}
-                        </Avatar>
-                        <p className="text-[12px] font-medium">{item.name}</p>
-                      </div>
-                      <p className="text-[12px]">
-                        Requested: {dayjs(item.requested).format('DD MMM YYYY')}
-                      </p>
-                    </div>
-
-                    <div className="flex justify-between w-full items-start">
-                      <div
-                        className={`text-xs px-2 py-1 rounded-md font-medium min-w-10 `}
-                        style={{
-                          backgroundColor: (() => {
-                            if (!leaveTypeColors[item.leaveType]) {
-                              leaveTypeColors[item.leaveType] =
-                                generateRandomColor();
-                            }
-                            return leaveTypeColors[item.leaveType];
-                          })(),
-                          color: '#ffffff',
-                          border: '1px solid rgba(255,255,255,0.2)',
-                        }}
-                      >
-                        {item.leaveType}
-                      </div>
-                      <p className="text-xs text-black font-bold">
-                        {`${dayjs(item.leaveStartDate).format('D')}-${dayjs(item.leaveEndDate).format('D MMM YYYY')}`}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex justify-center items-center h-64">
-                <p className="text-gray-500 text-[14px] font-semibold">
-                  No leave requests found
-                </p>
-              </div>
-            )}
+      <Card bodyStyle={{ padding: 0 }} className="min-h-[500px] px-3 sm:px-5 py-4">
+        <div className="flex flex-col gap-4">
+          {/* Header */}
+          <div>
+            <h2 className="text-base font-bold">Leave Request</h2>
+            <p className="text-xs text-gray-600">Pending Requests</p>
           </div>
 
-          {/* Right Panel - Chart */}
-          <div className="col-span-12 md:col-span-7">
-            <div className="flex justify-end mb-2 gap-3">
-              <Select
-                showSearch
-                placeholder="Select Leave Type"
-                allowClear
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={leaveTypeOption}
-                maxTagCount={1}
-                className="w-40 h-12"
-                onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
-              />
-              <Select
-                showSearch
-                placeholder="Select department"
-                allowClear
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={departmentOptions}
-                maxTagCount={1}
-                className="w-40 h-12"
-                onChange={(value) => setDepartmentOnLeaveRequest(value)}
-              />
+          {/* Desktop Filters */}
+          <div className="hidden md:block">
+            <div className="grid grid-cols-12 gap-4 mb-4">
+              <div className="col-span-4">
+                <Select
+                  showSearch
+                  placeholder="Search Employee"
+                  allowClear
+                  className="w-full h-12"
+                  onChange={(value: any) => setUserIdOnLeaveRequest(value)}
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={employeeOptions}
+                />
+              </div>
+              <div className="col-span-3">
+                <Select
+                  showSearch
+                  placeholder="Leave Type"
+                  allowClear
+                  value={leaveTypeOnLeaveRequest}
+                  className="w-full h-12"
+                  onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={leaveTypeOption}
+                />
+              </div>
+              <div className="col-span-3">
+                <Select
+                  showSearch
+                  placeholder="Department"
+                  allowClear
+                  value={departmentOnLeaveRequest}
+                  className="w-full h-12"
+                  onChange={(value) => setDepartmentOnLeaveRequest(value)}
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={departmentOptions}
+                />
+              </div>
+              <div className="col-span-2">
+                <DatePicker.RangePicker
+                  allowClear
+                  className="w-full h-12"
+                  onChange={(value: any) => {
+                    if (value) {
+                      setStartDateOnLeaveRequest(value[0]?.format('YYYY-MM-DD') || '');
+                      setEndDateOnLeaveRequest(value[1]?.format('YYYY-MM-DD') || '');
+                    } else {
+                      setStartDateOnLeaveRequest('');
+                      setEndDateOnLeaveRequest('');
+                    }
+                  }}
+                />
+              </div>
             </div>
-            <div style={{ height: 320, width: '100%' }}>
-              <Bar
-                data={barData}
-                options={{ ...barOptions, maintainAspectRatio: false } as any}
-              />
+          </div>
+
+          {/* Mobile Filters */}
+          <div className="md:hidden">
+            <div className="flex justify-between gap-4 w-full mb-4">
+              <div className="flex-1">
+                <Select
+                  showSearch
+                  placeholder="Search Employee"
+                  className="w-full h-10"
+                  allowClear
+                  onChange={(value: any) => setUserIdOnLeaveRequest(value)}
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={employeeOptions}
+                />
+              </div>
+              <div>
+                <CustomButton
+                  type="default"
+                  size="small"
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
+                  title=""
+                  icon={<LuSettings2 size={20} />}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6">
+            {/* Leave Requests List */}
+            <div className="w-full lg:col-span-5">
+              {pendingLeaveRequests?.users?.length > 0 ? (
+                <div className="h-64 sm:h-80 overflow-y-auto scrollbar-none space-y-3">
+                  {pendingLeaveRequests.users.map((item: any, index: any) => (
+                    <div
+                      key={index}
+                      className="bg-white border rounded-lg px-4 py-3 hover:shadow-sm transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <Avatar
+                            src={item.profileImage}
+                            className="w-6 h-6 text-xs flex-shrink-0"
+                          >
+                            {item.name.charAt(0)}
+                          </Avatar>
+                          <p className="text-sm font-medium text-black truncate">
+                            {item.name}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-600 flex-shrink-0">
+                          Requested: {dayjs(item.requested).format('DD MMM YYYY')}
+                        </p>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div
+                          className="text-xs px-2 py-1 rounded-md font-medium"
+                          style={{
+                            backgroundColor: (() => {
+                              if (!leaveTypeColors[item.leaveType]) {
+                                leaveTypeColors[item.leaveType] = generateRandomColor();
+                              }
+                              return leaveTypeColors[item.leaveType];
+                            })(),
+                            color: '#ffffff',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                          }}
+                        >
+                          {item.leaveType}
+                        </div>
+                        <p className="text-xs text-black font-bold">
+                          {`${dayjs(item.leaveStartDate).format('D')}-${dayjs(item.leaveEndDate).format('D MMM YYYY')}`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex justify-center items-center h-64">
+                  <p className="text-gray-500 text-sm font-semibold">
+                    No leave requests found
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Chart Section */}
+            <div className="w-full lg:col-span-7">
+              <div className="h-64 sm:h-80 lg:h-96">
+                <Bar
+                  data={barData}
+                  options={{ ...barOptions, maintainAspectRatio: false } as any}
+                />
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Mobile Filter Modal */}
+        <Modal
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={
+            <div className="flex gap-2 justify-center mt-4">
+              <CustomButton
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+                title="Cancel"
+                type="default"
+              />
+              <CustomButton
+                title="Apply Filter"
+                type="primary"
+                onClick={() => {
+                  setIsModalOpen(false);
+                }}
+                className="px-6 py-2 text-white rounded-lg text-sm"
+              />
+            </div>
+          }
+          className="!m-4 md:hidden"
+          style={{
+            top: '20%',
+            transform: 'translateY(-50%)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}
+          width="90%"
+          centered
+        >
+          <MobileFilterContent />
+        </Modal>
       </Card>
     </Spin>
   );

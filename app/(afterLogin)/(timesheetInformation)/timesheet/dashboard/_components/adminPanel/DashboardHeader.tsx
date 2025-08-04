@@ -10,27 +10,39 @@ const DashboardHeader: React.FC = () => {
   const hasEmployeeAttendance = searchParams.has('employeeAttendance');
 
   return (
-    <div className="mb-6">
-      <div className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb
-          className="text-sm"
-          title="Time and attendance"
-          subtitle={
-            hasEmployeeAttendance
-              ? 'Manage employee Timesheet'
-              : 'Manage Your TimeSheet'
-          }
-        />
-        <div className="flex items-center gap-3">
-          {activeTab === 'personal' && <CheckControl />}
+    <div className="mb-4 sm:mb-6 px-3 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div className="flex  flex-row justify-between items-center gap-4">
+          <CustomBreadcrumb
+            className="text-sm"
+            title="Time and attendance"
+            subtitle={
+              hasEmployeeAttendance
+                ? 'Manage employee Timesheet'
+                : 'Manage Your TimeSheet'
+            }
+          />
+          {activeTab === 'personal' && (
+            <div className="md:hidden block">
+              <CheckControl />
+            </div>
+          )}
+        </div>
 
-          <div className="flex items-center bg-[#f8f8f8] border border-gray-300 rounded-lg w-fit h-16 p-1 gap-10">
+        <div className="flex flex-col sm:flex-row items-center sm:justify-end justify-center gap-3">
+          {activeTab === 'personal' && (
+            <div className="w-full sm:w-auto md:block hidden">
+              <CheckControl />
+            </div>
+          )}
+
+          <div className="flex items-center bg-[#f8f8f8] border border-gray-300 roun  ded-lg w-full sm:w-fit h-14 sm:h-16 p-1 gap-1 sm:gap-2">
             <button
               onClick={() => setActiveTab('admin')}
               className={
                 activeTab === 'admin'
-                  ? ' px-8  h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md'
-                  : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
+                  ? 'flex-1 sm:flex-none sm:px-6 lg:px-8 h-10 sm:h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md font-medium'
+                  : 'flex-1 sm:flex-none sm:px-4 lg:px-6 h-full bg-transparent text-black text-sm transition-all duration-300 font-medium'
               }
             >
               Admin Page
@@ -39,8 +51,8 @@ const DashboardHeader: React.FC = () => {
               onClick={() => setActiveTab('personal')}
               className={
                 activeTab === 'personal'
-                  ? ' px-8 h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md'
-                  : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
+                  ? 'flex-1 sm:flex-none sm:px-6 lg:px-8 h-10 sm:h-12 bg-white text-black text-sm rounded-md transition-all duration-300 shadow-md font-medium'
+                  : 'flex-1 sm:flex-none sm:px-4 lg:px-6 h-full bg-transparent text-black text-sm transition-all duration-300 font-medium'
               }
             >
               Personal
