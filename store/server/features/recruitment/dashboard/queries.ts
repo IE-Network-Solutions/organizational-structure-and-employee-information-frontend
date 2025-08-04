@@ -308,42 +308,23 @@ const downloadJobPostPerformanceExport = async (params: {
     const queryString = queryParams.toString();
     const url = `${RECRUITMENT_URL}/${DASHBOARD_API.GET_JOB_POST_PERFORMANCE_EXPORT_API}${queryString ? `?${queryString}` : ''}`;
 
-    // Get the file directly from the API
+    // Get the download URL from the API
     const response = await axios({
       url,
       method: 'GET',
       headers,
-      responseType: 'blob',
+      responseType: 'json',
     });
 
-    // Create blob from response data
-    const blob = new Blob([response.data], {
-      type:
-        response.headers['content-type'] ||
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+    // Extract download URL from response
+    const { downloadUrl } = response.data;
 
-    // Get filename from Content-Disposition header or use default
-    const contentDisposition = response.headers['content-disposition'];
-    let fileName = `job-post-performance-${new Date().toISOString().split('T')[0]}.xlsx`;
-
-    if (contentDisposition) {
-      const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
-      if (fileNameMatch) {
-        fileName = fileNameMatch[1];
-      }
+    if (!downloadUrl) {
+      throw new Error('Download URL not found in response');
     }
 
-    // Create download link
-    const downloadUrl2 = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    link.href = downloadUrl2;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl2);
+    // Open the download URL in a new tab
+    window.open(downloadUrl, '_blank');
 
     return { success: true };
   } catch (error) {
