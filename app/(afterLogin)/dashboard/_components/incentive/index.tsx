@@ -130,8 +130,15 @@ const Incentive = () => {
   );
 
   return (
-    <Card className="w-full mx-auto lg:h-[316px] overflow-hidden  flex flex-col shadow-lg">
-      <div className="flex justify-between items-center mb-2 h-10 ">
+    <Card
+      bodyStyle={
+        isMobile || isTablet
+          ? { padding: '0px', margin: '0px', border: 'none' }
+          : {}
+      }
+      className="w-full mx-auto lg:h-[316px] overflow-hidden  flex flex-col shadow-lg "
+    >
+      <div className="flex justify-between items-center mb-2 h-10 mx-5 lg:mx-0 mt-2 lg:mt-0">
         <h3 className="font-bold text-lg">Incentives</h3>
         {isMobile || isTablet ? (
           <Dropdown
@@ -184,7 +191,7 @@ const Incentive = () => {
       </div>{' '}
       {IncentiveData?.summary?.length > 0 || incentiveIsLoading ? (
         <Card className="border-none" loading={incentiveIsLoading}>
-          <Row gutter={[16, 24]} className="p-2">
+          <Row gutter={[16, 24]} className="p-2 ">
             <Col
               lg={8}
               xs={24}
@@ -207,7 +214,7 @@ const Incentive = () => {
               </div>
             </Col>
             <Col lg={16} xs={24} className="">
-              <div className=" ml-5 overflow-y-auto h-[200px]">
+              <div className=" lg:ml-5 overflow-y-auto h-[200px]">
                 {IncentiveData?.details?.map((item: any, index: any) => {
                   const key = index;
                   return (
