@@ -10,6 +10,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useDashboardStore } from '@/store/uistate/features/dashboard';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AccessGuard from '@/utils/permissionGuard';
+import CustomDashboardModal from './_components/customDashbordModal';
 
 export default function Home() {
   useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
@@ -33,10 +34,25 @@ export default function Home() {
   };
 
   const mainLayout = (
-    <div className="min-h-screen bg-gray-100 px-4">
-      <div className=" flex justify-between items-center">
-        <div className="">
-          {' '}
+    <div className="min-h-screen bg-gray-100  pl-2 pr-3">
+      {isMobile || isTablet ? (
+        <div className=" flex justify-between items-center mb-4">
+          {userData?.firstName ? (
+            <h1 className="text-2xl font-bold text-gray-800">
+              Hi, {userData?.firstName}
+            </h1>
+          ) : (
+            ''
+          )}
+          <div
+            className=" text-primary text-base font-bold"
+            onClick={() => showAnnouncements()}
+          >
+            Announcements
+          </div>{' '}
+        </div>
+      ) : (
+        <div className=" flex justify-start">
           {userData?.firstName ? (
             <div className="mb-4">
               <h1 className="text-2xl font-bold text-gray-800">
@@ -47,32 +63,29 @@ export default function Home() {
             ''
           )}
         </div>
-        {isMobile || isTablet ? (
-          <div
-            className=" text-primary text-base font-bold"
-            onClick={() => showAnnouncements()}
-          >
-            Announcements
-          </div>
-        ) : (
-          ''
-        )}
-      </div>
-      {isMobile || isTablet ? isOpen ? null : <Header /> : <Header />}
+      )}
+      <Header />
       {isMobile || isTablet ? (
-        <div className="grid grid-cols-1 ">
+        <div className="grid grid-cols-1 pb-3">
           {isOpen ? (
-            <div className="col-span-12 ">
-              <RightBar />
-            </div>
+            <CustomDashboardModal
+              open={isOpen}
+              onClose={showAnnouncements}
+              width="400px"
+            >
+              <div className="col-span-12 ">
+                <RightBar />
+              </div>
+            </CustomDashboardModal>
           ) : (
-            <div className="col-span-12  ">
-              <LeftBar />
-            </div>
+            ''
           )}
+          <div className="col-span-12  ">
+            <LeftBar />
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-12 gap-4">
+        <div className="grid grid-cols-12 gap-4 pb-5">
           <div className="col-span-8">
             <LeftBar />
           </div>

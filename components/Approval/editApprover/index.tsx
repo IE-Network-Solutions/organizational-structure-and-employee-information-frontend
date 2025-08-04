@@ -152,6 +152,7 @@ const EditApproverComponent = ({
                         ]}
                       >
                         <Select
+                          disabled={!users?.items}
                           showSearch
                           optionFilterProp="label"
                           className="min-w-52 my-3"

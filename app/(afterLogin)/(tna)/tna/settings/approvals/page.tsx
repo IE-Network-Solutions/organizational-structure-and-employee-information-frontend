@@ -17,7 +17,7 @@ const Workflow = () => {
     setApproverType('');
   };
   return (
-    <div className="p-5 rounded-2xl bg-white  w-full">
+    <div className="py-4 px-2 rounded-2xl bg-white w-full">
       <div className="flex justify-between mb-4 ">
         <h1 className="text-lg font-bold ">List Of Approval</h1>
         <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
@@ -35,7 +35,7 @@ const Workflow = () => {
       <div className="mb-4">
         <ApprovalFilter />
       </div>
-      <div className="overflow-x-auto scrollbar-none w-full">
+      <div>
         <ApprovalListTable />
       </div>
     </div>

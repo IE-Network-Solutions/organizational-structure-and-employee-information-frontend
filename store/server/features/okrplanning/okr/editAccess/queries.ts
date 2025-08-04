@@ -4,10 +4,11 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 
 const fetchAllObjectives = async () => {
+  const requestHeaders = await requestHeader();
   return crudRequest({
     url: `${OKR_AND_PLANNING_URL}/objective/objective-filter/all/objective`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 

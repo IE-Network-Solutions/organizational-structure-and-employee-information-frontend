@@ -32,11 +32,8 @@ const NewSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="h-auto w-auto bg-gray-100 sm:bg-white pr-3 pb-6 pl-6 sm:pl-3">
-      <div className=" flex justify-between">
-        <div className=""></div>
-        <TopbarMenu menuItems={menuItems} />
-      </div>
+    <div className="h-auto w-auto bg-[#F5F5F5] sm:bg-white pr-3 pb-6 pl-6 sm:pl-3">
+      <TopbarMenu menuItems={menuItems} />
       <div className="flex flex-col gap-6 mt-8"></div>
       <BlockWrapper className="flex-1 h-max">{children}</BlockWrapper>
     </div>

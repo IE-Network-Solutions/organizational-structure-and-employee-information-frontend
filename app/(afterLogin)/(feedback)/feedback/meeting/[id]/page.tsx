@@ -28,7 +28,11 @@ export default function MeetingDetailPage({ params }: { params: Params }) {
   );
   return (
     <div className="p-1 ">
-      <MeetingHeader loading={isLoading} title={meeting?.title} />
+      <MeetingHeader
+        loading={isLoading}
+        title={meeting?.title}
+        meetingData={meeting}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         <div className="lg:col-span-2 border rounded-lg h-screen overflow-y-auto scrollbar-none">
           <MeetingObjectives

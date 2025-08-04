@@ -26,10 +26,9 @@ ChartJS.register(
 const SelfAttendance = () => {
   const { data: annualAttendance, isLoading: attendanceIsLoading } =
     useGetAnnualAttendance();
-
   const data = {
     labels: annualAttendance?.calendar?.months?.map((month: any) =>
-      month.monthName.toUpperCase(),
+      month.monthName.toUpperCase().slice(0, 3),
     ),
     datasets: [
       {
@@ -38,6 +37,9 @@ const SelfAttendance = () => {
           (month: any) => month.stats.leaves,
         ),
         backgroundColor: 'rgba(54, 54, 240, 0.7)',
+        barThickness: 20,
+        barPercentage: 0.4,
+        categoryPercentage: 0.4,
       },
 
       {
@@ -46,6 +48,9 @@ const SelfAttendance = () => {
           (month: any) => month.stats.lates,
         ),
         backgroundColor: 'rgba(2, 99, 255, 0.7)',
+        barThickness: 20,
+        barPercentage: 0.4,
+        categoryPercentage: 0.4,
       },
       {
         label: 'Absents',
@@ -53,6 +58,9 @@ const SelfAttendance = () => {
           (month: any) => month.stats.absents,
         ),
         backgroundColor: 'rgba(233, 233, 255, 0.7)',
+        barThickness: 20,
+        barPercentage: 0.4,
+        categoryPercentage: 0.4,
       },
     ],
   };
@@ -106,16 +114,24 @@ const SelfAttendance = () => {
     <Card
       bodyStyle={{ padding: 0 }}
       loading={attendanceIsLoading}
-      className="bg-white p-5 rounded-xl md:h-[404px]"
+      className="bg-white p-5 rounded-xl md:h-[416px] shadow-lg"
     >
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-3">
         <div className="text-lg font-bold">Annual Attendance Report</div>
         <div className="pl-2"></div>
       </div>
-
-      <div className=" h-[300px]  mt-4 gap-4 items-center ">
-        <Bar data={data} options={options} />
+      <div className="flex  xl:hidden">
+        {/* flex xl:hidden zoom in min 110{' '} */}
+        <Bar data={data} options={options} height={120} width={180} />{' '}
       </div>
+      <div className="hidden xl:flex 2xl:hidden">
+        {/* hidden xl:flex 2xl:hidden mid 90 - 100 */}
+        <Bar data={data} options={options} height={100} width={180} />{' '}
+      </div>
+      <div className="hidden 2xl:flex ">
+        {/* hidden 2xl:flex = zoom out max 80 -75 */}
+        <Bar data={data} options={options} height={65} width={180} />
+      </div>{' '}
     </Card>
   );
 };

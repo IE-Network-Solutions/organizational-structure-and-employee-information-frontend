@@ -4,9 +4,9 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-
+import { getCurrentToken } from '@/utils/getCurrentToken';
 const createConversationResponse = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
   const headers = {
@@ -23,7 +23,7 @@ const createConversationResponse = async (data: any) => {
 };
 
 const updateCoversationResponse = async (data: any, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -45,7 +45,7 @@ const updateCoversationResponse = async (data: any, id: string) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const deleteCoversationResponse = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

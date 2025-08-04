@@ -1,10 +1,11 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery, useQueryClient } from 'react-query';
 
 const getVpScore = async (id: number | string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/vp-score-instance/score/${id}`,
@@ -17,7 +18,7 @@ const getVpScore = async (id: number | string) => {
 };
 
 const getVpScoreCalculate = async (id: number | string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/user-vp-scoring/calculate/vp/${id}`,
@@ -30,7 +31,7 @@ const getVpScoreCalculate = async (id: number | string) => {
 };
 
 const getAllCalculatedVpScore = async (userId: string[]) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/user-vp-scoring/refresh/vp`,
@@ -44,7 +45,7 @@ const getAllCalculatedVpScore = async (userId: string[]) => {
 };
 
 const getCriteriaByFilter = async (data: any, selectedRange: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/vp-score-instance/score/target?selectedRange=${selectedRange}`,
@@ -58,7 +59,7 @@ const getCriteriaByFilter = async (data: any, selectedRange: string) => {
 };
 
 const getLineGraphData = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${OKR_URL}/vp-score-instance/by-user/${id}`,
@@ -71,7 +72,7 @@ const getLineGraphData = async (id: string) => {
 };
 
 const getMonthById = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/month/${id}`,
@@ -84,7 +85,7 @@ const getMonthById = async (id: string) => {
 };
 
 const getAllMonth = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/month`,
@@ -93,6 +94,20 @@ const getAllMonth = async () => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
+  });
+};
+
+const getLineGraphDataByMonth = async (id: string, month: Array<string>) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${OKR_URL}/vp-score-instance/by-month/${id}`,
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: month,
   });
 };
 
@@ -105,6 +120,7 @@ export const useGetVPLineGraphData = (userId: string) => {
     },
   );
 };
+
 export const useGetAllMonth = () => {
   return useQuery<any>('getAllMonth', getAllMonth, {
     keepPreviousData: true,
@@ -213,4 +229,13 @@ export const fetchMonthById = async (id: string) => {
   }
   const data = await response.json();
   return data.name;
+};
+
+export const useGetVPLineGraphDataByMonth = (
+  userId: string,
+  month: Array<string>,
+) => {
+  return useQuery<any>(['VPLineGraph', userId, month], () =>
+    getLineGraphDataByMonth(userId, month),
+  );
 };

@@ -7,10 +7,11 @@ import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 
 const getPeriodTypes = async (data: Partial<PeriodTypeRequestBody>) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/rest/period-types`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
   });
 };

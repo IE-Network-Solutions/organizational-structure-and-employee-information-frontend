@@ -3,12 +3,13 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 //meetings
 const createMeetings = async (values: {
   name: string;
   description: string;
 }) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -24,7 +25,7 @@ const createMeetings = async (values: {
 };
 
 const deleteMeetings = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -39,7 +40,7 @@ const deleteMeetings = async (id: string) => {
 };
 
 const updateMeetings = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -54,7 +55,7 @@ const updateMeetings = async (values: any) => {
   });
 };
 const updateMeetingAttachment = async (values: FormData | any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const isFormData = values instanceof FormData;
@@ -126,7 +127,7 @@ export const useDeleteMeeting = () => {
 // meeting comment
 
 const createComments = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -142,7 +143,7 @@ const createComments = async (values: any) => {
 };
 
 const deleteComments = async (id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
@@ -157,7 +158,7 @@ const deleteComments = async (id: string) => {
 };
 
 const updateComments = async (values: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {

@@ -85,6 +85,20 @@ export interface GroupedUser {
   userId: string;
   items: PlanningPeriodUser[];
 }
+
+// New interface for the grouped user response with planningPeriods
+export interface GroupedUserWithPlanningPeriods {
+  userId: string;
+  planningPeriod: PlanningPeriodUser[];
+  profileImage?: string;
+  lastUpdated?: string;
+}
+
+// Paginated response for grouped users
+export type PaginatedGroupedUsers = {
+  items: GroupedUserWithPlanningPeriods[];
+  meta: MetaData;
+};
 export interface PlanningUserPayload {
   userIds: string[];
   planningPeriodIds: string[];

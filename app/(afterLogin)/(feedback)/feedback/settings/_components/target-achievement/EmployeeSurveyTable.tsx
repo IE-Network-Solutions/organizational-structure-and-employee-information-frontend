@@ -211,7 +211,7 @@ const EmployeeSurveyTable: React.FC = () => {
         <Select
           showSearch
           placeholder="Search Employee"
-          className="w-full h-14"
+          className="w-full h-10"
           allowClear
           loading={empLoading}
           onChange={(value) => setUserId(value)}
@@ -228,7 +228,7 @@ const EmployeeSurveyTable: React.FC = () => {
         <Select
           loading={depLoading}
           placeholder="Filter by Department"
-          className="w-full h-14"
+          className="w-full h-10"
           allowClear
           showSearch
           onChange={(value) => setDepartmentId(value)}
@@ -246,7 +246,7 @@ const EmployeeSurveyTable: React.FC = () => {
         </Select>
         <Select
           placeholder="Filter by Month"
-          className="w-full h-14"
+          className="w-full h-10"
           allowClear
           showSearch
           onChange={(value) => setMonthId(value)}

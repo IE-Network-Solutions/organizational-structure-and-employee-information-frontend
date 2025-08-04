@@ -24,13 +24,13 @@ const ActionButtons: FC<ActionButtonsProps> = ({
   id,
 }) => {
   return (
-    <Space size={10}>
+    <Space>
       {onEdit && (
         <Button
-          className="w-[30px] h-[30px] bg-blue"
-          icon={<GrFormEdit size={20} />}
-          id={`${id}buttonPopOverActionForOnEditActionId`}
+          className="action-button-edit bg-blue"
           type="primary"
+          icon={<GrFormEdit className="text-white" />}
+          id={`${id}buttonPopOverActionForOnEditActionId`}
           loading={loading}
           disabled={disableEdit}
           onClick={onEdit}
@@ -40,12 +40,12 @@ const ActionButtons: FC<ActionButtonsProps> = ({
       {onDelete && (
         <DeletePopover onDelete={onDelete} disabled={disableDelete}>
           <Button
-            className="w-[30px] h-[30px]"
+            className="action-button-delete"
             danger
             disabled={disableDelete}
             loading={loading}
             id={`${id}buttonPopOverActionForOnDeleteActionId`}
-            icon={<FiTrash2 size={16} />}
+            icon={<FiTrash2 />}
             type="primary"
             onClick={(e) => {
               e.stopPropagation();
@@ -55,7 +55,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
       )}
       {onDetail && (
         <Button
-          className="w-[60px] px-2 h-[30px]"
+          className="w-7 h-7"
           icon={'Detail'}
           id={`${id}buttonPopOverActionForOnDetailActionId`}
           loading={loading}

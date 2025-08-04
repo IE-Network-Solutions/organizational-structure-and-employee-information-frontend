@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useMutation, useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 export const usePasswordReset = () => {
   return useMutation(
@@ -64,7 +65,7 @@ export const usePasswordReset = () => {
 const getTenantId = async (token: string) => {
   const localId = useAuthenticationStore.getState().localId;
   if (!token || token.length === 0) {
-    token = useAuthenticationStore.getState().token;
+    token = await getCurrentToken();
   }
   try {
     const headers = {
@@ -97,7 +98,7 @@ const getTenantId = async (token: string) => {
 const getTenantByDomainName = async (domain: string) => {
   try {
     const response = await axios.get(
-      `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`, // Fixed: wrapped in backticks
+      `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`,
     );
     return response.data;
   } catch (error) {
@@ -117,11 +118,18 @@ const getTenant = async (tenantId?: string) => {
   }
 };
 
-export const useGetTenantByDomain = (domain: string) =>
-  useQuery<any>(['domain', domain], () => getTenantByDomainName(domain), {
+export const useGetTenantByDomain = ({
+  domain,
+  isPwa,
+}: {
+  domain: string;
+  isPwa: boolean;
+}) => {
+  return useQuery(['domain', domain], () => getTenantByDomainName(domain), {
+    enabled: !!domain && isPwa, // ✅ only fetch if isPwa is true and domain exists
     keepPreviousData: true,
-    enabled: false,
   });
+};
 export const useGetTenantId = () => {
   const { refetch } = useQuery<any>(
     ['tenantId'],

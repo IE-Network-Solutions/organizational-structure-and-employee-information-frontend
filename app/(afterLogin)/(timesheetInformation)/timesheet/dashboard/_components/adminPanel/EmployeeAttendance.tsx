@@ -1,127 +1,87 @@
-import React, { useState } from 'react';
-import {
-  Table,
-  Input,
-  Select,
-  DatePicker,
-  Pagination,
-  Avatar,
-  Tag,
-} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import React from 'react';
+import { Table, Select, Pagination, Avatar, Tag, DatePicker } from 'antd';
 import { useRouter } from 'next/navigation';
+import { useGetAdminAttendanceUsers } from '@/store/server/features/timesheet/dashboard/queries';
+import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
+import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 
-const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 interface Employee {
+  userId: string;
   key: string;
   name: string;
-  avatar: string;
+  profileImage: string;
   department: string;
-  status: 'ON LEAVE' | 'Active';
+  status: 'late' | 'active' | 'absent' | 'onleave';
   absentDays: number;
   lateDays: number;
 }
 
-const employeesData: Employee[] = [
-  {
-    key: '1',
-    name: 'Nahom Samuel',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    department: 'Product Design',
-    status: 'ON LEAVE',
-    absentDays: 2,
-    lateDays: 4,
-  },
-  {
-    key: '2',
-    name: 'Robel Bekele',
-    avatar: 'https://randomuser.me/api/portraits/men/33.jpg',
-    department: 'Software Development',
-    status: 'ON LEAVE',
-    absentDays: 0,
-    lateDays: 5,
-  },
-  {
-    key: '3',
-    name: 'Alemayehu Taye',
-    avatar: 'https://randomuser.me/api/portraits/men/34.jpg',
-    department: 'Sales Department',
-    status: 'Active',
-    absentDays: 0,
-    lateDays: 2,
-  },
-  {
-    key: '4',
-    name: 'Fasika Alemu',
-    avatar: 'https://randomuser.me/api/portraits/women/35.jpg',
-    department: 'Software Department',
-    status: 'ON LEAVE',
-    absentDays: 0,
-    lateDays: 5,
-  },
-  {
-    key: '5',
-    name: 'Dawit Robel',
-    avatar: 'https://randomuser.me/api/portraits/men/36.jpg',
-    department: 'Sales Department',
-    status: 'Active',
-    absentDays: 1,
-    lateDays: 6,
-  },
-  {
-    key: '6',
-    name: 'Leul Samuel',
-    avatar: 'https://randomuser.me/api/portraits/men/37.jpg',
-    department: 'Sales Department',
-    status: 'Active',
-    absentDays: 0,
-    lateDays: 12,
-  },
-  {
-    key: '7',
-    name: 'Solomon Solomon',
-    avatar: 'https://randomuser.me/api/portraits/men/38.jpg',
-    department: 'Sales Department',
-    status: 'ON LEAVE',
-    absentDays: 2,
-    lateDays: 4,
-  },
-];
-
 const statusColors = {
-  'ON LEAVE': 'bg-red-100 text-red-600',
-  Active: 'bg-green-100 text-green-600',
+  late: 'bg-yellow-100 text-yellow-600',
+  active: 'bg-green-100 text-green-600',
+  absent: 'bg-red-100 text-red-600',
+  onleave: 'bg-light_purple text-purple',
 };
 
 export default function EmployeeAttendanceTable() {
   const router = useRouter();
-  const [searchText, setSearchText] = useState('');
-  const [filterType, setFilterType] = useState('');
+  const {
+    searchOnAttendance,
+    setsearchOnAttendance,
+    currentStatusOnAttendance,
+    setCurrentStatusOnAttendance,
+    startDateOnAttendance,
+    setStartDateOnAttendance,
+    endDateOnAttendance,
+    setEndDateOnAttendance,
+    pageSizeOnAttendance,
+    currentPageOnAttendance,
+    setCurrentPageOnAttendance,
+  } = TimeAndAttendaceDashboardStore();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5; // Set your desired page size
+  const { data: adminAttendanceUsers, isLoading: loading } =
+    useGetAdminAttendanceUsers({
+      sortBy: 'name',
+      sortOrder: 'asc',
+      userId: searchOnAttendance,
+      ...(currentStatusOnAttendance && {
+        currentStatus: currentStatusOnAttendance,
+      }),
+      startDate: startDateOnAttendance,
+      endDate: endDateOnAttendance,
+      page: currentPageOnAttendance,
+      limit: pageSizeOnAttendance,
+    });
 
-  const filteredData = employeesData.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.department.toLowerCase().includes(searchText.toLowerCase());
+  const { data: employees } = useGetEmployees();
+  const employeeOptions = employees?.items?.map((i: any) => ({
+    value: i.id,
+    label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
+  }));
 
-    const matchesType = filterType ? item.status === filterType : true;
-    // Date filter logic can be added here if needed
-
-    return matchesSearch && matchesType;
-  });
+  // Attendance type options
+  const attendanceTypeOptions = [
+    { value: 'active', label: 'Active' },
+    { value: 'late', label: 'Late' },
+    { value: 'absent', label: 'Absent' },
+    { value: 'onleave', label: 'On Leave' },
+  ];
 
   const columns = [
     {
       title: 'Employee',
       dataIndex: 'name',
       key: 'name',
-      sorter: (a: Employee, b: Employee) => a.name.localeCompare(b.name),
+      sorter: (a: Employee, b: Employee) => a?.name?.localeCompare(b?.name),
       render: (notused: any, record?: Employee) => (
         <div className="flex items-center space-x-3">
-          <Avatar src={record?.avatar} />
+          {record?.profileImage ? (
+            <Avatar src={record?.profileImage} />
+          ) : (
+            <Avatar>{record?.name?.charAt(0)?.toUpperCase()}</Avatar>
+          )}
           <span>{record?.name}</span>
         </div>
       ),
@@ -131,18 +91,18 @@ export default function EmployeeAttendanceTable() {
       dataIndex: 'department',
       key: 'department',
       sorter: (a: Employee, b: Employee) =>
-        a.department.localeCompare(b.department),
+        a?.department?.localeCompare(b?.department),
     },
     {
       title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      sorter: (a: Employee, b: Employee) => a.status.localeCompare(b.status),
+      dataIndex: 'currentStatus',
+      key: 'currentStatus',
+      sorter: (a: Employee, b: Employee) => a?.status?.localeCompare(b?.status),
       render: (status: Employee['status']) => (
         <Tag
-          className={`uppercase px-3 font-semibold rounded-md border-none ${statusColors[status]}`}
+          className={`capitalize px-3 font-semibold rounded-md border-none ${statusColors[status]}`}
         >
-          {status}
+          {status === 'onleave' ? 'On Leave' : status}
         </Tag>
       ),
     },
@@ -150,55 +110,68 @@ export default function EmployeeAttendanceTable() {
       title: 'Absentisms',
       dataIndex: 'absentDays',
       key: 'absentDays',
-      sorter: (a: Employee, b: Employee) => a.absentDays - b.absentDays,
+      sorter: (a: Employee, b: Employee) => a?.absentDays - b?.absentDays,
       render: (days: number) => `${days} days`,
     },
     {
       title: 'Late Arrivals',
-      dataIndex: 'lateDays',
-      key: 'lateDays',
-      sorter: (a: Employee, b: Employee) => a.lateDays - b.lateDays,
+      dataIndex: 'totalLateRecords',
+      key: 'totalLateRecords',
+      sorter: (a: Employee, b: Employee) => a?.lateDays - b?.lateDays,
       render: (days: number) => `${days} days`,
     },
   ];
-
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm">
       {/* Filters */}
       <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 mb-6">
-        <Input
-          placeholder="Search Employee"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          prefix={<SearchOutlined />}
-          className="flex-1"
+        <Select
+          showSearch
+          placeholder="Select employee"
           allowClear
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+          options={employeeOptions}
+          onChange={(value) => setsearchOnAttendance(value)}
+          className="flex-1 h-12"
         />
         <Select
+          showSearch
           placeholder="Type"
-          onChange={(val) => setFilterType(val)}
           allowClear
-          className="w-40"
-        >
-          <Option value="Active">Active</Option>
-          <Option value="ON LEAVE">ON LEAVE</Option>
-        </Select>
-        <DatePicker placeholder="Date" className="w-40" />
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+          options={attendanceTypeOptions}
+          onChange={(value) => setCurrentStatusOnAttendance(value)}
+          className="w-52 h-12"
+        />
+        <RangePicker
+          className="w-52 h-12 "
+          onChange={(dates) => {
+            if (dates) {
+              setStartDateOnAttendance(dates[0]?.format('YYYY-MM-DD') || '');
+              setEndDateOnAttendance(dates[1]?.format('YYYY-MM-DD') || '');
+            } else {
+              setStartDateOnAttendance('');
+              setEndDateOnAttendance('');
+            }
+          }}
+        />
       </div>
       {/* Table */}
       <Table
         columns={columns}
-        dataSource={filteredData.slice(
-          (currentPage - 1) * pageSize,
-          currentPage * pageSize,
-        )}
+        dataSource={adminAttendanceUsers?.users}
         pagination={false}
-        rowKey="key"
+        loading={loading}
+        rowKey="userId"
         className="ant-table-thead-bg-white"
         onRow={(record) => ({
           onClick: () => {
             router.push(
-              `/timesheet/dashboard?employeeAttendance&user=${record.key}`,
+              `/timesheet/dashboard?employeeAttendance&user=${record.userId}`,
             );
           },
           style: { cursor: 'pointer' },
@@ -208,15 +181,16 @@ export default function EmployeeAttendanceTable() {
       {/* Pagination and Result Count */}
       <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
         <Pagination
-          current={currentPage}
-          total={filteredData.length}
-          pageSize={pageSize}
-          onChange={(page) => setCurrentPage(page)}
+          current={adminAttendanceUsers?.pagination?.page}
+          total={adminAttendanceUsers?.pagination?.total}
+          pageSize={adminAttendanceUsers?.pagination?.limit}
+          onChange={(page) => setCurrentPageOnAttendance(page)}
           showSizeChanger={false}
           className="flex"
         />
         <div>
-          {filteredData.length} Result{filteredData.length !== 1 ? 's' : ''}
+          {adminAttendanceUsers?.pagination?.total} Result
+          {adminAttendanceUsers?.pagination?.total !== 1 ? 's' : ''}
         </div>
       </div>
     </div>

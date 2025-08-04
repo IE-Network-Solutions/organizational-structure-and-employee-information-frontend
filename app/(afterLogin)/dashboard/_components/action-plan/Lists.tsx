@@ -39,7 +39,7 @@ const Lists = () => {
         time: formatTime(item?.startAt),
         type: 'Survey',
         title: item?.name,
-        id: item?.id,
+        id: item?.formId,
       })),
       ...(input?.actionPlans ?? []).map((item: any) => ({
         time: formatTime(item?.startAt),
@@ -53,7 +53,7 @@ const Lists = () => {
     if (type == 'meeting') {
       router.push(`/feedback/meeting/${id}`);
     } else if (type == 'survey') {
-      router.push(`/feedback/meeting/${id}`);
+      router.push(`/feedback/categories/${id}`);
     } else if (type == 'action plan') {
       router.push(`/feedback/action-plan`);
     }

@@ -6,17 +6,20 @@ import {
   Row,
   Col,
   Select,
-  Tooltip,
   message,
+  Popconfirm,
 } from 'antd';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
-import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import {
+  useGetActiveFiscalYears,
+  useGetAllFiscalYears,
+} from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { FormInstance } from 'antd/lib';
 
-const FiscalYearForm: React.FC = () => {
-  const [form] = Form.useForm();
+const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
   const { isMobile } = useIsMobile();
 
   const {
@@ -35,20 +38,42 @@ const FiscalYearForm: React.FC = () => {
     fiscalYearFormValues,
     calendarType,
     setOpenFiscalYearDrawer,
+    hasOverlapError,
+    setHasOverlapError,
   } = useFiscalYearDrawerStore();
 
   const { data: activeCalendar } = useGetActiveFiscalYears();
+  const { data: allFiscalYears } = useGetAllFiscalYears();
+
+  const doesOverlap = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
+    if (!allFiscalYears?.items) return false;
+    return allFiscalYears.items.some((fy: any) => {
+      // If editing, skip the current fiscal year
+      if (isEditMode && selectedFiscalYear && fy.id === selectedFiscalYear.id)
+        return false;
+      const fyStart = dayjs(fy.startDate);
+      const fyEnd = dayjs(fy.endDate);
+      // Overlap if start is before their end and end is after their start
+      return (
+        start.isBefore(fyEnd.add(1, 'day')) &&
+        end.isAfter(fyStart.subtract(1, 'day'))
+      );
+    });
+  };
 
   const validateStartDate = (nonused: any, value: any) => {
     // Skip active calendar validation in edit mode
     if (!isEditMode) {
       if (
         activeCalendar?.endDate &&
-        dayjs(value).isBefore(dayjs(activeCalendar?.endDate), 'day')
+        dayjs(value).isBefore(
+          dayjs(activeCalendar?.endDate).add(1, 'day'),
+          'day',
+        )
       ) {
         return Promise.reject(
           new Error(
-            `Start date must be after or equal to ${dayjs(activeCalendar.endDate).format('YYYY-MM-DD')}.`,
+            `Start date must be after or equal to (${dayjs(activeCalendar.endDate).add(1, 'day').format('YYYY-MM-DD')}).`,
           ),
         );
       }
@@ -58,6 +83,16 @@ const FiscalYearForm: React.FC = () => {
       }
     }
 
+    const endDate = form.getFieldValue('fiscalYearEndDate');
+    if (value && endDate) {
+      if (doesOverlap(dayjs(value), dayjs(endDate))) {
+        setHasOverlapError(true);
+        return Promise.reject(
+          new Error('This fiscal year overlaps with an existing fiscal year.'),
+        );
+      }
+    }
+    setHasOverlapError(false);
     return Promise.resolve();
   };
   /* eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -86,6 +121,15 @@ const FiscalYearForm: React.FC = () => {
       );
     }
 
+    if (startDate && value) {
+      if (doesOverlap(dayjs(startDate), dayjs(value))) {
+        setHasOverlapError(true);
+        return Promise.reject(
+          new Error('This fiscal year overlaps with an existing fiscal year.'),
+        );
+      }
+    }
+    setHasOverlapError(false);
     return Promise.resolve();
   };
 
@@ -103,6 +147,7 @@ const FiscalYearForm: React.FC = () => {
       fiscalYearEndDate: null,
     });
     setIsFormValid(false);
+    setHasOverlapError(false);
 
     // Close the drawer
     setOpenFiscalYearDrawer(false);
@@ -165,7 +210,16 @@ const FiscalYearForm: React.FC = () => {
     try {
       const currentValues = form.getFieldsValue();
       setFiscalYearFormValues(currentValues);
-      setCurrent(1);
+      if (currentValues.fiscalYearStartDate)
+        setFiscalYearStart(currentValues.fiscalYearStartDate);
+      if (currentValues.fiscalYearEndDate)
+        setFiscalYearEnd(currentValues.fiscalYearEndDate);
+      if (currentValues.fiscalYearCalenderId)
+        setCalendarType(currentValues.fiscalYearCalenderId);
+      // Wait for state to update before moving to next step
+      setTimeout(() => {
+        setCurrent(1);
+      }, 0);
     } catch (error) {
       message.error('Failed to proceed to next step. Please try again.');
     }
@@ -175,7 +229,25 @@ const FiscalYearForm: React.FC = () => {
 
   useEffect(() => {
     try {
-      if (isEditMode && selectedFiscalYear) {
+      // Priority 1: If we have stored form values (returning from next step), restore them
+      if (Object.keys(fiscalYearFormValues).length > 0) {
+        form.setFieldsValue(fiscalYearFormValues);
+        setCalendarType(fiscalYearFormValues.fiscalYearCalenderId || '');
+        setFormValidation({
+          fiscalYearName: fiscalYearFormValues.fiscalYearName,
+          fiscalYearStartDate: fiscalYearFormValues.fiscalYearStartDate,
+          fiscalYearEndDate: fiscalYearFormValues.fiscalYearEndDate,
+        });
+        // Set fiscal year dates in store for session generation
+        if (fiscalYearFormValues.fiscalYearStartDate) {
+          setFiscalYearStart(fiscalYearFormValues.fiscalYearStartDate);
+        }
+        if (fiscalYearFormValues.fiscalYearEndDate) {
+          setFiscalYearEnd(fiscalYearFormValues.fiscalYearEndDate);
+        }
+      }
+      // Priority 2: If in edit mode and no stored values, initialize with original data
+      else if (isEditMode && selectedFiscalYear) {
         const sessionCount = selectedFiscalYear?.sessions?.length;
         let newCalendarType = '';
         if (sessionCount >= 4) {
@@ -203,24 +275,9 @@ const FiscalYearForm: React.FC = () => {
           fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
           fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
         });
-      } else if (!isEditMode && Object.keys(fiscalYearFormValues).length > 0) {
-        // If we have stored form values (returning from next step), restore them
-        form.setFieldsValue(fiscalYearFormValues);
-        setCalendarType(fiscalYearFormValues.fiscalYearCalenderId || '');
-        setFormValidation({
-          fiscalYearName: fiscalYearFormValues.fiscalYearName,
-          fiscalYearStartDate: fiscalYearFormValues.fiscalYearStartDate,
-          fiscalYearEndDate: fiscalYearFormValues.fiscalYearEndDate,
-        });
-        // Set fiscal year dates in store for session generation
-        if (fiscalYearFormValues.fiscalYearStartDate) {
-          setFiscalYearStart(fiscalYearFormValues.fiscalYearStartDate);
-        }
-        if (fiscalYearFormValues.fiscalYearEndDate) {
-          setFiscalYearEnd(fiscalYearFormValues.fiscalYearEndDate);
-        }
-      } else if (!isEditMode) {
-        // Reset form when in create mode and no stored values
+      }
+      // Priority 3: Reset form when in create mode and no stored values
+      else if (!isEditMode && Object.keys(fiscalYearFormValues).length === 0) {
         form.resetFields();
         setCalendarType('');
         setFormValidation({
@@ -229,6 +286,7 @@ const FiscalYearForm: React.FC = () => {
           fiscalYearEndDate: null,
         });
         setIsFormValid(false);
+        setHasOverlapError(false);
       }
     } catch (error) {
       message.error('Failed to initialize form. Please refresh the page.');
@@ -243,7 +301,24 @@ const FiscalYearForm: React.FC = () => {
     setIsFormValid,
     setFiscalYearStart,
     setFiscalYearEnd,
+    setHasOverlapError,
   ]);
+
+  useEffect(() => {
+    if (
+      allFiscalYears &&
+      Array.isArray(allFiscalYears.items) &&
+      allFiscalYears.items.length === 0
+    ) {
+      // No fiscal years left, so clear the fields
+      form.setFieldsValue({
+        fiscalYearStartDate: null,
+        fiscalYearEndDate: null,
+      });
+      setFiscalYearStart(null);
+      setFiscalYearEnd(null);
+    }
+  }, [allFiscalYears, form, setFiscalYearStart, setFiscalYearEnd]);
 
   // Update form validation state when form values change
   useEffect(() => {
@@ -293,6 +368,17 @@ const FiscalYearForm: React.FC = () => {
               fiscalYearStartDate: allValues.fiscalYearStartDate,
               fiscalYearEndDate: allValues.fiscalYearEndDate,
             });
+
+            setFiscalYearFormValues(allValues);
+
+            // --- Add these lines ---
+            if (allValues.fiscalYearStartDate)
+              setFiscalYearStart(allValues.fiscalYearStartDate);
+            if (allValues.fiscalYearEndDate)
+              setFiscalYearEnd(allValues.fiscalYearEndDate);
+            if (allValues.fiscalYearCalenderId)
+              setCalendarType(allValues.fiscalYearCalenderId);
+            // -----------------------
 
             // Check form validity immediately when values change
             const isValid = Boolean(
@@ -371,7 +457,9 @@ const FiscalYearForm: React.FC = () => {
                       Active Calendar End date:
                       <span className="font-semibold ">
                         {activeCalendar?.endDate
-                          ? dayjs(activeCalendar.endDate).format('YYYY-MM-DD')
+                          ? dayjs(activeCalendar.endDate)
+                              .add(1, 'day')
+                              .format('YYYY-MM-DD')
                           : 'N/A'}
                       </span>
                     </span>
@@ -440,22 +528,25 @@ const FiscalYearForm: React.FC = () => {
                 >
                   Cancel
                 </Button>
-                <Tooltip
-                  title={
-                    !isFormValid
-                      ? 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
-                      : ''
+                <Popconfirm
+                  title="Invalid Fiscal Year"
+                  description={
+                    hasOverlapError
+                      ? 'The selected dates overlap with an existing fiscal year. Please choose different dates.'
+                      : 'Please fill in all required fields (Fiscal Year Name, Start Date, End Date, and Calendar Type) to continue'
                   }
                   placement="top"
+                  onConfirm={handleNext}
+                  disabled={!isFormValid || hasOverlapError}
                 >
                   <Button
                     onClick={handleNext}
-                    disabled={!isFormValid}
+                    disabled={!isFormValid || hasOverlapError}
                     className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
                   >
                     Next
                   </Button>
-                </Tooltip>
+                </Popconfirm>
               </div>
             </Form.Item>
           </div>

@@ -4,10 +4,11 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const token = useAuthenticationStore.getState().token;
 const tenantId = useAuthenticationStore.getState().tenantId;
 const createWeeklyPriority = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/weekly-priorities/create`,
@@ -24,6 +25,7 @@ const createWeeklyPriority = async (values: any) => {
   }
 };
 const createWeeklyPriorityBulk = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/weekly-priorities/create/bulk`,
@@ -40,6 +42,7 @@ const createWeeklyPriorityBulk = async (values: any) => {
   }
 };
 const updateWeeklyPriorityBulk = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/weekly-priorities/update/bulk`,
@@ -56,6 +59,7 @@ const updateWeeklyPriorityBulk = async (values: any) => {
   }
 };
 export const UpdateWeeklyPriority = async (values: any) => {
+  const token = await getCurrentToken();
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/weekly-priorities/${values?.id}`,
@@ -73,6 +77,7 @@ export const UpdateWeeklyPriority = async (values: any) => {
 };
 
 const deleteWeeklyPriority = async (deletedId: string) => {
+  const token = await getCurrentToken();
   try {
     const headers = {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

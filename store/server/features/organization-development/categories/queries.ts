@@ -4,9 +4,10 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { QuestionData } from './interface';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const fetchQuestions = async (searchTitle: string | null) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const current = useOrganizationalDevelopment.getState().current;
   const pageSize = useOrganizationalDevelopment.getState().pageSize;
@@ -24,7 +25,7 @@ const fetchQuestionsByFormId = async (
   formId: string,
   searchTitle: string | null,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const current = useOrganizationalDevelopment.getState().current;
   const pageSize = useOrganizationalDevelopment.getState().pageSize;
@@ -42,7 +43,7 @@ const fetchIndividualResponses = async (
   formId: string,
   userId: string | null,
 ) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
@@ -55,7 +56,7 @@ const fetchIndividualResponses = async (
   });
 };
 const fetchAllIndividualResponses = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/responses`,
@@ -67,7 +68,7 @@ const fetchAllIndividualResponses = async () => {
   });
 };
 const fetchAllIndividualResponsesByformId = async (formId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/responses/by-formId/${formId}`,
@@ -79,7 +80,7 @@ const fetchAllIndividualResponsesByformId = async (formId: string) => {
   });
 };
 const fetchAllActionPlans = async (formId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/action-plans/by-formid/${formId}`,
@@ -91,7 +92,7 @@ const fetchAllActionPlans = async (formId: string) => {
   });
 };
 const fetchAllSummaryResultByFormId = async (formId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/responses/summary/${formId}`,
@@ -104,7 +105,7 @@ const fetchAllSummaryResultByFormId = async (formId: string) => {
 };
 
 const fetchActionPlanById = async (actionPlanId: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_DEV_URL}/action-plans/${actionPlanId}`,

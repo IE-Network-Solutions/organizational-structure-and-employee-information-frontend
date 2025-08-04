@@ -15,6 +15,7 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
  * Sends a request to add a new category to the system.
@@ -25,7 +26,7 @@ import { CategoriesManagementStore } from '@/store/uistate/features/feedback/cat
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const addCategory = async (data: any) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const createdBy = useAuthenticationStore.getState().userId;
   const headers = {
@@ -51,7 +52,7 @@ const addCategory = async (data: any) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const updateFormCategory = async (data: CategoryData, id: string) => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,
@@ -73,7 +74,7 @@ const updateFormCategory = async (data: CategoryData, id: string) => {
  * @returns {Promise<any>} A promise that resolves to the API response indicating the result of the operation.
  */
 const deleteFormCategory = async () => {
-  const token = useAuthenticationStore.getState().token;
+  const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
     tenantId: tenantId,

@@ -19,6 +19,7 @@ const getAttendances = async (
   query: RequestCommonQueryData,
   data: Partial<AttendanceRequestBody>,
 ) => {
+  const requestHeaders = await requestHeader();
   const requestData = {
     ...data,
   };
@@ -26,12 +27,13 @@ const getAttendances = async (
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data: requestData,
     params: query,
   });
 };
 const exportAttendanceData = async (data: any) => {
+  const requestHeaders = await requestHeader();
   try {
     // const payload = {
     //   ...data,
@@ -42,9 +44,7 @@ const exportAttendanceData = async (data: any) => {
       `${TIME_AND_ATTENDANCE_URL}/attendance`,
       data,
       {
-        headers: {
-          ...requestHeader(),
-        },
+        headers: requestHeaders,
         responseType: 'blob',
       },
     );
@@ -77,18 +77,20 @@ const exportAttendanceData = async (data: any) => {
 };
 
 const getSingleAttendances = async (id: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
   });
 };
 
 const getCurrentAttendance = async (userId: string) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift/user`,
     method: 'GET',
-    headers: requestHeader(),
+    headers: requestHeaders,
     params: { userId: userId },
   });
 };
@@ -97,10 +99,11 @@ const getAttendanceImportLogs = async (
   query: RequestCommonQueryData,
   data: Partial<AttendanceImportLogsBody>,
 ) => {
+  const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/import-logs`,
     method: 'POST',
-    headers: requestHeader(),
+    headers: requestHeaders,
     data,
     params: query,
   });
