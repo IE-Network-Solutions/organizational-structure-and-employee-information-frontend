@@ -79,8 +79,8 @@ interface UserState {
   selectedDepartmentId: string | null;
   setSelectedDepartmentId: (selectedDepartmentId: string | null) => void;
 
-  switchValue:boolean;
-  setSwitchValue:(switchValue:boolean)=>void;
+  switchValue: boolean;
+  setSwitchValue: (switchValue: boolean) => void;
 
   basicSalaryData: any | null;
   setBasicSalaryData: (basicSalaryData: any) => void;
@@ -260,9 +260,9 @@ export const useEmployeeManagementStore = create<UserState>()(
     workSchedule: null,
     setWorkSchedule: (workSchedule: string | null) => set({ workSchedule }),
 
-    switchValue:false,
-    setSwitchValue:(switchValue:boolean)=>set({switchValue}),
-  
+    switchValue: false,
+    setSwitchValue: (switchValue: boolean) => set({ switchValue }),
+
     prefix: '251',
     setPrefix: (prefix: string) => set({ prefix }),
     deletedItem: null,

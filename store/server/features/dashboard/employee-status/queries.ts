@@ -1,4 +1,4 @@
-import { requestHeader } from '@/helpers/requestHeader';;
+import { requestHeader } from '@/helpers/requestHeader';
 import { EmployeeStatusDashboard } from '@/store/uistate/features/dashboard/employee-status/interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
