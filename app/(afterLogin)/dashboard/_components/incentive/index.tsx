@@ -183,7 +183,7 @@ const Incentive = () => {
         )}
       </div>{' '}
       {IncentiveData?.summary?.length > 0 ? (
-        <Card loading={incentiveIsLoading}>
+        <Card className="border-none" loading={incentiveIsLoading}>
           <Row gutter={[16, 24]} className=" p-2">
             <Col
               lg={8}
