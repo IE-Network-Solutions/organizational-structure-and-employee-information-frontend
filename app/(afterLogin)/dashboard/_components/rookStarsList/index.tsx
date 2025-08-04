@@ -27,7 +27,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title, data }) => {
   );
 
   return (
-    <div className="bg-white rounded-lg p-1   ">
+    <div className="bg-white rounded-lg p-1 shadow-lg">
       <div className="text-base lg:text-lg font-bold gap-3 flex items-center px-3  ">
         <LuCrown className="text-primary" />
         Best {title} Board

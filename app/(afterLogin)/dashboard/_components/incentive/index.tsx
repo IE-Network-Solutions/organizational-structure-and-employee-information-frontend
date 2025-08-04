@@ -130,7 +130,7 @@ const Incentive = () => {
   );
 
   return (
-    <Card className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col shadow-lg">
+    <Card className="w-full mx-auto lg:h-[316px] overflow-hidden  flex flex-col shadow-lg">
       <div className="flex justify-between items-center mb-2 h-10 ">
         <h3 className="font-bold text-lg">Incentives</h3>
         {isMobile || isTablet ? (
@@ -182,13 +182,13 @@ const Incentive = () => {
           </div>
         )}
       </div>{' '}
-      {IncentiveData?.summary?.length > 0 ? (
-        <Card loading={incentiveIsLoading}>
-          <Row gutter={[16, 24]} className=" p-2">
+      {IncentiveData?.summary?.length > 0 || incentiveIsLoading ? (
+        <Card className="border-none" loading={incentiveIsLoading}>
+          <Row gutter={[16, 24]} className="p-2">
             <Col
               lg={8}
               xs={24}
-              className=" relative flex items-center justify-center w-[200px] h-[200px]  px-4 overflow-visible z-10 "
+              className="relative flex items-center justify-center w-[200px] h-[200px]  px-4 overflow-visible z-10 "
             >
               <Doughnut data={data} options={options} className="z-20" />
               <div
