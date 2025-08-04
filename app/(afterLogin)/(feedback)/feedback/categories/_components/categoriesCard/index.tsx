@@ -103,7 +103,6 @@ const CategoriesCard: React.FC = () => {
           <NoData />
         )}
       </div>
-
       <EditCategoryModal userOptions={userOptions} />
       <DeleteModal
         open={deleteModal}

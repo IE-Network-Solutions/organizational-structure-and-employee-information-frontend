@@ -24,7 +24,6 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
   const { data: users, isLoading: usersLoading } = useFetchUsers(
     searchParams?.category_name,
   );
-
   const { mutateAsync: updateCategory, isLoading: isUpdatingCategory } =
     useUpdateFormCategory();
 
@@ -48,7 +47,6 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
         ...values,
         users: selectedUsers,
       };
-
       const editingCategory =
         CategoriesManagementStore.getState().editingCategory;
       if (editingCategory) {

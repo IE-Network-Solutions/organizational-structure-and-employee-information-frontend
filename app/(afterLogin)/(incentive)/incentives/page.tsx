@@ -15,14 +15,11 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 import { MdOutlineSend } from 'react-icons/md';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const Page = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const activeKey = searchParams.get('tab') || '1';
   const {
+    activeKey,
+    setActiveKey,
     setProjectDrawer,
     isPayrollView,
     setIsPayrollView,
@@ -39,7 +36,7 @@ const Page = () => {
   const { mutate: exportIncentiveData, isLoading: exportIncentiveLoading } =
     useExportIncentiveData();
 
-  const { searchParams: incentiveSearchParams } = useIncentiveStore();
+  const { searchParams } = useIncentiveStore();
   const handleExport = (values: any, generateAll: boolean) => {
     const formattedValues = {
       parentRecognitionTypeId: selectedRecognition?.id || '',
@@ -60,7 +57,7 @@ const Page = () => {
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
-  }, [parentResponseLoading, setParentResponseIsLoading]);
+  }, [parentResponseLoading]);
 
   const handleSendToPayrollClick = () => {
     setConfirmationModal(true);
@@ -108,7 +105,7 @@ const Page = () => {
       ];
   useEffect(() => {
     setSelectedRowKeys([]);
-  }, [activeKey, setSelectedRowKeys]);
+  }, [activeKey]);
   const OperationsSlot = useMemo(() => {
     if (activeKey === '1') {
       return (
@@ -148,7 +145,7 @@ const Page = () => {
               }
               id="createUserButton"
               icon={<FileDown className="md:mr-0 ml-2" size={18} />}
-              onClick={() => handleExport(incentiveSearchParams, true)}
+              onClick={() => handleExport(searchParams, true)}
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
               loading={exportIncentiveLoading}
@@ -197,7 +194,7 @@ const Page = () => {
             }
             id="createUserButton"
             icon={<FileUp className="md:mr-0 ml-2" size={18} />}
-            onClick={() => handleExport(incentiveSearchParams, false)}
+            onClick={() => handleExport(searchParams, false)}
             textClassName="!text-sm !font-lg"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
           />
@@ -225,22 +222,19 @@ const Page = () => {
     selectedRowKeys,
     isMobile,
     isTablet,
-    setShowGenerateModal,
-    showGenerateModal,
-    incentiveSearchParams,
     exportIncentiveLoading,
     searchParams,
     handleExport,
   ]);
 
   const handleTabChange = (key: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('tab', key);
-    router.push(`${pathname}?${params.toString()}`);
+    setActiveKey(key);
 
-    if (parentRecognition && parentRecognition.length > 0) {
-      const selectedRec = parentRecognition.find((rec: any) => rec.id === key);
-      setSelectedRecognition(selectedRec || null);
+    if (parentRecognition.length > 0) {
+      const selectedRecognition = parentRecognition.find(
+        (rec: any) => rec.id === key,
+      );
+      setSelectedRecognition(selectedRecognition || null);
     } else {
       setSelectedRecognition(null);
     }
@@ -258,12 +252,21 @@ const Page = () => {
 
       {!isPayrollView && (
         <>
+          {/* {parentResponseLoading ? (
+            <Skeleton.Button
+              active
+              style={{ width: '200px', height: '40px' }}
+            />
+          ) : ( */}
           <Tabs
-            activeKey={activeKey}
+            tabBarStyle={{ borderBottom: '16px solid transparent' }}
+            defaultActiveKey="1"
             items={items}
-            onChange={handleTabChange}
             tabBarExtraContent={OperationsSlot}
+            onChange={handleTabChange}
+            className="mx-3 mt-5"
           />
+          {/* )} */}
         </>
       )}
       <ExportModal selectedRecognition={selectedRecognition?.id} />
