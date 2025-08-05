@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Card, DatePicker, Select, Avatar, Spin } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Card, DatePicker, Select, Avatar, Spin, Modal } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -17,6 +17,8 @@ import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timeshe
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import randomColor from 'random-color';
+import CustomButton from '@/components/common/buttons/customButton';
+import { LuSettings2 } from 'react-icons/lu';
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +30,7 @@ ChartJS.register(
 );
 
 const LeaveRequest = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     userIdOnLeaveRequest,
     setUserIdOnLeaveRequest,
@@ -173,17 +176,73 @@ const LeaveRequest = () => {
     label: i?.title,
   }));
 
-  // Generate random colors for leave types (component level)
+  const MobileFilterContent = () => (
+    <div className="flex flex-col gap-4">
+      <h3 className="text-lg font-medium mb-2">Filter</h3>
+
+      {/* Leave Type */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Leave Type</label>
+        <Select
+          showSearch
+          placeholder="Select Leave Type"
+          allowClear
+          value={leaveTypeOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={leaveTypeOption}
+        />
+      </div>
+
+      {/* Department */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Department</label>
+        <Select
+          showSearch
+          placeholder="Select Department"
+          allowClear
+          value={departmentOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setDepartmentOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={departmentOptions}
+        />
+      </div>
+
+      {/* Date Range */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Date Range</label>
+        <DatePicker.RangePicker
+          allowClear
+          className="w-full h-12"
+          onChange={(value: any) => {
+            if (value) {
+              setStartDateOnLeaveRequest(value[0]?.format('YYYY-MM-DD') || '');
+              setEndDateOnLeaveRequest(value[1]?.format('YYYY-MM-DD') || '');
+            } else {
+              setStartDateOnLeaveRequest('');
+              setEndDateOnLeaveRequest('');
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <Spin spinning={loading}>
-      <Card bodyStyle={{ padding: 16 }}>
-        <div className="grid grid-cols-12 gap-12 mb-4">
-          {/* Left Panel */}
+      <Card bodyStyle={{ padding: 0 }} className="px-3 sm:px-5 py-4">
+        <div className="md:grid grid-cols-12 gap-12 mb-4">
           <div className="col-span-12 md:col-span-5">
             <h2 className="text-[16px] font-bold">Leave Request</h2>
             <p className="text-[12px] mb-4">Pending Requests</p>
-            <div className="flex gap-2 mb-4">
+
+            <div className="md:flex items-center gap-2 mb-4 hidden">
               <Select
                 showSearch
                 placeholder="Select employee"
@@ -211,6 +270,36 @@ const LeaveRequest = () => {
                   }
                 }}
               />
+            </div>
+            {/* Mobile Filters */}
+            <div className="md:hidden block">
+              <div className="flex justify-between gap-4 w-full mb-4">
+                <div className="flex-1">
+                  <Select
+                    showSearch
+                    placeholder="Search Employee"
+                    className="w-full h-12"
+                    allowClear
+                    onChange={(value: any) => setUserIdOnLeaveRequest(value)}
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={employeeOptions}
+                  />
+                </div>
+                <div>
+                  <CustomButton
+                    type="default"
+                    size="small"
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
+                    title=""
+                    icon={<LuSettings2 size={20} />}
+                  />
+                </div>
+              </div>
             </div>
 
             {pendingLeaveRequests?.users?.length > 0 ? (
@@ -268,9 +357,9 @@ const LeaveRequest = () => {
             )}
           </div>
 
-          {/* Right Panel - Chart */}
+          {/* Chart Section */}
           <div className="col-span-12 md:col-span-7">
-            <div className="flex justify-end mb-2 gap-3">
+            <div className="justify-end mb-2 gap-3 hidden md:flex">
               <Select
                 showSearch
                 placeholder="Select Leave Type"
@@ -300,14 +389,51 @@ const LeaveRequest = () => {
                 onChange={(value) => setDepartmentOnLeaveRequest(value)}
               />
             </div>
-            <div style={{ height: 320, width: '100%' }}>
-              <Bar
-                data={barData}
-                options={{ ...barOptions, maintainAspectRatio: false } as any}
-              />
+            <div className="w-full lg:col-span-7">
+              <div className="h-64 md:h-[320px]">
+                <Bar
+                  data={barData}
+                  options={{ ...barOptions, maintainAspectRatio: false } as any}
+                />
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Mobile Filter Modal */}
+        <Modal
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={
+            <div className="flex gap-2 justify-center mt-4">
+              <CustomButton
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+                title="Cancel"
+                type="default"
+              />
+              <CustomButton
+                title="Apply Filter"
+                type="primary"
+                onClick={() => {
+                  setIsModalOpen(false);
+                }}
+                className="px-6 py-2 text-white rounded-lg text-sm"
+              />
+            </div>
+          }
+          className="!m-4 md:hidden"
+          style={{
+            top: '20%',
+            transform: 'translateY(-50%)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}
+          width="90%"
+          centered
+        >
+          <MobileFilterContent />
+        </Modal>
       </Card>
     </Spin>
   );
