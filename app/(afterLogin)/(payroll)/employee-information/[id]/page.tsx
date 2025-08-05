@@ -159,7 +159,12 @@ const EmployeeProfile = () => {
       >
         <Row gutter={[32, 32]}>
           <Col lg={8} md={10} xs={24}>
-            <Card loading={isLoading} className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`} style={isMobile ? { width: '100%' } : {}} bordered={!isMobile}>
+            <Card
+              loading={isLoading}
+              className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`}
+              style={isMobile ? { width: '100%' } : {}}
+              bordered={!isMobile}
+            >
               <div className="flex flex-col gap-3 items-center">
                 <div className="relative group">
                   <Avatar

@@ -140,9 +140,9 @@ export default function StagesChart() {
       </Form>
       <Spin spinning={isLoading} tip="Loading...">
         {!isLoading && stagesData?.stageList?.length > 0 ? (
-          <div className="flex justify-center items-center">
+          <div className="flex md:flex-row flex-col justify-center items-center">
             <Pie data={chartData} options={options} width={280} height={250} />
-            <div className="flex flex-col gap-2 ml-16">
+            <div className="flex md:flex-col flex-row gap-2 md:ml-16 ml-0 md:mt-0 mt-4">
               {chartData.labels.map((label: string, i: number) => (
                 <div key={i} className="flex items-center mb-1 gap-2">
                   <div
