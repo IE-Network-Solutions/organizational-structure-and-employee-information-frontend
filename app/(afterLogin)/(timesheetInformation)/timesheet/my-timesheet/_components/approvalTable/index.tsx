@@ -11,7 +11,6 @@ import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetAllApproveLeaveRequest,
-  useSetAllFinalApproveLeaveRequest,
   useSetApproveLeaveRequest,
   useSetFinalApproveLeaveRequest,
   useSetRejectLeaveRequest,
@@ -266,7 +265,7 @@ const ApprovalTable = () => {
     };
 
     allApprover(body, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         refetch();
       },
     });
@@ -280,7 +279,7 @@ const ApprovalTable = () => {
     };
 
     allReject(body, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         refetch();
       },
     });
