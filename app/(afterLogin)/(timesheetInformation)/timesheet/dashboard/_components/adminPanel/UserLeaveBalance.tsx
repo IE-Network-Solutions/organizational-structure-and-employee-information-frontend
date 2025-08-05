@@ -121,7 +121,9 @@ const UserLeaveBalance: React.FC = () => {
                 placeholder="Search Employee"
                 allowClear
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
                 className="w-full h-12"
@@ -135,7 +137,9 @@ const UserLeaveBalance: React.FC = () => {
                 allowClear
                 value={leaveTypeId}
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={leaveOptions}
                 className="w-full h-12"
@@ -167,11 +171,13 @@ const UserLeaveBalance: React.FC = () => {
               <Select
                 showSearch
                 placeholder="Search Employee"
-                className="w-full h-10"
+                className="w-full h-12"
                 allowClear
                 onChange={(value: any) => setUserIdOnLeaveBalance(value)}
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
               />
@@ -211,10 +217,11 @@ const UserLeaveBalance: React.FC = () => {
                     </p>
                   </Tooltip>
                   <Tag
-                    className={`font-bold border-none py-0.5 ${item.leaveType.isFixed
-                      ? 'bg-[#B2B2FF] text-[#3636F0]'
-                      : 'bg-[#55C79033] text-[#0CAF60]'
-                      }`}
+                    className={`font-bold border-none py-0.5 ${
+                      item.leaveType.isFixed
+                        ? 'bg-[#B2B2FF] text-[#3636F0]'
+                        : 'bg-[#55C79033] text-[#0CAF60]'
+                    }`}
                   >
                     {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                   </Tag>
@@ -224,7 +231,9 @@ const UserLeaveBalance: React.FC = () => {
                     <span className="">{Math.round(item.totalBalance)}</span>
                     <span className="text-[10px] mr-2 font-bold ">days</span>
                   </div>
-                  <div className="text-sm font-medium text-black ">Avaliable</div>
+                  <div className="text-sm font-medium text-black ">
+                    Avaliable
+                  </div>
                 </div>
               </div>
             </Card>
@@ -292,8 +301,8 @@ const UserLeaveBalance: React.FC = () => {
 
           {/* Utilization Card */}
           <Card
-            bodyStyle={{ padding: '16px 20px' }}
-            className="shadow-sm md:col-span-9 col-span-12 mb-5"
+            bodyStyle={{ padding: '0px' }}
+            className="shadow-sm md:col-span-9 col-span-12 mb-5 "
             title={
               <span className="text-xs sm:text-sm font-bold text-black">
                 Utilization
@@ -301,7 +310,7 @@ const UserLeaveBalance: React.FC = () => {
             }
           >
             <Spin spinning={userLeaveBalanceLoading}>
-              <div className="flex flex-col space-y-3 h-64 sm:h-80 lg:h-[440px] overflow-y-auto scrollbar-none pr-2">
+              <div className="flex flex-col space-y-3 h-64 sm:h-80 lg:h-[440px] overflow-y-auto scrollbar-none md:pr-2 pr-0 md:px-5 px-1 md:py-4 py-2">
                 {userLeaveBalanceLoading && <Skeleton active />}
                 {userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
                   userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
@@ -329,9 +338,10 @@ const UserLeaveBalance: React.FC = () => {
                           </p>
                           <Tag
                             style={{ marginInlineEnd: 0 }}
-                            className={`${statusColors[leave.status.toLowerCase()] ||
+                            className={`${
+                              statusColors[leave.status.toLowerCase()] ||
                               'text-gray-500 bg-gray-500/20'
-                              } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
+                            } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
                           >
                             {leave.status}
                           </Tag>

@@ -95,7 +95,9 @@ const MyAttendanceReport: React.FC = () => {
           {/* Header */}
           <div className="flex flex-col gap-4">
             <div className="flex flex-row justify-between items-center gap-4">
-              <h3 className="text-base sm:text-lg font-semibold">My Attendance report</h3>
+              <h3 className="text-base sm:text-lg font-semibold">
+                My Attendance report
+              </h3>
 
               {/* Desktop Filters */}
               <div className="hidden sm:flex space-x-3 items-center">
@@ -142,48 +144,59 @@ const MyAttendanceReport: React.FC = () => {
                   <Spin />
                 </div>
               )}
-              {!isLoading && attendanceHistory?.myAttendanceHistory?.length === 0 && (
-                <div className="flex justify-center items-center h-32">
-                  <p className="text-sm text-gray-500 font-semibold">
-                    No attendance history found
-                  </p>
-                </div>
-              )}
-              {!isLoading && attendanceHistory?.myAttendanceHistory?.map(
-                (req: AttendanceHistory) => {
-                  let status = 'on time';
-                  if (req.isAbsent) {
-                    status = 'absent';
-                  } else if (req.lateByMinutes > 0) {
-                    status = 'late';
-                  }
-                  return (
-                    <div key={req.id} className="border border-gray-200 p-4 rounded-lg hover:shadow-sm transition-shadow">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-semibold text-sm sm:text-base text-black">
-                            {dayjs(req.date).format('DD MMM YYYY')}
-                          </p>
-                        </div>
-                        <div>
-                          <Tag
-                            style={{ marginInlineEnd: 0, border: 'none' }}
-                            className={`px-3 py-1 rounded-md font-bold text-xs capitalize ${status === 'on time'
-                              ? 'text-[#3636F0] bg-[#B2B2FF]'
-                              : status === 'late'
-                                ? 'text-[#FFD023] bg-[#FFDE6533]'
-                                : 'text-[#e03137] bg-[#f9d6d7]'
+              {!isLoading &&
+                attendanceHistory?.myAttendanceHistory?.length === 0 && (
+                  <div className="flex justify-center items-center h-32">
+                    <p className="text-sm text-gray-500 font-semibold">
+                      No attendance history found
+                    </p>
+                  </div>
+                )}
+              {!isLoading &&
+                attendanceHistory?.myAttendanceHistory?.map(
+                  (req: AttendanceHistory) => {
+                    let status = 'on time';
+                    if (req.isAbsent) {
+                      status = 'absent';
+                    } else if (req.lateByMinutes > 0) {
+                      status = 'late';
+                    }
+                    return (
+                      <div
+                        key={req.id}
+                        className="border border-gray-200 p-4 rounded-lg hover:shadow-sm transition-shadow"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-semibold text-sm sm:text-base text-black">
+                              {dayjs(req.date).format('DD MMM YYYY')}
+                            </p>
+                          </div>
+                          <div>
+                            <Tag
+                              style={{ marginInlineEnd: 0, border: 'none' }}
+                              className={`px-3 py-1 rounded-md font-bold text-xs capitalize ${
+                                status === 'on time'
+                                  ? 'text-[#3636F0] bg-[#B2B2FF]'
+                                  : status === 'late'
+                                    ? 'text-[#FFD023] bg-[#FFDE6533]'
+                                    : 'text-[#e03137] bg-[#f9d6d7]'
                               }`}
-                          >
-                            {status === 'on time' ? 'On Time' : status === 'late' ? 'Late' : 'Absent'}
-                            {req.startTime && ` ${dayjs(req.startTime).format('h:mm A')}`}
-                          </Tag>
+                            >
+                              {status === 'on time'
+                                ? 'On Time'
+                                : status === 'late'
+                                  ? 'Late'
+                                  : 'Absent'}
+                              {req.startTime &&
+                                ` ${dayjs(req.startTime).format('h:mm A')}`}
+                            </Tag>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                },
-              )}
+                    );
+                  },
+                )}
             </div>
           </div>
         </div>

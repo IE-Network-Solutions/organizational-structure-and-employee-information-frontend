@@ -117,7 +117,10 @@ const LeaveSection: React.FC = () => {
     </div>
   );
   return (
-    <Card bodyStyle={{ padding: 0 }} className="h-full shadow-md px-3 sm:px-5 py-4">
+    <Card
+      bodyStyle={{ padding: 0 }}
+      className="h-full shadow-md px-3 sm:px-5 py-4"
+    >
       <div className="flex flex-col gap-4">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full">
@@ -128,7 +131,9 @@ const LeaveSection: React.FC = () => {
               placeholder="Department"
               allowClear
               filterOption={(input: any, option: any) =>
-                (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
               }
               options={departmentOptions}
               maxTagCount={1}
@@ -153,7 +158,7 @@ const LeaveSection: React.FC = () => {
 
         {/* Mobile Filters */}
         <div className="md:hidden">
-          <div className="flex justify-between gap-4 w-full">
+          <div className="flex justify-between items-center gap-4 w-full">
             <div className="flex-1">
               <Select
                 showSearch
@@ -162,7 +167,9 @@ const LeaveSection: React.FC = () => {
                 allowClear
                 onChange={(value) => setUserIdOnLeave(value)}
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
               />

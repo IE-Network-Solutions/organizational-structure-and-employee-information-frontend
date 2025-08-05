@@ -24,6 +24,7 @@ export default function JobPerformance({
     if (departmentsLoading) return <LoadingOutlined />;
     return department?.name;
   };
+
   const columns = [
     {
       title: 'Job',
@@ -71,8 +72,9 @@ export default function JobPerformance({
         loading={isLoading}
         pagination={false}
         bordered={false}
-        className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0"
+        className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0 md:w-full w-full overflow-x-auto scrollbar-hide"
       />
+
       <CustomPagination
         total={data?.total}
         pageSize={jobPostLimit}

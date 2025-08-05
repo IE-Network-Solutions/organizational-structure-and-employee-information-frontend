@@ -36,7 +36,7 @@ const DashboardHeader: React.FC = () => {
             </div>
           )}
 
-          <div className="flex items-center bg-[#f8f8f8] border border-gray-300 roun  ded-lg w-full sm:w-fit h-14 sm:h-16 p-1 gap-1 sm:gap-2">
+          <div className="flex items-center bg-[#f8f8f8] border border-gray-300 rounded-lg w-full sm:w-fit h-14 sm:h-16 p-1 gap-1 sm:gap-2">
             <button
               onClick={() => setActiveTab('admin')}
               className={

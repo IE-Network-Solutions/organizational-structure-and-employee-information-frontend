@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Table, Select, Pagination, Avatar, Tag, DatePicker, Modal } from 'antd';
+import {
+  Table,
+  Select,
+  Pagination,
+  Avatar,
+  Tag,
+  DatePicker,
+  Modal,
+} from 'antd';
 import { useRouter } from 'next/navigation';
 import { useGetAdminAttendanceUsers } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
@@ -173,7 +181,9 @@ export default function EmployeeAttendanceTable() {
     <div
       className="bg-white border rounded-lg p-4 hover:shadow-sm transition-shadow cursor-pointer"
       onClick={() => {
-        router.push(`/timesheet/dashboard?employeeAttendance&user=${employee.userId}`);
+        router.push(
+          `/timesheet/dashboard?employeeAttendance&user=${employee.userId}`,
+        );
       }}
     >
       <div className="flex items-center justify-between mb-3">
@@ -181,17 +191,25 @@ export default function EmployeeAttendanceTable() {
           {employee?.profileImage ? (
             <Avatar src={employee?.profileImage} className="flex-shrink-0" />
           ) : (
-            <Avatar className="flex-shrink-0">{employee?.name?.charAt(0)?.toUpperCase()}</Avatar>
+            <Avatar className="flex-shrink-0">
+              {employee?.name?.charAt(0)?.toUpperCase()}
+            </Avatar>
           )}
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-sm text-black truncate">{employee?.name}</p>
-            <p className="text-xs text-gray-600 truncate">{employee?.department}</p>
+            <p className="font-medium text-sm text-black truncate">
+              {employee?.name}
+            </p>
+            <p className="text-xs text-gray-600 truncate">
+              {employee?.department}
+            </p>
           </div>
         </div>
         <Tag
           className={`capitalize px-2 py-1 font-medium rounded-md border-none text-xs ${statusColors[employee?.currentStatus as keyof typeof statusColors]}`}
         >
-          {employee?.currentStatus === 'onleave' ? 'On Leave' : employee?.currentStatus}
+          {employee?.currentStatus === 'onleave'
+            ? 'On Leave'
+            : employee?.currentStatus}
         </Tag>
       </div>
 
@@ -216,7 +234,9 @@ export default function EmployeeAttendanceTable() {
                 className="w-full h-12"
                 onChange={(value) => setsearchOnAttendance(value)}
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
               />
@@ -230,7 +250,9 @@ export default function EmployeeAttendanceTable() {
                 className="w-full h-12"
                 onChange={(value) => setCurrentStatusOnAttendance(value)}
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={attendanceTypeOptions}
               />
@@ -241,8 +263,12 @@ export default function EmployeeAttendanceTable() {
                 className="w-full h-12"
                 onChange={(dates) => {
                   if (dates) {
-                    setStartDateOnAttendance(dates[0]?.format('YYYY-MM-DD') || '');
-                    setEndDateOnAttendance(dates[1]?.format('YYYY-MM-DD') || '');
+                    setStartDateOnAttendance(
+                      dates[0]?.format('YYYY-MM-DD') || '',
+                    );
+                    setEndDateOnAttendance(
+                      dates[1]?.format('YYYY-MM-DD') || '',
+                    );
                   } else {
                     setStartDateOnAttendance('');
                     setEndDateOnAttendance('');
@@ -264,7 +290,9 @@ export default function EmployeeAttendanceTable() {
                 allowClear
                 onChange={(value) => setsearchOnAttendance(value)}
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
               />

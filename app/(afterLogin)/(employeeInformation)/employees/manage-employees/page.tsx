@@ -9,10 +9,7 @@ import EmployeeSearch from './_components/userSearch';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { Button, Tooltip, Popover } from 'antd';
-import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
+import { Button, Popover } from 'antd';
 import { BsFileEarmarkArrowDownFill } from 'react-icons/bs';
 import { CiBookmark } from 'react-icons/ci';
 import { TbLayoutList } from 'react-icons/tb';
@@ -21,7 +18,7 @@ const ManageEmployees: React.FC<any> = () => {
   const { setOpen } = useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
-  const { data: employeeStatus, isLoading } = useGetEmployeeStatus('');
+  // const { data: employeeStatus, isLoading } = useGetEmployeeStatus('');
 
   const showDrawer = () => {
     setOpen(true);
@@ -29,23 +26,23 @@ const ManageEmployees: React.FC<any> = () => {
   const onClose = () => {
     setOpen(false);
   };
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const { data: subscriptionData, isLoading: subscriptionLoading } =
-    useGetSubscriptions(
-      {
-        filter: {
-          tenantId: [tenantId],
-        },
-      },
-      true,
-      true,
-    );
+  // const tenantId = useAuthenticationStore.getState().tenantId;
+  // const { data: subscriptionData, isLoading: subscriptionLoading } =
+  //   useGetSubscriptions(
+  //     {
+  //       filter: {
+  //         tenantId: [tenantId],
+  //       },
+  //     },
+  //     true,
+  //     true,
+  //   );
 
-  const totalSlots =
-    subscriptionData?.items?.find((sub: any) => sub.isActive)?.slotTotal || 0;
-  const allUsers =
-    employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
-  const isAvailableSlots = totalSlots >= allUsers;
+  // const totalSlots =
+  //   subscriptionData?.items?.find((sub: any) => sub.isActive)?.slotTotal || 0;
+  // const allUsers =
+  //   employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
+  // const isAvailableSlots = totalSlots >= allUsers;
   const handleDownloadUserData = (downloadFormat: string) => {
     // Convert searchParams to Record<string, string>
     const params: Record<string, string> = Object.fromEntries(
@@ -114,26 +111,26 @@ const ManageEmployees: React.FC<any> = () => {
               </Popover>
             </AccessGuard>
             <AccessGuard permissions={[Permissions.RegisterNewEmployee]}>
-              <Tooltip
+              {/* <Tooltip
                 title={
                   isAvailableSlots
                     ? null
                     : 'User limit reached. Purchase additional slots or contact support.'
                 }
+              > */}
+              <Button
+                type="primary"
+                size="large"
+                id="createUserButton"
+                className="h-10 w-10 sm:w-auto"
+                icon={<FaPlus />}
+                onClick={showDrawer}
+                // loading={isLoading}
+                // disabled={!isAvailableSlots}
               >
-                <Button
-                  type="primary"
-                  size="large"
-                  id="createUserButton"
-                  className="h-10 w-10 sm:w-auto"
-                  icon={<FaPlus />}
-                  onClick={showDrawer}
-                  loading={isLoading || subscriptionLoading}
-                  disabled={!isAvailableSlots}
-                >
-                  <span className="hidden sm:inline">Create user</span>
-                </Button>
-              </Tooltip>
+                <span className="hidden sm:inline">Create user</span>
+              </Button>
+              {/* </Tooltip> */}
             </AccessGuard>
             <UserSidebar onClose={onClose} />
           </div>

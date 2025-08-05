@@ -134,7 +134,9 @@ const AttendanceReport: React.FC = () => {
           className="w-full h-12"
           onChange={(value) => {
             if (value) {
-              setStartDateAttendanceReport(value[0]?.format('YYYY-MM-DD') || '');
+              setStartDateAttendanceReport(
+                value[0]?.format('YYYY-MM-DD') || '',
+              );
               setEndDateAttendanceReport(value[1]?.format('YYYY-MM-DD') || '');
             } else {
               setStartDateAttendanceReport('');
@@ -148,19 +150,25 @@ const AttendanceReport: React.FC = () => {
 
   return (
     <>
-      <Card title={false} className="min-h-[522px] px-3 ">
+      <Card
+        bodyStyle={{ padding: '0px' }}
+        title={false}
+        className="min-h-[522px] md:p-4   p-0 h-full shadow-md px-3 sm:px-5 py-4"
+      >
         <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4 w-full">
           <p className="text-[16px] text-black font-semibold w-64">
             Attendance report
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-2  sm:items-center">
+          <div className="md:flex flex-col sm:flex-row gap-2  sm:items-center hidden">
             <Select
               showSearch
               placeholder="Select employee"
               allowClear
               filterOption={(input: any, option: any) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
               options={employeeOptions}
               maxTagCount={1}
@@ -173,7 +181,9 @@ const AttendanceReport: React.FC = () => {
               placeholder="Select department"
               allowClear
               filterOption={(input: any, option: any) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                (option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
               options={departmentOptions}
               maxTagCount={1}
@@ -202,16 +212,18 @@ const AttendanceReport: React.FC = () => {
 
         {/* Mobile Filters */}
         <div className="md:hidden">
-          <div className="flex justify-between gap-4 w-full mb-4">
+          <div className="flex justify-between gap-4 w-full mb-4 ">
             <div className="flex-1">
               <Select
                 showSearch
                 placeholder="Search Employee"
-                className="w-full h-10"
+                className="w-full h-12"
                 allowClear
                 onChange={(value) => setUserIdOnAttendanceReport(value)}
                 filterOption={(input: any, option: any) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  (option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
                 }
                 options={employeeOptions}
               />
@@ -231,108 +243,106 @@ const AttendanceReport: React.FC = () => {
 
         {/* Content */}
         <Spin spinning={loading}>
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6">
-            {/* Chart Section */}
-            <div className="w-full lg:col-span-7">
-              {attendanceStats?.users?.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-sm font-semibold">
-                    No Record Found
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center">
-                  <div className="w-72 h-72 sm:w-80 sm:h-80 relative flex items-center justify-center">
+          <div className="grid grid-cols-12 gap-6 items-start">
+            {/* Doughnut Chart */}
+            <div className="col-span-12 md:col-span-7 flex justify-center">
+              <div className="">
+                {attendanceStats?.users?.length === 0 ? (
+                  <div className="flex justify-center items-center h-64">
+                    <p className="text-gray-500 text-[14px] font-semibold">
+                      No Record Found
+                    </p>
+                  </div>
+                ) : (
+                  <div className=" md:w-[340px] md:h-[340px] w-80 h-80 flex md:flex-row flex-col justify-center items-center md:mt-0 mt-4">
+                    {/* <div className="w-72 h-72 sm:w-80 sm:h-80 relative flex items-center justify-center"> */}
+
                     <Doughnut data={doughnutChartData} options={options} />
+                    <div className="flex md:flex-col gap-0 md:ml-16 ml-0   flex row md:gap-0 gap-4 md:mt-0 mt-4">
+                      {doughnutChartData.labels.map(
+                        (label: string, i: number) => (
+                          <div key={i} className="flex items-center mb-1 gap-2">
+                            <div
+                              style={{
+                                backgroundColor:
+                                  doughnutChartData.datasets[0].backgroundColor[
+                                    i
+                                  ],
+                              }}
+                              className="w-2 h-2 rounded-full mr-2"
+                            />
+                            <span className="text-xs font-medium text-gray-500">
+                              {label}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
                   </div>
-                  {/* Legend */}
-                  <div className="flex justify-center gap-6 mt-4">
-                    {doughnutChartData.labels.map((label: string, i: number) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div
-                          style={{
-                            backgroundColor: doughnutChartData.datasets[0].backgroundColor[i],
-                          }}
-                          className="w-3 h-3 rounded-full"
-                        />
-                        <span className="text-sm font-medium text-gray-600">
-                          {label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Attendance List */}
-            <div className="w-full lg:col-span-5">
+
+            <div className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none">
               {attendanceStats?.users?.length === 0 ? (
                 <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-sm font-semibold">
+                  <p className="text-gray-500 text-[14px] font-semibold">
                     No Record Found
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3 h-64 sm:h-96 overflow-y-auto scrollbar-none">
-                  {attendanceStats?.users?.map((item: any, index: any) => (
-                    <div
-                      key={index}
-                      className="bg-white rounded-lg px-4 py-3 border flex items-center justify-between hover:shadow-sm transition-shadow"
-                    >
-                      {/* Left Side */}
-                      <div className="flex flex-col space-y-2">
-                        <div className="flex items-center gap-2">
-                          {item.profileImage ? (
-                            <Avatar
-                              className="w-6 h-6 flex-shrink-0"
-                              src={item.profileImage}
-                            />
-                          ) : (
-                            <Avatar className="w-6 h-6 text-xs flex-shrink-0">
-                              {item.name.split(' ')[0]?.charAt(0) +
-                                (item.name.split(' ')[1]?.charAt(0) || '')}
-                            </Avatar>
-                          )}
-                          <p className="text-sm font-medium text-black truncate">
-                            {item.name}
-                          </p>
-                        </div>
-
-                        <div className="ml-8">
-                          <span
-                            className={`text-xs px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late'
-                              ? 'bg-[#FFDE6533] text-[#E6BB20]'
-                              : item.status === 'absent'
-                                ? 'bg-[#E0313733] text-[#E03137]'
-                                : 'bg-indigo-100 text-indigo-700'
-                              }`}
-                          >
-                            {item.status === 'ontime' ? 'On Time' : item.status}{' '}
-                            {item.status === 'late' || item.status === 'ontime'
-                              ? `${dayjs(item.recordTime, 'HH:mm:ss').format('h:mm A')}`
-                              : ''}
-                          </span>
-                        </div>
+                attendanceStats?.users?.map((item: any, index: any) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-xl md:px-4 px-2 min-h-[70px] border flex items-center justify-between  "
+                  >
+                    {/* Left Side */}
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex items-center gap-1">
+                        {item.profileImage ? (
+                          <Avatar
+                            className="w-6 h-6"
+                            src={item.profileImage}
+                          ></Avatar>
+                        ) : (
+                          <Avatar className="w-6 h-6 text-[12px]">
+                            {item.name.split(' ')[0].charAt(0) +
+                              item.name.split(' ')[1].charAt(0)}
+                          </Avatar>
+                        )}
+                        <p className="text-[12px] font-medium ">{item.name}</p>
                       </div>
 
-                      {/* Right Side */}
-                      <div className="flex flex-col items-end space-y-2 flex-shrink-0">
-                        <p className="text-sm font-medium text-black">
-                          {dayjs(item.attendanceDate).format('MMM DD, YYYY')}
-                        </p>
-                        <div className="flex gap-2">
-                          <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-1 rounded-md">
-                            L: {item.totalLates}
-                          </span>
-                          <span className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-1 rounded-md">
-                            A: {item.totalAbsences}
-                          </span>
-                        </div>
+                      <div>
+                        <span
+                          className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
+                        >
+                          {item.status === 'ontime' ? 'On Time' : item.status}{' '}
+                          {item.status === 'late' || item.status === 'ontime'
+                            ? `${dayjs(item.recordTime, 'HH:mm:ss').format('hh:mm A')}`
+                            : ''}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    {/* Right Side */}
+                    <div className="flex flex-col space-y-2">
+                      <p className="text-[16px] font-medium text-black">
+                        {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
+                      </p>
+                      <div className="mt-1 flex justify-end gap-2">
+                        <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                          L: {item.totalLates}
+                        </span>
+                        <span className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                          A: {item.totalAbsences}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
           </div>
