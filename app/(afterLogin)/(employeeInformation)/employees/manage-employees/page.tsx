@@ -125,8 +125,8 @@ const ManageEmployees: React.FC<any> = () => {
                 className="h-10 w-10 sm:w-auto"
                 icon={<FaPlus />}
                 onClick={showDrawer}
-                // loading={isLoading}
-                // disabled={!isAvailableSlots}
+              // loading={isLoading}
+              // disabled={!isAvailableSlots}
               >
                 <span className="hidden sm:inline">Create user</span>
               </Button>
