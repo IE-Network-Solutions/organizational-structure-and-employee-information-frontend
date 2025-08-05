@@ -183,10 +183,13 @@ export const useUpdateEmployeeJobInformation = () => {
       updateEmployeeJobInformationMutation(id, values),
     {
       onSuccess: () => {
+        // Invalidate all employee queries to ensure the table refreshes
         queryClient.invalidateQueries('employee');
+        queryClient.invalidateQueries(['employee']);
+        queryClient.invalidateQueries('employees');
         NotificationMessage.success({
           message: 'Successfully Updated',
-          description: 'Employee successfully updated',
+          description: 'Employee job information successfully updated',
         });
       },
     },
