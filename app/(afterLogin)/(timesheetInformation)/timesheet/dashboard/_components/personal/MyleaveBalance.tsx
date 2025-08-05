@@ -49,11 +49,10 @@ const MyleaveBalance: React.FC = () => {
                   </p>
                 </Tooltip>
                 <Tag
-                  className={`font-bold border-none py-0.5 ${
-                    item.leaveType.isFixed
-                      ? 'bg-[#B2B2FF] text-[#3636F0]'
-                      : 'bg-[#55C79033] text-[#0CAF60]'
-                  }`}
+                  className={`font-bold border-none py-0.5 ${item.leaveType.isFixed
+                    ? 'bg-[#B2B2FF] text-[#3636F0]'
+                    : 'bg-[#55C79033] text-[#0CAF60]'
+                    }`}
                 >
                   {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
@@ -167,10 +166,9 @@ const MyleaveBalance: React.FC = () => {
                         </p>
                         <Tag
                           style={{ marginInlineEnd: 0 }}
-                          className={`${
-                            statusColors[leave.status.toLowerCase()] ||
+                          className={`${statusColors[leave.status.toLowerCase()] ||
                             'text-gray-500 bg-gray-500/20'
-                          } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
+                            } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
                         >
                           {leave.status}
                         </Tag>

@@ -24,7 +24,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-56  sm:shrink-0 shadow-lg"
+          className="flex flex-col gap-3 rounded-lg bg-white p-2 min-w-56  sm:shrink-0 shadow-lg"
         >
           <div className="flex items-center justify-between">
             <div className="bg-gray-100 rounded-md">
@@ -173,7 +173,7 @@ const Header = () => {
                 <span className="text-[#3636F0]">
                   {`${Number(objectiveDashboard?.okrCompleted || 0)} / ${Number(objectiveDashboard?.keyResultCount || 0)}`}
                 </span>{' '}
-                achieved
+                Achieved
               </div>
               <Progress
                 percent={
@@ -195,7 +195,7 @@ const Header = () => {
           loading={isLoading}
           bordered={false}
           bodyStyle={{ padding: '10px' }}
-          className="flex flex-col gap-4 rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-lg"
+          className="flex flex-col gap-[10px] rounded-lg bg-white p-2 min-w-52  sm:shrink-0 shadow-lg"
           onClick={() => onDetail()}
         >
           <div className="flex items-center justify-between">
@@ -204,16 +204,16 @@ const Header = () => {
             </div>
             {/* <div className=" text-green-500 text-xs font-bold">12.7 ↑</div> */}
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between ">
             <div className="">
               <div className="text-xl font-bold ">{vpScore?.score || 0} %</div>
             </div>
-            <div className="xl:min-w-28">
+            <div className="xl:min-w-28 ">
               <div className="text-xs text-gray-400 text-end">
                 <span className="text-[#3636F0]">
-                  {`${Math.round(Number(vpScore?.score || 0))}`} %
+                  {`${Math.round(Number(vpScore?.score || 0))}`} /30
                 </span>{' '}
-                Achieved out of 30
+                Achieved
               </div>
               <Progress
                 percent={(Number(vpScore?.score || 0) / 30) * 100}
