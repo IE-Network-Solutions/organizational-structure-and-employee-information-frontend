@@ -41,6 +41,10 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: true,
   sw: 'sw.js',
+  // Ensure Service Worker is accessible across all subdomains
+  publicExcludes: ['!sw.js'],
+  // Exclude build manifest from precaching to avoid 404 errors
+  exclude: [/app-build-manifest\.json$/],
   fallbacks: {
     document: '/offline',
   },
