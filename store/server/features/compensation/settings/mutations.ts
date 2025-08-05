@@ -9,7 +9,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
-import { useFetchAllowanceTypes } from './queries';
 
 /**
  * Creates a new compensation type (allowance type) by sending a POST request to the API.
