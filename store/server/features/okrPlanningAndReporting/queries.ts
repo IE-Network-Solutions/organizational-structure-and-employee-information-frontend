@@ -69,7 +69,9 @@ const getPlanningPeriodsHierarchy = async (
   });
 };
 
-const getUserChildPlans = async (planId: string | undefined) => {
+const getUserChildPlans = async (
+  planId: string|undefined,
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
@@ -255,7 +257,9 @@ export const useGetPlanningPeriodsHierarchy = (
   );
 };
 
-export const useGetUserChildPlans = (planId: string | undefined) => {
+export const useGetUserChildPlans = (
+  planId: string|undefined,
+) => {
   return useQuery<any>(
     ['childPlans', { planId }],
     () => getUserChildPlans(planId),

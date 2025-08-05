@@ -37,6 +37,7 @@ function BoardCardForm({
   isMKAsTask = false,
   keyResult,
   targetValue,
+  parentPlanId,
   milestoneId,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
@@ -77,8 +78,9 @@ function BoardCardForm({
               </Form.Item>
               <Divider className="mt-2 mb-2" />
               {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                keyResult?.metricType?.name !== NAME.MILESTONE && (
-                  // !parentPlanId &&
+                keyResult?.metricType?.name !== NAME.MILESTONE &&
+                // !parentPlanId && 
+                (
                   <Form.Item
                     hidden={hideTargetValue}
                     label={<div className="text-xs">Target</div>}
