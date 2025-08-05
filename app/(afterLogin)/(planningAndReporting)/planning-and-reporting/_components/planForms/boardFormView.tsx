@@ -79,8 +79,7 @@ function BoardCardForm({
               <Divider className="mt-2 mb-2" />
               {keyResult?.metricType?.name !== NAME.ACHIEVE &&
                 keyResult?.metricType?.name !== NAME.MILESTONE &&
-                // !parentPlanId && 
-                (
+                !parentPlanId && (
                   <Form.Item
                     hidden={hideTargetValue}
                     label={<div className="text-xs">Target</div>}
