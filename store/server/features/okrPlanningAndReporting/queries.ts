@@ -69,22 +69,6 @@ const getPlanningPeriodsHierarchy = async (
   });
 };
 
-const getUserChildPlans = async (
-  planId: string|undefined,
-) => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  return await crudRequest({
-    url: `${OKR_URL}/plan/get-user-child-plans/${planId}`,
-    method: 'get',
-    headers,
-  });
-};
 const getAllUnReportedPlanningTask = async (
   planningPeriodId: string | undefined,
   forPlan: number,
@@ -257,17 +241,6 @@ export const useGetPlanningPeriodsHierarchy = (
   );
 };
 
-export const useGetUserChildPlans = (
-  planId: string|undefined,
-) => {
-  return useQuery<any>(
-    ['childPlans', { planId }],
-    () => getUserChildPlans(planId),
-    {
-      enabled: !!planId, // Ensure both are truthy
-    },
-  );
-};
 export const useGetPlanningById = (planningId: string) => {
   return useQuery<any>(
     ['okrPlan', planningId],
