@@ -41,8 +41,10 @@ const AllowanceTypeTable = () => {
         (item: any) => item.type === 'ALLOWANCE',
       );
       setTableData(filteredData);
+      // Reset pagination when data changes
+      setAllowanceCurrentPage(1);
     }
-  }, [data]);
+  }, [data, setTableData, setAllowanceCurrentPage]);
 
   const handleDelete = (id: string) => {
     deleteAllowanceType(id);

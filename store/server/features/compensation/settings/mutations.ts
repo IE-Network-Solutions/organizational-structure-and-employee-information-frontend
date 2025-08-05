@@ -9,6 +9,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
+import { useFetchAllowanceTypes } from './queries';
 
 /**
  * Creates a new compensation type (allowance type) by sending a POST request to the API.
@@ -66,8 +67,11 @@ const deleteAllowanceType = async (id: string) => {
 export const useCreateAllowanceType = () => {
   const queryClient = useQueryClient();
   return useMutation(createAllowanceType, {
-    onSuccess: (unused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceType');
+    onSuccess: async (unused: any, variables: any) => {
+      await queryClient.invalidateQueries('allowanceType');
+      // Fetch the latest data after invalidation
+      await queryClient.refetchQueries(['allowanceType']);
+      // Update the store with the new data
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Compensation type successfully created.');
     },
