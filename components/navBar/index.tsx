@@ -700,12 +700,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
-  const { data: departments, isLoading: departmentsLoading } =
-    useGetDepartments();
-  const { data: employeeData, isLoading: employeeDataLoading } =
-    useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
-    useEmployeeManagementStore();
+
+  const { data: departments } = useGetDepartments();
+  const { data: employeeData } = useGetEmployee(userId);
+  const { setIsNavBarJobInfoModalVisible, setNavBarJobInfoModalWidth } =  useEmployeeManagementStore();
 
   // Show loading when departments or employee data is not available
   // But don't show loading on onboarding page
@@ -721,8 +719,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       !employeeData.employeeJobInformation ||
       employeeData.employeeJobInformation.length === 0
     ) {
-      setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
+      setIsNavBarJobInfoModalVisible(true);
+      setNavBarJobInfoModalWidth('100%');
     }
   }, [departments, employeeData, router, isLoadingData]);
 
