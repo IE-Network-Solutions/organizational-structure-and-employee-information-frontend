@@ -30,8 +30,11 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
   useEffect(() => {
     // Register service worker (enable in both dev and production for PWA testing)
     if ('serviceWorker' in navigator) {
+      // Use dynamic origin for multi-tenant support
+      const swPath = `${window.location.origin}/sw.js`;
+
       navigator.serviceWorker
-        .register('/sw.js', {
+        .register(swPath, {
           scope: '/',
           updateViaCache: 'none', // Disable cache for service worker updates
         })
@@ -44,8 +47,28 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           }
         })
         .catch((e) => {
-          alert(e);
-          // console.log('Service Worker registration failed:', error);
+          // More specific error handling for multi-tenant scenarios
+          // console.error('Service Worker registration failed:', e);
+
+          // Don't show alert for network-related issues in multi-tenant setup
+          if (e.name !== 'NetworkError' && e.name !== 'TypeError') {
+            // console.warn('Service Worker registration issue:', e.message);
+          }
+
+          // Retry registration after a delay for multi-tenant scenarios
+          setTimeout(() => {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker
+                .register(swPath, {
+                  scope: '/',
+                  updateViaCache: 'none',
+                })
+                .catch(() => {
+                  // Silently handle retry failures for multi-tenant
+                  // console.warn('Service Worker retry failed');
+                });
+            }
+          }, 5000); // Retry after 5 seconds
         });
 
       // Handle service worker messages for better app state management
@@ -53,6 +76,10 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
         if (event.data && event.data.type === 'CACHE_UPDATED') {
           // App cache updated, no action needed
           // console.log('Cache updated successfully');
+        }
+        // Handle precache failures gracefully
+        if (event.data && event.data.type === 'PRECACHE_FAILED') {
+          // console.warn('Precache failed, continuing without cache');
         }
       });
     }

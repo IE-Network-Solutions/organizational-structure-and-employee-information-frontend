@@ -266,7 +266,7 @@ const AttendanceReport: React.FC = () => {
                               style={{
                                 backgroundColor:
                                   doughnutChartData.datasets[0].backgroundColor[
-                                    i
+                                  i
                                   ],
                               }}
                               className="w-2 h-2 rounded-full mr-2"
