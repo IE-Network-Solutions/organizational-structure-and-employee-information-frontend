@@ -4,7 +4,7 @@ import withPWA from 'next-pwa';
 const nextConfig = {
   experimental: {
     // This can help reduce memory usage during builds on servers with many cores.
-    cpus: 1, 
+    cpus: 1,
   },
   images: {
     domains: [
@@ -30,17 +30,23 @@ const nextConfig = {
     EMAIL_URL: process.env.EMAIL_URL,
     INCENTIVE_URL: process.env.INCENTIVE_URL,
     PAYROLL_URL: process.env.PAYROLL_URL,
-    TENANT_BASE_URL:process.env.TENANT_BASE_URL,
+    TENANT_BASE_URL: process.env.TENANT_BASE_URL,
     TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
   },
 };
 
 const pwaConfig = withPWA({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
+  disable:
+    process.env.NODE_ENV === 'development' ||
+    process.env.DISABLE_PWA === 'true',
   register: true,
   skipWaiting: true,
   sw: 'sw.js',
+  // Ensure Service Worker is accessible across all subdomains
+  publicExcludes: ['!sw.js'],
+  // Exclude build manifest from precaching to avoid 404 errors
+  exclude: [/app-build-manifest\.json$/],
   fallbacks: {
     document: '/offline',
   },
@@ -52,9 +58,9 @@ const pwaConfig = withPWA({
         cacheName: 'google-fonts',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
-        }
-      }
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
+        },
+      },
     },
     {
       urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
@@ -63,9 +69,9 @@ const pwaConfig = withPWA({
         cacheName: 'google-fonts-static',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
-        }
-      }
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
+        },
+      },
     },
     {
       urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
@@ -74,9 +80,9 @@ const pwaConfig = withPWA({
         cacheName: 'static-image-assets',
         expiration: {
           maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /\.(?:js|css)$/i,
@@ -85,9 +91,9 @@ const pwaConfig = withPWA({
         cacheName: 'static-js-css-assets',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /^\/api\/.*/i,
@@ -96,10 +102,10 @@ const pwaConfig = withPWA({
         cacheName: 'api-cache',
         expiration: {
           maxEntries: 16,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
         },
-        networkTimeoutSeconds: 10
-      }
+        networkTimeoutSeconds: 10,
+      },
     },
     // {
     //   urlPattern: /.*/i,
@@ -113,7 +119,7 @@ const pwaConfig = withPWA({
     //     networkTimeoutSeconds: 10
     //   }
     // }
-  ]
+  ],
 });
 
 export default pwaConfig(nextConfig);
