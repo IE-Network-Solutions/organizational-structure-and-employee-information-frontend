@@ -214,7 +214,14 @@ const TypesAndPoliciesEdit = () => {
               <Form.Item
                 label="Entitled Days/year"
                 id={`TypesAndPoliciesEntitledDaysYearFieldId`}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={[{ required: true, message: 'Required' }, {
+                  validator: (_, value) => {
+                    if (value > 365) {
+                      return Promise.reject('Entitled days cannot exceed 365');
+                    }
+                    return Promise.resolve();
+                  },
+                }]}
                 name="entitled"
               >
                 <InputNumber
