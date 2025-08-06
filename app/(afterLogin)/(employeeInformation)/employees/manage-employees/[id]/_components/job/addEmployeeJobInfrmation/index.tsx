@@ -53,18 +53,31 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
-    values.positionId = form.getFieldValue('positionId') || '';
-    values.employementTypeId = form.getFieldValue('employementTypeId') || '';
-    values.departmentId = form.getFieldValue('departmentId') || '';
-    values.branchId = form.getFieldValue('branchId') || '';
-    values.workScheduleId = form.getFieldValue('workScheduleId') || '';
-    values.userId = id;
-    values.basicSalary = parseInt(values.basicSalary.toString(), 10);
-    values.departmentLeadOrNot
-      ? values.departmentLeadOrNot
-      : (values.departmentLeadOrNot = false);
-    createJobInformation(values, {
-      onSuccess: () => {
+  // Get form values
+    const formValues = form.getFieldsValue();
+    
+    // Use the URL id from params as the userId
+    const correctUserId = userId;
+    
+    // Create the exact data structure
+    const jobInformationData = {
+      userId: correctUserId,
+      positionId: formValues.positionId,
+      branchId: formValues.branchId,
+      departmentId: formValues.departmentId,
+      employementTypeId: formValues.employementTypeId,
+      workScheduleId: formValues.workScheduleId,
+      isPositionActive: true,
+      departmentLeadOrNot: formValues.departmentLeadOrNot,
+      employmentContractType: formValues.employmentContractType,
+      jobAction: 'New', // Always send 'New' as string, not ID
+      effectiveStartDate: formValues.effectiveStartDate.format('YYYY-MM-DD'),
+      effectiveEndDate: '2024-12-31', // Always send this as string
+      basicSalary: Number(formValues.basicSalary)
+    };
+    
+    createJobInformation(jobInformationData, {
+      onSuccess: (responseData) => {
         handleClose();
         onInfoSubmition && onInfoSubmition();
       },
