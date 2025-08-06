@@ -6,20 +6,18 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
-import { useParams } from 'next/navigation';
 
 interface Ids {
-  onJobInfoUpdated?: () => void;
+  id: string;
+  onInfoSubmition?: () => void;
   isNavBarModal?: boolean;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  onJobInfoUpdated: onJobInfoUpdated,
+  id: id,
+  onInfoSubmition: onInfoSubmition,
   isNavBarModal = false,
 }) => {
   const [form] = Form.useForm();
-  const params = useParams();
-  const userId = params.id as string;
-  
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
@@ -31,7 +29,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     navBarJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
-  const { data: employeeData } = useGetEmployee(userId);
+  const { data: employeeData } = useGetEmployee(id);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
@@ -55,7 +53,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
-    // Get form values
+  // Get form values
     const formValues = form.getFieldsValue();
     
     // Use the URL id from params as the userId
@@ -81,16 +79,9 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     createJobInformation(jobInformationData, {
       onSuccess: (responseData) => {
         handleClose();
-        
-        // Call the callback to refresh job information data
-        if (onJobInfoUpdated) {
-          setTimeout(() => {
-            onJobInfoUpdated();
-          }, 500);
-        }
-      },
-      onError: (error: any) => {
-        // Error handling can be added here if needed
+
+        onInfoSubmition && onInfoSubmition();
+
       },
     });
   };
