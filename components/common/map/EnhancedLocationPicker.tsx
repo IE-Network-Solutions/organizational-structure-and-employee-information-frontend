@@ -23,8 +23,44 @@ interface EnhancedLocationPickerProps {
   onRadiusChange: (radius: number) => void;
   height?: string;
   width?: string;
+  /** Enable automatic search in the location search component (default: true) */
+  autoSearch?: boolean;
+  /** Delay in milliseconds before triggering auto-search (default: 500) */
+  debounceDelay?: number;
+  /** Enable automatic zoom to selected location (default: true) */
+  autoZoom?: boolean;
+  /** Zoom level when auto-zooming to selected location (default: 15) */
+  zoomLevel?: number;
+  /** Enable smooth transitions when zooming (default: true) */
+  smoothZoom?: boolean;
 }
 
+/**
+ * EnhancedLocationPicker component with integrated location search and map selection
+ * 
+ * Features:
+ * - Automatic location search as user types (with debouncing)
+ * - Interactive map for location selection
+ * - Current location detection
+ * - Radius control with slider and input
+ * - Coordinate display and manual editing
+ * - Automatic zoom to selected location
+ * - Smooth map transitions
+ * 
+ * @param props - Component props
+ * @param props.latitude - Initial latitude
+ * @param props.longitude - Initial longitude
+ * @param props.radius - Initial radius in kilometers
+ * @param props.onLocationChange - Callback when location changes
+ * @param props.onRadiusChange - Callback when radius changes
+ * @param props.height - Map height (default: '500px')
+ * @param props.width - Map width (default: '100%')
+ * @param props.autoSearch - Enable automatic search (default: true)
+ * @param props.debounceDelay - Delay before auto-search triggers (default: 500ms)
+ * @param props.autoZoom - Enable automatic zoom to selected location (default: true)
+ * @param props.zoomLevel - Zoom level when auto-zooming (default: 15)
+ * @param props.smoothZoom - Enable smooth transitions when zooming (default: true)
+ */
 const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   latitude,
   longitude,
@@ -33,6 +69,11 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   onRadiusChange,
   height = '500px',
   width = '100%',
+  autoSearch = true,
+  debounceDelay = 500,
+  autoZoom = true,
+  zoomLevel = 15,
+  smoothZoom = true,
 }) => {
   const [currentLat, setCurrentLat] = useState(latitude);
   const [currentLng, setCurrentLng] = useState(longitude);
@@ -88,7 +129,11 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
             <SearchOutlined className="mr-2" />
             Search Location
           </Title>
-          <LocationSearch onLocationSelect={handleSearchSelect} />
+          <LocationSearch 
+            onLocationSelect={handleSearchSelect} 
+            autoSearch={autoSearch}
+            debounceDelay={debounceDelay}
+          />
           <Button 
             type="dashed" 
             icon={<AimOutlined />} 
@@ -108,7 +153,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
             Select Location on Map
           </Title>
           <Text type="secondary" className="text-sm">
-            Click on the map to set the center point of your allowed area
+            Double click on the map to set the center point of your allowed area
           </Text>
           <div className="mt-2">
             <LocationPicker
@@ -119,6 +164,9 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
               onRadiusChange={handleRadiusChange}
               height={height}
               width={width}
+              autoZoom={autoZoom}
+              zoomLevel={zoomLevel}
+              smoothZoom={smoothZoom}
             />
           </div>
         </div>
@@ -170,13 +218,14 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           </Title>
           <Space direction="vertical" className="w-full">
             <Slider
-              min={0.1}
+              min={0.01}
               max={10}
-              step={0.1}
+              step={0.01}
               value={currentRadius}
               onChange={handleRadiusChange}
               marks={{
-                0.1: '0.1km',
+                0.01: '10m',
+                0.1: '100m',
                 1: '1km',
                 5: '5km',
                 10: '10km',
@@ -189,10 +238,10 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
                   handleRadiusChange(value);
                 }
               }}
-              min={0.1}
+              min={0.01}
               max={10}
-              step={0.1}
-              precision={1}
+              step={0.01}
+              precision={2}
               addonAfter="km"
               style={{ width: 120 }}
             />
