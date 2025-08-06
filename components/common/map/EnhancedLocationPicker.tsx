@@ -23,15 +23,13 @@ interface EnhancedLocationPickerProps {
   onRadiusChange: (radius: number) => void;
   height?: string;
   width?: string;
-  /** Enable automatic search in the location search component (default: true) */
+  /** Enable automatic search as user types (default: true) */
   autoSearch?: boolean;
-  /** Delay in milliseconds before triggering auto-search (default: 500) */
-  debounceDelay?: number;
   /** Enable automatic zoom to selected location (default: true) */
   autoZoom?: boolean;
-  /** Zoom level when auto-zooming to selected location (default: 15) */
+  /** Zoom level for the map (default: 13) */
   zoomLevel?: number;
-  /** Enable smooth transitions when zooming (default: true) */
+  /** Enable smooth zoom animation (default: true) */
   smoothZoom?: boolean;
 }
 
@@ -67,10 +65,9 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   radius,
   onLocationChange,
   onRadiusChange,
-  height = '500px',
+  height = '400px',
   width = '100%',
   autoSearch = true,
-  debounceDelay = 500,
   autoZoom = true,
   zoomLevel = 15,
   smoothZoom = true,
@@ -129,10 +126,9 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
             <SearchOutlined className="mr-2" />
             Search Location
           </Title>
-          <LocationSearch 
-            onLocationSelect={handleSearchSelect} 
+          <LocationSearch
+            onLocationSelect={handleSearchSelect}
             autoSearch={autoSearch}
-            debounceDelay={debounceDelay}
           />
           <Button 
             type="dashed" 
@@ -157,11 +153,10 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           </Text>
           <div className="mt-2">
             <LocationPicker
-              latitude={currentLat}
-              longitude={currentLng}
-              radius={currentRadius}
+              latitude={latitude}
+              longitude={longitude}
+              radius={radius}
               onLocationChange={handleLocationChange}
-              onRadiusChange={handleRadiusChange}
               height={height}
               width={width}
               autoZoom={autoZoom}
