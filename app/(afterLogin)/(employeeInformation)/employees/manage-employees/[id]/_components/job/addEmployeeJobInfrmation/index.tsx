@@ -6,18 +6,20 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
+import { useParams } from 'next/navigation';
 
 interface Ids {
-  id: string;
-  onInfoSubmition?: () => void;
+  onJobInfoUpdated?: () => void;
   isNavBarModal?: boolean;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  id: id,
-  onInfoSubmition: onInfoSubmition,
+  onJobInfoUpdated: onJobInfoUpdated,
   isNavBarModal = false,
 }) => {
   const [form] = Form.useForm();
+  const params = useParams();
+  const userId = params.id as string;
+  
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
@@ -29,7 +31,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     navBarJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
-  const { data: employeeData } = useGetEmployee(id);
+  const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
@@ -53,22 +55,43 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
-    values.positionId = form.getFieldValue('positionId') || '';
-    values.employementTypeId = form.getFieldValue('employementTypeId') || '';
-    values.departmentId = form.getFieldValue('departmentId') || '';
-    values.branchId = form.getFieldValue('branchId') || '';
-    values.workScheduleId = form.getFieldValue('workScheduleId') || '';
-    values.userId = id;
-    values.basicSalary = parseInt(values.basicSalary.toString(), 10);
-    values.departmentLeadOrNot
-      ? values.departmentLeadOrNot
-      : (values.departmentLeadOrNot = false);
-    createJobInformation(values, {
-      onSuccess: () => {
+    // Get form values
+    const formValues = form.getFieldsValue();
+    
+    // Use the URL id from params as the userId
+    const correctUserId = userId;
+    
+    // Create the exact data structure that works in Postman
+    const jobInformationData = {
+      userId: correctUserId,
+      positionId: formValues.positionId || '',
+      branchId: formValues.branchId || '',
+      departmentId: formValues.departmentId || '',
+      employementTypeId: formValues.employementTypeId || '',
+      workScheduleId: formValues.workScheduleId || '',
+      isPositionActive: true,
+      departmentLeadOrNot: formValues.departmentLeadOrNot || false,
+      employmentContractType: formValues.employmentContractType || 'Permanent',
+      jobAction: 'New', // Always send 'New' as string, not ID
+      effectiveStartDate: formValues.effectiveStartDate ? 
+        formValues.effectiveStartDate.format('YYYY-MM-DD') : '2024-01-01',
+      effectiveEndDate: '2024-12-31', // Always send this as string
+      basicSalary: Number(formValues.basicSalary || 0)
+    };
+    
+    createJobInformation(jobInformationData, {
+      onSuccess: (responseData) => {
         handleClose();
-
-        onInfoSubmition && onInfoSubmition();
-
+        
+        // Call the callback to refresh job information data
+        if (onJobInfoUpdated) {
+          setTimeout(() => {
+            onJobInfoUpdated();
+          }, 500);
+        }
+      },
+      onError: (error: any) => {
+        // Error handling can be added here if needed
       },
     });
   };
