@@ -111,7 +111,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           handleLocationChange(latitude, longitude);
           message.success('Current location set successfully!');
         },
-        (error) => {
+        () => {
           message.error('Unable to get current location. Please select manually.');
         }
       );

@@ -50,7 +50,6 @@ interface LocationPickerProps {
   longitude: number;
   radius: number;
   onLocationChange: (lat: number, lng: number) => void;
-  onRadiusChange: (radius: number) => void;
   height?: string;
   width?: string;
   /** Enable automatic zoom to selected location (default: true) */
@@ -165,7 +164,6 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   longitude,
   radius,
   onLocationChange,
-  onRadiusChange,
   height = '400px',
   width = '100%',
   autoZoom = true,
