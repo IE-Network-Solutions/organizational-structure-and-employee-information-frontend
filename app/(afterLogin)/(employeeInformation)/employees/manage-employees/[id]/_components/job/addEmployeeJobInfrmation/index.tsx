@@ -9,14 +9,10 @@ import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryFor
 import { useParams } from 'next/navigation';
 
 interface Ids {
-  id: string;
-  onInfoSubmition?: () => void;
   onJobInfoUpdated?: () => void;
   isNavBarModal?: boolean;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  id: id,
-  onInfoSubmition: onInfoSubmition,
   onJobInfoUpdated: onJobInfoUpdated,
   isNavBarModal = false,
 }) => {
@@ -95,7 +91,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         }
       },
       onError: (error: any) => {
-        console.error('Error creating job information:', error);
+        // Error handling can be added here if needed
       },
     });
   };
