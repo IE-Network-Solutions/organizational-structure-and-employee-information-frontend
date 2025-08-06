@@ -8,12 +8,6 @@ import { SearchOutlined, EnvironmentOutlined } from '@ant-design/icons';
  * // Auto-search enabled (default)
  * <LocationSearch onLocationSelect={handleLocationSelect} />
  * 
- * // Auto-search with custom debounce delay
- * <LocationSearch 
- *   onLocationSelect={handleLocationSelect} 
- *   debounceDelay={1000} 
- * />
- * 
  * // Manual search only (auto-search disabled)
  * <LocationSearch 
  *   onLocationSelect={handleLocationSelect} 
@@ -26,8 +20,6 @@ interface LocationSearchProps {
   placeholder?: string;
   /** Enable automatic search as user types (default: true) */
   autoSearch?: boolean;
-  /** Delay in milliseconds before triggering auto-search (default: 500) */
-  debounceDelay?: number;
 }
 
 interface SearchResult {
@@ -40,7 +32,7 @@ interface SearchResult {
  * LocationSearch component with automatic search functionality
  * 
  * Features:
- * - Automatic search as user types (with debouncing)
+ * - Automatic search as user types
  * - Manual search button (when autoSearch is disabled)
  * - Loading indicator during search
  * - Keyboard support (Enter key)
@@ -50,13 +42,11 @@ interface SearchResult {
  * @param props.onLocationSelect - Callback when a location is selected
  * @param props.placeholder - Input placeholder text
  * @param props.autoSearch - Enable automatic search (default: true)
- * @param props.debounceDelay - Delay before auto-search triggers (default: 500ms)
  */
 const LocationSearch: React.FC<LocationSearchProps> = ({
   onLocationSelect,
   placeholder = 'Search for a location...',
   autoSearch = true,
-  debounceDelay = 500,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
