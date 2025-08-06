@@ -13,9 +13,11 @@ import BasicSalary from './basicSalary';
 import { LuPencil } from 'react-icons/lu';
 import { useState } from 'react';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+import { useQueryClient } from 'react-query';
 
 function Job({ id }: { id: string }) {
-  const { isLoading, data: employeeData } = useGetEmployee(id);
+  const { isLoading, data: employeeData, refetch } = useGetEmployee(id);
+  const queryClient = useQueryClient();
   const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
   const handleAddEmployeeJobInformation = () => {
     setIsAddEmployeeJobInfoModalVisible(true);
@@ -172,7 +174,15 @@ function Job({ id }: { id: string }) {
         />
       </Card>
       <WorkScheduleComponent id={id} />
-      <CreateEmployeeJobInformation id={id} isNavBarModal={false} />
+      <CreateEmployeeJobInformation 
+        id={id} 
+        isNavBarModal={false}
+        onJobInfoUpdated={() => {
+          // Invalidate and refetch employee data to show updated job information
+          queryClient.invalidateQueries(['employee', id]);
+          refetch();
+        }}
+      />
       <BasicSalary id={id} />
     </>
   );
