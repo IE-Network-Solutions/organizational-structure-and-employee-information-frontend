@@ -53,14 +53,14 @@ const AssignTargetDrawer: React.FC = () => {
     });
   };
   useEffect(() => {
-    if (currentId && getTargetById) {
-      form.setFieldsValue({
-        department: getTargetById.departmentId,
-        criteria: getTargetById.vpCriteriaId,
-        month: [getTargetById.month],
-        [getTargetById.month]: getTargetById.target,
-      });
-      setSelectedMonths([getTargetById.month]);
+          if (currentId && getTargetById) {
+        form.setFieldsValue({
+          department: getTargetById.departmentId,
+          criteria: getTargetById.vpCriteriaId,
+          month: [getTargetById.month],
+          [getTargetById.month]: getTargetById.target,
+        });
+        setSelectedMonths([getTargetById.month]);
     } else if (!currentId) {
       const allActiveMonths =
         activeSessionData?.months?.map((month: any) => month.name) || [];
@@ -145,6 +145,7 @@ const AssignTargetDrawer: React.FC = () => {
             placeholder="Select Department"
             onChange={handleDepartmentChange}
             className="w-full h-12"
+            allowClear
           >
             {departmentData?.map((dept: any) => (
               <Option key={dept.id} value={dept.id}>

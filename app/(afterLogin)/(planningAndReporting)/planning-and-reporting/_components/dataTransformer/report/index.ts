@@ -77,6 +77,7 @@ export const groupUnReportedTasksByKeyResultAndMilestone = (
       taskId: task?.id,
       taskName: task?.task,
       priority: task?.priority,
+      status: task?.status, // Add status field to track pre-achieved tasks
       actualValue: task?.actualValue || 0,
       targetValue: task?.targetValue || 0,
       achieveMK: task?.planTask?.achieveMK,

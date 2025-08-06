@@ -87,7 +87,7 @@ const AllowanceEntitlementSideBar = () => {
             </Button>
           </div>
         }
-        width="35%"
+        width="30%"
         customMobileHeight="37vh"
         data-testid="allowance-entitlement-sidebar"
       >
@@ -134,6 +134,7 @@ const AllowanceEntitlementSideBar = () => {
                 mode="multiple"
                 className="w-full h-10 mt-2"
                 allowClear
+                maxTagCount={1}
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')
                     ?.toLowerCase()
@@ -142,7 +143,7 @@ const AllowanceEntitlementSideBar = () => {
                 options={allUsers?.items?.map((item: any) => ({
                   ...item,
                   value: item?.id,
-                  label: item?.firstName + ' ' + item?.lastName,
+                  label: item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
                 }))}
                 loading={allUserLoading}
                 data-testid="employees-select"
