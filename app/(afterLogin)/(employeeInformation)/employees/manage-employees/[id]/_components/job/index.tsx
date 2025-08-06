@@ -9,9 +9,7 @@ import {
   Table,
   Modal,
   Select,
-  InputNumber,
   Switch,
-  Radio,
   TimePicker,
 } from 'antd';
 import { InfoLine } from '../common/infoLine';
@@ -25,7 +23,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
 import BasicSalary from './basicSalary';
 import { LuPencil } from 'react-icons/lu';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
@@ -33,7 +31,6 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
-import { JobActionStatus } from '@/types/enumTypes';
 
 function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
@@ -103,8 +100,6 @@ function Job({ id }: { id: string }) {
   const editJobInformation = (values: any) => {
     if (!selectedJobRecord) return;
 
-    console.log('Form values:', values);
-
     const updatedValues = {
       effectiveStartDate: values.effectiveStartDate?.format('YYYY-MM-DD'),
       positionId: values.positionId,
@@ -115,8 +110,6 @@ function Job({ id }: { id: string }) {
       departmentLeadOrNot: values.departmentLeadOrNot || false,
     };
 
-    console.log('Updated values:', updatedValues);
-
     updateEmployeeJobInformation(
       {
         id: selectedJobRecord.id,
@@ -125,9 +118,6 @@ function Job({ id }: { id: string }) {
       {
         onSuccess: () => {
           handleEditModalClose();
-        },
-        onError: (error) => {
-          console.error('Update failed:', error);
         },
       },
     );
@@ -208,7 +198,6 @@ function Job({ id }: { id: string }) {
     },
   ];
 
-  console.log('-----employeeData-----', employeeData?.employeeJobInformation);
   return (
     <>
       <Card
