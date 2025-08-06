@@ -61,22 +61,21 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     // Use the URL id from params as the userId
     const correctUserId = userId;
     
-    // Create the exact data structure that works in Postman
+    // Create the exact data structure
     const jobInformationData = {
       userId: correctUserId,
-      positionId: formValues.positionId || '',
-      branchId: formValues.branchId || '',
-      departmentId: formValues.departmentId || '',
-      employementTypeId: formValues.employementTypeId || '',
-      workScheduleId: formValues.workScheduleId || '',
+      positionId: formValues.positionId,
+      branchId: formValues.branchId,
+      departmentId: formValues.departmentId,
+      employementTypeId: formValues.employementTypeId,
+      workScheduleId: formValues.workScheduleId,
       isPositionActive: true,
-      departmentLeadOrNot: formValues.departmentLeadOrNot || false,
-      employmentContractType: formValues.employmentContractType || 'Permanent',
+      departmentLeadOrNot: formValues.departmentLeadOrNot,
+      employmentContractType: formValues.employmentContractType,
       jobAction: 'New', // Always send 'New' as string, not ID
-      effectiveStartDate: formValues.effectiveStartDate ? 
-        formValues.effectiveStartDate.format('YYYY-MM-DD') : '2024-01-01',
+      effectiveStartDate: formValues.effectiveStartDate.format('YYYY-MM-DD'),
       effectiveEndDate: '2024-12-31', // Always send this as string
-      basicSalary: Number(formValues.basicSalary || 0)
+      basicSalary: Number(formValues.basicSalary)
     };
     
     createJobInformation(jobInformationData, {
