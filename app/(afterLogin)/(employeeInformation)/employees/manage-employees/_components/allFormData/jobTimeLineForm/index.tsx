@@ -1,6 +1,9 @@
 'use client';
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import {
+  useGetDepartments,
+  useGetDepartmentLead,
+} from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -13,6 +16,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Popconfirm,
   Radio,
   Row,
   Select,
@@ -28,7 +32,13 @@ import { useCreatePosition } from '@/store/server/features/employees/positions/m
 
 const JobTimeLineForm = () => {
   const [form] = Form.useForm();
-  const { birthDate } = useEmployeeManagementStore();
+  const {
+    birthDate,
+    selectedDepartmentId,
+    switchValue,
+    setSwitchValue,
+    setSelectedDepartmentId,
+  } = useEmployeeManagementStore();
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
   const { data: employementType, refetch: employmentTypeRefetch } =
@@ -36,6 +46,9 @@ const JobTimeLineForm = () => {
   const { data: branchOfficeData, refetch: branchOfficeRefetch } =
     useGetBranches();
   const { data: positions, refetch: positionRefetch } = useGetAllPositions();
+
+  const { data: department } = useGetDepartmentLead(selectedDepartmentId);
+
   const {
     mutate: handleCreatePosition,
     isLoading,
@@ -46,6 +59,36 @@ const JobTimeLineForm = () => {
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
   };
+
+  const handleDepartmentChange = (value: string) => {
+    setSelectedDepartmentId(value);
+  };
+
+  const handleTeamLeadChange = (checked: boolean) => {
+    if (checked && department?.length > 0) {
+      return;
+    }
+    setSwitchValue(checked);
+    form.setFieldValue('departmentLeadOrNot', checked);
+  };
+
+  const handleTeamLeadConfirm = () => {
+    setSwitchValue(true);
+    form.setFieldValue('departmentLeadOrNot', true);
+  };
+
+  const handleTeamLeadCancel = () => {
+    setSwitchValue(false);
+    form.setFieldValue('departmentLeadOrNot', false);
+  };
+
+  useEffect(() => {
+    if (department?.length > 0) {
+      setSwitchValue(false);
+      form.setFieldValue('departmentLeadOrNot', false);
+    }
+  }, [department?.length, form]);
+
   useEffect(() => {
     if (isSuccess) {
       positionRefetch();
@@ -223,6 +266,7 @@ const JobTimeLineForm = () => {
               showSearch
               optionFilterProp="label"
               placeholder="Select a Team"
+              onChange={handleDepartmentChange}
               options={departmentData?.map((department: any) => ({
                 value: department?.id,
                 label: `${department?.name ? department?.name : ''} `,
@@ -335,7 +379,41 @@ const JobTimeLineForm = () => {
             valuePropName="checked"
             id="departmentLeadOrNot"
           >
-            <Switch />
+            {department?.length > 0 ? (
+              <Popconfirm
+                title={
+                  <div className="text-sm sm:text-base">
+                    <div className="font-semibold mb-2">
+                      Team Lead Confirmation
+                    </div>
+                  </div>
+                }
+                description={
+                  <div className="text-xs sm:text-sm leading-relaxed">
+                    <div className="mb-2">
+                      This department already has a team lead:
+                    </div>
+                    <div className="font-medium text-blue-600 mb-2">
+                      {department[0]?.firstName} {department[0]?.lastName}
+                    </div>
+                    <div>
+                      Do you want to update the team lead to the current
+                      employee?
+                    </div>
+                  </div>
+                }
+                onConfirm={handleTeamLeadConfirm}
+                onCancel={handleTeamLeadCancel}
+                okText="Yes"
+                cancelText="No"
+                placement="topRight"
+                overlayClassName="team-lead-confirm-popup"
+              >
+                <Switch checked={switchValue} onChange={handleTeamLeadChange} />
+              </Popconfirm>
+            ) : (
+              <Switch checked={switchValue} onChange={handleTeamLeadChange} />
+            )}
           </Form.Item>
         </Col>
       </Row>
