@@ -48,6 +48,7 @@ export default function OfflinePage() {
               <li>• View previously loaded pages</li>
               <li>• Access cached employee data</li>
               <li>• View offline documentation</li>
+              <li>• Use basic calculator functions</li>
             </ul>
           </div>
         </div>

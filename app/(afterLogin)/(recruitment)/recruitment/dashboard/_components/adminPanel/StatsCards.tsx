@@ -52,12 +52,12 @@ const StatsCards: React.FC = () => {
   ];
 
   return (
-    <div className="mb-6 grid grid-flow-col auto-cols-[248px] sm:grid-cols-2 lg:grid-cols-4 gap-5 overflow-x-auto scrollbar-none">
+    <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mx-1">
       {statsData.map((stat, index) => (
         <Card
           bodyStyle={{ padding: 5 }}
           key={index}
-          className="h-[102px] hover:shadow-md transition-shadow shadow-lg w-[248px] md:w-full"
+          className="h-[102px] hover:shadow-md transition-shadow shadow-lg"
           loading={isLoading}
         >
           <div className="flex justify-between mt-4 px-2 items-center">
