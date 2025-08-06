@@ -2,6 +2,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -53,18 +54,24 @@ export const UpdateRepLog = async (values: Record<string, string>) => {
 
 const deleteRepLog = async (deletedId: string) => {
   const token = await getCurrentToken();
-  await crudRequest({
-    url: `${OKR_AND_PLANNING_URL}/reprimand-log/${deletedId}`,
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
-  NotificationMessage.success({
-    message: 'Successfully Deleted',
-    description: 'Reprimand successfully deleted.',
-  });
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.delete(
+      `${OKR_AND_PLANNING_URL}/reprimand-log/${deletedId}`,
+      { headers },
+    );
+    NotificationMessage.success({
+      message: 'Successfully Deleted',
+      description: 'Reprimand successfully deleted.',
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const useDeleteRepLog = () => {

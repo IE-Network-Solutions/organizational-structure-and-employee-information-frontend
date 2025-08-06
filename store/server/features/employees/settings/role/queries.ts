@@ -1,5 +1,6 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Role, RoleType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -72,14 +73,19 @@ const getRolesWithPermisison = async () => {
  */
 const getRole = async (id: string | null) => {
   const token = await getCurrentToken();
-  return crudRequest({
-    url: `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
+      { headers },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**

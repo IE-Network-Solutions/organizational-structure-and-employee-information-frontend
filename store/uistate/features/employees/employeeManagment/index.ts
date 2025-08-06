@@ -194,13 +194,6 @@ interface UserState {
     employeeJobInfoModalWidth: string | null,
   ) => void;
 
-  isNavBarJobInfoModalVisible: boolean;
-  setIsNavBarJobInfoModalVisible: (
-    isNavBarJobInfoModalVisible: boolean,
-  ) => void;
-  navBarJobInfoModalWidth: string | null;
-  setNavBarJobInfoModalWidth: (navBarJobInfoModalWidth: string | null) => void;
-
   isMobileFilterVisible: boolean;
   setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
 
@@ -374,12 +367,6 @@ export const useEmployeeManagementStore = create<UserState>()(
     employeeJobInfoModalWidth: null,
     setEmployeeJobInfoModalWidth: (employeeJobInfoModalWidth: string | null) =>
       set({ employeeJobInfoModalWidth }),
-    isNavBarJobInfoModalVisible: false,
-    setIsNavBarJobInfoModalVisible: (isNavBarJobInfoModalVisible: boolean) =>
-      set({ isNavBarJobInfoModalVisible }),
-    navBarJobInfoModalWidth: null,
-    setNavBarJobInfoModalWidth: (navBarJobInfoModalWidth: string | null) =>
-      set({ navBarJobInfoModalWidth }),
     isMobileFilterVisible: false,
     setIsMobileFilterVisible: (isMobileFilterVisible: boolean) =>
       set({ isMobileFilterVisible }),

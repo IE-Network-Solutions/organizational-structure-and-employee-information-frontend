@@ -1,6 +1,7 @@
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
-import { crudRequest } from '@/utils/crudRequest';
-import { requestHeader } from '@/helpers/requestHeader';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import axios from 'axios';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -28,12 +29,26 @@ type ResponseData = ApplicantData;
  * @returns The response data from the API
  */
 const getApplicantSummary = async (status: string): Promise<ResponseData> => {
-  const requestHeaders = await requestHeader();
-  return crudRequest({
-    url: `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
-    method: 'GET',
-    headers: requestHeaders,
-  });
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  if (!token || !tenantId) {
+    throw new Error('Missing authentication information.');
+  }
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.get<ResponseData>(
+      `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
+      { headers },
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(`Error fetching applicant summary: ${error}`);
+  }
 };
 
 /**
