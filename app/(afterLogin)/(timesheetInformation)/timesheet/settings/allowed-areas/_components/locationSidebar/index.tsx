@@ -1,7 +1,7 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, InputNumber, Select, Space, Spin, Switch } from 'antd';
+import { Form, Input, InputNumber, Select, Space, Spin, Switch, Tabs } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -10,10 +10,12 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
 import { useGetAllowedArea } from '@/store/server/features/timesheet/allowedArea/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import EnhancedLocationPicker from '@/components/common/map/EnhancedLocationPicker';
 
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
   const [showUsers, setShowUsers] = useState(false);
+  const [formValues, setFormValues] = useState({ latitude: 9.145, longitude: 40.4897, distance: 100 });
   const {
     isShowLocationSidebar: isShow,
     setIsShowLocationSidebar: setIsShow,
@@ -53,7 +55,24 @@ const LocationSidebar = () => {
         'allowedUserAccesses',
         item.allowedUserAccesses?.map((e) => e.userId),
       );
+      setFormValues({
+        latitude: item.latitude,
+        longitude: item.longitude,
+        distance: Number(item.distance),
+      });
       setShowUsers(!item.isGlobal);
+    } else {
+      // Set default values for new location - centered on Addis Ababa, Ethiopia
+      form.setFieldValue('latitude', 9.145);
+      form.setFieldValue('longitude', 40.4897);
+      form.setFieldValue('distance', 100);
+      form.setFieldValue('isGlobal', true);
+      setFormValues({
+        latitude: 9.145,
+        longitude: 40.4897,
+        distance: 100,
+      });
+      setShowUsers(false);
     }
   }, [allowedAreaData]);
 
@@ -91,19 +110,38 @@ const LocationSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    setAllowedArea({
+    
+    // Ensure we have valid coordinates and distance
+    const latitude = value.latitude || formValues.latitude || 9.145;
+    const longitude = value.longitude || formValues.longitude || 40.4897;
+    const distance = value.distance || formValues.distance || 100;
+    
+    const payload = {
       ...(allowedAreaData && allowedAreaData!.item),
       title: value.title,
-      latitude: value.latitude,
-      longitude: value.longitude,
-      distance: Number(value.distance),
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      distance: Number(distance),
       isGlobal: Boolean(value.isGlobal),
       allowedUserAccesses: value.allowedUserAccesses,
-    });
+    };
+    
+    setAllowedArea(payload);
   };
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+
+  const handleLocationChange = (lat: number, lng: number) => {
+    form.setFieldValue('latitude', lat);
+    form.setFieldValue('longitude', lng);
+    setFormValues(prev => ({ ...prev, latitude: lat, longitude: lng }));
+  };
+
+  const handleRadiusChange = (radius: number) => {
+    form.setFieldValue('distance', radius);
+    setFormValues(prev => ({ ...prev, distance: radius }));
+  };
 
   return (
     isShow && (
@@ -122,7 +160,7 @@ const LocationSidebar = () => {
             <CustomDrawerFooterButton buttons={footerModalItems} />
           </div>
         }
-        width="400px"
+        width="800px"
       >
         <Spin spinning={isFetching || isLoading}>
           <Form
@@ -133,83 +171,167 @@ const LocationSidebar = () => {
             form={form}
             onFinish={onFinish}
           >
-            <Space.Compact
-              direction="vertical"
-              className="w-full px-3 sm:px-0 "
-            >
-              {' '}
-              <Form.Item
-                id="nameOfLocatioInputFieldId"
-                label="Name of Location"
-                rules={[{ required: true, message: 'Required' }]}
-                name="title"
-              >
-                <Input className={controlClass} />
-              </Form.Item>
-              <Form.Item
-                id="latitudeOfLocatioInputFieldId"
-                label="Latitude"
-                rules={[{ required: true, message: 'Required' }]}
-                name="latitude"
-              >
-                <InputNumber
-                  className={controlClass}
-                  placeholder="Enter latitude"
-                />
-              </Form.Item>
-              <Form.Item
-                id="longitudeOfLocatioInputFieldId"
-                label="Longitude"
-                rules={[{ required: true, message: 'Required' }]}
-                name="longitude"
-              >
-                <InputNumber
-                  className={controlClass}
-                  placeholder="Enter longitude"
-                />
-              </Form.Item>
-              <Form.Item
-                label="Radius"
-                id="distanceOfLocatioInputFieldId"
-                rules={[{ required: true, message: 'Required' }]}
-                name="distance"
-              >
-                <InputNumber
-                  min={0.1}
-                  className={controlClass}
-                  placeholder="Enter radius in km"
-                />
-              </Form.Item>
-              <Form.Item
-                id="isGlobalLocation"
-                label="Is Global"
-                name="isGlobal"
-              >
-                <Switch
-                  defaultChecked
-                  onChange={(checked) => setShowUsers(!checked)}
-                />
-              </Form.Item>
-              {showUsers && (
-                <Form.Item
-                  id="userAccessList"
-                  label="Select Users"
-                  name="allowedUserAccesses"
-                >
-                  <Select
-                    mode="multiple"
-                    showSearch
-                    placeholder="Select a person"
-                    className="w-full"
-                    optionFilterProp="label"
-                    options={users?.items?.map((list: any) => ({
-                      value: list?.id,
-                      label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-                    }))}
-                  />
-                </Form.Item>
-              )}
-            </Space.Compact>
+            <Tabs
+              defaultActiveKey="map"
+              items={[
+                {
+                  key: 'map',
+                  label: 'Map Selection',
+                  children: (
+                    <div className="p-4">
+                      <Space.Compact
+                        direction="vertical"
+                        className="w-full"
+                      >
+                        <Form.Item
+                          id="nameOfLocatioInputFieldId"
+                          label="Name of Location"
+                          rules={[{ required: true, message: 'Required' }]}
+                          name="title"
+                        >
+                          <Input className={controlClass} />
+                        </Form.Item>
+                        
+                        <EnhancedLocationPicker
+                          latitude={formValues.latitude}
+                          longitude={formValues.longitude}
+                          radius={formValues.distance}
+                          onLocationChange={handleLocationChange}
+                          onRadiusChange={handleRadiusChange}
+                          height="400px"
+                        />
+
+                        {/* Hidden form fields for map values */}
+                        <Form.Item name="latitude" hidden>
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="longitude" hidden>
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="distance" hidden>
+                          <Input />
+                        </Form.Item>
+
+                        <Form.Item
+                          id="isGlobalLocation"
+                          label="Is Global"
+                          name="isGlobal"
+                        >
+                          <Switch
+                            defaultChecked
+                            onChange={(checked) => setShowUsers(!checked)}
+                          />
+                        </Form.Item>
+                        
+                        {showUsers && (
+                          <Form.Item
+                            id="userAccessList"
+                            label="Select Users"
+                            name="allowedUserAccesses"
+                          >
+                            <Select
+                              mode="multiple"
+                              showSearch
+                              placeholder="Select a person"
+                              className="w-full"
+                              optionFilterProp="label"
+                              options={users?.items?.map((list: any) => ({
+                                value: list?.id,
+                                label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                              }))}
+                            />
+                          </Form.Item>
+                        )}
+                      </Space.Compact>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'manual',
+                  label: 'Manual Entry',
+                  children: (
+                    <div className="p-4">
+                      <Space.Compact
+                        direction="vertical"
+                        className="w-full"
+                      >
+                        <Form.Item
+                          id="nameOfLocatioInputFieldId"
+                          label="Name of Location"
+                          rules={[{ required: true, message: 'Required' }]}
+                          name="title"
+                        >
+                          <Input className={controlClass} />
+                        </Form.Item>
+                        <Form.Item
+                          id="latitudeOfLocatioInputFieldId"
+                          label="Latitude"
+                          rules={[{ required: true, message: 'Required' }]}
+                          name="latitude"
+                        >
+                          <InputNumber
+                            className={controlClass}
+                            placeholder="Enter latitude"
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          id="longitudeOfLocatioInputFieldId"
+                          label="Longitude"
+                          rules={[{ required: true, message: 'Required' }]}
+                          name="longitude"
+                        >
+                          <InputNumber
+                            className={controlClass}
+                            placeholder="Enter longitude"
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          label="Radius"
+                          id="distanceOfLocatioInputFieldId"
+                          rules={[{ required: true, message: 'Required' }]}
+                          name="distance"
+                        >
+                          <InputNumber
+                            min={0.1}
+                            className={controlClass}
+                            placeholder="Enter radius in km"
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          id="isGlobalLocation"
+                          label="Is Global"
+                          name="isGlobal"
+                        >
+                          <Switch
+                            defaultChecked
+                            onChange={(checked) => setShowUsers(!checked)}
+                          />
+                        </Form.Item>
+                        {showUsers && (
+                          <Form.Item
+                            id="userAccessList"
+                            label="Select Users"
+                            name="allowedUserAccesses"
+                          >
+                            <Select
+                              mode="multiple"
+                              showSearch
+                              placeholder="Select a person"
+                              className="w-full"
+                              optionFilterProp="label"
+                              options={users?.items?.map((list: any) => ({
+                                value: list?.id,
+                                label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                              }))}
+                            />
+                          </Form.Item>
+                        )}
+                      </Space.Compact>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </Form>
         </Spin>
       </CustomDrawerLayout>
