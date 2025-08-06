@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Select, Button, Card, Modal } from 'antd';
+import { Input, Select, Button, Card } from 'antd';
 import CandidateTable from './CandidateTable';
 import {
   useGetRecruitmentPipeline,
@@ -12,8 +12,7 @@ import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import { LuFileDown, LuSettings2 } from 'react-icons/lu';
-import CustomButton from '@/components/common/buttons/customButton';
+import { LuFileDown } from 'react-icons/lu';
 
 const RecruitmentPipeline = () => {
   const {
@@ -30,7 +29,6 @@ const RecruitmentPipeline = () => {
   } = useRecruitmentDashboardStore();
 
   const [debouncedSearch, setDebouncedSearch] = useState(search);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -160,19 +158,43 @@ const RecruitmentPipeline = () => {
 
   const averageDaysToHire = calculateAverageDaysToHire();
 
-  const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+  return (
+    <Card
+      bodyStyle={{ padding: '0px' }}
+      className="bg-white p-6 rounded-xl shadow-lg mx-1"
+    >
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-[16px] font-bold">Recruitment Pipeline</h2>
+        <div className="flex items-center gap-4">
+          {jobId && (
+            <div className="text-[18px] text-[#4E4EF1] font-bold">
+              <span className="">Days to Hire:</span> {averageDaysToHire}
+            </div>
+          )}
 
-      {/* Department */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Department</label>
+          <Button
+            icon={<LuFileDown />}
+            type="default"
+            onClick={handleExport}
+            loading={isExporting}
+            className="h-12 w-28"
+          >
+            Export
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Input
+          placeholder="Search candidate"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-14"
+        />
         <Select
           placeholder="Department"
           allowClear
           showSearch
-          value={departmentId}
-          className="w-full h-12"
           optionFilterProp="children"
           filterOption={(input, option) =>
             String(option?.label ?? '')
@@ -182,18 +204,12 @@ const RecruitmentPipeline = () => {
           loading={departmentsLoading}
           options={departmentOptions}
           onChange={(value) => setDepartmentId(value)}
+          className="h-14"
         />
-      </div>
-
-      {/* Stage */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Stage</label>
         <Select
           placeholder="Stage"
           allowClear
           showSearch
-          value={stageId}
-          className="w-full h-12"
           optionFilterProp="children"
           filterOption={(input, option) =>
             String(option?.label ?? '')
@@ -203,18 +219,12 @@ const RecruitmentPipeline = () => {
           loading={stagesLoading}
           options={stageOptions}
           onChange={(value) => setStageId(value)}
+          className="h-14"
         />
-      </div>
-
-      {/* Job */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Job</label>
         <Select
           placeholder="Job"
           allowClear
           showSearch
-          value={jobId}
-          className="w-full h-12"
           optionFilterProp="children"
           filterOption={(input, option) =>
             String(option?.label ?? '')
@@ -224,155 +234,12 @@ const RecruitmentPipeline = () => {
           loading={jobsLoading}
           options={jobOptions}
           onChange={(value) => setJobId(value)}
+          className="h-14"
         />
       </div>
-    </div>
-  );
 
-  return (
-    <>
-      <Card
-        bodyStyle={{ padding: '0px' }}
-        className="bg-white p-6 rounded-xl shadow-lg mx-1"
-      >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-[16px] font-bold">Recruitment Pipeline</h2>
-          <div className="flex items-center gap-4">
-            {jobId && (
-              <div className="text-[18px] text-[#4E4EF1] font-bold">
-                <span className="">Days to Hire:</span> {averageDaysToHire}
-              </div>
-            )}
-
-            <Button
-              icon={<LuFileDown />}
-              type="default"
-              onClick={handleExport}
-              loading={isExporting}
-              className="h-12 w-28"
-            >
-              Export
-            </Button>
-          </div>
-        </div>
-
-        {/* Desktop Filters */}
-        <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Input
-            placeholder="Search candidate"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-14"
-          />
-          <Select
-            placeholder="Department"
-            allowClear
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              String(option?.label ?? '')
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            loading={departmentsLoading}
-            options={departmentOptions}
-            onChange={(value) => setDepartmentId(value)}
-            className="h-14"
-          />
-          <Select
-            placeholder="Stage"
-            allowClear
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              String(option?.label ?? '')
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            loading={stagesLoading}
-            options={stageOptions}
-            onChange={(value) => setStageId(value)}
-            className="h-14"
-          />
-          <Select
-            placeholder="Job"
-            allowClear
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              String(option?.label ?? '')
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            loading={jobsLoading}
-            options={jobOptions}
-            onChange={(value) => setJobId(value)}
-            className="h-14"
-          />
-        </div>
-
-        {/* Mobile Filters */}
-        <div className="md:hidden">
-          <div className="flex justify-between gap-4 w-full mb-6">
-            <div className="flex-1">
-              <Input
-                placeholder="Search candidate"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-12"
-              />
-            </div>
-            <div>
-              <CustomButton
-                type="default"
-                size="small"
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
-                title=""
-                icon={<LuSettings2 size={20} />}
-              />
-            </div>
-          </div>
-        </div>
-
-        <CandidateTable data={pipelineData} isLoading={isLoading} />
-      </Card>
-
-      {/* Mobile Filter Modal */}
-      <Modal
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        footer={
-          <div className="flex gap-2 justify-center mt-4">
-            <CustomButton
-              onClick={() => setIsModalOpen(false)}
-              className="px-6 py-2 border rounded-lg text-sm text-gray-900"
-              title="Cancel"
-              type="default"
-            />
-            <CustomButton
-              title="Apply Filter"
-              type="primary"
-              onClick={() => {
-                setIsModalOpen(false);
-              }}
-              className="px-6 py-2 text-white rounded-lg text-sm"
-            />
-          </div>
-        }
-        className="!m-4 md:hidden"
-        style={{
-          top: '20%',
-          transform: 'translateY(-50%)',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
-        width="90%"
-        centered
-      >
-        <MobileFilterContent />
-      </Modal>
-    </>
+      <CandidateTable data={pipelineData} isLoading={isLoading} />
+    </Card>
   );
 };
 

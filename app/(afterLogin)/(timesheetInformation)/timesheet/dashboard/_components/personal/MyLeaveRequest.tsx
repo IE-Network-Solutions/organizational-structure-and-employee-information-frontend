@@ -5,7 +5,6 @@ import React from 'react';
 import dayjs from 'dayjs';
 import LeaveRequestSidebar from '../../../my-timesheet/_components/leaveRequestSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
-import { LuPlus } from 'react-icons/lu';
 
 interface LeaveRequest {
   id: string;
@@ -43,9 +42,8 @@ const MyLeaveRequest: React.FC = () => {
         <Button
           onClick={() => setIsShowLeaveRequestSidebar(true)}
           type="primary"
-          icon={<LuPlus size={16} />}
         >
-          <span className="hidden md:block">Request</span>
+          Request
         </Button>
       </div>
       <div className="flex flex-col h-48 overflow-y-auto scrollbar-none">

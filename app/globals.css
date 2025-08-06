@@ -207,7 +207,7 @@ h6 {
   @apply text-[#4DAEF0] !important;
 }
 
-.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+.ant-collapse>.ant-collapse-item>.ant-collapse-header {
   align-items: center !important;
 }
 
@@ -299,6 +299,7 @@ h6 {
 
 @layer components {
   @media (max-width: 640px) {
+
     /* Ant Design menu active item */
     .ant-menu-item-selected {
       @apply text-primary;
@@ -957,8 +958,7 @@ h6 {
   }
 }
 /* Hide the selected checkmark icon in Select dropdown */
-.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
-  .ant-select-item-option-state {
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
   display: none;
 }
 
@@ -1053,11 +1053,13 @@ h6 {
 .action-button-edit {
   height: 30px !important;
   width: 30px !important;
+  
 }
 
 .action-button-delete {
   height: 30px !important;
   width: 30px !important;
+ 
 }
 
 /* Override Ant Design's mobile styles */
