@@ -1,5 +1,19 @@
 import dayjs from 'dayjs';
-import { Button, Card, Col, DatePicker, Form, Row, Table, Select } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Row,
+  Table,
+  Modal,
+  Select,
+  InputNumber,
+  Switch,
+  Radio,
+  TimePicker,
+} from 'antd';
 import { InfoLine } from '../common/infoLine';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import WorkScheduleComponent from './workSchedule';
@@ -11,12 +25,14 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
 import BasicSalary from './basicSalary';
 import { LuPencil } from 'react-icons/lu';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
+import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { JobActionStatus } from '@/types/enumTypes';
 
 function Job({ id }: { id: string }) {
@@ -26,22 +42,22 @@ function Job({ id }: { id: string }) {
   // API queries for form options
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
+  const { data: branchOfficeData } = useGetBranches();
   const { data: positions } = useGetAllPositions();
+  const { data: workSchedules } = useGetWorkSchedules();
 
   const handleAddEmployeeJobInformation = () => {
     setIsAddEmployeeJobInfoModalVisible(true);
   };
-
-  // Callback to refresh employee data after job information changes
-  const handleJobInfoUpdate = () => {};
-
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
-  const { mutate: updateEmployeeJobInformation } =
+  const { mutate: updateEmployeeJobInformation, isLoading: isUpdating } =
     useUpdateEmployeeJobInformation();
   const [isEditing, setIsEditing] = useState(false);
-  const [editingJobId, setEditingJobId] = useState<string | null>(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [selectedJobRecord, setSelectedJobRecord] = useState<any>(null);
+  const [selectedWorkSchedule, setSelectedWorkSchedule] = useState<any>(null);
   const [form] = Form.useForm();
-  const [jobForm] = Form.useForm();
+  const [editForm] = Form.useForm();
 
   const handleEditClick = () => {
     form.setFieldsValue({
@@ -51,14 +67,25 @@ function Job({ id }: { id: string }) {
   };
 
   const handleJobEditClick = (record: any) => {
-    setEditingJobId(record.id);
-    jobForm.setFieldsValue({
+    setSelectedJobRecord(record);
+    setSelectedWorkSchedule(record.workSchedule);
+    editForm.setFieldsValue({
       effectiveStartDate: dayjs(record.effectiveStartDate),
       positionId: record.positionId,
       employementTypeId: record.employementTypeId,
       departmentId: record.departmentId,
-      jobAction: record.jobAction,
+      branchId: record.branchId,
+      workScheduleId: record.workScheduleId,
+      departmentLeadOrNot: record.departmentLeadOrNot,
     });
+    setIsEditModalVisible(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalVisible(false);
+    setSelectedJobRecord(null);
+    setSelectedWorkSchedule(null);
+    editForm.resetFields();
   };
 
   const editJoinedDate = (values: any) => {
@@ -74,23 +101,43 @@ function Job({ id }: { id: string }) {
   };
 
   const editJobInformation = (values: any) => {
-    if (!editingJobId) return;
+    if (!selectedJobRecord) return;
+
+    console.log('Form values:', values);
+
+    const updatedValues = {
+      effectiveStartDate: values.effectiveStartDate?.format('YYYY-MM-DD'),
+      positionId: values.positionId,
+      employementTypeId: values.employementTypeId,
+      departmentId: values.departmentId,
+      branchId: values.branchId,
+      workScheduleId: values.workScheduleId,
+      departmentLeadOrNot: values.departmentLeadOrNot || false,
+    };
+
+    console.log('Updated values:', updatedValues);
 
     updateEmployeeJobInformation(
       {
-        id: editingJobId,
-        values: {
-          ...values,
-          effectiveStartDate: values.effectiveStartDate?.format('YYYY-MM-DD'),
-        },
+        id: selectedJobRecord.id,
+        values: updatedValues,
       },
       {
         onSuccess: () => {
-          setEditingJobId(null);
-          jobForm.resetFields();
+          handleEditModalClose();
+        },
+        onError: (error) => {
+          console.error('Update failed:', error);
         },
       },
     );
+  };
+
+  const handleWorkScheduleChange = (value: string) => {
+    const selectedValue = workSchedules?.items?.find(
+      (schedule) => schedule.id === value,
+    );
+    setSelectedWorkSchedule(selectedValue || null);
   };
 
   const columns = [
@@ -98,77 +145,23 @@ function Job({ id }: { id: string }) {
       title: 'Effective Date',
       dataIndex: 'effectiveStartDate',
       key: 'effectiveStartDate',
-      render: (text: string, record: any) => {
-        if (editingJobId === record.id) {
-          return (
-            <Form.Item
-              name="effectiveStartDate"
-              rules={[{ required: true, message: 'Please select a date!' }]}
-            >
-              <DatePicker format="YYYY-MM-DD" className="w-full" />
-            </Form.Item>
-          );
-        }
-        return text ? text.slice(0, 10) : '-';
-      },
+      render: (text: string) => (text ? text.slice(0, 10) : '-'),
     },
     {
       title: 'Job Title',
       dataIndex: 'position',
       key: 'position',
-      render: (ruleData: any, record: any) => {
-        if (editingJobId === record.id) {
-          return (
-            <Form.Item
-              name="positionId"
-              rules={[{ required: true, message: 'Please select a position!' }]}
-            >
-              <Select
-                placeholder="Select position"
-                showSearch
-                optionFilterProp="label"
-                allowClear
-                className="w-full"
-                options={positions?.items?.map((position: any) => ({
-                  value: position?.id,
-                  label: position?.name || '',
-                }))}
-              />
-            </Form.Item>
-          );
-        }
-        return <>{record?.position?.name ?? '-'}</>;
-      },
+      render: (ruleData: any, record: any) => (
+        <>{record?.position?.name ?? '-'}</>
+      ),
     },
     {
       title: 'Employment Type',
       dataIndex: 'employementTypeId',
       key: 'employementTypeId',
-      render: (ruleData: any, record: any) => {
-        if (editingJobId === record.id) {
-          return (
-            <Form.Item
-              name="employementTypeId"
-              rules={[
-                { required: true, message: 'Please select employment type!' },
-              ]}
-            >
-              <Select
-                placeholder="Select employment type"
-                showSearch
-                optionFilterProp="label"
-                allowClear
-                className="w-full"
-                options={employementType?.items?.map((type: any) => ({
-                  value: type?.id,
-                  label: type?.name || '',
-                }))}
-              />
-            </Form.Item>
-          );
-        }
-        return <>{record?.employementType?.name ?? '-'}</>;
-      },
+      render: (ruleData: any, record: any) => (
+        <>{record?.employementType?.name ?? '-'}</>
+      ),
     },
     {
       title: 'Manager',
@@ -180,88 +173,29 @@ function Job({ id }: { id: string }) {
       title: 'Department',
       dataIndex: 'department',
       key: 'department',
-      render: (ruleData: any, record: any) => {
-        if (editingJobId === record.id) {
-          return (
-            <Form.Item
-              name="departmentId"
-              rules={[
-                { required: true, message: 'Please select a department!' },
-              ]}
-            >
-              <Select
-                placeholder="Select department"
-                showSearch
-                optionFilterProp="label"
-                allowClear
-                className="w-full"
-                options={departmentData?.map((department: any) => ({
-                  value: department?.id,
-                  label: department?.name || '',
-                }))}
-              />
-            </Form.Item>
-          );
-        }
-        return <>{record?.department?.name ?? '-'}</>;
-      },
+      render: (ruleData: any, record: any) => (
+        <>{record?.department?.name ?? '-'}</>
+      ),
+    },
+    {
+      title: 'Branch Office',
+      dataIndex: 'branch',
+      key: 'branch',
+      render: (ruleData: any, record: any) => (
+        <>{record?.branch?.name ?? '-'}</>
+      ),
     },
     {
       title: 'Job Status',
       dataIndex: 'jobAction',
       key: 'jobAction',
-      render: (text: string, record: any) => {
-        if (editingJobId === record.id) {
-          return (
-            <Form.Item
-              name="jobAction"
-              rules={[{ required: true, message: 'Please select job status!' }]}
-            >
-              <Select
-                placeholder="Select job status"
-                showSearch
-                optionFilterProp="label"
-                allowClear
-                className="w-full"
-                options={JobActionStatus?.map((status: any) => ({
-                  value: status?.id,
-                  label: status?.name || '',
-                }))}
-              />
-            </Form.Item>
-          );
-        }
-        return text ? text : '-';
-      },
+      render: (text: string) => (text ? text : '-'),
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (text: string, record: any) => {
         if (!record.isPositionActive) return null;
-
-        if (editingJobId === record.id) {
-          return (
-            <div className="flex gap-2">
-              <Button
-                type="primary"
-                size="small"
-                onClick={() => jobForm.submit()}
-              >
-                Save
-              </Button>
-              <Button
-                size="small"
-                onClick={() => {
-                  setEditingJobId(null);
-                  jobForm.resetFields();
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          );
-        }
 
         return (
           <Button
@@ -274,9 +208,9 @@ function Job({ id }: { id: string }) {
     },
   ];
 
+  console.log('-----employeeData-----', employeeData?.employeeJobInformation);
   return (
     <>
-      {' '}
       <Card
         loading={isLoading}
         title="Employment Information"
@@ -353,22 +287,285 @@ function Job({ id }: { id: string }) {
           </div>
         }
       >
-        <Form form={jobForm} onFinish={editJobInformation}>
-          <Table
-            dataSource={employeeData?.employeeJobInformation}
-            columns={columns}
-            className="w-full overflow-auto"
-            pagination={{ hideOnSinglePage: true }}
-            rowKey="id"
-          />
-        </Form>
+        <Table
+          dataSource={employeeData?.employeeJobInformation}
+          columns={columns}
+          className="w-full overflow-auto"
+          pagination={{ hideOnSinglePage: true }}
+          rowKey="id"
+        />
       </Card>
       <WorkScheduleComponent id={id} />
-      <CreateEmployeeJobInformation
-        id={id}
-        onInfoSubmition={handleJobInfoUpdate}
-      />
+      <CreateEmployeeJobInformation id={id} />
       <BasicSalary id={id} />
+
+      {/* Edit Job Information Modal */}
+      <Modal
+        title="Edit Employee Job Information"
+        centered
+        open={isEditModalVisible}
+        onCancel={handleEditModalClose}
+        footer={false}
+        destroyOnClose
+      >
+        <Form form={editForm} onFinish={editJobInformation} layout="vertical">
+          {/* Job Timeline Section */}
+          <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+            Job Timeline
+          </div>
+
+          {/* Effective Start Date */}
+          <Row gutter={16}>
+            <Col xs={24}>
+              <Form.Item
+                className="font-semibold text-xs"
+                name={'effectiveStartDate'}
+                label={
+                  <span className="mb-1 font-semibold text-xs">
+                    Effective Start Date *
+                  </span>
+                }
+                rules={[
+                  { required: true, message: 'Please select the joined date' },
+                ]}
+              >
+                <DatePicker className="w-full" format="DD MMM YYYY" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Position and Employment Type */}
+          <Row gutter={16}>
+            <Col xs={12}>
+              <Form.Item
+                className="font-semibold text-xs"
+                name={'positionId'}
+                label={
+                  <span className="mb-1 font-semibold text-xs">Position *</span>
+                }
+                rules={[
+                  { required: true, message: 'Please select a position' },
+                ]}
+              >
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder="Select position"
+                  allowClear
+                  options={positions?.items?.map((position: any) => ({
+                    value: position?.id,
+                    label: position?.name || '',
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={12}>
+              <Form.Item
+                className="font-semibold text-xs"
+                name={'employementTypeId'}
+                label={
+                  <span className="mb-1 font-semibold text-xs">
+                    Employment Type *
+                  </span>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select an employment type',
+                  },
+                ]}
+              >
+                <Select
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder="Select an employment type"
+                  options={employementType?.items?.map((type: any) => ({
+                    value: type?.id,
+                    label: type?.name || '',
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Department and Branch Office in single column */}
+          <Row gutter={16}>
+            <Col xs={24}>
+              <Form.Item
+                className="w-full font-semibold text-xs"
+                name={'departmentId'}
+                label={
+                  <span className="mb-1 font-semibold text-xs">
+                    Department *
+                  </span>
+                }
+                rules={[
+                  { required: true, message: 'Please select a department' },
+                ]}
+              >
+                <Select
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder="Select a department"
+                  options={departmentData?.map((department: any) => ({
+                    value: department?.id,
+                    label: department?.name || '',
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24}>
+              <Form.Item
+                className="w-full font-semibold text-xs"
+                name={'branchId'}
+                label={
+                  <span className="mb-1 font-semibold text-xs">
+                    Branch Office *
+                  </span>
+                }
+                rules={[
+                  { required: true, message: 'Please select a branch office' },
+                ]}
+              >
+                <Select
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder="Select a branch office"
+                  options={branchOfficeData?.items?.map((branch: any) => ({
+                    value: branch?.id,
+                    label: branch?.name || '',
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Team Lead */}
+          <Row gutter={16}>
+            <Col xs={16} sm={8}>
+              <div className="font-semibold text-sm">Team Lead</div>
+            </Col>
+            <Col xs={8} sm={16}>
+              <Form.Item name="departmentLeadOrNot" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Work Schedule Section */}
+          <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+            Work Schedule
+          </div>
+
+          <Row gutter={16}>
+            <Col xs={24} sm={24}>
+              <Form.Item
+                className="font-semibold text-xs"
+                name="workScheduleId"
+                id="workScheduleId"
+                label={
+                  <span className="mb-1 font-semibold text-xs">
+                    Work Schedule Category *
+                  </span>
+                }
+                rules={[
+                  { required: true, message: 'Please select a work schedule!' },
+                ]}
+              >
+                <Select
+                  placeholder="Select an option"
+                  onChange={handleWorkScheduleChange}
+                  allowClear
+                  className="bg-white"
+                  options={workSchedules?.items?.map((schedule: any) => ({
+                    value: schedule?.id,
+                    label: schedule?.name || '',
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {selectedWorkSchedule && (
+            <Row gutter={16}>
+              <Col xs={24} sm={24}>
+                <Table
+                  columns={[
+                    {
+                      title: 'Working Day',
+                      dataIndex: 'workingDay',
+                      key: 'workingDay',
+                    },
+                    {
+                      title: 'Time',
+                      dataIndex: 'time',
+                      key: 'time',
+                    },
+                  ]}
+                  dataSource={(selectedWorkSchedule?.detail || []).map(
+                    (schedule: any, index: number) => ({
+                      key: index.toString(),
+                      workingDay: (
+                        <div className="flex space-x-2 justify-start">
+                          <Switch
+                            checked={schedule?.status || schedule?.workday}
+                            disabled
+                          />
+                          <span>{schedule?.dayOfWeek || schedule?.day}</span>
+                        </div>
+                      ),
+                      time: (
+                        <TimePicker
+                          defaultValue={dayjs(
+                            schedule?.hours ||
+                              (schedule?.startTime && schedule?.endTime
+                                ? `${dayjs(schedule?.startTime, 'h:mm A').format('HH:mm:ss')} - ${dayjs(
+                                    schedule?.endTime,
+                                    'h:mm A',
+                                  ).format('HH:mm:ss')}`
+                                : '00:00:00'),
+                            'HH:mm:ss',
+                          )}
+                          disabled
+                        />
+                      ),
+                    }),
+                  )}
+                  pagination={false}
+                />
+              </Col>
+            </Row>
+          )}
+
+          <Form.Item>
+            <Row className="flex justify-end gap-3">
+              <Button
+                type="primary"
+                htmlType="submit"
+                name="submit"
+                loading={isUpdating}
+              >
+                Update
+              </Button>
+              <Button
+                className="text-indigo-500"
+                htmlType="button"
+                value={'cancel'}
+                name="cancel"
+                onClick={handleEditModalClose}
+              >
+                Cancel
+              </Button>
+            </Row>
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 }
