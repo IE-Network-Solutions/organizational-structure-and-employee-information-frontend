@@ -66,9 +66,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     createJobInformation(values, {
       onSuccess: () => {
         handleClose();
-
         onInfoSubmition && onInfoSubmition();
-
       },
     });
   };
