@@ -1,7 +1,7 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, InputNumber, Select, Space, Spin, Switch, Tabs } from 'antd';
+import { Form, Input, Select, Space, Spin, Switch, Tabs } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -109,7 +109,6 @@ const LocationSidebar = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      console.log('Mutation succeeded, closing form and invalidating cache');
       onClose();
     }
   }, [isSuccess]);
@@ -135,10 +134,6 @@ const LocationSidebar = () => {
       isGlobal: Boolean(value.isGlobal),
       allowedUserAccesses: value.allowedUserAccesses,
     };
-    
-    // Debug logging
-    console.log('Submitting payload:', payload);
-    console.log('Distance value:', distance, 'km =', distanceInMeters, 'meters');
     
     setAllowedArea(payload);
   };

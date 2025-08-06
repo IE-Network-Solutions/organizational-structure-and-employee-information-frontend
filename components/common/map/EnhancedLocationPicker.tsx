@@ -99,7 +99,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
     onRadiusChange(newRadius);
   };
 
-  const handleSearchSelect = (lat: number, lng: number, address: string) => {
+  const handleSearchSelect = (lat: number, lng: number) => {
     handleLocationChange(lat, lng);
   };
 

@@ -65,6 +65,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const searchLocation = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
+      setIsLoading(false);
       return;
     }
 
@@ -76,7 +77,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       const data = await response.json();
       setSearchResults(data);
     } catch (error) {
-      console.error('Error searching location:', error);
+      setSearchResults([]);
     } finally {
       setIsLoading(false);
     }
@@ -84,9 +85,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   // Debounced search function
   const debouncedSearch = useCallback(
-    debounce((query: string) => {
+    (query: string) => {
       searchLocation(query);
-    }, debounceDelay),
+    },
     [debounceDelay]
   );
 

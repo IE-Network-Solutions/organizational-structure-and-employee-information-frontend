@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { MapContainer, TileLayer, Marker, Circle, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -191,11 +191,6 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   const handleLocationChange = (lat: number, lng: number) => {
     setPosition([lat, lng]);
     onLocationChange(lat, lng);
-  };
-
-  const handleRadiusChange = (newRadius: number) => {
-    setCurrentRadius(newRadius);
-    onRadiusChange(newRadius);
   };
 
   if (!isClient) {
