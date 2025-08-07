@@ -243,10 +243,9 @@ const BenefitypeSideBar = () => {
                     label={isRateBenefit ? 'Rate Amount' : 'Fixed Amount'}
                     className="form-item"
                     rules={[
-                      { required: true, message: 'Amount is Required' },
                       {
                         validator: (notused, value) => {
-                          if (value < 0) {
+                          if (value && value < 0) {
                             return Promise.reject(
                               new Error('Amount cannot be negative'),
                             );
@@ -268,12 +267,6 @@ const BenefitypeSideBar = () => {
                     <Form.Item
                       name="NoOfPayPeriod"
                       label={'Number of Pay Period'}
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Number of Pay Period is required!',
-                        },
-                      ]}
                       className="form-item"
                     >
                       <Input
@@ -291,9 +284,6 @@ const BenefitypeSideBar = () => {
                       className="form-item"
                       name="department"
                       label="Select Department"
-                      rules={[
-                        { required: true, message: 'Department is Required!' },
-                      ]}
                     >
                       <Select
                         placeholder="Select a department"
@@ -314,12 +304,6 @@ const BenefitypeSideBar = () => {
                       className="form-item"
                       name="employees"
                       label="Select Employees"
-                      rules={[
-                        {
-                          required: true,
-                          message: 'At Least one Employee is Required!',
-                        },
-                      ]}
                     >
                       <Select
                         mode="multiple"

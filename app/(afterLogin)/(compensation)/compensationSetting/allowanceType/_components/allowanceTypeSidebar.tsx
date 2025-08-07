@@ -201,10 +201,9 @@ const AllowanceTypeSideBar = () => {
               name="defaultAmount"
               label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
               rules={[
-                { required: true, message: 'Amount is Required' },
                 {
                   validator: (notused, value) => {
-                    if (value < 0) {
+                    if (value && value < 0) {
                       return Promise.reject(
                         new Error('Amount cannot be negative'),
                       );
@@ -253,9 +252,6 @@ const AllowanceTypeSideBar = () => {
                   className="form-item"
                   name="employees"
                   label="Select Employees"
-                  rules={[
-                    { required: true, message: 'Please select employees' },
-                  ]}
                 >
                   <Select
                     showSearch
