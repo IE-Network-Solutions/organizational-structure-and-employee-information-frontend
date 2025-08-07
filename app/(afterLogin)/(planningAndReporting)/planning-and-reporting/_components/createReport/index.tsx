@@ -109,32 +109,21 @@ function CreateReport() {
     }
   }, [openReportModal, refetchPlannedTasks]);
 
-  // Auto-set status for pre-achieved tasks
+  // Auto-set status for pre-achieved tasks - only run once when data is loaded
   useEffect(() => {
     if (formattedData) {
       const newStatuses: Record<string, string> = {};
       let hasChanges = false;
 
-      // Copy existing statuses that are not undefined
-      Object.entries(selectedStatuses).forEach(([taskId, status]) => {
-        if (status !== undefined) {
-          newStatuses[taskId] = status;
-        }
-      });
-
+      // Only set initial statuses for pre-achieved tasks that haven't been manually set
       formattedData.forEach((objective: any) => {
         objective?.keyResults?.forEach((keyresult: any) => {
           // Handle milestone tasks
           keyresult?.milestones?.forEach((milestone: any) => {
             milestone?.tasks?.forEach((task: any) => {
-              // If task is pre-achieved and not already set to Done, set it to Done
-              if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] !== 'Done') {
+              // Only auto-set if task is pre-achieved and user hasn't manually set a status
+              if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
                 newStatuses[task.taskId] = 'Done';
-                hasChanges = true;
-              }
-              // If task is not pre-achieved and currently set to Done, clear the status
-              else if (task?.status !== 'pre-achieved' && selectedStatuses[task.taskId] === 'Done') {
-                delete newStatuses[task.taskId];
                 hasChanges = true;
               }
             });
@@ -142,31 +131,23 @@ function CreateReport() {
 
           // Handle regular tasks
           keyresult?.tasks?.forEach((task: any) => {
-            // If task is pre-achieved and not already set to Done, set it to Done
-            if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] !== 'Done') {
+            // Only auto-set if task is pre-achieved and user hasn't manually set a status
+            if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
               newStatuses[task.taskId] = 'Done';
-              hasChanges = true;
-            }
-            // If task is not pre-achieved and currently set to Done, clear the status
-            else if (task?.status !== 'pre-achieved' && selectedStatuses[task.taskId] === 'Done') {
-              delete newStatuses[task.taskId];
               hasChanges = true;
             }
           });
         });
       });
 
-      // Update all statuses at once if there are changes
+      // Update statuses only if there are new pre-achieved tasks to set
       if (hasChanges) {
-        // Clear all existing statuses first
-        resetStatuses();
-        // Then set the new statuses
         Object.entries(newStatuses).forEach(([taskId, status]) => {
           setStatus(taskId, status);
         });
       }
     }
-  }, [formattedData, selectedStatuses, setStatus, resetStatuses, allPlannedTaskForReport]);
+  }, [formattedData, setStatus]); // Removed selectedStatuses and other dependencies to prevent interference
 
   useEffect(() => {
     if (formattedData && Object.keys(selectedStatuses).length > 0) {
