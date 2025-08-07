@@ -219,8 +219,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
               value={currentRadius}
               onChange={handleRadiusChange}
               marks={{
-                0.01: '10m',
-                0.1: '100m',
+                0.01: '100m',
                 1: '1km',
                 5: '5km',
                 10: '10km',
