@@ -43,6 +43,8 @@ import GeneratePayrollModal, { Incentive } from './_components/modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { FiscalYear, Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,6 +52,8 @@ const Payroll = () => {
   const [bankLetter, setBankLetter] = useState(true);
   const [paySlip, setPaySlip] = useState(false);
   const [exportPayrollData, setExportPayrollData] = useState(true);
+  const { data: getAllFiscalYears } = useGetAllFiscalYears();
+
   const {
     searchQuery,
     setSearchQuery,
@@ -170,6 +174,12 @@ const Payroll = () => {
     netPay: number;
   };
 
+  const fiscalYearMonths = getAllFiscalYears?.items?.flatMap(
+    (item: FiscalYear) => item.sessions || [],
+  )?.flatMap((session) => session?.months || []) || [];
+
+
+  console.log(getAllFiscalYears, 'getAllFiscalYears');
   const handleSearch = (searchValues: any) => {
     const queryParams = new URLSearchParams();
 
@@ -178,6 +188,22 @@ const Payroll = () => {
     }
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
+      
+      // Find the month object to get start and end dates
+      const month = fiscalYearMonths.find(
+        (month) => month?.id === searchValues.monthId,
+      );
+      
+      if (month?.startDate) {
+        const startDate = new Date(month.startDate);
+        const formattedStartDate = startDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        queryParams.append('startDate', formattedStartDate);
+      }
+      if (month?.endDate) {
+        const endDate = new Date(month.endDate);
+        const formattedEndDate = endDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        queryParams.append('endDate', formattedEndDate);
+      }
     }
     if (searchValues?.divisionId) {
       queryParams.append('divisionId', searchValues.divisionId);
