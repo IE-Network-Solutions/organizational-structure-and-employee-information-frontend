@@ -569,6 +569,7 @@ function EditReport() {
                                               if (e.target.value === 'Done') {
                                                 form.setFieldsValue({
                                                   [task.taskId]: {
+                                                    status: e.target.value,
                                                     actualValue:
                                                       task?.targetValue,
                                                   },
@@ -578,6 +579,7 @@ function EditReport() {
                                               ) {
                                                 form.setFieldsValue({
                                                   [task.taskId]: {
+                                                    status: e.target.value,
                                                     actualValue: 0,
                                                   },
                                                 });

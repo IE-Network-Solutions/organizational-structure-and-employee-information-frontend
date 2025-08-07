@@ -176,48 +176,48 @@ function Page() {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <Card
-              className="bg-[#fafafa] font-bold"
-              key={`all-card-${1}`}
-              style={{ width: '100%' }}
-            >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
-                <CiMedal fill="#0BA259" />
-              </div>
-              <p className="text-gray-400 text-xs font-normal  mt-4">
-                Total number of recognized employees
-              </p>
-              <p className="text-3xl">{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
-            </Card>
-            <Card
-              className="bg-[#fafafa] font-bold"
-              key={`all-card-${2}`}
-              style={{ width: '100%' }}
-            >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
-                <CiMedal fill="#0BA259" />
-              </div>
-              <p className="text-gray-400 text-xs font-normal mt-4">
-                Total number of Criteria
-              </p>
-              <p className="text-3xl">{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
-            </Card>
-          </div>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+             <Card
+               className="bg-[#fafafa] font-bold"
+               key={`all-card-${1}`}
+               style={{ width: '100%' }}
+             >
+               <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
+                 <CiMedal fill="#0BA259" />
+               </div>
+               <p className="text-gray-400 text-xs font-normal  mt-4">
+                 Total number of recognized employees
+               </p>
+               <p className="text-3xl">{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
+             </Card>
+             <Card
+               className="bg-[#fafafa] font-bold"
+               key={`all-card-${2}`}
+               style={{ width: '100%' }}
+             >
+               <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
+                 <CiMedal fill="#0BA259" />
+               </div>
+               <p className="text-gray-400 text-xs font-normal mt-4">
+                 Total number of Criteria
+               </p>
+               <p className="text-3xl">{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
+             </Card>
+           </div>
         </>
       ),
     },
-    ...(recognitionType?.items?.map((item: any) => ({
-      key: item.id,
-      label: item.name,
-      children: (
-        <PageHeader title="Recognition" description="Manage Recognition" />
-      ),
-    })) || []), // Fallback to an empty array if recognitionType?.items is undefined
+         ...(recognitionType?.items?.map((item: any) => ({
+       key: item.id,
+       label: item.name,
+       children: (
+         <PageHeader title="Recognition" description="Manage Recognition" />
+       ),
+     })) || []), // Fallback to an empty array if recognitionType?.items is undefined
   ];
 
   const handleSearchChange = (key: string, value: string) => {
-    updateSearchValue(value, key);
+    updateSearchValue(key, value);
   };
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
@@ -227,12 +227,21 @@ function Page() {
   }
   return (
     <div>
-      <Tabs
-        className="ml-[3%] max-w-[90%]"
-        defaultActiveKey="1"
-        items={items}
-        onChange={(key) => setSelectedRecognitionType(key)}
-      />
+             <Tabs
+         className="ml-[3%] max-w-[90%]"
+         defaultActiveKey="1"
+         items={items}
+         onChange={(key) => {
+           setSelectedRecognitionType(key);
+           // Update search value with recognition type ID for filtering
+           if (key !== '1') {
+             updateSearchValue('recognitionTypeId', key);
+           } else {
+             // Remove recognition type filter for "All" tab
+             updateSearchValue('recognitionTypeId', '');
+           }
+         }}
+       />
       <>
         <TabLandingLayout
           id="conversationLayoutId"
@@ -264,70 +273,80 @@ function Page() {
             align="middle"
             className="mb-5 px-6"
           >
-            <Col lg={9} md={9} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="Search by Employee"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={allUserData?.items?.map((item: any) => ({
-                  value: item?.id,
-                  label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
-                }))}
-              />
-            </Col>
+                         <Col lg={9} md={9} xs={20} sm={20} flex="auto">
+               <Select
+                 placeholder="Search by Employee"
+                 onChange={(value) => handleSearchChange('userId', value)}
+                 allowClear
+                 showSearch
+                 optionFilterProp="children"
+                 filterOption={(input, option) =>
+                   String(option?.label ?? '')
+                     .toLowerCase()
+                     .includes(input.toLowerCase())
+                 }
+                 className="w-full h-14 rounded-lg"
+                 options={allUserData?.items?.map((item: any) => ({
+                   value: item?.id,
+                   label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
+                 }))}
+               />
+             </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="filter by year"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={
-                  getAllFisicalYear?.items?.map((item: any) => ({
-                    key: item?.id,
-                    value: item?.name,
-                  })) ?? []
-                }
-              />
-            </Col>
-
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="Select by session"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={
-                  getAllFisicalYear?.items
-                    ?.find((item: FiscalYear) => item?.id === searchValue?.year)
-                    ?.sessions?.map((session: Session) => ({
-                      key: session?.id,
-                      value: session?.name,
+                           <Col lg={5} md={5} xs={20} sm={20} flex="auto">
+                <Select
+                  placeholder="filter by year"
+                  onChange={(value) => handleSearchChange('calendarId', value)}
+                  allowClear
+                  className="w-full h-14 rounded-lg"
+                  options={
+                    getAllFisicalYear?.items?.map((item: any) => ({
+                      key: item?.id,
+                      value: item?.id,
+                      label: item?.name,
                     })) ?? []
-                }
-              />
-            </Col>
+                  }
+                />
+              </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
-              <Select
-                placeholder="filter by month"
-                onChange={(value) => handleSearchChange('employeeId', value)}
-                allowClear
-                className="w-full h-14 rounded-lg"
-                options={
-                  getAllFisicalYear?.items
-                    ?.find((item: FiscalYear) => item?.id === searchValue?.year)
-                    ?.sessions?.find(
-                      (item: Session) => item?.id === searchValue?.session,
-                    )
-                    ?.months?.map((month: Month) => ({
-                      key: month?.id,
-                      value: month?.name,
-                    })) ?? []
-                }
-              />
-            </Col>
+                           <Col lg={5} md={5} xs={20} sm={20} flex="auto">
+                <Select
+                  placeholder="Select by session"
+                  onChange={(value) => handleSearchChange('sessionId', value)}
+                  allowClear
+                  className="w-full h-14 rounded-lg"
+                  options={
+                    getAllFisicalYear?.items
+                      ?.find((item: FiscalYear) => item?.id === searchValue?.calendarId)
+                      ?.sessions?.map((session: Session) => ({
+                        key: session?.id,
+                        value: session?.id,
+                        label: session?.name,
+                      })) ?? []
+                  }
+                />
+              </Col>
+
+                                                       <Col lg={5} md={5} xs={20} sm={20} flex="auto">
+                <Select
+                  placeholder="filter by month"
+                  onChange={(value) => handleSearchChange('monthId', value)}
+                  allowClear
+                  className="w-full h-14 rounded-lg"
+                  options={
+                    getAllFisicalYear?.items
+                      ?.find((item: FiscalYear) => item?.id === searchValue?.calendarId)
+                      ?.sessions?.find(
+                        (item: Session) => item?.id === searchValue?.sessionId,
+                      )
+                      ?.months?.map((month: Month) => ({
+                        key: month?.id,
+                        value: month?.id,
+                        label: month?.name,
+                      })) ?? []
+                  }
+                />
+              </Col>
           </Row>
           <div className="px-6">
             <Table<any>
