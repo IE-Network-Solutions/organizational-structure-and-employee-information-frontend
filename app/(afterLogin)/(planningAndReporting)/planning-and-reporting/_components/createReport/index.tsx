@@ -180,12 +180,14 @@ function CreateReport() {
               if (selectedStatuses[task.taskId]) {
                 if (selectedStatuses[task.taskId] === 'Done') {
                   initialValues[task.taskId] = {
+                    status: selectedStatuses[task.taskId],
                     actualValue: Number(
                       task?.targetValue ?? 0,
                     )?.toLocaleString(),
                   };
                 } else if (selectedStatuses[task.taskId] === 'Not') {
                   initialValues[task.taskId] = {
+                    status: selectedStatuses[task.taskId],
                     actualValue: Number(
                       task?.actualValue ?? 0,
                     )?.toLocaleString(),
@@ -200,10 +202,12 @@ function CreateReport() {
             if (selectedStatuses[task.taskId]) {
               if (selectedStatuses[task.taskId] === 'Done') {
                 initialValues[task.taskId] = {
+                  status: selectedStatuses[task.taskId],
                   actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
                 };
               } else if (selectedStatuses[task.taskId] === 'Not') {
                 initialValues[task.taskId] = {
+                  status: selectedStatuses[task.taskId],
                   actualValue: 0,
                 };
               }
@@ -382,6 +386,7 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
+                                                          status: e.target.value,
                                                           actualValue: Number(
                                                             task?.targetValue ??
                                                               0,
@@ -393,6 +398,7 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
+                                                          status: e.target.value,
                                                           actualValue: 0,
                                                         },
                                                       });
@@ -711,6 +717,7 @@ function CreateReport() {
                                             if (e.target.value === 'Done') {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
+                                                  status: e.target.value,
                                                   actualValue: Number(
                                                     task?.targetValue ?? 0,
                                                   )?.toLocaleString(),
@@ -721,6 +728,7 @@ function CreateReport() {
                                             ) {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
+                                                  status: e.target.value,
                                                   actualValue: 0,
                                                 },
                                               });
