@@ -278,6 +278,13 @@ function Page() {
                  placeholder="Search by Employee"
                  onChange={(value) => handleSearchChange('userId', value)}
                  allowClear
+                 showSearch
+                 optionFilterProp="children"
+                 filterOption={(input, option) =>
+                   String(option?.label ?? '')
+                     .toLowerCase()
+                     .includes(input.toLowerCase())
+                 }
                  className="w-full h-14 rounded-lg"
                  options={allUserData?.items?.map((item: any) => ({
                    value: item?.id,
