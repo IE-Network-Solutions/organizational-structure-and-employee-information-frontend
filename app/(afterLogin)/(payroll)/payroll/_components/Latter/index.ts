@@ -371,7 +371,7 @@ export const useGenerateBankLetter = () => {
 
     // Generate and save the document
     const buffer = await Packer.toBuffer(doc);
-    const blob = new Blob([buffer], {
+    const blob = new Blob([new Uint8Array(buffer)], {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     });
     saveAs(blob, `${tenant.companyName}_Bank_Letter.docx`);
