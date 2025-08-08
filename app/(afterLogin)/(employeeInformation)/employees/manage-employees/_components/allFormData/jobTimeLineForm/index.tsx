@@ -136,7 +136,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
-              The effective start date cannot be before the employee&apos;s joined date.
+              The effective start date cannot be before the employees joined date.
             </div>
           </div>
         </Col>
