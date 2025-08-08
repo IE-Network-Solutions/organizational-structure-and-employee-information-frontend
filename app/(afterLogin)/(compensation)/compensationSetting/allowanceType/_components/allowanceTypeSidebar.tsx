@@ -201,6 +201,7 @@ const AllowanceTypeSideBar = () => {
               name="defaultAmount"
               label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
               rules={[
+                { required: true, message: 'Amount is Required' },
                 {
                   validator: (notused, value) => {
                     if (value && value < 0) {
