@@ -7,14 +7,17 @@ import { CreateEmployeeJobInformationInterface } from '@/store/server/features/e
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface Ids {
   id: string;
   onInfoSubmition?: () => void;
+  onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   id: id,
-  onInfoSubmition: onInfoSubmition,
+
+  onJobInfoUpdated: onJobInfoUpdated,
 }) => {
   const [form] = Form.useForm();
   const params = useParams();
@@ -26,6 +29,12 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     employeeJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
+
+  useEffect(() => {
+    if (isAddEmployeeJobInfoModalVisible) {
+      form.resetFields(); // Reset form values on modal open
+    }
+  }, [isAddEmployeeJobInfoModalVisible]);
   const { data: employeeData } = useGetEmployee(id);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
@@ -49,8 +58,15 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     createJobInformation(values, {
       onSuccess: () => {
         handleClose();
-        onInfoSubmition && onInfoSubmition();
+        
+        // Call the callback to refresh job information data
+        if (onJobInfoUpdated) {
+          setTimeout(() => {
+            onJobInfoUpdated();
+          }, 500);
+        }
       },
+   
     });
   };
   return (
