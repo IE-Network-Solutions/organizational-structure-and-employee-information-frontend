@@ -12,7 +12,7 @@ import { FaPlus } from 'react-icons/fa';
 const Page = () => {
   const { setIsShowLocationSidebar } = useTimesheetSettingsStore();
   const { data } = useGetAllowedAreas();
-  
+
   return (
     <div className="p-5 rounded-2xl bg-white h-full">
       <div className="flex items-center justify-between mb-4">

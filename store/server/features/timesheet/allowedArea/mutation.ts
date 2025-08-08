@@ -30,10 +30,19 @@ export const useSetAllowedArea = () => {
   return useMutation(setAllowedArea, {
     onSuccess: (response, variables: any) => {
       const currentData = queryClient.getQueryData(['allowed-areas']);
-      if (currentData && response?.item && typeof currentData === 'object' && 'items' in currentData) {
-        const currentItems = Array.isArray(currentData.items) ? currentData.items : [];
+      if (
+        currentData &&
+        response?.item &&
+        typeof currentData === 'object' &&
+        'items' in currentData
+      ) {
+        const currentItems = Array.isArray(currentData.items)
+          ? currentData.items
+          : [];
         // Check if the item exists (update) or is new (create)
-        const existsIndex = currentItems.findIndex((i: any) => i.id === response.item.id);
+        const existsIndex = currentItems.findIndex(
+          (i: any) => i.id === response.item.id,
+        );
         let updatedItems;
         if (existsIndex !== -1) {
           // Update existing item
@@ -64,7 +73,12 @@ export const useDeleteAllowedArea = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, id) => {
       const currentData = queryClient.getQueryData(['allowed-areas']);
-      if (currentData && typeof currentData === 'object' && 'items' in currentData && Array.isArray(currentData.items)) {
+      if (
+        currentData &&
+        typeof currentData === 'object' &&
+        'items' in currentData &&
+        Array.isArray(currentData.items)
+      ) {
         const updatedItems = currentData.items.filter((item) => item.id !== id);
         queryClient.setQueryData(['allowed-areas'], {
           ...currentData,
@@ -74,6 +88,6 @@ export const useDeleteAllowedArea = () => {
         queryClient.invalidateQueries({ queryKey: ['allowed-areas'] });
       }
       handleSuccessMessage('DELETE');
-    }
+    },
   });
 };
