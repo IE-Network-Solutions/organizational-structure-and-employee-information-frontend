@@ -10,13 +10,10 @@ import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 interface Ids {
-  id: string;
   onInfoSubmition?: () => void;
   onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  id: id,
-
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
   const [form] = Form.useForm();
