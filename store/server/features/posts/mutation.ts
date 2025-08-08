@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { AddPostData } from './interface';
-import axios from 'axios';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';

@@ -1,5 +1,4 @@
 import { useQuery } from 'react-query';
-import axios from 'axios';
 import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';

@@ -122,7 +122,10 @@ function CreateReport() {
           keyresult?.milestones?.forEach((milestone: any) => {
             milestone?.tasks?.forEach((task: any) => {
               // Only auto-set if task is pre-achieved and user hasn't manually set a status
-              if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
+              if (
+                task?.status === 'pre-achieved' &&
+                selectedStatuses[task.taskId] === undefined
+              ) {
                 newStatuses[task.taskId] = 'Done';
                 hasChanges = true;
               }
@@ -132,7 +135,10 @@ function CreateReport() {
           // Handle regular tasks
           keyresult?.tasks?.forEach((task: any) => {
             // Only auto-set if task is pre-achieved and user hasn't manually set a status
-            if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
+            if (
+              task?.status === 'pre-achieved' &&
+              selectedStatuses[task.taskId] === undefined
+            ) {
               newStatuses[task.taskId] = 'Done';
               hasChanges = true;
             }
@@ -367,7 +373,8 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status: e.target.value,
+                                                          status:
+                                                            e.target.value,
                                                           actualValue: Number(
                                                             task?.targetValue ??
                                                               0,
@@ -379,7 +386,8 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status: e.target.value,
+                                                          status:
+                                                            e.target.value,
                                                           actualValue: 0,
                                                         },
                                                       });

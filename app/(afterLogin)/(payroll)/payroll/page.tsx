@@ -44,9 +44,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import {
-  FiscalYear,
-} from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
