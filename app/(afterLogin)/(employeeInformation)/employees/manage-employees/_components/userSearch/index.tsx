@@ -6,7 +6,7 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
-import { Col, Input, Row, Select, DatePicker, Radio } from 'antd';
+import { Col, Input, Row, Select, DatePicker, Radio, Button } from 'antd';
 import { Modal } from 'antd';
 import { LuSettings2 } from 'react-icons/lu';
 
@@ -91,7 +91,12 @@ const EmployeeSearch: React.FC = () => {
     : 'notNull';
 
   const Filters = (
-    <Row gutter={8} justify="space-between" align="middle" className="mb-5">
+    <Row
+      gutter={8}
+      justify="space-between"
+      align="middle"
+      className="mb-5 my-2"
+    >
       {!shouldUseMobileLayout && (
         <Col xs={24} sm={24} md={24} lg={6} xl={6}>
           <Input
@@ -104,7 +109,7 @@ const EmployeeSearch: React.FC = () => {
         </Col>
       )}
       <Col xs={24} sm={24} md={24} lg={18} xl={18}>
-        <Row gutter={8} justify="end">
+        <Row gutter={[8, 8]} justify="end">
           <Col xs={24} sm={24} md={24} lg={4} xl={4}>
             <Select
               id={`selectBranches${searchParams.allOffices}`}
@@ -206,11 +211,24 @@ const EmployeeSearch: React.FC = () => {
           </div>
           <Modal
             centered
-            title="Filter Employees"
+            title="Filter"
             open={isMobileFilterVisible}
             onCancel={() => setIsMobileFilterVisible(false)}
-            footer={null}
-            className="tablet-landscape-modal"
+            footer={
+              <div className="flex justify-center space-x-4 ">
+                <Button
+                  type="default"
+                  onClick={() => setIsMobileFilterVisible(false)}
+                  className="px-8 py-1 rounded-lg "
+                >
+                  Cancel
+                </Button>
+                <Button className="bg-primary text-white px-10 py-1 rounded-lg border-none">
+                  Filter
+                </Button>
+              </div>
+            }
+            className="md:max-w-sm sm:max-w-xs xs:max-w-[280px]"
           >
             {Filters}
           </Modal>

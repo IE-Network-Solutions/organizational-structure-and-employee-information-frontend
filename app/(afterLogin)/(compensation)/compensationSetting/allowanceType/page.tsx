@@ -13,7 +13,7 @@ const AllowanceTypePage = () => {
 
   return (
     <div className="bg-white rounded-lg px-1 py-4 sm:px-6 ">
-      <div className="flex justify-between mb-3">
+      <div className="flex justify-between mb-3 items-center">
         <h1 className="text-lg font-bold">Allowance Types</h1>
         <AccessGuard permissions={[Permissions.CreateAllowanceType]}>
           <Button

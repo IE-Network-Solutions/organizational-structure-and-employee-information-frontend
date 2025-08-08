@@ -130,7 +130,7 @@ const SelfAttendance = () => {
       </div>
       <div className="hidden 2xl:flex ">
         {/* hidden 2xl:flex = zoom out max 80 -75 */}
-        <Bar data={data} options={options} height={75} width={180} />
+        <Bar data={data} options={options} height={65} width={180} />
       </div>{' '}
     </Card>
   );

@@ -1,6 +1,9 @@
 'use client';
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
-import { useGetDepartments, useGetDepartmentLead } from '@/store/server/features/employees/employeeManagment/department/queries';
+import {
+  useGetDepartments,
+  useGetDepartmentLead,
+} from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -29,7 +32,13 @@ import { useCreatePosition } from '@/store/server/features/employees/positions/m
 
 const JobTimeLineForm = () => {
   const [form] = Form.useForm();
-  const { birthDate, selectedDepartmentId,switchValue,setSwitchValue, setSelectedDepartmentId  } = useEmployeeManagementStore();
+  const {
+    birthDate,
+    selectedDepartmentId,
+    switchValue,
+    setSwitchValue,
+    setSelectedDepartmentId,
+  } = useEmployeeManagementStore();
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
   const { data: employementType, refetch: employmentTypeRefetch } =
@@ -38,9 +47,8 @@ const JobTimeLineForm = () => {
     useGetBranches();
   const { data: positions, refetch: positionRefetch } = useGetAllPositions();
 
-
   const { data: department } = useGetDepartmentLead(selectedDepartmentId);
-  
+
   const {
     mutate: handleCreatePosition,
     isLoading,
@@ -51,7 +59,6 @@ const JobTimeLineForm = () => {
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
   };
-
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartmentId(value);
@@ -66,7 +73,6 @@ const JobTimeLineForm = () => {
   };
 
   const handleTeamLeadConfirm = () => {
-    console.log('handleTeamLeadConfirm',"handleTeamLeadConfirm");
     setSwitchValue(true);
     form.setFieldValue('departmentLeadOrNot', true);
   };
@@ -377,7 +383,9 @@ const JobTimeLineForm = () => {
               <Popconfirm
                 title={
                   <div className="text-sm sm:text-base">
-                    <div className="font-semibold mb-2">Team Lead Confirmation</div>
+                    <div className="font-semibold mb-2">
+                      Team Lead Confirmation
+                    </div>
                   </div>
                 }
                 description={
@@ -389,7 +397,8 @@ const JobTimeLineForm = () => {
                       {department[0]?.firstName} {department[0]?.lastName}
                     </div>
                     <div>
-                      Do you want to update the team lead to the current employee?
+                      Do you want to update the team lead to the current
+                      employee?
                     </div>
                   </div>
                 }
@@ -400,16 +409,10 @@ const JobTimeLineForm = () => {
                 placement="topRight"
                 overlayClassName="team-lead-confirm-popup"
               >
-                <Switch 
-                  checked={switchValue}
-                  onChange={handleTeamLeadChange}
-                />
+                <Switch checked={switchValue} onChange={handleTeamLeadChange} />
               </Popconfirm>
             ) : (
-              <Switch 
-                checked={switchValue}
-                onChange={handleTeamLeadChange}
-              />
+              <Switch checked={switchValue} onChange={handleTeamLeadChange} />
             )}
           </Form.Item>
         </Col>

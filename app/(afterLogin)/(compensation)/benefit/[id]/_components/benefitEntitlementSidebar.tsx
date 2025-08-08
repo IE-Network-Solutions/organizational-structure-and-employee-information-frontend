@@ -1,7 +1,4 @@
 'use client';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Form, Input, InputNumber, Select, Spin, Table } from 'antd';
@@ -17,6 +14,7 @@ import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { Button } from 'antd';
 
 dayjs.extend(isBetween);
 
@@ -96,26 +94,6 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       });
     }
   };
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-12',
-      size: 'large',
-      loading: createBenefitLoading,
-      onClick: () => onClose(),
-    },
-    {
-      label: <span>Create</span>,
-      key: 'create',
-      className: 'h-12',
-      type: 'primary',
-      size: 'large',
-      loading: createBenefitLoading,
-      onClick: () => form.submit(),
-    },
-  ];
 
   useEffect(() => {
     if (!payPeriods?.length) return;
@@ -230,12 +208,30 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           </CustomDrawerHeader>
         }
         footer={
-          <CustomDrawerFooterButton
-            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
-            buttons={footerModalItems}
-          />
+          <div className="flex flex-row gap-4 justify-center py-3">
+            <Button
+              type="default"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={createBenefitLoading}
+              onClick={() => onClose()}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              key="create"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={createBenefitLoading}
+              onClick={() => form.submit()}
+            >
+              Create
+            </Button>
+          </div>
         }
-        width="600px"
+        width="35%"
+        customPadding="16px"
       >
         <Spin spinning={allUserLoading || payLoading}>
           <Form
@@ -248,7 +244,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             <div className="grid grid-cols-2 gap-4">
               <Form.Item required name="totalAmount" label="Total Amount">
                 <InputNumber
-                  className="w-full h-10 mt-2"
+                  className="w-full h-10 mt-1"
                   value={totalAmount}
                   onChange={(value) => setTotalAmount(value || 0)}
                 />
@@ -259,7 +255,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 label="Settlement Period"
               >
                 <InputNumber
-                  className="w-full h-10 mt-2"
+                  className="w-full h-10 mt-1"
                   value={settlementPeriod}
                   onChange={(value) => setSettlementPeriod(value || 0)}
                 />
@@ -284,7 +280,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               <Select
                 loading={depLoading}
                 placeholder="Select a department"
-                className="w-full h-10 mt-2"
+                className="w-full h-10 mt-1"
                 allowClear
                 showSearch
                 onChange={(value) => handleDepartmentChange(value)}
@@ -311,8 +307,9 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 showSearch
                 placeholder="Select a person"
                 mode="multiple"
-                className="w-full h-10 mt-2"
+                className="w-full h-10 mt-1"
                 allowClear
+                maxTagCount={1}
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')
                     ?.toLowerCase()

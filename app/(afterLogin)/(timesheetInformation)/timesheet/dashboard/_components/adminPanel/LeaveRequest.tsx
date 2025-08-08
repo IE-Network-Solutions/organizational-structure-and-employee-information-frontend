@@ -116,7 +116,8 @@ const LeaveRequest = () => {
         legend: {
           position: 'top',
           labels: {
-            boxWidth: 12,
+            boxWidth: 8,
+            boxHeight: 8,
           },
         },
         datalabels: { display: false },
@@ -177,11 +178,11 @@ const LeaveRequest = () => {
   return (
     <Spin spinning={loading}>
       <Card bodyStyle={{ padding: 16 }}>
-        <div className="grid grid-cols-12 gap-12">
+        <div className="grid grid-cols-12 gap-12 mb-4">
           {/* Left Panel */}
           <div className="col-span-12 md:col-span-5">
-            <h2 className="text-lg font-semibold">Leave Request</h2>
-            <p className="text-sm text-gray-500 mb-4">Pending Requests</p>
+            <h2 className="text-[16px] font-bold">Leave Request</h2>
+            <p className="text-[12px] mb-4">Pending Requests</p>
 
             <div className="flex gap-2 mb-4">
               <Select
@@ -199,7 +200,7 @@ const LeaveRequest = () => {
                 onChange={(value: any) => setUserIdOnLeaveRequest(value)}
               />
               <DatePicker.RangePicker
-                className="w-full h-12"
+                className="w-44 h-12"
                 onChange={(value: any) => {
                   if (value) {
                     setStartDateOnLeaveRequest(
@@ -214,42 +215,46 @@ const LeaveRequest = () => {
             </div>
 
             {pendingLeaveRequests?.users?.length > 0 ? (
-              <div className="h-64 overflow-y-auto scrollbar-none space-y-2">
+              <div className="h-64 overflow-y-auto scrollbar-none space-y-4">
                 {pendingLeaveRequests.users.map((item: any, index: any) => (
                   <div
                     key={index}
-                    className="bg-white border rounded-xl px-4 py-2 flex justify-between items-center"
+                    className="bg-white border rounded-xl px-4 py-1  items-center"
                   >
-                    <div className="flex items-center space-x-2">
-                      <Avatar src={item.profileImage} size={24}>
-                        {item.name.charAt(0)}
-                      </Avatar>
-                      <div>
-                        <p className="text-xs font-medium">{item.name}</p>
-                        <span
-                          className={`text-xs px-2 py-0.5 rounded-full font-medium truncate`}
-                          style={{
-                            backgroundColor: (() => {
-                              if (!leaveTypeColors[item.leaveType]) {
-                                leaveTypeColors[item.leaveType] =
-                                  generateRandomColor();
-                              }
-                              return leaveTypeColors[item.leaveType];
-                            })(),
-                            color: '#ffffff',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                          }}
+                    <div className="space-y-2 flex justify-between w-full">
+                      <div className="flex items-center space-x-2 mb-1 ">
+                        <Avatar
+                          src={item.profileImage}
+                          className=" w-6 h-6 text-[12px]"
                         >
-                          {item.leaveType}
-                        </span>
+                          {item.name.charAt(0)}
+                        </Avatar>
+                        <p className="text-[12px] font-medium">{item.name}</p>
                       </div>
-                    </div>
-                    <div className="text-right text-xs text-gray-500">
-                      <p>
+                      <p className="text-[12px]">
                         Requested: {dayjs(item.requested).format('DD MMM YYYY')}
                       </p>
-                      <p className="text-xs text-black font-semibold">
-                        {`${dayjs(item.leaveStartDate).format('DD MMM YYYY')} to ${dayjs(item.leaveEndDate).format('DD MMM YYYY')}`}
+                    </div>
+
+                    <div className="flex justify-between w-full items-start">
+                      <div
+                        className={`text-xs px-2 py-1 rounded-md font-medium min-w-10 `}
+                        style={{
+                          backgroundColor: (() => {
+                            if (!leaveTypeColors[item.leaveType]) {
+                              leaveTypeColors[item.leaveType] =
+                                generateRandomColor();
+                            }
+                            return leaveTypeColors[item.leaveType];
+                          })(),
+                          color: '#ffffff',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                        }}
+                      >
+                        {item.leaveType}
+                      </div>
+                      <p className="text-xs text-black font-bold">
+                        {`${dayjs(item.leaveStartDate).format('D')}-${dayjs(item.leaveEndDate).format('D MMM YYYY')}`}
                       </p>
                     </div>
                   </div>
@@ -278,7 +283,7 @@ const LeaveRequest = () => {
                 }
                 options={leaveTypeOption}
                 maxTagCount={1}
-                className="w-44 h-12"
+                className="w-40 h-12"
                 onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
               />
               <Select
@@ -292,7 +297,7 @@ const LeaveRequest = () => {
                 }
                 options={departmentOptions}
                 maxTagCount={1}
-                className="w-44 h-12"
+                className="w-40 h-12"
                 onChange={(value) => setDepartmentOnLeaveRequest(value)}
               />
             </div>

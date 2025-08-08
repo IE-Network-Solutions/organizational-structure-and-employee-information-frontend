@@ -79,7 +79,7 @@ const getDepartment = async (id: string) => {
   }
 };
 
-const getDepartmentLead = async (id: string|null) => {
+const getDepartmentLead = async (id: string | null) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   try {
@@ -143,7 +143,7 @@ export const useGetDepartment = (departmentID: string) =>
 export const useGetDepartmentsWithUsers = () =>
   useQuery<any>('departmentsWithUsers', getDepartmentsWithUsers);
 
-export const useGetDepartmentLead = (id: string|null) =>
+export const useGetDepartmentLead = (id: string | null) =>
   useQuery<any>(['departmentLead', id], () => getDepartmentLead(id), {
     keepPreviousData: true,
     enabled: !!id,

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Select, Avatar, Tag, Spin } from 'antd';
+import { Card, Select, Avatar, Tag, Spin, DatePicker } from 'antd';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import LeaveSectionGraph from './LeaveSectionGraph';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
+import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement);
 
@@ -35,6 +36,7 @@ const LeaveSection: React.FC = () => {
     departmentId: departmentOnLeave,
     leaveTypeId: leaveTypeOnLeave,
   });
+  const { RangePicker } = DatePicker;
 
   // Line chart data for employee trends
 
@@ -49,15 +51,54 @@ const LeaveSection: React.FC = () => {
     value: i.id,
     label: i?.firstName + ' ' + i?.middleName + ' ' + i?.lastName,
   }));
+  const { data: Departments } = useGetUserDepartment();
+
+  const departmentOptions = Departments?.map((i: any) => ({
+    value: i.id,
+    label: i?.name,
+  }));
+  const { setDepartmentOnLeave, setStartDate, setEndDate } =
+    TimeAndAttendaceDashboardStore();
   return (
-    <Card title="Leave" className="h-full">
+    <Card bodyStyle={{ padding: 0 }} className="h-full shadow-md px-5 py-4">
       {/* Leave List */}
-      <div className="grid grid-cols-12 gap-4 items-start">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full">
+        <div className="font-bold text-lg mb-4">Leave</div>
+        <div className="space-x-3 flex items-center">
+          <Select
+            showSearch
+            placeholder="Department"
+            allowClear
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+            }
+            options={departmentOptions}
+            maxTagCount={1}
+            className="w-40 h-12"
+            onChange={(value) => setDepartmentOnLeave(value)}
+          />
+          <RangePicker
+            allowClear
+            className="w-40 h-12"
+            onChange={(value) => {
+              if (value) {
+                setStartDate(value[0]?.format('YYYY-MM-DD') || '');
+                setEndDate(value[1]?.format('YYYY-MM-DD') || '');
+              } else {
+                setStartDate('');
+                setEndDate('');
+              }
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-12 gap-6 items-start relative top-[-18px]">
         <div className="space-y-3 mb-4 col-span-5">
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto mb-4">
             <Select
               showSearch
-              placeholder="Select employee"
+              placeholder="search employee"
               allowClear
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
@@ -71,7 +112,7 @@ const LeaveSection: React.FC = () => {
             />
             <Select
               showSearch
-              placeholder="Select Leave Type"
+              placeholder="Leave Type"
               allowClear
               filterOption={(input: any, option: any) =>
                 (option?.label ?? '')
@@ -80,7 +121,7 @@ const LeaveSection: React.FC = () => {
               }
               options={leaveTypeOption}
               maxTagCount={1}
-              className="w-32 h-12"
+              className="w-52 h-12"
               onChange={(value) => setLeaveTypeOnLeave(value)}
             />
           </div>
@@ -92,37 +133,40 @@ const LeaveSection: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div className="h-64 overflow-y-auto scrollbar-none space-y-2">
+              <div className="h-72 overflow-y-auto scrollbar-none space-y-4 m">
                 {employeeAdminLeave?.users?.map((leave: any, index: any) => (
                   <div
                     key={index}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 py-1 bg-white border   rounded-lg gap-3 "
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 py-1   bg-white border   rounded-lg gap-3 "
                   >
-                    <div className="flex items-center gap-3">
-                      <Avatar
-                        src={leave.profileImage}
-                        className="bg-purple-500 w-7 h-7"
-                      >
-                        {leave.name.charAt(0)}
-                      </Avatar>
-                      <div>
-                        <p className=" text-gray-800 text-[12px]">
-                          {leave.name}
-                        </p>
-                        <p className="text-black     text-[12px] font-medium">
-                          {`${dayjs(leave.startDate).format('DD MMM YYYY')} to ${dayjs(leave.endDate).format('DD MMM YYYY')}`}
-                        </p>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1">
+                        <Avatar
+                          src={leave.profileImage}
+                          className="bg-purple-500 w-6 h-6 text-[12px]"
+                        >
+                          {leave.name.charAt(0)}
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-[12px] text-black">
+                            {leave.name}
+                          </p>
+                        </div>
                       </div>
+                      <p className="text-black     text-[12px] font-semibold">
+                        {`${dayjs(leave.startDate).format('DD MMM YYYY')} to ${dayjs(leave.endDate).format('DD MMM YYYY')}`}
+                      </p>
                     </div>
+
                     <div className="flex flex-col items-end gap-0">
-                      <span className="text-sm font-medium text-sm">
-                        {leave.days} {leave.days > 1 ? 'days' : 'day'}
+                      <span className="text-[14px] font-semibold ">
+                        {leave.days} {leave.days > 1 ? 'Days' : 'Day'}
                       </span>
                       <Tag
                         style={{ marginInlineEnd: 0 }}
-                        className="ml-0 text-blue bg-[#b2b2ff] text-[12px] font-normal"
+                        className="ml-0 text-[#3636f0] font-bold bg-[#b2b2ff] text-[12px] font-normal py-1"
                       >
-                        {leave.leaveType}
+                        <strong>{leave.leaveType}</strong>
                       </Tag>
                     </div>
                   </div>

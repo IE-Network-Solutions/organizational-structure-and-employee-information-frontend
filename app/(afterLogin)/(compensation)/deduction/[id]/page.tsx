@@ -24,76 +24,77 @@ const SingleDeductionPage = () => {
       setIsAllowanceGlobal(false);
     }
   }, [deductionData, setIsAllowanceGlobal]);
+  const { employeeBenefitData } = useBenefitEntitlementStore();
 
   return (
     <div className="bg-white rounded-lg px-1 py-4 sm:p-6">
       <div>
-        {/* PageHeader for mobile */}
-        <div className="block sm:hidden mb-4">
-          <PageHeader
-            title={
-              deductionData?.name
-                ? deductionData?.name.length > 15
-                  ? deductionData?.name.slice(0, 15) + '...'
-                  : deductionData?.name
-                : ''
-            }
-            size="small"
-            toolTip={deductionData?.name}
-            horizontalPadding="px-0"
-          ></PageHeader>
-        </div>
-        {/* Main layout for larger screens */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div className="hidden sm:block">
-            <PageHeader
-              title={
-                deductionData?.name
-                  ? deductionData?.name.length > 15
-                    ? deductionData?.name.slice(0, 15) + '...'
-                    : deductionData?.name
-                  : ''
-              }
-              size="small"
-              toolTip={deductionData?.name}
-              horizontalPadding="px-0"
-            ></PageHeader>
-          </div>
-          <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
-            <div className="w-5/6 sm:w-72 mr-2">
-              {/* <Input addonBefore={<SearchOutlined />} placeholder="Search by name" size='small' /> */}
-              <Select
-                showSearch
-                allowClear
-                className="h-10 w-full"
-                placeholder="Search by name"
+        {employeeBenefitData == null && (
+          <div>
+            {/* PageHeader for mobile */}
+            <div className="block sm:hidden mb-4">
+              <PageHeader
+                title={
+                  deductionData?.name
+                    ? deductionData?.name.length > 15
+                      ? deductionData?.name.slice(0, 15) + '...'
+                      : deductionData?.name
+                    : ''
+                }
+                size="small"
+                toolTip={deductionData?.name}
+                horizontalPadding="px-0"
               />
             </div>
-            {/* Button: 15% on mobile */}
-            <div className="w-auto">
-              <AccessGuard
-                permissions={[Permissions.CreateAllowanceEntitlement]}
-              >
-                <Button
-                  size="large"
-                  type="primary"
-                  id="createNewClosedHolidayFieldId"
-                  className="h-10 w-10 sm:w-full"
-                  icon={<FaPlus />}
-                  onClick={() => {
-                    setIsBenefitEntitlementSidebarOpen(true);
-                  }}
-                  disabled={isAllowanceGlobal}
-                >
-                  <span className="hidden sm:inline">Employees</span>
-                </Button>
-              </AccessGuard>
+
+            {/* Main layout for larger screens */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
+              <div className="hidden sm:block">
+                <PageHeader
+                  title={
+                    deductionData?.name
+                      ? deductionData?.name.length > 15
+                        ? deductionData?.name.slice(0, 15) + '...'
+                        : deductionData?.name
+                      : ''
+                  }
+                  size="small"
+                  toolTip={deductionData?.name}
+                  horizontalPadding="px-0"
+                />
+              </div>
+              <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
+                <div className="w-5/6 sm:w-72 mr-2">
+                  <Select
+                    showSearch
+                    allowClear
+                    className="h-10 w-full"
+                    placeholder="Search by name"
+                  />
+                </div>
+                <div className="w-auto">
+                  <AccessGuard
+                    permissions={[Permissions.CreateAllowanceEntitlement]}
+                  >
+                    <Button
+                      size="large"
+                      type="primary"
+                      id="createNewClosedHolidayFieldId"
+                      className="h-10 w-10 sm:w-full"
+                      icon={<FaPlus />}
+                      onClick={() => {
+                        setIsBenefitEntitlementSidebarOpen(true);
+                      }}
+                      disabled={isAllowanceGlobal}
+                    >
+                      <span className="hidden sm:inline">Employees</span>
+                    </Button>
+                  </AccessGuard>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div>
-        {/* <DeductionEntitlementTable /> */}
+        )}
 
         <BenefitEntitlementTable
           title={deductionData?.name ? deductionData?.name : ''}

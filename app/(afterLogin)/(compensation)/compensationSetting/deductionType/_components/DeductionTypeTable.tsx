@@ -43,8 +43,10 @@ const DeductionTypeTable = () => {
         (item: any) => item.type === 'DEDUCTION',
       );
       setTableData(filteredData);
+      // Reset pagination when data changes
+      setBenefitCurrentPage(1);
     }
-  }, [data]);
+  }, [data, setTableData, setBenefitCurrentPage]);
 
   const handleDelete = (id: string) => {
     deleteAllowanceType(id);

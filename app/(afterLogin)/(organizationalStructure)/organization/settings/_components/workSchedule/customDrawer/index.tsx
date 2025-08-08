@@ -13,15 +13,6 @@ import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
-// interface WorkScheduleFormProps {
-//   form: FormInstance;
-//   scheduleName: string;
-//   detail: ScheduleDetail[];
-//   setScheduleName: (name: string) => void;
-//   setDetail: (day: string, updatedData: Partial<ScheduleDetail>) => void;
-//   setStandardHours: (hours: number) => void;
-// }
-
 const CustomWorkingScheduleDrawer = () => {
   const {
     clearState,
@@ -41,10 +32,16 @@ const CustomWorkingScheduleDrawer = () => {
     pageSize,
     currentPage,
   } = useScheduleStore();
-  const { mutate: updateSchedule, isSuccess: isUpdateSuccess } =
-    useUpdateSchedule();
-  const { mutate: createSchedule, isSuccess: isCreateSuccess } =
-    useCreateSchedule();
+  const {
+    mutate: updateSchedule,
+    isSuccess: isUpdateSuccess,
+    isLoading: isUpdateLoading,
+  } = useUpdateSchedule();
+  const {
+    mutate: createSchedule,
+    isSuccess: isCreateSuccess,
+    isLoading: isCreateLoading,
+  } = useCreateSchedule();
   const { refetch: refetchSchedules } = useFetchSchedule(currentPage, pageSize);
   const [form] = Form.useForm();
   const { detail } = useScheduleStore((state) => ({
@@ -166,7 +163,9 @@ const CustomWorkingScheduleDrawer = () => {
     detail.forEach((item) => {
       const start = allValues[`${item.dayOfWeek}-start`];
       const end = allValues[`${item.dayOfWeek}-end`];
-      if (start && end && item.status) {
+      const isWorkingDay = allValues[`${item.dayOfWeek}-working`];
+
+      if (start && end && isWorkingDay) {
         const duration = dayjs(end).diff(dayjs(start), 'hour', true);
         totalHours += duration;
       }
@@ -176,6 +175,32 @@ const CustomWorkingScheduleDrawer = () => {
     if (totalHours > 0 && validationError) {
       clearValidationError();
     }
+  };
+
+  const handleSwitchChange = (dayOfWeek: string, checked: boolean) => {
+    setDetail(dayOfWeek, { status: checked });
+
+    // Recalculate total hours after status change
+    setTimeout(() => {
+      const updatedDetail = useScheduleStore.getState().detail;
+      let totalHours = 0;
+      updatedDetail.forEach((item) => {
+        if (item.status && item.startTime && item.endTime) {
+          const duration = dayjs(item.endTime, 'h:mm A').diff(
+            dayjs(item.startTime, 'h:mm A'),
+            'hour',
+            true,
+          );
+          totalHours += duration;
+        }
+      });
+      setStandardHours(totalHours);
+
+      // Clear validation error when hours change
+      if (totalHours > 0 && validationError) {
+        clearValidationError();
+      }
+    }, 0);
   };
 
   const columns: ColumnsType<ScheduleDetail> = [
@@ -196,7 +221,7 @@ const CustomWorkingScheduleDrawer = () => {
               unCheckedChildren={<CloseOutlined />}
               size="small"
               onChange={(checked) =>
-                setDetail(record.dayOfWeek, { status: checked })
+                handleSwitchChange(record.dayOfWeek, checked)
               }
             />
             <p>{record.dayOfWeek}</p>
@@ -301,7 +326,12 @@ const CustomWorkingScheduleDrawer = () => {
             <Button type="default" className="font-md" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" className="font-md" onClick={handleSubmit}>
+            <Button
+              type="primary"
+              className="font-md"
+              onClick={handleSubmit}
+              loading={isUpdateLoading || isCreateLoading}
+            >
               {isEditMode ? 'Update' : 'Create'}
             </Button>
           </div>

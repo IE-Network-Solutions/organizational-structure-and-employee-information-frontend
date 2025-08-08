@@ -55,7 +55,24 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   setDetail: (dayOfWeek, data) =>
     set((state) => ({
       detail: state.detail.map((day) =>
-        day.dayOfWeek === dayOfWeek ? { ...day, ...data } : day,
+        day.dayOfWeek === dayOfWeek
+          ? {
+              ...day,
+              ...data,
+              // Update hours if startTime or endTime is being updated
+              hours:
+                data.startTime !== undefined || data.endTime !== undefined
+                  ? calculateHours(
+                      data.startTime !== undefined
+                        ? data.startTime
+                        : day.startTime,
+                      data.endTime !== undefined ? data.endTime : day.endTime,
+                    )
+                  : data.status !== undefined && !data.status
+                    ? 0 // Set hours to 0 when status is disabled
+                    : day.hours,
+            }
+          : day,
       ),
     })),
 
