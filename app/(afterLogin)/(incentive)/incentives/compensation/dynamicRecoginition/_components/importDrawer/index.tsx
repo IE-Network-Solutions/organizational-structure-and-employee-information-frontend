@@ -35,8 +35,8 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
     const formData = new FormData();
     formData.append('file', values?.fileName?.file?.originFileObj);
     formData.append('payPeriodId', values?.importDate);
-    (formData.append('recognitionTypeId', values?.recognitionTypeId || ''),
-      formData.append('userId', userId || ''));
+    formData.append('recognitionTypeId', values?.recognitionTypeId || ''),
+      formData.append('userId', userId || '');
 
     importData(formData, {
       onSuccess: () => {
