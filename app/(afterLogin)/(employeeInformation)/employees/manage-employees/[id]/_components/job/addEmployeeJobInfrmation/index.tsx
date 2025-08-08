@@ -11,12 +11,12 @@ import { useEffect } from 'react';
 
 interface Ids {
   id: string;
-  onInfoSubmition?: () => void;
+ 
   onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   id: id,
-  onInfoSubmition: onInfoSubmition,
+
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
   const [form] = Form.useForm();
@@ -65,9 +65,6 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
             onJobInfoUpdated();
           }, 500);
         }
-      },
-      onError: (error: any) => {
-
       },
     });
   };
