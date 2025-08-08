@@ -30,9 +30,7 @@ interface DataType {
   workingDay: React.ReactNode;
   time: React.ReactNode;
 }
-interface Ids {
-  id: string;
-}
+
 const { Option } = Select;
 const WorkScheduleComponent: React.FC = () => {
 

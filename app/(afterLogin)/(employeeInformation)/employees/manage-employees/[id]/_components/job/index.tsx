@@ -33,7 +33,7 @@ import { useGetEmployementTypes } from '@/store/server/features/employees/employ
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 
-function Job() {
+function Job({ id }: { id: string }) {
   const params = useParams();
   const userId = params.id as string;
   const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);
@@ -311,9 +311,9 @@ function Job() {
             >
               <FaPlus onClick={handleAddEmployeeJobInformation} />
             </AccessGuard>
-            <div className="pt-2">
-              <DownloadJobInformation id={id} />
-            </div>
+                                      <div className="pt-2">
+               <DownloadJobInformation id={id} />
+             </div>
           </div>
         }
       >
