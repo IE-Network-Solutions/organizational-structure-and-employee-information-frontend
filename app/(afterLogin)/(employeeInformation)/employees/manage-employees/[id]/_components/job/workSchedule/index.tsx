@@ -34,7 +34,7 @@ interface Ids {
   id: string;
 }
 const { Option } = Select;
-const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
+const WorkScheduleComponent: React.FC = () => {
 
 const params = useParams();
 const userId = params.id as string;

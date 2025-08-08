@@ -33,7 +33,7 @@ import { useGetEmployementTypes } from '@/store/server/features/employees/employ
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 
-function Job({ id }: { id: string }) {
+function Job() {
   const params = useParams();
   const userId = params.id as string;
   const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);

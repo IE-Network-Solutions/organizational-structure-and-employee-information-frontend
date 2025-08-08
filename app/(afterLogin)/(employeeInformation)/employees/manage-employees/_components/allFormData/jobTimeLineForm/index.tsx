@@ -37,7 +37,6 @@ interface JobTimeLineFormProps {
 const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
   const [form] = Form.useForm();
   const {
-    birthDate,
     selectedDepartmentId,
     switchValue,
     setSwitchValue,
@@ -137,7 +136,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
-              The effective start date cannot be before the employee's creation date.
+              The effective start date cannot be before the employee&apos;s creation date.
             </div>
           </div>
         </Col>
