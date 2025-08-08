@@ -55,7 +55,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
   const { userId } = useAuthenticationStore();
   const { data: userData } = useGetEmployee(userId);
-  const reportsToId = userData?.reportingTo?.id;
+  const reportsToId = userData?.delegatedTo?.id || userData?.reportingTo?.id;
 
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
   const objectiveTitle = objectiveValue?.title

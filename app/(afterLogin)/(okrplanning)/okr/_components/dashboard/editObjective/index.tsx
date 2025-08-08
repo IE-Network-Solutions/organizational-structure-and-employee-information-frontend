@@ -46,7 +46,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   } = useOKRStore();
   const { userId } = useAuthenticationStore();
   const { data: userData } = useGetEmployee(userId);
-  const reportsToId = userData?.reportingTo?.id;
+  const reportsToId = userData?.delegatedTo?.id || userData?.reportingTo?.id;
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
   const [form] = Form.useForm();
   const { mutate: updateObjective, isLoading } = useUpdateObjective();
