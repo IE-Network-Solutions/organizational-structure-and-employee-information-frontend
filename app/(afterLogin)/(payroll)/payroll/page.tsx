@@ -215,6 +215,9 @@ const Payroll = () => {
       setPayPeriodQuery(query);
       setPayPeriodId(searchValues.payPeriodId);
     }
+    if (searchValues?.departmentId) {
+      queryParams.append('departmentId', searchValues.departmentId);
+    }
 
     const searchParams = queryParams.toString()
       ? `&${queryParams.toString()}`
