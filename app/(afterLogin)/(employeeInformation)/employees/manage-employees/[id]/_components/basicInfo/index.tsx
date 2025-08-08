@@ -246,10 +246,10 @@ function BasicInfo({ id }: { id: string }) {
             }
           />
         </List.Item>
-        {employeeData?.reportingTo?.id ? (
+        {employeeData?.delegatedTo?.id || employeeData?.reportingTo?.id ? (
           hasAccess ? (
             <Link
-              href={`/employees/manage-employees/${employeeData.reportingTo.id}`}
+              href={`/employees/manage-employees/${employeeData?.delegatedTo?.id ?? employeeData?.reportingTo?.id}`}
             >
               <List.Item
                 key="Manager"
@@ -260,11 +260,17 @@ function BasicInfo({ id }: { id: string }) {
                   description={
                     <p className="font-bold text-black text-sm">
                       <span className="mr-2">
-                        <Avatar src={employeeData?.reportingTo?.profileImage} />
+                        <Avatar
+                          src={
+                            employeeData?.delegatedTo
+                              ? employeeData?.delegatedTo?.profileImage
+                              : employeeData?.reportingTo?.profileImage
+                          }
+                        />
                       </span>
-                      {employeeData?.reportingTo?.firstName}{' '}
-                      {employeeData?.reportingTo?.middleName}{' '}
-                      {employeeData?.reportingTo?.lastName}
+                      {employeeData?.delegatedTo
+                        ? employeeData?.delegatedTo?.firstName
+                        : employeeData?.reportingTo?.firstName}{' '}
                     </p>
                   }
                 />
@@ -277,11 +283,17 @@ function BasicInfo({ id }: { id: string }) {
                 description={
                   <p className="font-bold text-black text-sm">
                     <span className="mr-2">
-                      <Avatar src={employeeData?.reportingTo?.profileImage} />
+                      <Avatar
+                        src={
+                          employeeData?.delegatedTo
+                            ? employeeData?.delegatedTo?.profileImage
+                            : employeeData?.reportingTo?.profileImage
+                        }
+                      />
                     </span>
-                    {employeeData?.reportingTo?.firstName}{' '}
-                    {employeeData?.reportingTo?.middleName}{' '}
-                    {employeeData?.reportingTo?.lastName}
+                    {employeeData?.delegatedTo
+                      ? employeeData?.delegatedTo?.firstName
+                      : employeeData?.reportingTo?.firstName}{' '}
                   </p>
                 }
               />

@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useState } from 'react';
 import { Button, Col, Popover, Row } from 'antd';
 
 interface DeletePopoverProps {
@@ -16,13 +16,18 @@ const DeletePopover: FC<DeletePopoverProps> = ({
   children,
   disabled = false,
 }) => {
+  const [open, setOpen] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
+
   if (disabled) {
     return children;
   }
+
   return (
     <Popover
-      trigger="hover"
+      open={open}
+      onOpenChange={setOpen}
+      trigger="click"
       placement="bottomRight"
       title={
         <div className="text-base text-gray-900 font-bold">{titleText}</div>
@@ -59,7 +64,7 @@ const DeletePopover: FC<DeletePopoverProps> = ({
         </div>
       }
     >
-      {children}
+      <div onClick={() => setOpen(true)}>{children}</div>
     </Popover>
   );
 };

@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query';
 import { Post } from './interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
+import axios from 'axios';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 // import axiosInstance from "@/providers/axiosContext";

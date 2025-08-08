@@ -67,6 +67,7 @@ function CreateReport() {
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,
+    refetch: refetchPlannedTasks,
   } = useGetPlannedTaskForReport(planningPeriodId);
 
   const planningPeriodName = getPlanningPeriodDetail(activePlanPeriodId)?.name;
@@ -101,6 +102,53 @@ function CreateReport() {
     allPlannedTaskForReport &&
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
 
+  // Refetch data when modal opens to ensure we have latest status
+  useEffect(() => {
+    if (openReportModal) {
+      refetchPlannedTasks();
+    }
+  }, [openReportModal, refetchPlannedTasks]);
+
+  // Auto-set status for pre-achieved tasks - only run once when data is loaded
+  useEffect(() => {
+    if (formattedData) {
+      const newStatuses: Record<string, string> = {};
+      let hasChanges = false;
+
+      // Only set initial statuses for pre-achieved tasks that haven't been manually set
+      formattedData.forEach((objective: any) => {
+        objective?.keyResults?.forEach((keyresult: any) => {
+          // Handle milestone tasks
+          keyresult?.milestones?.forEach((milestone: any) => {
+            milestone?.tasks?.forEach((task: any) => {
+              // Only auto-set if task is pre-achieved and user hasn't manually set a status
+              if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
+                newStatuses[task.taskId] = 'Done';
+                hasChanges = true;
+              }
+            });
+          });
+
+          // Handle regular tasks
+          keyresult?.tasks?.forEach((task: any) => {
+            // Only auto-set if task is pre-achieved and user hasn't manually set a status
+            if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
+              newStatuses[task.taskId] = 'Done';
+              hasChanges = true;
+            }
+          });
+        });
+      });
+
+      // Update statuses only if there are new pre-achieved tasks to set
+      if (hasChanges) {
+        Object.entries(newStatuses).forEach(([taskId, status]) => {
+          setStatus(taskId, status);
+        });
+      }
+    }
+  }, [formattedData, setStatus]); // Removed selectedStatuses and other dependencies to prevent interference
+
   useEffect(() => {
     if (formattedData && Object.keys(selectedStatuses).length > 0) {
       const initialValues: Record<string, any> = {};
@@ -113,12 +161,14 @@ function CreateReport() {
               if (selectedStatuses[task.taskId]) {
                 if (selectedStatuses[task.taskId] === 'Done') {
                   initialValues[task.taskId] = {
+                    status: selectedStatuses[task.taskId],
                     actualValue: Number(
                       task?.targetValue ?? 0,
                     )?.toLocaleString(),
                   };
                 } else if (selectedStatuses[task.taskId] === 'Not') {
                   initialValues[task.taskId] = {
+                    status: selectedStatuses[task.taskId],
                     actualValue: Number(
                       task?.actualValue ?? 0,
                     )?.toLocaleString(),
@@ -133,10 +183,12 @@ function CreateReport() {
             if (selectedStatuses[task.taskId]) {
               if (selectedStatuses[task.taskId] === 'Done') {
                 initialValues[task.taskId] = {
+                  status: selectedStatuses[task.taskId],
                   actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
                 };
               } else if (selectedStatuses[task.taskId] === 'Not') {
                 initialValues[task.taskId] = {
+                  status: selectedStatuses[task.taskId],
                   actualValue: 0,
                 };
               }
@@ -315,6 +367,7 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
+                                                          status: e.target.value,
                                                           actualValue: Number(
                                                             task?.targetValue ??
                                                               0,
@@ -326,6 +379,7 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
+                                                          status: e.target.value,
                                                           actualValue: 0,
                                                         },
                                                       });
@@ -644,6 +698,7 @@ function CreateReport() {
                                             if (e.target.value === 'Done') {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
+                                                  status: e.target.value,
                                                   actualValue: Number(
                                                     task?.targetValue ?? 0,
                                                   )?.toLocaleString(),
@@ -654,6 +709,7 @@ function CreateReport() {
                                             ) {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
+                                                  status: e.target.value,
                                                   actualValue: 0,
                                                 },
                                               });

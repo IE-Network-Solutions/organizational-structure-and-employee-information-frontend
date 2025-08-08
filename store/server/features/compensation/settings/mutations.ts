@@ -66,8 +66,11 @@ const deleteAllowanceType = async (id: string) => {
 export const useCreateAllowanceType = () => {
   const queryClient = useQueryClient();
   return useMutation(createAllowanceType, {
-    onSuccess: (unused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceType');
+    onSuccess: async (unused: any, variables: any) => {
+      await queryClient.invalidateQueries('allowanceType');
+      // Fetch the latest data after invalidation
+      await queryClient.refetchQueries(['allowanceType']);
+      // Update the store with the new data
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Compensation type successfully created.');
     },

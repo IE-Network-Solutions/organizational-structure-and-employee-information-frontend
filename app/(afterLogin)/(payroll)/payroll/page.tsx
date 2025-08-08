@@ -19,7 +19,6 @@ import {
   useGetActivePayroll,
   useGetAllActiveBasicSalary,
   useGetEmployeeInfo,
-  useGetAllPayrollForExport,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
   useCreatePayroll,
@@ -44,6 +43,10 @@ import GeneratePayrollModal, { Incentive } from './_components/modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import {
+  FiscalYear,
+} from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,6 +54,8 @@ const Payroll = () => {
   const [bankLetter, setBankLetter] = useState(true);
   const [paySlip, setPaySlip] = useState(false);
   const [exportPayrollData, setExportPayrollData] = useState(true);
+  const { data: getAllFiscalYears } = useGetAllFiscalYears();
+
   const {
     searchQuery,
     setSearchQuery,
@@ -74,9 +79,6 @@ const Payroll = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
-
-  const { refetch: refetchAllPayroll } = useGetAllPayrollForExport(searchQuery);
-
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
@@ -86,7 +88,6 @@ const Payroll = () => {
   const { exportToExcel } = useExportData();
 
   const [loading, setLoading] = useState(false);
-  const [exportProgress, setExportProgress] = useState<string>('');
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
@@ -94,8 +95,10 @@ const Payroll = () => {
   useEffect(() => {
     // Check if division filter is applied
     const hasDivisionFilter = searchValue?.divisionId;
+
     if (payroll?.items) {
       let mergedData;
+
       if (hasDivisionFilter && payroll?.divisionUsers) {
         // Use division users from backend when division filter is applied
         mergedData = payroll?.items.map((pay: any) => {
@@ -173,6 +176,11 @@ const Payroll = () => {
     netPay: number;
   };
 
+  const fiscalYearMonths =
+    getAllFiscalYears?.items
+      ?.flatMap((item: FiscalYear) => item.sessions || [])
+      ?.flatMap((session) => session?.months || []) || [];
+
   const handleSearch = (searchValues: any) => {
     const queryParams = new URLSearchParams();
 
@@ -181,6 +189,22 @@ const Payroll = () => {
     }
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
+
+      // Find the month object to get start and end dates
+      const month = fiscalYearMonths.find(
+        (month) => month?.id === searchValues.monthId,
+      );
+
+      if (month?.startDate) {
+        const startDate = new Date(month.startDate);
+        const formattedStartDate = startDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        queryParams.append('startDate', formattedStartDate);
+      }
+      if (month?.endDate) {
+        const endDate = new Date(month.endDate);
+        const formattedEndDate = endDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        queryParams.append('endDate', formattedEndDate);
+      }
     }
     if (searchValues?.divisionId) {
       queryParams.append('divisionId', searchValues.divisionId);
@@ -190,6 +214,9 @@ const Payroll = () => {
       const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
       setPayPeriodQuery(query);
       setPayPeriodId(searchValues.payPeriodId);
+    }
+    if (searchValues?.departmentId) {
+      queryParams.append('departmentId', searchValues.departmentId);
     }
 
     const searchParams = queryParams.toString()
@@ -262,27 +289,16 @@ const Payroll = () => {
     sendPaySlip({ values });
   };
   const handleDeductionExportPayroll = async () => {
+    if (!mergedPayroll || mergedPayroll?.length === 0) {
+      NotificationMessage.error({
+        message: 'No Data Available',
+        description: 'There is no data available to export.',
+      });
+      return;
+    }
+
     setLoading(true);
-    setExportProgress('Fetching payroll data...');
     try {
-      // Fetch all payroll data for export (without pagination)
-      const allPayroll = await fetchAllPayrollForExport();
-
-      if (
-        !validatePayrollData(
-          allPayroll,
-          'There is no data available to export.',
-        )
-      ) {
-        setLoading(false);
-        setExportProgress('');
-        return;
-      }
-
-      setExportProgress('Processing data...');
-      // Merge all payroll data with employee data
-      const allMergedPayroll = mergePayrollWithEmployees(allPayroll.items);
-
       const uniqueAllowanceTypes = new Set<string>();
       const uniqueMeritTypes = new Set<string>();
       const uniqueDeductionTypes = new Set<string>();
@@ -319,9 +335,7 @@ const Payroll = () => {
         exportColumns.map((col) => [col.key, col.type]),
       );
       exportColumns.forEach((col) => uniquePayrollColumns.add(col.key));
-
-      // Collect unique types from all payroll data
-      allMergedPayroll.forEach((item: any) => {
+      mergedPayroll.forEach((item: any) => {
         item.breakdown?.allowances?.forEach((a: any) =>
           uniqueAllowanceTypes.add(a.type),
         );
@@ -333,9 +347,7 @@ const Payroll = () => {
         );
       });
 
-      setExportProgress('Generating Excel file...');
-      // Process all payroll data
-      allMergedPayroll.forEach((item: any) => {
+      mergedPayroll.forEach((item: any) => {
         const fullName =
           `${item.employeeInfo?.firstName || ''} ${item.employeeInfo?.middleName || ''} ${item.employeeInfo?.lastName || ''}`.trim() ||
           '--';
@@ -561,15 +573,14 @@ const Payroll = () => {
       createSheet('Merits', meritData, uniqueMeritTypes, 'totalMerits');
 
       const buffer = await workbook.xlsx.writeBuffer();
-      setExportProgress('Downloading file...');
       saveAs(
         new Blob([buffer], { type: 'application/octet-stream' }),
-        'Payroll_Details_All_Data.xlsx',
+        'Payroll_Details.xlsx',
       );
 
       NotificationMessage.success({
         message: 'Export Successful',
-        description: `Payroll data exported successfully! (${allMergedPayroll.length} records)`,
+        description: 'Payroll data exported successfully!',
       });
     } catch (error) {
       NotificationMessage.error({
@@ -578,7 +589,6 @@ const Payroll = () => {
       });
     } finally {
       setLoading(false);
-      setExportProgress('');
     }
   };
 
@@ -592,19 +602,6 @@ const Payroll = () => {
     }
     setLoading(true);
     try {
-      // Fetch all payroll data for bank export (without pagination)
-      const allPayroll = await fetchAllPayrollForExport();
-
-      if (
-        !validatePayrollData(
-          allPayroll,
-          'There is no payroll data available to export.',
-        )
-      ) {
-        setLoading(false);
-        return;
-      }
-
       const formatAmount = (amount: number | undefined | null) => {
         return Number(amount || 0).toLocaleString('en-US', {
           minimumFractionDigits: 2,
@@ -613,7 +610,7 @@ const Payroll = () => {
       };
 
       const flatData = employeeInfo.map((employee: any) => {
-        const payroll = allPayroll.items.find(
+        const payroll = mergedPayroll.find(
           (p: any) => p.employeeId === employee.id,
         ) as Payroll | undefined;
 
@@ -659,10 +656,10 @@ const Payroll = () => {
     setLoading(true);
     try {
       await generateBankLetter(amount);
-    } catch (error: any) {
+    } catch (error) {
       notification.error({
         message: 'Error Generating Bank Letter',
-        description: error + '',
+        description: 'An error occurred while generating the bank letter.',
       });
     } finally {
       setLoading(false);
@@ -851,39 +848,6 @@ const Payroll = () => {
     setPageSize(pageSize);
     setCurrentPage(1);
   };
-
-  const fetchAllPayrollForExport = async () => {
-    try {
-      const result = await refetchAllPayroll();
-      return result.data;
-    } catch (error) {
-      throw new Error('Failed to fetch payroll data for export');
-    }
-  };
-
-  const mergePayrollWithEmployees = (payrollItems: any[]) => {
-    return payrollItems.map((pay: any) => {
-      const employee = allEmployees?.items?.find(
-        (emp: any) => emp.id === pay.employeeId,
-      );
-      return {
-        ...pay,
-        employeeInfo: employee || null,
-      };
-    });
-  };
-
-  const validatePayrollData = (payroll: any, errorMessage: string) => {
-    if (!payroll?.items || payroll?.items?.length === 0) {
-      NotificationMessage.error({
-        message: 'No Data Available',
-        description: errorMessage,
-      });
-      return false;
-    }
-    return true;
-  };
-
   return (
     <div
       className={isMobile ? 'pt-[16px] bg-gray-100' : 'pt-[16px] bg-white'}
@@ -1192,20 +1156,15 @@ const Payroll = () => {
                 type="primary"
                 onClick={handleExportAll}
                 className="text-white bg-blue border-none"
-                disabled={!exportPayrollData || loading}
+                disabled={!bankLetter || loading}
                 loading={loading}
               >
-                {loading ? 'Exporting...' : 'Export'}
+                Export
               </Button>
             </div>
           }
         >
           <div className="flex flex-col gap-5 m-6">
-            {loading && exportProgress && (
-              <div className="text-center text-blue-600 font-medium">
-                {exportProgress}
-              </div>
-            )}
             <div className="flex flex-col justify-between items-start gap-2 ">
               <span>Export Bank Letter</span>
               <Switch
