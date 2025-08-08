@@ -53,14 +53,14 @@ const AssignTargetDrawer: React.FC = () => {
     });
   };
   useEffect(() => {
-          if (currentId && getTargetById) {
-        form.setFieldsValue({
-          department: getTargetById.departmentId,
-          criteria: getTargetById.vpCriteriaId,
-          month: [getTargetById.month],
-          [getTargetById.month]: getTargetById.target,
-        });
-        setSelectedMonths([getTargetById.month]);
+    if (currentId && getTargetById) {
+      form.setFieldsValue({
+        department: getTargetById.departmentId,
+        criteria: getTargetById.vpCriteriaId,
+        month: [getTargetById.month],
+        [getTargetById.month]: getTargetById.target,
+      });
+      setSelectedMonths([getTargetById.month]);
     } else if (!currentId) {
       const allActiveMonths =
         activeSessionData?.months?.map((month: any) => month.name) || [];

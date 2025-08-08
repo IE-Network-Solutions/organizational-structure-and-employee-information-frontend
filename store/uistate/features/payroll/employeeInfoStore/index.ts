@@ -238,6 +238,9 @@ interface PayrollState {
 
   pageSize: number;
   setPageSize: (size: number) => void;
+  
+  // Reset function to restore default state
+  resetState: () => void;
 }
 
 const useEmployeeStore = create<PayrollState>((set) => ({
@@ -264,6 +267,19 @@ const useEmployeeStore = create<PayrollState>((set) => ({
 
   pageSize: 10,
   setPageSize: (size: number) => set({ pageSize: size }),
+
+  // Reset function to restore default state
+  resetState: () =>
+    set({
+      searchQuery: '',
+      isFilterModalOpen: false,
+      activeMergedPayroll: null,
+      mergedPayroll: [],
+      activePayPeriod: null,
+      isPayrollModalOpen: false,
+      currentPage: 1,
+      pageSize: 10,
+    }),
 }));
 
 export default useEmployeeStore;
