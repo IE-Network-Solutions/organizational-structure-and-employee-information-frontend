@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 
 interface Ids {
   id: string;
- 
+  onInfoSubmition?: () => void;
   onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
@@ -66,6 +66,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
           }, 500);
         }
       },
+   
     });
   };
   return (
