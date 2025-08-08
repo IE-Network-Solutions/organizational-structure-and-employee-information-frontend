@@ -325,7 +325,7 @@ function Job({ id }: { id: string }) {
           rowKey="id"
         />
       </Card>
-      <WorkScheduleComponent id={userId} />
+      <WorkScheduleComponent />
       <CreateEmployeeJobInformation id={userId} onJobInfoUpdated={handleJobInfoUpdated} />
       <BasicSalary id={userId} />
 
