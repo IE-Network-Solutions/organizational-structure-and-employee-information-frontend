@@ -995,109 +995,108 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </Button>
         )}
 
-            <div className="relative">
-              <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
-              {isLoading || subscriptionLoading ? (
-                <SidebarSkeleton />
-              ) : (
-                <Tree
-                  treeData={getResponsiveTreeData(filteredMenuItems, collapsed)}
-                  showLine={{ showLeafIcon: false }}
-                  defaultExpandAll={false}
-                  expandedKeys={expandedKeys}
-                  selectedKeys={selectedKeys}
-                  onSelect={handleSelect}
-                  onDoubleClick={handleDoubleClick}
-                  className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
-                  switcherIcon={null}
-                />
-              )}
+        <div className="relative">
+          <div className="absolute left-4 top-0 w-[10px] h-full bg-white z-10"></div>
+          {isLoading ? (
+            <div className="px-5 w-full h-full flex justify-center items-center my-5">
+              <Skeleton active />{' '}
             </div>
-          </Sider>
-
-          <Layout
-            style={{
-              marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
-              transition: 'margin-left 0.3s ease',
-            }}
-          >
-            <Header
-              style={{
-                padding: 4,
-                background: colorBgContainer,
-                display: 'flex',
-                alignItems: 'center',
-                position: 'fixed',
-                width: isMobile
-                  ? '100%'
-                  : collapsed
-                    ? 'calc(100% - 80px)'
-                    : 'calc(100% - 280px)',
-                zIndex: 1000,
-                top: 0,
-                left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
-                transition: 'left 0.3s ease, width 0.3s ease',
-                boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.15)', // Adjust shadow as needed
-              }}
-            >
-              {isMobile && (
-                <div className="w-full h-full p-[10px] flex justify-center items-center">
-                  <Button
-                    className="w-full h-full"
-                    onClick={toggleMobileCollapsed}
-                    icon={
-                      !mobileCollapsed ? (
-                        <IoCloseOutline
-                          size={24}
-                          className="text-gray-500 border-none"
-                        />
-                      ) : (
-                        <MenuOutlined
-                          size={24}
-                          className="text-gray-500 border-none"
-                        />
-                      )
-                    }
-                  />
-                </div>
-              )}
-
-              <NavBar page="" handleLogout={handleLogout} />
-            </Header>
-            <Content
-              className="overflow-y-hidden min-h-screen"
-              style={{
-                paddingInline: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
-                transition: 'padding-left 0.3s ease',
-              }}
-            >
-              {isCheckingPermissions ? (
-                <div className="flex justify-center items-center h-screen">
-                  <Skeleton active />
-                </div>
-              ) : (
-                <div
-                  className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-                  style={{
-                    borderRadius: borderRadiusLG,
-                    marginTop: `${isMobile ? '85px' : '94px'}`,
-                    marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-                  }}
-                >
-                  {children}
-                </div>
-              )}
-              <CreateEmployeeJobInformation
-                onInfoSubmition={() => {
-                  handleUserInfoUpdate();
-                }}
-                id={userId}
+          ) : (
+            <Tree
+              treeData={getResponsiveTreeData(filteredMenuItems, collapsed)}
+              showLine={{ showLeafIcon: false }}
+              defaultExpandAll={false}
+              expandedKeys={expandedKeys}
+              selectedKeys={selectedKeys}
+              onSelect={handleSelect}
+              onDoubleClick={handleDoubleClick}
+              className="my-5 [&_.ant-tree-node-selected]:!text-black h-full w-full [&_.ant-tree-list-holder-inner]:!bg-white [&_.ant-tree-list-holder-inner]:!rounded-lg [&_.ant-tree-list-holder-inner]: [&_.ant-tree-list-holder-inner]:!p-2 [&_.ant-tree-list-holder-inner]:!mt-2"
+              switcherIcon={null}
+            />
+          )}
+        </div>
+      </Sider>
+      <Layout
+        style={{
+          marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
+          transition: 'margin-left 0.3s ease',
+        }}
+      >
+        <Header
+          style={{
+            padding: 4,
+            background: colorBgContainer,
+            display: 'flex',
+            alignItems: 'center',
+            position: 'fixed',
+            width: isMobile
+              ? '100%'
+              : collapsed
+                ? 'calc(100% - 80px)'
+                : 'calc(100% - 280px)',
+            zIndex: 1000,
+            top: 0,
+            left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
+            transition: 'left 0.3s ease, width 0.3s ease',
+            boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.15)', // Adjust shadow as needed
+          }}
+        >
+          {isMobile && (
+            <div className="w-full h-full p-[10px] flex justify-center items-center">
+              <Button
+                className="w-full h-full"
+                onClick={toggleMobileCollapsed}
+                icon={
+                  !mobileCollapsed ? (
+                    <IoCloseOutline
+                      size={24}
+                      className="text-gray-500 border-none"
+                    />
+                  ) : (
+                    <MenuOutlined
+                      size={24}
+                      className="text-gray-500 border-none"
+                    />
+                  )
+                }
               />
-            </Content>
-          </Layout>
-        </>
-      )}
+            </div>
+          )}
+
+          <NavBar page="" handleLogout={handleLogout} />
+        </Header>
+        <Content
+          className="overflow-y-hidden min-h-screen"
+          style={{
+            paddingInline: isMobile ? 8 : 24,
+            paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+            transition: 'padding-left 0.3s ease',
+          }}
+        >
+          {isCheckingPermissions ? (
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton active />
+            </div>
+          ) : (
+            <div
+              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              style={{
+                borderRadius: borderRadiusLG,
+                marginTop: '94px',
+                marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
+              }}
+            >
+              {children}
+            </div>
+          )}
+          <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
+            }}
+            id={userId}
+          />
+        </Content>
+      </Layout>
     </Layout>
   );
 };
