@@ -120,13 +120,13 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
           >
             <DatePicker
               disabledDate={(current) => {
-                // Use the main employee record's createdAt, not nested objects
-                const createdAt = employeeData?.createdAt;
-                if (!createdAt) return false;
+                // Use the employee's joined date from employeeInformation
+                const joinedDate = employeeData?.employeeInformation?.joinedDate;
+                if (!joinedDate) return false;
                 
-                // Disable dates before the creation date (exact day, month, year)
-                const creationDate = dayjs(createdAt);
-                return current && current.isBefore(creationDate, 'day');
+                // Disable dates before the joined date (exact day, month, year)
+                const joinDate = dayjs(joinedDate);
+                return current && current.isBefore(joinDate, 'day');
               }}
               className="w-full"
             />
@@ -136,7 +136,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
-              The effective start date cannot be before the employee&apos;s creation date.
+              The effective start date cannot be before the employee&apos;s joined date.
             </div>
           </div>
         </Col>
