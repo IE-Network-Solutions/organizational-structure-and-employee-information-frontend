@@ -23,7 +23,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
 import BasicSalary from './basicSalary';
 import { LuPencil } from 'react-icons/lu';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
@@ -33,8 +34,12 @@ import { useGetAllPositions } from '@/store/server/features/employees/positions/
 import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 
 function Job({ id }: { id: string }) {
-  const { isLoading, data: employeeData } = useGetEmployee(id);
+  const params = useParams();
+  const userId = params.id as string;
+  const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);
   const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
+
+
 
   // API queries for form options
   const { data: departmentData } = useGetDepartments();
@@ -43,8 +48,29 @@ function Job({ id }: { id: string }) {
   const { data: positions } = useGetAllPositions();
   const { data: workSchedules } = useGetWorkSchedules();
 
+  // Sort job information with active jobs at the top
+  const sortedJobInformation = useMemo(() => {
+    if (!employeeData?.employeeJobInformation) return [];
+    
+    return [...employeeData.employeeJobInformation].sort((a, b) => {
+      // First sort by active status (active jobs first)
+      if (a.isPositionActive && !b.isPositionActive) return -1;
+      if (!a.isPositionActive && b.isPositionActive) return 1;
+      
+      // Then sort by effective start date (newest first)
+      const dateA = new Date(a.effectiveStartDate || 0).getTime();
+      const dateB = new Date(b.effectiveStartDate || 0).getTime();
+      return dateB - dateA;
+    });
+  }, [employeeData?.employeeJobInformation]);
+
   const handleAddEmployeeJobInformation = () => {
     setIsAddEmployeeJobInfoModalVisible(true);
+  };
+
+  // Callback to refresh job information data
+  const handleJobInfoUpdated = () => {
+    refetch();
   };
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   const { mutate: updateEmployeeJobInformation, isLoading: isUpdating } =
@@ -92,7 +118,10 @@ function Job({ id }: { id: string }) {
         values,
       },
       {
-        onSuccess: () => setIsEditing(false),
+        onSuccess: () => {
+          setIsEditing(false);
+          handleJobInfoUpdated(); // Refresh data after successful update
+        },
       },
     );
   };
@@ -118,6 +147,7 @@ function Job({ id }: { id: string }) {
       {
         onSuccess: () => {
           handleEditModalClose();
+          handleJobInfoUpdated(); // Refresh data after successful update
         },
       },
     );
@@ -128,6 +158,17 @@ function Job({ id }: { id: string }) {
       (schedule) => schedule.id === value,
     );
     setSelectedWorkSchedule(selectedValue || null);
+  };
+
+  // Function to disable dates before creation date
+  const disabledDate = (current: dayjs.Dayjs) => {
+    // Use the main employee record's createdAt, not nested objects
+    const createdAt = employeeData?.createdAt;
+    if (!createdAt) return false;
+    
+    // Disable dates before the creation date (exact day, month, year)
+    const creationDate = dayjs(createdAt);
+    return current && current.isBefore(creationDate, 'day');
   };
 
   const columns = [
@@ -277,16 +318,16 @@ function Job({ id }: { id: string }) {
         }
       >
         <Table
-          dataSource={employeeData?.employeeJobInformation}
+          dataSource={sortedJobInformation}
           columns={columns}
           className="w-full overflow-auto"
           pagination={{ hideOnSinglePage: true }}
           rowKey="id"
         />
       </Card>
-      <WorkScheduleComponent id={id} />
-      <CreateEmployeeJobInformation id={id} />
-      <BasicSalary id={id} />
+      <WorkScheduleComponent id={userId} />
+      <CreateEmployeeJobInformation id={userId} onJobInfoUpdated={handleJobInfoUpdated} />
+      <BasicSalary id={userId} />
 
       {/* Edit Job Information Modal */}
       <Modal
@@ -318,7 +359,11 @@ function Job({ id }: { id: string }) {
                   { required: true, message: 'Please select the joined date' },
                 ]}
               >
-                <DatePicker className="w-full" format="DD MMM YYYY" />
+                <DatePicker 
+                  className="w-full" 
+                  format="DD MMM YYYY" 
+                  disabledDate={disabledDate}
+                />
               </Form.Item>
             </Col>
           </Row>

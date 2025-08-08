@@ -24,6 +24,7 @@ import { useUpdateEmployeeJobInformation } from '@/store/server/features/employe
 import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useParams } from 'next/navigation';
 interface DataType {
   key: string;
   workingDay: React.ReactNode;
@@ -34,6 +35,9 @@ interface Ids {
 }
 const { Option } = Select;
 const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
+
+const params = useParams();
+const userId = params.id as string;
   const {
     selectedWorkSchedule,
     setSelectedWorkSchedule,
@@ -44,7 +48,7 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
   } = useEmployeeManagementStore();
   const { mutate: updateEmployeeJobInformation } =
     useUpdateEmployeeJobInformation();
-  const { data: employeeData, isLoading } = useGetEmployee(id);
+  const { data: employeeData, isLoading, refetch } = useGetEmployee(userId);
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
 
@@ -55,6 +59,10 @@ const WorkScheduleComponent: React.FC<Ids> = ({ id }) => {
         updateEmployeeJobInformation({
           id: employeeData?.employeeJobInformation[0]?.id,
           values,
+        }, {
+          onSuccess: () => {
+            refetch(); // Refresh data after successful update
+          }
         });
         setEdit(editKey);
       })
