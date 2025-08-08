@@ -128,12 +128,18 @@ function CreateReport() {
           keyresult?.milestones?.forEach((milestone: any) => {
             milestone?.tasks?.forEach((task: any) => {
               // If task is pre-achieved and not already set to Done, set it to Done
-              if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] !== 'Done') {
+              if (
+                task?.status === 'pre-achieved' &&
+                selectedStatuses[task.taskId] !== 'Done'
+              ) {
                 newStatuses[task.taskId] = 'Done';
                 hasChanges = true;
               }
               // If task is not pre-achieved and currently set to Done, clear the status
-              else if (task?.status !== 'pre-achieved' && selectedStatuses[task.taskId] === 'Done') {
+              else if (
+                task?.status !== 'pre-achieved' &&
+                selectedStatuses[task.taskId] === 'Done'
+              ) {
                 delete newStatuses[task.taskId];
                 hasChanges = true;
               }
@@ -143,12 +149,18 @@ function CreateReport() {
           // Handle regular tasks
           keyresult?.tasks?.forEach((task: any) => {
             // If task is pre-achieved and not already set to Done, set it to Done
-            if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] !== 'Done') {
+            if (
+              task?.status === 'pre-achieved' &&
+              selectedStatuses[task.taskId] !== 'Done'
+            ) {
               newStatuses[task.taskId] = 'Done';
               hasChanges = true;
             }
             // If task is not pre-achieved and currently set to Done, clear the status
-            else if (task?.status !== 'pre-achieved' && selectedStatuses[task.taskId] === 'Done') {
+            else if (
+              task?.status !== 'pre-achieved' &&
+              selectedStatuses[task.taskId] === 'Done'
+            ) {
               delete newStatuses[task.taskId];
               hasChanges = true;
             }
@@ -166,7 +178,13 @@ function CreateReport() {
         });
       }
     }
-  }, [formattedData, selectedStatuses, setStatus, resetStatuses, allPlannedTaskForReport]);
+  }, [
+    formattedData,
+    selectedStatuses,
+    setStatus,
+    resetStatuses,
+    allPlannedTaskForReport,
+  ]);
 
   useEffect(() => {
     if (formattedData && Object.keys(selectedStatuses).length > 0) {

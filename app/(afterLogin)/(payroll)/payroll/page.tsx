@@ -44,7 +44,9 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { FiscalYear, Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import {
+  FiscalYear,
+} from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,12 +176,11 @@ const Payroll = () => {
     netPay: number;
   };
 
-  const fiscalYearMonths = getAllFiscalYears?.items?.flatMap(
-    (item: FiscalYear) => item.sessions || [],
-  )?.flatMap((session) => session?.months || []) || [];
+  const fiscalYearMonths =
+    getAllFiscalYears?.items
+      ?.flatMap((item: FiscalYear) => item.sessions || [])
+      ?.flatMap((session) => session?.months || []) || [];
 
-
-  console.log(getAllFiscalYears, 'getAllFiscalYears');
   const handleSearch = (searchValues: any) => {
     const queryParams = new URLSearchParams();
 
@@ -188,12 +189,12 @@ const Payroll = () => {
     }
     if (searchValues?.monthId) {
       queryParams.append('monthId', searchValues.monthId);
-      
+
       // Find the month object to get start and end dates
       const month = fiscalYearMonths.find(
         (month) => month?.id === searchValues.monthId,
       );
-      
+
       if (month?.startDate) {
         const startDate = new Date(month.startDate);
         const formattedStartDate = startDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
