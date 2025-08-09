@@ -33,8 +33,9 @@ interface DataType {
 
 const { Option } = Select;
 const WorkScheduleComponent: React.FC = () => {
-  const params = useParams();
-  const userId = params.id as string;
+
+const params = useParams();
+const userId = params.id as string;
   const {
     selectedWorkSchedule,
     setSelectedWorkSchedule,
@@ -53,17 +54,14 @@ const WorkScheduleComponent: React.FC = () => {
     form
       .validateFields()
       .then((values) => {
-        updateEmployeeJobInformation(
-          {
-            id: employeeData?.employeeJobInformation[0]?.id,
-            values,
-          },
-          {
-            onSuccess: () => {
-              refetch(); // Refresh data after successful update
-            },
-          },
-        );
+        updateEmployeeJobInformation({
+          id: employeeData?.employeeJobInformation[0]?.id,
+          values,
+        }, {
+          onSuccess: () => {
+            refetch(); // Refresh data after successful update
+          }
+        });
         setEdit(editKey);
       })
       .catch();

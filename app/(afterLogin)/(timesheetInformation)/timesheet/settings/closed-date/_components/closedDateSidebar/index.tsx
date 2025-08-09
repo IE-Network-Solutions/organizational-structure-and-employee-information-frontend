@@ -45,7 +45,7 @@ const ClosedDateSidebar = () => {
       className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => {
-        (setIsShow(false), form.resetFields());
+        setIsShow(false), form.resetFields();
       },
     },
     {

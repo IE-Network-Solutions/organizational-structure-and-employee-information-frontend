@@ -61,8 +61,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         const subordinates = employeeData.items
           .filter(
             (employee: any) =>
-              (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
-              userId,
+              (employee?.delegatedTo?.id || employee.reportingTo?.id) === userId,
           )
           .map((employee: any) => employee.id);
 

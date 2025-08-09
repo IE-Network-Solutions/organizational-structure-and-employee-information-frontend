@@ -39,6 +39,8 @@ function Job({ id }: { id: string }) {
   const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);
   const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
 
+
+
   // API queries for form options
   const { data: departmentData } = useGetDepartments();
   const { data: employementType } = useGetEmployementTypes();
@@ -49,12 +51,12 @@ function Job({ id }: { id: string }) {
   // Sort job information with active jobs at the top
   const sortedJobInformation = useMemo(() => {
     if (!employeeData?.employeeJobInformation) return [];
-
+    
     return [...employeeData.employeeJobInformation].sort((a, b) => {
       // First sort by active status (active jobs first)
       if (a.isPositionActive && !b.isPositionActive) return -1;
       if (!a.isPositionActive && b.isPositionActive) return 1;
-
+      
       // Then sort by effective start date (newest first)
       const dateA = new Date(a.effectiveStartDate || 0).getTime();
       const dateB = new Date(b.effectiveStartDate || 0).getTime();
@@ -163,7 +165,7 @@ function Job({ id }: { id: string }) {
     // Use the main employee record's createdAt, not nested objects
     const createdAt = employeeData?.createdAt;
     if (!createdAt) return false;
-
+    
     // Disable dates before the creation date (exact day, month, year)
     const creationDate = dayjs(createdAt);
     return current && current.isBefore(creationDate, 'day');
@@ -309,9 +311,9 @@ function Job({ id }: { id: string }) {
             >
               <FaPlus onClick={handleAddEmployeeJobInformation} />
             </AccessGuard>
-            <div className="pt-2">
-              <DownloadJobInformation id={id} />
-            </div>
+                                      <div className="pt-2">
+               <DownloadJobInformation id={id} />
+             </div>
           </div>
         }
       >
@@ -324,10 +326,7 @@ function Job({ id }: { id: string }) {
         />
       </Card>
       <WorkScheduleComponent />
-      <CreateEmployeeJobInformation
-        id={userId}
-        onJobInfoUpdated={handleJobInfoUpdated}
-      />
+      <CreateEmployeeJobInformation id={userId} onJobInfoUpdated={handleJobInfoUpdated} />
       <BasicSalary id={userId} />
 
       {/* Edit Job Information Modal */}
@@ -360,9 +359,9 @@ function Job({ id }: { id: string }) {
                   { required: true, message: 'Please select the joined date' },
                 ]}
               >
-                <DatePicker
-                  className="w-full"
-                  format="DD MMM YYYY"
+                <DatePicker 
+                  className="w-full" 
+                  format="DD MMM YYYY" 
                   disabledDate={disabledDate}
                 />
               </Form.Item>
