@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Button, Modal, Card, Space, Typography, Alert } from 'antd';
 import {
   DownloadOutlined,
@@ -243,12 +242,10 @@ export const InstallPrompt: React.FC<InstallPromptProps> = ({
         <div className="install-prompt-content">
           <Card className="mb-4">
             <div className="text-center mb-4">
-              <Image
+              <img
                 src="/icons/android/android-launchericon-96-96.png"
                 alt="Selamnew Workspace"
-                width={64}
-                height={64}
-                className="mx-auto mb-3"
+                className="w-16 h-16 mx-auto mb-3"
               />
               <Title level={4} className="mb-2">
                 Install Selamnew Workspace

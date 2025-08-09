@@ -27,6 +27,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     employeeJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
+
   useEffect(() => {
     if (isAddEmployeeJobInfoModalVisible) {
       form.resetFields(); // Reset form values on modal open
@@ -55,7 +56,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     createJobInformation(values, {
       onSuccess: () => {
         handleClose();
-
+        
         // Call the callback to refresh job information data
         if (onJobInfoUpdated) {
           setTimeout(() => {
@@ -63,6 +64,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
           }, 500);
         }
       },
+   
     });
   };
   return (

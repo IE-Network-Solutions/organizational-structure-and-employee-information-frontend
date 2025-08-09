@@ -4,14 +4,14 @@ import { SearchOutlined, EnvironmentOutlined } from '@ant-design/icons';
 
 /**
  * Usage Examples:
- *
+ * 
  * // Auto-search enabled (default)
  * <LocationSearch onLocationSelect={handleLocationSelect} />
- *
+ * 
  * // Manual search only (auto-search disabled)
- * <LocationSearch
- *   onLocationSelect={handleLocationSelect}
- *   autoSearch={false}
+ * <LocationSearch 
+ *   onLocationSelect={handleLocationSelect} 
+ *   autoSearch={false} 
  * />
  */
 
@@ -30,14 +30,14 @@ interface SearchResult {
 
 /**
  * LocationSearch component with automatic search functionality
- *
+ * 
  * Features:
  * - Automatic search as user types
  * - Manual search button (when autoSearch is disabled)
  * - Loading indicator during search
  * - Keyboard support (Enter key)
  * - Clear results when input is empty
- *
+ * 
  * @param props - Component props
  * @param props.onLocationSelect - Callback when a location is selected
  * @param props.placeholder - Input placeholder text
@@ -62,7 +62,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     setIsLoading(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`
       );
       const data = await response.json();
       setSearchResults(data);
@@ -74,9 +74,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   };
 
   // Debounced search function
-  const debouncedSearch = useCallback((query: string) => {
-    searchLocation(query);
-  }, []);
+  const debouncedSearch = useCallback(
+    (query: string) => {
+      searchLocation(query);
+    },
+    []
+  );
 
   // Effect for auto search
   useEffect(() => {
@@ -96,11 +99,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   };
 
   const handleResultClick = (result: SearchResult) => {
-    onLocationSelect(
-      parseFloat(result.lat),
-      parseFloat(result.lon),
-      result.display_name,
-    );
+    onLocationSelect(parseFloat(result.lat), parseFloat(result.lon), result.display_name);
     setSearchResults([]);
     setSearchQuery(result.display_name);
   };
@@ -108,7 +107,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-
+    
     // Clear results if input is empty
     if (!value.trim()) {
       setSearchResults([]);
@@ -162,4 +161,4 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   );
 };
 
-export default LocationSearch;
+export default LocationSearch; 

@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Circle,
-  useMapEvents,
-  useMap,
-} from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Circle, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 /**
  * Usage Examples:
- *
+ * 
  * // Auto-zoom enabled (default)
  * <LocationPicker
  *   latitude={latitude}
@@ -22,7 +15,7 @@ import 'leaflet/dist/leaflet.css';
  *   onLocationChange={handleLocationChange}
  *   onRadiusChange={handleRadiusChange}
  * />
- *
+ * 
  * // Custom zoom level
  * <LocationPicker
  *   latitude={latitude}
@@ -32,7 +25,7 @@ import 'leaflet/dist/leaflet.css';
  *   onRadiusChange={handleRadiusChange}
  *   zoomLevel={18}
  * />
- *
+ * 
  * // Disable auto-zoom
  * <LocationPicker
  *   latitude={latitude}
@@ -47,12 +40,9 @@ import 'leaflet/dist/leaflet.css';
 // Fix for default markers in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
 interface LocationPickerProps {
@@ -77,13 +67,7 @@ const MapViewManager: React.FC<{
   zoomLevel?: number;
   smoothZoom?: boolean;
   radius?: number;
-}> = ({
-  position,
-  autoZoom = true,
-  zoomLevel = 15,
-  smoothZoom = true,
-  radius = 1,
-}) => {
+}> = ({ position, autoZoom = true, zoomLevel = 15, smoothZoom = true, radius = 1 }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -92,22 +76,17 @@ const MapViewManager: React.FC<{
       // Larger radius needs lower zoom level to show the entire circle
       const radiusInMeters = radius * 1000;
       let calculatedZoom = zoomLevel;
-
+      
       // Adjust zoom based on radius size
-      if (radiusInMeters > 5000) {
-        // 5km
+      if (radiusInMeters > 5000) { // 5km
         calculatedZoom = 10;
-      } else if (radiusInMeters > 2000) {
-        // 2km
+      } else if (radiusInMeters > 2000) { // 2km
         calculatedZoom = 12;
-      } else if (radiusInMeters > 500) {
-        // 500m
+      } else if (radiusInMeters > 500) { // 500m
         calculatedZoom = 14;
-      } else if (radiusInMeters > 100) {
-        // 100m
+      } else if (radiusInMeters > 100) { // 100m
         calculatedZoom = 16;
-      } else {
-        // 10m-100m
+      } else { // 10m-100m
         calculatedZoom = 18;
       }
 
@@ -128,18 +107,18 @@ const MapViewManager: React.FC<{
       const currentZoom = map.getZoom();
       const markerLatLng = L.latLng(position[0], position[1]);
       const mapBounds = map.getBounds();
-
+      
       // If marker is not in view, adjust the map
       if (!mapBounds.contains(markerLatLng)) {
         const flyToOptions = {
           duration: smoothZoom ? 1.0 : 0,
           easeLinearity: 0.25,
         };
-
+        
         // Calculate appropriate zoom to show marker and radius
         const radiusInMeters = radius * 1000;
         let targetZoom = currentZoom;
-
+        
         if (radiusInMeters > 5000) {
           targetZoom = Math.max(currentZoom, 10);
         } else if (radiusInMeters > 2000) {
@@ -151,7 +130,7 @@ const MapViewManager: React.FC<{
         } else {
           targetZoom = Math.max(currentZoom, 18);
         }
-
+        
         map.flyTo(position, targetZoom, flyToOptions);
       }
     };
@@ -191,10 +170,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   zoomLevel = 15,
   smoothZoom = true,
 }) => {
-  const [position, setPosition] = useState<[number, number]>([
-    latitude,
-    longitude,
-  ]);
+  const [position, setPosition] = useState<[number, number]>([latitude, longitude]);
   const [currentRadius, setCurrentRadius] = useState(radius);
   const [isClient, setIsClient] = useState(false);
 
@@ -217,10 +193,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
 
   if (!isClient) {
     return (
-      <div
-        style={{ height, width }}
-        className="bg-gray-100 rounded-lg flex items-center justify-center"
-      >
+      <div style={{ height, width }} className="bg-gray-100 rounded-lg flex items-center justify-center">
         <div className="text-gray-500">Loading map...</div>
       </div>
     );
@@ -244,14 +217,14 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapClickHandler onLocationChange={handleLocationChange} />
-        <MapViewManager
-          position={position}
-          autoZoom={autoZoom}
-          zoomLevel={zoomLevel}
-          smoothZoom={smoothZoom}
+        <MapViewManager 
+          position={position} 
+          autoZoom={autoZoom} 
+          zoomLevel={zoomLevel} 
+          smoothZoom={smoothZoom} 
           radius={currentRadius}
         />
-        <Marker
+        <Marker 
           position={position}
           icon={L.divIcon({
             className: 'custom-marker',
@@ -298,11 +271,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
 export default dynamic(() => Promise.resolve(LocationPicker), {
   ssr: false,
   loading: () => (
-    <div
-      className="bg-gray-100 rounded-lg flex items-center justify-center"
-      style={{ height: '400px' }}
-    >
+    <div className="bg-gray-100 rounded-lg flex items-center justify-center" style={{ height: '400px' }}>
       <div className="text-gray-500">Loading map...</div>
     </div>
   ),
-});
+}); 

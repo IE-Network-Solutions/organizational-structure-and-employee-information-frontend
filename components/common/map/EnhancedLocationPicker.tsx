@@ -1,30 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Card,
-  InputNumber,
-  Slider,
-  Space,
-  Typography,
-  Divider,
-  Button,
-  message,
-} from 'antd';
-import {
-  EnvironmentOutlined,
-  RadiusUprightOutlined,
-  SearchOutlined,
-  AimOutlined,
-} from '@ant-design/icons';
+import { Card, InputNumber, Slider, Space, Typography, Divider, Button, message } from 'antd';
+import { EnvironmentOutlined, RadiusUprightOutlined, SearchOutlined, AimOutlined } from '@ant-design/icons';
 import dynamic from 'next/dynamic';
 import LocationSearch from './LocationSearch';
 
 const LocationPicker = dynamic(() => import('./LocationPicker'), {
   ssr: false,
   loading: () => (
-    <div
-      className="bg-gray-100 rounded-lg flex items-center justify-center"
-      style={{ height: '400px' }}
-    >
+    <div className="bg-gray-100 rounded-lg flex items-center justify-center" style={{ height: '400px' }}>
       <div className="text-gray-500">Loading map...</div>
     </div>
   ),
@@ -52,7 +35,7 @@ interface EnhancedLocationPickerProps {
 
 /**
  * EnhancedLocationPicker component with integrated location search and map selection
- *
+ * 
  * Features:
  * - Automatic location search as user types (with debouncing)
  * - Interactive map for location selection
@@ -61,7 +44,7 @@ interface EnhancedLocationPickerProps {
  * - Coordinate display and manual editing
  * - Automatic zoom to selected location
  * - Smooth map transitions
- *
+ * 
  * @param props - Component props
  * @param props.latitude - Initial latitude
  * @param props.longitude - Initial longitude
@@ -126,10 +109,8 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           message.success('Current location set successfully!');
         },
         () => {
-          message.error(
-            'Unable to get current location. Please select manually.',
-          );
-        },
+          message.error('Unable to get current location. Please select manually.');
+        }
       );
     } else {
       message.error('Geolocation is not supported by this browser.');
@@ -149,9 +130,9 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
             onLocationSelect={handleSearchSelect}
             autoSearch={autoSearch}
           />
-          <Button
-            type="dashed"
-            icon={<AimOutlined />}
+          <Button 
+            type="dashed" 
+            icon={<AimOutlined />} 
             onClick={handleUseCurrentLocation}
             className="mt-2"
           >
@@ -265,4 +246,4 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   );
 };
 
-export default EnhancedLocationPicker;
+export default EnhancedLocationPicker; 

@@ -96,10 +96,14 @@ const getTenantId = async (token: string) => {
  */
 
 const getTenantByDomainName = async (domain: string) => {
-  return crudRequest({
-    url: `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`,
-    method: 'GET',
-  });
+  try {
+    const response = await axios.get(
+      `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`,
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getTenant = async (tenantId?: string) => {
