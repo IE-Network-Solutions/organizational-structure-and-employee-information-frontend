@@ -700,14 +700,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
-  const { data: departments } = useGetDepartments();
-  const { data: employeeData } = useGetEmployee(userId);
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetEmployee(userId);
   const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
     useEmployeeManagementStore();
-  useEffect(() => {
-    if (!departments || !employeeData) return;
 
-    if (departments.length === 0) {
+  // Show loading when departments or employee data is not available
+  // But don't show loading on onboarding page
+  const isLoadingData =
+    departmentsLoading || employeeDataLoading || !departments || !employeeData;
+
+  useEffect(() => {
+    if (isLoadingData) return;
+
+    if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
     } else if (
       !employeeData.employeeJobInformation ||
@@ -716,7 +724,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setIsAddEmployeeJobInfoModalVisible(true);
       setEmployeeJobInfoModalWidth('100%');
     }
-  }, [departments, employeeData, router]);
+  }, [departments, employeeData, router, isLoadingData]);
 
   // ✅ Check permission on pathname change
   useEffect(() => {

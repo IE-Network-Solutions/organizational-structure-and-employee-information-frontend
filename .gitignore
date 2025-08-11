@@ -5,8 +5,8 @@
 /.pnp
 .env
 .env.local
-
- package-lock.json
+yarn.lock
+package-lock.json
 .pnp.js
 .yarn/install-state.gz
 
@@ -38,10 +38,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-.env.local
-
-yarn.lock
 
 .idea
 

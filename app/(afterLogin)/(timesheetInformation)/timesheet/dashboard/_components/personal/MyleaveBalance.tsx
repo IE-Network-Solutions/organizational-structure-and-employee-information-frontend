@@ -28,7 +28,7 @@ const MyleaveBalance: React.FC = () => {
   return (
     <div>
       <h2 className="text-[24px] font-bold mb-4">My Leave Balance</h2>
-      <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2">
+      <div className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-none pb-2">
         {leaveBalanceLoading && <Skeleton active />}
         {leaveBalance?.items?.items?.map((item: any, index: number) => (
           <Card
@@ -49,11 +49,10 @@ const MyleaveBalance: React.FC = () => {
                   </p>
                 </Tooltip>
                 <Tag
-                  className={`font-bold border-none py-0.5 ${
-                    item.leaveType.isFixed
-                      ? 'bg-[#B2B2FF] text-[#3636F0]'
-                      : 'bg-[#55C79033] text-[#0CAF60]'
-                  }`}
+                  className={`font-bold border-none py-0.5 ${item.leaveType.isFixed
+                    ? 'bg-[#B2B2FF] text-[#3636F0]'
+                    : 'bg-[#55C79033] text-[#0CAF60]'
+                    }`}
                 >
                   {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
@@ -69,45 +68,44 @@ const MyleaveBalance: React.FC = () => {
           </Card>
         ))}
       </div>
-
       {/* Entitlement and Utilization */}
       <div className="grid grid-cols-12 gap-4 mt-4">
         <Card
           bodyStyle={{ padding: '0px' }}
-          className="shadow-sm rounded-lg col-span-3 h-fit"
+          className="shadow-sm rounded-lg md:col-span-3 col-span-12 h-fit"
           loading={userLeaveBalanceLoading}
         >
-          <div className="flex flex-col">
-            <div className="py-4 border-b border[3px] border-gray-200">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
+          <div className="flex md:flex-col flex-row">
+            <div className="py-4  md:border-b border-r border[3px] border-gray-200">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                   Entitled
                 </span>
-                <span className="text-[16px] font-bold text-black w-20">
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
                   {Number(
                     userLeaveBalance?.data?.totals?.totalEntitledDays,
                   )?.toLocaleString() || 0}
                 </span>
               </div>
             </div>
-            <div className="py-4 border-b border[3px] border-gray-200">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
+            <div className="py-4  md:border-b border-r border[3px] border-gray-200">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                   Accured
                 </span>
-                <span className="text-[16px] font-bold text-black w-20">
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
                   {Number(
                     userLeaveBalance?.data?.totals?.totalAccrued,
                   )?.toLocaleString() || 0}
                 </span>
               </div>
             </div>
-            <div className="py-4 border-b border[3px] border-gray-200">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
+            <div className="py-4  md:border-b border-r border[3px] border-gray-200">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                   Carried over
                 </span>
-                <span className="text-[16px] font-bold text-black w-20">
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
                   {Number(
                     userLeaveBalance?.data?.totals?.totalCarriedOver,
                   )?.toLocaleString() || 0}
@@ -115,11 +113,11 @@ const MyleaveBalance: React.FC = () => {
               </div>
             </div>
             <div className="py-4">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2  ">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                   Total Utilized
                 </span>
-                <span className="text-[16px] font-bold text-black w-20">
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
                   {Number(
                     userLeaveBalance?.data?.totals?.totalUtilizedLeaves,
                   )?.toLocaleString() || 0}
@@ -129,17 +127,18 @@ const MyleaveBalance: React.FC = () => {
           </div>
         </Card>
 
+        {/* Utilization Card */}
         <Card
-          bodyStyle={{ padding: '16px 24px' }}
-          className="shadow-sm col-span-9 mb-5"
+          bodyStyle={{ padding: '16px 20px' }}
+          className="shadow-sm md:col-span-9 col-span-12 mb-5"
           title={
-            <span className="text-[12px] font-bold text-black">
+            <span className="text-xs sm:text-sm font-bold text-black">
               Utilization
             </span>
           }
         >
           <Spin spinning={userLeaveBalanceLoading}>
-            <div className="flex flex-col space-y-2 h-36 overflow-y-auto scrollbar-none pr-2">
+            <div className="flex flex-col space-y-3 h-36 overflow-y-auto scrollbar-none pr-2">
               {userLeaveBalanceLoading && <Skeleton active />}
               {userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
                 userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
@@ -150,27 +149,26 @@ const MyleaveBalance: React.FC = () => {
                     <div className="flex items-start justify-between px-4 py-2">
                       <div className="space-y-1">
                         <div className="flex items-center">
-                          <span className="text-[16px] font-bold text-black">
+                          <span className="md:text-[16px] font-bold text-black">
                             {leave.totalDays}{' '}
                             {leave.totalDays > 1 ? 'Days' : 'Day'}
                           </span>
                         </div>
-                        <p className="text-[14px] text-[#111827] font-regular">
+                        <p className="md:text-[14px] text-[12px] text-[#111827] font-regular">
                           {dayjs(leave.startDate).format('DD MMM YYYY')} -{' '}
                           {dayjs(leave.endDate).format('DD MMM YYYY')}
                         </p>
                       </div>
                       <div className="text-right space-y-1">
-                        <p className="text-[14px] text-[#111827] font-regular">
+                        <p className="md:text-[14px] text-[12px] text-[#111827] font-regular">
                           Requested:{' '}
                           {dayjs(leave.createdAt).format('DD MMM YYYY')}
                         </p>
                         <Tag
                           style={{ marginInlineEnd: 0 }}
-                          className={`${
-                            statusColors[leave.status.toLowerCase()] ||
+                          className={`${statusColors[leave.status.toLowerCase()] ||
                             'text-gray-500 bg-gray-500/20'
-                          } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
+                            } font-bold border-none text-[12px] px-3 py-0.5  h-6 rounded-md capitalize`}
                         >
                           {leave.status}
                         </Tag>

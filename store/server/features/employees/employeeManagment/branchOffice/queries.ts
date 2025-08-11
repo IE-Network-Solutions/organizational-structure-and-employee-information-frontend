@@ -1,10 +1,10 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Meta } from '../../settings/groupPermission/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { requestHeader } from '@/helpers/requestHeader';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 type Item = {
@@ -48,19 +48,12 @@ const getBranches = async () => {
  */
 
 const getBranch = async (id: number) => {
-  const token = await getCurrentToken();
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/branchs/${id}`, {
-      headers,
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/branchs/${id}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
 };
 
 /**

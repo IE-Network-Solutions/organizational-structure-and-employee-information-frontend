@@ -1,11 +1,8 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
+import { requestHeader } from '@/helpers/requestHeader';
 import { ReprimandType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-type/interface';
-import { getCurrentToken } from '@/utils/getCurrentToken';
-
-const tenantId = useAuthenticationStore.getState().tenantId;
 
 type ResponseData = {
   items: ReprimandType[];
@@ -23,22 +20,12 @@ type ResponseData = {
  * @returns The response data from the API
  */
 const getAppType = async () => {
-  try {
-    const token = await getCurrentToken();
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/recognition-type?type=reprimand`,
-      {
-        headers,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/recognition-type?type=reprimand`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
 };
 
 /**
