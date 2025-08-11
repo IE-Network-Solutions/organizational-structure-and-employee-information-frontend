@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
+import axios from 'axios';
 import { useMutation, useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -66,14 +67,20 @@ const getTenantId = async (token: string) => {
   if (!token || token.length === 0) {
     token = await getCurrentToken();
   }
-
-  return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
-    method: 'GET',
-    headers: {
+  try {
+    const headers = {
       Authorization: `Bearer ${token}`,
-    },
-  });
+    };
+    const response = await axios.get(
+      `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
+      {
+        headers,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**
@@ -89,19 +96,26 @@ const getTenantId = async (token: string) => {
  */
 
 const getTenantByDomainName = async (domain: string) => {
-  return crudRequest({
-    url: `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`,
-    method: 'GET',
-  });
+  try {
+    const response = await axios.get(
+      `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`,
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getTenant = async (tenantId?: string) => {
   const tenantIdData = useAuthenticationStore.getState().tenantId ?? tenantId;
-
-  return crudRequest({
-    url: `${TENANT_MGMT_URL}/clients/${tenantIdData}`,
-    method: 'GET',
-  });
+  try {
+    const response = await axios.get(
+      `${TENANT_MGMT_URL}/clients/${tenantIdData}`,
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const useGetTenantByDomain = ({

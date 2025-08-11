@@ -2,6 +2,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -77,14 +78,20 @@ export const UpdateWeeklyPriority = async (values: any) => {
 
 const deleteWeeklyPriority = async (deletedId: string) => {
   const token = await getCurrentToken();
-  return crudRequest({
-    url: `${OKR_AND_PLANNING_URL}/weekly-priorities/${deletedId}`,
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.delete(
+      `${OKR_AND_PLANNING_URL}/weekly-priorities/${deletedId}`,
+      { headers },
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const useDeleteWeeklyPriority = () => {

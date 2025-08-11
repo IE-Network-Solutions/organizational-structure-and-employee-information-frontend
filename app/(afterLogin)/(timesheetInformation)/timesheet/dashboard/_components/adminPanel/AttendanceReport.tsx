@@ -109,43 +109,37 @@ const AttendanceReport: React.FC = () => {
     <div className="flex flex-col gap-4">
       <h3 className="text-lg font-medium mb-2">Filter</h3>
 
-      {/* Department */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Department</label>
-        <Select
-          showSearch
-          placeholder="Select Department"
-          allowClear
-          value={departmentOnAttendanceReport}
-          className="w-full h-12"
-          onChange={(value) => setDepartmentOnAttendanceReport(value)}
-          filterOption={(input: any, option: any) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-          }
-          options={departmentOptions}
-        />
-      </div>
-
-      {/* Date Range */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Date Range</label>
-        <RangePicker
-          allowClear
-          className="w-full h-12"
-          onChange={(value) => {
-            if (value) {
-              setStartDateAttendanceReport(
-                value[0]?.format('YYYY-MM-DD') || '',
-              );
-              setEndDateAttendanceReport(value[1]?.format('YYYY-MM-DD') || '');
-            } else {
-              setStartDateAttendanceReport('');
-              setEndDateAttendanceReport('');
+          <Select
+            showSearch
+            placeholder="Select department"
+            allowClear
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
             }
-          }}
-        />
-      </div>
-    </div>
+            options={departmentOptions}
+            maxTagCount={1}
+            className="w-40 h-14"
+            onChange={(value) => setDepartmentOnAttendanceReport(value)}
+          />
+
+          <RangePicker
+            className="w-48 h-14"
+            onChange={(value) => {
+              if (value) {
+                setStartDateAttendanceReport(
+                  value[0]?.format('YYYY-MM-DD') || '',
+                );
+                setEndDateAttendanceReport(
+                  value[1]?.format('YYYY-MM-DD') || '',
+                );
+              } else {
+                setStartDateAttendanceReport('');
+                setEndDateAttendanceReport('');
+              }
+            }}
+          />
+        </div>
+    
   );
 
   return (
@@ -370,17 +364,81 @@ const AttendanceReport: React.FC = () => {
               className="px-6 py-2 text-white rounded-lg text-sm"
             />
           </div>
-        }
-        className="!m-4 md:hidden"
-        style={{
-          top: '20%',
-          transform: 'translateY(-50%)',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
-        width="90%"
-        centered
-      >
+             }
+             className="!m-4 md:hidden"
+             style={{
+               top: '20%',
+               transform: 'translateY(-50%)',
+               maxHeight: '90vh',
+               overflowY: 'auto',
+             }}
+             width="90%"
+             centered
+           >
+        
+          {/* Attendance List */}
+
+          <div className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none">
+            {attendanceStats?.users?.length === 0 ? (
+              <div className="flex justify-center items-center h-64">
+                <p className="text-gray-500 text-[14px] font-semibold">
+                  No Record Found
+                </p>
+              </div>
+            ) : (
+              attendanceStats?.users?.map((item: any, index: any) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl px-4 min-h-[70px] border flex items-center justify-between  "
+                >
+                  {/* Left Side */}
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center gap-1">
+                      {item.profileImage ? (
+                        <Avatar
+                          className="w-6 h-6"
+                          src={item.profileImage}
+                        ></Avatar>
+                      ) : (
+                        <Avatar className="w-6 h-6 text-[12px]">
+                          {item.name.split(' ')[0].charAt(0) +
+                            item.name.split(' ')[1].charAt(0)}
+                        </Avatar>
+                      )}
+                      <p className="text-[12px] font-medium ">{item.name}</p>
+                    </div>
+
+                    <div>
+                      <span
+                        className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
+                      >
+                        {item.status === 'ontime' ? 'On Time' : item.status}{' '}
+                        {item.status === 'late' || item.status === 'ontime'
+                          ? `${dayjs(item.recordTime, 'HH:mm:ss').format('hh:mm A')}`
+                          : ''}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right Side */}
+                  <div className="flex flex-col space-y-2">
+                    <p className="text-[16px] font-medium text-black">
+                      {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
+                    </p>
+                    <div className="mt-1 flex justify-end gap-2">
+                      <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                        L: {item.totalLates}
+                      </span>
+                      <span className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                        A: {item.totalAbsences}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+     
         <MobileFilterContent />
       </Modal>
     </>

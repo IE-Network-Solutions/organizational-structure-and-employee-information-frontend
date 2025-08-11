@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
+import axios from 'axios';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -82,20 +83,25 @@ const deleteEmployee = async () => {
   const pageSize = useEmployeeManagementStore.getState().pageSize;
   const userCurrentPage = useEmployeeManagementStore.getState().userCurrentPage;
 
-  await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/${deletedItem}?limit=${pageSize}&&page=${userCurrentPage}`,
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
-  setDeleteModal(false);
-  setDeletedItem(null);
-  NotificationMessage.success({
-    message: 'Successfully Deleted',
-    description: 'Employee successfully deleted.',
-  });
+  const headers = {
+    Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+    tenantId: tenantId, // Pass tenantId in the headers
+  };
+  try {
+    const response = await axios.delete(
+      `${ORG_AND_EMP_URL}/users/${deletedItem}?limit=${pageSize}&&page=${userCurrentPage}`,
+      { headers },
+    );
+    setDeleteModal(false);
+    setDeletedItem(null);
+    NotificationMessage.success({
+      message: 'Successfully Deleted',
+      description: 'Employee successfully deleted.',
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**

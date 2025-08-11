@@ -6,6 +6,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 export interface Get2FACodeProps {
   email: string;
   pass: string;
+  skipEncryption?: boolean;
 }
 const get2FACode = async (values: Get2FACodeProps) => {
   return crudRequest({
@@ -16,7 +17,11 @@ const get2FACode = async (values: Get2FACodeProps) => {
   });
 };
 
-const verify2FACode = async (values: { uid: string; code: string }) => {
+const verify2FACode = async (values: {
+  uid: string;
+  code: string;
+  skipEncryption: boolean;
+}) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/multi-factor-auth/verify`,
     method: 'POST',
@@ -33,8 +38,11 @@ export const useGet2FACode = () => {
 
 export const useVerify2FACode = () => {
   return useMutation(
-    ({ values }: { values: { uid: string; code: string } }) =>
-      verify2FACode(values),
+    ({
+      values,
+    }: {
+      values: { uid: string; code: string; skipEncryption: boolean };
+    }) => verify2FACode(values),
     {
       onSuccess: () => {
         NotificationMessage.success({

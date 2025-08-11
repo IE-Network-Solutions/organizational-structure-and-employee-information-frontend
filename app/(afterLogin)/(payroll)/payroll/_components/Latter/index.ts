@@ -54,43 +54,18 @@ export const useGenerateBankLetter = () => {
       throw new Error('Tenant data not available');
     }
 
-    // Additional null checks for critical properties with specific error messages
-    if (!tenant.companyName) {
-      throw new Error('Company name is missing from tenant data');
-    }
-    if (!tenant.contactPersonEmail) {
-      throw new Error('Contact person email is missing from tenant data');
-    }
-    if (!tenant.contactPersonPhoneNumber) {
-      throw new Error(
-        'Contact person phone number is missing from tenant data',
-      );
-    }
-
-    // Set default values for optional fields
-    const region = tenant.region || 'N/A';
-    const country = tenant.country || 'Ethiopia';
-    const contactPersonName = tenant.contactPersonName || 'Contact Person';
-    const companyEmail = tenant.companyEmail || '';
-    const domainUrl = tenant.domainUrl || '';
-    const phoneNumber = tenant.phoneNumber || '';
-    const contactPersonPhoneNumber = tenant.contactPersonPhoneNumber || '';
-    const contactPersonAltPhoneNumber =
-      (tenant as any).contactPersonAltPhoneNumber || '';
-    const contactPersonAltPhoneNumber2 =
-      (tenant as any).contactPersonAltPhoneNumber2 || '';
-    const faxNumber = (tenant as any).faxNumber || phoneNumber;
-
     const currentDate = dayjs().format('MMMM DD, YYYY');
     const currentMonth = dayjs(activeMonth.startDate).format('MMMM');
 
+    // Get the logo data
     let logoBase64 = '';
     if (tenant.logo) {
       logoBase64 = await getBase64FromUrl(tenant.logo);
     } else {
-      logoBase64 = IE_LOGO_BASE64.split(',')[1];
+      logoBase64 = IE_LOGO_BASE64.split(',')[1]; // Use fallback if no logo
     }
 
+    // Create document
     const doc = new Document({
       styles: {
         default: {
@@ -139,7 +114,7 @@ export const useGenerateBankLetter = () => {
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: `${tenant.address || `${region}, ${country}`}`,
+                      text: `${tenant.address || `${tenant.region}, ${tenant.country}`}`,
                       size: 20,
                       font: 'Times New Roman',
                     }),
@@ -149,7 +124,7 @@ export const useGenerateBankLetter = () => {
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: companyEmail,
+                      text: tenant.companyEmail,
                       size: 20,
                       font: 'Times New Roman',
                     }),
@@ -159,7 +134,7 @@ export const useGenerateBankLetter = () => {
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: domainUrl,
+                      text: tenant.domainUrl,
                       size: 20,
                       font: 'Times New Roman',
                     }),
@@ -172,6 +147,7 @@ export const useGenerateBankLetter = () => {
           footers: {
             default: new Footer({
               children: [
+                // Blue bar
                 new Paragraph({
                   children: [],
                   alignment: AlignmentType.CENTER,
@@ -181,6 +157,7 @@ export const useGenerateBankLetter = () => {
                   },
                   spacing: { after: 200 },
                 }),
+                // Company name centered and bold
                 new Paragraph({
                   children: [
                     new TextRun({
@@ -193,6 +170,7 @@ export const useGenerateBankLetter = () => {
                   alignment: AlignmentType.CENTER,
                   spacing: { after: 200 },
                 }),
+                // Contact info row
                 new Paragraph({
                   children: [
                     new TextRun({
@@ -203,7 +181,7 @@ export const useGenerateBankLetter = () => {
                       font: 'Times New Roman',
                     }),
                     new TextRun({
-                      text: ` ${phoneNumber}  `,
+                      text: ` ${tenant.phoneNumber}  `,
                       size: 24,
                       font: 'Times New Roman',
                     }),
@@ -221,7 +199,7 @@ export const useGenerateBankLetter = () => {
                       font: 'Times New Roman',
                     }),
                     new TextRun({
-                      text: ` ${contactPersonPhoneNumber} / ${contactPersonAltPhoneNumber} / ${contactPersonAltPhoneNumber2}  `,
+                      text: ` ${tenant.contactPersonPhoneNumber} / ${tenant.contactPersonAltPhoneNumber || ''} / ${tenant.contactPersonAltPhoneNumber2 || ''}  `,
                       size: 24,
                       font: 'Times New Roman',
                     }),
@@ -239,7 +217,7 @@ export const useGenerateBankLetter = () => {
                       font: 'Times New Roman',
                     }),
                     new TextRun({
-                      text: ` ${faxNumber}`,
+                      text: ` ${tenant.faxNumber || tenant.phoneNumber}`,
                       size: 24,
                       font: 'Times New Roman',
                     }),
@@ -290,7 +268,7 @@ export const useGenerateBankLetter = () => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: `Mexico Derartu Tulu branch\n${region}, ${country}`,
+                  text: `Mexico Derartu Tulu branch\n${tenant.region}, ${tenant.country}`,
                   size: 24,
                   font: 'Times New Roman',
                 }),
@@ -365,7 +343,7 @@ export const useGenerateBankLetter = () => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: contactPersonName,
+                  text: tenant.contactPersonName,
                   size: 24,
                   font: 'Times New Roman',
                 }),
@@ -391,6 +369,7 @@ export const useGenerateBankLetter = () => {
       ],
     });
 
+    // Generate and save the document
     const buffer = await Packer.toBuffer(doc);
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

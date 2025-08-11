@@ -20,8 +20,6 @@ export const ORG_DEV = process.env.ORG_DEV;
 
 export const BASE_FRONT_URL = process.env.BASE_FRONT_URL;
 
-export const FILE_URL = process.env.FILE_URL || '';
-
 export const DATE_FORMAT = 'DD MMM YYYY';
 export const DATETIME_FORMAT = 'DD MMM YYYY hh:mm A';
 export const TIME_FORMAT = 'hh:mm A';

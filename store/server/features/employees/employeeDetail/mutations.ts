@@ -1,18 +1,25 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { requestHeader } from '@/helpers/requestHeader';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 // Mutation function for updating profile image
 const updateProfileImageMutation = async (formData: FormData) => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/update-profile-image`, // Endpoint expects a POST request
     method: 'POST',
     data: formData,
-    headers: requestHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+      'Content-Type': 'multipart/form-data', // Required for file uploads
+    },
   });
 };
 
@@ -47,32 +54,44 @@ export const useUpdateProfileImage = () => {
 
 // Mutation function
 const createEmployeeMutation = async (values: any) => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information`,
     method: 'post',
-    headers: requestHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
     data: values,
   });
 };
 const updateEmployeeMutation = async (id: string, values: any) => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information/${id}`,
     method: 'patch',
-    headers: requestHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
     data: values,
   });
 };
 const updateEmployeeInformation = async (id: string, values: any) => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/${id}`,
     method: 'patch',
-    headers: requestHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
     data: values,
   });
 };
@@ -81,12 +100,16 @@ const updateEmployeeRolePermissionMutation = async (
   id: string,
   values: any,
 ) => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/users/${id}`,
     method: 'patch',
-    headers: requestHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
     data: { ...values, groupPermissionId: undefined }, // Ensuring it doesn't get sent
   });
 };
@@ -94,32 +117,48 @@ const updateEmployeeJobInformationMutation = async (
   id: string,
   values: any,
 ) => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}`,
     method: 'patch',
-    headers: requestHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
     data: values,
   });
 };
 
 const deleteEmployeeDocument = async (id: string) => {
-  const requestHeaders = await requestHeader();
-
-  return crudRequest({
-    url: `${ORG_AND_EMP_URL}/employee-document/${id}`,
-    method: 'DELETE',
-    headers: requestHeaders,
-  });
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.delete(
+      `${ORG_AND_EMP_URL}/employee-document/${id}`,
+      { headers },
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const createEmployeeDocument = async (formData: FormData) => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-document`,
     method: 'POST',
     data: formData,
-    headers: requestHeaders,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
   });
 };
 

@@ -12,6 +12,7 @@ import {
   AttendanceImport,
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
+import axios from 'axios';
 // const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (
@@ -39,15 +40,16 @@ const exportAttendanceData = async (data: any) => {
     //   updatedBy: logUserId,
     //   createdBy: logUserId,
     // };
-    const response = await crudRequest({
-      url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
-      method: 'POST',
-      headers: requestHeaders,
+    const response = await axios.post(
+      `${TIME_AND_ATTENDANCE_URL}/attendance`,
       data,
-      skipEncryption: true, // Skip encryption for file downloads
-    });
+      {
+        headers: requestHeaders,
+        responseType: 'blob',
+      },
+    );
 
-    const blob = new Blob([response], {
+    const blob = new Blob([response.data], {
       type:
         data.exportType === 'PDF'
           ? 'application/pdf'
@@ -56,7 +58,12 @@ const exportAttendanceData = async (data: any) => {
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    const fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
+    const disposition = response.headers['content-disposition'];
+    let fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
+
+    if (disposition && disposition.includes('filename=')) {
+      fileName = disposition.split('filename=')[1].replace(/"/g, '');
+    }
 
     link.href = url;
     link.setAttribute('download', fileName);

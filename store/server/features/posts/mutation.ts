@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { AddPostData } from './interface';
+import axios from 'axios';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { requestHeader } from '@/helpers/requestHeader';
 
 /**
  * Function to add a new post by sending a POST request to the API
@@ -23,12 +23,12 @@ const addPost = async (newPost: AddPostData) => {
  * @returns The response data from the API
  */
 const deletePost = async (postId: string) => {
-  const requestHeaders = await requestHeader();
-  return crudRequest({
-    url: `${ORG_AND_EMP_URL}/posts/${postId}`,
-    method: 'DELETE',
-    headers: requestHeaders,
-  });
+  try {
+    const response = await axios.delete(`${ORG_AND_EMP_URL}/posts/${postId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**

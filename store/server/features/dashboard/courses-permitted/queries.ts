@@ -1,7 +1,7 @@
-import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TNA_URL } from '@/utils/constants';
-import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import axios from 'axios';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -18,15 +18,27 @@ type ResponseData = CoursePermittedrs[];
  * @returns The response data from the API
  */
 const getCoursePermitted = async (): Promise<ResponseData> => {
-  const requestHeaders = await requestHeader();
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId;
 
-  const response = await crudRequest({
-    url: `${TNA_URL}/learning/course/user-courses/category/${userId}`,
-    method: 'GET',
-    headers: requestHeaders,
-  });
-  return response;
+  if (!token || !tenantId) {
+    throw new Error('Missing authentication information.');
+  }
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+    const response = await axios.get<ResponseData>(
+      `${TNA_URL}/learning/course/user-courses/category/${userId}`,
+      { headers },
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(`Error fetching applicant summary: ${error}`);
+  }
 };
 
 /**

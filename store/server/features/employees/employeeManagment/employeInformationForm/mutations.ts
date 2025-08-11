@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from 'react-query';
+import axios from 'axios';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import { requestHeader } from '@/helpers/requestHeader';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 /**
@@ -35,18 +35,27 @@ const deleteEmployeeInformationForm = async ({
   setCurrentModal,
   setDeletedId,
 }: any) => {
-  const requestHeaders = await requestHeader();
-  await crudRequest({
-    url: `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
-    method: 'DELETE',
-    headers: requestHeaders,
-  });
-  setCurrentModal(null);
-  setDeletedId(null);
-  NotificationMessage.success({
-    message: 'Successfully Deleted',
-    description: 'Employee successfully deleted.',
-  });
+  const token = await getCurrentToken();
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+      tenantId: tenantId, // Pass tenantId in the headers
+    };
+
+    const response = await axios.delete(
+      `${ORG_AND_EMP_URL}/employee-information-form/${deletedId}`,
+      { headers },
+    );
+    setCurrentModal(null);
+    setDeletedId(null);
+    NotificationMessage.success({
+      message: 'Successfully Deleted',
+      description: 'Employee successfully deleted.',
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**

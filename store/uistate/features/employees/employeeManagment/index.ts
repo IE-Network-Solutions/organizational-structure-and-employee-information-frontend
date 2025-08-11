@@ -76,6 +76,12 @@ interface UserState {
   isBasicSalaryModalVisible: boolean;
   setIsBasicSalaryModalVisible: (isBasicSalaryModalVisible: boolean) => void;
 
+  selectedDepartmentId: string | null;
+  setSelectedDepartmentId: (selectedDepartmentId: string | null) => void;
+
+  switchValue: boolean;
+  setSwitchValue: (switchValue: boolean) => void;
+
   basicSalaryData: any | null;
   setBasicSalaryData: (basicSalaryData: any) => void;
   open: boolean;
@@ -188,13 +194,6 @@ interface UserState {
     employeeJobInfoModalWidth: string | null,
   ) => void;
 
-  isNavBarJobInfoModalVisible: boolean;
-  setIsNavBarJobInfoModalVisible: (
-    isNavBarJobInfoModalVisible: boolean,
-  ) => void;
-  navBarJobInfoModalWidth: string | null;
-  setNavBarJobInfoModalWidth: (navBarJobInfoModalWidth: string | null) => void;
-
   isMobileFilterVisible: boolean;
   setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
 
@@ -219,6 +218,9 @@ export const useEmployeeManagementStore = create<UserState>()(
     searchValue: null,
     setSearchValue: (searchValue: string | null) => set({ searchValue }),
 
+    selectedDepartmentId: null,
+    setSelectedDepartmentId: (selectedDepartmentId: string | null) =>
+      set({ selectedDepartmentId }),
     open: false,
     deleteModal: false,
     current: 0,
@@ -250,6 +252,9 @@ export const useEmployeeManagementStore = create<UserState>()(
 
     workSchedule: null,
     setWorkSchedule: (workSchedule: string | null) => set({ workSchedule }),
+
+    switchValue: false,
+    setSwitchValue: (switchValue: boolean) => set({ switchValue }),
 
     prefix: '251',
     setPrefix: (prefix: string) => set({ prefix }),
@@ -362,12 +367,6 @@ export const useEmployeeManagementStore = create<UserState>()(
     employeeJobInfoModalWidth: null,
     setEmployeeJobInfoModalWidth: (employeeJobInfoModalWidth: string | null) =>
       set({ employeeJobInfoModalWidth }),
-    isNavBarJobInfoModalVisible: false,
-    setIsNavBarJobInfoModalVisible: (isNavBarJobInfoModalVisible: boolean) =>
-      set({ isNavBarJobInfoModalVisible }),
-    navBarJobInfoModalWidth: null,
-    setNavBarJobInfoModalWidth: (navBarJobInfoModalWidth: string | null) =>
-      set({ navBarJobInfoModalWidth }),
     isMobileFilterVisible: false,
     setIsMobileFilterVisible: (isMobileFilterVisible: boolean) =>
       set({ isMobileFilterVisible }),
