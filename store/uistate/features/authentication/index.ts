@@ -108,7 +108,7 @@ export const useAuthenticationStore = create<StoreState>()(
         name: 'authentications-storage', // Unique name for the storage
         getStorage: () => localStorage, // Use localStorage for persistence
         partialize: (state) => ({
-          tok: state.token,
+          token: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,
