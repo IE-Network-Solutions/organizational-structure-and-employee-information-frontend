@@ -371,10 +371,11 @@ function Planning() {
                         {/* {!dataItem?.isValidated && ( */}
                         <>
                           {userId ===
-                            getEmployeeData(dataItem?.createdBy)?.reportingTo
-                              ?.id && (
-                            <Dropdown
-                              overlay={actionsMenu(
+                            (getEmployeeData(dataItem?.createdBy)?.delegatedTo
+                                ?.id || getEmployeeData(dataItem?.createdBy)?.reportingTo
+                                ?.id) && (
+                              <Dropdown
+                                overlay={actionsMenu(
                                 dataItem,
                                 handleApproveHandler,
                                 isApprovalLoading,

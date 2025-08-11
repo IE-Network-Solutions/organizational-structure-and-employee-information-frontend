@@ -64,6 +64,13 @@ function CreateReport() {
   const planningPeriodId =
     activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
 
+  const {
+    data: allPlannedTaskForReport,
+    isLoading: plannedTaskForReportLoading,
+    refetch: refetchPlannedTasks,
+  } = useGetPlannedTaskForReport(planningPeriodId);
+
+
   const planningPeriodName = getPlanningPeriodDetail(activePlanPeriodId)?.name;
 
   // const { data: allUnReportedPlanningTask } =
@@ -101,6 +108,128 @@ function CreateReport() {
   const formattedData =
     allPlannedTaskForReport &&
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
+
+  // Refetch data when modal opens to ensure we have latest status
+  useEffect(() => {
+    if (openReportModal) {
+      refetchPlannedTasks();
+    }
+  }, [openReportModal, refetchPlannedTasks]);
+
+  // Auto-set status for pre-achieved tasks
+  useEffect(() => {
+    if (formattedData) {
+      const newStatuses: Record<string, string> = {};
+      let hasChanges = false;
+
+      // Copy existing statuses that are not undefined
+      Object.entries(selectedStatuses).forEach(([taskId, status]) => {
+        if (status !== undefined) {
+          newStatuses[taskId] = status;
+        }
+      });
+
+      formattedData.forEach((objective: any) => {
+        objective?.keyResults?.forEach((keyresult: any) => {
+          // Handle milestone tasks
+          keyresult?.milestones?.forEach((milestone: any) => {
+            milestone?.tasks?.forEach((task: any) => {
+              // If task is pre-achieved and not already set to Done, set it to Done
+              if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] !== 'Done') {
+                newStatuses[task.taskId] = 'Done';
+                hasChanges = true;
+              }
+              // If task is not pre-achieved and currently set to Done, clear the status
+              else if (task?.status !== 'pre-achieved' && selectedStatuses[task.taskId] === 'Done') {
+                delete newStatuses[task.taskId];
+                hasChanges = true;
+              }
+            });
+          });
+
+          // Handle regular tasks
+          keyresult?.tasks?.forEach((task: any) => {
+            // If task is pre-achieved and not already set to Done, set it to Done
+            if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] !== 'Done') {
+              newStatuses[task.taskId] = 'Done';
+              hasChanges = true;
+            }
+            // If task is not pre-achieved and currently set to Done, clear the status
+            else if (task?.status !== 'pre-achieved' && selectedStatuses[task.taskId] === 'Done') {
+              delete newStatuses[task.taskId];
+              hasChanges = true;
+            }
+          });
+        });
+      });
+
+      // Update all statuses at once if there are changes
+      if (hasChanges) {
+        // Clear all existing statuses first
+        resetStatuses();
+        // Then set the new statuses
+        Object.entries(newStatuses).forEach(([taskId, status]) => {
+          setStatus(taskId, status);
+        });
+      }
+    }
+  }, [formattedData, selectedStatuses, setStatus, resetStatuses, allPlannedTaskForReport]);
+
+  useEffect(() => {
+    if (formattedData && Object.keys(selectedStatuses).length > 0) {
+      const initialValues: Record<string, any> = {};
+
+      formattedData.forEach((objective: any) => {
+        objective?.keyResults?.forEach((keyresult: any) => {
+          // Handle milestone tasks
+          keyresult?.milestones?.forEach((milestone: any) => {
+            milestone?.tasks?.forEach((task: any) => {
+              if (selectedStatuses[task.taskId]) {
+                if (selectedStatuses[task.taskId] === 'Done') {
+                  initialValues[task.taskId] = {
+                    status: selectedStatuses[task.taskId],
+                    actualValue: Number(
+                      task?.targetValue ?? 0,
+                    )?.toLocaleString(),
+                  };
+                } else if (selectedStatuses[task.taskId] === 'Not') {
+                  initialValues[task.taskId] = {
+                    status: selectedStatuses[task.taskId],
+                    actualValue: Number(
+                      task?.actualValue ?? 0,
+                    )?.toLocaleString(),
+                  };
+                }
+              }
+            });
+          });
+
+          // Handle regular tasks
+          keyresult?.tasks?.forEach((task: any) => {
+            if (selectedStatuses[task.taskId]) {
+              if (selectedStatuses[task.taskId] === 'Done') {
+                initialValues[task.taskId] = {
+                  status: selectedStatuses[task.taskId],
+                  actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
+                };
+              } else if (selectedStatuses[task.taskId] === 'Not') {
+                initialValues[task.taskId] = {
+                  status: selectedStatuses[task.taskId],
+                  actualValue: 0,
+                };
+              }
+            }
+          });
+        });
+      });
+
+      if (Object.keys(initialValues).length > 0) {
+        form.setFieldsValue(initialValues);
+      }
+    }
+  }, [formattedData, selectedStatuses, form]);
+
+
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
       sum +
@@ -250,8 +379,32 @@ function CreateReport() {
                                                     setStatus(
                                                       task.taskId,
                                                       e.target.value,
-                                                    )
-                                                  }
+
+                                                    );
+                                                    if (
+                                                      e.target.value === 'Done'
+                                                    ) {
+                                                      form.setFieldsValue({
+                                                        [task.taskId]: {
+                                                          status: e.target.value,
+                                                          actualValue: Number(
+                                                            task?.targetValue ??
+                                                              0,
+                                                          )?.toLocaleString(),
+                                                        },
+                                                      });
+                                                    } else if (
+                                                      e.target.value === 'Not'
+                                                    ) {
+                                                      form.setFieldsValue({
+                                                        [task.taskId]: {
+                                                          status: e.target.value,
+                                                          actualValue: 0,
+                                                        },
+                                                      });
+                                                    }
+                                                  }}
+
                                                   value={
                                                     selectedStatuses[
                                                       task.taskId
@@ -549,8 +702,12 @@ function CreateReport() {
                                             if (e.target.value === 'Done') {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
-                                                  actualValue:
-                                                    task?.targetValue,
+
+                                                  status: e.target.value,
+                                                  actualValue: Number(
+                                                    task?.targetValue ?? 0,
+                                                  )?.toLocaleString(),
+
                                                 },
                                               });
                                             } else if (
@@ -558,6 +715,7 @@ function CreateReport() {
                                             ) {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
+                                                  status: e.target.value,
                                                   actualValue: 0,
                                                 },
                                               });

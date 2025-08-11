@@ -59,7 +59,10 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         setSelectedUser(['all']);
       } else if (value === 'subordinatePlan' || value === 'subordinateReport') {
         const subordinates = employeeData.items
-          .filter((employee: any) => employee.reportingTo?.id === userId)
+          .filter(
+            (employee: any) =>
+              (employee?.delegatedTo?.id || employee.reportingTo?.id) === userId,
+          )
           .map((employee: any) => employee.id);
 
         setSelectedUser(

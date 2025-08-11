@@ -196,6 +196,7 @@ export interface ActiveMergedPayroll {
   profileImage: string;
   profileImageDownload: string;
   reportingTo: { id: string; name: string };
+  delegatedTo: { id: string; name: string };
   role: { id: string; name: string };
   grossSalary: string;
   netPay: string;

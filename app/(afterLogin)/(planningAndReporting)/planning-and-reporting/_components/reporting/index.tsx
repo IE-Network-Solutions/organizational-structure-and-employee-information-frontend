@@ -367,7 +367,10 @@ function Reporting() {
                             {userId ===
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
-                              )?.reportingTo?.id && (
+                              )?.delegatedTo?.id ||
+                                getEmployeeData(
+                                  dataItem?.userId ?? dataItem?.createdBy,
+                                )?.reportingTo?.id && (
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,
