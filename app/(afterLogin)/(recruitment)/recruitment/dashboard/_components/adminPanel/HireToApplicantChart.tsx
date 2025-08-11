@@ -67,7 +67,10 @@ export default function HireToApplicantChart() {
           <Spin size="large" />
         </div>
       ) : (
-        <div className="flex justify-center items-center md:h-[300px] h-[200px]">
+        <div
+          className="flex justify-center items-center"
+          style={{ height: '300px' }}
+        >
           <Bar options={options} data={chartData} />
         </div>
       )}

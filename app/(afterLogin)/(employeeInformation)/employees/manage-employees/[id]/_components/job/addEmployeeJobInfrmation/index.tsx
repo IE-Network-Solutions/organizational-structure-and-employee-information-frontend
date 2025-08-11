@@ -6,7 +6,7 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
-
+import { useParams } from 'next/navigation';
 interface Ids {
   id: string;
   onInfoSubmition?: () => void;
@@ -18,6 +18,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   isNavBarModal = false,
 }) => {
   const [form] = Form.useForm();
+  const params = useParams();
+  const userId = params.id as string;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
@@ -58,7 +60,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     values.departmentId = form.getFieldValue('departmentId') || '';
     values.branchId = form.getFieldValue('branchId') || '';
     values.workScheduleId = form.getFieldValue('workScheduleId') || '';
-    values.userId = id;
+    values.userId = userId;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot

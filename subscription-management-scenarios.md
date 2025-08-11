@@ -5,19 +5,16 @@
 #### [Process (initiated by API request):](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#process-initiated-by-api-request)
 
 1. System validates:
-
    - Client has no other subscriptions in any status (active, expired, trial, etc.) - client can have only one subscription in the system
    - Client has no unpaid invoices
 
 2. System receives data for new subscription creation:
-
    - Client ID (tenantId)
    - Plan ID (planId)
    - Plan Period ID (planPeriodId) - identifies which period option is selected for the plan
    - Number of slots (slotTotal)
 
 3. System validates plan and period:
-
    - Plan exists in `subscription_module.plans` table
    - Plan has no `deletedAt` (not deleted)
    - Plan has `isPublic` = true (if request from client)
@@ -25,12 +22,10 @@
    - If plan has trial period (trialDurationDays is not null) and maxTrialSlots is set, verify requested slots don't exceed this limit
 
 4. System retrieves period information:
-
    - Gets period type details from `subscription_module.periodTypes` via `subscription_module.planPeriods`
    - Calculates actual subscription duration based on periodTypeId and periodMultiplier
 
 5. System creates record in `subscription_module.subscriptions`:
-
    - `id` = generated UUID
    - `tenantId` = client ID
    - `planId` = selected plan ID
@@ -91,11 +86,9 @@
    - `scheduledChangesMetadata` = null
 
    If plan has trial period:
-
    - `trialEndAt` = startAt + plan.trialDurationDays
 
 6. System creates record in `subscription_module.subscriptionSlotTransactions` for initial slot count:
-
    - `subscriptionId` = ID created subscription
    - `transactionType` = subscription.isTrial ? 'trial' : 'purchase'
    - `slotCount` = requested number of slots
@@ -106,7 +99,6 @@
    - `reason` = subscription.isTrial ? 'Trial subscription slots' : 'Initial subscription slots'
 
 7. Creates audit log record in `subscription_module.auditLogs`:
-
    - `entity` = 'subscription'
    - `entityId` = ID created subscription
    - `action` = 'created'
@@ -114,7 +106,6 @@
    - `actionAt` = current date and time
 
 8. If subscription is not in trial period or it's free plan (`isFree` = true), system creates invoice:
-
    - `tenantId` = client ID
    - `subscriptionId` = ID created subscription
    - `invoiceNumber` = generated unique number
@@ -156,14 +147,12 @@ Process (initiated through admin panel):
 #### [The process of decreasing or increasing is essentially the same, but depends on the cost of the subscription to which the transition is made](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#the-process-of-decreasing-or-increasing-is-essentially-the-same-but-depends-on-the-cost-of-the-subscription-to-which-the-transition-is-made)
 
 1. System validates:
-
    - Current subscription is active (`isActive` = true)
    - Client has no unpaid invoices of any type (all invoices must have status 'paid')
    - New plan exists and is valid (not deleted)
    - New plan has higher slot price than current
 
 2. If client has unpaid invoices:
-
    - System rejects operation
    - Returns message "Cannot upgrade plan when there are unpaid bills. Please pay all current bills or contact support."
 
@@ -262,7 +251,6 @@ Process (initiated through admin panel):
 **additional_cost = new_cost_for_remaining_days - current_cost_for_remaining_days**
 
 4. Creates invoice in `subscription_module.invoices`:
-
    - `tenantId` = client ID
    - `subscriptionId` = ID current subscription
    - `invoiceNumber` = generated unique number (format: UPG-YYYYMMDD-XXXX)
@@ -340,13 +328,11 @@ Process (initiated through admin panel):
 #### [Process (initiated by API request):](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#process-initiated-by-api-request-3)
 
 1. System validates:
-
    - Current subscription is active (`isActive` = true and `subscriptionStatus` = 'active')
    - Client has no unpaid invoices of any type (all invoices must have status 'paid')
    - Number of additional slots is greater than zero
 
 2. If client has unpaid invoices:
-
    - System rejects operation
    - Returns message "Cannot add slots when there are unpaid bills. Please pay all current bills or contact support."
 
@@ -398,7 +384,6 @@ Process (initiated through admin panel):
    **additional*slots_cost = slot_price * number*of_additional_slots * period_share**
 
 4. System creates preliminary record in `subscription_module.subscriptionSlotTransactions`:
-
    - `subscriptionId` = ID subscription
    - `transactionType` = 'purchase'
    - `slotCount` = number of slots to add
@@ -407,7 +392,6 @@ Process (initiated through admin panel):
    - `status` = 'pending' // Status will be changed to 'completed' after invoice payment
 
 5. System creates invoice in `subscription_module.invoices`:
-
    - `tenantId` = client ID
    - `subscriptionId` = ID current subscription
    - `invoiceNumber` = generated unique number (format: TOP-YYYYMMDD-XXXX)
@@ -679,7 +663,6 @@ Process (initiated through admin panel):
 #### [2.2.1 Automatic Transition Process to Successor Plan When Extending:](https://lobster.stoplight.io/docs/api-docs/branches/master/5db4ba2e144b4-1-subscription-management-scenarios#221-automatic-transition-process-to-successor-plan-when-extending)
 
 1. When it's time to create renewal invoice for subscription to deleted plan, system:
-
    - Checks that plan has `deletedAt` (plan deleted)
    - Checks for existence of `successorPlanId` (successor plan specified)
    - Gets successor plan information
@@ -700,12 +683,10 @@ Process (initiated through admin panel):
    **extension_cost = slot_price \* current_subscription.slotTotal**
 
 4. System creates renewal invoice with detailed plan change information:
-
    - In notes, specifies: "Plan [old_plan_name] was replaced with plan [new_plan_name] due to changes in plan lineup."
    - In invoice metadata, transition information from deleted plan to successor plan is saved
 
 5. After invoice payment:
-
    - New subscription is created already on successor plan
    - Client receives all modules and functions according to successor plan
    - Automated transition in audit log is recorded
@@ -734,7 +715,6 @@ Process is essentially the same as for updating
    - Client has no unpaid invoices with status 'pending' or 'overdue'
 2. For each subscription system checks existence of planned changes in scheduledChangesMetadata field.
 3. System calculates extension cost:
-
    - If there is planned plan change:
      **new_plan = get_plan(scheduledChangesMetadata.changes.newPlanId)**
 
