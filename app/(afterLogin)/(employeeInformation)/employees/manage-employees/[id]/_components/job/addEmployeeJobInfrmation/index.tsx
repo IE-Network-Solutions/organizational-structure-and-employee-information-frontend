@@ -7,7 +7,9 @@ import { CreateEmployeeJobInformationInterface } from '@/store/server/features/e
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 import { useParams } from 'next/navigation';
+
 import { useEffect } from 'react';
+
 
 interface Ids {
   id: string;

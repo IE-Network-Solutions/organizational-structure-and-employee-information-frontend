@@ -39,7 +39,7 @@ const BreakTypeSidebar = () => {
       className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       onClick: () => {
-        (setIsShow(false), form.resetFields());
+        setIsShow(false), form.resetFields();
         setSelectedBreakType(null);
       },
     },
@@ -65,14 +65,14 @@ const BreakTypeSidebar = () => {
     if (selectedBreakType) {
       setBreakType(formattedValues, {
         onSuccess: () => {
-          (setIsShow(false), form.resetFields());
+          setIsShow(false), form.resetFields();
           setSelectedBreakType(null);
         },
       });
     } else {
       setBreakType(formattedValues, {
         onSuccess: () => {
-          (setIsShow(false), form.resetFields());
+          setIsShow(false), form.resetFields();
           setSelectedBreakType(null);
         },
       });
