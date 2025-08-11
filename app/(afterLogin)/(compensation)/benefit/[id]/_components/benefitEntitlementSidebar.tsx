@@ -1,7 +1,4 @@
 'use client';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { Form, Input, InputNumber, Select, Spin, Table } from 'antd';
@@ -17,6 +14,7 @@ import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { Button } from 'antd';
 
 dayjs.extend(isBetween);
 
@@ -96,26 +94,6 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       });
     }
   };
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-12',
-      size: 'large',
-      loading: createBenefitLoading,
-      onClick: () => onClose(),
-    },
-    {
-      label: <span>Create</span>,
-      key: 'create',
-      className: 'h-12',
-      type: 'primary',
-      size: 'large',
-      loading: createBenefitLoading,
-      onClick: () => form.submit(),
-    },
-  ];
 
   useEffect(() => {
     if (!payPeriods?.length) return;
@@ -230,10 +208,27 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
           </CustomDrawerHeader>
         }
         footer={
-          <CustomDrawerFooterButton
-            className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
-            buttons={footerModalItems}
-          />
+          <div className="flex flex-row gap-4 justify-center py-3">
+            <Button
+              type="default"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={createBenefitLoading}
+              onClick={() => onClose()}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              key="create"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={createBenefitLoading}
+              onClick={() => form.submit()}
+            >
+              Create
+            </Button>
+          </div>
         }
         width="600px"
       >
