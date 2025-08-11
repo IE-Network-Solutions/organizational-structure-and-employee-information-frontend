@@ -12,6 +12,7 @@ const get2FACode = async (values: Get2FACodeProps) => {
     url: `${ORG_AND_EMP_URL}/multi-factor-auth`,
     method: 'POST',
     data: values,
+    skipEncryption: true,
   });
 };
 
