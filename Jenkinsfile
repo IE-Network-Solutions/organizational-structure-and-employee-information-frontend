@@ -17,7 +17,6 @@ pipeline {
                             env.SSH_CREDENTIALS_ID_1 = 'testlab'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_TEST
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
                         }
                     }
                 }
@@ -64,21 +63,6 @@ pipeline {
                                     cd $REPO_DIR && git reset --hard HEAD && git pull origin $BRANCH_NAME
                                 fi'
                             """
-
-                }
-            }
-        }
-
-        stage('Copy env') {
-             steps {
-                        script {
-                            def envPath = env.FRONTEND_ENV_PATH
-                            withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
-                                sh """
-                                    sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cp ${envPath}/.osei-front-env ~/$REPO_DIR/.env'
-                                """
-
-                    }
                 }
             }
         }
@@ -92,7 +76,7 @@ pipeline {
                     sh """
                         sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
                             cd ${env.REPO_DIR} &&
-                            docker build -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . &&
+                            docker build --no-cache -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . &&
                             echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin &&
                             docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} &&
                             docker image prune -f
@@ -102,16 +86,18 @@ pipeline {
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Deploy Service') {
             steps {
                 withCredentials([
                     usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
                     string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')
                 ]) {
                     sh """
-                        sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
                             echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin &&
-                            docker stack deploy -c ~/docker-compose.yml pep
+                            docker pull ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} &&
+                            docker stack deploy -c docker-compose.yml pep
+                            docker container prune -f
                         '
                     """
                 }
