@@ -174,7 +174,7 @@ const MapClickHandler: React.FC<{
   onLocationChange: (lat: number, lng: number) => void;
 }> = ({ onLocationChange }) => {
   useMapEvents({
-    dblclick: (e: L.LeafletMouseEvent) => {
+    dblclick: (e) => {
       const { lat, lng } = e.latlng;
       onLocationChange(lat, lng);
     },
