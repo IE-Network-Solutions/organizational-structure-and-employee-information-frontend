@@ -3,7 +3,7 @@ import withPWA from 'next-pwa';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // This can help reduce memory usage during builds on servers with many cores.
+    // This can help reduce memory usage during builds on servers with many cores
     cpus: 1, 
   },
   images: {
