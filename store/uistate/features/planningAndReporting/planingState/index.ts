@@ -4,11 +4,7 @@ import create from 'zustand';
 interface ClickStatus {
   statuses: Record<string, boolean>;
   setClickStatus: (id: string, value: boolean) => void;
-  resetToInitial: () => void;
 }
-
-// Initial state
-const initialState = {};
 
 // Create the store
 const useClickStatus = create<ClickStatus>((set) => ({
@@ -18,8 +14,6 @@ const useClickStatus = create<ClickStatus>((set) => ({
     set((state) => ({
       statuses: { ...state.statuses, [id]: value },
     })),
-    
-  resetToInitial: () => set({ statuses: initialState }),
 }));
 
 export default useClickStatus;
