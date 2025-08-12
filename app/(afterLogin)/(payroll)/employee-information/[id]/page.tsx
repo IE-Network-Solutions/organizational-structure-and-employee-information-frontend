@@ -55,7 +55,11 @@ const EmployeeProfile = () => {
   const { data: employee, isLoading } = useGetEmployee(empId);
 
   const { pageSize } = usePayrollStore();
-  const { data: payroll } = useGetActivePayroll(`&employeeId=${empId}`, pageSize, 1);
+  const { data: payroll } = useGetActivePayroll(
+    `&employeeId=${empId}`,
+    pageSize,
+    1,
+  );
   const { data: payrollHistory } = useGetPayrollHistory(empId);
 
   const {
@@ -86,7 +90,6 @@ const EmployeeProfile = () => {
     });
   };
 
-  console.log(payroll,"payroll data")
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
       const currentPayPeriod = payPeriodData.find(
@@ -98,9 +101,6 @@ const EmployeeProfile = () => {
   }, [activeMergedPayroll, payPeriodData]);
 
   useEffect(() => {
-
-
-    console.log(payroll?.items && employee,payroll?.items , employee,"*****************************************81234")
     if (payroll?.items && employee) {
       const mergedData = payroll.items
         .filter((pay: any) => pay.employeeId === employee.id)

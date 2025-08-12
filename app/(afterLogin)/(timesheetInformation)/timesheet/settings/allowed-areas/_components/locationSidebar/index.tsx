@@ -19,7 +19,11 @@ const { Title } = Typography;
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
   const [showUsers, setShowUsers] = useState(false);
-  const [formValues, setFormValues] = useState({ latitude: 9.145, longitude: 40.4897, distance: 100 });
+  const [formValues, setFormValues] = useState({
+    latitude: 9.145,
+    longitude: 40.4897,
+    distance: 100,
+  });
   const {
     isShowLocationSidebar: isShow,
     setIsShowLocationSidebar: setIsShow,
@@ -115,16 +119,16 @@ const LocationSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    
+
     // Ensure we have valid coordinates and distance
     const latitude = value.latitude || formValues.latitude || 9.145;
     const longitude = value.longitude || formValues.longitude || 40.4897;
     const distance = value.distance || formValues.distance || 100;
-    
+
     // Convert from kilometers to meters for backend
     // The backend expects distance in meters, but our UI works in kilometers
     const distanceInMeters = Math.max(Number(distance) * 1000, 10); // Minimum 10 meters
-    
+
     const payload = {
       ...(allowedAreaData && allowedAreaData!.item),
       title: value.title,
@@ -134,7 +138,7 @@ const LocationSidebar = () => {
       isGlobal: Boolean(value.isGlobal),
       allowedUserAccesses: value.allowedUserAccesses,
     };
-    
+
     setAllowedArea(payload);
   };
 
@@ -144,12 +148,12 @@ const LocationSidebar = () => {
   const handleLocationChange = (lat: number, lng: number) => {
     form.setFieldValue('latitude', lat);
     form.setFieldValue('longitude', lng);
-    setFormValues(prev => ({ ...prev, latitude: lat, longitude: lng }));
+    setFormValues((prev) => ({ ...prev, latitude: lat, longitude: lng }));
   };
 
   const handleRadiusChange = (radius: number) => {
     form.setFieldValue('distance', radius);
-    setFormValues(prev => ({ ...prev, distance: radius }));
+    setFormValues((prev) => ({ ...prev, distance: radius }));
   };
 
   return (
@@ -188,10 +192,7 @@ const LocationSidebar = () => {
                   label: 'Map Selection',
                   children: (
                     <div className="p-4">
-                      <Space.Compact
-                        direction="vertical"
-                        className="w-full"
-                      >
+                      <Space.Compact direction="vertical" className="w-full">
                         <Form.Item
                           id="nameOfLocatioInputFieldId"
                           label="Name of Location"
@@ -200,7 +201,7 @@ const LocationSidebar = () => {
                         >
                           <Input className={controlClass} />
                         </Form.Item>
-                        
+
                         {/* Map Section */}
                         <div>
                           <Title level={5} className="mb-2">
@@ -212,10 +213,12 @@ const LocationSidebar = () => {
                               <div className="text-blue-600 text-lg">📍</div>
                               <div className="flex-1">
                                 <div className="text-blue-800 font-medium text-sm">
-                                  Double click on the map to set the center point of your allowed area
+                                  Double click on the map to set the center
+                                  point of your allowed area
                                 </div>
                                 <div className="text-blue-600 text-xs mt-1">
-                                  Click and drag to explore, then double-click to select your location
+                                  Click and drag to explore, then double-click
+                                  to select your location
                                 </div>
                               </div>
                             </div>
@@ -253,7 +256,7 @@ const LocationSidebar = () => {
                             onChange={(checked) => setShowUsers(!checked)}
                           />
                         </Form.Item>
-                        
+
                         {showUsers && (
                           <Form.Item
                             id="userAccessList"
