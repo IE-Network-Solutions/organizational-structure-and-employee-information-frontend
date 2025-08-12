@@ -91,6 +91,11 @@ const fetchCatUsersById = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   const userId = useAuthenticationStore.getState().userId || '';
 
+  // Prevent API call if userId is not available
+  if (!userId || userId === '') {
+    throw new Error('User ID is not available. Please ensure you are properly authenticated.');
+  }
+
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
@@ -173,9 +178,11 @@ export const useGetFormCategories = (formCatsId: string) => {
  */
 export const useGetUsersById = () => {
   const token = useAuthenticationStore.getState().token;
+  const userId = useAuthenticationStore.getState().userId;
+  
   return useQuery<any>('categories', fetchCatUsersById, {
     keepPreviousData: true,
-    enabled: !!token,
+    enabled: !!token && !!userId && userId !== '',
   });
 };
 
