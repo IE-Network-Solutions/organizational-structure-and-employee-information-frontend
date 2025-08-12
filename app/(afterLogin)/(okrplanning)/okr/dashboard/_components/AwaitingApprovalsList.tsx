@@ -35,11 +35,10 @@ const AwaitingApprovalsList: React.FC = () => {
 
   // Check if user has subordinates
   const subordinates =
-    employeeData?.items?.filter(
-      (employee: any) =>
-        employee?.delegatedTo?.id
-          ? employee?.delegatedTo?.id === userId
-          : employee.reportingTo?.id === userId,
+    employeeData?.items?.filter((employee: any) =>
+      employee?.delegatedTo?.id
+        ? employee?.delegatedTo?.id === userId
+        : employee.reportingTo?.id === userId,
     ) || [];
 
   // Determine which users to fetch data for
