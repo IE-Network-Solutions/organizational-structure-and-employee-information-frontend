@@ -34,7 +34,7 @@ const nextConfig = {
     TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
   },
 };
-
+ 
 const pwaConfig = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
