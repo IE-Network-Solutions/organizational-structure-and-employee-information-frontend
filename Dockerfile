@@ -9,10 +9,12 @@ RUN npm install --include=dev
 FROM node:18-alpine AS builder
 WORKDIR /app
 
+ARG DISABLE_PWA=false
+ENV DISABLE_PWA=$DISABLE_PWA
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV DISABLE_PWA=true
 RUN npm run build
 
 # Production image
