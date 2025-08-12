@@ -32,6 +32,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
     setSettlementPeriod,
     data,
     setData,
+    setEditBenefitData,
   } = useBenefitEntitlementStore();
 
   const { mutate: updateBenefitEntitlement, isLoading: updateBenefitLoading } =
@@ -46,6 +47,9 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
   const onClose = () => {
     form.resetFields();
     setData([]);
+    setTotalAmount(0);
+    setSettlementPeriod(0);
+    setEditBenefitData(null);
     setIsBenefitEntitlementSidebarUpdateOpen(false);
   };
 
