@@ -18,7 +18,7 @@ const useClickStatus = create<ClickStatus>((set) => ({
     set((state) => ({
       statuses: { ...state.statuses, [id]: value },
     })),
-    
+
   resetToInitial: () => set({ statuses: initialState }),
 }));
 
