@@ -48,7 +48,7 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           form.resetFields();
           setIsAddTaskModalVisible(false);
         },
-        onError: (error: any) => {
+        onError: () => {
           message.error('Failed to create task. Please try again.');
         },
       });
@@ -63,14 +63,13 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
         form.resetFields();
         setIsAddTaskModalVisible(false);
       },
-      onError: (error: any) => {
+      onError: () => {
         message.error('Failed to create task template. Please try again.');
       },
     });
   };
 
   const handleSubmit = (values: any) => {
-    console.log('Form values:', values); // Debug log
     if (isTaskTemplateVisible) {
       createTasksTemplate(values);
     } else {
