@@ -18,11 +18,11 @@ const DeletePopover: FC<DeletePopoverProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const buttonClass = 'text-xs font-bold w-full h-[29px] min-w-[125px]';
-  
+
   if (disabled) {
     return children;
   }
-  
+
   return (
     <Popover
       open={open}
@@ -37,14 +37,14 @@ const DeletePopover: FC<DeletePopoverProps> = ({
           <Row gutter={20}>
             {onCancel && (
               <Col span={12}>
-                                 <Button
-                   id={`buttonPopOverActionFor${titleText}Id`}
-                   size="small"
-                   className={buttonClass}
-                                       onClick={onCancel}
-                 >
-                   Cancel
-                 </Button>
+                <Button
+                  id={`buttonPopOverActionFor${titleText}Id`}
+                  size="small"
+                  className={buttonClass}
+                  onClick={onCancel}
+                >
+                  Cancel
+                </Button>
               </Col>
             )}
             {onDelete && (
@@ -63,11 +63,9 @@ const DeletePopover: FC<DeletePopoverProps> = ({
           </Row>
         </div>
       }
-         >
-       <div onClick={() => setOpen(true)}>
-         {children}
-       </div>
-     </Popover>
+    >
+      <div onClick={() => setOpen(true)}>{children}</div>
+    </Popover>
   );
 };
 

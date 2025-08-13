@@ -12,13 +12,11 @@ import { useEffect } from 'react';
 
 
 interface Ids {
-  id: string;
+  id?: string;
   onInfoSubmition?: () => void;
   onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  id: id,
-
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
   const [form] = Form.useForm();
@@ -37,7 +35,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       form.resetFields(); // Reset form values on modal open
     }
   }, [isAddEmployeeJobInfoModalVisible]);
-  const { data: employeeData } = useGetEmployee(id);
+  const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
@@ -83,7 +81,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         destroyOnClose
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm />
+          <JobTimeLineForm employeeData={employeeData} />
           <BasicSalaryForm />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
