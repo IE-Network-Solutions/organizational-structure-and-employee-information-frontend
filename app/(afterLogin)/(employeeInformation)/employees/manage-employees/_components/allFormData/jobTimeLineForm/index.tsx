@@ -30,10 +30,13 @@ import { IoInformationCircleOutline } from 'react-icons/io5';
 import { PlusOutlined } from '@ant-design/icons';
 import { useCreatePosition } from '@/store/server/features/employees/positions/mutation';
 
-const JobTimeLineForm = () => {
+interface JobTimeLineFormProps {
+  employeeData?: any;
+}
+
+const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
   const [form] = Form.useForm();
   const {
-    birthDate,
     selectedDepartmentId,
     switchValue,
     setSwitchValue,
@@ -117,12 +120,23 @@ const JobTimeLineForm = () => {
           >
             <DatePicker
               disabledDate={(current) => {
-                if (!birthDate) return false; // Ensure birthDate exists
-
-                const minJoinedDate = dayjs(birthDate)
-                  .add(18, 'years')
-                  .startOf('day');
-                return current && current.isBefore(minJoinedDate);
+                // Get the last position's effective start date
+                const jobInformation = employeeData?.employeeJobInformation;
+                if (!jobInformation || jobInformation.length === 0) return false;
+                
+                // Sort by effectiveStartDate to get the most recent position
+                const sortedJobs = [...jobInformation].sort((a, b) => {
+                  const dateA = new Date(a.effectiveStartDate || 0).getTime();
+                  const dateB = new Date(b.effectiveStartDate || 0).getTime();
+                  return dateB - dateA; // Sort in descending order (newest first)
+                });
+                
+                const lastPositionDate = sortedJobs[0]?.effectiveStartDate;
+                if (!lastPositionDate) return false;
+                
+                // Disable dates before the last position's effective start date
+                const lastPosition = dayjs(lastPositionDate);
+                return current && current.isBefore(lastPosition, 'day');
               }}
               className="w-full"
             />
@@ -132,8 +146,7 @@ const JobTimeLineForm = () => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
-              The effective start date must be at least 18 years after the
-              selected birthdate.
+              The effective start date cannot be before the employee&apos;s last position start date.
             </div>
           </div>
         </Col>
