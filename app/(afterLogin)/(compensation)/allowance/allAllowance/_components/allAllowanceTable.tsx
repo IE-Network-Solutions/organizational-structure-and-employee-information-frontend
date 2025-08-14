@@ -5,12 +5,14 @@ import { useFetchAllowances } from '@/store/server/features/compensation/allowan
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllAllowanceStore();
-
+  const { isMobile, isTablet } = useIsMobile();
   const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
         (allowanceEntitlement: any) =>
@@ -70,7 +72,7 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
     },
     ...(Array.isArray(allAllowanceEntitlementData)
       ? allAllowanceEntitlementData.map((item: any) => ({
-          title: item?.name,
+          title: <span className="text-xs truncate">{item?.name}</span>,
           dataIndex: item?.id,
           key: item?.id,
           render: (text: string) => (
@@ -90,28 +92,44 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   return (
     <div data-testid="all-allowance-table-container">
       <Spin spinning={isLoading} data-testid="allowance-table-loading">
-        <Table
-          className="mt-6"
-          columns={columns}
-          dataSource={paginatedData}
-          pagination={false}
-          data-testid="allowance-table"
-        />
+        <div className="overflow-x-auto">
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="allowance-table"
+          />
+        </div>
 
-        <CustomPagination
-          current={currentPage}
-          total={filteredDataSource.length}
-          pageSize={pageSize}
-          onChange={(page, size) => {
-            setCurrentPage(page);
-            setPageSize(size);
-          }}
-          onShowSizeChange={(size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          }}
-          data-testid="allowance-pagination"
-        />
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        )}
       </Spin>
     </div>
   );

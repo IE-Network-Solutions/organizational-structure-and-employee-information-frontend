@@ -1,6 +1,6 @@
 import AllRecognition from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/recognition/allRecognition';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
+import { useGetIncentivizeRecognition } from '@/store/server/features/CFR/recognitionCriteria/queries';
 import { useGetIncentiveSummery } from '@/store/server/features/dashboard/incentive/queries';
 import { useDashboardIncentiveStore } from '@/store/uistate/features/dashboard/incentive';
 import { Card, Row, Col, Select, TabsProps, Dropdown, Menu } from 'antd';
@@ -18,39 +18,33 @@ const Incentive = () => {
     setStatus,
   } = useDashboardIncentiveStore();
 
-  const { data: recognitionData } = useGetAllRecognitionWithRelations();
+  const { data: incentivizeRecognition } = useGetIncentivizeRecognition();
   const { data: IncentiveData, isLoading: incentiveIsLoading } =
     useGetIncentiveSummery(status, recognitionType);
   const { isMobile, isTablet } = useIsMobile();
-
   const items: TabsProps['items'] = [
     {
       key: '',
       label: 'All Recognitions',
       children: (
         <AllRecognition
-          data={recognitionData?.items?.filter(
-            (item: any) =>
-              item.parentTypeId !== null && item?.isMonetized === true,
-          )}
+          data={incentivizeRecognition?.recognitionTypes}
           all={true}
         />
       ),
     },
-    ...(recognitionData?.items
-      ?.filter(
-        (item: any) => item.parentTypeId !== null && item?.isMonetized === true,
-      )
-      ?.map((recognitionType: any) => ({
+    ...(incentivizeRecognition?.recognitionTypes?.map(
+      (recognitionType: any) => ({
         key: `${recognitionType?.id}`, // Ensure unique keys
         label: recognitionType?.name,
         children: <AllRecognition data={[recognitionType]} />,
-      })) || []),
+      }),
+    ) || []),
   ];
   const itemStatus: { key: string; label: string }[] = [
     { key: 'null', label: 'Status' },
-    { key: 'true', label: 'True' },
-    { key: 'false', label: 'False' },
+    { key: 'true', label: 'Paid' },
+    { key: 'false', label: 'Unpaid' },
   ];
   const totalCount =
     IncentiveData?.summary?.reduce(
@@ -136,8 +130,15 @@ const Incentive = () => {
   );
 
   return (
-    <Card className="w-full mx-auto h-[316px] overflow-hidden  flex flex-col shadow-lg">
-      <div className="flex justify-between items-center mb-2 h-10 ">
+    <Card
+      bodyStyle={
+        isMobile || isTablet
+          ? { padding: '0px', margin: '0px', border: 'none' }
+          : {}
+      }
+      className="w-full mx-auto lg:h-[316px] overflow-hidden  flex flex-col shadow-lg "
+    >
+      <div className="flex justify-between items-center mb-2 h-10 mx-5 lg:mx-0 mt-2 lg:mt-0">
         <h3 className="font-bold text-lg">Incentives</h3>
         {isMobile || isTablet ? (
           <Dropdown
@@ -188,13 +189,13 @@ const Incentive = () => {
           </div>
         )}
       </div>{' '}
-      {IncentiveData?.summary?.length > 0 ? (
-        <Card loading={incentiveIsLoading}>
-          <Row gutter={[16, 24]} className=" p-2">
+      {IncentiveData?.summary?.length > 0 || incentiveIsLoading ? (
+        <Card className="border-none" loading={incentiveIsLoading}>
+          <Row gutter={[16, 24]} className="p-2 ">
             <Col
               lg={8}
               xs={24}
-              className=" relative flex items-center justify-center w-[200px] h-[200px]  px-4 overflow-visible z-10 "
+              className="relative flex items-center justify-center w-[200px] h-[200px]  px-4 overflow-visible z-10 "
             >
               <Doughnut data={data} options={options} className="z-20" />
               <div
@@ -213,7 +214,7 @@ const Incentive = () => {
               </div>
             </Col>
             <Col lg={16} xs={24} className="">
-              <div className=" ml-5 overflow-y-auto h-[200px]">
+              <div className=" lg:ml-5 overflow-y-auto h-[200px]">
                 {IncentiveData?.details?.map((item: any, index: any) => {
                   const key = index;
                   return (

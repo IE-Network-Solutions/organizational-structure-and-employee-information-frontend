@@ -1,10 +1,13 @@
 'use client';
-import React from 'react';
-import { Avatar, Menu, Dropdown, Layout } from 'antd';
+import React, { useState } from 'react';
+import { Avatar, Menu, Dropdown, Layout, Button, Badge, Drawer } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import NotificationBar from './notificationBar';
+import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { usePWA } from '@/hooks/usePWA';
+import { BellOutlined, DownloadOutlined } from '@ant-design/icons';
+import NotificationBar from './notificationBar';
 
 const { Header } = Layout;
 
@@ -15,12 +18,22 @@ interface NavBarProps {
 
 const NavBar = ({ page, handleLogout }: NavBarProps) => {
   const router = useRouter();
-
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
+  const { notificationCount } = useNotificationStore();
+  const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const handleProfileRoute = () => {
     router.push(`/employees/manage-employees/${userId}`);
+  };
+
+  const handleInstallClick = async () => {
+    try {
+      await installApp();
+    } catch (error) {
+      // Handle installation error silently
+    }
   };
 
   const menu = (
@@ -41,7 +54,43 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
     >
       <p>{page}</p>
       <div className="flex items-center gap-5">
-        <NotificationBar />
+        {/* PWA Install Button - Show when installable and not installed */}
+        {isInstallable && !isInstalled && !isStandalone && (
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            onClick={handleInstallClick}
+            size="small"
+            className="hidden md:flex"
+            title="Install App"
+          >
+            Install
+          </Button>
+        )}
+
+        {/* Mobile Install Button */}
+        {isInstallable && !isInstalled && !isStandalone && (
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            onClick={handleInstallClick}
+            size="small"
+            className="md:hidden"
+            title="Install App"
+          />
+        )}
+
+        {/* Notification Bell */}
+        <div className="relative">
+          <Badge count={notificationCount} size="small">
+            <Button
+              type="text"
+              icon={<BellOutlined />}
+              onClick={() => setIsNotificationOpen(true)}
+            />
+          </Badge>
+        </div>
+
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
             src={employeeData?.profileImage}
@@ -49,6 +98,17 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
           />
         </Dropdown>
       </div>
+
+      {/* Notification Drawer */}
+      <Drawer
+        title="Notifications"
+        placement="right"
+        onClose={() => setIsNotificationOpen(false)}
+        open={isNotificationOpen}
+        width={400}
+      >
+        <NotificationBar />
+      </Drawer>
     </Header>
   );
 };

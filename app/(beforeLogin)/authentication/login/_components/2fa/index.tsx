@@ -49,6 +49,7 @@ const TwoFactorAuth = () => {
           values: {
             uid: localId,
             code: value.otp,
+            skipEncryption: true,
           },
         },
         {
@@ -68,6 +69,7 @@ const TwoFactorAuth = () => {
         values: {
           email: user2FA.email,
           pass: user2FA.pass,
+          skipEncryption: true,
         },
       },
       {

@@ -1,6 +1,6 @@
 'use client';
 import { RookStarsListProps } from '@/types/dashboard/okr';
-import { Avatar, Button } from 'antd';
+import { Avatar, Button, Tooltip } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { LuCrown } from 'react-icons/lu';
 import { useState } from 'react';
@@ -27,7 +27,7 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title, data }) => {
   );
 
   return (
-    <div className="bg-white rounded-lg p-1   ">
+    <div className="bg-white rounded-lg p-1 shadow-lg">
       <div className="text-base lg:text-lg font-bold gap-3 flex items-center px-3  ">
         <LuCrown className="text-primary" />
         Best {title} Board
@@ -47,23 +47,33 @@ const RookStarsList: React.FC<RookStarsListProps> = ({ title, data }) => {
 
             {visibleCards?.map((item: any, index: number) => (
               <div
-                className="flex flex-col items-center gap-2 min-w-24"
+                className="flex flex-col items-center gap-2 w-full "
                 key={index}
               >
                 {item?.user?.profileImage ? (
                   <Avatar
                     src={item?.user?.profileImage}
                     alt={`${item?.user?.firstName || ''}`}
-                    className="w-16 h-16 rounded-full"
+                    className="2xl:w-16 w-12 2xl:h-16 h-12 rounded-full"
                   />
                 ) : (
                   <Avatar
                     icon={<UserOutlined size={40} />}
-                    className="w-16 h-16 rounded-full"
+                    className="2xl:w-16 w-12 2xl:h-16 h-12 rounded-full"
                   />
                 )}
-                <p className="font-normal text-center text-sm">
-                  {`${item?.user?.firstName || ''} ${item?.user?.middleName || ''} ${item?.user?.lastName || ''}`}
+                <p className="font-normal text-center text-[10px] 2xl:text-xs">
+                  <Tooltip
+                    title={`${item?.user?.firstName || ''} ${item?.user?.middleName || ''} ${item?.user?.lastName || ''}`}
+                  >
+                    {`${item?.user?.firstName || ''} ${item?.user?.middleName || ''} ${item?.user?.lastName || ''}`
+                      .length > 8
+                      ? `${item?.user?.firstName || ''} ${item?.user?.middleName || ''} ${item?.user?.lastName || ''}`.slice(
+                          0,
+                          8,
+                        ) + '...'
+                      : `${item?.user?.firstName || ''} ${item?.user?.middleName || ''} ${item?.user?.lastName || ''}`}
+                  </Tooltip>
                 </p>
               </div>
             ))}

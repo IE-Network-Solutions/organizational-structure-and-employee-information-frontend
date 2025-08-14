@@ -16,6 +16,10 @@ export interface ScheduleState {
   isEditMode: boolean;
   scheduleName: string;
   isDeleteMode: boolean;
+  currentPage: number;
+  pageSize: number;
+  setCurrentPage: (page: number) => void;
+  setPageSize: (size: number) => void;
   setId: (id: string) => void;
   setDetail: (dayOfWeek: string, data: Partial<ScheduleDetail>) => void;
   createWorkSchedule: () => any;

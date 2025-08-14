@@ -57,24 +57,24 @@ const PersonalStatusCard: React.FC = () => {
   ];
 
   return (
-    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
       {statsData.map((stat, index) => (
         <Card
-          bodyStyle={{ padding: 10 }}
           key={index}
-          className="h-full hover:shadow-md transition-shadow"
+          bodyStyle={{ padding: 10 }}
           loading={isLoading}
+          className="hover:shadow-md transition-shadow cursor-pointer h-[102px] px-1  py-1 shadow-lg"
         >
           <div className="flex flex-col">
-            <div className={`flex items-center gap-2`}>
-              <span className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center bg-light_purple">
+            <div className="flex items-center gap-4 mb-3">
+              <span className="w-6 h-6 text-[#3636F0] rounded-sm flex items-center justify-center bg-[#f8f6fe]">
                 {stat.icon}
               </span>
-              <p className="text-gray-500 text-[12px] mb-1">{stat.title}</p>
+              <p className="text-gray-500 text-[12px] ">{stat.title}</p>
             </div>
-            <div>
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            </div>
+            <p className={`text-[26.5px] font-bold ${stat.color}`}>
+              {stat.value}
+            </p>
           </div>
         </Card>
       ))}

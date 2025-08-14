@@ -11,8 +11,8 @@ import {
   useGetActiveFiscalYears,
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useMediaQuery } from 'react-responsive';
 import { LuSettings2 } from 'react-icons/lu';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const IncentiveFilter: React.FC = () => {
   const {
@@ -28,7 +28,7 @@ const IncentiveFilter: React.FC = () => {
     setShowMobileFilter,
   } = useIncentiveStore();
 
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: employeeData } = useGetAllUsers();
   const { data: allSessions } = useFetchIncentiveSessions();
@@ -107,7 +107,7 @@ const IncentiveFilter: React.FC = () => {
   const Filters = (
     <>
       <Row gutter={[16, 10]} justify="space-between">
-        {!isSmallScreen && (
+        {!(isMobile || isTablet) && (
           <Col xs={24} sm={24} md={24} lg={10} xl={10}>
             <Select
               onChange={(value) => handleSearchInput(value, 'employee_name')}
@@ -191,7 +191,7 @@ const IncentiveFilter: React.FC = () => {
 
   return (
     <div className="my-7 mx-1">
-      {isSmallScreen ? (
+      {isMobile || isTablet ? (
         <div className="flex justify-end m-2 space-x-4">
           <Select
             onChange={(value) => handleSearchInput(value, 'employee_name')}

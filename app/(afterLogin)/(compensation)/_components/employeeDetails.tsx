@@ -32,8 +32,11 @@ export const EmployeeDetails = ({
         src={profileImage}
         icon={<UserOutlined />}
         data-testid="employee-avatar"
+        className="w-6 h-6"
       />
-      <span data-testid="employee-name">{userName}</span>
+      <span data-testid="employee-name" className="truncate">
+        {userName}
+      </span>
     </Space>
   );
 };

@@ -1,6 +1,5 @@
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { Empty } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 
 import React from 'react';
@@ -57,14 +56,14 @@ const CriteriaDoughnut = () => {
   };
   return (
     <div className=" border-[1px] border-gray-200 rounded-lg p-1 px-2 ">
-      <div className="text-lg font-bold">Criteria Contribution</div>{' '}
+      <div className="text-lg font-bold ml-1">Criteria Contribution</div>{' '}
       <div className=" ">
         {vpScore?.criteria?.length ? (
-          <div className="flex items-center justify-between gap-3 lg:gap-1 mt-[13px] ">
-            <div className="relative flex items-center justify-center w-[150px] 2xl:w-[180px] h-[150px] 2xl:h-[180px] overflow-visible z-10">
+          <div className="flex items-center justify-between p-1 gap-3 lg:gap-1 mt-[13px] ">
+            <div className="pl-5 relative flex items-center justify-center w-[150px] 2xl:w-[180px] h-[150px] 2xl:h-[180px] overflow-visible z-10">
               <Doughnut data={data} options={options} className="z-20" />
               <div
-                className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0"
+                className="absolute left-1/2 top-1/2 flex flex-col items-center justify-center z-0 pl-5"
                 style={{ transform: 'translate(-50%, -50%)' }}
               >
                 <div
@@ -78,7 +77,7 @@ const CriteriaDoughnut = () => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-1 ">
+            <div className="flex flex-col gap-1 pr-5 ">
               {data.labels.map((label: string, i: number) => (
                 <div key={i} className="flex items-center gap-1">
                   <div
@@ -95,7 +94,11 @@ const CriteriaDoughnut = () => {
             </div>
           </div>
         ) : (
-          <Empty />
+          <div className="m-h-28 lg:min-h-[148px] xl:min-h-[170px] 2xl:min-h-[203px]  flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center">
+              <span className="text-gray-400 text-sm">No data available</span>
+            </div>
+          </div>
         )}
       </div>
     </div>

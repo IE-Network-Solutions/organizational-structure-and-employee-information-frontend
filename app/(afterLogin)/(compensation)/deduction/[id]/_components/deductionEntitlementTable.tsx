@@ -10,10 +10,14 @@ import { useFetchAllowanceEntitlements } from '@/store/server/features/compensat
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AllowanceEntitlementTable = () => {
   const { currentPage, pageSize, setCurrentPage, setPageSize } =
     useAllowanceEntitlementStore();
+  const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
   const { id } = useParams();
@@ -30,11 +34,6 @@ const AllowanceEntitlementTable = () => {
       Amount: item.totalAmount,
       ApplicableTo: item.compensationItem.applicableTo,
     })) || [];
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
 
   const handleDelete = (id: string) => {
     deleteAllowanceEntitlement(id);
@@ -86,39 +85,42 @@ const AllowanceEntitlementTable = () => {
 
   return (
     <Spin spinning={fiscalActiveYearFetchLoading}>
-      {/* <Space
-        direction="horizontal"
-        size="large"
-        style={{ width: '100%', justifyContent: 'end', marginBottom: 16 }}
-      >
-        <Input addonBefore={<SearchOutlined />} placeholder="Search by name" />
-        <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
-          <Button
-            size="large"
-            type="primary"
-            id="createNewClosedHolidayFieldId"
-            icon={<LuPlus size={18} />}
-            onClick={() => {
-              setIsAllowanceEntitlementSidebarOpen(true);
-            }}
-            disabled={isAllowanceGlobal}
-          >
-            Employees
-          </Button>
-        </AccessGuard>
-      </Space> */}
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={transformedData}
-        pagination={{
-          current: currentPage,
-          pageSize,
-          total: transformedData.length,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
+      <div className="overflow-x-auto scrollbar-hide">
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={transformedData}
+          pagination={false}
+        />
+      </div>
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={transformedData.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+        />
+      ) : (
+        <CustomPagination
+          current={currentPage}
+          total={transformedData.length}
+          pageSize={pageSize}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      )}
       <DeductionEntitlementSideBar />
     </Spin>
   );

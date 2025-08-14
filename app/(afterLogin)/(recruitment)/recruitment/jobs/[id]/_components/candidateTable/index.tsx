@@ -6,9 +6,18 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Dropdown, Select, Table, TableColumnsType } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Select,
+  Table,
+  TableColumnsType,
+  Popover,
+  DatePicker,
+  Form,
+} from 'antd';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaEye } from 'react-icons/fa';
 import CandidateDetail from '../candidateDetail/page';
 import { FaEllipsisVertical } from 'react-icons/fa6';
@@ -31,6 +40,13 @@ interface TableProps {
 const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
+  const [hirePopoverVisible, setHirePopoverVisible] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [hiringCandidateId, setHiringCandidateId] = useState<string | null>(
+    null,
+  );
+  const [hireForm] = Form.useForm();
 
   const {
     currentPage,
@@ -86,6 +102,53 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         id: id,
       });
     }
+  };
+  const {
+    mutate: hireCandidate,
+    isLoading: isHireLoading,
+    isSuccess: isHireSuccess,
+    isError: isHireError,
+    reset: resetHireMutation,
+  } = useChangeCandidateStatus();
+  // Effect to handle hire success and error
+  useEffect(() => {
+    if (isHireSuccess && hiringCandidateId) {
+      setHirePopoverVisible((prev) => ({
+        ...prev,
+        [hiringCandidateId]: false,
+      }));
+      hireForm.resetFields();
+      setHiringCandidateId(null);
+      resetHireMutation();
+    }
+    if (isHireError && hiringCandidateId) {
+      setHiringCandidateId(null);
+      resetHireMutation();
+    }
+  }, [
+    isHireSuccess,
+    isHireError,
+    hiringCandidateId,
+    hireForm,
+    resetHireMutation,
+  ]);
+
+  const handleHireCandidate = async (candidate: any) => {
+    try {
+      const values = await hireForm.validateFields();
+      setHiringCandidateId(candidate?.id);
+      hireCandidate({
+        data: { hiredDate: values.hireDate, updatedBy: userId },
+        id: candidate?.jobCandidate[0]?.id,
+      });
+    } catch (error) {
+      setHiringCandidateId(null);
+    }
+  };
+
+  const handleCancelHire = (candidateId: string) => {
+    setHirePopoverVisible((prev) => ({ ...prev, [candidateId]: false }));
+    hireForm.resetFields();
   };
 
   const columns: TableColumnsType<CandidateData> = [
@@ -151,6 +214,48 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       link.click();
       document.body.removeChild(link);
     };
+
+    const hirePopoverContent = (
+      <div className="w-64">
+        <h3 className="text-lg font-semibold mb-4 text-center">Date Hired</h3>
+        <Form form={hireForm} layout="vertical">
+          <Form.Item
+            name="hireDate"
+            rules={[
+              {
+                required: true,
+                message: 'Please select a hire date',
+              },
+            ]}
+          >
+            <DatePicker
+              className="w-full"
+              placeholder="Select date"
+              format="DD MMM YYYY"
+            />
+          </Form.Item>
+          <div className="flex justify-center gap-2 mt-4">
+            <Button
+              type="primary"
+              size="small"
+              onClick={() => handleHireCandidate(item)}
+              className="bg-blue-600 hover:bg-blue-700 h-8"
+              loading={isHireLoading}
+            >
+              Hire Candidate
+            </Button>
+            <Button
+              size="small"
+              onClick={() => handleCancelHire(item?.id)}
+              className="h-8"
+            >
+              Cancel
+            </Button>
+          </div>
+        </Form>
+      </div>
+    );
+
     return {
       key: index,
       candidateName: item?.fullName ?? '--',
@@ -218,6 +323,37 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
                     </div>
                   ),
                   onClick: () => handleMenuClick('moveToTalentPool', item),
+                },
+                {
+                  key: 'hireCandidate',
+                  label: (
+                    <Popover
+                      content={hirePopoverContent}
+                      trigger="click"
+                      open={hirePopoverVisible[item?.id]}
+                      onOpenChange={(visible) => {
+                        setHirePopoverVisible((prev) => ({
+                          ...prev,
+                          [item?.id]: visible,
+                        }));
+                        if (visible) {
+                          // Set the form value when popover opens
+                          hireForm?.setFieldsValue({
+                            hireDate: item?.jobCandidate[0]?.hiredDate
+                              ? dayjs(item?.jobCandidate[0]?.hiredDate)
+                              : null,
+                          });
+                        } else {
+                          // Reset form when popover closes
+                          hireForm?.resetFields();
+                        }
+                      }}
+                      placement="rightTop"
+                      overlayClassName="hire-candidate-popover"
+                    >
+                      Hire Candidate
+                    </Popover>
+                  ),
                 },
                 {
                   key: 'edit',

@@ -42,7 +42,7 @@ const SingleAllowancePage = () => {
     })) || [];
 
   return (
-    <>
+    <div className="bg-white rounded-lg px-1 py-4 sm:px-6 sm:mr-4">
       <div>
         {/* PageHeader for mobile */}
         <div className="block sm:hidden mb-4">
@@ -56,6 +56,7 @@ const SingleAllowancePage = () => {
             }
             size="small"
             toolTip={allowanceData?.name}
+            horizontalPadding="0px"
           />
         </div>
 
@@ -72,15 +73,16 @@ const SingleAllowancePage = () => {
               }
               size="small"
               toolTip={allowanceData?.name}
+              horizontalPadding="0px"
             />
           </div>
 
           <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
-            <div className="w-3/4 sm:w-72 mr-2">
+            <div className="w-10/12 mr-2 sm:hidden">
               <Select
                 showSearch
                 allowClear
-                className="h-12 w-full"
+                className="h-10 w-full"
                 placeholder="Search by name"
                 onChange={handleSearchChange}
                 filterOption={(input, option) => {
@@ -95,14 +97,14 @@ const SingleAllowancePage = () => {
             </div>
 
             {/* Button: 25% on mobile */}
-            <div className="w-1/4 sm:w-auto">
+            <div className="w-auto">
               <AccessGuard
                 permissions={[Permissions.CreateAllowanceEntitlement]}
               >
                 <Button
                   size="large"
                   type="primary"
-                  className="h-12 w-full"
+                  className="h-10 w-10 sm:w-auto"
                   id="createNewClosedHolidayFieldId"
                   icon={<FaPlus />}
                   onClick={() => {
@@ -116,12 +118,29 @@ const SingleAllowancePage = () => {
             </div>
           </div>
         </div>
+        <div className="w-full hidden sm:block mt-2">
+          <Select
+            showSearch
+            allowClear
+            className="h-10 w-full"
+            placeholder="Search by name"
+            onChange={handleSearchChange}
+            filterOption={(input, option) => {
+              const label = option?.label;
+              return (
+                typeof label === 'string' &&
+                label.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+            options={options}
+          />
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div>
         <AllowanceEntitlementTable />
       </div>
-    </>
+    </div>
   );
 };
 

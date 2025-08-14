@@ -111,7 +111,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
           body: {
             padding: isMobile
               ? `0 ${customPadding ? customPadding : '12px'}`
-              : '0 36px',
+              : `0 ${customPadding ? customPadding : '36px'}`,
           },
         }}
         height={

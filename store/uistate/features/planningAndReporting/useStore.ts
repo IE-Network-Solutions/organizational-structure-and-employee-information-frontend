@@ -5,6 +5,7 @@ import { useAuthenticationStore } from '../authentication';
 type MkAsATask = {
   title: string | null;
   mid: string | null;
+  type?: 'milestone' | 'keyResult' | 'target';
 };
 
 export interface PlanningAndReporting {

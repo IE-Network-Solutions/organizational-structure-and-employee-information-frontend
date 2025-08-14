@@ -194,7 +194,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             id={`${item?.id}buttonPopOverActionForOnEditActionId`}
             type="primary"
             onClick={() => {
-              setEmployeeId(item?.userId), setEmployeeAttendanceId(item?.id);
+              (setEmployeeId(item?.userId), setEmployeeAttendanceId(item?.id));
               setIsShowEmployeeAttendanceSidebar(true);
             }}
           />
@@ -250,6 +250,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
     if (val.type) {
       nFilter['type'] = val.type;
+    }
+
+    if (val.breakTypeId) {
+      nFilter['breakTypeId'] = val.breakTypeId;
     }
 
     if (val.employeeId) {
