@@ -1,7 +1,7 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, Select, Space, Spin, Switch, Tabs } from 'antd';
+import { Form, Input, Space, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -11,14 +11,9 @@ import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea
 import { useGetAllowedArea } from '@/store/server/features/timesheet/allowedArea/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import EnhancedLocationPicker from '@/components/common/map/EnhancedLocationPicker';
-import { EnvironmentOutlined } from '@ant-design/icons';
-import { Typography } from 'antd';
-
-const { Title } = Typography;
 
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
-  const [showUsers, setShowUsers] = useState(false);
 
   const [formValues, setFormValues] = useState({ latitude: 9.0322, longitude: 38.7636, distance: 0.01 });
 
@@ -47,7 +42,7 @@ const LocationSidebar = () => {
     if (areaId) {
       refetch();
     }
-  }, [areaId]);
+  }, [areaId, refetch]);
 
   useEffect(() => {
     if (allowedAreaData) {
@@ -67,7 +62,6 @@ const LocationSidebar = () => {
         longitude: item.longitude,
         distance: Number(item.distance) / 1000, // Convert to kilometers for UI
       });
-      setShowUsers(!item.isGlobal);
     } else {
       // Set default values for new location - centered on Addis Ababa, Ethiopia
       form.setFieldValue('latitude', 9.0322);
@@ -79,9 +73,8 @@ const LocationSidebar = () => {
         longitude: 38.7636,
         distance: 0.01, // 10 meters = 0.01 km
       });
-      setShowUsers(false);
     }
-  }, [allowedAreaData]);
+  }, [allowedAreaData, form]);
 
   const onClose = () => {
     form.resetFields();
@@ -113,7 +106,7 @@ const LocationSidebar = () => {
     if (isSuccess) {
       onClose();
     }
-  }, [isSuccess]);
+  }, [isSuccess, onClose]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
