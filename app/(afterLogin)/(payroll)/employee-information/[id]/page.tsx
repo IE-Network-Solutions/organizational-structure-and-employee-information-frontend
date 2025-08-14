@@ -54,8 +54,12 @@ const EmployeeProfile = () => {
 
   const { data: employee, isLoading } = useGetEmployee(empId);
 
-  const { pageSize, currentPage } = usePayrollStore();
-  const { data: payroll } = useGetActivePayroll('', pageSize, currentPage);
+  const { pageSize } = usePayrollStore();
+  const { data: payroll } = useGetActivePayroll(
+    `&employeeId=${empId}`,
+    pageSize,
+    1,
+  );
   const { data: payrollHistory } = useGetPayrollHistory(empId);
 
   const {

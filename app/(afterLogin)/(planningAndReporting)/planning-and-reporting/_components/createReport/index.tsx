@@ -129,7 +129,10 @@ function CreateReport() {
           keyresult?.milestones?.forEach((milestone: any) => {
             milestone?.tasks?.forEach((task: any) => {
               // Only auto-set if task is pre-achieved and user hasn't manually set a status
-              if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
+              if (
+                task?.status === 'pre-achieved' &&
+                selectedStatuses[task.taskId] === undefined
+              ) {
                 newStatuses[task.taskId] = 'Done';
                 hasChanges = true;
               }
@@ -139,7 +142,10 @@ function CreateReport() {
           // Handle regular tasks
           keyresult?.tasks?.forEach((task: any) => {
             // Only auto-set if task is pre-achieved and user hasn't manually set a status
-            if (task?.status === 'pre-achieved' && selectedStatuses[task.taskId] === undefined) {
+            if (
+              task?.status === 'pre-achieved' &&
+              selectedStatuses[task.taskId] === undefined
+            ) {
               newStatuses[task.taskId] = 'Done';
               hasChanges = true;
             }
@@ -247,6 +253,7 @@ function CreateReport() {
       }, 0)
     );
   }, 0);
+
   const { userId } = useAuthenticationStore();
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
     userId,
@@ -255,6 +262,7 @@ function CreateReport() {
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
     (i: any) => i.isReported === false,
   )?.id;
+
   return (
     openReportModal && (
       <CustomDrawerLayout
@@ -367,7 +375,8 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status: e.target.value,
+                                                          status:
+                                                            e.target.value,
                                                           actualValue: Number(
                                                             task?.targetValue ??
                                                               0,
@@ -379,7 +388,8 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status: e.target.value,
+                                                          status:
+                                                            e.target.value,
                                                           actualValue: 0,
                                                         },
                                                       });
