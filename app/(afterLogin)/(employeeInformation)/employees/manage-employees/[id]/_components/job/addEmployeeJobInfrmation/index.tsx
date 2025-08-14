@@ -6,16 +6,20 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
+import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface Ids {
-  id: string;
+  id?: string;
   onInfoSubmition?: () => void;
+  onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  id: id,
-  onInfoSubmition: onInfoSubmition,
+  onJobInfoUpdated: onJobInfoUpdated,
 }) => {
   const [form] = Form.useForm();
+  const params = useParams();
+  const userId = params.id as string;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
@@ -23,7 +27,12 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     employeeJobInfoModalWidth,
   } = useEmployeeManagementStore();
 
-  const { data: employeeData } = useGetEmployee(id);
+  useEffect(() => {
+    if (isAddEmployeeJobInfoModalVisible) {
+      form.resetFields(); // Reset form values on modal open
+    }
+  }, [isAddEmployeeJobInfoModalVisible]);
+  const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
@@ -38,7 +47,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     values.departmentId = form.getFieldValue('departmentId') || '';
     values.branchId = form.getFieldValue('branchId') || '';
     values.workScheduleId = form.getFieldValue('workScheduleId') || '';
-    values.userId = id;
+    values.userId = userId;
     values.basicSalary = parseInt(values.basicSalary.toString(), 10);
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
@@ -46,7 +55,13 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     createJobInformation(values, {
       onSuccess: () => {
         handleClose();
-        onInfoSubmition && onInfoSubmition();
+
+        // Call the callback to refresh job information data
+        if (onJobInfoUpdated) {
+          setTimeout(() => {
+            onJobInfoUpdated();
+          }, 500);
+        }
       },
     });
   };
@@ -62,7 +77,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         destroyOnClose
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm />
+          <JobTimeLineForm employeeData={employeeData} />
           <BasicSalaryForm />
           <WorkScheduleForm
             selectedWorkScheduleDetails={

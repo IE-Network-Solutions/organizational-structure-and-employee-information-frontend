@@ -6,6 +6,7 @@ import {
   useSetApproveLeaveRequest,
   useSetFinalApproveBranchRequest,
   useSetFinalApproveLeaveRequest,
+  useSetAllLeaveRequestNotification,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
@@ -51,6 +52,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
     mutate: finalBranchApprover,
     isLoading: isLoadingFinalBranchApprover,
   } = useSetFinalApproveBranchRequest();
+  const { mutate: sendNotification } = useSetAllLeaveRequestNotification();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
@@ -115,6 +117,13 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             finalLeaveApproval({
               leaveRequestId: e.requestId,
               status: 'approved',
+            });
+          }
+        } else {
+          // If not the final approval, send notification to next approver ONLY for Leave requests
+          if (requestType == 'Leave') {
+            sendNotification({
+              leaveRequestIds: [e.requestId],
             });
           }
         }

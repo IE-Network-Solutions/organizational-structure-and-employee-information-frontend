@@ -6,7 +6,10 @@ import LocationSearch from './LocationSearch';
 const LocationPicker = dynamic(() => import('./LocationPicker'), {
   ssr: false,
   loading: () => (
-    <div className="bg-gray-100 rounded-lg flex items-center justify-center" style={{ height: '400px' }}>
+    <div
+      className="bg-gray-100 rounded-lg flex items-center justify-center"
+      style={{ height: '400px' }}
+    >
       <div className="text-gray-500">Loading map...</div>
     </div>
   ),
@@ -34,7 +37,7 @@ interface EnhancedLocationPickerProps {
 
 /**
  * EnhancedLocationPicker component with integrated location search and map selection
- * 
+ *
  * Features:
  * - Automatic location search as user types (with debouncing)
  * - Interactive map for location selection
@@ -43,7 +46,7 @@ interface EnhancedLocationPickerProps {
  * - Coordinate display and manual editing
  * - Automatic zoom to selected location
  * - Smooth map transitions
- * 
+ *
  * @param props - Component props
  * @param props.latitude - Initial latitude
  * @param props.longitude - Initial longitude
@@ -108,8 +111,10 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           message.success('Current location set successfully!');
         },
         () => {
-          message.error('Unable to get current location. Please select manually.');
-        }
+          message.error(
+            'Unable to get current location. Please select manually.',
+          );
+        },
       );
     } else {
       message.error('Geolocation is not supported by this browser.');
@@ -117,6 +122,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   };
 
   return (
+
     <div className="w-full">
       {/* Map with integrated search */}
       <div className="relative">
@@ -134,6 +140,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
         <div className="absolute bottom-4 left-4 z-10">
           <Button 
             className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm rounded-md px-4 py-2 h-auto text-sm"
+
             onClick={handleUseCurrentLocation}
           >
             Use Current Location
@@ -243,4 +250,4 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   );
 };
 
-export default EnhancedLocationPicker; 
+export default EnhancedLocationPicker;
