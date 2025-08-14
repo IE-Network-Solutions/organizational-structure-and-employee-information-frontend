@@ -222,6 +222,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                     <span className="font-normal  ml-3 mt-2">{parentName} Tasks:</span>
                     
                   </div> */}
+
                 {keyResult.tasks.map((task, taskIndex) => {
                   const compositeKey = buildKey(task?.keyResult?.id, undefined, task?.id);
                   return (
@@ -239,37 +240,45 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                         <Button
                           id={`plan-as-task_${keyResult?.id ?? ''}`}
                           onClick={() => handleAddBoard(compositeKey)}
+
                           type="link"
                           icon={<BiPlus />}
                           className="text-[10px]"
                           disabled={
+
                             statuses[keyResult?.id] ||
                             Number(keyResult?.progress) === 100 ||
                             ((form?.getFieldValue(`names-${compositeKey}`)?.length ?? 0) > 0) ||
                             form?.getFieldValue(`names-${compositeKey}`)?.some((i: any) => i?.achieveMK)
                           
+
                           }
                         >
                           Add Plan Task
                         </Button>
+
                           {task?.achieveMK && (
                             <Tooltip title="Plan key result as a Task">
                               <Button
+
                               id="plan-key-result-as-task"
                               size="small"
                               className="text-[10px] text-primary"
                               icon={<FaPlus />}
                               disabled={
+
                                 statuses[keyResult?.id] ||
                                 Number(keyResult?.progress) === 100 ||
                                 ((form?.getFieldValue(`names-${compositeKey}`)?.length ?? 0) > 0) ||
                                 form?.getFieldValue(`names-${compositeKey}`)?.some((i: any) => i?.achieveMK)
+
                               }
                               onClick={() => {
                                 setMKAsATask({
                                   title: keyResult?.title,
                                   mid: keyResult?.id,
                                 });
+
                                 setClickStatus(keyResult?.id + '', true);
                                 handleAddBoard(compositeKey);
                               }}
@@ -279,6 +288,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                             {weights[`names-${compositeKey}`] || 0}%
                           </div>
+
                         </div>
                       </div>
                       <Divider className="my-2" />

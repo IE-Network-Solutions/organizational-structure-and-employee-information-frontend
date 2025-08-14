@@ -189,7 +189,7 @@ const PayPeriod = () => {
       <CustomDrawer
         visible={visible}
         onClose={() => {
-          setVisible(false), reset();
+          (setVisible(false), reset());
         }}
       />
     </div>
