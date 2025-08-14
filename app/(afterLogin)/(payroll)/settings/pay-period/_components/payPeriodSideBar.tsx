@@ -25,7 +25,10 @@ const { Option } = Select;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
-  const [activePicker, setActivePicker] = useState<{ index: number | null; part: 'start' | 'end' | null }>({ index: null, part: null });
+  const [activePicker, setActivePicker] = useState<{
+    index: number | null;
+    part: 'start' | 'end' | null;
+  }>({ index: null, part: null });
 
   const {
     isPayPeriodSidebarVisible,
@@ -188,7 +191,8 @@ const PayPeriodSideBar = () => {
   ];
 
   const getSpanRulesForMode = (mode: string) => {
-    if (mode === 'Weekly') return { min: 7, max: 7, allowed: new Set([7]) } as const;
+    if (mode === 'Weekly')
+      return { min: 7, max: 7, allowed: new Set([7]) } as const;
     if (mode === 'Bi-weekly')
       return { min: 14, max: 15, allowed: new Set([14, 15]) } as const;
     if (mode === 'Monthly') return { min: 28, max: 31 } as const;
@@ -266,29 +270,54 @@ const PayPeriodSideBar = () => {
                         name={`range${index}`}
                         validateTrigger={['onChange']}
                         rules={[
-                          { required: true, message: 'Please select a date range' },
                           {
-                            validator: async (_rule, value) => {
-                              if (!value || value.length !== 2 || !value[0] || !value[1]) {
-                                return Promise.reject(new Error('Please select a date range'));
+                            required: true,
+                            message: 'Please select a date range',
+                          },
+                          {
+                            validator: async (notused, value) => {
+                              if (
+                                !value ||
+                                value.length !== 2 ||
+                                !value[0] ||
+                                !value[1]
+                              ) {
+                                return Promise.reject(
+                                  new Error('Please select a date range'),
+                                );
                               }
                               const start = dayjs(value[0]);
                               const end = dayjs(value[1]);
                               const inclusiveDays = end.diff(start, 'day') + 1;
-                              if (payPeriodMode === 'Weekly' && inclusiveDays !== 7) {
-                                return Promise.reject(new Error('Weekly range must be exactly 7 days.'));
+                              if (
+                                payPeriodMode === 'Weekly' &&
+                                inclusiveDays !== 7
+                              ) {
+                                return Promise.reject(
+                                  new Error(
+                                    'Weekly range must be exactly 7 days.',
+                                  ),
+                                );
                               }
                               if (
                                 payPeriodMode === 'Bi-weekly' &&
                                 !(inclusiveDays === 14 || inclusiveDays === 15)
                               ) {
-                                return Promise.reject(new Error('Bi-weekly range must be 14 or 15 days.'));
+                                return Promise.reject(
+                                  new Error(
+                                    'Bi-weekly range must be 14 or 15 days.',
+                                  ),
+                                );
                               }
                               if (
                                 payPeriodMode === 'Monthly' &&
                                 !(inclusiveDays >= 28 && inclusiveDays <= 31)
                               ) {
-                                return Promise.reject(new Error('Monthly range must be between 28 and 31 days.'));
+                                return Promise.reject(
+                                  new Error(
+                                    'Monthly range must be between 28 and 31 days.',
+                                  ),
+                                );
                               }
                               return Promise.resolve();
                             },
@@ -298,24 +327,44 @@ const PayPeriodSideBar = () => {
                         <RangePicker
                           value={[dayjs(range[0]), dayjs(range[1])]}
                           onOpenChange={(open) => {
-                            if (!open) setActivePicker({ index: null, part: null });
+                            if (!open)
+                              setActivePicker({ index: null, part: null });
                             else setActivePicker({ index, part: 'start' });
                           }}
-                          onCalendarChange={(dates, _dateStrings, info) => {
-                            if (info?.range === 'start' || info?.range === 'end') {
+                          onCalendarChange={(dates, notused, info) => {
+                            if (
+                              info?.range === 'start' ||
+                              info?.range === 'end'
+                            ) {
                               setActivePicker({ index, part: info.range });
                             }
                           }}
                           onChange={(values) => {
-                            if (!values || values.length !== 2 || !values[0] || !values[1]) return;
+                            if (
+                              !values ||
+                              values.length !== 2 ||
+                              !values[0] ||
+                              !values[1]
+                            )
+                              return;
 
-                            const [start, rawEnd] = values as [dayjs.Dayjs, dayjs.Dayjs];
+                            const [start, rawEnd] = values as [
+                              dayjs.Dayjs,
+                              dayjs.Dayjs,
+                            ];
                             const rules = getSpanRulesForMode(payPeriodMode);
-                            const minAllowedEnd = start.add(rules.min - 1, 'day');
-                            const maxAllowedEnd = start.add(rules.max - 1, 'day');
+                            const minAllowedEnd = start.add(
+                              rules.min - 1,
+                              'day',
+                            );
+                            const maxAllowedEnd = start.add(
+                              rules.max - 1,
+                              'day',
+                            );
 
                             let end = rawEnd;
-                            if (end.isBefore(minAllowedEnd)) end = minAllowedEnd;
+                            if (end.isBefore(minAllowedEnd))
+                              end = minAllowedEnd;
                             if (end.isAfter(maxAllowedEnd)) end = maxAllowedEnd;
 
                             const fiscalEndDate = activeFiscalYear?.endDate
@@ -325,8 +374,11 @@ const PayPeriodSideBar = () => {
                               end = fiscalEndDate;
                             }
                             if (index + 1 < divisions.length) {
-                              const nextRangeEnd = dayjs(divisions[index + 1][1]);
-                              const latestAllowedBeforeNext = nextRangeEnd.subtract(1, 'day');
+                              const nextRangeEnd = dayjs(
+                                divisions[index + 1][1],
+                              );
+                              const latestAllowedBeforeNext =
+                                nextRangeEnd.subtract(1, 'day');
                               if (end.isAfter(latestAllowedBeforeNext)) {
                                 end = latestAllowedBeforeNext;
                               }
@@ -335,10 +387,14 @@ const PayPeriodSideBar = () => {
                             const newDivisions = [...divisions];
 
                             newDivisions[index] = [start, end];
-                            form.setFieldsValue({ [`range${index}`]: [start, end] });
+                            form.setFieldsValue({
+                              [`range${index}`]: [start, end],
+                            });
 
                             if (index + 1 < newDivisions.length) {
-                              const nextStart = dayjs(newDivisions[index + 1][1]);
+                              const nextStart = dayjs(
+                                newDivisions[index + 1][1],
+                              );
                               if (dayjs(end).isBefore(nextStart)) {
                                 newDivisions[index + 1][0] = dayjs(end).add(
                                   1,
@@ -383,11 +439,17 @@ const PayPeriodSideBar = () => {
                               return true;
                             }
 
-                            if (fiscalEndDate && currentDate.isAfter(fiscalEndDate)) {
+                            if (
+                              fiscalEndDate &&
+                              currentDate.isAfter(fiscalEndDate)
+                            ) {
                               return true;
                             }
 
-                            if (fiscalStartDate && currentDate.isBefore(fiscalStartDate)) {
+                            if (
+                              fiscalStartDate &&
+                              currentDate.isBefore(fiscalStartDate)
+                            ) {
                               return true;
                             }
 
@@ -399,11 +461,24 @@ const PayPeriodSideBar = () => {
                             }
 
                             // Only constrain window when selecting the end date for this specific range
-                            if (activePicker.index === index && activePicker.part === 'end' && startDate) {
+                            if (
+                              activePicker.index === index &&
+                              activePicker.part === 'end' &&
+                              startDate
+                            ) {
                               const rules = getSpanRulesForMode(payPeriodMode);
-                              const minAllowedEnd = startDate.add(rules.min - 1, 'day');
-                              const maxAllowedEnd = startDate.add(rules.max - 1, 'day');
-                              if (currentDate.isBefore(minAllowedEnd) || currentDate.isAfter(maxAllowedEnd)) {
+                              const minAllowedEnd = startDate.add(
+                                rules.min - 1,
+                                'day',
+                              );
+                              const maxAllowedEnd = startDate.add(
+                                rules.max - 1,
+                                'day',
+                              );
+                              if (
+                                currentDate.isBefore(minAllowedEnd) ||
+                                currentDate.isAfter(maxAllowedEnd)
+                              ) {
                                 return true;
                               }
                             }
