@@ -206,7 +206,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
         zoom={zoomLevel}
         style={{ height: '100%', width: '100%' }}
         className="rounded-lg"
-        zoomControl={true}
+        zoomControl={false}
         scrollWheelZoom={true}
         doubleClickZoom={true}
         dragging={true}
@@ -229,37 +229,47 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           icon={L.divIcon({
             className: 'custom-marker',
             html: `
-              <div style="
-                background: #1890ff;
-                border: 2px solid white;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-              ">
-                <div style="
-                  background: white;
+                              <div style="
+                  background: #e9d5ff;
+                  border: 2px solid #3636F0;
                   border-radius: 50%;
-                  width: 8px;
-                  height: 8px;
-                "></div>
-              </div>
+                  width: 24px;
+                  height: 24px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  box-shadow: 0 2px 8px rgba(54, 54, 240, 0.3);
+                ">
+                  <div style="
+                    background: #3636F0;
+                    border-radius: 50%;
+                    width: 16px;
+                    height: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  ">
+                    <div style="
+                      background: #3636F0;
+                      border-radius: 50%;
+                      width: 8px;
+                      height: 8px;
+                    "></div>
+                  </div>
+                </div>
             `,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
           })}
         />
         <Circle
           center={position}
           radius={currentRadius * 1000} // Convert km to meters
           pathOptions={{
-            color: '#1890ff',
-            fillColor: '#1890ff',
-            fillOpacity: 0.2,
-            weight: 2,
+            color: '#3636F0',
+            fillColor: '#3636F0',
+            fillOpacity: 0.15,
+            weight: 1,
           }}
         />
       </MapContainer>

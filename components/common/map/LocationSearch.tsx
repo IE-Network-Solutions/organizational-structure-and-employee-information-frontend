@@ -45,7 +45,7 @@ interface SearchResult {
  */
 const LocationSearch: React.FC<LocationSearchProps> = ({
   onLocationSelect,
-  placeholder = 'Search for a location...',
+  placeholder = 'Search Location',
   autoSearch = true,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,15 +116,19 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   return (
     <div className="w-full">
-      <div className="flex gap-2 mb-2">
+      <div className="relative">
         <Input
           value={searchQuery}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
-          prefix={<SearchOutlined />}
-          className="flex-1"
-          suffix={isLoading && <Spin size="small" />}
+          className="h-10 rounded-lg border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+          suffix={
+            <div className="flex items-center gap-2">
+              {isLoading && <Spin size="small" />}
+              <EnvironmentOutlined className="text-purple-400 text-lg" />
+            </div>
+          }
         />
         {!autoSearch && (
           <Button
@@ -132,6 +136,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
             onClick={handleSearch}
             loading={isLoading}
             icon={<SearchOutlined />}
+            className="ml-2"
           >
             Search
           </Button>
@@ -139,11 +144,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       </div>
 
       {searchResults.length > 0 && (
-        <div className="border rounded-lg max-h-48 overflow-y-auto">
+        <div className="border rounded-lg max-h-48 overflow-y-auto bg-white shadow-lg">
           {searchResults.map((result, index) => (
             <div
               key={index}
-              className="p-3 border-b cursor-pointer hover:bg-gray-50 flex items-center gap-2"
+              className="p-3 border-b cursor-pointer hover:bg-gray-50 flex items-center gap-2 bg-white"
               onClick={() => handleResultClick(result)}
             >
               <EnvironmentOutlined className="text-blue-500" />

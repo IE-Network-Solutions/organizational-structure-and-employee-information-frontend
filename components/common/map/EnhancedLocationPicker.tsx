@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, InputNumber, Slider, Space, Typography, Divider, Button, message } from 'antd';
+import { Card, InputNumber, Slider, Space, Typography, Divider, Button, message, Input } from 'antd';
 import { EnvironmentOutlined, RadiusUprightOutlined, SearchOutlined, AimOutlined } from '@ant-design/icons';
 import dynamic from 'next/dynamic';
 import LocationSearch from './LocationSearch';
@@ -118,131 +118,129 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   };
 
   return (
-    <Card className="w-full">
-      <Space direction="vertical" size="large" className="w-full">
-        {/* Search Section */}
-        <div>
-          <Title level={5} className="mb-2">
-            <SearchOutlined className="mr-2" />
-            Search Location
-          </Title>
-          <LocationSearch
-            onLocationSelect={handleSearchSelect}
-            autoSearch={autoSearch}
-          />
+    <div className="w-full">
+      {/* Map with integrated search */}
+      <div className="relative">
+        {/* Search bar positioned at top center of map */}
+        <div className="absolute top-4 left-4 right-4 z-10">
+          <div className="relative">
+            <LocationSearch
+              onLocationSelect={handleSearchSelect}
+              autoSearch={autoSearch}
+            />
+          </div>
+        </div>
+        
+        {/* Use Current Location button positioned at bottom left of map */}
+        <div className="absolute bottom-4 left-4 z-10">
           <Button 
-            type="dashed" 
-            icon={<AimOutlined />} 
+            className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm rounded-md px-4 py-2 h-auto text-sm"
             onClick={handleUseCurrentLocation}
-            className="mt-2"
           >
             Use Current Location
           </Button>
         </div>
 
-        <Divider />
+        {/* Map */}
+        <LocationPicker
+          latitude={latitude}
+          longitude={longitude}
+          radius={radius}
+          onLocationChange={handleLocationChange}
+          height={height}
+          width={width}
+          autoZoom={autoZoom}
+          zoomLevel={zoomLevel}
+          smoothZoom={smoothZoom}
+        />
+      </div>
 
-        {/* Map Section */}
-        <div>
-          <Title level={5} className="mb-2">
-            <EnvironmentOutlined className="mr-2" />
-            Select Location on Map
-          </Title>
-          <Text type="secondary" className="text-sm">
-            Double click on the map to set the center point of your allowed area
-          </Text>
-          <div className="mt-2">
-            <LocationPicker
-              latitude={latitude}
-              longitude={longitude}
-              radius={radius}
-              onLocationChange={handleLocationChange}
-              height={height}
-              width={width}
-              autoZoom={autoZoom}
-              zoomLevel={zoomLevel}
-              smoothZoom={smoothZoom}
-            />
-          </div>
+      {/* Radius Control */}
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-gray-900">Radius</span>
+          <InputNumber
+            value={currentRadius}
+            onChange={(value) => {
+              if (value !== null) {
+                handleRadiusChange(value);
+              }
+            }}
+            min={0.01}
+            max={0.05}
+            step={0.001}
+            precision={3}
+            style={{ width: 120 }}
+            className="text-sm border border-gray-300 rounded-lg"
+            placeholder="Radius"
+          />
         </div>
+        <Slider
+          min={0.01}
+          max={0.05}
+          step={0.001}
+          value={currentRadius}
+          onChange={handleRadiusChange}
+          
+          marks={{
+            0.01: '10 m',
+            0.02: '20 m',
+            0.03: '30 m',
+            0.04: '40 m',
+            0.05: '50 m',
+          }}
+          trackStyle={{ backgroundColor: '#3b82f6' }}
+          // handleStyle={{ 
+          //   backgroundColor: '#3b82f6', 
+          //   borderColor: '#3b82f6',
+          //   width: '20px',
+          //   height: '20px',
+          //   borderRadius: '50%', // makes it perfectly round
+          //   boxShadow: 'none',   // removes AntD's focus shadow
+          //   outline: 'none'      // removes browser focus outline
+          // }}
+          railStyle={{ backgroundColor: '#e9d5ff' }}
+          className="mt-6"
+        />
+      </div>
 
-        <Divider />
-
-        {/* Coordinates Display */}
-        <div>
-          <Title level={5} className="mb-2">
-            Coordinates
-          </Title>
-          <Space size="large">
-            <div>
-              <Text strong>Latitude:</Text>
-              <InputNumber
-                value={currentLat}
-                onChange={(value) => {
-                  if (value !== null) {
-                    handleLocationChange(value, currentLng);
-                  }
-                }}
-                precision={6}
-                className="ml-2"
-                style={{ width: 150 }}
-              />
-            </div>
-            <div>
-              <Text strong>Longitude:</Text>
-              <InputNumber
-                value={currentLng}
-                onChange={(value) => {
-                  if (value !== null) {
-                    handleLocationChange(currentLat, value);
-                  }
-                }}
-                precision={6}
-                className="ml-2"
-                style={{ width: 150 }}
-              />
-            </div>
-          </Space>
+      {/* Coordinates Display - after radius */}
+      <div className="mt-4">
+        <div className="text-sm text-gray-600 mb-2">
+          Use Coordinates
         </div>
-
-        {/* Radius Control */}
-        <div>
-          <Title level={5} className="mb-2">
-            <RadiusUprightOutlined className="mr-2" />
-            Radius (km)
-          </Title>
-          <Space direction="vertical" className="w-full">
-            <Slider
-              min={0.01}
-              max={10}
-              step={0.01}
-              value={currentRadius}
-              onChange={handleRadiusChange}
-              marks={{
-                0.01: '100m',
-                1: '1km',
-                5: '5km',
-                10: '10km',
-              }}
-            />
+        <Space size="large">
+          <div>
+            <Text strong>Latitude:</Text>
             <InputNumber
-              value={currentRadius}
+              value={currentLat}
               onChange={(value) => {
                 if (value !== null) {
-                  handleRadiusChange(value);
+                  handleLocationChange(value, currentLng);
                 }
               }}
-              min={0.01}
-              max={10}
-              step={0.01}
-              precision={2}
-              addonAfter="km"
-              style={{ width: 120 }}
+              precision={6}
+              className="ml-2"
+              style={{ width: 150 }}
             />
-          </Space>
-        </div>
-      </Space>
-    </Card>
+          </div>
+          <div>
+            <Text strong>Longitude:</Text>
+            <InputNumber
+              value={currentLng}
+              onChange={(value) => {
+                if (value !== null) {
+                  handleLocationChange(currentLat, value);
+                }
+              }}
+              precision={6}
+              className="ml-2"
+              style={{ width: 150 }}
+            />
+          </div>
+        </Space>
+      </div>
+    </div>
   );
 };
 
