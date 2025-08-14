@@ -1,7 +1,7 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, Space, Spin } from 'antd';
+import { Form, Input, Space, Spin, Switch, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -14,6 +14,7 @@ import EnhancedLocationPicker from '@/components/common/map/EnhancedLocationPick
 
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
+  const [showUsers, setShowUsers] = useState(false);
 
   const [formValues, setFormValues] = useState({ latitude: 9.0322, longitude: 38.7636, distance: 0.01 });
 
@@ -62,6 +63,7 @@ const LocationSidebar = () => {
         longitude: item.longitude,
         distance: Number(item.distance) / 1000, // Convert to kilometers for UI
       });
+      setShowUsers(!item.isGlobal);
     } else {
       // Set default values for new location - centered on Addis Ababa, Ethiopia
       form.setFieldValue('latitude', 9.0322);
@@ -73,6 +75,7 @@ const LocationSidebar = () => {
         longitude: 38.7636,
         distance: 0.01, // 10 meters = 0.01 km
       });
+      setShowUsers(false);
     }
   }, [allowedAreaData, form]);
 
@@ -210,8 +213,6 @@ const LocationSidebar = () => {
                   </div>
                 </div>
 
-
-
                 {/* Hidden form fields for map values */}
                 <Form.Item name="latitude" hidden>
                   <Input />
@@ -222,6 +223,34 @@ const LocationSidebar = () => {
                 <Form.Item name="distance" hidden>
                   <Input />
                 </Form.Item>
+
+                  <div className="flex items-center gap-2 py-4">
+                    <span className="text-sm text-gray-700">Is Global</span>
+                    <Switch
+                      defaultChecked
+                      onChange={(checked) => setShowUsers(!checked)}
+                    />
+                  </div>
+              
+                {showUsers && (
+                  <Form.Item
+                    id="userAccessList"
+                    label="Select Users"
+                    name="allowedUserAccesses"
+                  >
+                    <Select
+                      mode="multiple"
+                      showSearch
+                      placeholder="Select a person"
+                      className="w-full"
+                      optionFilterProp="label"
+                      options={users?.items?.map((list: any) => ({
+                        value: list?.id,
+                        label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                      }))}
+                    />
+                  </Form.Item>
+                )}
               </Space.Compact>
             </div>
 
