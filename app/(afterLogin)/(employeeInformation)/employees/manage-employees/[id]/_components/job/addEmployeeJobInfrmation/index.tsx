@@ -7,16 +7,16 @@ import { CreateEmployeeJobInformationInterface } from '@/store/server/features/e
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 import { useParams } from 'next/navigation';
+
 import { useEffect } from 'react';
 
+
 interface Ids {
-  id: string;
+  id?: string;
   onInfoSubmition?: () => void;
   onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  id: id,
-
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
   const [form] = Form.useForm();
@@ -34,7 +34,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       form.resetFields(); // Reset form values on modal open
     }
   }, [isAddEmployeeJobInfoModalVisible]);
-  const { data: employeeData } = useGetEmployee(id);
+  const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
 
@@ -79,7 +79,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         destroyOnClose
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm />
+          <JobTimeLineForm employeeData={employeeData} />
           <BasicSalaryForm />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
