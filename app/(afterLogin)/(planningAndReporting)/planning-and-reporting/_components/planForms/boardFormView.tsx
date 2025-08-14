@@ -23,7 +23,7 @@ interface BoardCardInterface {
   isMKAsTask?: boolean;
   keyResult: any;
   targetValue?: number;
-  milestoneId?: number;
+  milestoneId?: string | number;
   parentPlanId?: string;
   onCancle?: () => void;
 }
@@ -38,6 +38,7 @@ function BoardCardForm({
   keyResult,
   targetValue,
   milestoneId,
+  kId,
 }: BoardCardInterface) {
   const { setMKAsATask, mkAsATask } = PlanningAndReportingStore();
   const { setClickStatus } = useClickStatus();
@@ -251,7 +252,8 @@ function BoardCardForm({
                       id="cancel-task-button-for-planning-and-reporting"
                       onClick={() => {
                         removeSub(subName);
-                        setClickStatus(milestoneId + '', false);
+                        setClickStatus((milestoneId ?? kId) + '', false);
+                        setMKAsATask(null);
                       }}
                     >
                       Cancel

@@ -99,7 +99,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                     <div className="flex gap-3 items-center">
                       <Button
                         id={`plan-as-task_${kr?.id ?? ''}`}
-                        onClick={() => handleAddBoard(kr?.id)}
+                        onClick={() => { setMKAsATask(null); handleAddBoard(kr?.id); }}
                         type="link"
                         icon={<BiPlus />}
                         className="text-[10px]"
@@ -261,6 +261,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                       name={kr?.id}
                       isMKAsTask={!!mkAsATask}
                       keyResult={kr}
+                      milestoneId={kr?.id}
                     />
                   </>
                 )}

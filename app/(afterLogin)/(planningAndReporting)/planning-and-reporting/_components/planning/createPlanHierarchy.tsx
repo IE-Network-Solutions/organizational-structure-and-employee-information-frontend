@@ -222,6 +222,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             keyResult={task?.keyResult}
                             targetValue={task?.targetValue}
                             parentPlanId={parentParentId}
+                            milestoneId={milestone?.id}
                           />
                         </div>
                       );
@@ -253,7 +254,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                         <div className="flex items-center">
                           <Button
                             id={`plan-as-task_${keyResult?.id ?? ''}`}
-                            onClick={() => handleAddBoard(compositeKey)}
+                            onClick={() => { setMKAsATask(null); handleAddBoard(compositeKey); }}
                             type="link"
                             icon={<BiPlus />}
                             className="text-[10px]"
@@ -329,6 +330,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                         keyResult={task?.keyResult}
                         targetValue={task?.targetValue}
                         parentPlanId={parentParentId}
+                        milestoneId={keyResult?.id}
                       />
                     </div>
                   );
