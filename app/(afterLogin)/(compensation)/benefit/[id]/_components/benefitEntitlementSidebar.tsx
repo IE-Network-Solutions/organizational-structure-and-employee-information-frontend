@@ -230,7 +230,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             </Button>
           </div>
         }
-        width="600px"
+        width="35%"
+        customPadding="16px"
       >
         <Spin spinning={allUserLoading || payLoading}>
           <Form
@@ -243,7 +244,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
             <div className="grid grid-cols-2 gap-4">
               <Form.Item required name="totalAmount" label="Total Amount">
                 <InputNumber
-                  className="w-full h-10 mt-2"
+                  className="w-full h-10 mt-1"
                   value={totalAmount}
                   onChange={(value) => setTotalAmount(value || 0)}
                 />
@@ -254,7 +255,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 label="Settlement Period"
               >
                 <InputNumber
-                  className="w-full h-10 mt-2"
+                  className="w-full h-10 mt-1"
                   value={settlementPeriod}
                   onChange={(value) => setSettlementPeriod(value || 0)}
                 />
@@ -279,7 +280,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               <Select
                 loading={depLoading}
                 placeholder="Select a department"
-                className="w-full h-10 mt-2"
+                className="w-full h-10 mt-1"
                 allowClear
                 showSearch
                 onChange={(value) => handleDepartmentChange(value)}
@@ -306,8 +307,9 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 showSearch
                 placeholder="Select a person"
                 mode="multiple"
-                className="w-full h-10 mt-2"
+                className="w-full h-10 mt-1"
                 allowClear
+                maxTagCount={1}
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')
                     ?.toLowerCase()

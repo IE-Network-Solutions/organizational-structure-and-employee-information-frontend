@@ -145,6 +145,7 @@ const AssignTargetDrawer: React.FC = () => {
             placeholder="Select Department"
             onChange={handleDepartmentChange}
             className="w-full h-12"
+            allowClear
           >
             {departmentData?.map((dept: any) => (
               <Option key={dept.id} value={dept.id}>

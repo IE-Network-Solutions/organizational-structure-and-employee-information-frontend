@@ -38,8 +38,10 @@ const BenefitTypeTable = () => {
     if (data) {
       const filteredData = data.filter((item: any) => item.type === 'MERIT');
       setTableData(filteredData);
+      // Reset pagination when data changes
+      setBenefitCurrentPage(1);
     }
-  }, [data]);
+  }, [data, setTableData, setBenefitCurrentPage]);
 
   const handleDelete = (id: string) => {
     deleteAllowanceType(id);

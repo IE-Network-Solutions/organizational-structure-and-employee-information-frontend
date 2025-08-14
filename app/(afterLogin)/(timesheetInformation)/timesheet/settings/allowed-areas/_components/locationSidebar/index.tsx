@@ -19,7 +19,9 @@ const { Title } = Typography;
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
   const [showUsers, setShowUsers] = useState(false);
+
   const [formValues, setFormValues] = useState({ latitude: 9.0322, longitude: 38.7636, distance: 0.01 });
+
   const {
     isShowLocationSidebar: isShow,
     setIsShowLocationSidebar: setIsShow,
@@ -115,16 +117,16 @@ const LocationSidebar = () => {
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    
+
     // Ensure we have valid coordinates and distance
     const latitude = value.latitude || formValues.latitude || 9.145;
     const longitude = value.longitude || formValues.longitude || 40.4897;
     const distance = value.distance || formValues.distance || 100;
-    
+
     // Convert from kilometers to meters for backend
     // The backend expects distance in meters, but our UI works in kilometers
     const distanceInMeters = Math.max(Number(distance) * 1000, 10); // Minimum 10 meters
-    
+
     const payload = {
       ...(allowedAreaData && allowedAreaData!.item),
       title: value.title,
@@ -134,7 +136,7 @@ const LocationSidebar = () => {
       isGlobal: Boolean(value.isGlobal),
       allowedUserAccesses: value.allowedUserAccesses,
     };
-    
+
     setAllowedArea(payload);
   };
 
@@ -144,12 +146,12 @@ const LocationSidebar = () => {
   const handleLocationChange = (lat: number, lng: number) => {
     form.setFieldValue('latitude', lat);
     form.setFieldValue('longitude', lng);
-    setFormValues(prev => ({ ...prev, latitude: lat, longitude: lng }));
+    setFormValues((prev) => ({ ...prev, latitude: lat, longitude: lng }));
   };
 
   const handleRadiusChange = (radius: number) => {
     form.setFieldValue('distance', radius);
-    setFormValues(prev => ({ ...prev, distance: radius }));
+    setFormValues((prev) => ({ ...prev, distance: radius }));
   };
 
   return (
@@ -180,6 +182,7 @@ const LocationSidebar = () => {
             form={form}
             onFinish={onFinish}
           >
+
             <div className="p-4">
               <Space.Compact
                 direction="vertical"
@@ -228,6 +231,7 @@ const LocationSidebar = () => {
                 </Form.Item>
               </Space.Compact>
             </div>
+
           </Form>
         </Spin>
       </CustomDrawerLayout>
