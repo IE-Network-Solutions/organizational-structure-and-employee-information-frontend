@@ -26,6 +26,7 @@ import { NAME } from '@/types/enumTypes';
 import { FaStar } from 'react-icons/fa';
 import { MdKey } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useEffect } from 'react';
 const { Text } = Typography;
 
 const { TextArea } = Input;
@@ -75,11 +76,6 @@ function CreateReport() {
 
   // const { data: allUnReportedPlanningTask } =
   //   useGetUnReportedPlanning(planningPeriodId,activeTab);
-
-  const {
-    data: allPlannedTaskForReport,
-    isLoading: plannedTaskForReportLoading,
-  } = useGetPlannedTaskForReport(planningPeriodId);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -364,22 +360,19 @@ function CreateReport() {
 
                                                 <Radio.Group
                                                   className="text-xs"
-                                                  onChange={(e) =>
+                                                  onChange={(e) => {
                                                     setStatus(
                                                       task.taskId,
                                                       e.target.value,
-
                                                     );
                                                     if (
                                                       e.target.value === 'Done'
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status:
-                                                            e.target.value,
+                                                          status: e.target.value,
                                                           actualValue: Number(
-                                                            task?.targetValue ??
-                                                              0,
+                                                            task?.targetValue ?? 0,
                                                           )?.toLocaleString(),
                                                         },
                                                       });
@@ -388,8 +381,7 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status:
-                                                            e.target.value,
+                                                          status: e.target.value,
                                                           actualValue: 0,
                                                         },
                                                       });
