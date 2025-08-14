@@ -1,3 +1,4 @@
+'use client';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import {
@@ -70,7 +71,6 @@ function CreateReport() {
     isLoading: plannedTaskForReportLoading,
     refetch: refetchPlannedTasks,
   } = useGetPlannedTaskForReport(planningPeriodId);
-
 
   const planningPeriodName = getPlanningPeriodDetail(activePlanPeriodId)?.name;
 
@@ -211,7 +211,6 @@ function CreateReport() {
       }
     }
   }, [formattedData, selectedStatuses, form]);
-
 
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
@@ -370,9 +369,11 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status: e.target.value,
+                                                          status:
+                                                            e.target.value,
                                                           actualValue: Number(
-                                                            task?.targetValue ?? 0,
+                                                            task?.targetValue ??
+                                                              0,
                                                           )?.toLocaleString(),
                                                         },
                                                       });
@@ -381,13 +382,13 @@ function CreateReport() {
                                                     ) {
                                                       form.setFieldsValue({
                                                         [task.taskId]: {
-                                                          status: e.target.value,
+                                                          status:
+                                                            e.target.value,
                                                           actualValue: 0,
                                                         },
                                                       });
                                                     }
                                                   }}
-
                                                   value={
                                                     selectedStatuses[
                                                       task.taskId
@@ -685,12 +686,10 @@ function CreateReport() {
                                             if (e.target.value === 'Done') {
                                               form.setFieldsValue({
                                                 [task.taskId]: {
-
                                                   status: e.target.value,
                                                   actualValue: Number(
                                                     task?.targetValue ?? 0,
                                                   )?.toLocaleString(),
-
                                                 },
                                               });
                                             } else if (
