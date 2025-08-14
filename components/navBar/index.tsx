@@ -251,12 +251,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiStar
             size={18}
-            className={expandedKeys.includes('/okr') ? 'text-blue' : ''}
+            className={expandedKeys.includes('/okr-menu') ? 'text-blue' : ''}
           />
           <span>OKR</span>
         </span>
       ),
-      key: '/okr',
+      key: '/okr-menu',
       className: 'font-bold',
       permissions: ['view_okr'],
       disabled: hasEndedFiscalYear || isSubscriptionExpired,
@@ -393,12 +393,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <AiOutlineDollarCircle
             size={18}
-            className={expandedKeys.includes('/payroll') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('/payroll-menu') ? 'text-blue' : ''
+            }
           />
           <span>Payroll</span>
         </span>
       ),
-      key: '/payroll',
+      key: '/payroll-menu',
       className: 'font-bold',
       disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
@@ -411,7 +413,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         },
         {
           title: <span>Payroll</span>,
-          key: 'payroll',
+          key: '/payroll',
           className: 'font-bold',
           permissions: ['view_payroll_overview'],
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
@@ -623,10 +625,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       '/organization': '/organization',
       '/employees': '/employees',
       '/recruitment': '/recruitment',
-      '/okr': '/okr',
+      '/okr-menu': '/okr',
       '/feedback': '/feedback',
       '/tna': '/tna',
-      '/payroll': '/payroll',
+      '/payroll-menu': '/payroll',
       '/timesheet': '/timesheet',
       '/compensation': '/compensation',
       '/incentive': '/incentive',
