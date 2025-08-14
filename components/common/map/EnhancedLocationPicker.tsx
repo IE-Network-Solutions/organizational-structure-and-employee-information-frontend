@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, InputNumber, Slider, Space, Typography, Divider, Button, message, Input } from 'antd';
-import { EnvironmentOutlined, RadiusUprightOutlined, SearchOutlined, AimOutlined } from '@ant-design/icons';
+import { InputNumber, Slider, Space, Typography, Button, message } from 'antd';
 import dynamic from 'next/dynamic';
 import LocationSearch from './LocationSearch';
 
@@ -13,7 +12,7 @@ const LocationPicker = dynamic(() => import('./LocationPicker'), {
   ),
 });
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface EnhancedLocationPickerProps {
   latitude: number;
