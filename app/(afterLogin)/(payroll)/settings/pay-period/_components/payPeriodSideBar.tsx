@@ -14,7 +14,7 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useCreatePayPeriods } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import dayjs from 'dayjs';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
@@ -25,6 +25,10 @@ const { Option } = Select;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
+  const [activePicker, setActivePicker] = useState<{
+    index: number | null;
+    part: 'start' | 'end' | null;
+  }>({ index: null, part: null });
 
   const {
     isPayPeriodSidebarVisible,
@@ -102,6 +106,14 @@ const PayPeriodSideBar = () => {
       `${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`,
   );
 
+  useEffect(() => {
+    const fields: Record<string, [dayjs.Dayjs, dayjs.Dayjs]> = {};
+    divisions.forEach((r: [dayjs.Dayjs, dayjs.Dayjs], idx: number) => {
+      fields[`range${idx}`] = [dayjs(r[0]), dayjs(r[1])];
+    });
+    form.setFieldsValue(fields);
+  }, [divisions, form]);
+
   const allMonths = activeFiscalYear?.sessions?.flatMap(
     (session) => session.months,
   );
@@ -178,6 +190,15 @@ const PayPeriodSideBar = () => {
     { label: 'Monthly', value: 'Monthly' },
   ];
 
+  const getSpanRulesForMode = (mode: string) => {
+    if (mode === 'Weekly')
+      return { min: 7, max: 7, allowed: new Set([7]) } as const;
+    if (mode === 'Bi-weekly')
+      return { min: 14, max: 15, allowed: new Set([14, 15]) } as const;
+    if (mode === 'Monthly') return { min: 28, max: 31 } as const;
+    return { min: 1, max: Infinity } as const;
+  };
+
   return (
     isPayPeriodSidebarVisible && (
       <CustomDrawerLayout
@@ -245,78 +266,227 @@ const PayPeriodSideBar = () => {
                 {divisions.map((range, index) => (
                   <div key={index} className="my-2">
                     <div className="flex justify-between">
-                      <RangePicker
-                        value={[dayjs(range[0]), dayjs(range[1])]}
-                        onChange={(values) => {
-                          if (!values || values.length !== 2) return;
+                      <Form.Item
+                        name={`range${index}`}
+                        validateTrigger={['onChange']}
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please select a date range',
+                          },
+                          {
+                            validator: async (notused, value) => {
+                              if (
+                                !value ||
+                                value.length !== 2 ||
+                                !value[0] ||
+                                !value[1]
+                              ) {
+                                return Promise.reject(
+                                  new Error('Please select a date range'),
+                                );
+                              }
+                              const start = dayjs(value[0]);
+                              const end = dayjs(value[1]);
+                              const inclusiveDays = end.diff(start, 'day') + 1;
+                              if (
+                                payPeriodMode === 'Weekly' &&
+                                inclusiveDays !== 7
+                              ) {
+                                return Promise.reject(
+                                  new Error(
+                                    'Weekly range must be exactly 7 days.',
+                                  ),
+                                );
+                              }
+                              if (
+                                payPeriodMode === 'Bi-weekly' &&
+                                !(inclusiveDays === 14 || inclusiveDays === 15)
+                              ) {
+                                return Promise.reject(
+                                  new Error(
+                                    'Bi-weekly range must be 14 or 15 days.',
+                                  ),
+                                );
+                              }
+                              if (
+                                payPeriodMode === 'Monthly' &&
+                                !(inclusiveDays >= 28 && inclusiveDays <= 31)
+                              ) {
+                                return Promise.reject(
+                                  new Error(
+                                    'Monthly range must be between 28 and 31 days.',
+                                  ),
+                                );
+                              }
+                              return Promise.resolve();
+                            },
+                          },
+                        ]}
+                      >
+                        <RangePicker
+                          value={[dayjs(range[0]), dayjs(range[1])]}
+                          onOpenChange={(open) => {
+                            if (!open)
+                              setActivePicker({ index: null, part: null });
+                            else setActivePicker({ index, part: 'start' });
+                          }}
+                          onCalendarChange={(dates, notused, info) => {
+                            if (
+                              info?.range === 'start' ||
+                              info?.range === 'end'
+                            ) {
+                              setActivePicker({ index, part: info.range });
+                            }
+                          }}
+                          onChange={(values) => {
+                            if (
+                              !values ||
+                              values.length !== 2 ||
+                              !values[0] ||
+                              !values[1]
+                            )
+                              return;
 
-                          const [start, end] = values;
-                          const newDivisions = [...divisions];
+                            const [start, rawEnd] = values as [
+                              dayjs.Dayjs,
+                              dayjs.Dayjs,
+                            ];
+                            const rules = getSpanRulesForMode(payPeriodMode);
+                            const minAllowedEnd = start.add(
+                              rules.min - 1,
+                              'day',
+                            );
+                            const maxAllowedEnd = start.add(
+                              rules.max - 1,
+                              'day',
+                            );
 
-                          newDivisions[index] = [start, end];
+                            let end = rawEnd;
+                            if (end.isBefore(minAllowedEnd))
+                              end = minAllowedEnd;
+                            if (end.isAfter(maxAllowedEnd)) end = maxAllowedEnd;
 
-                          if (index + 1 < newDivisions.length) {
-                            const nextStart = dayjs(newDivisions[index + 1][1]);
-                            if (dayjs(end).isBefore(nextStart)) {
-                              newDivisions[index + 1][0] = dayjs(end).add(
-                                1,
+                            const fiscalEndDate = activeFiscalYear?.endDate
+                              ? dayjs(activeFiscalYear.endDate)
+                              : null;
+                            if (fiscalEndDate && end.isAfter(fiscalEndDate)) {
+                              end = fiscalEndDate;
+                            }
+                            if (index + 1 < divisions.length) {
+                              const nextRangeEnd = dayjs(
+                                divisions[index + 1][1],
+                              );
+                              const latestAllowedBeforeNext =
+                                nextRangeEnd.subtract(1, 'day');
+                              if (end.isAfter(latestAllowedBeforeNext)) {
+                                end = latestAllowedBeforeNext;
+                              }
+                            }
+
+                            const newDivisions = [...divisions];
+
+                            newDivisions[index] = [start, end];
+                            form.setFieldsValue({
+                              [`range${index}`]: [start, end],
+                            });
+
+                            if (index + 1 < newDivisions.length) {
+                              const nextStart = dayjs(
+                                newDivisions[index + 1][1],
+                              );
+                              if (dayjs(end).isBefore(nextStart)) {
+                                newDivisions[index + 1][0] = dayjs(end).add(
+                                  1,
+                                  'day',
+                                );
+                              }
+                            }
+
+                            if (index - 1 >= 0) {
+                              const prevEnd = dayjs(newDivisions[index - 1][1]);
+                              if (dayjs(start).isAfter(prevEnd)) {
+                                newDivisions[index - 1][1] = dayjs(
+                                  start,
+                                ).subtract(1, 'day');
+                              }
+                            }
+
+                            setDivisions(newDivisions);
+                          }}
+                          disabledDate={(currentDate) => {
+                            const nextRangeEnd =
+                              index + 1 < divisions.length
+                                ? dayjs(divisions[index + 1][1])
+                                : null;
+                            const prevRangeEnd =
+                              index - 1 >= 0
+                                ? dayjs(divisions[index - 1][1])
+                                : null;
+                            const startDate = range[0] ? dayjs(range[0]) : null;
+                            const fiscalEndDate = activeFiscalYear?.endDate
+                              ? dayjs(activeFiscalYear.endDate)
+                              : null;
+                            const fiscalStartDate = activeFiscalYear?.startDate
+                              ? dayjs(activeFiscalYear.startDate)
+                              : null;
+
+                            if (
+                              nextRangeEnd &&
+                              (currentDate.isSame(nextRangeEnd, 'day') ||
+                                currentDate.isAfter(nextRangeEnd))
+                            ) {
+                              return true;
+                            }
+
+                            if (
+                              fiscalEndDate &&
+                              currentDate.isAfter(fiscalEndDate)
+                            ) {
+                              return true;
+                            }
+
+                            if (
+                              fiscalStartDate &&
+                              currentDate.isBefore(fiscalStartDate)
+                            ) {
+                              return true;
+                            }
+
+                            if (
+                              prevRangeEnd &&
+                              currentDate.isBefore(prevRangeEnd.add(1, 'day'))
+                            ) {
+                              return true;
+                            }
+
+                            // Only constrain window when selecting the end date for this specific range
+                            if (
+                              activePicker.index === index &&
+                              activePicker.part === 'end' &&
+                              startDate
+                            ) {
+                              const rules = getSpanRulesForMode(payPeriodMode);
+                              const minAllowedEnd = startDate.add(
+                                rules.min - 1,
                                 'day',
                               );
+                              const maxAllowedEnd = startDate.add(
+                                rules.max - 1,
+                                'day',
+                              );
+                              if (
+                                currentDate.isBefore(minAllowedEnd) ||
+                                currentDate.isAfter(maxAllowedEnd)
+                              ) {
+                                return true;
+                              }
                             }
-                          }
 
-                          if (index - 1 >= 0) {
-                            const prevEnd = dayjs(newDivisions[index - 1][1]);
-                            if (dayjs(start).isAfter(prevEnd)) {
-                              newDivisions[index - 1][1] = dayjs(
-                                start,
-                              ).subtract(1, 'day');
-                            }
-                          }
-
-                          setDivisions(newDivisions);
-                        }}
-                        disabledDate={(currentDate) => {
-                          const nextRangeEnd =
-                            index + 1 < divisions.length
-                              ? dayjs(divisions[index + 1][1])
-                              : null;
-                          const prevRangeEnd =
-                            index - 1 >= 0
-                              ? dayjs(divisions[index - 1][1])
-                              : null;
-                          const startDate = range[0] ? dayjs(range[0]) : null;
-
-                          if (
-                            nextRangeEnd &&
-                            (currentDate.isSame(nextRangeEnd, 'day') ||
-                              currentDate.isAfter(nextRangeEnd))
-                          ) {
-                            return true;
-                          }
-
-                          if (
-                            currentDate.isAfter(
-                              dayjs(activeFiscalYear?.endDate),
-                            )
-                          ) {
-                            return true;
-                          }
-
-                          if (
-                            prevRangeEnd &&
-                            currentDate.isBefore(prevRangeEnd.add(1, 'day'))
-                          ) {
-                            return true;
-                          }
-
-                          if (startDate && currentDate.isBefore(startDate)) {
-                            return true;
-                          }
-
-                          return false;
-                        }}
-                      />
+                            return false;
+                          }}
+                        />
+                      </Form.Item>
                       <Form.Item
                         name={`monthId${index}`}
                         label="Pay Period month"
@@ -333,38 +503,8 @@ const PayPeriodSideBar = () => {
                           onChange={(value) => handleMonthSelect(value, index)}
                         >
                           {(() => {
-                            // const rangeStart = dayjs(range[0]);
-                            // const rangeEnd = dayjs(range[1]);
-                            // const rangeAverage = rangeStart.add(
-                            //   rangeEnd.diff(rangeStart) / 2,
-                            //   'ms',
-                            // );
-
                             const suitableMonths =
                               monthsWithStartEndDates ?? [];
-                            // .filter((month) => {
-                            //   const startDate = dayjs(month.startDate);
-                            //   return startDate.isSameOrBefore(
-                            //     rangeEnd,
-                            //     'month',
-                            //   );
-                            // })
-                            // .map((month) => ({
-                            //   ...month,
-                            //   distance: Math.abs(
-                            //     dayjs(month.startDate).diff(
-                            //       rangeAverage,
-                            //       'days',
-                            //     ),
-                            //   ),
-                            // }))
-                            // .sort((a, b) => a.distance - b.distance)
-                            // .slice(0, 3)
-                            // .sort((a, b) => {
-                            //   const startDateA = dayjs(a.startDate);
-                            //   const startDateB = dayjs(b.startDate);
-                            //   return startDateA.isBefore(startDateB) ? -1 : 1;
-                            // });
                             return suitableMonths.map((month) => (
                               <Option key={month.id} value={month.id}>
                                 {`${month?.monthName}`}
