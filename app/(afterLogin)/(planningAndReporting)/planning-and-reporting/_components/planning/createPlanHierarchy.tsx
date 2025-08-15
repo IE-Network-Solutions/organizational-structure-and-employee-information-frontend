@@ -67,12 +67,18 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
       (i: any) => i.isReported === false,
     )?.tasks || [],
   );
-  // const parentName = planningPeriodHierarchy?.parentPlan?.name;
-  // const parentParentId = planningPeriodHierarchy?.parentPlan?.plans[0]?.id;
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
     (i: any) => i.isReported === false,
   )?.id;
 
+  const buildKey = (
+    keyResultId?: string | number,
+    milestoneId?: string | number | null,
+    taskId?: string | number | null,
+  ) =>
+    `${String(keyResultId ?? '')}${String(milestoneId ?? '')}${String(taskId ?? '')}`;
+
+  const statuses: Record<string, boolean> = {};
 
   return (
     <Collapse>
@@ -102,43 +108,50 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       <span className="font-bold">Milestone:</span>
                       <span className="text-xs ml-2">{milestone.title}</span>
                     </div>
-                    {/* <div className="flex items-center">
-                    <span className="font-normal  ml-3 mt-2">{parentName} Tasks:</span>
-                    
-                  </div> */}
 
-                    {milestone.tasks.map((task, taskIndex) => (
-                      <div key={task.id} className="ml-4">
-                        <div className="flex items-center mb-2 justify-between">
-                          <div className="flex items-center gap-1">
-                            <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
-                              {taskIndex + 1}.
-                            </span>
-                            <span className="text-[12px] font-normal">
-                              {task.task}
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <Button
-                              id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
-                              onClick={() => {
-                                setMKAsATask(null);
-                                handleAddBoard(
-                                  `${keyResult.id}${milestone.id}${task.id}`,
-                                );
-                              }}
-                              type="link"
-                              icon={<BiPlus size={14} />}
-                              className="text-[10px]"
-                            >
-                              Add Plan Task
-                            </Button>
-                            <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                              {weights[
-                                `names-${keyResult.id}${milestone.id}${task.id}`
-                              ] || 0}
-                              %
-
+                    {milestone.tasks.map((task, taskIndex) => {
+                      const compositeKey = buildKey(
+                        task?.keyResult?.id,
+                        milestone?.id,
+                        task?.id,
+                      );
+                      return (
+                        <div key={task.id} className="ml-4">
+                          <div className="flex items-center mb-2 justify-between">
+                            <div className="flex items-center gap-1">
+                              <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
+                                {taskIndex + 1}.
+                              </span>
+                              <span className="text-[12px] font-normal">
+                                {task.task}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              <Button
+                                id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
+                                onClick={() => {
+                                  setMKAsATask(null);
+                                  handleAddBoard(compositeKey);
+                                }}
+                                type="link"
+                                icon={<BiPlus size={14} />}
+                                className="text-[10px]"
+                                disabled={
+                                  statuses[milestone?.id] ||
+                                  milestone?.status === 'Completed' ||
+                                  Number(keyResult?.progress) === 100 ||
+                                  (form?.getFieldValue(`names-${compositeKey}`)
+                                    ?.length ?? 0) > 0 ||
+                                  form
+                                    ?.getFieldValue(`names-${compositeKey}`)
+                                    ?.some((i: any) => i?.achieveMK)
+                                }
+                              >
+                                Add Plan Task
+                              </Button>
+                              <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                                {weights[`names-${compositeKey}`] || 0}%
+                              </div>
                             </div>
                           </div>
                           <Divider className="my-2" />
@@ -176,14 +189,12 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                   </div>
                 ))}
 
-                {/* <div className="flex items-center">
-                    <span className="font-normal  ml-3 mt-2">{parentName} Tasks:</span>
-                    
-                  </div> */}
-
-
                 {keyResult.tasks.map((task, taskIndex) => {
-                  const compositeKey = buildKey(task?.keyResult?.id, undefined, task?.id);
+                  const compositeKey = buildKey(
+                    task?.keyResult?.id,
+                    undefined,
+                    task?.id,
+                  );
                   return (
                     <div key={task.id} className="ml-4 mt-2">
                       <div className="flex items-center mb-2 justify-between">
@@ -196,34 +207,31 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           </span>
                         </div>
                         <div className="flex items-center">
+                          <Button
+                            id={`plan-as-task_${keyResult?.id ?? ''}${task?.id ?? ''}`}
+                            onClick={() => {
+                              setMKAsATask(null);
+                              handleAddBoard(compositeKey);
+                            }}
+                            type="link"
+                            icon={<BiPlus />}
+                            className="text-[10px]"
+                            disabled={
+                              statuses[keyResult?.id] ||
+                              Number(keyResult?.progress) === 100 ||
+                              (form?.getFieldValue(`names-${compositeKey}`)
+                                ?.length ?? 0) > 0 ||
+                              form
+                                ?.getFieldValue(`names-${compositeKey}`)
+                                ?.some((i: any) => i?.achieveMK)
+                            }
+                          >
+                            Add Plan Task
+                          </Button>
 
-                        <Button
-
-                          id={`plan-as-task_${keyResult?.id ?? ''}${task?.id ?? ''}`}
-                          onClick={() => {
-                            setMKAsATask(null);
-                            handleAddBoard(`${keyResult.id}${task.id}`);
-                          }}
-
-                          type="link"
-                          icon={<BiPlus />}
-                          className="text-[10px]"
-                          disabled={
-
-                            statuses[keyResult?.id] ||
-                            Number(keyResult?.progress) === 100 ||
-                            ((form?.getFieldValue(`names-${compositeKey}`)?.length ?? 0) > 0) ||
-                            form?.getFieldValue(`names-${compositeKey}`)?.some((i: any) => i?.achieveMK)
-                          
-
-                          }
-                        >
-                          Add Plan Task
-                        </Button>
-
-                        <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                          {weights[`names-${keyResult.id}${task.id}`] || 0}%
-
+                          <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                            {weights[`names-${compositeKey}`] || 0}%
+                          </div>
                         </div>
                       </div>
                       <Divider className="my-2" />
@@ -244,7 +252,9 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       />
                       <BoardCardForm
                         form={form}
-                        handleAddName={(arg1, arg2) => handleAddName(arg1, arg2)}
+                        handleAddName={(arg1, arg2) =>
+                          handleAddName(arg1, arg2)
+                        }
                         handleRemoveBoard={handleRemoveBoard}
                         kId={task?.keyResult?.id}
                         name={compositeKey}
