@@ -1,6 +1,5 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { NationalityList } from '../employeInformationForm/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -37,10 +36,12 @@ const getNationality = async (id: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/nationality/${id}`, {
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/nationality/${id}`,
+      method: 'GET',
       headers,
     });
-    return response.data;
+    return response;
   } catch (error) {
     throw error;
   }

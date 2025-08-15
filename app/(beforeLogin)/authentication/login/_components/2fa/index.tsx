@@ -29,6 +29,7 @@ const TwoFactorAuth = () => {
     user2FA,
     loading,
   } = useAuthenticationStore();
+  console.log(localId, "localId")
 
   useEffect(() => {
     resetCountdown();

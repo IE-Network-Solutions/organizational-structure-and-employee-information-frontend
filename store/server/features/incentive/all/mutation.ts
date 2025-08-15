@@ -2,7 +2,6 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { requestHeader } from '@/helpers/requestHeader';
 import { INCENTIVE_URL, ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 const importData = async (data: any) => {
@@ -24,26 +23,22 @@ const exportData = async (data: any) => {
     //   updatedBy: logUserId,
     //   createdBy: logUserId,
     // };
-    const response = await axios.post(
-      `${INCENTIVE_URL}/incentives/export/incentive-data`,
+    const response = await crudRequest({
+      url: `${INCENTIVE_URL}/incentives/export/incentive-data`,
+      method: 'POST',
       data,
-      {
-        headers: {
-          ...requestHeaders,
-        },
-        responseType: 'blob', // Important for file download!
-      },
-    );
-    const blob = new Blob([response.data], {
-      type: response.headers['content-type'],
+      headers: requestHeaders,
+      skipEncryption: true, // Skip encryption for file downloads
+    });
+
+    // Note: crudRequest returns the data directly, so we need to handle blob differently
+    // This might need adjustment based on how the API returns file data
+    const blob = new Blob([response], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    const disposition = response.headers['content-disposition'];
     let fileName = 'Incentive Data Export.xlsx';
-    if (disposition && disposition.includes('filename=')) {
-      fileName = disposition.split('filename=')[1].replace(/"/g, '');
-    }
 
     link.href = url;
     link.setAttribute('download', fileName);

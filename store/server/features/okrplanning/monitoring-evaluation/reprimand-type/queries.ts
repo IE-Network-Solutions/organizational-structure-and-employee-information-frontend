@@ -1,9 +1,9 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
 import { ReprimandType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-type/interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { crudRequest } from '@/utils/crudRequest';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -29,13 +29,12 @@ const getAppType = async () => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/recognition-type?type=reprimand`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/recognition-type?type=reprimand`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -46,6 +45,17 @@ const getAppType = async () => {
  * @param id The ID of the post to fetch
  * @returns The response data from the API
  */
+const getReprimandType = async (id: string) => {
+  try {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/reprimand-type/${id}`,
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.

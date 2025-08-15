@@ -210,13 +210,12 @@ const getActiveEmployee = async () => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -226,18 +225,24 @@ export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
 
 const getEmployee = async (id: string) => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
   try {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`, {
-      headers,
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employees/${id}`,
+      method: 'GET',
     });
-    return response.data;
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUser = async (id: string) => {
+  try {
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/${id}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }

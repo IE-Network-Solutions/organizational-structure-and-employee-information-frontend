@@ -30,6 +30,7 @@ export default function OkrTab() {
   // const { data: departments } = useGetUserDepartment();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
+  console.log(userData, ")))))");
   const departmentId = userData?.employeeJobInformation[0]?.departmentId;
   const users =
     departmentUsers
@@ -200,150 +201,150 @@ export default function OkrTab() {
           },
           ...(canVieTeamOkr
             ? [
-                {
-                  key: '2',
-                  label: 'Team OKR',
-                  children: (
-                    <div id="team-okr-tab-content">
-                      <OkrProgress />
-                      {teamLoading && (
-                        <Spin
-                          size="large"
-                          style={{ color: 'white' }}
-                          className="text-white text-center flex w-full justify-center"
-                        />
-                      )}
-                      {teamObjective?.items?.length !== 0 && (
-                        <div id="team-okr-objectives-list">
-                          {teamObjective?.items?.map((obj: any) => (
-                            <ObjectiveCard
-                              key={obj.id}
-                              myOkr={false}
-                              objective={obj}
-                            />
-                          ))}
-                          {isMobile || isTablet ? (
-                            <CustomMobilePagination
-                              totalResults={
-                                teamObjective?.meta?.totalItems ?? 0
-                              }
-                              pageSize={teamPageSize}
-                              currentPage={teamCurrentPage}
-                              onChange={(page, pageSize) => {
-                                setTeamCurrentPage(page);
-                                setTeamPageSize(pageSize);
-                              }}
-                              onShowSizeChange={(size) => {
-                                setTeamPageSize(size);
-                              }}
-                            />
-                          ) : (
-                            <CustomPagination
-                              current={teamObjective?.meta?.currentPage || 1}
-                              total={teamObjective?.meta?.totalItems || 1}
-                              pageSize={teamPageSize}
-                              onChange={(page, pageSize) => {
-                                setTeamCurrentPage(page);
-                                setTeamPageSize(pageSize);
-                              }}
-                              onShowSizeChange={(size) => {
-                                setTeamPageSize(size);
-                                setTeamCurrentPage(1);
-                              }}
-                            />
-                          )}
-                        </div>
-                      )}
-                      {teamObjective?.items?.length === 0 && (
-                        <div
-                          id="team-okr-empty-state"
-                          className="flex justify-center"
-                        >
-                          <EmptyImage />
-                        </div>
-                      )}
-                    </div>
-                  ),
-                },
-              ]
+              {
+                key: '2',
+                label: 'Team OKR',
+                children: (
+                  <div id="team-okr-tab-content">
+                    <OkrProgress />
+                    {teamLoading && (
+                      <Spin
+                        size="large"
+                        style={{ color: 'white' }}
+                        className="text-white text-center flex w-full justify-center"
+                      />
+                    )}
+                    {teamObjective?.items?.length !== 0 && (
+                      <div id="team-okr-objectives-list">
+                        {teamObjective?.items?.map((obj: any) => (
+                          <ObjectiveCard
+                            key={obj.id}
+                            myOkr={false}
+                            objective={obj}
+                          />
+                        ))}
+                        {isMobile || isTablet ? (
+                          <CustomMobilePagination
+                            totalResults={
+                              teamObjective?.meta?.totalItems ?? 0
+                            }
+                            pageSize={teamPageSize}
+                            currentPage={teamCurrentPage}
+                            onChange={(page, pageSize) => {
+                              setTeamCurrentPage(page);
+                              setTeamPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setTeamPageSize(size);
+                            }}
+                          />
+                        ) : (
+                          <CustomPagination
+                            current={teamObjective?.meta?.currentPage || 1}
+                            total={teamObjective?.meta?.totalItems || 1}
+                            pageSize={teamPageSize}
+                            onChange={(page, pageSize) => {
+                              setTeamCurrentPage(page);
+                              setTeamPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setTeamPageSize(size);
+                              setTeamCurrentPage(1);
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {teamObjective?.items?.length === 0 && (
+                      <div
+                        id="team-okr-empty-state"
+                        className="flex justify-center"
+                      >
+                        <EmptyImage />
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+            ]
             : []),
           ...(canVieCompanyOkr
             ? [
-                {
-                  key: '3',
-                  label: 'Company OKR',
-                  children: (
-                    <div id="company-okr-tab-content">
-                      {companyLoading && (
-                        <Spin
-                          size="large"
-                          style={{ color: 'white' }}
-                          className="text-white text-center flex w-full justify-center"
-                        />
-                      )}
-                      <OkrProgress />
-                      {companyObjective?.items?.length !== 0 && (
-                        <div id="company-okr-objectives-list">
-                          {companyObjective?.items?.map((obj: any) => (
-                            <ObjectiveCard
-                              key={obj.id}
-                              myOkr={false}
-                              objective={obj}
-                            />
-                          ))}
-                          {isMobile || isTablet ? (
-                            <CustomMobilePagination
-                              totalResults={
-                                companyObjective?.meta?.totalItems ?? 0
-                              }
-                              pageSize={companyPageSize}
-                              currentPage={companyCurrentPage}
-                              onChange={(page, pageSize) => {
-                                setCompanyCurrentPage(page);
-                                setCompanyPageSize(pageSize);
-                              }}
-                              onShowSizeChange={(size) => {
-                                setCompanyPageSize(size);
-                              }}
-                            />
-                          ) : (
-                            <CustomPagination
-                              current={companyObjective?.meta?.currentPage || 1}
-                              total={companyObjective?.meta?.totalItems || 1}
-                              pageSize={companyPageSize}
-                              onChange={(page, pageSize) => {
-                                setCompanyCurrentPage(page);
-                                setCompanyPageSize(pageSize);
-                              }}
-                              onShowSizeChange={(size) => {
-                                setCompanyPageSize(size);
-                                setCompanyCurrentPage(1);
-                              }}
-                            />
-                          )}
-                        </div>
-                      )}
-                      {companyObjective?.items?.length === 0 && (
-                        <div
-                          id="company-okr-empty-state"
-                          className="flex justify-center"
-                        >
-                          <EmptyImage />
-                        </div>
-                      )}
-                    </div>
-                  ),
-                },
-                {
-                  key: '4',
-                  label: 'All Employee OKR',
-                  children: (
-                    <div id="all-employee-okr-tab-content">
-                      <EmployeeOKRTable />
-                    </div>
-                  ),
-                },
-              ]
+              {
+                key: '3',
+                label: 'Company OKR',
+                children: (
+                  <div id="company-okr-tab-content">
+                    {companyLoading && (
+                      <Spin
+                        size="large"
+                        style={{ color: 'white' }}
+                        className="text-white text-center flex w-full justify-center"
+                      />
+                    )}
+                    <OkrProgress />
+                    {companyObjective?.items?.length !== 0 && (
+                      <div id="company-okr-objectives-list">
+                        {companyObjective?.items?.map((obj: any) => (
+                          <ObjectiveCard
+                            key={obj.id}
+                            myOkr={false}
+                            objective={obj}
+                          />
+                        ))}
+                        {isMobile || isTablet ? (
+                          <CustomMobilePagination
+                            totalResults={
+                              companyObjective?.meta?.totalItems ?? 0
+                            }
+                            pageSize={companyPageSize}
+                            currentPage={companyCurrentPage}
+                            onChange={(page, pageSize) => {
+                              setCompanyCurrentPage(page);
+                              setCompanyPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setCompanyPageSize(size);
+                            }}
+                          />
+                        ) : (
+                          <CustomPagination
+                            current={companyObjective?.meta?.currentPage || 1}
+                            total={companyObjective?.meta?.totalItems || 1}
+                            pageSize={companyPageSize}
+                            onChange={(page, pageSize) => {
+                              setCompanyCurrentPage(page);
+                              setCompanyPageSize(pageSize);
+                            }}
+                            onShowSizeChange={(size) => {
+                              setCompanyPageSize(size);
+                              setCompanyCurrentPage(1);
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {companyObjective?.items?.length === 0 && (
+                      <div
+                        id="company-okr-empty-state"
+                        className="flex justify-center"
+                      >
+                        <EmptyImage />
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                key: '4',
+                label: 'All Employee OKR',
+                children: (
+                  <div id="all-employee-okr-tab-content">
+                    <EmployeeOKRTable />
+                  </div>
+                ),
+              },
+            ]
             : []),
         ]}
       />

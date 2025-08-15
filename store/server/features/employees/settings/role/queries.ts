@@ -78,11 +78,12 @@ const getRole = async (id: string | null) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/roles/find-one-role-with-permissions/role-permissions/${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }

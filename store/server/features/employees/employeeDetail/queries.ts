@@ -1,8 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { crudRequest } from '@/utils/crudRequest';
 
 const getEmployee = async (id: string) => {
   // Prevent API call if id is not available
@@ -18,10 +18,12 @@ const getEmployee = async (id: string) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`, {
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/${id}`,
+      method: 'GET',
       headers,
     });
-    return response.data;
+    return response;
   } catch (error) {
     throw error;
   }
@@ -32,16 +34,15 @@ const getSimpleEmployee = async (id: string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/users/simple-info/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          tenantId: tenantId,
-        },
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/simple-info/${id}`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
       },
-    );
-    return response.data;
+    });
+    return response;
   } catch (error) {
     throw error;
   }

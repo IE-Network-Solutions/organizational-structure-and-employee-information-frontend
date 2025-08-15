@@ -1,9 +1,10 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { KeyResult } from '@/store/uistate/features/okrplanning/okr/interface';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { crudRequest } from '@/utils/crudRequest';
+import { OKR_URL } from '@/utils/constants';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 type ResponseData = {
@@ -18,10 +19,11 @@ const getKeyResultByUser = async (id: number | string): Promise<any> => {
         Authorization: `Bearer ${token}`, // Ensure token is available
         tenantId: tenantId, // Ensure tenantId is available
       };
-      const response = await axios.get(
-        `${OKR_AND_PLANNING_URL}/key-results/user/${id}`,
-        { headers },
-      );
+      const response = await crudRequest({
+        url: `${OKR_AND_PLANNING_URL}/key-results/user/${id}`,
+        method: 'GET',
+        headers,
+      });
 
       if (response.status === 200) {
         return response.data; // Return data if the request is successful
@@ -44,3 +46,15 @@ export const useGetUserKeyResult = (postId: number | string) =>
       keepPreviousData: true,
     },
   );
+
+const getKeyResult = async (id: string) => {
+  try {
+    const response = await crudRequest({
+      url: `${OKR_URL}/key-results/${id}`,
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};

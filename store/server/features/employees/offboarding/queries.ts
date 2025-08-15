@@ -2,7 +2,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useQuery } from 'react-query';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
-import axios from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -26,11 +25,12 @@ const fetchOffBoardingTasks = async (userId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/offboarding-employee-tasks/termination/${userId}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/offboarding-employee-tasks/termination/${userId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -43,11 +43,36 @@ const fetchUserTermination = async (userId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/employee-termination/users/${userId}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employee-termination/users/${userId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getOffboarding = async (id: string) => {
+  try {
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/offboarding/${id}`,
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getOffboardingByUser = async (id: string) => {
+  try {
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/offboarding/user/${id}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }

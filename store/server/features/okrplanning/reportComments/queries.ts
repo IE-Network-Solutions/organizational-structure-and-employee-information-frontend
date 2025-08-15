@@ -18,13 +18,12 @@ const getPlanComments = async () => {
  * @returns The response data from the API
  */
 
-const getComment = async (id: number) => {
-  try {
-    const response = await axios.get(`${OKR_URL}/report-comments/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const getReportComment = async (id: string) => {
+  const response = await crudRequest({
+    url: `${OKR_URL}/report-comments/${id}`,
+    method: 'GET',
+  });
+  return response;
 };
 
 /**
@@ -51,6 +50,6 @@ export const useGetComments = () =>
  * while the new data is being fetched.
  */
 export const useGetComment = (postId: number) =>
-  useQuery<any>(['reportComments', postId], () => getComment(postId), {
+  useQuery<any>(['reportComments', postId], () => getReportComment(postId.toString()), {
     keepPreviousData: true,
   });

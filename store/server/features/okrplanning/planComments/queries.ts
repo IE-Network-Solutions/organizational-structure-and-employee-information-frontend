@@ -20,8 +20,11 @@ const getPlanComments = async () => {
 
 const getComment = async (id: number) => {
   try {
-    const response = await axios.get(`${OKR_URL}/plan-comments/${id}`);
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_URL}/plan-comments/${id}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }
