@@ -249,6 +249,7 @@ function CreateReport() {
     );
   }, 0);
 
+
   const { userId } = useAuthenticationStore();
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
     userId,
@@ -257,6 +258,7 @@ function CreateReport() {
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
     (i: any) => i.isReported === false,
   )?.id;
+
 
   return (
     openReportModal && (
