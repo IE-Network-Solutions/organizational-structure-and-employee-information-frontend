@@ -1405,6 +1405,7 @@
 "@humanwhocodes/object-schema@^2.0.3":
   version "2.0.3"
 
+
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
   resolved "https://registry.npmjs.org/@isaacs/cliui/-/cliui-8.0.2.tgz"
@@ -1670,6 +1671,8 @@
 "@napi-rs/canvas-linux-x64-musl@0.1.74":
   version "0.1.74"
 
+
+
 "@napi-rs/canvas@^0.1.67":
   version "0.1.74"
   optionalDependencies:
@@ -1702,12 +1705,14 @@
     glob "10.3.10"
 
 "@next/swc-linux-x64-gnu@14.2.5":
+
   version "14.2.5"
   resolved "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-14.2.5.tgz"
   integrity sha512-8XFikMSxWleYNryWIjiCX+gU201YS+erTUidKdyOVYi5qUQo/gRxv/3N1oZFCgqpesN6FPeqGM72Zve+nReVXQ==
 
 "@next/swc-linux-x64-musl@14.2.5":
   version "14.2.5"
+
   resolved "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-14.2.5.tgz"
   integrity sha512-6QLwi7RaYiQDcRDSU/os40r5o06b5ue7Jsk5JgdRBGGp8l37RZEh9JsLSM8QF0YDsgcosSeHjglgqi25+m04IQ==
 
@@ -2787,6 +2792,8 @@
 
 "@unrs/resolver-binding-linux-x64-musl@1.11.1":
   version "1.11.1"
+
+
 
 "@webassemblyjs/ast@^1.14.1", "@webassemblyjs/ast@1.14.1":
   version "1.14.1"

@@ -181,6 +181,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                     
                   </div> */}
 
+
                 {keyResult.tasks.map((task, taskIndex) => {
                   const compositeKey = buildKey(task?.keyResult?.id, undefined, task?.id);
                   return (
@@ -195,6 +196,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           </span>
                         </div>
                         <div className="flex items-center">
+
                         <Button
 
                           id={`plan-as-task_${keyResult?.id ?? ''}${task?.id ?? ''}`}

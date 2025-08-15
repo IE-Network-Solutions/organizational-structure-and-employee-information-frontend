@@ -122,8 +122,10 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               disabledDate={(current) => {
                 // Get the last position's effective start date
                 const jobInformation = employeeData?.employeeJobInformation;
+
                 if (!jobInformation || jobInformation.length === 0)
                   return false;
+
 
                 // Sort by effectiveStartDate to get the most recent position
                 const sortedJobs = [...jobInformation].sort((a, b) => {
@@ -132,8 +134,10 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
                   return dateB - dateA; // Sort in descending order (newest first)
                 });
 
+
                 const lastPositionDate = sortedJobs[0]?.effectiveStartDate;
                 if (!lastPositionDate) return false;
+
 
                 // Disable dates before the last position's effective start date
                 const lastPosition = dayjs(lastPositionDate);
@@ -147,8 +151,10 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
+
               The effective start date cannot be before the employee&apos;s last
               position start date.
+
             </div>
           </div>
         </Col>
