@@ -65,6 +65,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartmentId(value);
+    setSwitchValue(false);
+    form.setFieldValue('departmentLeadOrNot', false);
   };
 
   const handleTeamLeadChange = (checked: boolean) => {
