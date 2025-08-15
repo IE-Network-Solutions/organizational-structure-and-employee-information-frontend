@@ -1,11 +1,9 @@
 import React from 'react';
-import { Collapse, Button, Divider, Tooltip } from 'antd';
+import { Collapse, Button, Divider } from 'antd';
 import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from '../planForms/boardFormView';
 import DefaultCardForm from '../planForms/defaultForm';
 import { groupParentTasks } from '../dataTransformer/plan';
-import { FaPlus } from 'react-icons/fa';
-import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface Plan {
   id: string;
@@ -74,13 +72,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
     (i: any) => i.isReported === false,
   )?.id;
-  const { statuses, setClickStatus } = useClickStatus();
 
-  const buildKey = (
-    keyResultId?: string | number,
-    milestoneId?: string | number | null,
-    taskId?: string | number | null,
-  ) => `${String(keyResultId ?? '')}${String(milestoneId ?? '')}${String(taskId ?? '')}`;
 
   return (
     <Collapse>
@@ -114,73 +106,39 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                     <span className="font-normal  ml-3 mt-2">{parentName} Tasks:</span>
                     
                   </div> */}
-                    {milestone.tasks.map((task, taskIndex) => {
-                      const compositeKey = buildKey(task?.keyResult?.id, milestone?.id, task?.id);
-                      return (
-                        <div key={task.id} className="ml-4">
-                          <div className="flex items-center mb-2 justify-between">
-                            <div className="flex items-center gap-1">
-                              <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
-                                {taskIndex + 1}.
-                              </span>
-                              <span className="text-[12px] font-normal">
-                                {task.task}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <Button
-                                id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
-                                disabled={
-                                  statuses[milestone?.id] ||
-                                      milestone?.status === 'Completed' ||
-                                      Number(keyResult?.progress) === 100 ||
-                                      ((form?.getFieldValue(`names-${compositeKey}`)?.length ?? 0) > 0) ||
-                                      form?.getFieldValue(`names-${compositeKey}`)?.some((i: any) => i?.achieveMK)
-                                    
-                                }
-                                onClick={() => {
-                                  setMKAsATask(null);
-                                  handleAddBoard(compositeKey);
-                                }}
-                                type="link"
-                                icon={<BiPlus size={12} />}
-                                className="text-[10px]"
-                              >
-                                Add Plan Task
-                              </Button>
-                              {task?.achieveMK && (
-                                <Tooltip title="Plan Milestone as a Task">
-                                  <Button
-                                    id="plan-milestone-as-task"
-                                    disabled={
-                                      statuses[milestone?.id] ||
-                                      milestone?.status === 'Completed' ||
-                                      Number(keyResult?.progress) === 100 ||
-                                      ((form?.getFieldValue(`names-${compositeKey}`)?.length ?? 0) > 0) ||
-                                      form?.getFieldValue(`names-${compositeKey}`)?.some((i: any) => i?.achieveMK)
-                                    }
-                                    onClick={() => {
-                                      if (!statuses[milestone?.id]) {
-                                        setMKAsATask({
-                                          title: milestone?.title,
-                                          mid: milestone?.id,
-                                        });
-                                        handleAddBoard(compositeKey);
-                                        setClickStatus(milestone?.id + '', true); // Store click status in Zustand
-                                      }
-                                    }}
-                                    size="small"
-                                    className="text-[10px] text-primary"
-                                    icon={<FaPlus />}
-                                  />
-                                </Tooltip>
-                              )}
-                              <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                                {weights[
-                                  `names-${compositeKey}`
-                                ] || 0}
-                                %
-                              </div>
+
+                    {milestone.tasks.map((task, taskIndex) => (
+                      <div key={task.id} className="ml-4">
+                        <div className="flex items-center mb-2 justify-between">
+                          <div className="flex items-center gap-1">
+                            <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
+                              {taskIndex + 1}.
+                            </span>
+                            <span className="text-[12px] font-normal">
+                              {task.task}
+                            </span>
+                          </div>
+                          <div className="flex items-center">
+                            <Button
+                              id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
+                              onClick={() => {
+                                setMKAsATask(null);
+                                handleAddBoard(
+                                  `${keyResult.id}${milestone.id}${task.id}`,
+                                );
+                              }}
+                              type="link"
+                              icon={<BiPlus size={14} />}
+                              className="text-[10px]"
+                            >
+                              Add Plan Task
+                            </Button>
+                            <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                              {weights[
+                                `names-${keyResult.id}${milestone.id}${task.id}`
+                              ] || 0}
+                              %
+
                             </div>
                           </div>
                           <Divider className="my-2" />
@@ -238,8 +196,12 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                         </div>
                         <div className="flex items-center">
                         <Button
-                          id={`plan-as-task_${keyResult?.id ?? ''}`}
-                          onClick={() => handleAddBoard(compositeKey)}
+
+                          id={`plan-as-task_${keyResult?.id ?? ''}${task?.id ?? ''}`}
+                          onClick={() => {
+                            setMKAsATask(null);
+                            handleAddBoard(`${keyResult.id}${task.id}`);
+                          }}
 
                           type="link"
                           icon={<BiPlus />}
@@ -257,37 +219,8 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           Add Plan Task
                         </Button>
 
-                          {task?.achieveMK && (
-                            <Tooltip title="Plan key result as a Task">
-                              <Button
-
-                              id="plan-key-result-as-task"
-                              size="small"
-                              className="text-[10px] text-primary"
-                              icon={<FaPlus />}
-                              disabled={
-
-                                statuses[keyResult?.id] ||
-                                Number(keyResult?.progress) === 100 ||
-                                ((form?.getFieldValue(`names-${compositeKey}`)?.length ?? 0) > 0) ||
-                                form?.getFieldValue(`names-${compositeKey}`)?.some((i: any) => i?.achieveMK)
-
-                              }
-                              onClick={() => {
-                                setMKAsATask({
-                                  title: keyResult?.title,
-                                  mid: keyResult?.id,
-                                });
-
-                                setClickStatus(keyResult?.id + '', true);
-                                handleAddBoard(compositeKey);
-                              }}
-                            />
-                            </Tooltip>
-                          )}
-                          <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                            {weights[`names-${compositeKey}`] || 0}%
-                          </div>
+                        <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
+                          {weights[`names-${keyResult.id}${task.id}`] || 0}%
 
                         </div>
                       </div>
