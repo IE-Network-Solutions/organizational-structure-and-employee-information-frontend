@@ -377,18 +377,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         //   key: '/tna/my-training',
         //   className: 'font-bold',
         //   permissions: ['view_my_training'],
+
+        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
+
         // },
         {
           title: <span>Training Management</span>,
           key: '/tna/management',
           className: 'font-bold',
           permissions: ['manage_training'],
+
+
         },
         // {
         //   title: <span>TNA</span>,
         //   key: '/tna/review',
         //   className: 'font-bold',
         //   permissions: ['view_tna_review'],
+
+        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
+
         // },
         {
           title: <span>Settings</span>,
