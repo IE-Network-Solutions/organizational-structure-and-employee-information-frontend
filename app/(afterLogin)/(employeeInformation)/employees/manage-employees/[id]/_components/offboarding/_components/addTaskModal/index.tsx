@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Input, Select, Button, Form, Row } from 'antd';
+import { Modal, Input, Select, Button, Form, Row, message, Alert } from 'antd';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import {
   useAddOffboardingTasksTemplate,
@@ -16,20 +16,31 @@ interface Ids {
 export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
   const [form] = Form.useForm();
 
-  const { mutate: createTaskTemplate } = useAddOffboardingTasksTemplate();
-  const { mutate: createTaskList } = useAddTerminationTasks();
-  const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
+  const { mutate: createTaskTemplate, isLoading: isCreatingTemplate } =
+    useAddOffboardingTasksTemplate();
+  const { mutate: createTaskList, isLoading: isCreatingTask } =
+    useAddTerminationTasks();
+  const { data: offboardingTermination, isLoading: isTerminationLoading } =
+    useFetchUserTerminationByUserId(id);
   const { data: users } = useGetEmployees();
   const {
     isAddTaskModalVisible,
     isTaskTemplateVisible,
     setIsAddTaskModalVisible,
+    setIsEmploymentFormVisible,
   } = useOffboardingStore();
+
   const handleClose = () => {
     setIsAddTaskModalVisible(false);
     form.resetFields();
   };
-  const createTsks = (values: any) => {
+
+  const handleCreateTermination = () => {
+    setIsAddTaskModalVisible(false);
+    setIsEmploymentFormVisible(true);
+  };
+
+  const createTasks = (values: any) => {
     if (offboardingTermination) {
       values.employeTerminationId = offboardingTermination?.id;
       createTaskList([values], {
@@ -37,18 +48,87 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           form.resetFields();
           setIsAddTaskModalVisible(false);
         },
+        onError: () => {
+          message.error('Failed to create task. Please try again.');
+        },
       });
+    } else {
+      message.error('Employee termination not found. Please try again.');
     }
   };
 
-  const createTsksTemplate = (values: any) => {
+  const createTasksTemplate = (values: any) => {
     createTaskTemplate(values, {
       onSuccess: () => {
         form.resetFields();
         setIsAddTaskModalVisible(false);
       },
+      onError: () => {
+        message.error('Failed to create task template. Please try again.');
+      },
     });
   };
+
+  const handleSubmit = (values: any) => {
+    if (isTaskTemplateVisible) {
+      createTasksTemplate(values);
+    } else {
+      createTasks(values);
+    }
+  };
+
+  const isLoading = isCreatingTemplate || isCreatingTask;
+
+  // Show loading state while fetching termination data
+  if (isTerminationLoading) {
+    return (
+      <Modal
+        title="Add Task"
+        centered
+        open={isAddTaskModalVisible}
+        onCancel={handleClose}
+        footer={false}
+      >
+        <div className="text-center py-8">
+          <div>Loading termination data...</div>
+        </div>
+      </Modal>
+    );
+  }
+
+  // Show message if no termination record exists
+  if (!offboardingTermination && !isTaskTemplateVisible) {
+    return (
+      <Modal
+        title="Add Task"
+        centered
+        open={isAddTaskModalVisible}
+        onCancel={handleClose}
+        footer={false}
+      >
+        <div className="py-4">
+          <Alert
+            message="Termination Record Required"
+            description="To add offboarding tasks, the employee must first have a termination record. Please create a termination record first."
+            type="warning"
+            showIcon
+            className="mb-4"
+          />
+          <div className="text-center">
+            <Button
+              type="primary"
+              onClick={handleCreateTermination}
+              className="mr-2"
+            >
+              Create Termination Record
+            </Button>
+            <Button onClick={handleClose}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
   return (
     <>
       <Modal
@@ -60,8 +140,9 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
       >
         <Form
           form={form}
-          onFinish={isTaskTemplateVisible ? createTsksTemplate : createTsks}
+          onFinish={handleSubmit}
           layout="vertical"
+          disabled={isLoading}
         >
           <Form.Item
             label={'Task Name'}
@@ -105,8 +186,9 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
                 htmlType="submit"
                 value={'submit'}
                 name="submit"
+                loading={isLoading}
               >
-                Submit
+                {isLoading ? 'Creating...' : 'Submit'}
               </Button>
               <Button
                 className="text-indigo-500"
@@ -114,6 +196,7 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
                 value={'cancel'}
                 name="cancel"
                 onClick={handleClose}
+                disabled={isLoading}
               >
                 Cancel{' '}
               </Button>
