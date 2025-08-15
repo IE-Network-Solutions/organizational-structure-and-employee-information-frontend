@@ -162,7 +162,7 @@ const EmployeeProfile = () => {
         bordered={false}
       >
         <Row gutter={[32, 32]}>
-          <Col sm={24} md={24} xs={24} lg={10} xl={10}>
+          <Col lg={8} md={10} xs={24}>
             <Card
               loading={isLoading}
               className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`}
