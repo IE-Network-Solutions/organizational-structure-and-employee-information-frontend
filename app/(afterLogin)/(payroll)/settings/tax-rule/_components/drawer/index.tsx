@@ -94,7 +94,7 @@ const Drawer: React.FC = () => {
               type="default"
               className="h-10 px-10"
               onClick={() => {
-                closeDrawer(), form.resetFields();
+                (closeDrawer(), form.resetFields());
               }}
             >
               Cancel
