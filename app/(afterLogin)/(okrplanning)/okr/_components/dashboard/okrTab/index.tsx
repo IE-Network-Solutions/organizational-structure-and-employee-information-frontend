@@ -30,7 +30,6 @@ export default function OkrTab() {
   // const { data: departments } = useGetUserDepartment();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
-  console.log(userData, ")))))");
   const departmentId = userData?.employeeJobInformation[0]?.departmentId;
   const users =
     departmentUsers
