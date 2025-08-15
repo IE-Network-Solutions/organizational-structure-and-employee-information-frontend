@@ -10,7 +10,6 @@ import { useParams } from 'next/navigation';
 
 import { useEffect } from 'react';
 
-
 interface Ids {
   id?: string;
   onInfoSubmition?: () => void;

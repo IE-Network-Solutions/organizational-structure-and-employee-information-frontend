@@ -128,7 +128,9 @@ const setAllFinalApproveLeaveRequest = async (data: any) => {
     data,
   });
 };
-const setAllLeaveRequestNotification = async (data?: LeaveRequestNotificationBody) => {
+const setAllLeaveRequestNotification = async (
+  data?: LeaveRequestNotificationBody,
+) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/current-approver/pending-leaves/notify`,

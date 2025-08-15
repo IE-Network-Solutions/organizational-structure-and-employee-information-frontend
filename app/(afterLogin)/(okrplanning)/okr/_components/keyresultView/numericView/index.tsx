@@ -47,7 +47,6 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
 
   const { isMobile } = useIsMobile();
 
-
   return (
     <div
       className={`py-3 rounded-lg p-4 relative pb-6 ${isEdit ? '' : 'bg-gray-50'}`}
