@@ -54,8 +54,12 @@ const EmployeeProfile = () => {
 
   const { data: employee, isLoading } = useGetEmployee(empId);
 
-  const { pageSize, currentPage } = usePayrollStore();
-  const { data: payroll } = useGetActivePayroll('', pageSize, currentPage);
+  const { pageSize } = usePayrollStore();
+  const { data: payroll } = useGetActivePayroll(
+    `&employeeId=${empId}`,
+    pageSize,
+    1,
+  );
   const { data: payrollHistory } = useGetPayrollHistory(empId);
 
   const {
@@ -159,7 +163,12 @@ const EmployeeProfile = () => {
       >
         <Row gutter={[32, 32]}>
           <Col lg={8} md={10} xs={24}>
-            <Card loading={isLoading} className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`} style={isMobile ? { width: '100%' } : {}} bordered={!isMobile}>
+            <Card
+              loading={isLoading}
+              className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`}
+              style={isMobile ? { width: '100%' } : {}}
+              bordered={!isMobile}
+            >
               <div className="flex flex-col gap-3 items-center">
                 <div className="relative group">
                   <Avatar

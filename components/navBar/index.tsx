@@ -272,12 +272,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <CiStar
             size={18}
-            className={expandedKeys.includes('okr-menu') ? 'text-blue' : ''}
+            className={expandedKeys.includes('/okr-menu') ? 'text-blue' : ''}
           />
           <span>OKR</span>
         </span>
       ),
-      key: 'okr-menu',
+      key: '/okr-menu',
       className: 'font-bold',
       permissions: ['view_okr'],
       disabled: hasEndedFiscalYear,
@@ -372,24 +372,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       permissions: ['view_learning_growth'],
       disabled: hasEndedFiscalYear,
       children: [
-        {
-          title: <span>My-TNA</span>,
-          key: '/tna/my-training',
-          className: 'font-bold',
-          permissions: ['view_my_training'],
-        },
+        // {
+        //   title: <span>My-TNA</span>,
+        //   key: '/tna/my-training',
+        //   className: 'font-bold',
+        //   permissions: ['view_my_training'],
+
+        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
+
+        // },
         {
           title: <span>Training Management</span>,
           key: '/tna/management',
           className: 'font-bold',
           permissions: ['manage_training'],
+
+
         },
-        {
-          title: <span>TNA</span>,
-          key: '/tna/review',
-          className: 'font-bold',
-          permissions: ['view_tna_review'],
-        },
+        // {
+        //   title: <span>TNA</span>,
+        //   key: '/tna/review',
+        //   className: 'font-bold',
+        //   permissions: ['view_tna_review'],
+
+        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
+
+        // },
         {
           title: <span>Settings</span>,
           key: '/tna/settings/course-category',
@@ -403,12 +411,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         <span className="flex items-center gap-2 h-12">
           <AiOutlineDollarCircle
             size={18}
-            className={expandedKeys.includes('payroll-menu') ? 'text-blue' : ''}
+            className={
+              expandedKeys.includes('/payroll-menu') ? 'text-blue' : ''
+            }
           />
           <span>Payroll</span>
         </span>
       ),
-      key: 'payroll-menu',
+      key: '/payroll-menu',
       className: 'font-bold',
       disabled: hasEndedFiscalYear,
       children: [
@@ -700,14 +710,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
-  const { data: departments } = useGetDepartments();
-  const { data: employeeData } = useGetEmployee(userId);
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetEmployee(userId);
   const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
     useEmployeeManagementStore();
-  useEffect(() => {
-    if (!departments || !employeeData) return;
 
-    if (departments.length === 0) {
+  const isLoadingData =
+    departmentsLoading || employeeDataLoading || !departments || !employeeData;
+
+  useEffect(() => {
+    if (isLoadingData) return;
+
+    if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
     } else if (
       !employeeData.employeeJobInformation ||
@@ -716,7 +732,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setIsAddEmployeeJobInfoModalVisible(true);
       setEmployeeJobInfoModalWidth('100%');
     }
-  }, [departments, employeeData, router]);
+  }, [departments, employeeData, router, isLoadingData]);
 
   // ✅ Check permission on pathname change
   useEffect(() => {
@@ -806,7 +822,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const filteredMenuItems = treeData
@@ -821,10 +837,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ...item,
         children: item.children
           ? item.children.filter((child) =>
-            AccessGuard.checkAccess({
-              permissions: child.permissions,
-            }),
-          )
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+              }),
+            )
           : [],
       };
     })
@@ -841,8 +857,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             {children.map((child) => (
               <div
                 key={child.key}
-                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
-                  }`}
+                className={`px-4 py-2 hover:bg-gray-100 rounded cursor-pointer ${
+                  selectedKeys.includes(child.key) ? 'bg-gray-100' : ''
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   const path = String(child.key);

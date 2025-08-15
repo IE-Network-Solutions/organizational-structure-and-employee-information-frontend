@@ -215,10 +215,12 @@ export const useOKRStore = create<OKRState>()(
             removedWeight / remainingKeyResults.length,
           );
 
-          let redistributedKeyResults = remainingKeyResults.map((kr: any) => ({
-            ...kr,
-            weight: Number(kr.weight || 0) + weightPerRemaining,
-          }));
+          const redistributedKeyResults = remainingKeyResults.map(
+            (kr: any) => ({
+              ...kr,
+              weight: Number(kr.weight || 0) + weightPerRemaining,
+            }),
+          );
 
           // Check if there's a rounding discrepancy and add 1% to the first key result
           const totalWeight = redistributedKeyResults.reduce(

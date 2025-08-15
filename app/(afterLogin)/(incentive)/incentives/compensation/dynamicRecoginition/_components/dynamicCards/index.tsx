@@ -23,9 +23,8 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
     parentRecognitionId,
     searchParams?.employee_name || '',
     searchParams?.byYear || ' ',
-    searchParams?.bySession || [],
+    searchParams?.bySession,
     searchParams?.byMonth || '',
-    searchParams?.byRecognition || '',
     pageSize,
     currentPage,
   );
@@ -35,6 +34,7 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
     if (isTablet) return 12;
     return 6;
   };
+
   const formattedAmount = (dynamicRecognitionData?.data?.totalAmount || 0)
     .toString()
     .padStart(3, '0')
@@ -81,7 +81,7 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
               className="w-10 h-10 rounded-full bg-[#7152F30D] flex justify-center items-center"
             />
           </div>
-          <h3 className="text-sm font-normal text-gray-500 mb-2">Criteria</h3>
+          <h3 className="text-sm font-normal text-gray-500 mb-2">Criterion</h3>
           <p className="text-3xl font-bold text-gray-900 mb-4">
             {String(dynamicRecognitionData?.data?.totalCriteria || 0).padStart(
               3,
