@@ -60,7 +60,7 @@ export const useHandleSignIn = () => {
       if (
         process.env.NODE_ENV !== 'development' &&
         tenant?.isPWA === false &&
-        tenant?.id !== user?.tenantId
+        tenant?.id !== fetchedData?.data?.tenantId
       ) {
         message.error(
           'This user does not belong to this tenant. Please contact your administrator.',
@@ -74,6 +74,9 @@ export const useHandleSignIn = () => {
       setUserId(fetchedData?.data.id);
       setUserData(fetchedData?.data);
       setLoggedUserRole(fetchedData?.data?.role?.slug || '');
+
+      // Store user data for easier access
+      const userData = fetchedData?.data;
 
       // Fetch and validate fiscal year
       const fiscalYearData = await refetchFiscalYear();
@@ -90,19 +93,19 @@ export const useHandleSignIn = () => {
       sessionStorage.removeItem('redirectAfterLogin');
 
       // Redirect based on user account status
-      if (!user.hasCompany) {
+      if (!userData.hasCompany) {
         router.push('/onboarding');
-      } else if (!user.hasChangedPassword) {
+      } else if (!userData.hasChangedPassword) {
         router.push('/authentication/new-password');
       } else if (
-        user.hasCompany &&
-        user.hasChangedPassword &&
+        userData.hasCompany &&
+        userData.hasChangedPassword &&
         fiscalYearEndDate &&
         new Date(fiscalYearEndDate) > new Date()
       ) {
         router.push('/dashboard');
       } else {
-        const userRole = user?.role?.slug;
+        const userRole = userData?.role?.slug;
 
         // Admin or owner role logic
         if (userRole === 'owner' || userRole === 'admin') {
