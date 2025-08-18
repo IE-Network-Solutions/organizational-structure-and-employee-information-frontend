@@ -140,8 +140,8 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                   statuses[milestone?.id] ||
                                   milestone?.status === 'Completed' ||
                                   Number(keyResult?.progress) === 100 ||
-                                  (form?.getFieldValue(`names-${compositeKey}`)
-                                    ?.length ?? 0) > 0 ||
+                                  // (form?.getFieldValue(`names-${compositeKey}`)
+                                  //   ?.length ?? 0) > 0 ||
                                   form
                                     ?.getFieldValue(`names-${compositeKey}`)
                                     ?.some((i: any) => i?.achieveMK)
