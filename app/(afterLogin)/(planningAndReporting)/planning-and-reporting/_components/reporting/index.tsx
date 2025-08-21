@@ -364,10 +364,14 @@ function Reporting() {
 
                           {/* {!dataItem?.isValidated && ( */}
                           <>
-                            {userId ===
+                            {(userId ===
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
-                              )?.reportingTo?.id && (
+                              )?.reportingTo?.id ||
+                              userId ===
+                                getEmployeeData(
+                                  dataItem?.userId ?? dataItem?.createdBy,
+                                )?.delegatedTo?.id) && (
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,
