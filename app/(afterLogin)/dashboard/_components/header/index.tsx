@@ -213,7 +213,8 @@ const Header = () => {
                 <span className="text-blue">
                   {`${Math.round(Number(vpScore?.score || 0))}`} %
                 </span>{' '}
-                Achieved out of 30
+                Achieved out of{' '}
+                {`${Math.round(Number(vpScore?.maxScore || 0))}`}
               </div>
               <Progress
                 percent={(Number(vpScore?.score || 0) / 30) * 100}
