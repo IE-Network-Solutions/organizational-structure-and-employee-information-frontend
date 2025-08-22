@@ -55,7 +55,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({
       )}
       {onDetail && (
         <Button
-          className="w-7 h-7"
+          className="w-7 h-7 lg:w-[60px] px-2 "
           icon={'Detail'}
           id={`${id}buttonPopOverActionForOnDetailActionId`}
           loading={loading}
