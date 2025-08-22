@@ -1,9 +1,5 @@
 'use client';
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from 'react-query';
+import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactNode, Suspense } from 'react';
 import { handleNetworkError } from '@/utils/showErrorResponse';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -15,8 +11,6 @@ interface ReactQueryWrapperProps {
   children: ReactNode;
 }
 
-
-
 const FullPageSpinner = () => (
   <div className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center">
     <Spin size="large" />
@@ -24,7 +18,6 @@ const FullPageSpinner = () => (
 );
 
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -77,8 +70,6 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       },
     }),
   });
-
-
 
   return (
     <Suspense fallback={<FullPageSpinner />}>

@@ -91,7 +91,7 @@ export const useDeleteFiscalYear = () => {
   return useMutation((id: string) => deleteFiscalYear(id), {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
-
+      queryClient.invalidateQueries('fiscalActiveYear');
       handleSuccessMessage('DELETE');
     },
   });

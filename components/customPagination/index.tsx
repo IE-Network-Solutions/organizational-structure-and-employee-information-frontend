@@ -135,7 +135,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   const { isMobile } = useIsMobile();
   return (
-    <div className="flex justify-between items-center py-6 px-4  bg-white">
+    <div className="flex justify-between items-center py-6  bg-white">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
@@ -164,8 +164,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       <div className="flex items-center">
         {!isMobile && (
           <span className="mr-2 text-xs text-[#718096]">
-            Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
-            {Math.min(total, current * pageSize)} out of {total} entries
+            Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
+            {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
+            entries
           </span>
         )}
         <Select
@@ -173,8 +174,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           className="w-24 h-8"
           onChange={(value) => handleSizeChange(value)}
         >
-          <Option value={4}>
-            <span className="text-xs text-[#111827]">Show 4</span>
+          <Option value={5}>
+            <span className="text-xs text-[#111827]">Show 5</span>
           </Option>
           <Option value={10}>
             <span className="text-xs text-[#111827]">Show 10</span>

@@ -35,10 +35,17 @@ export const useGetAllowedAreas = (data?: {
   lng: number | null;
 }) => {
   return useQuery<ApiResponse<AllowedArea>>(
-    ['allowed-areas', data],
+    ['allowed-areas'],
     () => getAllowedAreas(data),
     {
       keepPreviousData: true,
+      enabled: true,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
     },
   );
 };

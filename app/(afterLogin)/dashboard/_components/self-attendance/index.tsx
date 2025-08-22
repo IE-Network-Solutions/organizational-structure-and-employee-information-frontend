@@ -114,9 +114,9 @@ const SelfAttendance = () => {
     <Card
       bodyStyle={{ padding: 0 }}
       loading={attendanceIsLoading}
-      className="bg-white p-5 rounded-xl md:h-[404px]"
+      className="bg-white p-5 rounded-xl md:h-[416px] shadow-lg"
     >
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-3">
         <div className="text-lg font-bold">Annual Attendance Report</div>
         <div className="pl-2"></div>
       </div>
@@ -130,7 +130,7 @@ const SelfAttendance = () => {
       </div>
       <div className="hidden 2xl:flex ">
         {/* hidden 2xl:flex = zoom out max 80 -75 */}
-        <Bar data={data} options={options} height={75} width={180} />
+        <Bar data={data} options={options} height={65} width={180} />
       </div>{' '}
     </Card>
   );

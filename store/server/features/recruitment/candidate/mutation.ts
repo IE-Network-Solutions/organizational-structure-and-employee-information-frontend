@@ -88,6 +88,7 @@ export const useCreateCandidate = () => {
   return useMutation(createCandidate, {
     onSuccess: () => {
       queryClient.invalidateQueries('candidates');
+      queryClient.invalidateQueries('allCandidates');
       NotificationMessage.success({
         message: 'candidate created successfully!',
         description: 'Candidate has been successfully created',
@@ -103,6 +104,7 @@ export const useUpdateCandidate = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('candidates');
+        queryClient.invalidateQueries('allCandidates');
         NotificationMessage.success({
           message: 'Candidate updated successfully!',
           description: 'Candidate has been successfully updated',
@@ -117,6 +119,7 @@ export const useDeleteCandidate = () => {
   return useMutation(deleteCandidate, {
     onSuccess: () => {
       queryClient.invalidateQueries('candidates');
+      queryClient.invalidateQueries('allCandidates');
       NotificationMessage.success({
         message: 'Candidate deleted successfully!',
         description: 'Candidate has been successfully deleted',
@@ -130,6 +133,7 @@ export const useMoveToTalentPool = () => {
   return useMutation(moveToTalentPool, {
     onSuccess: () => {
       queryClient.invalidateQueries('candidates');
+      queryClient.invalidateQueries('allCandidates');
       NotificationMessage.success({
         message: 'Candidate moved to talent pool successfully!',
         description: 'Candidate has been successfully moved to talent pool',
@@ -147,6 +151,7 @@ export const useChangeCandidateStatus = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('candidates');
+        queryClient.invalidateQueries('allCandidates');
         NotificationMessage.success({
           message: 'Candidate moved to talent pool successfully!',
           description: 'Candidate has been successfully moved to talent pool',

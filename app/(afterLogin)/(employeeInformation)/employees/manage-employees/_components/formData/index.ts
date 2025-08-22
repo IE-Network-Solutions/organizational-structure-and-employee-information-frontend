@@ -44,7 +44,7 @@ export const transformData = (data: any) => {
       effectiveEndDate: formatDate(data.effectiveEndDate),
       employementTypeId: data.employementTypeId,
       departmentId: data.departmentId,
-      departmentLeadOrNot: data.departmentLeadOrNot ?? true,
+      departmentLeadOrNot: data.departmentLeadOrNot ?? false,
       employmentContractType: data.employmentContractType,
       workScheduleId: data.workScheduleId,
       basicSalary: Number(data.basicSalary),
@@ -54,7 +54,6 @@ export const transformData = (data: any) => {
     },
   };
 
-  // Append the categorized JSON data to formData
   formData.append('createUserDto', JSON.stringify(result.createUserDto));
   formData.append(
     'createRolePermissionDto',
@@ -77,7 +76,6 @@ export const transformData = (data: any) => {
     JSON.stringify(result.createEmployeeDocumentDto),
   );
 
-  // Append files separately
   if (data.profileImage?.file?.originFileObj) {
     formData.append('profileImage', data.profileImage.file.originFileObj);
   }

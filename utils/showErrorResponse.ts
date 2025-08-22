@@ -86,6 +86,10 @@ export const handleFirebaseSignInError = (error: FirebaseError): void => {
     case 'auth/network-request-failed':
       errorMessage = 'Network error. Please check your connection.';
       break;
+    case 'auth/account-exists-with-different-credential':
+      errorMessage =
+        'Account already exists with different credential. Please Use previous login method.';
+      break;
     default:
       errorMessage = 'An error occurred. Please try again.';
   }

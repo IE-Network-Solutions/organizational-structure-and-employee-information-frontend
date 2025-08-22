@@ -10,6 +10,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import PlanningHierarchyComponent from '../planning/createPlanHierarchy';
 import PlanningObjectiveComponent from '../planning/createPlanObjective';
+import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 function CreatePlan() {
   const {
@@ -26,9 +27,11 @@ function CreatePlan() {
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
+  const { resetToInitial } = useClickStatus();
 
   const onClose = () => {
     setOpen(false);
+    resetToInitial();
     form.resetFields();
     resetWeights();
   };
@@ -37,7 +40,6 @@ function CreatePlan() {
   const { data: planningPeriods } = AllPlanningPeriods();
   // const planningPeriodId =
   //   planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
-
   const planningPeriodId = activePlanPeriodId;
 
   const {
@@ -100,10 +102,13 @@ function CreatePlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
+
+    // return;
     createTask(
       { tasks: finalValues },
       {
         onSuccess: () => {
+          resetToInitial();
           form.resetFields();
           onClose();
         },

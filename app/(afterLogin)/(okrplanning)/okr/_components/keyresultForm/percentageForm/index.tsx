@@ -57,7 +57,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
       >
         {/* Desktop Layout */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-1 items-center mt-4 mx-4`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-2 items-center mt-4 mx-4`}
         >
           <Form.Item
             className="flex-1 mr-2 mb-0"
@@ -163,7 +163,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
         </div>
         {/* Desktop Percentage input row */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-6 items-center mt-4 mx-4`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4 mx-4`}
         >
           <Form.Item
             className="w-60 mb-0"
@@ -334,7 +334,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 3: Initial Value and Target Value */}
-          <div className="flex gap-6">
+          <div className="flex gap-4">
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"

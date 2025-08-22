@@ -1,30 +1,32 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import React from 'react';
+import { Modal, Form } from 'antd';
 import KeyResultView from '../../keyresultView';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import CustomButton from '@/components/common/buttons/customButton';
-import { Form, Select } from 'antd';
 import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
-
-const { Option } = Select;
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 // Define the props interface
-interface OkrDrawerProps {
+interface EditKeyResultProps {
   open: boolean;
   onClose: () => void;
   keyResult: any;
 }
 
 // Convert the component to TypeScript
-const EditKeyResult: React.FC<OkrDrawerProps> = (props) => {
-  const { data: Metrics } = useGetMetrics();
+const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
+  const { isMobile } = useIsMobile();
 
   const [form] = Form.useForm();
   const { mutate: updateKeyResult, isLoading } = useUpdateKeyResult();
-  const { keyResultValue, objectiveValue, setKeyResultValue } = useOKRStore();
-  // const [selectedMetric, setSelectedMetric] = useState<any | null>(null);
+  const { keyResultValue, objectiveValue } = useOKRStore();
+
+  const handleModalClose = () => {
+    form.resetFields(); // Reset all form fields
+    props.onClose(); // Close the modal
+  };
+
   const onSubmit = () => {
     form
       .validateFields()
@@ -85,7 +87,7 @@ const EditKeyResult: React.FC<OkrDrawerProps> = (props) => {
         // If all checks pass, proceed with the objective creation
         updateKeyResult(keyResultValue, {
           onSuccess: () => {
-            props?.onClose();
+            handleModalClose();
           },
         });
       })
@@ -93,76 +95,90 @@ const EditKeyResult: React.FC<OkrDrawerProps> = (props) => {
         // Validation failed
       });
   };
+
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div
+      id="edit-key-result-modal-header"
+      className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
+    >
       Edit Key Result
     </div>
   );
+
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div
+      id="edit-key-result-modal-footer"
+      className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
+    >
       <CustomButton
+        id="edit-key-result-cancel-button"
         type="default"
         title="Cancel"
-        onClick={props?.onClose}
-        style={{ marginRight: 8 }}
+        onClick={handleModalClose}
+        style={{ marginRight: 8, height: '40px' }}
       />
       <CustomButton
-        loading={isLoading}
+        id="edit-key-result-save-button"
         title={'Save'}
         type="primary"
         onClick={onSubmit}
+        loading={isLoading}
+        style={{ height: '40px' }}
       />
     </div>
   );
 
-  const handleMetricChange = (metricType: any) => {
-    const newKeyResult = {
-      ...props?.keyResult,
-      metricType,
-      metricTypeId: metricType?.id, // Update metricTypeId as well
-    };
-    // if (metricType?.name !== 'Milestone') {
-    //   delete newKeyResult.milestones;
-    //   delete newKeyResult.keyMilestones;
-    // }
-    setKeyResultValue(newKeyResult);
-  };
-
   return (
-    <CustomDrawerLayout
-      open={props?.open}
-      onClose={props?.onClose}
-      modalHeader={modalHeader}
-      width="50%"
+    <Modal
+      open={props.open}
+      onCancel={handleModalClose}
       footer={footer}
+      title={modalHeader}
+      centered
+      width={isMobile ? '100vw' : 1200}
+      bodyStyle={{ padding: isMobile ? 12 : 32 }}
+      style={{ top: isMobile ? 0 : 32, padding: 0, maxHeight: '95vh' }}
+      maskClosable={false}
+      destroyOnClose
+      closable={false}
     >
-      <span className="font-bold mx-3">Metric type</span>
-      <Select
-        placeholder="Selecte Metric Type"
-        onChange={(val) => {
-          const selectedObject =
-            Metrics?.items?.find((item: any) => item.id === val) || null;
-          if (selectedObject) handleMetricChange(selectedObject);
-        }}
-        value={props?.keyResult.metricTypeId}
-        allowClear
-        className="w-full mx-3 mt-1"
+      <Form
+        id="edit-key-result-form"
+        form={form}
+        layout="vertical"
+        className="w-full"
       >
-        {Metrics?.items?.map((item: any) => (
-          <Option key={item?.id} value={item?.id}>
-            {item?.name}
-          </Option>
-        ))}
-      </Select>
+        <div id="edit-key-result-section-header" className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Key Result
+          </h2>
+        </div>
 
-      <KeyResultView
-        key={1}
-        keyValue={props?.keyResult}
-        objective={objectiveValue}
-        index={0}
-        isEdit={true}
-      />
-    </CustomDrawerLayout>
+        <div id="edit-key-result-view-container">
+          <KeyResultView
+            key={`${props?.keyResult?.metricTypeId || 'default'}-${props?.keyResult?.id || 'new'}`}
+            keyValue={props?.keyResult}
+            objective={objectiveValue}
+            index={0}
+            isEdit={true}
+            form={form}
+          />
+        </div>
+
+        {/* Total Key Results Weight */}
+        {keyResultValue && (
+          <div
+            id="edit-key-result-total-weight"
+            className="flex justify-end mt-4 mb-4"
+          >
+            <span className="text-sm text-gray-500">
+              Total Key Results Weight:{' '}
+              <strong>{keyResultValue.weight || 0} %</strong>
+            </span>
+          </div>
+        )}
+      </Form>
+    </Modal>
   );
 };
 

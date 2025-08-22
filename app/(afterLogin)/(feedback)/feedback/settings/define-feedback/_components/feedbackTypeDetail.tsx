@@ -17,6 +17,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
   const {
     setVariantType,
+    variantType,
     setOpen,
     setSelectedFeedback,
     page,
@@ -147,7 +148,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
   return (
     <div className="mt-5">
       <Tabs
-        defaultActiveKey={'appreciation'}
+        activeKey={variantType}
         items={tabItems}
         onChange={onChange}
       />

@@ -4,7 +4,7 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import SidebarMenu from '@/components/sidebarMenu';
-import { GoQuestion } from 'react-icons/go';
+
 import { RiFeedbackLine } from 'react-icons/ri';
 import { CiCalendarDate } from 'react-icons/ci';
 import { IoListSharp } from 'react-icons/io5';
@@ -34,23 +34,23 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       },
       link: '/feedback/settings/define-feedback',
     },
-    {
-      item: {
-        key: 'define-questions',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/define-questions') ? 'lg:ml-4' : ''}`}
-          >
-            <GoQuestion
-              className={`hidden lg:block ${pathname.includes('/feedback/settings/define-questions') ? 'text-[#1677FF]' : ''}`}
-            />
-            <p className="menu-item-label">Define Questions</p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/feedback/settings/define-questions',
-    },
+    // {
+    //   item: {
+    //     key: 'define-questions',
+    //     icon: (
+    //       <div
+    //         className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/define-questions') ? 'lg:ml-4' : ''}`}
+    //       >
+    //         <GoQuestion
+    //           className={`hidden lg:block ${pathname.includes('/feedback/settings/define-questions') ? 'text-[#1677FF]' : ''}`}
+    //         />
+    //         <p className="menu-item-label">Define Questions</p>
+    //       </div>
+    //     ),
+    //     className: 'px-1',
+    //   },
+    //   link: '/feedback/settings/define-questions',
+    // },
 
     // {
     //   item: {

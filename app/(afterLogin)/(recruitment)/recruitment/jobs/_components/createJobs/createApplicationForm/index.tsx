@@ -14,10 +14,12 @@ const staticField = [
 interface ApplicationFormProps {
   stepChange: (value: number) => void;
   form: FormInstance;
+  isLoading?: boolean;
 }
 const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   stepChange,
   form,
+  isLoading = false,
 }) => {
   return (
     <div className="p-2">
@@ -47,12 +49,15 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
           <Button
             onClick={() => stepChange(0)}
             className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+            disabled={isLoading}
           >
             Back
           </Button>
           <Button
             htmlType="submit"
             className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+            loading={isLoading}
+            disabled={isLoading}
           >
             Publish
           </Button>

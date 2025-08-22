@@ -7,7 +7,7 @@ const IssuedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
 }) => {
   return (
     <Card
-      className="text-md gap-2 flex flex-col  p-4"
+      className="text-md gap-2 flex flex-col  p-4 shadow-lg"
       bodyStyle={{ padding: '0px', margin: '0px' }}
     >
       <div className="flex items-center gap-5 justify-start">
@@ -47,12 +47,12 @@ const IssuedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
           Issued Reprimand
         </div>
       </div>
-      <div className="flex items-center justify-center gap-6 text-primary ">
-        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-2 px-4 border rounded-lg">
+      <div className="flex items-center justify-center gap-6 text-primary pl-10 lg:pl-0 ">
+        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
           <div className="text-2xl font-extrabold">{kpi}</div>
           <div className="text-sm font-bold">KPI</div>
         </div>
-        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-2 px-4 border rounded-lg">
+        <div className="flex items-center justify-center bg-[#E9E9FF] gap-3 py-1 px-4 border rounded-lg">
           <div className="text-2xl font-extrabold">{engagement}</div>
           <div className="text-sm font-bold">Engagement</div>
         </div>

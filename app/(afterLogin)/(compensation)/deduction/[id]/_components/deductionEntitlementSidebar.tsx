@@ -1,9 +1,6 @@
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Input, Select, Spin, Switch } from 'antd';
+import { Button, Form, Input, Select, Spin, Switch } from 'antd';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 // import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
@@ -31,26 +28,6 @@ const AllowanceEntitlementSideBar = () => {
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
 
   const { id } = useParams();
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-14',
-      size: 'large',
-      disabled: createAllowanceEntitlementLoading,
-      onClick: () => onClose(),
-    },
-    {
-      label: <span>Create</span>,
-      key: 'create',
-      className: 'h-14',
-      type: 'primary',
-      size: 'large',
-      loading: createAllowanceEntitlementLoading,
-      onClick: () => form.submit(),
-    },
-  ];
 
   const onClose = () => {
     form.resetFields();
@@ -97,7 +74,31 @@ const AllowanceEntitlementSideBar = () => {
             <span>Add Deduction Entitlement</span>
           </CustomDrawerHeader>
         }
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        footer={
+          <div className="flex flex-row gap-4 justify-center py-3">
+            <Button
+              type="default"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={allUserLoading}
+              onClick={() => onClose()}
+              disabled={createAllowanceEntitlementLoading}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="primary"
+              key="create"
+              className="h-10 px-3 w-40"
+              size="large"
+              loading={createAllowanceEntitlementLoading}
+              onClick={() => form.submit()}
+            >
+              Create
+            </Button>
+          </div>
+        }
         width="600px"
       >
         <Spin spinning={allUserLoading}>

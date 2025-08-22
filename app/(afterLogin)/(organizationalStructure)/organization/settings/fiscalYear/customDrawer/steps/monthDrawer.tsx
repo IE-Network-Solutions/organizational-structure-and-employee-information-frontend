@@ -264,6 +264,74 @@ const MonthDrawer: React.FC<
     }
   }, [isEditMode, form, monthData]);
 
+  const validateStartNoOverlap = (
+    currentMonthNumber: number,
+    form: FormInstance,
+  ) => {
+    return async (nonused: any, value: any) => {
+      if (!value) return;
+      const allMonthNumbers = Array.from({ length: 12 }, (nonused, i) => i + 1);
+      const currentStart = dayjs(value);
+      const currentEndRaw = form.getFieldValue(
+        `monthEndDate_${currentMonthNumber}`,
+      );
+      if (!currentEndRaw) return;
+
+      for (const monthNum of allMonthNumbers) {
+        if (monthNum === currentMonthNumber) continue;
+        const otherStartRaw = form.getFieldValue(`monthStartDate_${monthNum}`);
+        const otherEndRaw = form.getFieldValue(`monthEndDate_${monthNum}`);
+        if (!otherStartRaw || !otherEndRaw) continue;
+        const otherStart = dayjs(otherStartRaw);
+        const otherEnd = dayjs(otherEndRaw);
+
+        // Only error if the start date is inside another month's range
+        if (
+          currentStart.isSameOrAfter(otherStart) &&
+          currentStart.isSameOrBefore(otherEnd)
+        ) {
+          throw new Error(
+            `Start date for Month ${currentMonthNumber} overlaps with Month ${monthNum}. Please adjust the dates.`,
+          );
+        }
+      }
+    };
+  };
+
+  const validateEndNoOverlap = (
+    currentMonthNumber: number,
+    form: FormInstance,
+  ) => {
+    return async (nonused: any, value: any) => {
+      if (!value) return;
+      const allMonthNumbers = Array.from({ length: 12 }, (nonused, i) => i + 1);
+      const currentStartRaw = form.getFieldValue(
+        `monthStartDate_${currentMonthNumber}`,
+      );
+      if (!currentStartRaw) return;
+      const currentEnd = dayjs(value);
+
+      for (const monthNum of allMonthNumbers) {
+        if (monthNum === currentMonthNumber) continue;
+        const otherStartRaw = form.getFieldValue(`monthStartDate_${monthNum}`);
+        const otherEndRaw = form.getFieldValue(`monthEndDate_${monthNum}`);
+        if (!otherStartRaw || !otherEndRaw) continue;
+        const otherStart = dayjs(otherStartRaw);
+        const otherEnd = dayjs(otherEndRaw);
+
+        // Only error if the end date is inside another month's range
+        if (
+          currentEnd.isSameOrAfter(otherStart) &&
+          currentEnd.isSameOrBefore(otherEnd)
+        ) {
+          throw new Error(
+            `End date for Month ${currentMonthNumber} overlaps with Month ${monthNum}. Please adjust the dates.`,
+          );
+        }
+      }
+    };
+  };
+
   return (
     <Form form={form} layout="vertical" onFinish={onSubmit}>
       <div
@@ -305,6 +373,7 @@ const MonthDrawer: React.FC<
                   <Form.Item
                     name={`monthStartDate_${monthInfo.monthNumber}`}
                     label={<span className="font-medium">Start Date</span>}
+                    validateTrigger="onChange"
                     rules={[
                       {
                         required: true,
@@ -331,6 +400,16 @@ const MonthDrawer: React.FC<
                           }
                         },
                       },
+                      ...(form
+                        ? [
+                            {
+                              validator: validateStartNoOverlap(
+                                monthInfo.monthNumber,
+                                form,
+                              ),
+                            },
+                          ]
+                        : []),
                     ]}
                   >
                     <DatePicker
@@ -344,6 +423,11 @@ const MonthDrawer: React.FC<
                           current.isAfter(fiscalYearEndDate)
                         );
                       }}
+                      onChange={() => {
+                        form?.validateFields([
+                          `monthEndDate_${monthInfo.monthNumber}`,
+                        ]);
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -351,6 +435,7 @@ const MonthDrawer: React.FC<
                   <Form.Item
                     name={`monthEndDate_${monthInfo.monthNumber}`}
                     label={<span className="font-medium">End Date</span>}
+                    validateTrigger="onChange"
                     rules={[
                       {
                         required: true,
@@ -380,6 +465,16 @@ const MonthDrawer: React.FC<
                           }
                         },
                       },
+                      ...(form
+                        ? [
+                            {
+                              validator: validateEndNoOverlap(
+                                monthInfo.monthNumber,
+                                form,
+                              ),
+                            },
+                          ]
+                        : []),
                     ]}
                   >
                     <DatePicker
@@ -392,6 +487,11 @@ const MonthDrawer: React.FC<
                           current.isBefore(fiscalYearStartDate) ||
                           current.isAfter(fiscalYearEndDate)
                         );
+                      }}
+                      onChange={() => {
+                        form?.validateFields([
+                          `monthStartDate_${monthInfo.monthNumber}`,
+                        ]);
                       }}
                     />
                   </Form.Item>

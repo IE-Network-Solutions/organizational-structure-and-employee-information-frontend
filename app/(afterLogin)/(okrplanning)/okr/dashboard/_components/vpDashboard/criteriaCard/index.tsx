@@ -44,19 +44,33 @@ const CriteriaCard: React.FC<CriteriaCardProps> = ({ id }) => {
                       <p className="text-[10px] font-extralight text-end text-gray-500">
                         {`${Number(item?.score) ? Number(item?.score).toFixed(1) : 0} % achieved out of ${item?.weight || 0}%`}
                       </p>
-                      <Progress percent={achievedPercentage} showInfo={false} />
+                      <Progress
+                        percent={achievedPercentage}
+                        showInfo={false}
+                        strokeColor={item?.isDeduction ? '#ff0000' : '#3636F0'}
+                      />
                     </div>
                   </div>
                   <div className="flex items-center mt-1 text-xs font-extralight text-gray-500 justify-end">
                     <span
                       className={` flex items-center ${
-                        change >= 0 ? 'text-[#0BA259]' : 'text-red-500'
+                        change > 0
+                          ? 'text-[#0BA259]'
+                          : change < 0
+                            ? 'text-red-500'
+                            : 'text-gray-500'
                       }`}
                     >
-                      {change}
-                      {change >= 0 ? <GoArrowUp /> : <GoArrowDown />}
+                      {change?.toFixed(2) || 0}
+                      {change > 0 ? (
+                        <GoArrowUp />
+                      ) : change < 0 ? (
+                        <GoArrowDown />
+                      ) : (
+                        '  '
+                      )}
                     </span>
-                    <span className="">vs last month</span>
+                    <span className=""> vs last month</span>
                   </div>
                 </Card>
               </Col>

@@ -34,6 +34,7 @@ const EditCandidate: React.FC = () => {
     removeDocument,
     documentFileList,
     setEditCandidateModal,
+    setSelectedCandidate,
     currentPage,
     pageSize,
   } = useCandidateState();
@@ -79,12 +80,33 @@ const EditCandidate: React.FC = () => {
 
     const formattedValues = {
       ...formValues,
-      jobCandidate: editCandidate?.jobCandidate?.map((item: any) => item?.id),
+      jobCandidateId: editCandidate?.jobCandidate?.[0]?.id,
+      jobInformationId: editCandidate?.jobCandidate?.[0]?.jobInformationId,
       updatedBy: updatedBy,
     };
     formData.append('newFormData', JSON.stringify(formattedValues));
-    updateCandidate({ data: formData, id: selectedCandidateId });
-    setEditCandidateModal(false);
+    updateCandidate(
+      { data: formData, id: selectedCandidateId },
+      {
+        onSuccess: () => {
+          // Update the selected candidate with the new data
+          const updatedCandidate = {
+            ...editCandidate,
+            fullName: formValues.fullName,
+            email: formValues.email,
+            phoneNumber: formValues.phoneNumber,
+            jobCandidate: [
+              {
+                ...editCandidate?.jobCandidate?.[0],
+                coverLetter: formValues.coverLetter,
+              },
+            ],
+          };
+          setSelectedCandidate(updatedCandidate);
+          setEditCandidateModal(false);
+        },
+      }
+    );
   };
   const editCandidateHeader = (
     <div className="flex flex-col items-center py-4">Edit Candidate</div>
@@ -99,9 +121,7 @@ const EditCandidate: React.FC = () => {
         jobInformationId: editCandidate?.jobCandidate?.map(
           (item: any) => item?.jobInformation?.jobTitle,
         ),
-        coverLetter: editCandidate?.jobCandidate?.map(
-          (item: any) => item?.coverLetter,
-        ),
+        coverLetter: editCandidate?.jobCandidate?.[0]?.coverLetter || '',
         resumeUrl: editCandidate?.resumeUrl
           ? {
               uid: editCandidate?.resumeUrl,
@@ -183,7 +203,7 @@ const EditCandidate: React.FC = () => {
                 rules={[
                   { required: true, message: 'Please input the phone number!' },
                   {
-                    pattern: /^\+?[1-9]\d{1,14}$/,
+                    pattern: /^\+?[0-9]\d{1,14}$/,
                     message: 'Please enter a valid phone number!',
                   },
                 ]}

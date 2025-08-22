@@ -36,7 +36,7 @@ const MyLeaveRequest: React.FC = () => {
   const { data: leaveRequests, isLoading } = useGetUserLeaveRequests(userId);
   const { setIsShowLeaveRequestSidebar } = useMyTimesheetStore();
   return (
-    <Card className="shadow">
+    <Card bodyStyle={{ padding: '10px 16px' }} className="shadow">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-[16px] font-semibold">My Leave Requests</h3>
         <Button

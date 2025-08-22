@@ -12,6 +12,7 @@ import { requestHeader } from '@/helpers/requestHeader';
 import {
   AllLeaveRequestApproveData,
   LeaveRequestStatusBody,
+  LeaveRequestNotificationBody,
 } from '@/store/server/features/timesheet/leaveRequest/interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
@@ -127,12 +128,13 @@ const setAllFinalApproveLeaveRequest = async (data: any) => {
     data,
   });
 };
-const setAllLeaveRequestNotification = async () => {
+const setAllLeaveRequestNotification = async (data?: LeaveRequestNotificationBody) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/current-approver/pending-leaves/notify`,
     method: 'POST',
     headers: requestHeaders,
+    data,
   });
 };
 export const useSetLeaveRequest = () => {
@@ -142,6 +144,7 @@ export const useSetLeaveRequest = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
       queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('userLeaveRequests');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

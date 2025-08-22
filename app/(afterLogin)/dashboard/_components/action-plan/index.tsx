@@ -4,8 +4,8 @@ import Lists from './Lists';
 
 export default function ActionPlans() {
   return (
-    <Card className="flex justify-between px-2 pt-1 items-center ">
-      <div className="text-lg  font-bold ">Schedule</div>
+    <Card className="flex justify-between px-2 pt-1 items-center shadow-lg">
+      <div className="text-base lg:text-xl  font-bold ">Schedule</div>
       <Calender />
       <Lists />
     </Card>

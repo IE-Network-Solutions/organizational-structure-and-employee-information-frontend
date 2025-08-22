@@ -18,6 +18,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { IoLocationOutline } from 'react-icons/io5';
+import { MdOutlineLocationOn } from 'react-icons/md';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -121,12 +122,16 @@ const CheckControl = () => {
       return (
         <AccessGuard permissions={[Permissions.CheckInRemotely]}>
           <Button
-            className="h-10 sm:h-12 text-base"
+            className="h-10 sm:h-10 text-base"
             id="buttonCheckin"
             size="large"
             type="primary"
             icon={
-              isMobile ? <IoLocationOutline size={20} /> : <GoClock size={16} />
+              isMobile ? (
+                <IoLocationOutline size={20} />
+              ) : (
+                <MdOutlineLocationOn size={16} />
+              )
             }
             loading={isLoading || isFetching}
             onClick={() => {

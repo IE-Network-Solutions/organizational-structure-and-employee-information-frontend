@@ -58,7 +58,7 @@ const OkrSearch: React.FC = () => {
   };
 
   const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
+    <div id="mobile-filter-content" className="flex flex-col gap-4">
       <h3 className="text-lg font-medium mb-2">Filter</h3>
 
       {/* Fiscal Year */}
@@ -68,7 +68,7 @@ const OkrSearch: React.FC = () => {
           loading={fyLoading}
           disabled={okrTab != 4}
           value={fiscalYearId}
-          id={`selectFiscalYear`}
+          id="mobile-fiscal-year-select"
           placeholder="Filter by Fiscal Year"
           onChange={(value) => setFiscalYearId(value)}
           allowClear
@@ -96,6 +96,7 @@ const OkrSearch: React.FC = () => {
           loading={fyLoading}
           value={sessionIds}
           disabled={okrTab != 4}
+          id="mobile-session-select"
           placeholder="Filter by Session"
           mode="multiple"
           className="w-full h-14 overflow-y-auto text-[10px]"
@@ -123,6 +124,7 @@ const OkrSearch: React.FC = () => {
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-600">Department</label>
           <Select
+            id="mobile-department-select"
             placeholder="Filter by Department"
             className="w-full h-14"
             allowClear
@@ -149,6 +151,7 @@ const OkrSearch: React.FC = () => {
         <div className="flex flex-col gap-2">
           <label className="text-sm text-gray-600">Metric Type</label>
           <Select
+            id="mobile-metric-type-select"
             placeholder="Filter by Metric Type"
             className="w-full h-14"
             allowClear
@@ -170,12 +173,13 @@ const OkrSearch: React.FC = () => {
   return (
     <>
       {/* Desktop View */}
-      <div className="hidden md:block">
+      <div id="desktop-search-filters" className="hidden md:block">
         <div className="grid grid-cols-12 gap-4">
           {/* User Filter */}
           {okrTab != 1 && (
             <div className="col-span-12 lg:col-span-4">
               <Select
+                id="desktop-user-select"
                 showSearch
                 placeholder="Select a person"
                 className="w-full h-14"
@@ -206,7 +210,7 @@ const OkrSearch: React.FC = () => {
               loading={fyLoading}
               disabled={okrTab != 4}
               value={fiscalYearId}
-              id={`selectFiscalYear`}
+              id="desktop-fiscal-year-select"
               placeholder="Filter by Fiscal Year"
               onChange={(value) => setFiscalYearId(value)}
               allowClear
@@ -233,6 +237,7 @@ const OkrSearch: React.FC = () => {
               loading={fyLoading}
               value={sessionIds}
               disabled={okrTab != 4}
+              id="desktop-session-select"
               placeholder="Filter by Session"
               mode="multiple"
               className="w-full h-14 overflow-y-auto text-[10px]"
@@ -259,6 +264,7 @@ const OkrSearch: React.FC = () => {
           {okrTab != 1 && (
             <div className={`${okrTab == 4 ? 'col-span-2' : 'col-span-2'}`}>
               <Select
+                id="desktop-department-select"
                 placeholder="Filter by Department"
                 className="w-full h-14"
                 allowClear
@@ -283,6 +289,7 @@ const OkrSearch: React.FC = () => {
           {okrTab != 4 && (
             <div className="col-span-12 lg:col-span-2">
               <Select
+                id="desktop-metric-type-select"
                 placeholder="Filter by Metric Type"
                 className="w-full h-14"
                 allowClear
@@ -301,11 +308,12 @@ const OkrSearch: React.FC = () => {
       </div>
 
       {/* Mobile View */}
-      <div className="md:hidden">
+      <div id="mobile-search-filters" className="md:hidden">
         <div className="flex justify-between gap-4 w-full">
           {okrTab != 1 && (
             <div className="flex-1">
               <Select
+                id="mobile-user-select"
                 showSearch
                 placeholder="Select a person"
                 className="w-full h-10"
@@ -331,6 +339,7 @@ const OkrSearch: React.FC = () => {
           )}
           <div className={`${okrTab == 1 ? 'ml-auto' : ''}`}>
             <CustomButton
+              id="mobile-filter-button"
               type="default"
               size="small"
               onClick={() => setIsModalOpen(true)}
@@ -347,12 +356,14 @@ const OkrSearch: React.FC = () => {
           footer={
             <div className="flex gap-2 justify-center mt-4">
               <CustomButton
+                id="mobile-filter-cancel-button"
                 onClick={() => setIsModalOpen(false)}
                 className="px-6 py-2 border rounded-lg text-sm text-gray-900"
                 title="Cancel"
                 type="default"
               />
               <CustomButton
+                id="mobile-filter-apply-button"
                 title="Filter"
                 type="primary"
                 onClick={() => {

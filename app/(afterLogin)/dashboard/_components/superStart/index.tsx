@@ -28,8 +28,8 @@ const SuperStart = () => {
   const isUserValid = !!currentUser;
 
   return (
-    <div className="bg-white flex flex-col rounded-lg p-1 gap-5">
-      <div className="text-xl font-bold gap-10 flex items-center justify-center">
+    <div className="bg-white flex flex-col rounded-lg p-1 gap-5 shadow-lg">
+      <div className="text-base lg:text-xl font-bold gap-10 flex items-center justify-center">
         <LuCrown className="text-primary" /> Achievement Unlocked{' '}
         <LuCrown className="text-primary" />
       </div>
@@ -81,7 +81,7 @@ const SuperStart = () => {
           </div>
         </div>
       ) : (
-        <div className="text-sm font-light flex h-full justify-center items-center min-h-32">
+        <div className="text-lg font-light flex h-full justify-center items-center min-h-32">
           No rockstar of the Quarter
         </div>
       )}

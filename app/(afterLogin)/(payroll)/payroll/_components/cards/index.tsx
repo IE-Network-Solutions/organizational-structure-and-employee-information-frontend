@@ -1,7 +1,7 @@
 import { Card, Col } from 'antd';
 import React from 'react';
 import { ArrowUpOutlined } from '@ant-design/icons';
-import { useIsMobile } from '@/components/common/hooks/useIsMobile';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface PayrollCardProps {
   title?: string;

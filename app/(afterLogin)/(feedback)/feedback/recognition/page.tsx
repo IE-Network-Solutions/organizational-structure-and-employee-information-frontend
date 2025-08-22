@@ -217,7 +217,7 @@ function Page() {
   ];
 
   const handleSearchChange = (key: string, value: string) => {
-    updateSearchValue(value, key);
+    updateSearchValue(key, value);
   };
   const handleRowClick = (record: any) => {
     navigate.push(`/feedback/recognition/${record.id}`);
@@ -231,7 +231,16 @@ function Page() {
         className="ml-[3%] max-w-[90%]"
         defaultActiveKey="1"
         items={items}
-        onChange={(key) => setSelectedRecognitionType(key)}
+        onChange={(key) => {
+          setSelectedRecognitionType(key);
+          // Update search value with recognition type ID for filtering
+          if (key !== '1') {
+            updateSearchValue('recognitionTypeId', key);
+          } else {
+            // Remove recognition type filter for "All" tab
+            updateSearchValue('recognitionTypeId', '');
+          }
+        }}
       />
       <>
         <TabLandingLayout
@@ -267,8 +276,15 @@ function Page() {
             <Col lg={9} md={9} xs={20} sm={20} flex="auto">
               <Select
                 placeholder="Search by Employee"
-                onChange={(value) => handleSearchChange('employeeId', value)}
+                onChange={(value) => handleSearchChange('userId', value)}
                 allowClear
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  String(option?.label ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
                 className="w-full h-14 rounded-lg"
                 options={allUserData?.items?.map((item: any) => ({
                   value: item?.id,
@@ -280,13 +296,14 @@ function Page() {
             <Col lg={5} md={5} xs={20} sm={20} flex="auto">
               <Select
                 placeholder="filter by year"
-                onChange={(value) => handleSearchChange('employeeId', value)}
+                onChange={(value) => handleSearchChange('calendarId', value)}
                 allowClear
                 className="w-full h-14 rounded-lg"
                 options={
                   getAllFisicalYear?.items?.map((item: any) => ({
                     key: item?.id,
-                    value: item?.name,
+                    value: item?.id,
+                    label: item?.name,
                   })) ?? []
                 }
               />
@@ -295,15 +312,19 @@ function Page() {
             <Col lg={5} md={5} xs={20} sm={20} flex="auto">
               <Select
                 placeholder="Select by session"
-                onChange={(value) => handleSearchChange('employeeId', value)}
+                onChange={(value) => handleSearchChange('sessionId', value)}
                 allowClear
                 className="w-full h-14 rounded-lg"
                 options={
                   getAllFisicalYear?.items
-                    ?.find((item: FiscalYear) => item?.id === searchValue?.year)
+                    ?.find(
+                      (item: FiscalYear) =>
+                        item?.id === searchValue?.calendarId,
+                    )
                     ?.sessions?.map((session: Session) => ({
                       key: session?.id,
-                      value: session?.name,
+                      value: session?.id,
+                      label: session?.name,
                     })) ?? []
                 }
               />
@@ -312,18 +333,22 @@ function Page() {
             <Col lg={5} md={5} xs={20} sm={20} flex="auto">
               <Select
                 placeholder="filter by month"
-                onChange={(value) => handleSearchChange('employeeId', value)}
+                onChange={(value) => handleSearchChange('monthId', value)}
                 allowClear
                 className="w-full h-14 rounded-lg"
                 options={
                   getAllFisicalYear?.items
-                    ?.find((item: FiscalYear) => item?.id === searchValue?.year)
+                    ?.find(
+                      (item: FiscalYear) =>
+                        item?.id === searchValue?.calendarId,
+                    )
                     ?.sessions?.find(
-                      (item: Session) => item?.id === searchValue?.session,
+                      (item: Session) => item?.id === searchValue?.sessionId,
                     )
                     ?.months?.map((month: Month) => ({
                       key: month?.id,
-                      value: month?.name,
+                      value: month?.id,
+                      label: month?.name,
                     })) ?? []
                 }
               />

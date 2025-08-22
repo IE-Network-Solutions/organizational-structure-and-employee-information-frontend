@@ -73,33 +73,45 @@ const VariablePayModal: React.FC<ModalProps> = ({ data }) => {
       onCancel={handleClose}
       okText="Send"
       onOk={handleSubmit}
+      data-testid="variable-pay-modal"
     >
-      Are you sure to send the below information to payroll?
-      <div className="m-2">
-        <div className="flex items-center justify-start my-2">
-          <span className="font-semibold">Active Pay Period: </span>
-          <span className="">
-            {' '}
-            {activePayPeriod
-              ? ` ${dayjs(activePayPeriod?.startDate).format('MMM DD, YYYY')} — ${dayjs(activePayPeriod?.endDate).format('MMM DD, YYYY')}`
-              : 'No Active pay period'}
-          </span>
-        </div>
-        <div className="flex items-center justify-start my-2">
-          <span className="font-semibold">Selected Month Range: </span>
-          <span className="">
-            {monthById
-              ? ` ${dayjs(monthById?.startDate).format('MMM DD, YYYY')} — ${dayjs(monthById?.endDate).format('MMM DD, YYYY')}`
-              : 'Month not selected'}
-          </span>
-        </div>
-        <div className="flex items-center justify-start my-2">
-          <span className="font-semibold">Selected Session: </span>
-          <span className="">
-            {sessionById
-              ? ` ${dayjs(sessionById?.startDate).format('MMM DD, YYYY')} — ${dayjs(sessionById?.endDate).format('MMM DD, YYYY')}`
-              : 'Session not selected'}
-          </span>
+      <div data-testid="variable-pay-modal-content">
+        Are you sure to send the below information to payroll?
+        <div className="m-2" data-testid="variable-pay-modal-details">
+          <div
+            className="flex items-center justify-start my-2"
+            data-testid="pay-period-info"
+          >
+            <span className="font-semibold">Active Pay Period: </span>
+            <span className="" data-testid="pay-period-dates">
+              {' '}
+              {activePayPeriod
+                ? ` ${dayjs(activePayPeriod?.startDate).format('MMM DD, YYYY')} — ${dayjs(activePayPeriod?.endDate).format('MMM DD, YYYY')}`
+                : 'No Active pay period'}
+            </span>
+          </div>
+          <div
+            className="flex items-center justify-start my-2"
+            data-testid="month-range-info"
+          >
+            <span className="font-semibold">Selected Month Range: </span>
+            <span className="" data-testid="month-range-dates">
+              {monthById
+                ? ` ${dayjs(monthById?.startDate).format('MMM DD, YYYY')} — ${dayjs(monthById?.endDate).format('MMM DD, YYYY')}`
+                : 'Month not selected'}
+            </span>
+          </div>
+          <div
+            className="flex items-center justify-start my-2"
+            data-testid="session-info"
+          >
+            <span className="font-semibold">Selected Session: </span>
+            <span className="" data-testid="session-dates">
+              {sessionById
+                ? ` ${dayjs(sessionById?.startDate).format('MMM DD, YYYY')} — ${dayjs(sessionById?.endDate).format('MMM DD, YYYY')}`
+                : 'Session not selected'}
+            </span>
+          </div>
         </div>
       </div>
     </Modal>

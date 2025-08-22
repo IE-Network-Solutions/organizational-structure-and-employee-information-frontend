@@ -99,27 +99,32 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           <AccessGuard permissions={[Permissions.EndEmployment]}>
             <div className="flex gap-3 justify-center mb-2">
               {resignationSubmittedDate === null ? (
-                employeeData?.employeeJobInformation.map((item: any) => (
-                  <Popconfirm
-                    key={item?.id}
-                    title="Are you sure to initiate resignation?"
-                    onConfirm={() => handleConfirmResignation(item?.id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button
-                      type="primary"
-                      danger
-                      className="bg-red-500 hover:bg-red-600"
-                      htmlType="submit"
-                      value={'submit'}
-                      name="submit"
-                      disabled={offboardingTermination?.isActive}
+                (() => {
+                  const activeJob = employeeData?.employeeJobInformation?.find(
+                    (item: any) => item.isPositionActive,
+                  );
+                  return activeJob ? (
+                    <Popconfirm
+                      key={activeJob?.id}
+                      title="Are you sure to initiate resignation?"
+                      onConfirm={() => handleConfirmResignation(activeJob?.id)}
+                      okText="Yes"
+                      cancelText="No"
                     >
-                      Initiate Resignation
-                    </Button>
-                  </Popconfirm>
-                ))
+                      <Button
+                        type="primary"
+                        danger
+                        className="bg-red-500 hover:bg-red-600"
+                        htmlType="submit"
+                        value={'submit'}
+                        name="submit"
+                        disabled={offboardingTermination?.isActive}
+                      >
+                        Initiate Resignation
+                      </Button>
+                    </Popconfirm>
+                  ) : null;
+                })()
               ) : (
                 <Button
                   type="primary"

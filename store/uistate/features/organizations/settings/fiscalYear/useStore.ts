@@ -88,4 +88,6 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
     set({ openfiscalYearDrawer: isOpen }),
   fiscalYearPayLoad: null,
   setFiscalYearPayLoad: (value) => set({ fiscalYearPayLoad: value }),
+  hasOverlapError: false,
+  setHasOverlapError: (value: boolean) => set({ hasOverlapError: value }),
 }));

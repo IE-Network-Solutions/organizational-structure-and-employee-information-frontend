@@ -7,9 +7,11 @@ const JobSummary = () => {
   const { data: jobSummary, isLoading } = useGetJobSummary('Open');
   dayjs.extend(relativeTime);
   return (
-    <Card loading={isLoading} className="w-full mx-auto max-h-96">
+    <Card loading={isLoading} className="w-full mx-auto max-h-96 shadow-lg">
       <div className="flex justify-start items-center mb-2">
-        <div className=" font-bold text-lg">Latest Jobs Posted</div>
+        <div className=" font-bold text-base lg:text-lg">
+          Latest Jobs Posted
+        </div>
       </div>
       {Array.isArray(jobSummary) && jobSummary.length > 0 ? (
         <div className="flex flex-col gap-3 shadow-lg overflow-y-auto max-h-80 scrollbar-none">

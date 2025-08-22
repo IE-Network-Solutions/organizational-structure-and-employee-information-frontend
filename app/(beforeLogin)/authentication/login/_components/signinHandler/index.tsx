@@ -50,46 +50,75 @@ export const useHandleSignIn = () => {
       setLocalId(uid);
 
       const fetchedData = await fetchTenantId(token);
-
       if (fetchedData.isError) {
         message.error('Failed to fetch user data. Please try again.');
         setToken('');
-        // setLocalId('');
+        return;
+      }
+
+      // Check if user belongs to the current tenant (if it's not a PWA)
+      if (
+        process.env.NODE_ENV !== 'development' &&
+        tenant?.isPWA === false &&
+        tenant?.id !== fetchedData?.data?.tenantId
+      ) {
+        message.error(
+          'This user does not belong to this tenant. Please contact your administrator.',
+        );
+        setToken('');
+        return;
+      }
+
+      // Set essential user-related states
+      setTenantId(fetchedData?.data.tenantId);
+      setUserId(fetchedData?.data.id);
+      setUserData(fetchedData?.data);
+      setLoggedUserRole(fetchedData?.data?.role?.slug || '');
+
+      // Store user data for easier access
+      const userData = fetchedData?.data;
+
+      // Fetch and validate fiscal year
+      const fiscalYearData = await refetchFiscalYear();
+      const fiscalYearEndDate = fiscalYearData?.data?.endDate;
+
+      if (fiscalYearEndDate) {
+        setActiveCalendar(fiscalYearEndDate);
+      }
+
+      message.success('Welcome!');
+      message.loading({ content: 'Redirecting...', key: 'redirect' });
+
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+      sessionStorage.removeItem('redirectAfterLogin');
+
+      // Redirect based on user account status
+      if (!userData.hasCompany) {
+        router.push('/onboarding');
+      } else if (!userData.hasChangedPassword) {
+        router.push('/authentication/new-password');
+      } else if (
+        userData.hasCompany &&
+        userData.hasChangedPassword &&
+        fiscalYearEndDate &&
+        new Date(fiscalYearEndDate) > new Date()
+      ) {
+        router.push('/dashboard');
       } else {
-        if (tenant?.id !== fetchedData?.data?.tenantId) {
-          message.error(
-            'This user does not belong to this tenant. Please contact your administrator.',
-          );
-          setToken('');
-          // setLocalId('');
-          return;
-        }
-        setTenantId(fetchedData?.data?.tenantId);
-        setUserId(fetchedData?.data?.id);
-        setUserData(fetchedData?.data);
-        setLoggedUserRole(fetchedData?.data?.role?.slug || '');
+        const userRole = userData?.role?.slug;
 
-        const fiscalYearData = await refetchFiscalYear();
-        if (fiscalYearData?.data) {
-          setActiveCalendar(fiscalYearData?.data?.endDate);
-        }
-
-        message.success('Welcome!');
-        message.loading({ content: 'Redirecting...', key: 'redirect' });
-        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-        sessionStorage.removeItem('redirectAfterLogin');
-
-        if (fetchedData?.data?.hasCompany === false) {
-          router.push('/onboarding');
-        } else if (fetchedData?.data?.hasChangedPassword === false) {
-          router.push('/authentication/new-password');
-        } else if (
-          fetchedData?.data?.hasCompany === true &&
-          fetchedData?.data?.hasChangedPassword === true &&
-          fiscalYearData?.data?.endDate &&
-          new Date(fiscalYearData?.data?.endDate) > new Date()
-        ) {
-          router.push('/dashboard');
+        // Admin or owner role logic
+        if (userRole === 'owner' || userRole === 'admin') {
+          if (fiscalYearEndDate && new Date(fiscalYearEndDate) < new Date()) {
+            message.warning(
+              'Your active fiscal year has ended. Please set a new one.',
+            );
+            router.push('/organization/settings/fiscalYear/fiscalYearCard');
+          } else if (redirectPath) {
+            router.push(redirectPath);
+          } else {
+            router.push('/organization/settings/fiscalYear/fiscalYearCard');
+          }
         } else {
           if (
             AccessGuard.checkAccess({
@@ -111,12 +140,7 @@ export const useHandleSignIn = () => {
               router.push('/organization/settings/fiscalYear/fiscalYearCard');
             }
           } else {
-            // For other roles, go to dashboard
-            if (redirectPath) {
-              router.push(redirectPath);
-            } else {
-              router.push('/dashboard');
-            }
+            router.push('/dashboard');
           }
         }
       }

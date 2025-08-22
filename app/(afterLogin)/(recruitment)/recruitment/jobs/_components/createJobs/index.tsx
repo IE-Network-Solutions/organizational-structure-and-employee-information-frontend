@@ -29,7 +29,7 @@ const CreateJobs: React.FC = () => {
     filteredQuestions,
     setSelectedQuestions,
   } = useJobState();
-  const { mutate: createJob } = useCreateJobs();
+  const { mutate: createJob, isLoading: isCreatingJob } = useCreateJobs();
 
   const customDot = (step: number) => (
     <div
@@ -170,7 +170,11 @@ const CreateJobs: React.FC = () => {
             />
           </div>
           <div hidden={currentStep !== 1}>
-            <CreateApplicationForm form={form} stepChange={handleStepChange} />
+            <CreateApplicationForm
+              form={form}
+              stepChange={handleStepChange}
+              isLoading={isCreatingJob}
+            />
           </div>
         </Form>
       </CustomDrawerLayout>

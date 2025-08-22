@@ -261,7 +261,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               rules={[
                 { required: true, message: 'Please input the phone number!' },
                 {
-                  pattern: /^\+?[1-9]\d{1,14}$/,
+                  pattern: /^\+?[0-9]\d{1,14}$/,
                   message: 'Please enter a valid phone number!',
                 },
               ]}

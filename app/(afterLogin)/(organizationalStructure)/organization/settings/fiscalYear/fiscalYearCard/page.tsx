@@ -194,34 +194,37 @@ const FiscalYearListCard: React.FC = () => {
                     </div>
                   ))}
               </div>
-              {fYear.isActive && (
-                <AccessGuard
-                  permissions={[
-                    Permissions.UpdateCalendar,
-                    Permissions.DeleteCalendar,
-                  ]}
+              {/* Dropdown for edit/delete actions */}
+              <AccessGuard
+                permissions={[
+                  Permissions.UpdateCalendar,
+                  Permissions.DeleteCalendar,
+                ]}
+              >
+                <Dropdown
+                  menu={{
+                    items: [
+                      ...(fYear.isActive
+                        ? [
+                            {
+                              key: 'edit',
+                              label: 'Edit',
+                              onClick: () => handleMenuClick('edit', fYear),
+                            },
+                          ]
+                        : []),
+                      {
+                        key: 'delete',
+                        label: <span className="text-red-500">Delete</span>,
+                        onClick: () => handleMenuClick('delete', fYear),
+                      },
+                    ],
+                  }}
+                  trigger={['click']}
                 >
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          key: 'edit',
-                          label: 'Edit',
-                          onClick: () => handleMenuClick('edit', fYear),
-                        },
-                        {
-                          key: 'delete',
-                          label: <span className="text-red-500">Delete</span>,
-                          onClick: () => handleMenuClick('delete', fYear),
-                        },
-                      ],
-                    }}
-                    trigger={['click']}
-                  >
-                    <MoreOutlined className="text-lg cursor-pointer" />
-                  </Dropdown>
-                </AccessGuard>
-              )}
+                  <MoreOutlined className="text-lg cursor-pointer" />
+                </Dropdown>
+              </AccessGuard>
             </div>
           </Card>
         ))

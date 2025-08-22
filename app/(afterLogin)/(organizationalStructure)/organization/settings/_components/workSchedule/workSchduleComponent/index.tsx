@@ -9,8 +9,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 
 function WorkScheduleTab() {
   const handleMenuClick = () => {};
-  const { data: workScheudleData } = useFetchSchedule();
-  const { Panel } = Collapse;
   const {
     setDetail,
     setScheduleName,
@@ -19,7 +17,11 @@ function WorkScheduleTab() {
     openDrawer,
     setEditMode,
     setDeleteMode,
+    pageSize,
+    currentPage,
   } = useScheduleStore();
+  const { data: workScheudleData } = useFetchSchedule(currentPage, pageSize);
+  const { Panel } = Collapse;
 
   const handleEditSchedule = (data: any) => {
     setScheduleName(data.name);

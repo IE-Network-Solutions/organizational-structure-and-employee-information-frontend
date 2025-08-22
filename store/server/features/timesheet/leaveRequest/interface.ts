@@ -19,6 +19,10 @@ export interface LeaveRequestStatusBody {
   status: 'approved' | 'declined';
 }
 
+export interface LeaveRequestNotificationBody {
+  leaveRequestIds?: string[];
+}
+
 export interface AllLeaveRequestApproveData {
   userId: string;
   roleId: string;

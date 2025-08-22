@@ -84,7 +84,7 @@ const Weekly = ({
           </div>
         ))
       ) : (
-        <div className="text-sm font-light flex h-full justify-center items-center ">
+        <div className="text-lg font-light flex h-full justify-center items-center ">
           Add your plans to view them here
         </div>
       )}

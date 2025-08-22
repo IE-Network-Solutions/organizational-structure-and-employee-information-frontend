@@ -49,7 +49,6 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
     <Modal
       title={title}
       width={520}
-      onClose={() => form.resetFields()}
       onCancel={onClose}
       open={open}
       footer={

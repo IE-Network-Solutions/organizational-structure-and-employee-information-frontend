@@ -2,7 +2,7 @@ import React from 'react';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Popconfirm, Table, Input, Avatar, Spin } from 'antd';
+import { Button, Popconfirm, Table, Input, Avatar, Spin, Card } from 'antd';
 import {
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
@@ -22,6 +22,7 @@ import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import dayjs from 'dayjs';
+import { AiOutlineReload } from 'react-icons/ai';
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage } =
@@ -32,7 +33,8 @@ const ApprovalTable = () => {
   const { userId } = useAuthenticationStore();
   const userRollId = useAuthenticationStore.getState().userData.roleId;
   const { rejectComment, setRejectComment } = useApprovalStore();
-  const { mutate: editApprover } = useSetApproveLeaveRequest();
+  const { mutate: editApprover, isLoading: isLoadingEditApprover } =
+    useSetApproveLeaveRequest();
   const { mutate: finalApprover } = useSetFinalApproveLeaveRequest();
   const { mutate: allApprover, isLoading: allApproveIsLoading } =
     useSetAllApproveLeaveRequest();
@@ -40,11 +42,11 @@ const ApprovalTable = () => {
     useSetRejectLeaveRequest();
   const { mutate: finalAllApproval } = useSetAllFinalApproveLeaveRequest();
 
-  const { data, isFetching } = useGetApprovalLeaveRequest(
-    userId,
-    userCurrentPage,
-    pageSize,
-  );
+  const {
+    data: approvalData,
+    isLoading: isLoadingApproval,
+    refetch,
+  } = useGetApprovalLeaveRequest(userId, userCurrentPage, pageSize);
   const finalApproval: any = (e: {
     leaveRequestId: string;
     status: string;
@@ -65,6 +67,7 @@ const ApprovalTable = () => {
       onSuccess: () => {
         setRejectComment('');
         finalApproval({ leaveRequestId: e.requestId, status: 'declined' });
+        refetch();
       },
     });
   };
@@ -86,12 +89,13 @@ const ApprovalTable = () => {
             status: 'approved',
           });
         }
+        refetch();
       },
     });
   };
 
   const cancel: any = () => {};
-  const allFilterData = data?.items?.map((item: any, index: number) => {
+  const allFilterData = approvalData?.items?.map((item: any, index: number) => {
     return {
       key: index,
       createdAt: item?.createdAt
@@ -123,6 +127,12 @@ const ApprovalTable = () => {
               onCancel={cancel}
               okText="Approve"
               cancelText="Cancel"
+              disabled={
+                isLoadingApproval ||
+                isLoadingEditApprover ||
+                allApproveIsLoading ||
+                allRejectIsLoading
+              }
             >
               <Button type="primary">Approve</Button>
             </Popconfirm>
@@ -160,6 +170,12 @@ const ApprovalTable = () => {
             okText="Reject"
             cancelText="Cancel"
             okButtonProps={{ disabled: !rejectComment }}
+            disabled={
+              isLoadingApproval ||
+              isLoadingEditApprover ||
+              allApproveIsLoading ||
+              allRejectIsLoading
+            }
           >
             <Button danger>Reject</Button>
           </Popconfirm>
@@ -259,6 +275,7 @@ const ApprovalTable = () => {
           }),
         );
         finalAllApproval(transformData);
+        refetch();
       },
     });
   };
@@ -277,16 +294,23 @@ const ApprovalTable = () => {
           status: 'declined',
         }));
         finalAllApproval(transformData);
+        refetch();
       },
     });
   };
   return (
     <>
-      {data?.items?.length > 0 ? (
-        <>
+      {approvalData?.items?.length > 0 ? (
+        <Card loading={isLoadingApproval}>
           <div className="flex items-center mb-2 px-3">
             <div className="text-2xl font-bold text-gray-900">
               Waiting for my approval
+              <Button
+                type="text"
+                size="small"
+                icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                onClick={() => refetch()}
+              />
             </div>
           </div>
           <div className="flex items-center sm:justify-end justify-between mb-2 px-3 sm:px-0">
@@ -301,7 +325,15 @@ const ApprovalTable = () => {
                 okText="Approve All"
                 cancelText="Cancel"
               >
-                <Button disabled={allApproveIsLoading} type="primary">
+                <Button
+                  disabled={
+                    isLoadingApproval ||
+                    isLoadingEditApprover ||
+                    allApproveIsLoading ||
+                    allRejectIsLoading
+                  }
+                  type="primary"
+                >
                   <Spin spinning={allApproveIsLoading} />
                   Approve All
                 </Button>
@@ -316,7 +348,15 @@ const ApprovalTable = () => {
                 okText="Reject All"
                 cancelText="Cancel"
               >
-                <Button disabled={allRejectIsLoading} danger>
+                <Button
+                  disabled={
+                    isLoadingApproval ||
+                    isLoadingEditApprover ||
+                    allApproveIsLoading ||
+                    allRejectIsLoading
+                  }
+                  danger
+                >
                   <Spin spinning={allRejectIsLoading} />
                   Reject All
                 </Button>
@@ -325,17 +365,22 @@ const ApprovalTable = () => {
           </div>
           <Table
             columns={columns}
-            loading={isFetching}
+            loading={
+              isLoadingApproval ||
+              isLoadingEditApprover ||
+              allApproveIsLoading ||
+              allRejectIsLoading
+            }
             dataSource={allFilterData}
             pagination={{
-              total: data?.meta?.totalItems,
+              total: approvalData?.meta?.totalItems,
               current: userCurrentPage,
               pageSize: pageSize,
               onChange: onPageChange,
             }}
             scroll={{ x: 'min-content' }}
           />
-        </>
+        </Card>
       ) : (
         ''
       )}

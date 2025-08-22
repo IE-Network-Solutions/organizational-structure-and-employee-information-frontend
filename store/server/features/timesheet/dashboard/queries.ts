@@ -80,6 +80,8 @@ export const getAdminOnLeave = async (params: {
   startDate?: string;
   endDate?: string;
   userId?: string;
+  leaveTypeId?: string;
+  departmentId?: string;
 }) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
@@ -95,6 +97,7 @@ export const useGetAdminOnLeave = (params: {
   endDate?: string;
   userId?: string;
   departmentId?: string;
+  leaveTypeId?: string;
 }) => {
   return useQuery(['adminOnLeave', params], () => getAdminOnLeave(params));
 };
@@ -104,6 +107,7 @@ export const getAdminPendingLeaveRequests = async (params?: {
   endDate?: string;
   userId?: string;
   departmentId?: string;
+  leaveTypeId?: string;
 }) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
@@ -119,6 +123,7 @@ export const useGetAdminPendingLeaveRequests = (params?: {
   endDate?: string;
   userId?: string;
   departmentId?: string;
+  leaveTypeId?: string;
 }) => {
   return useQuery(['adminPendingLeaveRequests', params], () =>
     getAdminPendingLeaveRequests(params),
@@ -129,6 +134,7 @@ export const getAdminAttendanceStats = async (params: {
   startDate: string;
   endDate: string;
   departmentId?: string;
+  userId?: string;
 }) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
@@ -143,6 +149,7 @@ export const useGetAdminAttendanceStats = (params: {
   startDate: string;
   endDate: string;
   departmentId?: string;
+  userId?: string;
 }) => {
   return useQuery(['adminAttendanceStats', params], () =>
     getAdminAttendanceStats(params),
@@ -177,6 +184,7 @@ export const useGetAdminAttendanceUsers = (params: {
   endDate?: string;
   page?: number;
   limit?: number;
+  currentStatus?: string;
 }) => {
   return useQuery(['adminAttendanceUsers', params], () =>
     getAdminAttendanceUsers(params),

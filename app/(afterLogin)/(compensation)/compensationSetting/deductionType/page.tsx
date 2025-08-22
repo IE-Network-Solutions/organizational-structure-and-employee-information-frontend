@@ -13,8 +13,8 @@ const DeductionTypePage = () => {
   const { setIsDeductionOpen } = useCompensationSettingStore();
 
   return (
-    <div className="p-5 rounded-2xl bg-white ">
-      <div className="flex justify-between mb-4">
+    <div className="bg-white rounded-lg px-1 py-4 sm:px-6">
+      <div className="flex justify-between mb-3 items-center">
         <h1 className="text-lg font-bold">Deduction Types</h1>
         <AccessGuard permissions={[Permissions.CreateBenefitType]}>
           <Button
@@ -26,11 +26,11 @@ const DeductionTypePage = () => {
               setIsDeductionOpen(true);
             }}
           >
-            <span className="hidden lg:inline"> New Deduction Type</span>
+            <span className="hidden lg:inline">Deduction</span>
           </Button>
         </AccessGuard>
       </div>
-      <div className="flex overflow-x-auto scrollbar-none w-full ">
+      <div>
         <DeductionTypeTable />
       </div>
       <DeductiontypeSideBar />

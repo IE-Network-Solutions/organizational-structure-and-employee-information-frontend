@@ -64,7 +64,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   );
 
   const stageId = foundStage ? foundStage.id : '';
-  const { mutate: createCandidate } = useCreateCandidate();
+  const { mutate: createCandidate, isLoading: isCreatingCandidate } =
+    useCreateCandidate();
 
   const handleDocumentChange = (info: any) => {
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
@@ -138,12 +139,15 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             <Button
               onClick={onClose}
               className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+              disabled={isCreatingCandidate}
             >
               Cancel
             </Button>
             <Button
               onClick={() => form.submit()}
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              loading={isCreatingCandidate}
+              disabled={isCreatingCandidate}
             >
               Create
             </Button>
@@ -209,7 +213,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               rules={[
                 { required: true, message: 'Please input the phone number!' },
                 {
-                  pattern: /^\+?[1-9]\d{1,14}$/,
+                  pattern: /^\+?[0-9]\d{1,14}$/,
                   message: 'Please enter a valid phone number!',
                 },
               ]}

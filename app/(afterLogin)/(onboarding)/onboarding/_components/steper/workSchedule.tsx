@@ -216,13 +216,13 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
         >
           <Form.Item
             name="scheduleName"
-            label="Schedule Name"
+            label={<span className="text-sm font-semibold">Schedule Name</span>}
             className="w-full font-normal text-lg md:text-xl mt-4 md:mt-8"
             rules={[{ required: true, message: 'Please input schedule name!' }]}
           >
             <Input
               size="large"
-              className="mt-2 w-full font-normal text-sm md:text-base"
+              className="mt-2 w-full font-normal text-sm "
               placeholder="Enter your schedule name"
             />
           </Form.Item>

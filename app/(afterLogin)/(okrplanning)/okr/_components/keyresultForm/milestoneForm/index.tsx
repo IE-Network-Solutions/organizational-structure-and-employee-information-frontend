@@ -333,7 +333,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
         ) : (
           <div className="flex flex-col gap-2 mt-4 mx-4">
             {/* Key Result row */}
-            <div className="flex flex-row gap-1 items-center">
+            <div className="flex flex-row gap-2 items-center">
               <Form.Item
                 className="flex-1 mr-2 mb-0"
                 name={`title-${index}`}
