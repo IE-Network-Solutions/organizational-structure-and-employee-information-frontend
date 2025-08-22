@@ -128,7 +128,9 @@ const setAllFinalApproveLeaveRequest = async (data: any) => {
     data,
   });
 };
-const setAllLeaveRequestNotification = async (data?: LeaveRequestNotificationBody) => {
+const setAllLeaveRequestNotification = async (
+  data?: LeaveRequestNotificationBody,
+) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/leave-request/current-approver/pending-leaves/notify`,
@@ -162,6 +164,8 @@ export const useDeleteLeaveRequest = () => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('leave-request');
+      queryClient.invalidateQueries('current_approval');
+      queryClient.invalidateQueries('userLeaveRequests');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

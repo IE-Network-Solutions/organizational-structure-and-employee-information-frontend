@@ -47,9 +47,6 @@ const ActionButtons: FC<ActionButtonsProps> = ({
             id={`${id}buttonPopOverActionForOnDeleteActionId`}
             icon={<FiTrash2 />}
             type="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
           />
         </DeletePopover>
       )}
