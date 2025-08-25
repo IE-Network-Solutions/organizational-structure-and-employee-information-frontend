@@ -73,7 +73,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
 
         const uploadResponse = await fileUpload(file);
 
-        if (!uploadResponse?.data) {
+        if (!uploadResponse?.image) {
           throw new Error('File upload failed.');
         }
 
@@ -88,7 +88,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
           attachments: [
             {
               filename: `payslip_${employeeData?.employeeId}.pdf`,
-              path: uploadResponse.data.image,
+              path: uploadResponse.image,
             },
           ],
         };

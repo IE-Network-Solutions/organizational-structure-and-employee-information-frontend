@@ -47,15 +47,12 @@ const ActionButtons: FC<ActionButtonsProps> = ({
             id={`${id}buttonPopOverActionForOnDeleteActionId`}
             icon={<FiTrash2 />}
             type="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
           />
         </DeletePopover>
       )}
       {onDetail && (
         <Button
-          className="w-7 h-7"
+          className="w-7 h-7 lg:w-[60px] px-2 "
           icon={'Detail'}
           id={`${id}buttonPopOverActionForOnDetailActionId`}
           loading={loading}

@@ -3,7 +3,6 @@ import { TNA_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
 
 // Define the OKRDashboard interface
 interface CoursePermittedrs {

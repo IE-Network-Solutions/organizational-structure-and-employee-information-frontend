@@ -115,7 +115,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
       if (onSuccess && response) {
         prevIsFileUploadLoading[uploadType] = false;
         setIsFileUploadLoading(prevIsFileUploadLoading);
-        onSuccess(response.data['viewImage']);
+        onSuccess(response.viewImage);
       }
     } finally {
       if (setIsLoading) {

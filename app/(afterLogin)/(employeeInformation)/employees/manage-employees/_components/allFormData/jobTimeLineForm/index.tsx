@@ -65,6 +65,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartmentId(value);
+    setSwitchValue(false);
+    form.setFieldValue('departmentLeadOrNot', false);
   };
 
   const handleTeamLeadChange = (checked: boolean) => {
@@ -120,13 +122,24 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
           >
             <DatePicker
               disabledDate={(current) => {
-                // Use the main employee record's createdAt, not nested objects
-                const createdAt = employeeData?.createdAt;
-                if (!createdAt) return false;
+                // Get the last position's effective start date
+                const jobInformation = employeeData?.employeeJobInformation;
+                if (!jobInformation || jobInformation.length === 0)
+                  return false;
 
-                // Disable dates before the creation date (exact day, month, year)
-                const creationDate = dayjs(createdAt);
-                return current && current.isBefore(creationDate, 'day');
+                // Sort by effectiveStartDate to get the most recent position
+                const sortedJobs = [...jobInformation].sort((a, b) => {
+                  const dateA = new Date(a.effectiveStartDate || 0).getTime();
+                  const dateB = new Date(b.effectiveStartDate || 0).getTime();
+                  return dateB - dateA; // Sort in descending order (newest first)
+                });
+
+                const lastPositionDate = sortedJobs[0]?.effectiveStartDate;
+                if (!lastPositionDate) return false;
+
+                // Disable dates before the last position's effective start date
+                const lastPosition = dayjs(lastPositionDate);
+                return current && current.isBefore(lastPosition, 'day');
               }}
               className="w-full"
             />
@@ -136,8 +149,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
-              The effective start date cannot be before the employee&apos;s
-              creation date.
+              The effective start date cannot be before the employee&apos;s last
+              position start date.
             </div>
           </div>
         </Col>
