@@ -36,7 +36,8 @@ const getSelfAttendance = async (
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await crudRequest<ResponseData>({
+    // crudRequest<ResponseData>
+    const response = await crudRequest({
       url: `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
       method: 'GET',
       headers,

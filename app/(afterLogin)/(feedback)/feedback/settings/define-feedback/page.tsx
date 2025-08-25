@@ -82,7 +82,9 @@ const Page = () => {
   useEffect(() => {
     // Only set activeTab if it's not already set or if the current activeTab is not valid
     if (getAllFeedbackTypes?.items?.length > 0) {
-      const isValidActiveTab = getAllFeedbackTypes.items.some((item: FeedbackTypeItems) => item.id === activeTab);
+      const isValidActiveTab = getAllFeedbackTypes.items.some(
+        (item: FeedbackTypeItems) => item.id === activeTab,
+      );
       if (!isValidActiveTab) {
         setActiveTab(getAllFeedbackTypes.items[0].id);
       }

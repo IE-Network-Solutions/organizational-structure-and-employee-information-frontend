@@ -105,7 +105,7 @@ const EditCandidate: React.FC = () => {
           setSelectedCandidate(updatedCandidate);
           setEditCandidateModal(false);
         },
-      }
+      },
     );
   };
   const editCandidateHeader = (

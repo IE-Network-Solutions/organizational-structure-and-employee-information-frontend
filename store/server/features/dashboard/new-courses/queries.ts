@@ -37,7 +37,7 @@ const getCourse = async (): Promise<ResponseData> => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await crudRequest<ResponseData>({
+    const response = await crudRequest({
       url: `${TNA_URL}/learning/course/user-courses/${userId}`,
       method: 'GET',
       headers,
