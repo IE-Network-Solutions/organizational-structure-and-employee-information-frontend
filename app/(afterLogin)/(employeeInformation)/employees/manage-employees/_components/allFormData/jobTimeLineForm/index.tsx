@@ -123,7 +123,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
                 // Use the main employee record's createdAt, not nested objects
                 const createdAt = employeeData?.createdAt;
                 if (!createdAt) return false;
-                
+
                 // Disable dates before the creation date (exact day, month, year)
                 const creationDate = dayjs(createdAt);
                 return current && current.isBefore(creationDate, 'day');
@@ -136,7 +136,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               <IoInformationCircleOutline size={14} />
             </div>
             <div className="text-xs text-gray-500">
-              The effective start date cannot be before the employee&apos;s creation date.
+              The effective start date cannot be before the employee&apos;s
+              creation date.
             </div>
           </div>
         </Col>

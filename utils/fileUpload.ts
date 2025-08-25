@@ -7,9 +7,7 @@ export interface CustomFile {
   viewImage: string;
 }
 
-export const fileUpload = async (
-  file: File,
-): Promise<CustomFile> => {
+export const fileUpload = async (file: File): Promise<CustomFile> => {
   try {
     const formData = new FormData();
     formData.append('tenantId', useAuthenticationStore.getState().tenantId);
