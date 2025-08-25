@@ -37,7 +37,7 @@ const getBirthDay = async (): Promise<ResponseData> => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await crudRequest<ResponseData>({
+    const response = await crudRequest({
       url: `${ORG_AND_EMP_URL}/employee-information/users/birth-day`,
       method: 'GET',
       headers,
