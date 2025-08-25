@@ -58,3 +58,14 @@ const getKeyResult = async (id: string) => {
     throw error;
   }
 };
+
+/**
+ * Custom hook to get key result by ID
+ * @param id The ID to fetch key result for
+ * @returns useQuery hook for fetching key result
+ */
+export const useGetKeyResult = (id: string) =>
+  useQuery<KeyResult>(['keyResult', id], () => getKeyResult(id), {
+    keepPreviousData: true,
+    enabled: !!id, // Only run query when ID is provided
+  });
