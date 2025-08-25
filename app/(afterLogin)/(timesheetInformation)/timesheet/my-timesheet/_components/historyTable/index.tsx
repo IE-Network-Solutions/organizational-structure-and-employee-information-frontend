@@ -28,6 +28,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { FaPlus } from 'react-icons/fa';
+import { AiOutlineReload } from 'react-icons/ai';
 
 const HistoryTable = () => {
   const { userId } = useAuthenticationStore();
@@ -56,7 +57,7 @@ const HistoryTable = () => {
   } = usePagination(1, 10);
   const [filter, setFilter] =
     useState<Partial<LeaveRequestBody['filter']>>(userFilter);
-  const { data, isFetching } = useGetLeaveRequest(
+  const { data, isFetching, refetch } = useGetLeaveRequest(
     { page, limit, orderBy, orderDirection },
     { filter },
   );
@@ -245,6 +246,12 @@ const HistoryTable = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="text-sm sm:text-2xl font-bold text-gray-900">
           Leave History
+          <Button
+            type="text"
+            size="small"
+            icon={<AiOutlineReload size={14} className="text-gray-600" />}
+            onClick={() => refetch()}
+          />
         </div>
 
         <div className="flex ">
