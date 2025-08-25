@@ -39,6 +39,7 @@ apiClient.interceptors.request.use(async (config) => {
 apiClient.interceptors.response.use(async (response) => {
   const data = response.data;
 
+  
   // If skipEncryption is true, don't decrypt
   if ((data as any).skipEncryption) {
     return response;
