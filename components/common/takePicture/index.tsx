@@ -36,7 +36,7 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
       const file = formatBase64ToFile(imgBase64, `${Date.now()}.webp`);
       onClose();
       fileUpload(file).then((res) => {
-        const img = res.data['viewImage'];
+        const img = res.viewImage;
         onChange(img);
         setImgSrc(img);
         setIsLoading(false);
