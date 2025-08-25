@@ -25,9 +25,9 @@ const addPost = async (newPost: AddPostData) => {
 const deletePost = async (postId: string) => {
   try {
     const response = await crudRequest({
-    url: `${ORG_AND_EMP_URL}/posts/${postId}`,
-    method: 'DELETE',
-  });
+      url: `${ORG_AND_EMP_URL}/posts/${postId}`,
+      method: 'DELETE',
+    });
     return response.data;
   } catch (error) {
     throw error;

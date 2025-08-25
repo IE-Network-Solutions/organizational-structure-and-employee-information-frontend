@@ -45,5 +45,3 @@ export const crudRequest = async ({
     throw error;
   }
 };
-
-

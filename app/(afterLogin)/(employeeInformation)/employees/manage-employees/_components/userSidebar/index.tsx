@@ -58,8 +58,6 @@ const UserSidebar = (props: any) => {
     const allValues = form.getFieldsValue(true);
 
     const formData = transformData(allValues);
-
-    console.log('data to be sent to the mutation' , formData);
     createEmployee(formData);
   };
   const handleContinueClick = async () => {

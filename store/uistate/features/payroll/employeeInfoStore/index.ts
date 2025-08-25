@@ -238,7 +238,7 @@ interface PayrollState {
 
   pageSize: number;
   setPageSize: (size: number) => void;
-  
+
   // Reset function to restore default state
   resetState: () => void;
 }

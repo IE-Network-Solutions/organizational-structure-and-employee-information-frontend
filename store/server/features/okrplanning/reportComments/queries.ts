@@ -50,6 +50,10 @@ export const useGetComments = () =>
  * while the new data is being fetched.
  */
 export const useGetComment = (postId: number) =>
-  useQuery<any>(['reportComments', postId], () => getReportComment(postId.toString()), {
-    keepPreviousData: true,
-  });
+  useQuery<any>(
+    ['reportComments', postId],
+    () => getReportComment(postId.toString()),
+    {
+      keepPreviousData: true,
+    },
+  );

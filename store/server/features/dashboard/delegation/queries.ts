@@ -38,7 +38,7 @@ const getDelegation = async (
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await crudRequest<ResponseData>({
+    const response = await crudRequest({
       url: `${ORG_DEV_URL}/action-plans/user/plan?userId=${userId}&start=${start}&end=${end}`,
       method: 'GET',
       headers,

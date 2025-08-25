@@ -110,7 +110,7 @@ export const useGetEmployeInformationForms = () =>
 export const useGetEmployeInformationForm = (empoyeInformationFormId: string) =>
   useQuery<any>(
     ['employeInformationForms', empoyeInformationFormId],
-    () => getEmployeeInformationForm(empoyeInformationFormId),
+    () => getEmpoyeInformationForm(empoyeInformationFormId),
     {
       keepPreviousData: true,
     },

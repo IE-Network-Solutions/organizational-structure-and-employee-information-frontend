@@ -48,7 +48,7 @@ const Header = () => {
                 percent={Number(
                   (Number(objectiveDashboard?.okrCompleted || 0) /
                     Number(objectiveDashboard?.keyResultCount || 1)) *
-                  100,
+                    100,
                 )}
                 showInfo={false}
                 strokeColor="#3636F0"
@@ -96,7 +96,7 @@ const Header = () => {
                     objectiveDashboard?.supervisorKeyResultAchieved || 0,
                   ) /
                     Number(objectiveDashboard?.supervisorKeyResultCount || 1)) *
-                  100,
+                    100,
                 )}
                 showInfo={false}
                 strokeColor="#3636F0"

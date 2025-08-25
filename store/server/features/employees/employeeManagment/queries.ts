@@ -227,7 +227,9 @@ export const useGetActiveEmployee = () =>
 const getEmployee = async (id: string) => {
   // Prevent API call if id is not available
   if (!id || id === '' || id === 'undefined') {
-    throw new Error('Employee ID is not available. Please ensure a valid ID is provided.');
+    throw new Error(
+      'Employee ID is not available. Please ensure a valid ID is provided.',
+    );
   }
 
   const token = await getCurrentToken();

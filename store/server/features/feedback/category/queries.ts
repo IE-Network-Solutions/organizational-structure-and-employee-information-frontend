@@ -93,7 +93,9 @@ const fetchCatUsersById = async () => {
 
   // Prevent API call if userId is not available
   if (!userId || userId === '') {
-    throw new Error('User ID is not available. Please ensure you are properly authenticated.');
+    throw new Error(
+      'User ID is not available. Please ensure you are properly authenticated.',
+    );
   }
 
   const headers = {
@@ -179,7 +181,7 @@ export const useGetFormCategories = (formCatsId: string) => {
 export const useGetUsersById = () => {
   const token = useAuthenticationStore.getState().token;
   const userId = useAuthenticationStore.getState().userId;
-  
+
   return useQuery<any>('categories', fetchCatUsersById, {
     keepPreviousData: true,
     enabled: !!token && !!userId && userId !== '',
