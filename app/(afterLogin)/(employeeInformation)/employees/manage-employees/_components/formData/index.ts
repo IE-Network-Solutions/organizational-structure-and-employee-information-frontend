@@ -85,6 +85,5 @@ export const transformData = (data: any) => {
     formData.append('documentName', data.documentName.file.originFileObj);
   }
 
-  
   return formData;
 };
