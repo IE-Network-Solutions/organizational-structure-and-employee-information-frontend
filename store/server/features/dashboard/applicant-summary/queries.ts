@@ -3,7 +3,6 @@ import { RECRUITMENT_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
 
 // Define the OKRDashboard interface
 export interface Applicant {
@@ -42,7 +41,7 @@ const getApplicantSummary = async (status: string): Promise<ResponseData> => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await crudRequest<ResponseData>({
+    const response = await crudRequest({
       url: `${RECRUITMENT_URL}/applicant-status-stages/status/applicant?status=${status}`,
       method: 'GET',
       headers,
