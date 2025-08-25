@@ -60,10 +60,11 @@ const deleteObjective = async (deletedId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/objective/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Objective successfully deleted.',
@@ -103,10 +104,11 @@ const deleteKeyResult = async (deletedId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/key-results/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/key-results/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Key result successfully deleted.',
@@ -124,10 +126,11 @@ const deleteMilestone = async (deletedId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Milestone deleted successfully.',

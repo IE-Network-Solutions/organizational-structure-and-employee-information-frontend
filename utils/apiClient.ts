@@ -10,7 +10,21 @@ apiClient.interceptors.request.use(async (config) => {
         return config;
     }
 
-    if (config.data && typeof config.data === 'object') {
+    if (config.data instanceof FormData) {
+        try {
+            // Convert FormData to an object first
+            const formDataObj: Record<string, any> = {};
+            for (let [key, value] of config.data.entries()) {
+                formDataObj[key] = value;
+            }
+            
+            // Encrypt the converted object
+            const encryptedPayload = await encrypt(JSON.stringify(formDataObj));
+            config.data = { data: encryptedPayload };
+        } catch (err) {
+            throw err;
+        }
+    } else if (config.data && typeof config.data === 'object') {
         try {
             const encryptedPayload = await encrypt(JSON.stringify(config.data));
             config.data = { data: encryptedPayload };

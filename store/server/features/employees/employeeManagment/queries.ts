@@ -225,10 +225,23 @@ export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
 
 const getEmployee = async (id: string) => {
+  // Prevent API call if id is not available
+  if (!id || id === '' || id === 'undefined') {
+    throw new Error('Employee ID is not available. Please ensure a valid ID is provided.');
+  }
+
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
     const response = await crudRequest({
-      url: `${ORG_AND_EMP_URL}/employees/${id}`,
+      url: `${ORG_AND_EMP_URL}/users/${id}`,
       method: 'GET',
+      headers,
     });
     return response;
   } catch (error) {
@@ -237,10 +250,18 @@ const getEmployee = async (id: string) => {
 };
 
 const getUser = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
   try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
     const response = await crudRequest({
       url: `${ORG_AND_EMP_URL}/users/${id}`,
       method: 'GET',
+      headers,
     });
     return response;
   } catch (error) {

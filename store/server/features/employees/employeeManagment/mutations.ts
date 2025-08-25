@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
+
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -88,10 +88,11 @@ const deleteEmployee = async () => {
     tenantId: tenantId, // Pass tenantId in the headers
   };
   try {
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/users/${deletedItem}?limit=${pageSize}&&page=${userCurrentPage}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/${deletedItem}?limit=${pageSize}&&page=${userCurrentPage}`,
+      method: 'DELETE',
+      headers,
+    });
     setDeleteModal(false);
     setDeletedItem(null);
     NotificationMessage.success({

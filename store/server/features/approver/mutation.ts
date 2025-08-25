@@ -3,7 +3,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { APPROVER_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
+
 import { useMutation, useQueryClient } from 'react-query';
 
 const createApprover = async (values: any) => {
@@ -21,6 +21,8 @@ const createApprover = async (values: any) => {
   });
 };
 
+
+
 const deleteApprovalWorkFLow = async (id: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -29,10 +31,11 @@ const deleteApprovalWorkFLow = async (id: string) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.delete(
-      `${APPROVER_URL}/approvalWorkflows/${id}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${APPROVER_URL}/approvalWorkflows/${id}`,
+      method: 'DELETE',
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -77,7 +80,9 @@ const deleteApprover = async (id: string, data: any) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.delete(`${APPROVER_URL}/approver/${id}`, {
+    const response = await crudRequest({
+      url: `${APPROVER_URL}/approver/${id}`,
+      method: 'DELETE',
       headers,
       data,
     });
@@ -94,12 +99,11 @@ const deleteParallelApprover = async (id: string) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.delete(
-      `${APPROVER_URL}/approver/parallel/${id}`,
-      {
-        headers,
-      },
-    );
+    const response = await crudRequest({
+      url: `${APPROVER_URL}/approver/parallel/${id}`,
+      method: 'DELETE',
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
