@@ -65,6 +65,20 @@ const getNewCourses = async (id: string) => {
 };
 
 /**
+ * Custom hook to get new courses by ID
+ * @param id The ID to fetch new courses for
+ * @returns useQuery hook for fetching new courses
+ */
+export const useGetNewCourses = (id: string) =>
+  useQuery<ResponseData>(
+    ['newCourses', id], // Query key with ID
+    () => getNewCourses(id), // Function reference for fetching data
+    {
+      enabled: !!id, // Only run query when ID is provided
+    },
+  );
+
+/**
  * Custom hook to get the applicant summary
  * @returns useQuery hook for fetching applicant summary
  */

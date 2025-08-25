@@ -1,6 +1,6 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
+
 import { useQuery } from 'react-query';
 import { EmployeeInformationForm } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -73,13 +73,7 @@ const getEmpoyeInformationFormForTenant = async () => {
   }
 };
 
-// const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form/tenant/${id}`);
-//   const response = await axios.get(`${ORG_AND_EMP_URL}/employee-information-form`);
-//   return response.data;
-// } catch (error) {
-//   throw error;
-// }
-// };
+
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.

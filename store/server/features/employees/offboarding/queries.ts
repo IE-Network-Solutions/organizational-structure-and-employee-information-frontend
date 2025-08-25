@@ -78,6 +78,34 @@ const getOffboardingByUser = async (id: string) => {
   }
 };
 
+/**
+ * Custom hook to get offboarding by ID
+ * @param id The ID to fetch offboarding for
+ * @returns useQuery hook for fetching offboarding
+ */
+export const useGetOffboarding = (id: string) =>
+  useQuery<any>(
+    ['offboarding', id], // Query key with ID
+    () => getOffboarding(id), // Function reference for fetching data
+    {
+      enabled: !!id, // Only run query when ID is provided
+    },
+  );
+
+/**
+ * Custom hook to get offboarding by user ID
+ * @param id The user ID to fetch offboarding for
+ * @returns useQuery hook for fetching offboarding by user
+ */
+export const useGetOffboardingByUser = (id: string) =>
+  useQuery<any>(
+    ['offboardingByUser', id], // Query key with ID
+    () => getOffboardingByUser(id), // Function reference for fetching data
+    {
+      enabled: !!id, // Only run query when ID is provided
+    },
+  );
+
 export const useFetchOffboardItems = () => {
   return useQuery<any>('offboardItems', fetchOffBoardingTemplateTasks);
 };
