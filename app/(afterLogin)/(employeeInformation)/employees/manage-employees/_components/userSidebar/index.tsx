@@ -56,7 +56,9 @@ const UserSidebar = (props: any) => {
   const handleCreateUser = async () => {
     await form.validateFields();
     const allValues = form.getFieldsValue(true);
-    createEmployee(transformData(allValues));
+
+    const formData = transformData(allValues);
+    createEmployee(formData);
   };
   const handleContinueClick = async () => {
     if (current !== 2) {

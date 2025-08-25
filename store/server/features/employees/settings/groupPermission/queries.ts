@@ -1,6 +1,5 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { GroupPermissionType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -43,18 +42,13 @@ const getPermissionGroupswithOutPagination = async () => {
  * @returns The response data from the API
  */
 
-const getPermissionGroup = async (id: string) => {
-  const token = await getCurrentToken();
+const getGroupPermission = async (id: string) => {
   try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/permission-group/${id}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/permission-group/${id}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -100,6 +94,6 @@ export const useGetPermissionGroupsWithOutPagination = () =>
  * while the new data is being fetched.
  */
 export const useGetPermissionGroup = (postId: string) =>
-  useQuery<any>(['groupPermission', postId], () => getPermissionGroup(postId), {
+  useQuery<any>(['groupPermission', postId], () => getGroupPermission(postId), {
     keepPreviousData: true,
   });

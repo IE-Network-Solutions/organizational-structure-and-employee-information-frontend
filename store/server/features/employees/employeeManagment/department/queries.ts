@@ -2,7 +2,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 
 /**
@@ -69,11 +68,12 @@ const getDepartment = async (id: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/departments/tenant/departments/${id}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/departments/tenant/departments/${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -87,11 +87,12 @@ const getDepartmentLead = async (id: string | null) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/users/get-department-lead/${id}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/get-department-lead/${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }

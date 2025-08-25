@@ -1,7 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
+
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -210,13 +210,12 @@ const getActiveEmployee = async () => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/all-users/all/payroll-data`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -226,6 +225,13 @@ export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
 
 const getEmployee = async (id: string) => {
+  // Prevent API call if id is not available
+  if (!id || id === '' || id === 'undefined') {
+    throw new Error(
+      'Employee ID is not available. Please ensure a valid ID is provided.',
+    );
+  }
+
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -234,10 +240,32 @@ const getEmployee = async (id: string) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/users/${id}`, {
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/${id}`,
+      method: 'GET',
       headers,
     });
-    return response.data;
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUser = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    };
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }

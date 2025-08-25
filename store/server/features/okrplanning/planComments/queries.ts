@@ -1,5 +1,4 @@
 import { useQuery } from 'react-query';
-import axios from 'axios';
 import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
 // import axiosInstance from "@/providers/axiosContext";
@@ -20,8 +19,11 @@ const getPlanComments = async () => {
 
 const getComment = async (id: number) => {
   try {
-    const response = await axios.get(`${OKR_URL}/plan-comments/${id}`);
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_URL}/plan-comments/${id}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }

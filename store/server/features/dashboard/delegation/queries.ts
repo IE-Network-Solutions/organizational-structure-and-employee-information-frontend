@@ -1,8 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
 import { useQuery } from 'react-query';
+import { crudRequest } from '@/utils/crudRequest';
 
 // Define the OKRDashboard interface
 interface DelegationData {
@@ -37,11 +37,12 @@ const getDelegation = async (
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get<ResponseData>(
-      `${ORG_DEV_URL}/action-plans/user/plan?userId=${userId}&start=${start}&end=${end}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_DEV_URL}/action-plans/user/plan?userId=${userId}&start=${start}&end=${end}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }

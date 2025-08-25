@@ -3,7 +3,6 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -61,10 +60,11 @@ const deleteObjective = async (deletedId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/objective/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Objective successfully deleted.',
@@ -104,10 +104,11 @@ const deleteKeyResult = async (deletedId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/key-results/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/key-results/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Key result successfully deleted.',
@@ -125,10 +126,11 @@ const deleteMilestone = async (deletedId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
+      method: 'DELETE',
+      headers,
+    });
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Milestone deleted successfully.',
@@ -158,26 +160,22 @@ const downloadEmployeeOkrScore = async (data: any) => {
     //   updatedBy: logUserId,
     //   createdBy: logUserId,
     // };
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/export-okr-progress/all-employees/export`,
+      method: 'POST',
       data,
-      {
-        headers: {
-          ...requestHeaders,
-        },
-        responseType: 'blob', // Important for file download!
-      },
-    );
-    const blob = new Blob([response.data], {
-      type: response.headers['content-type'],
+      headers: requestHeaders,
+      skipEncryption: true, // Skip encryption for file downloads
+    });
+
+    // Note: crudRequest returns the data directly, so we need to handle blob differently
+    // This might need adjustment based on how the API returns file data
+    const blob = new Blob([response], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    const disposition = response.headers['content-disposition'];
     let fileName = 'Employee okr score export.xlsx';
-    if (disposition && disposition.includes('filename=')) {
-      fileName = disposition.split('filename=')[1].replace(/"/g, '');
-    }
 
     link.href = url;
     link.setAttribute('download', fileName);

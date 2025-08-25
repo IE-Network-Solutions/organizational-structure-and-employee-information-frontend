@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
+
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -79,10 +79,11 @@ const deleteRole = async ({
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/roles/${deletedId?.id}`,
+      method: 'DELETE',
+      headers,
+    });
     setCurrentModal(null);
     setDeletedId(null);
     return response.data;

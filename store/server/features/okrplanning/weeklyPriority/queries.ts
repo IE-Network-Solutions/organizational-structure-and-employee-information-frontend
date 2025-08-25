@@ -2,7 +2,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
-import axios from 'axios';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -67,24 +66,23 @@ const getWeeklyPriority = async (
 ) => {
   const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,
-      {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/weekly-priorities?page=${currentPage}&limit=${pageSize}`,
+      method: 'POST',
+      data: {
         departmentId: departmentIds,
         weeklyPriorityWeekId: weeklyId,
         taskId: [],
         planId: [],
         // updatedBy: logUserId,
         // createdBy: logUserId,
-      }, // This is the request body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-        },
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }

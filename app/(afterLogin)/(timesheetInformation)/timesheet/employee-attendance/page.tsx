@@ -125,7 +125,7 @@ const EmployeeAttendance = () => {
       fileUpload(file).then((res) => {
         setFile(null);
         setIsLoading(false);
-        uploadImport(res.data['viewImage']);
+        uploadImport(res.viewImage);
       });
     }
   }, [file]);

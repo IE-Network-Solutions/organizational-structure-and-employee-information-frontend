@@ -1,7 +1,7 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
 import { Dashboard } from '@/store/uistate/features/okrplanning/monitoring-evaluation/dashboard/interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -20,13 +20,12 @@ const getAppRepDashboard = async (userId: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/dashboard/${userId}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/dashboard/${userId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }

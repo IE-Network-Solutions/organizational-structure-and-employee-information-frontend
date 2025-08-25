@@ -123,7 +123,7 @@ const Header = () => {
           <div className="flex items-center justify-between">
             <div className="">
               <div className="text-xl font-bold ">
-                {objectiveDashboard?.companyOkr.toFixed(2) || 0}
+                {objectiveDashboard?.companyOkr?.toFixed(2) || 0}
               </div>
             </div>
             <div className="xl:min-w-28">

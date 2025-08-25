@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { AddPostData } from './interface';
-import axios from 'axios';
+
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 
@@ -24,7 +24,10 @@ const addPost = async (newPost: AddPostData) => {
  */
 const deletePost = async (postId: string) => {
   try {
-    const response = await axios.delete(`${ORG_AND_EMP_URL}/posts/${postId}`);
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/posts/${postId}`,
+      method: 'DELETE',
+    });
     return response.data;
   } catch (error) {
     throw error;

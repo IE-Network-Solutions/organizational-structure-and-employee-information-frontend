@@ -2,8 +2,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { EmployeeStatusDashboard } from '@/store/uistate/features/dashboard/employee-status/interface';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
 import { useQuery } from 'react-query';
+import { crudRequest } from '@/utils/crudRequest';
 
 type ResponseData = EmployeeStatusDashboard[];
 
@@ -21,13 +21,12 @@ const getEmployeeStatus = async (id: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/employement-type/type/employee?type=${id}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employement-type/type/employee?type=${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
