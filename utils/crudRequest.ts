@@ -9,6 +9,7 @@ interface RequestParams {
   params?: Record<string, any>;
   requestedBy?: string;
   createdBy?: string;
+  skipEncryption?: boolean;
 }
 
 /**
@@ -23,17 +24,19 @@ export const crudRequest = async ({
   data,
   headers,
   params,
+  skipEncryption = false,
 }: RequestParams) => {
   const userId = useAuthenticationStore.getState().userId;
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   headers = { ...headers, requestedBy: userId, createdBy: userId, tenantId };
   try {
-    const config: AxiosRequestConfig = {
+    const config: AxiosRequestConfig & { skipEncryption?: boolean } = {
       url,
       method,
       headers,
       params,
+      skipEncryption,
     };
 
     if (data) {
