@@ -363,7 +363,9 @@ const Payroll = () => {
           ?.reduce((acc: any, item: any) => {
             return acc + Number(item.amount);
           }, 0);
-        const taxableTransport = transportAllowance - 600;
+        
+        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
+        const taxableTransport = transportAllowance >= 600 ? transportAllowance - 600 : 0;
         const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {
@@ -709,8 +711,8 @@ const Payroll = () => {
     },
     {
       title: 'Taxable Transport Allowance',
-      dataIndex: 'taxableTransportAllowance', // Fixed typo in dataIndex
-      key: 'taxableTransportAllowance', // Fixed typo in key (taxabale -> taxable)
+      dataIndex: 'taxableTransportAllowance',
+      key: 'taxableTransportAllowance',
       minWidth: 150,
       render: (notused: any, record: any) => {
         const totalTransportAllowance =
@@ -720,7 +722,10 @@ const Payroll = () => {
               (acc: number, item: any) => acc + Number(item.amount),
               0,
             ) || 0;
-        const taxableAmount = totalTransportAllowance - 600;
+        
+        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
+        const taxableAmount = totalTransportAllowance >= 600 ? totalTransportAllowance - 600 : 0;
+        
         return <div>{taxableAmount.toFixed(2)}</div>;
       },
     },
