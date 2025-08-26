@@ -101,12 +101,15 @@ const LeaveManagement = () => {
                 className={isSmallScreen ? 'w-10 h-10' : ''}
                 icon={<MdMarkEmailRead size={20} />}
                 onClick={() => {
-                  const selectedIds = selectedRowKeys.length > 0 
-                    ? selectedRowKeys.map((key) => key.toString())
-                    : undefined;
-                        sendNotification({
-                          leaveRequestIds: selectedIds
-                        });
+
+                  const selectedIds =
+                    selectedRowKeys.length > 0
+                      ? selectedRowKeys.map((key) => key.toString())
+                      : undefined;
+                  sendNotification({
+                    leaveRequestIds: selectedIds,
+                  });
+
                 }}
                 loading={isLoading}
               />
