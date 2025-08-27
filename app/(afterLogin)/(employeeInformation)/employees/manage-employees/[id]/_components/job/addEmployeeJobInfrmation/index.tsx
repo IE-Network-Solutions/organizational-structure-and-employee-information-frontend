@@ -17,9 +17,6 @@ interface Ids {
   onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
-  id: id,
-onInfoSubmition: onInfoSubmition,
-  isNavBarModal = false,
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
 
