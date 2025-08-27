@@ -118,15 +118,9 @@ const getTenant = async (tenantId?: string) => {
   }
 };
 
-export const useGetTenantByDomain = ({
-  domain,
-  isPwa,
-}: {
-  domain: string;
-  isPwa: boolean;
-}) => {
+export const useGetTenantByDomain = ({ domain }: { domain: string }) => {
   return useQuery(['domain', domain], () => getTenantByDomainName(domain), {
-    enabled: !!domain && isPwa, // ✅ only fetch if isPwa is true and domain exists
+    enabled: !!domain, // ✅ only fetch if domain exists
     keepPreviousData: true,
   });
 };
