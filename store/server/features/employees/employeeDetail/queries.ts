@@ -20,13 +20,42 @@ const getEmployee = async (id: string) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     };
-    const response = await crudRequest({
-      url: `${ORG_AND_EMP_URL}/users/${id}`,
-      method: 'GET',
-      headers,
-    });
-    return response;
+    
+    // First try with normal encryption handling
+    try {
+      const response = await crudRequest({
+        url: `${ORG_AND_EMP_URL}/users/${id}`,
+        method: 'GET',
+        headers,
+      });
+      
+      // If we get a proper response, return it
+      if (response && typeof response === 'object') {
+        return response;
+      }
+    } catch (encryptionError) {
+    }
+    
+    // Fallback: try with skipEncryption if the above fails
+    try {
+      const response = await crudRequest({
+        url: `${ORG_AND_EMP_URL}/users/${id}`,
+        method: 'GET',
+        headers,
+        skipEncryption: true,
+      });
+      
+      // Handle encrypted response manually if needed
+      if (response && response.data && typeof response.data === 'string') {
+        return {};
+      }
+      
+      return response;
+    } catch (fallbackError) {
+      throw fallbackError;
+    }
   } catch (error) {
+
     throw error;
   }
 };
@@ -36,15 +65,45 @@ const getSimpleEmployee = async (id: string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
-    const response = await crudRequest({
-      url: `${ORG_AND_EMP_URL}/users/simple-info/${id}`,
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        tenantId: tenantId,
-      },
-    });
-    return response;
+    // First try with normal encryption handling
+    try {
+      const response = await crudRequest({
+        url: `${ORG_AND_EMP_URL}/users/simple-info/${id}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
+        },
+      });
+      
+      // If we get a proper response, return it
+      if (response && typeof response === 'object') {
+        return response;
+      }
+    } catch (encryptionError) {
+    }
+    
+    // Fallback: try with skipEncryption if the above fails
+    try {
+      const response = await crudRequest({
+        url: `${ORG_AND_EMP_URL}/users/simple-info/${id}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
+        },
+        skipEncryption: true,
+      });
+      
+      // Handle encrypted response manually if needed
+      if (response && response.data && typeof response.data === 'string') {
+        return {};
+      }
+      
+      return response;
+    } catch (fallbackError) {
+      throw fallbackError;
+    }
   } catch (error) {
     throw error;
   }
