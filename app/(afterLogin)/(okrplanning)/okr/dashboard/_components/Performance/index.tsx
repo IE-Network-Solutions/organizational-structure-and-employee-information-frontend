@@ -1,5 +1,5 @@
 import { Select, Spin } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { useGetReporting } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -133,16 +133,21 @@ const Performance: React.FC = () => {
     undefined,
   );
 
-  // Find available period types for the user
-  const availablePeriods = assignedPeriods?.map(
-    (p: any) => p.planningPeriod?.name,
-  ) || ['Daily', 'Weekly', 'Monthly'];
+  // Get available planning periods for the current user
+  const availablePeriods = useMemo(() => {
+    if (!assignedPeriods) return [];
+    return assignedPeriods.map((p: any) => ({
+      id: p.planningPeriodId,
+      name: p.planningPeriod?.name || 'Unknown',
+      intervalType: p.planningPeriod?.intervalType || 'unknown'
+    }));
+  }, [assignedPeriods]);
 
   // Find the periodId for the selected period
   useEffect(() => {
     if (assignedPeriods && selectedPeriod !== 'All') {
       const found = assignedPeriods.find(
-        (p: any) => p.planningPeriod?.name === selectedPeriod,
+        (p: any) => p.planningPeriodId === selectedPeriod,
       );
       setSelectedPeriodId(found?.planningPeriodId);
     } else {
@@ -158,53 +163,47 @@ const Performance: React.FC = () => {
     pageSizeReporting: 100,
   });
 
-  // For the "All" view, show Month, Week, Day with sample data
+  // For the "All" view, show all available planning periods with sample data
   let chartLabels: string[] = [];
   let chartScores: number[] = [];
   
   if (selectedPeriod === 'All') {
-    // Show Month, Week, Day with sample data
-    chartLabels = ['Month', 'Week', 'Day'];
-    chartScores = [27.08, 53.41, 79.74];
+    // Show all available planning periods with sample data
+    chartLabels = availablePeriods.map(p => p.name);
+    // Generate sample scores for each period (you can replace this with actual aggregated data)
+    chartScores = availablePeriods.map((_, index) => {
+      const baseScore = 50;
+      const variation = Math.random() * 40 + 20; // Random score between 20-60
+      return Math.round((baseScore + variation) * 100) / 100;
+    });
   } else {
     // Use actual data for specific periods
     let filteredItems = reportData?.items || [];
-    if (selectedPeriod === 'Daily') {
-      filteredItems = filteredItems
-        .sort(
-          (a: any, b: any) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        )
-        .slice(0, 5)
-        .reverse();
-    } else if (selectedPeriod === 'Weekly') {
-      filteredItems = filteredItems
-        .sort(
-          (a: any, b: any) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        )
-        .slice(0, 4)
-        .reverse();
-    } else if (selectedPeriod === 'Monthly') {
-      filteredItems = filteredItems
-        .sort(
-          (a: any, b: any) =>
-            Number(b.monthNumber || 0) - Number(a.monthNumber || 0),
-        )
-        .slice(0, 3)
-        .reverse();
-    }
+    
+    // Sort by creation date for most recent items
+    filteredItems = filteredItems
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, 5) // Get last 5 items
+      .reverse();
 
+    // Generate labels based on the selected period type
     chartLabels = filteredItems.map((item: any, idx: number) => {
-      if (selectedPeriod === 'Daily') {
+      const selectedPeriodData = availablePeriods.find(p => p.id === selectedPeriod);
+      const periodName = selectedPeriodData?.name || 'Unknown';
+      
+      if (selectedPeriodData?.intervalType === 'day' || periodName.toLowerCase().includes('day')) {
         const date = new Date(item.createdAt);
         return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      } else if (selectedPeriodData?.intervalType === 'week' || periodName.toLowerCase().includes('week')) {
+        return `${periodName} ${idx + 1}`;
+      } else if (selectedPeriodData?.intervalType === 'month' || periodName.toLowerCase().includes('month')) {
+        return item?.monthName || `${periodName} ${idx + 1}`;
+      } else {
+        return `${periodName} ${idx + 1}`;
       }
-      if (selectedPeriod === 'Weekly') {
-        return `Week ${idx + 1}`;
-      }
-      if (selectedPeriod === 'Monthly') return item?.monthName || '';
-      return '';
     });
 
     chartScores = filteredItems.map((item: any) => {
@@ -277,7 +276,7 @@ const Performance: React.FC = () => {
       },
     },
     elements: {
-      bar: {
+      bar: { 
         borderWidth: 0,
       },
     },
@@ -298,13 +297,11 @@ const Performance: React.FC = () => {
           <Select.Option key="All" value="All">
             All
           </Select.Option>
-          {['Daily', 'Weekly', 'Monthly']
-            .filter((p) => availablePeriods.includes(p))
-            .map((period) => (
-              <Select.Option key={period} value={period}>
-                {period}
-              </Select.Option>
-            ))}
+          {availablePeriods.map((period) => (
+            <Select.Option key={period.id} value={period.id}>
+              {period.name}
+            </Select.Option>
+          ))}
         </Select>
       </div>
       <div className="flex-1 flex items-center justify-center">

@@ -1,6 +1,10 @@
-import { Select, Input, Button, Table, Avatar, Pagination } from 'antd';
-import React, { useState } from 'react';
+import { Select, Input, Button, Table, Avatar, Pagination, Spin } from 'antd';
+import React, { useState, useMemo } from 'react';
 import { DownloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetReporting } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface EmployeeData {
   key: string;
@@ -8,103 +12,102 @@ interface EmployeeData {
     name: string;
     avatar: string;
   };
-  monthly: string;
-  weekly: string;
-  daily: string;
+  performanceData: Record<string, string>; // Dynamic performance data based on planning periods
 }
 
 const EmployeePerformanceTable: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPeriod, setSelectedPeriod] = useState('All');
-  const pageSize = 3; // Reduced from 5 to 3 to show scrollable effect
+  const pageSize = 3;
 
-  // Mock employee data for the table
-  const employeeData: EmployeeData[] = [
-    {
-      key: '1',
-      employee: {
-        name: 'Pristia Abraham',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Pristia'
-      },
-      monthly: '75.6%',
-      weekly: '75.6%',
-      daily: '75.6%'
-    },
-    {
-      key: '2',
-      employee: {
-        name: 'John Doe',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
-      },
-      monthly: '82.3%',
-      weekly: '78.9%',
-      daily: '85.1%'
-    },
-    {
-      key: '3',
-      employee: {
-        name: 'Jane Smith',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane'
-      },
-      monthly: '68.7%',
-      weekly: '71.2%',
-      daily: '69.8%'
-    },
-    {
-      key: '4',
-      employee: {
-        name: 'Mike Johnson',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike'
-      },
-      monthly: '91.2%',
-      weekly: '88.5%',
-      daily: '92.1%'
-    },
-    {
-      key: '5',
-      employee: {
-        name: 'Sarah Wilson',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
-      },
-      monthly: '74.3%',
-      weekly: '76.8%',
-      daily: '73.9%'
-    },
-    {
-      key: '6',
-      employee: {
-        name: 'David Brown',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David'
-      },
-      monthly: '85.7%',
-      weekly: '83.2%',
-      daily: '87.4%'
-    },
-    {
-      key: '7',
-      employee: {
-        name: 'Lisa Davis',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa'
-      },
-      monthly: '79.1%',
-      weekly: '81.6%',
-      daily: '78.3%'
-    },
-    {
-      key: '8',
-      employee: {
-        name: 'Tom Anderson',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Tom'
-      },
-      monthly: '88.9%',
-      weekly: '86.7%',
-      daily: '90.2%'
-    }
-  ];
+  // Get current user and planning periods
+  const { userId } = useAuthenticationStore();
+  const { data: assignedPeriods, isLoading: periodsLoading } = useGetAssignedPlanningPeriodForUserId();
+  const { data: employeeData, isLoading: employeesLoading } = useGetAllUsers();
+
+  // Get available planning periods for the current user
+  const availablePeriods = useMemo(() => {
+    if (!assignedPeriods) return [];
+    return assignedPeriods.map((p: any) => ({
+      id: p.planningPeriodId,
+      name: p.planningPeriod?.name || 'Unknown',
+      intervalType: p.planningPeriod?.intervalType || 'unknown'
+    }));
+  }, [assignedPeriods]);
+
+  // Get reporting data for each planning period - moved to top level to follow Rules of Hooks
+  const dailyPeriodId = availablePeriods.find(p => p.intervalType === 'day' || p.name?.toLowerCase().includes('day'))?.id;
+  const weeklyPeriodId = availablePeriods.find(p => p.intervalType === 'week' || p.name?.toLowerCase().includes('week'))?.id;
+  const monthlyPeriodId = availablePeriods.find(p => p.intervalType === 'month' || p.name?.toLowerCase().includes('month'))?.id;
+
+  const { data: dailyReports, isLoading: dailyLoading } = useGetReporting({
+    userId: employeeData?.items?.map((emp: any) => emp.id) || [],
+    planPeriodId: dailyPeriodId || '',
+    pageReporting: 1,
+    pageSizeReporting: 100,
+  });
+
+  const { data: weeklyReports, isLoading: weeklyLoading } = useGetReporting({
+    userId: employeeData?.items?.map((emp: any) => emp.id) || [],
+    planPeriodId: weeklyPeriodId || '',
+    pageReporting: 1,
+    pageSizeReporting: 100,
+  });
+
+  const { data: monthlyReports, isLoading: monthlyLoading } = useGetReporting({
+    userId: employeeData?.items?.map((emp: any) => emp.id) || [],
+    planPeriodId: monthlyPeriodId || '',
+    pageReporting: 1,
+    pageSizeReporting: 100,
+  });
+
+  // Transform backend data to match our interface
+  const transformedEmployeeData: EmployeeData[] = useMemo(() => {
+    if (!employeeData?.items || !availablePeriods.length) return [];
+
+    return employeeData.items.map((emp: any) => {
+      const performanceData: Record<string, string> = {};
+
+      // Get performance data for each planning period
+      availablePeriods.forEach((period) => {
+        let reportData;
+        
+        // Map period IDs to the correct report data
+        if (period.id === dailyPeriodId) {
+          reportData = dailyReports?.items;
+        } else if (period.id === weeklyPeriodId) {
+          reportData = weeklyReports?.items;
+        } else if (period.id === monthlyPeriodId) {
+          reportData = monthlyReports?.items;
+        }
+
+        const employeeReport = reportData?.find((report: any) => report.userId === emp.id);
+        
+        // Extract and format score
+        const getScore = (report: any) => {
+          if (!report?.reportScore) return '0%';
+          const scoreStr = report.reportScore;
+          const numericScore = parseFloat(scoreStr.replace('%%', ''));
+          return isNaN(numericScore) ? '0%' : `${numericScore.toFixed(1)}%`;
+        };
+
+        performanceData[period.id] = getScore(employeeReport);
+      });
+
+      return {
+        key: emp.id,
+        employee: {
+          name: emp.firstName && emp.lastName ? `${emp.firstName} ${emp.lastName}` : emp.email || 'Unknown',
+          avatar: emp.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${emp.firstName || emp.email}`
+        },
+        performanceData
+      };
+    });
+  }, [employeeData, availablePeriods, dailyReports, weeklyReports, monthlyReports, dailyPeriodId, weeklyPeriodId, monthlyPeriodId]);
 
   // Filter data based on search query and selected period
-  const filteredData = employeeData.filter(employee =>
+  const filteredData = transformedEmployeeData.filter(employee =>
     employee.employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -126,32 +129,28 @@ const EmployeePerformanceTable: React.FC = () => {
     setCurrentPage(1); // Reset to first page when period changes
   };
 
-  // Get table headers based on selected period
+  // Check if any data is loading
+  const isLoading = employeesLoading || periodsLoading || dailyLoading || weeklyLoading || monthlyLoading;
+
+  // Get table headers based on selected period and available planning periods
   const getTableHeaders = () => {
     if (selectedPeriod === 'All') {
       return (
         <div className="flex items-center gap-10">
-          <div className="text-right w-18 text-gray-600 font-medium">Monthly</div>
-          <div className="text-right w-18 text-gray-600 font-medium">Weekly</div>
-          <div className="text-right w-18 text-gray-600 font-medium">Daily</div>
+          {availablePeriods.map((period) => (
+            <div key={period.id} className="text-right w-18 text-gray-600 font-medium">
+              {period.name}
+            </div>
+          ))}
         </div>
       );
-    } else if (selectedPeriod === 'Monthly') {
+    } else {
+      const selectedPeriodData = availablePeriods.find(p => p.id === selectedPeriod);
       return (
         <div className="flex items-center gap-10">
-          <div className="text-right w-18 text-gray-600 font-medium">Monthly</div>
-        </div>
-      );
-    } else if (selectedPeriod === 'Weekly') {
-      return (
-        <div className="flex items-center gap-10">
-          <div className="text-right w-18 text-gray-600 font-medium">Weekly</div>
-        </div>
-      );
-    } else if (selectedPeriod === 'Daily') {
-      return (
-        <div className="flex items-center gap-10">
-          <div className="text-right w-18 text-gray-600 font-medium">Daily</div>
+          <div className="text-right w-18 text-gray-600 font-medium">
+            {selectedPeriodData?.name || 'Unknown'}
+          </div>
         </div>
       );
     }
@@ -162,38 +161,22 @@ const EmployeePerformanceTable: React.FC = () => {
     if (selectedPeriod === 'All') {
       return (
         <div className="flex items-center gap-10">
-          <div className="text-right w-18">
-            <div className="text-gray-800 font-medium text-sm">{employee.monthly}</div>
-          </div>
-          <div className="text-right w-18">
-            <div className="text-gray-800 font-medium text-sm">{employee.weekly}</div>
-          </div>
-          <div className="text-right w-18">
-            <div className="text-gray-800 font-medium text-sm">{employee.daily}</div>
-          </div>
+          {availablePeriods.map((period) => (
+            <div key={period.id} className="text-right w-18">
+              <div className="text-gray-800 font-medium text-sm">
+                {employee.performanceData[period.id] || '0%'}
+              </div>
+            </div>
+          ))}
         </div>
       );
-    } else if (selectedPeriod === 'Monthly') {
+    } else {
       return (
         <div className="flex items-center gap-10">
           <div className="text-right w-18">
-            <div className="text-gray-800 font-medium text-sm">{employee.monthly}</div>
-          </div>
-        </div>
-      );
-    } else if (selectedPeriod === 'Weekly') {
-      return (
-        <div className="flex items-center gap-10">
-          <div className="text-right w-18">
-            <div className="text-gray-800 font-medium text-sm">{employee.weekly}</div>
-          </div>
-        </div>
-      );
-    } else if (selectedPeriod === 'Daily') {
-      return (
-        <div className="flex items-center gap-10">
-          <div className="text-right w-18">
-            <div className="text-gray-800 font-medium text-sm">{employee.daily}</div>
+            <div className="text-gray-800 font-medium text-sm">
+              {employee.performanceData[selectedPeriod] || '0%'}
+            </div>
           </div>
         </div>
       );
@@ -215,15 +198,11 @@ const EmployeePerformanceTable: React.FC = () => {
             <Select.Option key="All" value="All">
               All
             </Select.Option>
-            <Select.Option key="Daily" value="Daily">
-              Daily
-            </Select.Option>
-            <Select.Option key="Weekly" value="Weekly">
-              Weekly
-            </Select.Option>
-            <Select.Option key="Monthly" value="Monthly">
-              Monthly
-            </Select.Option>
+            {availablePeriods.map((period) => (
+              <Select.Option key={period.id} value={period.id}>
+                {period.name}
+              </Select.Option>
+            ))}
           </Select>
           <Button 
             type="primary" 
@@ -257,25 +236,31 @@ const EmployeePerformanceTable: React.FC = () => {
 
         {/* Table Body - Scrollable */}
         <div className="max-h-80 overflow-y-auto scrollbar-hide">
-          <div className="space-y-3">
-            {currentData.map((employee) => (
-              <div 
-                key={employee.key}
-                className="border border-gray-200 rounded-lg p-3 bg-white hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  {/* Employee Info */}
-                  <div className="flex items-center gap-3">
-                    <Avatar src={employee.employee.avatar} size={32} />
-                    <span className="text-gray-800 font-medium text-sm">{employee.employee.name}</span>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Spin size="large" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {currentData.map((employee) => (
+                <div 
+                  key={employee.key}
+                  className="border border-gray-200 rounded-lg p-3 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    {/* Employee Info */}
+                    <div className="flex items-center gap-3">
+                      <Avatar src={employee.employee.avatar} size={32} />
+                      <span className="text-gray-800 font-medium text-sm">{employee.employee.name}</span>
+                    </div>
+                    
+                    {/* Performance Data */}
+                    {getPerformanceData(employee)}
                   </div>
-                  
-                  {/* Performance Data */}
-                  {getPerformanceData(employee)}
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
