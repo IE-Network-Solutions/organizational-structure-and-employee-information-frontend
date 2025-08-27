@@ -7,6 +7,7 @@ import MetricsProgressOverview from './_components/MetricsProgressOverview';
 import DueSoonKeyResultList from './_components/DueSoonKeyResultList';
 import AwaitingApprovalsList from './_components/AwaitingApprovalsList';
 import Performance from './_components/Performance';
+import EmployeePerformanceTable from './_components/EmployeePerformanceTable';
 
 const Dashboard: React.FC = () => {
   return (
@@ -36,8 +37,9 @@ const Dashboard: React.FC = () => {
         </div>
         {/* Bottom section: Due Soon Key Result and Awaiting Approvals */}
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mt-2">
-          <div className="col-span-1 xl:col-span-3">
+          <div className="col-span-1 xl:col-span-3 flex flex-col gap-6">
             <DueSoonKeyResultList />
+            <EmployeePerformanceTable />
           </div>
           <div className="col-span-1 xl:col-span-2">
             <AwaitingApprovalsList />

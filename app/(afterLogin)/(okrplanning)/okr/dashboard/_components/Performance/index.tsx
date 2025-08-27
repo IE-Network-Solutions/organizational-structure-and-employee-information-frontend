@@ -14,6 +14,105 @@ import {
   Legend,
 } from 'chart.js';
 
+// Custom plugin for background bands (alternating horizontal stripes)
+const backgroundBandsPlugin = {
+  id: 'backgroundBands',
+  beforeDraw: (chart: any) => {
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea) return;
+
+    const yScale = scales.y;
+    ctx.save();
+    ctx.fillStyle = 'rgba(229, 231, 235, 0.4)'; // Light gray with opacity
+
+    // Create alternating horizontal bands
+    const bandHeight = yScale.height / 3; // 3 bands for 3 bars
+
+    for (let i = 0; i < 3; i++) {
+      const y = yScale.getPixelForValue(i) - (bandHeight / 2);
+      if (y !== null && !isNaN(y)) {
+        ctx.fillRect(chartArea.left, y, chartArea.width, bandHeight);
+      }
+    }
+    ctx.restore();
+  },
+};
+
+// Custom plugin for grid lines - ALL dotted
+const customGridPlugin = {
+  id: 'customGrid',
+  afterDraw: (chart: any) => {
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea) return;
+
+    const xScale = scales.x;
+    const yScale = scales.y;
+
+    ctx.save();
+    ctx.strokeStyle = '#E5E7EB';
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([2, 3]); // ALL lines dotted
+
+    // Draw vertical grid lines at 0, 10, 20, ..., 100
+    for (let i = 0; i <= 100; i += 10) {
+      const x = xScale.getPixelForValue(i);
+      if (x !== null) {
+        ctx.beginPath();
+        ctx.moveTo(x, chartArea.top);
+        ctx.lineTo(x, chartArea.bottom);
+        ctx.stroke();
+      }
+    }
+
+    // Draw FOUR horizontal dotted lines with bars positioned in the middle
+    // Line 1: Above Month bar
+    const line1Y = yScale.getPixelForValue(0) - (yScale.height / 2);
+    // Line 2: Between Month and Week bars
+    const line2Y = yScale.getPixelForValue(0) + (yScale.height / 2);
+    // Line 3: Between Week and Day bars  
+    const line3Y = yScale.getPixelForValue(1) + (yScale.height / 2);
+    // Line 4: Below Day bar
+    const line4Y = yScale.getPixelForValue(2) + (yScale.height / 2);
+
+    [line1Y, line2Y, line3Y, line4Y].forEach((y) => {
+      if (y !== null && !isNaN(y)) {
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+      }
+    });
+
+    ctx.restore();
+  },
+};
+
+// Custom plugin for value labels at the end of bars
+const valueLabelsPlugin = {
+  id: 'valueLabels',
+  afterDraw: (chart: any) => {
+    const { ctx, chartArea, data, scales } = chart;
+    if (!chartArea) return;
+    
+    const xScale = scales.x;
+    const yScale = scales.y;
+    
+    ctx.save();
+    ctx.font = '500 12px inherit';
+    ctx.fillStyle = '#374151';
+    ctx.textAlign = 'left';
+    
+    data.datasets[0].data.forEach((value: number, index: number) => {
+      const x = xScale.getPixelForValue(value) + 12; // 12px offset from bar end
+      const y = yScale.getPixelForValue(index) + (yScale.height / 2) + 4; // Center vertically
+      
+      ctx.fillText(value.toFixed(2), x, y);
+    });
+    
+    ctx.restore();
+  }
+};
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -21,12 +120,15 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  customGridPlugin,
+  valueLabelsPlugin,
+  backgroundBandsPlugin
 );
 
 const Performance: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: assignedPeriods } = useGetAssignedPlanningPeriodForUserId();
-  const [selectedPeriod, setSelectedPeriod] = useState('Weekly');
+  const [selectedPeriod, setSelectedPeriod] = useState('All');
   const [selectedPeriodId, setSelectedPeriodId] = useState<string | undefined>(
     undefined,
   );
@@ -38,11 +140,13 @@ const Performance: React.FC = () => {
 
   // Find the periodId for the selected period
   useEffect(() => {
-    if (assignedPeriods) {
+    if (assignedPeriods && selectedPeriod !== 'All') {
       const found = assignedPeriods.find(
         (p: any) => p.planningPeriod?.name === selectedPeriod,
       );
       setSelectedPeriodId(found?.planningPeriodId);
+    } else {
+      setSelectedPeriodId(undefined);
     }
   }, [assignedPeriods, selectedPeriod]);
 
@@ -54,78 +158,61 @@ const Performance: React.FC = () => {
     pageSizeReporting: 100,
   });
 
-  // Helper to get start of week (Monday) and start/end of month
-  const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday
+  // For the "All" view, show Month, Week, Day with sample data
+  let chartLabels: string[] = [];
+  let chartScores: number[] = [];
+  
+  if (selectedPeriod === 'All') {
+    // Show Month, Week, Day with sample data
+    chartLabels = ['Month', 'Week', 'Day'];
+    chartScores = [27.08, 53.41, 79.74];
+  } else {
+    // Use actual data for specific periods
+    let filteredItems = reportData?.items || [];
+    if (selectedPeriod === 'Daily') {
+      filteredItems = filteredItems
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )
+        .slice(0, 5)
+        .reverse();
+    } else if (selectedPeriod === 'Weekly') {
+      filteredItems = filteredItems
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )
+        .slice(0, 4)
+        .reverse();
+    } else if (selectedPeriod === 'Monthly') {
+      filteredItems = filteredItems
+        .sort(
+          (a: any, b: any) =>
+            Number(b.monthNumber || 0) - Number(a.monthNumber || 0),
+        )
+        .slice(0, 3)
+        .reverse();
+    }
 
-  let filteredItems = reportData?.items || [];
-  if (selectedPeriod === 'Daily') {
-    // For daily, sort by createdAt date and take the last 5 days
-    filteredItems = filteredItems
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, 5)
-      .reverse();
-  } else if (selectedPeriod === 'Weekly') {
-    // For weekly, sort by createdAt date and take the last 4 weeks
-    filteredItems = filteredItems
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, 4)
-      .reverse();
-  } else if (selectedPeriod === 'Monthly') {
-    filteredItems = filteredItems
-      .sort(
-        (a: any, b: any) =>
-          Number(b.monthNumber || 0) - Number(a.monthNumber || 0),
-      )
-      .slice(0, 3)
-      .reverse();
-  }
-
-  // --- Bar color logic for all periods ---
-  let barColors: string[] = [];
-  if (filteredItems.length > 0) {
-    const scores = filteredItems.map((item: any) => {
-      const scoreStr = item?.reportScore || '0%%';
-      const numericScore = parseFloat(scoreStr.replace('%%', ''));
-      return isNaN(numericScore) ? 0 : numericScore;
-    });
-    const max = Math.max(...scores);
-    const min = Math.min(...scores);
-    barColors = scores.map((score: number) => {
-      if (score === max) return '#4C4CFF'; // Highest Average Score
-      if (score === min) return '#E0E0FF'; // Low Average Score
-      return '#8C8CFF'; // Average Score
-    });
-  }
-
-  const chartLabels =
-    filteredItems.map((item: any, idx: number) => {
+    chartLabels = filteredItems.map((item: any, idx: number) => {
       if (selectedPeriod === 'Daily') {
-        // Format date as DD/MM/YYYY for daily view
         const date = new Date(item.createdAt);
         return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
       }
       if (selectedPeriod === 'Weekly') {
-        // Use Week 1, Week 2, ...
         return `Week ${idx + 1}`;
       }
       if (selectedPeriod === 'Monthly') return item?.monthName || '';
       return '';
-    }) || [];
+    });
 
-  const chartScores =
-    filteredItems.map((item: any) => {
+    chartScores = filteredItems.map((item: any) => {
       const scoreStr = item?.reportScore || '0%%';
       const numericScore = parseFloat(scoreStr.replace('%%', ''));
       return isNaN(numericScore) ? 0 : numericScore;
-    }) || [];
+    });
+  }
 
   const chartData = {
     labels: chartLabels,
@@ -133,37 +220,72 @@ const Performance: React.FC = () => {
       {
         label: 'Score',
         data: chartScores,
-        backgroundColor: barColors,
-        borderRadius: 10,
-        barThickness: 40,
+        backgroundColor: '#A5A6F6', // Consistent light purple/lavender color
+        borderRadius: 6,
+        barThickness: 28, // Optimal thickness
       },
     ],
   };
 
   const chartOptions = {
+    indexAxis: 'y' as const, // Horizontal bar chart
     responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        left: 25,
+        right: 50,
+        top: 35,
+        bottom: 25
+      }
+    },
     plugins: {
       legend: { display: false },
       title: { display: false },
       tooltip: { enabled: true },
     },
     scales: {
-      y: {
+      x: {
+        position: 'top' as const,
         beginAtZero: true,
         max: 100,
-        ticks: { stepSize: 20 },
-        grid: { color: '#F0F0F0' },
+        ticks: { 
+          stepSize: 10,
+          font: { family: 'inherit', size: 11 },
+          color: '#374151'
+        },
+        grid: { 
+          display: false // Disable default grid, use custom plugin
+        },
+        border: {
+          display: false
+        }
       },
-      x: {
-        grid: { display: false },
-        ticks: { font: { family: 'inherit', size: 14 } },
+      y: {
+        position: 'left' as const,
+        grid: { 
+          display: false // Disable default grid, use custom plugin
+        },
+        ticks: { 
+          font: { family: 'inherit', size: 13 },
+          color: '#374151',
+          padding: 15 // Increase padding for better bar spacing
+        },
+        border: {
+          display: false
+        }
+      },
+    },
+    elements: {
+      bar: {
+        borderWidth: 0,
       },
     },
   };
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 w-full h-full min-h-[420px] flex flex-col pb-4">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-4">
         <div className="text-xl font-bold text-gray-800">Performance</div>
         <Select
           placeholder="Period"
@@ -173,6 +295,9 @@ const Performance: React.FC = () => {
           onChange={setSelectedPeriod}
           dropdownStyle={{ minWidth: '100px' }}
         >
+          <Select.Option key="All" value="All">
+            All
+          </Select.Option>
           {['Daily', 'Weekly', 'Monthly']
             .filter((p) => availablePeriods.includes(p))
             .map((period) => (
@@ -183,35 +308,17 @@ const Performance: React.FC = () => {
         </Select>
       </div>
       <div className="flex-1 flex items-center justify-center">
-        {isLoading ? <Spin /> : <Bar data={chartData} options={chartOptions} />}
+        {isLoading ? <Spin /> : <Bar data={chartData} options={chartOptions} height={300} />}
       </div>
-      {/* Custom Legend for all periods */}
-      <div className="flex w-full justify-between mt-6 px-8">
+      {/* Simplified Legend */}
+      <div className="flex justify-center mt-6">
         <div className="flex items-center gap-3">
           <span
-            className="inline-block w-5 h-5 rounded-md"
-            style={{ background: '#4C4CFF' }}
+            className="inline-block w-4 h-4 rounded-md"
+            style={{ background: '#A5A6F6' }}
           ></span>
-          <span className="text-xs text-gray-700 font-medium">
-            Highest Average Score
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span
-            className="inline-block w-5 h-5 rounded-md"
-            style={{ background: '#8C8CFF' }}
-          ></span>
-          <span className="text-xs text-gray-700 font-medium">
-            Average Score
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span
-            className="inline-block w-5 h-5 rounded-md"
-            style={{ background: '#E0E0FF' }}
-          ></span>
-          <span className="text-xs text-gray-700 font-medium">
-            Low Average Score
+          <span className="text-sm text-gray-600 font-medium">
+            Average Performance
           </span>
         </div>
       </div>
