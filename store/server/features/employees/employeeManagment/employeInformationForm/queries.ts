@@ -73,8 +73,6 @@ const getEmpoyeInformationFormForTenant = async () => {
   }
 };
 
-
-
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
  *

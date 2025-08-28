@@ -79,10 +79,14 @@ const getAppreciationType = async (id: string) => {
  * while the new data is being fetched.
  */
 export const useGetAppreciationTypeById = (id: string) =>
-  useQuery<AppreciationType>(['appreciationType', id], () => getAppreciationType(id), {
-    keepPreviousData: true,
-    enabled: !!id, // Only run query when ID is provided
-  });
+  useQuery<AppreciationType>(
+    ['appreciationType', id],
+    () => getAppreciationType(id),
+    {
+      keepPreviousData: true,
+      enabled: !!id, // Only run query when ID is provided
+    },
+  );
 
 export const useGetAppreciationType = () =>
   useQuery<ResponseData>('appType', getAppType);
