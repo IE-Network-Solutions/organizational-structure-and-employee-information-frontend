@@ -1,43 +1,23 @@
 'use client';
-import { FC, ReactNode, useEffect, useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname } from 'next/navigation';
 import { RiAwardFill } from 'react-icons/ri';
 import { FaUserEdit } from 'react-icons/fa';
+import { BiCheckDouble } from 'react-icons/bi';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import SidebarMenu from '@/components/sidebarMenu';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import { useMediaQuery } from 'react-responsive';
+import { TbTarget, TbAward, TbShieldCheck, TbEdit } from 'react-icons/tb';
 
 interface OkrSettingsLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-// type MenuItem = Required<MenuProps>['items'][number];
-
-// type MenuItemType = {
-//   item: MenuItem;
-//   link: string;
-// };
-
-// class NMenuItem {
-//   items: MenuItemType[];
-//   constructor(items: MenuItemType[]) {
-//     this.items = items;
-//   }
-
-//   get onlyItems(): MenuItem[] {
-//     return this.items.map((item) => item.item);
-//   }
-
-//   findItem(itemKey: string): MenuItemType {
-//     const iComponent = this.items.find((item) => item.item!.key === itemKey);
-//     return iComponent ? iComponent : this.items[0];
-//   }
-// }
-
-const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
+const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');
   const isMobile = useMediaQuery({ maxWidth: 1024 });
@@ -106,7 +86,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'criteria-management',
         icon: !isMobile ? (
-          <RiAwardFill
+          <TbTarget
             className={
               currentItem === 'criteria-management'
                 ? 'text-[#4DAEF0]'
@@ -123,30 +103,51 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     },
     {
       item: {
-        key: 'target-assignment',
+        key: 'define-appreciation',
         icon: !isMobile ? (
-          <HiOutlineBriefcase
+          <TbAward
             className={
-              currentItem === 'target-assignment'
+              currentItem === 'define-appreciation'
                 ? 'text-[#4DAEF0]'
                 : 'text-gray-500'
             }
           />
         ) : null,
         label: (
-          <p className="font-bold text-sm text-gray-900">Target Assignment</p>
+          <p className="font-bold text-sm text-gray-900">Define Appreciation</p>
         ),
-        className: currentItem === 'target-assignment' ? 'px-4' : 'px-1',
+        className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
       },
-      link: '/okr/settings/target-assignment',
+      link: '/okr/settings/define-appreciation',
+    },
+    {
+      item: {
+        key: 'define-reprimand',
+        icon: !isMobile ? (
+          <TbShieldCheck
+            className={
+              currentItem === 'define-reprimand'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p className="font-bold text-sm text-gray-900">Define Reprimand</p>
+        ),
+        className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/define-reprimand',
     },
     {
       item: {
         key: 'edit-access',
         icon: !isMobile ? (
-          <FaUserEdit
+          <TbEdit
             className={
-              currentItem === 'edit-access' ? 'text-[#4DAEF0]' : 'text-gray-500'
+              currentItem === 'edit-access'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
             }
           />
         ) : null,
@@ -159,7 +160,7 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       item: {
         key: 'check-in-rule',
         icon: !isMobile ? (
-          <TbTargetArrow
+          <BiCheckDouble
             className={
               currentItem === 'check-in-rule'
                 ? 'text-[#4DAEF0]'
@@ -176,56 +177,12 @@ const OkrSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
     },
   ]);
 
-  // {
-  //   item: {
-  //     key: 'define-appreciation',
-  //     icon: (
-  //       <RiAwardFill
-  //         className={
-  //           currentItem === 'define-appreciation'
-  //             ? 'text-[#4DAEF0]'
-  //             : 'text-gray-500'
-  //         }
-  //       />
-  //     ),
-  //     label: (
-  //       <p className="font-bold text-sm text-gray-900">Define Appreciation</p>
-  //     ),
-  //     className: currentItem === 'define-appreciation' ? 'px-4' : 'px-1',
-  //   },
-  //   link: '/okr/settings/define-appreciation',
-  // },
-  // {
-  //   item: {
-  //     key: 'define-reprimand',
-  //     icon: (
-  //       <FaBomb
-  //         className={
-  //           currentItem === 'define-reprimand'
-  //             ? 'text-[#4DAEF0]'
-  //             : 'text-gray-500'
-  //         }
-  //       />
-  //     ),
-  //     label: (
-  //       <p className="font-bold text-sm text-gray-900">Define Reprimand</p>
-  //     ),
-  //     className: currentItem === 'define-reprimand' ? 'px-4' : 'px-1',
-  //   },
-  //   link: '/okr/settings/define-reprimand',
-  // },
-
   useEffect(() => {
     const pathSegments = pathname.split('/').filter(Boolean);
     const lastKey = pathSegments[pathSegments.length - 1];
 
     setCurrentItem(lastKey);
   }, [pathname]);
-
-  // const onMenuClick = (e: any) => {
-  //   const key = e['key'] as string;
-  //   router.push(menuItems.findItem(key).link);
-  // };
 
   return (
     <div className="min-h-screen bg-[#fafafa] p-3">

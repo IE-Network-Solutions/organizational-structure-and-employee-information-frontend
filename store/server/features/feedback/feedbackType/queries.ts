@@ -29,11 +29,15 @@ const fetchAllFeedbackTypes = async () => {
     tenantId,
     Authorization: `Bearer ${token}`,
   };
-  return await crudRequest({
+
+  
+  const result = await crudRequest({
     url: `${ORG_DEV_URL}/feedback-type`,
     method: 'GET',
     headers,
   });
+  
+  return result;
 };
 export const useFetchFeedbackTypeById = (id: string) => {
   return useQuery(

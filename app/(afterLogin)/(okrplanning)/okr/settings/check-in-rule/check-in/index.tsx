@@ -1,64 +1,90 @@
-import CustomButton from '@/components/common/buttons/customButton';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { Form, Input, InputNumber, Select, Radio } from 'antd';
+'use client';
+
 import React, { useEffect } from 'react';
-
-const { TextArea } = Input;
-const { Option } = Select;
-
-interface CheckInRule {
-  id: string;
-  name: string;
-  description: string;
-  ruleAppliesTo: string;
-  planningPeriod: string;
-  ruleType: string;
-  frequency: number;
-  operation: string;
-  action: string;
-  category: string;
-}
+import { Form, Input, Select, InputNumber, Switch, Drawer, Button } from 'antd';
+import { useCreateCheckInRule, useUpdateCheckInRule } from '@/store/server/features/okrplanning/monitoring-evaluation/check-in-rule/mutations';
+import { CheckInRule } from '@/types/okr/check-in-rule';
+import { useDefaultPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { PlanningPeriod } from '@/store/uistate/features/okrplanning/okrSetting/interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useQueryClient } from 'react-query';
+import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
+import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 interface CheckInRuleDrawerProps {
   open: boolean;
   onClose: () => void;
-  checkInRule?: CheckInRule | null;
+  checkInRule: Partial<CheckInRule> | null;
+  onSuccess?: () => void;
 }
 
 const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   open,
   onClose,
   checkInRule,
+  onSuccess,
 }) => {
   const [form] = Form.useForm();
+  const { mutate: createCheckInRule } = useCreateCheckInRule();
+  const { mutate: updateCheckInRule } = useUpdateCheckInRule();
+  const { data: planningPeriodsData } = useDefaultPlanningPeriods();
+  const { data: feedbackTypesData } = useFetchAllFeedbackTypes();
+  const { tenantId } = useAuthenticationStore();
+  const queryClient = useQueryClient();
 
   const handleDrawerClose = () => {
-    form.resetFields(); // Reset all form fields
+    form.resetFields();
     onClose();
   };
 
   const onFinish = (values: any) => {
-    try {
-      // TODO: Implement API call to create/update check-in rule
-      console.log('Creating/Updating check-in rule:', values);
-      
-      if (checkInRule) {
-        // Update existing rule
-        console.log('Updating rule with ID:', checkInRule.id);
-      } else {
-        // Create new rule
-        console.log('Creating new rule');
-      }
-      
-      handleDrawerClose();
-      NotificationMessage.success({
-        message: checkInRule ? 'Check-in Rule Updated Successfully' : 'Check-in Rule Created Successfully',
-      });
-    } catch (error) {
-      console.error('Error saving check-in rule:', error);
-      NotificationMessage.error({
-        message: 'Failed to save check-in rule',
+
+    // Add tenantId to the form values
+    const formData = {
+      ...values,
+      tenantId: tenantId
+    };
+    
+    if (checkInRule?.id) {
+      updateCheckInRule(
+        { ...formData, id: checkInRule.id },
+        {
+          onSuccess: () => {
+            // More comprehensive query invalidation
+            queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
+            queryClient.invalidateQueries({ queryKey: ['checkInRule', ''] });
+            queryClient.refetchQueries({ queryKey: ['checkInRule'] });
+            
+            // Call parent onSuccess callback if provided
+            if (onSuccess) {
+              onSuccess();
+            }
+            
+            // Longer delay to ensure backend processing and query refetch completes
+            setTimeout(() => {
+              handleDrawerClose();
+            }, 1000);
+          },
+        }
+      );
+    } else {
+      createCheckInRule(formData, {
+        onSuccess: () => {
+          // More comprehensive query invalidation
+          queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
+          queryClient.invalidateQueries({ queryKey: ['checkInRule', ''] });
+          queryClient.refetchQueries({ queryKey: ['checkInRule'] });
+          
+          // Call parent onSuccess callback if provided
+          if (onSuccess) {
+            onSuccess();
+          }
+          
+          // Longer delay to ensure backend processing and query refetch completes
+          setTimeout(() => {
+            handleDrawerClose();
+          }, 1000);
+        },
       });
     }
   };
@@ -66,11 +92,26 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   // Set form values when CheckInRule changes
   useEffect(() => {
     if (checkInRule) {
-      form.setFieldsValue(checkInRule); // Set form fields with CheckInRule values
+      // For planning period, we need to ensure the ID exists in the options
+      const formValues = { ...checkInRule };
+      
+      // If we have planning periods data and a planning period ID, verify it exists
+      if (planningPeriodsData?.items && checkInRule.planningPeriodId) {
+        const periodExists = planningPeriodsData.items.find(
+          (period: PlanningPeriod) => period.id === checkInRule.planningPeriodId
+        );
+        
+        // Only set the planning period ID if it exists in the current options
+        if (!periodExists) {
+          formValues.planningPeriodId = undefined;
+        }
+      }
+      
+      form.setFieldsValue(formValues);
     } else {
-      form.resetFields(); // Reset form if CheckInRule is null
+      form.resetFields();
     }
-  }, [checkInRule, form]);
+  }, [checkInRule, form, planningPeriodsData]);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -78,157 +119,217 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     </div>
   );
 
-  const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
-      <CustomButton
-        type="default"
-        title="Cancel"
-        onClick={handleDrawerClose}
-        style={{ marginRight: 8 }}
-      />
-      <CustomButton
-        htmlType="submit"
-        title={checkInRule ? 'Update' : 'Create'}
-        type="primary"
-        onClick={() => form.submit()}
-      />
-    </div>
-  );
-
   return (
-    <CustomDrawerLayout
+    <Drawer
       open={open}
       onClose={handleDrawerClose}
-      modalHeader={modalHeader}
-      footer={footer}
+      title={modalHeader}
       width="40%"
     >
       <div className="overflow-hidden">
-        <Form 
-          form={form} 
-          onFinish={onFinish} 
+        <Form
+          form={form}
+          onFinish={onFinish}
           layout="vertical"
           initialValues={{
-            ruleType: 'Time-Based',
-            action: 'Reprimand',
-            category: 'KPI',
+            timeBased: false,
+            achievementBased: false,
+            frequency: 1,
           }}
           className="space-y-6"
         >
           <Form.Item
-            label="Name*"
+            label="Rule Name"
             name="name"
-            rules={[{ required: true, message: 'Please enter name of rule' }]}
+            rules={[
+              { required: true, message: 'Please enter the rule name' },
+            ]}
           >
-            <Input className="h-12" placeholder="Please enter name of rule" />
+            <Input className="h-12" placeholder="Enter rule name" />
           </Form.Item>
 
           <Form.Item
             label="Description"
             name="description"
           >
-            <TextArea 
-              rows={3} 
-              placeholder="Enter description for the rule"
-              className="resize-none"
+            <Input.TextArea
+              rows={3}
+              className="h-12"
+              placeholder="Enter description (optional)"
             />
           </Form.Item>
 
           <Form.Item
-            label="Rule Applies To*"
-            name="ruleAppliesTo"
-            rules={[{ required: true, message: 'Please select what the rule applies to' }]}
+            label="Rule Applies To"
+            name="appliesTo"
+            rules={[
+              { required: true, message: 'Please select what the rule applies to' },
+            ]}
           >
-            <Select placeholder="Select what the rule applies to" className="h-12">
-              <Option value="Plan">Plan</Option>
-              <Option value="Objective">Objective</Option>
-              <Option value="KeyResult">Key Result</Option>
-            </Select>
+            <Select
+              className="h-12"
+              placeholder="Select what the rule applies to"
+              options={[
+                { value: 'Plan', label: 'Plan' },
+                { value: 'Report', label: 'Report' },
+              ]}
+              optionLabelProp="label"
+              optionRender={(option) => (
+                <span className="text-gray-700">{option.label}</span>
+              )}
+              dropdownStyle={{
+                border: 'none',
+                boxShadow: 'none',
+                borderRadius: '0',
+              }}
+              dropdownClassName="no-border-dropdown"
+            />
           </Form.Item>
 
           <Form.Item
-            label="Planning Period*"
-            name="planningPeriod"
-            rules={[{ required: true, message: 'Please select planning period' }]}
+            label="Planning Period"
+            name="planningPeriodId"
+            rules={[
+              { required: true, message: 'Please select planning period' },
+            ]}
           >
-            <Select placeholder="Select planning period" className="h-12">
-              <Option value="Daily">Daily</Option>
-              <Option value="Weekly">Weekly</Option>
-              <Option value="Monthly">Monthly</Option>
-              <Option value="Quarterly">Quarterly</Option>
-            </Select>
+            <Select
+              className="h-12"
+              placeholder="Select planning period"
+              showSearch
+              optionFilterProp="label"
+              options={
+                planningPeriodsData?.items?.map((period: PlanningPeriod) => ({
+                  value: period.id,
+                  label: period.name,
+                })) || []
+              }
+              filterOption={(input, option) =>
+                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            />
           </Form.Item>
 
-          <Form.Item
-            label="Rule Type"
-            name="ruleType"
-          >
-            <Radio.Group>
-              <Radio value="Time-Based">Time-Based</Radio>
-              <Radio value="Achievement-Based">Achievement-Based</Radio>
-              <Radio value="Both">Both</Radio>
-            </Radio.Group>
-          </Form.Item>
+          <div className="flex gap-4 w-full">
+            <Form.Item
+              label="Time Based"
+              name="timeBased"
+              className="w-full"
+            >
+              <Switch />
+            </Form.Item>
+
+            <Form.Item
+              label="Achievement Based"
+              name="achievementBased"
+              className="w-full"
+            >
+              <Switch />
+            </Form.Item>
+          </div>
 
           <Form.Item
-            label="Frequency*"
+            label="Frequency"
             name="frequency"
-            rules={[{ required: true, message: 'Please enter frequency' }]}
+            rules={[
+              { required: true, message: 'Please enter frequency' },
+            ]}
           >
             <InputNumber
-              placeholder="Enter the number of times"
+              type="number"
               min={1}
               className="w-full h-12"
+              placeholder="Enter frequency"
             />
           </Form.Item>
 
           <Form.Item
-            label="Operation*"
+            label="Operation"
             name="operation"
-            rules={[{ required: true, message: 'Please select operation' }]}
+            rules={[
+              { required: true, message: 'Please select operation' },
+            ]}
           >
-            <Select placeholder="Select Operation" className="h-12">
-              <Option value="check-in">Check-in</Option>
-              <Option value="review">Review</Option>
-              <Option value="evaluation">Evaluation</Option>
-            </Select>
+            <Select
+              className="h-12"
+              placeholder="Select operation"
+              options={[
+                { value: '>', label: '>' },
+                { value: '<', label: '<' },
+                { value: '=', label: '=' },
+              ]}
+            />
           </Form.Item>
 
           <Form.Item
-            label="Action*"
+            label="Action"
             name="action"
-            rules={[{ required: true, message: 'Please select action' }]}
+            rules={[
+              { required: true, message: 'Please select action' },
+            ]}
           >
-            <Select placeholder="Select action" className="h-12">
-              <Option value="Reprimand">Reprimand</Option>
-              <Option value="Appreciation">Appreciation</Option>
-              <Option value="Warning">Warning</Option>
-            </Select>
+            <Select
+              className="h-12"
+              placeholder="Select action"
+              options={[
+                { value: 'Appreciation', label: 'Appreciation' },
+                { value: 'Reprimand', label: 'Reprimand' },
+              ]}
+            />
           </Form.Item>
 
           <Form.Item
-            label="Category*"
-            name="category"
-            rules={[{ required: true, message: 'Please select category' }]}
+            label="Category"
+            name="categoryId"
+            rules={[
+              { required: true, message: 'Please select category' },
+            ]}
           >
-            <Select placeholder="Select category" className="h-12">
-              <Option value="KPI">KPI</Option>
-              <Option value="Milestone">Milestone</Option>
-              <Option value="Task">Task</Option>
-            </Select>
+            <Select
+              className="h-12"
+              placeholder="Select category"
+              options={
+                feedbackTypesData?.items?.map((feedbackType: FeedbackTypeItems) => ({
+                  value: feedbackType.id,
+                  label: feedbackType.category,
+                })) || []
+              }
+            />
           </Form.Item>
+
+          {/* Action Buttons - Now inside the form container */}
+          <div className="w-full flex justify-center items-center gap-4 pt-8 border-t border-gray-200">
+            <Button onClick={handleDrawerClose}>
+              Cancel
+            </Button>
+            <Form.Item className="mb-0">
+              <Button
+                htmlType="submit"
+                type="primary"
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+              >
+                {checkInRule ? 'Update' : 'Create'}
+              </Button>
+            </Form.Item>
+          </div>
         </Form>
       </div>
-
       <style jsx>{`
-        .ant-drawer-body {
-          overflow: hidden !important;
+        .no-border-dropdown .ant-select-dropdown-menu-item {
+          border: none !important;
+          background: transparent !important;
+          box-shadow: none !important;
         }
-        .ant-drawer-content-wrapper {
-          overflow: hidden !important;
+        .no-border-dropdown .ant-select-dropdown-menu-item:hover {
+          background: #f5f5f5 !important;
+          border: none !important;
+        }
+        .no-border-dropdown .ant-select-dropdown-menu-item-selected {
+          background: #e6f7ff !important;
+          border: none !important;
         }
       `}</style>
-    </CustomDrawerLayout>
+    </Drawer>
   );
 };
 
