@@ -12,6 +12,7 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN npm run format
 RUN npm run lint
 
 # Rebuild the source code
