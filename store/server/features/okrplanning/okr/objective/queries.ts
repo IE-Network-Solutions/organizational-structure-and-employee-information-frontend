@@ -1,9 +1,9 @@
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
 import { Objective } from '@/store/uistate/features/okrplanning/okr/interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { crudRequest } from '@/utils/crudRequest';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
@@ -35,14 +35,12 @@ const getObjectiveByUser = async (
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get(
-      `${OKR_AND_PLANNING_URL}/objective/${id}?page=${currentPage}&limit=${pageSize}&metricTypeId=${metricTypeId}`,
-
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/${id}?page=${currentPage}&limit=${pageSize}&metricTypeId=${metricTypeId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -56,23 +54,22 @@ const getObjectiveByTeam = async (
 ) => {
   const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
-      {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/team?page=${currentPage}&limit=${pageSize}`,
+      method: 'POST',
+      data: {
         users: users,
         metricTypeId: metricTypeId,
         // updatedBy: logUserId,
         // createdBy: logUserId,
-      }, // This is the request body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-          userId: userId, // Add userId to headers as per Postman test
-        },
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+        userId: userId, // Add userId to headers as per Postman test
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -88,23 +85,22 @@ const getObjectiveByCompany = async (
 ) => {
   const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/company/okr/${id}?page=${currentPage}&limit=${pageSize}`,
-      {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/company/okr/${id}?page=${currentPage}&limit=${pageSize}`,
+      method: 'POST',
+      data: {
         users: users,
         userId: userId,
         metricTypeId: metricTypeId,
         // updatedBy: logUserId,
         // createdBy: logUserId,
-      }, // This is the request body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-          tenantId: tenantId, // Pass tenantId in the headers
-        },
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
+        tenantId: tenantId, // Pass tenantId in the headers
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -121,24 +117,23 @@ const getEmployeeOkr = async (
 ) => {
   const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${OKR_AND_PLANNING_URL}/objective/get-okr-progress/all-employees?page=${currentPage}&limit=${page}`,
-      {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/objective/get-okr-progress/all-employees?page=${currentPage}&limit=${page}`,
+      method: 'POST',
+      data: {
         sessions,
         userId: searchObjParams?.userId,
         departmentId: searchObjParams?.departmentId,
         metricTypeId: searchObjParams?.metricTypeId,
         // updatedBy: logUserId,
         // createdBy: logUserId,
-      }, // merged into one object
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          tenantId: tenantId,
-        },
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }

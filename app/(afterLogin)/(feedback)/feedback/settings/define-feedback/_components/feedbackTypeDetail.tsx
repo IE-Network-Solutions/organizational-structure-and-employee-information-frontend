@@ -147,11 +147,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
   return (
     <div className="mt-5">
-      <Tabs
-        activeKey={variantType}
-        items={tabItems}
-        onChange={onChange}
-      />
+      <Tabs activeKey={variantType} items={tabItems} onChange={onChange} />
     </div>
   );
 }

@@ -59,7 +59,7 @@ const fetchPlanningPeriodWithUser = async (
   const token = await getCurrentToken();
 
   // Build URL with conditional userId parameter
-  let url = `${OKR_URL}/Planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`;
+  let url = `${OKR_URL}/planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`;
   if (userId && userId.trim() !== '') {
     url += `&userId=${userId}`;
   }
@@ -82,8 +82,9 @@ const fetchPlanningPeriodWithUserGroupedByUser = async (
 ) => {
   const token = await getCurrentToken();
 
-  // Build URL with conditional userId parameter
-  let url = `${OKR_URL}/Planning-periods/assignment/getAssignedUsers/grouped-by-user?page=${page}&limit=${pageSize}`;
+  // Build URL with conditional userId parameter - use the existing endpoint
+  let url = `${OKR_URL}/planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`;
+  
   if (userId && userId.trim() !== '') {
     url += `&userId=${userId}`;
   }
@@ -96,6 +97,29 @@ const fetchPlanningPeriodWithUserGroupedByUser = async (
       tenantId: tenantId,
     },
   });
+
+  // Group the data by userId on the frontend
+  if (response && response.items) {
+    const groupedData = response.items.reduce((acc: any, item: any) => {
+      const userId = item.userId;
+      if (!acc[userId]) {
+        acc[userId] = {
+          userId: userId,
+          planningPeriod: []
+        };
+      }
+      acc[userId].planningPeriod.push(item);
+      return acc;
+    }, {});
+
+    // Convert to array format and add pagination metadata
+    const groupedItems = Object.values(groupedData);
+    
+    return {
+      items: groupedItems,
+      meta: response.meta
+    };
+  }
 
   return response;
 };

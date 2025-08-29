@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
+
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
@@ -62,10 +62,11 @@ const deleteGroupPermission = async ({
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/permission-group/${deletedId?.id}`,
+      method: 'DELETE',
+      headers,
+    });
     setCurrentModal(null);
     setDeletedId(null);
     NotificationMessage.success({

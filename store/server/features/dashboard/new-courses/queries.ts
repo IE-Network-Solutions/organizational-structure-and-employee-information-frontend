@@ -1,8 +1,9 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TNA_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
 import { useQuery } from 'react-query';
+import { crudRequest } from '@/utils/crudRequest';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 
 // Define the OKRDashboard interface
 interface Coursers {
@@ -36,15 +37,46 @@ const getCourse = async (): Promise<ResponseData> => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get<ResponseData>(
-      `${TNA_URL}/learning/course/user-courses/${userId}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${TNA_URL}/learning/course/user-courses/${userId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }
 };
+
+/**
+ * Function to fetch new courses by sending a GET request to the API
+ * @returns The response data from the API
+ */
+const getNewCourses = async (id: string) => {
+  try {
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/new-courses/${id}`,
+      method: 'GET',
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Custom hook to get new courses by ID
+ * @param id The ID to fetch new courses for
+ * @returns useQuery hook for fetching new courses
+ */
+export const useGetNewCourses = (id: string) =>
+  useQuery<ResponseData>(
+    ['newCourses', id], // Query key with ID
+    () => getNewCourses(id), // Function reference for fetching data
+    {
+      enabled: !!id, // Only run query when ID is provided
+    },
+  );
 
 /**
  * Custom hook to get the applicant summary
