@@ -16,7 +16,11 @@ const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
   const [showUsers, setShowUsers] = useState(false);
 
-  const [formValues, setFormValues] = useState({ latitude: 9.0322, longitude: 38.7636, distance: 0.01 });
+  const [formValues, setFormValues] = useState({
+    latitude: 9.0322,
+    longitude: 38.7636,
+    distance: 0.01,
+  });
 
   const {
     isShowLocationSidebar: isShow,
@@ -178,12 +182,8 @@ const LocationSidebar = () => {
             form={form}
             onFinish={onFinish}
           >
-
             <div className="p-4">
-              <Space.Compact
-                direction="vertical"
-                className="w-full"
-              >
+              <Space.Compact direction="vertical" className="w-full">
                 <Form.Item
                   id="nameOfLocatioInputFieldId"
                   label="Name of Location"
@@ -192,14 +192,16 @@ const LocationSidebar = () => {
                 >
                   <Input className={controlClass} />
                 </Form.Item>
-                
+
                 {/* Map Section */}
                 <div>
                   <div className="text-sm text-gray-600 mb-2">
-                    Double click on the map to set the center point of your allowed area
+                    Double click on the map to set the center point of your
+                    allowed area
                   </div>
                   <div className="text-sm text-gray-600 mb-3">
-                    Click and drag to explore, then double-click to select your location
+                    Click and drag to explore, then double-click to select your
+                    location
                   </div>
                   <div className="mt-2">
                     <EnhancedLocationPicker
@@ -224,14 +226,14 @@ const LocationSidebar = () => {
                   <Input />
                 </Form.Item>
 
-                  <div className="flex items-center gap-2 py-4">
-                    <span className="text-sm text-gray-700">Is Global</span>
-                    <Switch
-                      defaultChecked
-                      onChange={(checked) => setShowUsers(!checked)}
-                    />
-                  </div>
-              
+                <div className="flex items-center gap-2 py-4">
+                  <span className="text-sm text-gray-700">Is Global</span>
+                  <Switch
+                    defaultChecked
+                    onChange={(checked) => setShowUsers(!checked)}
+                  />
+                </div>
+
                 {showUsers && (
                   <Form.Item
                     id="userAccessList"
@@ -253,7 +255,6 @@ const LocationSidebar = () => {
                 )}
               </Space.Compact>
             </div>
-
           </Form>
         </Spin>
       </CustomDrawerLayout>
