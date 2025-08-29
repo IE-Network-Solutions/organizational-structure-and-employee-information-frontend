@@ -122,7 +122,6 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
   };
 
   return (
-
     <div className="w-full">
       {/* Map with integrated search */}
       <div className="relative">
@@ -135,12 +134,11 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
             />
           </div>
         </div>
-        
+
         {/* Use Current Location button positioned at bottom left of map */}
         <div className="absolute bottom-4 left-4 z-10">
-          <Button 
+          <Button
             className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm rounded-md px-4 py-2 h-auto text-sm"
-
             onClick={handleUseCurrentLocation}
           >
             Use Current Location
@@ -187,7 +185,6 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           step={0.001}
           value={currentRadius}
           onChange={handleRadiusChange}
-          
           marks={{
             0.01: '10 m',
             0.02: '20 m',
@@ -196,8 +193,8 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
             0.05: '50 m',
           }}
           trackStyle={{ backgroundColor: '#3b82f6' }}
-          // handleStyle={{ 
-          //   backgroundColor: '#3b82f6', 
+          // handleStyle={{
+          //   backgroundColor: '#3b82f6',
           //   borderColor: '#3b82f6',
           //   width: '20px',
           //   height: '20px',
@@ -212,9 +209,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
 
       {/* Coordinates Display - after radius */}
       <div className="mt-4">
-        <div className="text-sm text-gray-600 mb-2">
-          Use Coordinates
-        </div>
+        <div className="text-sm text-gray-600 mb-2">Use Coordinates</div>
         <Space size="large">
           <div>
             <Text strong>Latitude:</Text>

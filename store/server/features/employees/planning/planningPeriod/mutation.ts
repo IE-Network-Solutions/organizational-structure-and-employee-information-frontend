@@ -15,7 +15,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
   const token = await getCurrentToken();
   return crudRequest({
-    url: `${OKR_URL}/Planning-periods/${id}`,
+    url: `${OKR_URL}/planning-periods/${id}`,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,
