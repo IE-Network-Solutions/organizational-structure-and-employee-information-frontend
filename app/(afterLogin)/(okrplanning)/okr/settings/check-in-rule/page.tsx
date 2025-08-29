@@ -22,7 +22,7 @@ const CheckInRulePage: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState<Partial<CheckInRule> | null>(null);
 
-  const { data: checkInRulesData, isLoading, error } = useGetCheckInRules();
+  const { data: checkInRulesData, isLoading } = useGetCheckInRules();
   const { data: planningPeriodsData } = useDefaultPlanningPeriods();
   const { data: feedbackTypesData } = useFetchAllFeedbackTypes();
   const { mutate: deleteCheckInRule } = useDeleteCheckInRule();

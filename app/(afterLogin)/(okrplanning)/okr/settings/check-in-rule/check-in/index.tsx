@@ -52,18 +52,18 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     form.setFieldValue('action', undefined);
   };
 
-  // Function to get work schedule with highest length
-  const getWorkScheduleWithHighestLength = () => {
-    if (!workSchedulesData?.items || workSchedulesData.items.length === 0) {
-      return null;
-    }
+  // // Function to get work schedule with highest length
+  // const getWorkScheduleWithHighestLength = () => {
+  //   if (!workSchedulesData?.items || workSchedulesData.items.length === 0) {
+  //     return null;
+  //   }
     
-    return workSchedulesData.items.reduce((highest, current) => {
-      const currentLength = current.detail?.length || 0;
-      const highestLength = highest.detail?.length || 0;
-      return currentLength > highestLength ? current : highest;
-    });
-  };
+  //   return workSchedulesData.items.reduce((highest, current) => {
+  //     const currentLength = current.detail?.length || 0;
+  //     const highestLength = highest.detail?.length || 0;
+  //     return currentLength > highestLength ? current : highest;
+  //   });
+  // };
 
 
 

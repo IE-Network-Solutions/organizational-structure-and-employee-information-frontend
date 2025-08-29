@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TbLayoutList, TbTargetArrow } from 'react-icons/tb';
-import { HiOutlineBriefcase } from 'react-icons/hi2';
 import { usePathname } from 'next/navigation';
-import { RiAwardFill } from 'react-icons/ri';
-import { FaUserEdit } from 'react-icons/fa';
 import { BiCheckDouble } from 'react-icons/bi';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import SidebarMenu from '@/components/sidebarMenu';
