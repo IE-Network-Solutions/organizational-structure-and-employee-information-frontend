@@ -129,16 +129,7 @@ const CheckInRulePage: React.FC = () => {
         );
       },
     },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      render: (action: string) => (
-        <Tag color="purple" className="font-medium">
-          {action}
-        </Tag>
-      ),
-    },
+
     {
       title: 'Category',
       dataIndex: 'categoryId',

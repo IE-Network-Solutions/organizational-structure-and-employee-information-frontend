@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { Form, Input, Select, InputNumber, Switch, Drawer, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Select, InputNumber, Switch, Drawer, Button, Radio, TimePicker } from 'antd';
 import { useCreateCheckInRule, useUpdateCheckInRule } from '@/store/server/features/okrplanning/monitoring-evaluation/check-in-rule/mutations';
 import { CheckInRule } from '@/types/okr/check-in-rule';
 import { useDefaultPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -9,6 +9,8 @@ import { PlanningPeriod } from '@/store/uistate/features/okrplanning/okrSetting/
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useQueryClient } from 'react-query';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
+import { useGetAllFeedbackRecords } from '@/store/server/features/feedback/feedbackRecord/mutation';
+import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 interface CheckInRuleDrawerProps {
@@ -29,20 +31,80 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   const { mutate: updateCheckInRule } = useUpdateCheckInRule();
   const { data: planningPeriodsData } = useDefaultPlanningPeriods();
   const { data: feedbackTypesData } = useFetchAllFeedbackTypes();
+  const { mutate: getAllFeedback, data: feedbackData } = useGetAllFeedbackRecords();
+  const { data: workSchedulesData } = useGetWorkSchedules();
   const { tenantId } = useAuthenticationStore();
   const queryClient = useQueryClient();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
+  const [ruleType, setRuleType] = useState<'time-based' | 'achievement-based' | 'both'>('time-based');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const handleDrawerClose = () => {
     form.resetFields();
+    setSelectedCategoryId(undefined);
     onClose();
   };
 
-  const onFinish = (values: any) => {
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    // Clear the action selection when category changes
+    form.setFieldValue('action', undefined);
+  };
 
-    // Add tenantId to the form values
+  // Function to get work schedule with highest length
+  const getWorkScheduleWithHighestLength = () => {
+    if (!workSchedulesData?.items || workSchedulesData.items.length === 0) {
+      return null;
+    }
+    
+    return workSchedulesData.items.reduce((highest, current) => {
+      const currentLength = current.detail?.length || 0;
+      const highestLength = highest.detail?.length || 0;
+      return currentLength > highestLength ? current : highest;
+    });
+  };
+
+
+
+  const onFinish = (values: any) => {
+    setIsSubmitting(true); // Start loading
+    
+    // Transform form values to match backend expectations
     const formData = {
-      ...values,
-      tenantId: tenantId
+      name: values.name,
+      description: values.description,
+      appliesTo: values.appliesTo,
+      planningPeriodId: values.planningPeriodId,
+      timeBased: ruleType === 'time-based' || ruleType === 'both',
+      achievementBased: ruleType === 'achievement-based' || ruleType === 'both',
+      frequency: values.frequency || 1,
+      operation: values.operation,
+      tenantId: tenantId,
+      categoryId: values.categoryId,
+      feedbackId: values.action,
+      target: values.targetValue,
+      targetDate: ruleType === 'time-based' || ruleType === 'both' ? (() => {
+        // Get the work schedule with highest working days
+        const workScheduleWithHighestLength = workSchedulesData?.items?.reduce((highest: any, current: any) => {
+          if (!highest || !current?.detail) return current;
+          
+          const highestWorkingDays = highest.detail.filter((day: any) => day.workDay).length;
+          const currentWorkingDays = current.detail.filter((day: any) => day.workDay).length;
+          
+          return currentWorkingDays > highestWorkingDays ? current : highest;
+        }, null);
+
+        if (!workScheduleWithHighestLength?.detail) return null;
+
+        // Create targetDate array with all working days and selected time
+        return workScheduleWithHighestLength.detail
+          .filter((dayDetail: any) => dayDetail.workDay)
+          .map((dayDetail: any) => ({
+            date: dayDetail.day || dayDetail.dayOfWeek || 'Monday', // Use actual day from work schedule
+            time: values.time ? values.time.format('HH:mm') : null
+          }));
+      })() : null
     };
     
     if (checkInRule?.id) {
@@ -50,6 +112,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
         { ...formData, id: checkInRule.id },
         {
           onSuccess: () => {
+            setIsSubmitting(false); // Stop loading
             // More comprehensive query invalidation
             queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
             queryClient.invalidateQueries({ queryKey: ['checkInRule', ''] });
@@ -65,11 +128,15 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
               handleDrawerClose();
             }, 1000);
           },
+          onError: () => {
+            setIsSubmitting(false); // Stop loading on error
+          }
         }
       );
     } else {
       createCheckInRule(formData, {
         onSuccess: () => {
+          setIsSubmitting(false); // Stop loading
           // More comprehensive query invalidation
           queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
           queryClient.invalidateQueries({ queryKey: ['checkInRule', ''] });
@@ -85,9 +152,17 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             handleDrawerClose();
           }, 1000);
         },
+        onError: () => {
+          setIsSubmitting(false); // Stop loading on error
+        }
       });
     }
   };
+
+  // Fetch feedback data when component mounts
+  useEffect(() => {
+    getAllFeedback();
+  }, [getAllFeedback]);
 
   // Set form values when CheckInRule changes
   useEffect(() => {
@@ -132,8 +207,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           onFinish={onFinish}
           layout="vertical"
           initialValues={{
-            timeBased: false,
-            achievementBased: false,
+            ruleType: 'time-based',
             frequency: 1,
           }}
           className="space-y-6"
@@ -210,38 +284,144 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             />
           </Form.Item>
 
-          <div className="flex gap-4 w-full">
-            <Form.Item
-              label="Time Based"
-              name="timeBased"
-              className="w-full"
-            >
-              <Switch />
-            </Form.Item>
-
-            <Form.Item
-              label="Achievement Based"
-              name="achievementBased"
-              className="w-full"
-            >
-              <Switch />
-            </Form.Item>
-          </div>
-
           <Form.Item
-            label="Frequency"
-            name="frequency"
+            label="Rule Type"
+            name="ruleType"
             rules={[
-              { required: true, message: 'Please enter frequency' },
+              { required: true, message: 'Please select rule type' },
             ]}
           >
-            <InputNumber
-              type="number"
-              min={1}
-              className="w-full h-12"
-              placeholder="Enter frequency"
-            />
+            <Radio.Group 
+              value={ruleType} 
+              onChange={(e) => setRuleType(e.target.value)}
+              className="w-full"
+            >
+              <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full">
+                <Radio value="time-based" className="flex-1">
+                  <div className="text-center">
+                    <div className="font-medium text-sm md:text-base">Time-Based</div>
+                  </div>
+                </Radio>
+                <Radio value="achievement-based" className="flex-1">
+                  <div className="text-center">
+                    <div className="font-medium text-sm md:text-base">Achievement-Based</div>
+                  </div>
+                </Radio>
+                <Radio value="both" className="flex-1">
+                  <div className="text-center">
+                    <div className="font-medium text-sm md:text-base">Both</div>
+                  </div>
+                </Radio>
+              </div>
+            </Radio.Group>
           </Form.Item>
+
+          {/* Target Value - shown when Achievement-Based or Both is selected */}
+          {(ruleType === 'achievement-based' || ruleType === 'both') && (
+            <div className="space-y-4">
+              {/* Target Value */}
+                              <Form.Item className='px-4 md:px-12'
+                label="Target Value *"
+                name="targetValue"
+                rules={[
+                  { required: true, message: 'Please enter target value' },
+                ]}
+              >
+                <InputNumber
+                  type="number"
+                  min={1}
+                  className="w-full h-12"
+                  placeholder="Enter target value"
+                />
+              </Form.Item>
+            </div>
+          )}
+
+          {/* Time-Based Settings - shown when Time-Based or Both is selected */}
+          {(ruleType === 'time-based' || ruleType === 'both') && (
+            <div className="space-y-4  ">
+              {/* Time Picker */}
+                              <Form.Item className='px-4 md:px-8'
+                label="Time *"
+                name="time"
+                rules={[
+                  { required: true, message: 'Please pick time' },
+                ]}
+              >
+                <TimePicker
+                  className="h-12 w-full"
+                  placeholder="Pick Time"
+                  format="HH:mm"
+                  minuteStep={15}
+                  showNow={false}
+                />
+              </Form.Item>
+
+              {/* Applicable Days */}
+              <Form.Item
+                label="Applicable Day"
+                name="applicableDays"
+              >
+                <div className="space-y-1">
+                  {(() => {
+                    // Find the work schedule with the highest number of working days
+                    const workScheduleWithHighestLength = workSchedulesData?.items?.reduce((highest: any, current: any) => {
+                      if (!highest || !current?.detail) return current;
+                      
+                      const highestWorkingDays = highest.detail.filter((day: any) => day.workDay).length;
+                      const currentWorkingDays = current.detail.filter((day: any) => day.workDay).length;
+                      
+                      return currentWorkingDays > highestWorkingDays ? current : highest;
+                    }, null);
+                    
+                    if (!workScheduleWithHighestLength?.detail) {
+                      return <div className="text-gray-500">No work schedule available</div>;
+                    }
+                    
+                    return workScheduleWithHighestLength.detail.map((dayDetail: any, index: number) => {
+                      const dayName = dayDetail.day || dayDetail.dayOfWeek || `Day ${index + 1}`;
+                      const isWorkingDay = dayDetail.workDay || false;
+                      
+                      return (
+                        <div key={index} className="flex items-center justify-start py-2.5 px-4 md:px-16">
+                          <Switch
+                            checked={isWorkingDay}
+                            disabled
+                            size="small"
+                            className="mr-2"
+                            checkedChildren="✓"
+                            unCheckedChildren="—"
+                          />
+                          <span className="text-gray-700 text-sm">{dayName}</span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </Form.Item>
+
+            </div>
+          )}
+
+                        {/* Frequency - shown when Achievement-Based or Both is selected */}
+              {(ruleType === 'achievement-based' || ruleType === 'both') && (
+                <Form.Item
+                  label="Frequency *"
+                  name="frequency"
+                  rules={[
+                    { required: true, message: 'Please enter frequency' },
+                  ]}
+                >
+                  <InputNumber
+                    type="number"
+                    min={1}
+                    className="w-full h-12"
+                    placeholder="Enter frequency"
+                  />
+                </Form.Item>
+              )}
+
+
 
           <Form.Item
             label="Operation"
@@ -262,23 +442,6 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           </Form.Item>
 
           <Form.Item
-            label="Action"
-            name="action"
-            rules={[
-              { required: true, message: 'Please select action' },
-            ]}
-          >
-            <Select
-              className="h-12"
-              placeholder="Select action"
-              options={[
-                { value: 'Appreciation', label: 'Appreciation' },
-                { value: 'Reprimand', label: 'Reprimand' },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item
             label="Category"
             name="categoryId"
             rules={[
@@ -288,6 +451,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             <Select
               className="h-12"
               placeholder="Select category"
+              onChange={handleCategoryChange}
               options={
                 feedbackTypesData?.items?.map((feedbackType: FeedbackTypeItems) => ({
                   value: feedbackType.id,
@@ -297,16 +461,42 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             />
           </Form.Item>
 
+          <Form.Item
+            label="Action"
+            name="action"
+            rules={[
+              { required: true, message: 'Please select action' },
+            ]}
+          >
+            <Select
+              className="h-12"
+              placeholder="Select action"
+              options={
+                feedbackData?.items
+                  ?.filter((feedback: any) => {
+                    // Only show feedback items that match the selected category
+                    return feedback.feedbackTypeId === selectedCategoryId;
+                  })
+                  ?.map((feedback: any) => ({
+                    value: feedback.id,
+                    label: feedback.name || feedback.title || feedback.id,
+                  })) || []
+              }
+            />
+          </Form.Item>
+
           {/* Action Buttons - Now inside the form container */}
-          <div className="w-full flex justify-center items-center gap-4 pt-8 border-t border-gray-200">
-            <Button onClick={handleDrawerClose}>
+          <div className="w-full flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 pt-8 border-t border-gray-200">
+            <Button onClick={handleDrawerClose} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Form.Item className="mb-0">
+            <Form.Item className="mb-0 w-full sm:w-auto">
               <Button
                 htmlType="submit"
                 type="primary"
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                loading={isSubmitting}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto px-6 py-2"
               >
                 {checkInRule ? 'Update' : 'Create'}
               </Button>
