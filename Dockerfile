@@ -13,6 +13,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# ENV DISABLE_PWA=true
 RUN npm run format
 RUN npm run lint
 RUN npm run build
