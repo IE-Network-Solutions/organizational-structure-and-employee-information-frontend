@@ -39,4 +39,4 @@ done
 chmod 600 "$ENV_FILE"
 
 # Start the Node.js app
-exec node dist/main.js
+exec npm run start
