@@ -6,15 +6,6 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --include=dev
 
-# Lint Check
-FROM node:18-alpine AS lint
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run format
-RUN npm run lint
-
 # Rebuild the source code
 FROM node:18-alpine AS builder
 WORKDIR /app
@@ -22,7 +13,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV DISABLE_PWA=true
+RUN npm run format
+RUN npm run lint
 RUN npm run build
 
 # Production image
@@ -48,6 +40,6 @@ COPY --from=builder /app/package.json ./package.json
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 3001
+EXPOSE 3002
 
 ENTRYPOINT ["/entrypoint.sh"]
