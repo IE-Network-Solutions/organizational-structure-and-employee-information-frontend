@@ -12,6 +12,7 @@ import {
   Radio,
   TimePicker,
 } from 'antd';
+import dayjs from 'dayjs';
 import {
   useCreateCheckInRule,
   useUpdateCheckInRule,
@@ -196,7 +197,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   useEffect(() => {
     if (checkInRule) {
       // For planning period, we need to ensure the ID exists in the options
-      const formValues = { ...checkInRule };
+      const formValues: any = { ...checkInRule };
 
       // If we have planning periods data and a planning period ID, verify it exists
       if (planningPeriodsData?.items && checkInRule.planningPeriodId) {
@@ -211,21 +212,46 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
         }
       }
 
-      // Determine rule type based on timeBased and achievementBased flags
-      if (checkInRule.timeBased && checkInRule.achievementBased) {
-        setRuleType('both');
-      } else if (checkInRule.timeBased) {
-        setRuleType('time-based');
-      } else if (checkInRule.achievementBased) {
-        setRuleType('achievement-based');
-      } else {
-        setRuleType('time-based');
+      // Convert time string to dayjs object for TimePicker
+      if (checkInRule.targetDate && checkInRule.targetDate.length > 0) {
+        // Get the first time entry from targetDate array
+        const firstTimeEntry = checkInRule.targetDate[0];
+        if (firstTimeEntry?.time) {
+          // Convert time string (HH:mm format) to dayjs object
+          formValues.time = dayjs(firstTimeEntry.time, 'HH:mm');
+        }
       }
+
+      // Map target property to targetValue form field
+      if (checkInRule.target !== undefined) {
+        formValues.targetValue = checkInRule.target;
+      }
+
+      // Set selectedCategoryId for feedback filtering
+      if (checkInRule.categoryId) {
+        setSelectedCategoryId(checkInRule.categoryId);
+      }
+
+      // Determine rule type based on timeBased and achievementBased flags
+      let determinedRuleType: 'time-based' | 'achievement-based' | 'both';
+      if (checkInRule.timeBased && checkInRule.achievementBased) {
+        determinedRuleType = 'both';
+      } else if (checkInRule.timeBased) {
+        determinedRuleType = 'time-based';
+      } else if (checkInRule.achievementBased) {
+        determinedRuleType = 'achievement-based';
+      } else {
+        determinedRuleType = 'time-based';
+      }
+      
+      setRuleType(determinedRuleType);
+      formValues.ruleType = determinedRuleType;
 
       form.setFieldsValue(formValues);
     } else {
       form.resetFields();
       setRuleType('time-based');
+      setSelectedCategoryId(undefined);
     }
   }, [checkInRule, form, planningPeriodsData]);
 
@@ -339,7 +365,10 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           >
             <Radio.Group
               value={ruleType}
-              onChange={(e) => setRuleType(e.target.value)}
+              onChange={(e) => {
+                setRuleType(e.target.value);
+                form.setFieldValue('ruleType', e.target.value);
+              }}
               className="w-full"
             >
               <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full">

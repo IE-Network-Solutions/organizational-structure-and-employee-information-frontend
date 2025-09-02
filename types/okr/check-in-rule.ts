@@ -10,6 +10,12 @@ export interface CheckInRule {
   operation: string;
   action: 'Appreciation' | 'Reprimand';
   categoryId: string;
+  feedbackId?: string;
+  target?: number;
+  targetDate?: Array<{
+    date: string;
+    time: string;
+  }>;
   tenantId: string;
   createdAt?: string;
   updatedAt?: string;
