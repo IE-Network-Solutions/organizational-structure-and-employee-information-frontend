@@ -49,4 +49,4 @@ const getCheckInRules = async () => {
  * the query object containing the check-in rules data and any loading or error states.
  */
 export const useGetCheckInRules = () =>
-  useQuery<ResponseData>('checkInRule', getCheckInRules); 
+  useQuery<ResponseData>('checkInRule', getCheckInRules);

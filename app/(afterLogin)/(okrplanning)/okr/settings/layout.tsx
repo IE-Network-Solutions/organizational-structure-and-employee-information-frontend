@@ -142,9 +142,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
         icon: !isMobile ? (
           <TbEdit
             className={
-              currentItem === 'edit-access'
-                ? 'text-[#4DAEF0]'
-                : 'text-gray-500'
+              currentItem === 'edit-access' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
           />
         ) : null,
@@ -165,9 +163,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
             }
           />
         ) : null,
-        label: (
-          <p className="font-bold text-sm text-gray-900">Check-in Rule</p>
-        ),
+        label: <p className="font-bold text-sm text-gray-900">Check-in Rule</p>,
         className: currentItem === 'check-in-rule' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/check-in-rule',

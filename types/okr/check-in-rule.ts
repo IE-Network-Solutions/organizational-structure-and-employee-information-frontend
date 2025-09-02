@@ -16,4 +16,4 @@ export interface CheckInRule {
   deletedAt?: string | null;
   createdBy?: string | null;
   updatedBy?: string | null;
-} 
+}

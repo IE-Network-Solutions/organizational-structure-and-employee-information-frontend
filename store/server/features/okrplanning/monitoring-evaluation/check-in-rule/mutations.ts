@@ -95,4 +95,4 @@ export const useUpdateCheckInRule = () => {
       queryClient.invalidateQueries('checkInRule');
     },
   });
-}; 
+};

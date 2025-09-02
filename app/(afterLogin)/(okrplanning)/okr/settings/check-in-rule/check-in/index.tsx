@@ -1,8 +1,21 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, InputNumber, Switch, Drawer, Button, Radio, TimePicker } from 'antd';
-import { useCreateCheckInRule, useUpdateCheckInRule } from '@/store/server/features/okrplanning/monitoring-evaluation/check-in-rule/mutations';
+import {
+  Form,
+  Input,
+  Select,
+  InputNumber,
+  Switch,
+  Drawer,
+  Button,
+  Radio,
+  TimePicker,
+} from 'antd';
+import {
+  useCreateCheckInRule,
+  useUpdateCheckInRule,
+} from '@/store/server/features/okrplanning/monitoring-evaluation/check-in-rule/mutations';
 import { CheckInRule } from '@/types/okr/check-in-rule';
 import { useDefaultPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningPeriod } from '@/store/uistate/features/okrplanning/okrSetting/interface';
@@ -31,14 +44,18 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   const { mutate: updateCheckInRule } = useUpdateCheckInRule();
   const { data: planningPeriodsData } = useDefaultPlanningPeriods();
   const { data: feedbackTypesData } = useFetchAllFeedbackTypes();
-  const { mutate: getAllFeedback, data: feedbackData } = useGetAllFeedbackRecords();
+  const { mutate: getAllFeedback, data: feedbackData } =
+    useGetAllFeedbackRecords();
   const { data: workSchedulesData } = useGetWorkSchedules();
   const { tenantId } = useAuthenticationStore();
   const queryClient = useQueryClient();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
-  const [ruleType, setRuleType] = useState<'time-based' | 'achievement-based' | 'both'>('time-based');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<
+    string | undefined
+  >();
+  const [ruleType, setRuleType] = useState<
+    'time-based' | 'achievement-based' | 'both'
+  >('time-based');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
 
   const handleDrawerClose = () => {
     form.resetFields();
@@ -57,7 +74,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   //   if (!workSchedulesData?.items || workSchedulesData.items.length === 0) {
   //     return null;
   //   }
-    
+
   //   return workSchedulesData.items.reduce((highest, current) => {
   //     const currentLength = current.detail?.length || 0;
   //     const highestLength = highest.detail?.length || 0;
@@ -65,11 +82,9 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   //   });
   // };
 
-
-
   const onFinish = (values: any) => {
     setIsSubmitting(true); // Start loading
-    
+
     // Transform form values to match backend expectations
     const formData = {
       name: values.name?.trim() || '',
@@ -84,29 +99,42 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       categoryId: values.categoryId,
       feedbackId: values.feedbackId,
       target: values.targetValue ? parseFloat(values.targetValue) : undefined,
-      targetDate: ruleType === 'time-based' || ruleType === 'both' ? (() => {
-        // Get the work schedule with highest working days
-        const workScheduleWithHighestLength = workSchedulesData?.items?.reduce((highest: any, current: any) => {
-          if (!highest || !current?.detail) return current;
-          
-          const highestWorkingDays = highest.detail.filter((day: any) => day.workDay).length;
-          const currentWorkingDays = current.detail.filter((day: any) => day.workDay).length;
-          
-          return currentWorkingDays > highestWorkingDays ? current : highest;
-        }, null);
+      targetDate:
+        ruleType === 'time-based' || ruleType === 'both'
+          ? (() => {
+              // Get the work schedule with highest working days
+              const workScheduleWithHighestLength =
+                workSchedulesData?.items?.reduce(
+                  (highest: any, current: any) => {
+                    if (!highest || !current?.detail) return current;
 
-        if (!workScheduleWithHighestLength?.detail) return null;
+                    const highestWorkingDays = highest.detail.filter(
+                      (day: any) => day.workDay,
+                    ).length;
+                    const currentWorkingDays = current.detail.filter(
+                      (day: any) => day.workDay,
+                    ).length;
 
-        // Create targetDate array with all working days and selected time
-        return workScheduleWithHighestLength.detail
-          .filter((dayDetail: any) => dayDetail.workDay)
-          .map((dayDetail: any) => ({
-            date: dayDetail.day || dayDetail.dayOfWeek || 'Monday', // Use actual day from work schedule
-            time: values.time ? values.time.format('HH:mm') : null
-          }));
-      })() : null
+                    return currentWorkingDays > highestWorkingDays
+                      ? current
+                      : highest;
+                  },
+                  null,
+                );
+
+              if (!workScheduleWithHighestLength?.detail) return null;
+
+              // Create targetDate array with all working days and selected time
+              return workScheduleWithHighestLength.detail
+                .filter((dayDetail: any) => dayDetail.workDay)
+                .map((dayDetail: any) => ({
+                  date: dayDetail.day || dayDetail.dayOfWeek || 'Monday', // Use actual day from work schedule
+                  time: values.time ? values.time.format('HH:mm') : null,
+                }));
+            })()
+          : null,
     };
-    
+
     if (checkInRule?.id) {
       updateCheckInRule(
         { ...formData, id: checkInRule.id },
@@ -117,12 +145,12 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
             queryClient.invalidateQueries({ queryKey: ['checkInRule', ''] });
             queryClient.refetchQueries({ queryKey: ['checkInRule'] });
-            
+
             // Call parent onSuccess callback if provided
             if (onSuccess) {
               onSuccess();
             }
-            
+
             // Longer delay to ensure backend processing and query refetch completes
             setTimeout(() => {
               handleDrawerClose();
@@ -130,8 +158,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           },
           onError: () => {
             setIsSubmitting(false); // Stop loading on error
-          }
-        }
+          },
+        },
       );
     } else {
       createCheckInRule(formData, {
@@ -141,12 +169,12 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
           queryClient.invalidateQueries({ queryKey: ['checkInRule', ''] });
           queryClient.refetchQueries({ queryKey: ['checkInRule'] });
-          
+
           // Call parent onSuccess callback if provided
           if (onSuccess) {
             onSuccess();
           }
-          
+
           // Longer delay to ensure backend processing and query refetch completes
           setTimeout(() => {
             handleDrawerClose();
@@ -154,7 +182,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
         },
         onError: () => {
           setIsSubmitting(false); // Stop loading on error
-        }
+        },
       });
     }
   };
@@ -169,19 +197,20 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     if (checkInRule) {
       // For planning period, we need to ensure the ID exists in the options
       const formValues = { ...checkInRule };
-      
+
       // If we have planning periods data and a planning period ID, verify it exists
       if (planningPeriodsData?.items && checkInRule.planningPeriodId) {
         const periodExists = planningPeriodsData.items.find(
-          (period: PlanningPeriod) => period.id === checkInRule.planningPeriodId
+          (period: PlanningPeriod) =>
+            period.id === checkInRule.planningPeriodId,
         );
-        
+
         // Only set the planning period ID if it exists in the current options
         if (!periodExists) {
           formValues.planningPeriodId = undefined;
         }
       }
-      
+
       // Determine rule type based on timeBased and achievementBased flags
       if (checkInRule.timeBased && checkInRule.achievementBased) {
         setRuleType('both');
@@ -192,7 +221,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       } else {
         setRuleType('time-based');
       }
-      
+
       form.setFieldsValue(formValues);
     } else {
       form.resetFields();
@@ -229,16 +258,17 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             name="name"
             rules={[
               { required: true, message: 'Please enter the rule name' },
-              { max: 500, message: 'Rule name must be shorter than or equal to 500 characters' },
+              {
+                max: 500,
+                message:
+                  'Rule name must be shorter than or equal to 500 characters',
+              },
             ]}
           >
             <Input className="h-12" placeholder="Enter rule name" />
           </Form.Item>
 
-          <Form.Item
-            label="Description"
-            name="description"
-          >
+          <Form.Item label="Description" name="description">
             <Input.TextArea
               rows={3}
               className="h-12"
@@ -250,7 +280,10 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             label="Rule Applies To"
             name="appliesTo"
             rules={[
-              { required: true, message: 'Please select what the rule applies to' },
+              {
+                required: true,
+                message: 'Please select what the rule applies to',
+              },
             ]}
           >
             <Select
@@ -292,7 +325,9 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 })) || []
               }
               filterOption={(input, option) =>
-                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                String(option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
             />
           </Form.Item>
@@ -300,24 +335,26 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           <Form.Item
             label="Rule Type"
             name="ruleType"
-            rules={[
-              { required: true, message: 'Please select rule type' },
-            ]}
+            rules={[{ required: true, message: 'Please select rule type' }]}
           >
-            <Radio.Group 
-              value={ruleType} 
+            <Radio.Group
+              value={ruleType}
               onChange={(e) => setRuleType(e.target.value)}
               className="w-full"
             >
               <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full">
                 <Radio value="time-based" className="flex-1">
                   <div className="text-center">
-                    <div className="font-medium text-sm md:text-base">Time-Based</div>
+                    <div className="font-medium text-sm md:text-base">
+                      Time-Based
+                    </div>
                   </div>
                 </Radio>
                 <Radio value="achievement-based" className="flex-1">
                   <div className="text-center">
-                    <div className="font-medium text-sm md:text-base">Achievement-Based</div>
+                    <div className="font-medium text-sm md:text-base">
+                      Achievement-Based
+                    </div>
                   </div>
                 </Radio>
                 <Radio value="both" className="flex-1">
@@ -335,7 +372,11 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             name="frequency"
             rules={[
               { required: true, message: 'Please enter frequency' },
-              { type: 'number', min: 1, message: 'Frequency must be at least 1' },
+              {
+                type: 'number',
+                min: 1,
+                message: 'Frequency must be at least 1',
+              },
             ]}
           >
             <InputNumber
@@ -350,12 +391,17 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           {(ruleType === 'achievement-based' || ruleType === 'both') && (
             <div className="space-y-4">
               {/* Target Value */}
-              <Form.Item className='px-4 md:px-12'
+              <Form.Item
+                className="px-4 md:px-12"
                 label="Target Value *"
                 name="targetValue"
                 rules={[
                   { required: true, message: 'Please enter target value' },
-                  { type: 'number', min: 1, message: 'Target value must be at least 1' },
+                  {
+                    type: 'number',
+                    min: 1,
+                    message: 'Target value must be at least 1',
+                  },
                 ]}
               >
                 <InputNumber
@@ -372,12 +418,11 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           {(ruleType === 'time-based' || ruleType === 'both') && (
             <div className="space-y-4  ">
               {/* Time Picker */}
-                              <Form.Item className='px-4 md:px-8'
+              <Form.Item
+                className="px-4 md:px-8"
                 label="Time *"
                 name="time"
-                rules={[
-                  { required: true, message: 'Please pick time' },
-                ]}
+                rules={[{ required: true, message: 'Please pick time' }]}
               >
                 <TimePicker
                   className="h-12 w-full"
@@ -389,58 +434,75 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
               </Form.Item>
 
               {/* Applicable Days */}
-              <Form.Item
-                label="Applicable Day"
-                name="applicableDays"
-              >
+              <Form.Item label="Applicable Day" name="applicableDays">
                 <div className="space-y-1">
                   {(() => {
                     // Find the work schedule with the highest number of working days
-                    const workScheduleWithHighestLength = workSchedulesData?.items?.reduce((highest: any, current: any) => {
-                      if (!highest || !current?.detail) return current;
-                      
-                      const highestWorkingDays = highest.detail.filter((day: any) => day.workDay).length;
-                      const currentWorkingDays = current.detail.filter((day: any) => day.workDay).length;
-                      
-                      return currentWorkingDays > highestWorkingDays ? current : highest;
-                    }, null);
-                    
+                    const workScheduleWithHighestLength =
+                      workSchedulesData?.items?.reduce(
+                        (highest: any, current: any) => {
+                          if (!highest || !current?.detail) return current;
+
+                          const highestWorkingDays = highest.detail.filter(
+                            (day: any) => day.workDay,
+                          ).length;
+                          const currentWorkingDays = current.detail.filter(
+                            (day: any) => day.workDay,
+                          ).length;
+
+                          return currentWorkingDays > highestWorkingDays
+                            ? current
+                            : highest;
+                        },
+                        null,
+                      );
+
                     if (!workScheduleWithHighestLength?.detail) {
-                      return <div className="text-gray-500">No work schedule available</div>;
-                    }
-                    
-                    return workScheduleWithHighestLength.detail.map((dayDetail: any, index: number) => {
-                      const dayName = dayDetail.day || dayDetail.dayOfWeek || `Day ${index + 1}`;
-                      const isWorkingDay = dayDetail.workDay || false;
-                      
                       return (
-                        <div key={index} className="flex items-center justify-start py-2.5 px-4 md:px-16">
-                          <Switch
-                            checked={isWorkingDay}
-                            disabled
-                            size="small"
-                            className="mr-2"
-                            checkedChildren="✓"
-                            unCheckedChildren="—"
-                          />
-                          <span className="text-gray-700 text-sm">{dayName}</span>
+                        <div className="text-gray-500">
+                          No work schedule available
                         </div>
                       );
-                    });
+                    }
+
+                    return workScheduleWithHighestLength.detail.map(
+                      (dayDetail: any, index: number) => {
+                        const dayName =
+                          dayDetail.day ||
+                          dayDetail.dayOfWeek ||
+                          `Day ${index + 1}`;
+                        const isWorkingDay = dayDetail.workDay || false;
+
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-center justify-start py-2.5 px-4 md:px-16"
+                          >
+                            <Switch
+                              checked={isWorkingDay}
+                              disabled
+                              size="small"
+                              className="mr-2"
+                              checkedChildren="✓"
+                              unCheckedChildren="—"
+                            />
+                            <span className="text-gray-700 text-sm">
+                              {dayName}
+                            </span>
+                          </div>
+                        );
+                      },
+                    );
                   })()}
                 </div>
               </Form.Item>
-
             </div>
           )}
-
 
           <Form.Item
             label="Operation"
             name="operation"
-            rules={[
-              { required: true, message: 'Please select operation' },
-            ]}
+            rules={[{ required: true, message: 'Please select operation' }]}
           >
             <Select
               className="h-12"
@@ -456,19 +518,19 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           <Form.Item
             label="Category"
             name="categoryId"
-            rules={[
-              { required: true, message: 'Please select category' },
-            ]}
+            rules={[{ required: true, message: 'Please select category' }]}
           >
             <Select
               className="h-12"
               placeholder="Select category"
               onChange={handleCategoryChange}
               options={
-                feedbackTypesData?.items?.map((feedbackType: FeedbackTypeItems) => ({
-                  value: feedbackType.id,
-                  label: feedbackType.category,
-                })) || []
+                feedbackTypesData?.items?.map(
+                  (feedbackType: FeedbackTypeItems) => ({
+                    value: feedbackType.id,
+                    label: feedbackType.category,
+                  }),
+                ) || []
               }
             />
           </Form.Item>
@@ -476,9 +538,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           <Form.Item
             label="Feedback"
             name="feedbackId"
-            rules={[
-              { required: true, message: 'Please select feedback' },
-            ]}
+            rules={[{ required: true, message: 'Please select feedback' }]}
           >
             <Select
               className="h-12"
@@ -535,4 +595,4 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   );
 };
 
-export default CheckInRuleDrawer; 
+export default CheckInRuleDrawer;

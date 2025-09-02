@@ -20,7 +20,9 @@ import { useQueryClient } from 'react-query';
 
 const CheckInRulePage: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedRule, setSelectedRule] = useState<Partial<CheckInRule> | null>(null);
+  const [selectedRule, setSelectedRule] = useState<Partial<CheckInRule> | null>(
+    null,
+  );
 
   const { data: checkInRulesData, isLoading } = useGetCheckInRules();
   const { data: planningPeriodsData } = useDefaultPlanningPeriods();
@@ -33,7 +35,10 @@ const CheckInRulePage: React.FC = () => {
   if (checkInRulesData) {
     if (Array.isArray(checkInRulesData)) {
       rules = checkInRulesData;
-    } else if (checkInRulesData.items && Array.isArray(checkInRulesData.items)) {
+    } else if (
+      checkInRulesData.items &&
+      Array.isArray(checkInRulesData.items)
+    ) {
       rules = checkInRulesData.items;
     }
   }
@@ -101,9 +106,7 @@ const CheckInRulePage: React.FC = () => {
       title: 'Frequency',
       dataIndex: 'frequency',
       key: 'frequency',
-      render: (text: number) => (
-        <span className="text-gray-900">{text}</span>
-      ),
+      render: (text: number) => <span className="text-gray-900">{text}</span>,
     },
     {
       title: 'Operation',
@@ -119,9 +122,9 @@ const CheckInRulePage: React.FC = () => {
       render: (record: CheckInRule) => {
         // Find the planning period name from the planning period ID
         const planningPeriod = planningPeriodsData?.items?.find(
-          (period: PlanningPeriod) => period.id === record.planningPeriodId
+          (period: PlanningPeriod) => period.id === record.planningPeriodId,
         );
-        
+
         return (
           <Tag color="cyan" className="font-medium">
             {planningPeriod?.name || 'Not Set'}
@@ -137,9 +140,9 @@ const CheckInRulePage: React.FC = () => {
       render: (categoryId: string) => {
         // Find the category name from the feedback types data
         const feedbackType = feedbackTypesData?.items?.find(
-          (type: FeedbackTypeItems) => type.id === categoryId
+          (type: FeedbackTypeItems) => type.id === categoryId,
         );
-        
+
         return (
           <Tag color="orange" className="font-medium">
             {feedbackType?.category || 'Unknown Category'}
@@ -224,12 +227,12 @@ const CheckInRulePage: React.FC = () => {
           font-weight: 600;
           color: #374151;
         }
-        
+
         .custom-table .ant-table-tbody > tr > td {
           border-bottom: 1px solid #f3f4f6;
           padding: 16px;
         }
-        
+
         .custom-table .ant-table-tbody > tr:hover > td {
           background-color: #f9fafb;
         }
@@ -238,26 +241,44 @@ const CheckInRulePage: React.FC = () => {
         .ant-table {
           min-width: 1200px;
         }
-        
+
         .ant-table-thead > tr > th,
         .ant-table-tbody > tr > td {
           white-space: nowrap;
           min-width: 120px;
         }
-        
+
         /* Specific column widths */
-        .ant-table-thead > tr > th:nth-child(1) { min-width: 150px; } /* Rule Name */
-        .ant-table-thead > tr > th:nth-child(2) { min-width: 120px; } /* Applies To */
-        .ant-table-thead > tr > th:nth-child(3) { min-width: 140px; } /* Type */
-        .ant-table-thead > tr > th:nth-child(4) { min-width: 100px; } /* Frequency */
-        .ant-table-thead > tr > th:nth-child(5) { min-width: 100px; } /* Operation */
-        .ant-table-thead > tr > th:nth-child(6) { min-width: 120px; } /* Interval */
-        .ant-table-thead > tr > th:nth-child(7) { min-width: 120px; } /* Action */
-        .ant-table-thead > tr > th:nth-child(8) { min-width: 120px; } /* Category */
-        .ant-table-thead > tr > th:nth-child(9) { min-width: 150px; } /* Actions */
+        .ant-table-thead > tr > th:nth-child(1) {
+          min-width: 150px;
+        } /* Rule Name */
+        .ant-table-thead > tr > th:nth-child(2) {
+          min-width: 120px;
+        } /* Applies To */
+        .ant-table-thead > tr > th:nth-child(3) {
+          min-width: 140px;
+        } /* Type */
+        .ant-table-thead > tr > th:nth-child(4) {
+          min-width: 100px;
+        } /* Frequency */
+        .ant-table-thead > tr > th:nth-child(5) {
+          min-width: 100px;
+        } /* Operation */
+        .ant-table-thead > tr > th:nth-child(6) {
+          min-width: 120px;
+        } /* Interval */
+        .ant-table-thead > tr > th:nth-child(7) {
+          min-width: 120px;
+        } /* Action */
+        .ant-table-thead > tr > th:nth-child(8) {
+          min-width: 120px;
+        } /* Category */
+        .ant-table-thead > tr > th:nth-child(9) {
+          min-width: 150px;
+        } /* Actions */
       `}</style>
     </div>
   );
 };
 
-export default CheckInRulePage; 
+export default CheckInRulePage;

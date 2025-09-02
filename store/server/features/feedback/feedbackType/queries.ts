@@ -30,13 +30,12 @@ const fetchAllFeedbackTypes = async () => {
     Authorization: `Bearer ${token}`,
   };
 
-  
   const result = await crudRequest({
     url: `${ORG_DEV_URL}/feedback-type`,
     method: 'GET',
     headers,
   });
-  
+
   return result;
 };
 export const useFetchFeedbackTypeById = (id: string) => {
