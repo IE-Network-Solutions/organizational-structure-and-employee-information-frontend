@@ -243,7 +243,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       } else {
         determinedRuleType = 'time-based';
       }
-      
+
       setRuleType(determinedRuleType);
       formValues.ruleType = determinedRuleType;
 
