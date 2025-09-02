@@ -48,8 +48,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
-    // Clear the action selection when category changes
-    form.setFieldValue('action', undefined);
+    // Clear the feedback selection when category changes
+    form.setFieldValue('feedbackId', undefined);
   };
 
   // // Function to get work schedule with highest length
@@ -72,18 +72,18 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     
     // Transform form values to match backend expectations
     const formData = {
-      name: values.name,
-      description: values.description,
+      name: values.name?.trim() || '',
+      description: values.description?.trim() || '',
       appliesTo: values.appliesTo,
       planningPeriodId: values.planningPeriodId,
       timeBased: ruleType === 'time-based' || ruleType === 'both',
       achievementBased: ruleType === 'achievement-based' || ruleType === 'both',
-      frequency: values.frequency || 1,
+      frequency: parseInt(values.frequency) || 1,
       operation: values.operation,
       tenantId: tenantId,
       categoryId: values.categoryId,
-      feedbackId: values.action,
-      target: values.targetValue,
+      feedbackId: values.feedbackId,
+      target: values.targetValue ? parseFloat(values.targetValue) : undefined,
       targetDate: ruleType === 'time-based' || ruleType === 'both' ? (() => {
         // Get the work schedule with highest working days
         const workScheduleWithHighestLength = workSchedulesData?.items?.reduce((highest: any, current: any) => {
@@ -182,9 +182,21 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
         }
       }
       
+      // Determine rule type based on timeBased and achievementBased flags
+      if (checkInRule.timeBased && checkInRule.achievementBased) {
+        setRuleType('both');
+      } else if (checkInRule.timeBased) {
+        setRuleType('time-based');
+      } else if (checkInRule.achievementBased) {
+        setRuleType('achievement-based');
+      } else {
+        setRuleType('time-based');
+      }
+      
       form.setFieldsValue(formValues);
     } else {
       form.resetFields();
+      setRuleType('time-based');
     }
   }, [checkInRule, form, planningPeriodsData]);
 
@@ -217,6 +229,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             name="name"
             rules={[
               { required: true, message: 'Please enter the rule name' },
+              { max: 500, message: 'Rule name must be shorter than or equal to 500 characters' },
             ]}
           >
             <Input className="h-12" placeholder="Enter rule name" />
@@ -316,15 +329,33 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             </Radio.Group>
           </Form.Item>
 
+          {/* Frequency - shown for ALL rule types */}
+          <Form.Item
+            label="Frequency *"
+            name="frequency"
+            rules={[
+              { required: true, message: 'Please enter frequency' },
+              { type: 'number', min: 1, message: 'Frequency must be at least 1' },
+            ]}
+          >
+            <InputNumber
+              type="number"
+              min={1}
+              className="w-full h-12"
+              placeholder="Enter frequency"
+            />
+          </Form.Item>
+
           {/* Target Value - shown when Achievement-Based or Both is selected */}
           {(ruleType === 'achievement-based' || ruleType === 'both') && (
             <div className="space-y-4">
               {/* Target Value */}
-                              <Form.Item className='px-4 md:px-12'
+              <Form.Item className='px-4 md:px-12'
                 label="Target Value *"
                 name="targetValue"
                 rules={[
                   { required: true, message: 'Please enter target value' },
+                  { type: 'number', min: 1, message: 'Target value must be at least 1' },
                 ]}
               >
                 <InputNumber
@@ -403,25 +434,6 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             </div>
           )}
 
-                        {/* Frequency - shown when Achievement-Based or Both is selected */}
-              {(ruleType === 'achievement-based' || ruleType === 'both') && (
-                <Form.Item
-                  label="Frequency *"
-                  name="frequency"
-                  rules={[
-                    { required: true, message: 'Please enter frequency' },
-                  ]}
-                >
-                  <InputNumber
-                    type="number"
-                    min={1}
-                    className="w-full h-12"
-                    placeholder="Enter frequency"
-                  />
-                </Form.Item>
-              )}
-
-
 
           <Form.Item
             label="Operation"
@@ -462,15 +474,15 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           </Form.Item>
 
           <Form.Item
-            label="Action"
-            name="action"
+            label="Feedback"
+            name="feedbackId"
             rules={[
-              { required: true, message: 'Please select action' },
+              { required: true, message: 'Please select feedback' },
             ]}
           >
             <Select
               className="h-12"
-              placeholder="Select action"
+              placeholder="Select feedback"
               options={
                 feedbackData?.items
                   ?.filter((feedback: any) => {
