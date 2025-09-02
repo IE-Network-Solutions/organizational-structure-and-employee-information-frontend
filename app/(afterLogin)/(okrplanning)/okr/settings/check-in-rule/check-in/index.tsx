@@ -427,9 +427,10 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 <TimePicker
                   className="h-12 w-full"
                   placeholder="Pick Time"
-                  format="HH:mm"
+                  format="hh:mm A"
                   minuteStep={15}
                   showNow={false}
+                  use12Hours
                 />
               </Form.Item>
 
