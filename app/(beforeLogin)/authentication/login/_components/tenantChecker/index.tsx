@@ -12,23 +12,20 @@ export const useTenantChecker = () => {
   }, [setHostName]);
 
   const domainName = hostname?.split('.')[0];
-  const isPwa = domainName === 'pwa';
 
-  // Only run the query if isPwa is true
   const { data: tenantInfo, refetch } = useGetTenantByDomain({
     domain: domainName || '',
-    isPwa: isPwa,
   });
+
   useEffect(() => {
-    if (isPwa && domainName) {
+    if (domainName) {
       refetch(); // Only refetch if PWA is true
     }
-  }, [domainName, isPwa, refetch]);
+  }, [domainName, refetch]);
 
   return {
     tenant: {
       ...tenantInfo,
-      isPwa,
     },
   };
 };
