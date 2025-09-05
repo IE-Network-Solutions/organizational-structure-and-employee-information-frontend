@@ -12,9 +12,13 @@ export interface CheckInRule {
   categoryId: string;
   feedbackId?: string;
   target?: number;
+  workScheduleId?: string;
   targetDate?: Array<{
     date: string;
-    time: string;
+    time?: string; // Keep for backward compatibility
+    startTime?: string;
+    endTime?: string;
+    dayId?: string;
   }>;
   tenantId: string;
   createdAt?: string;

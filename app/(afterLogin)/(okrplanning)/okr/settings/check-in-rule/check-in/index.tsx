@@ -57,10 +57,16 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     'time-based' | 'achievement-based' | 'both'
   >('time-based');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedWorkScheduleId, setSelectedWorkScheduleId] = useState<string | undefined>();
+  const [workScheduleDays, setWorkScheduleDays] = useState<any[]>([]);
+  const [applicableDays, setApplicableDays] = useState<Record<string, boolean>>({});
 
   const handleDrawerClose = () => {
     form.resetFields();
     setSelectedCategoryId(undefined);
+    setSelectedWorkScheduleId(undefined);
+    setWorkScheduleDays([]);
+    setApplicableDays({});
     onClose();
   };
 
@@ -70,21 +76,144 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     form.setFieldValue('feedbackId', undefined);
   };
 
-  // // Function to get work schedule with highest length
-  // const getWorkScheduleWithHighestLength = () => {
-  //   if (!workSchedulesData?.items || workSchedulesData.items.length === 0) {
-  //     return null;
-  //   }
+  const handleToggleChange = (dayId: string, checked: boolean) => {
+    setApplicableDays(prev => ({
+      ...prev,
+      [dayId]: checked
+    }));
+    
+    // Clear time values when toggle is turned off
+    if (!checked) {
+      form.setFieldValue(`startTime_${dayId}`, undefined);
+      form.setFieldValue(`endTime_${dayId}`, undefined);
+    }
+  };
 
-  //   return workSchedulesData.items.reduce((highest, current) => {
-  //     const currentLength = current.detail?.length || 0;
-  //     const highestLength = highest.detail?.length || 0;
-  //     return currentLength > highestLength ? current : highest;
-  //   });
-  // };
+  const handleWorkScheduleChange = (workScheduleId: string) => {
 
+    setSelectedWorkScheduleId(workScheduleId);
+    
+    // Find the selected work schedule and set its days
+    const selectedWorkSchedule = workSchedulesData?.items?.find(
+      (schedule: any) => schedule.id === workScheduleId
+    );
+    
+
+    if (selectedWorkSchedule?.detail) {
+    
+      setWorkScheduleDays(selectedWorkSchedule.detail);
+      
+      // Clear all existing form fields for applicable days first
+      const currentFormValues = form.getFieldsValue();
+      const fieldsToReset: any = {};
+      
+      // Reset all existing applicable day fields
+      Object.keys(currentFormValues).forEach(key => {
+        if (key.startsWith('isApplicable_') || key.startsWith('startTime_') || key.startsWith('endTime_')) {
+          fieldsToReset[key] = undefined;
+        }
+      });
+      
+      // Initialize form values - show ALL days from work schedule
+      const initialValues: any = { ...fieldsToReset };
+      const applicableDaysState: Record<string, boolean> = {};
+      
+      // Always show all days from the selected work schedule
+      selectedWorkSchedule.detail.forEach((dayDetail: any) => {
+        // Initialize all days as not applicable by default
+        initialValues[`isApplicable_${dayDetail.id}`] = false;
+        applicableDaysState[dayDetail.id] = false;
+        
+        // Set default times from work schedule for all days
+        if (dayDetail.startTime) {
+          initialValues[`startTime_${dayDetail.id}`] = dayjs(dayDetail.startTime, 'HH:mm');
+        }
+        if (dayDetail.endTime) {
+          initialValues[`endTime_${dayDetail.id}`] = dayjs(dayDetail.endTime, 'HH:mm');
+        }
+      });
+      
+      // If we're editing and have existing targetDate data, populate the previously selected days
+      if (checkInRule && checkInRule.targetDate && checkInRule.targetDate.length > 0) {
+
+        // First, preserve times for previously selected days
+        const preservedTimes: Record<string, { startTime?: string, endTime?: string }> = {};
+        checkInRule.targetDate.forEach((timeEntry: any) => {
+          const dayId = timeEntry.dayId || timeEntry.date;
+          
+          // Find matching day in the new work schedule
+          const matchingDay = selectedWorkSchedule.detail.find((day: any) => 
+            day.id === dayId || 
+            day.day === timeEntry.date || 
+            day.dayOfWeek === timeEntry.date
+          );
+          
+          if (matchingDay) {
+   
+            // Store the times for this day
+            const startTime = timeEntry.startTime || timeEntry.start;
+            const endTime = timeEntry.endTime || timeEntry.end;
+            
+            if (startTime || endTime) {
+              preservedTimes[matchingDay.id] = {
+                startTime: startTime,
+                endTime: endTime
+              };
+            }
+          }
+        });
+        
+        // Now set ALL days based on working day status from the NEW work schedule
+        // This ensures we use the working day status from the newly selected work schedule
+        selectedWorkSchedule.detail.forEach((dayDetail: any) => {
+          const isWorkingDay = dayDetail.workDay === true || dayDetail.isWorkingDay === true || dayDetail.applicable === true;
+
+          // Set switch based on working day status from new work schedule
+          initialValues[`isApplicable_${dayDetail.id}`] = isWorkingDay;
+          applicableDaysState[dayDetail.id] = isWorkingDay;
+          
+          // Use preserved times if available, otherwise use work schedule default times
+          if (preservedTimes[dayDetail.id]) {
+            if (preservedTimes[dayDetail.id].startTime) {
+              initialValues[`startTime_${dayDetail.id}`] = dayjs(preservedTimes[dayDetail.id].startTime, 'HH:mm');
+            }
+            if (preservedTimes[dayDetail.id].endTime) {
+              initialValues[`endTime_${dayDetail.id}`] = dayjs(preservedTimes[dayDetail.id].endTime, 'HH:mm');
+            }
+          } else {
+            // Use work schedule default times
+            if (dayDetail.startTime) {
+              initialValues[`startTime_${dayDetail.id}`] = dayjs(dayDetail.startTime, 'HH:mm');
+            }
+            if (dayDetail.endTime) {
+              initialValues[`endTime_${dayDetail.id}`] = dayjs(dayDetail.endTime, 'HH:mm');
+            }
+          }
+        });
+      } else {
+      
+        // If creating new, turn on switches only for working days
+        selectedWorkSchedule.detail.forEach((dayDetail: any) => {
+          const isWorkingDay = dayDetail.workDay === true || dayDetail.isWorkingDay === true || dayDetail.applicable === true;
+        
+          initialValues[`isApplicable_${dayDetail.id}`] = isWorkingDay;
+          applicableDaysState[dayDetail.id] = isWorkingDay;
+        });
+      }
+      
+   
+      // Set the form values and applicable days state
+      form.setFieldsValue(initialValues);
+      setApplicableDays(applicableDaysState);
+    } else {
+   
+      setWorkScheduleDays([]);
+      setApplicableDays({});
+    }
+  };
   const onFinish = (values: any) => {
     setIsSubmitting(true); // Start loading
+
 
     // Transform form values to match backend expectations
     const formData = {
@@ -95,43 +224,43 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       timeBased: ruleType === 'time-based' || ruleType === 'both',
       achievementBased: ruleType === 'achievement-based' || ruleType === 'both',
       frequency: parseInt(values.frequency) || 1,
-      operation: values.operation,
+      operation: (ruleType === 'achievement-based' || ruleType === 'both') ? values.operation : undefined,
       tenantId: tenantId,
       categoryId: values.categoryId,
       feedbackId: values.feedbackId,
       target: values.targetValue ? parseFloat(values.targetValue) : undefined,
+      workScheduleId: values.workScheduleId,
       targetDate:
         ruleType === 'time-based' || ruleType === 'both'
           ? (() => {
-              // Get the work schedule with highest working days
-              const workScheduleWithHighestLength =
-                workSchedulesData?.items?.reduce(
-                  (highest: any, current: any) => {
-                    if (!highest || !current?.detail) return current;
+              // Use the selected work schedule days
+              if (!workScheduleDays.length) {
+              
+                return null;
+              }
 
-                    const highestWorkingDays = highest.detail.filter(
-                      (day: any) => day.workDay,
-                    ).length;
-                    const currentWorkingDays = current.detail.filter(
-                      (day: any) => day.workDay,
-                    ).length;
-
-                    return currentWorkingDays > highestWorkingDays
-                      ? current
-                      : highest;
-                  },
-                  null,
-                );
-
-              if (!workScheduleWithHighestLength?.detail) return null;
-
-              // Create targetDate array with all working days and selected time
-              return workScheduleWithHighestLength.detail
-                .filter((dayDetail: any) => dayDetail.workDay)
-                .map((dayDetail: any) => ({
-                  date: dayDetail.day || dayDetail.dayOfWeek || 'Monday', // Use actual day from work schedule
-                  time: values.time ? values.time.format('HH:mm') : null,
-                }));
+              // Create targetDate array with selected applicable days and their times
+              const targetDateArray = workScheduleDays
+                .filter((dayDetail: any) => {
+                  const isApplicable = values[`isApplicable_${dayDetail.id}`];
+                       return isApplicable;
+                })
+                .map((dayDetail: any) => {
+                  const startTime = values[`startTime_${dayDetail.id}`] ? values[`startTime_${dayDetail.id}`].format('HH:mm') : dayDetail.startTime;
+                  const endTime = values[`endTime_${dayDetail.id}`] ? values[`endTime_${dayDetail.id}`].format('HH:mm') : dayDetail.endTime;
+                  
+                  const dayData = {
+                    date: dayDetail.day || dayDetail.dayOfWeek || 'Monday',
+                    dayId: dayDetail.id,
+                    startTime: startTime,
+                    endTime: endTime,
+                  };
+                  
+                
+                  return dayData;
+                });
+            
+              return targetDateArray;
             })()
           : null,
     };
@@ -212,19 +341,14 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
         }
       }
 
-      // Convert time string to dayjs object for TimePicker
-      if (checkInRule.targetDate && checkInRule.targetDate.length > 0) {
-        // Get the first time entry from targetDate array
-        const firstTimeEntry = checkInRule.targetDate[0];
-        if (firstTimeEntry?.time) {
-          // Convert time string (HH:mm format) to dayjs object
-          formValues.time = dayjs(firstTimeEntry.time, 'HH:mm');
-        }
-      }
-
       // Map target property to targetValue form field
       if (checkInRule.target !== undefined) {
         formValues.targetValue = checkInRule.target;
+      }
+
+      // Ensure operation field is properly set for editing
+      if (checkInRule.operation !== undefined) {
+        formValues.operation = checkInRule.operation;
       }
 
       // Set selectedCategoryId for feedback filtering
@@ -247,13 +371,159 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       setRuleType(determinedRuleType);
       formValues.ruleType = determinedRuleType;
 
+      // Set work schedule if it exists in the checkInRule
+      const checkInRuleWithWorkSchedule = checkInRule as any;
+      if (checkInRuleWithWorkSchedule.workScheduleId) {
+        setSelectedWorkScheduleId(checkInRuleWithWorkSchedule.workScheduleId);
+        
+        // Try to find the work schedule in the available data
+        const selectedWorkSchedule = workSchedulesData?.items?.find(
+          (schedule: any) => schedule.id === checkInRuleWithWorkSchedule.workScheduleId
+        );
+        
+        if (selectedWorkSchedule?.detail) {
+          setWorkScheduleDays(selectedWorkSchedule.detail);
+          
+          // Convert time strings to dayjs objects for TimePickers and set applicable day toggles
+          const applicableDaysState: Record<string, boolean> = {};
+          
+          // Initialize all days from work schedule as not applicable
+          selectedWorkSchedule.detail.forEach((dayDetail: any) => {
+            formValues[`isApplicable_${dayDetail.id}`] = false;
+            applicableDaysState[dayDetail.id] = false;
+            
+            // Set default times from work schedule for all days
+            if (dayDetail.startTime) {
+              formValues[`startTime_${dayDetail.id}`] = dayjs(dayDetail.startTime, 'HH:mm');
+            }
+            if (dayDetail.endTime) {
+              formValues[`endTime_${dayDetail.id}`] = dayjs(dayDetail.endTime, 'HH:mm');
+            }
+          });
+          
+          // Only populate days that exist in the database with their switches ON and times
+          if (checkInRule.targetDate && checkInRule.targetDate.length > 0) {
+      
+            
+            checkInRule.targetDate.forEach((timeEntry: any) => {
+              const dayId = timeEntry.dayId || timeEntry.date;
+            
+              // Find matching day in work schedule by dayId or by date/day name
+              const matchingDay = selectedWorkSchedule.detail.find((day: any) => 
+                day.id === dayId || 
+                day.day === timeEntry.date || 
+                day.dayOfWeek === timeEntry.date
+              );
+              
+              if (matchingDay) {
+            
+                // Set the applicable day toggle to true for days that have time entries
+                formValues[`isApplicable_${matchingDay.id}`] = true;
+                applicableDaysState[matchingDay.id] = true;
+                
+                // Handle both startTime/endTime and start/end properties
+                const startTime = timeEntry.startTime || timeEntry.start;
+                const endTime = timeEntry.endTime || timeEntry.end;
+                
+                if (startTime) {
+                  formValues[`startTime_${matchingDay.id}`] = dayjs(startTime, 'HH:mm');
+                }
+                if (endTime) {
+                  formValues[`endTime_${matchingDay.id}`] = dayjs(endTime, 'HH:mm');
+                }
+      } else {
+              
+              }
+            });
+          }
+          
+          // Set applicable days state
+          setApplicableDays(applicableDaysState);
+        }
+      }
+
       form.setFieldsValue(formValues);
     } else {
       form.resetFields();
       setRuleType('time-based');
       setSelectedCategoryId(undefined);
+      setSelectedWorkScheduleId(undefined);
+      setWorkScheduleDays([]);
+      setApplicableDays({});
     }
   }, [checkInRule, form, planningPeriodsData]);
+
+  // Separate useEffect to handle work schedule loading when workSchedulesData becomes available
+  useEffect(() => {
+    if (checkInRule && workSchedulesData?.items) {
+      const checkInRuleWithWorkSchedule = checkInRule as any;
+      if (checkInRuleWithWorkSchedule.workScheduleId && !workScheduleDays.length) {
+        const selectedWorkSchedule = workSchedulesData.items.find(
+          (schedule: any) => schedule.id === checkInRuleWithWorkSchedule.workScheduleId
+        );
+        
+        if (selectedWorkSchedule?.detail) {
+          setWorkScheduleDays(selectedWorkSchedule.detail);
+          
+          // Convert time strings to dayjs objects for TimePickers and set applicable day toggles
+          const formValues: any = {};
+          const applicableDaysState: Record<string, boolean> = {};
+          
+          // Initialize all days from work schedule as not applicable
+          selectedWorkSchedule.detail.forEach((dayDetail: any) => {
+            formValues[`isApplicable_${dayDetail.id}`] = false;
+            applicableDaysState[dayDetail.id] = false;
+            
+            // Set default times from work schedule for all days
+            if (dayDetail.startTime) {
+              formValues[`startTime_${dayDetail.id}`] = dayjs(dayDetail.startTime, 'HH:mm');
+            }
+            if (dayDetail.endTime) {
+              formValues[`endTime_${dayDetail.id}`] = dayjs(dayDetail.endTime, 'HH:mm');
+            }
+          });
+          
+          // Only populate days that exist in the database with their switches ON and times
+          if (checkInRule.targetDate && checkInRule.targetDate.length > 0) {
+            checkInRule.targetDate.forEach((timeEntry: any) => {
+              const dayId = timeEntry.dayId || timeEntry.date;
+       
+              // Find matching day in work schedule by dayId or by date/day name
+              const matchingDay = selectedWorkSchedule.detail.find((day: any) => 
+                day.id === dayId || 
+                day.day === timeEntry.date || 
+                day.dayOfWeek === timeEntry.date
+              );
+              
+              if (matchingDay) {
+               
+                // Set the applicable day toggle to true for days that have time entries
+                formValues[`isApplicable_${matchingDay.id}`] = true;
+                applicableDaysState[matchingDay.id] = true;
+                
+                // Handle both startTime/endTime and start/end properties
+                const startTime = timeEntry.startTime || timeEntry.start;
+                const endTime = timeEntry.endTime || timeEntry.end;
+                
+                if (startTime) {
+                  formValues[`startTime_${matchingDay.id}`] = dayjs(startTime, 'HH:mm');
+                }
+                if (endTime) {
+                  formValues[`endTime_${matchingDay.id}`] = dayjs(endTime, 'HH:mm');
+                }
+              } else {
+              
+              }
+            });
+          }
+          
+          // Set applicable days state and update form values
+          setApplicableDays(applicableDaysState);
+          form.setFieldsValue(formValues);
+        }
+      }
+    }
+  }, [workSchedulesData, checkInRule, form, workScheduleDays.length]);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -358,6 +628,27 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             />
           </Form.Item>
 
+          {/* Frequency - shown for ALL rule types */}
+          <Form.Item
+            label="Frequency *"
+            name="frequency"
+            rules={[
+              { required: true, message: 'Please enter frequency' },
+              {
+                type: 'number',
+                min: 1,
+                message: 'Frequency must be at least 1',
+              },
+            ]}
+          >
+            <InputNumber
+              type="number"
+              min={1}
+              className="w-full h-12"
+              placeholder="Enter frequency"
+            />
+          </Form.Item>
+
           <Form.Item
             label="Rule Type"
             name="ruleType"
@@ -395,26 +686,26 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             </Radio.Group>
           </Form.Item>
 
-          {/* Frequency - shown for ALL rule types */}
+          {/* Work Schedule Selection - shown for Time-Based or Both rule types */}
+          {(ruleType === 'time-based' || ruleType === 'both') && (
           <Form.Item
-            label="Frequency *"
-            name="frequency"
-            rules={[
-              { required: true, message: 'Please enter frequency' },
-              {
-                type: 'number',
-                min: 1,
-                message: 'Frequency must be at least 1',
-              },
-            ]}
-          >
-            <InputNumber
-              type="number"
-              min={1}
-              className="w-full h-12"
-              placeholder="Enter frequency"
+              label="Work Schedule *"
+              name="workScheduleId"
+              rules={[{ required: true, message: 'Please select work schedule' }]}
+            >
+              <Select
+                className="h-12"
+                placeholder="Select work schedule"
+                onChange={handleWorkScheduleChange}
+                options={
+                  workSchedulesData?.items?.map((schedule: any) => ({
+                    value: schedule.id,
+                    label: schedule.name,
+                  })) || []
+                }
             />
           </Form.Item>
+          )}
 
           {/* Target Value - shown when Achievement-Based or Both is selected */}
           {(ruleType === 'achievement-based' || ruleType === 'both') && (
@@ -445,90 +736,118 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
           {/* Time-Based Settings - shown when Time-Based or Both is selected */}
           {(ruleType === 'time-based' || ruleType === 'both') && (
-            <div className="space-y-4  ">
-              {/* Time Picker */}
-              <Form.Item
-                className="px-4 md:px-8"
-                label="Time *"
-                name="time"
-                rules={[{ required: true, message: 'Please pick time' }]}
-              >
-                <TimePicker
-                  className="h-12 w-full"
-                  placeholder="Pick Time"
-                  format="hh:mm A"
-                  minuteStep={15}
-                  showNow={false}
-                  use12Hours
-                />
-              </Form.Item>
-
-              {/* Applicable Days */}
-              <Form.Item label="Applicable Day" name="applicableDays">
-                <div className="space-y-1">
-                  {(() => {
-                    // Find the work schedule with the highest number of working days
-                    const workScheduleWithHighestLength =
-                      workSchedulesData?.items?.reduce(
-                        (highest: any, current: any) => {
-                          if (!highest || !current?.detail) return current;
-
-                          const highestWorkingDays = highest.detail.filter(
-                            (day: any) => day.workDay,
-                          ).length;
-                          const currentWorkingDays = current.detail.filter(
-                            (day: any) => day.workDay,
-                          ).length;
-
-                          return currentWorkingDays > highestWorkingDays
-                            ? current
-                            : highest;
-                        },
-                        null,
-                      );
-
-                    if (!workScheduleWithHighestLength?.detail) {
-                      return (
-                        <div className="text-gray-500">
-                          No work schedule available
+            <div className="space-y-4">
+              {/* Applicable Days with Start/End Time */}
+              {workScheduleDays.length > 0 && (
+                <Form.Item label="Applicable Days" name="applicableDays">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                    <div className="text-xs text-gray-500 mb-1">
+                      Select days and set times
+                    </div>
+                    
+                    {/* Time Labels Header */}
+                    <div className="flex items-center justify-end pr-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-20 text-center">
+                          <span className="text-xs text-gray-600 font-medium">Start</span>
                         </div>
-                      );
-                    }
-
-                    return workScheduleWithHighestLength.detail.map(
-                      (dayDetail: any, index: number) => {
-                        const dayName =
-                          dayDetail.day ||
-                          dayDetail.dayOfWeek ||
-                          `Day ${index + 1}`;
+                        <div className="w-4 text-center">
+                          <span className="text-xs text-gray-300">-</span>
+                        </div>
+                        <div className="w-20 text-center">
+                          <span className="text-xs text-gray-600 font-medium">End</span>
+                        </div>
+                      </div>
+                        </div>
+                    
+                    {workScheduleDays.map((dayDetail: any, index: number) => {
+                      const dayName = dayDetail.day || dayDetail.dayOfWeek || `Day ${index + 1}`;
                         const isWorkingDay = dayDetail.workDay || false;
+                      const isApplicable = applicableDays[dayDetail.id] || false;
 
                         return (
                           <div
                             key={index}
-                            className="flex items-center justify-start py-2.5 px-4 md:px-16"
+                          className={`flex items-center justify-between py-2 px-3 rounded-md border text-sm ${
+                            isApplicable
+                              ? 'bg-white border-blue-200'
+                              : 'bg-gray-50 border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Form.Item
+                              name={`isApplicable_${dayDetail.id}`}
+                              valuePropName="checked"
+                              className="mb-0"
                           >
                             <Switch
-                              checked={isWorkingDay}
-                              disabled
                               size="small"
-                              className="mr-2"
                               checkedChildren="✓"
                               unCheckedChildren="—"
+                                onChange={(checked) => handleToggleChange(dayDetail.id, checked)}
                             />
-                            <span className="text-gray-700 text-sm">
+                            </Form.Item>
+                            <span className={`font-medium ${
+                              isApplicable ? 'text-gray-800' : 'text-gray-500'
+                            }`}>
                               {dayName}
                             </span>
                           </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Form.Item
+                              name={`startTime_${dayDetail.id}`}
+                              className="mb-0"
+                            >
+                              <TimePicker
+                                className={`h-7 w-20 ${
+                                  isApplicable 
+                                    ? 'bg-white border-gray-300' 
+                                    : 'bg-gray-100 border-gray-200'
+                                }`}
+                                placeholder="9:00 AM"
+                                format="h:mm A"
+                                minuteStep={15}
+                                showNow={false}
+                                use12Hours={true}
+                                size="small"
+                                disabled={!isApplicable}
+                              />
+                            </Form.Item>
+                            
+                            <span className="text-gray-300 text-sm">-</span>
+                            
+                            <Form.Item
+                              name={`endTime_${dayDetail.id}`}
+                              className="mb-0"
+                            >
+                              <TimePicker
+                                className={`h-7 w-20 ${
+                                  isApplicable 
+                                    ? 'bg-white border-gray-300' 
+                                    : 'bg-gray-100 border-gray-200'
+                                }`}
+                                placeholder="5:00 PM"
+                                format="h:mm A"
+                                minuteStep={15}
+                                showNow={false}
+                                use12Hours={true}
+                                size="small"
+                                disabled={!isApplicable}
+                              />
+                            </Form.Item>
+                          </div>
+                          </div>
                         );
-                      },
-                    );
-                  })()}
+                    })}
                 </div>
               </Form.Item>
+              )}
             </div>
           )}
 
+          {/* Operation - shown for Achievement-Based or Both rule types */}
+          {(ruleType === 'achievement-based' || ruleType === 'both') && (
           <Form.Item
             label="Operation"
             name="operation"
@@ -544,6 +863,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
               ]}
             />
           </Form.Item>
+          )}
 
           <Form.Item
             label="Category"
