@@ -2,7 +2,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { WorkScheduleData } from '@/store/uistate/features/employees/employeeManagment';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -37,11 +36,12 @@ const getWorkSchedule = async (id: string) => {
       tenantId: tenantId, // Pass tenantId in the headers
     };
 
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/work-schedules/${id}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/work-schedules/${id}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }

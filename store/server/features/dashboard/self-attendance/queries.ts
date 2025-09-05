@@ -3,7 +3,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 
 // Define the OKRDashboard interface
@@ -37,11 +36,12 @@ const getSelfAttendance = async (
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.get<ResponseData>(
-      `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
-      { headers },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/attendance/user/attendance-record?userId=${userId}&start=${start}&end=${end}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw new Error(`Error fetching applicant summary: ${error}`);
   }

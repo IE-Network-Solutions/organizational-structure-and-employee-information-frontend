@@ -1,6 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
-import axios from 'axios';
 import { useMutation, useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -71,13 +70,12 @@ const getTenantId = async (token: string) => {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
-    const response = await axios.get(
-      `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
-      {
-        headers,
-      },
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/users/firebase/${localId}`,
+      method: 'GET',
+      headers,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -97,10 +95,11 @@ const getTenantId = async (token: string) => {
 
 const getTenantByDomainName = async (domain: string) => {
   try {
-    const response = await axios.get(
-      `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`,
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${TENANT_MGMT_URL}/clients/get-clients/domain/name/client-data/${domain}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -109,24 +108,19 @@ const getTenantByDomainName = async (domain: string) => {
 const getTenant = async (tenantId?: string) => {
   const tenantIdData = useAuthenticationStore.getState().tenantId ?? tenantId;
   try {
-    const response = await axios.get(
-      `${TENANT_MGMT_URL}/clients/${tenantIdData}`,
-    );
-    return response.data;
+    const response = await crudRequest({
+      url: `${TENANT_MGMT_URL}/clients/${tenantIdData}`,
+      method: 'GET',
+    });
+    return response;
   } catch (error) {
     throw error;
   }
 };
 
-export const useGetTenantByDomain = ({
-  domain,
-  isPwa,
-}: {
-  domain: string;
-  isPwa: boolean;
-}) => {
+export const useGetTenantByDomain = ({ domain }: { domain: string }) => {
   return useQuery(['domain', domain], () => getTenantByDomainName(domain), {
-    enabled: !!domain && isPwa, // ✅ only fetch if isPwa is true and domain exists
+    enabled: !!domain, // ✅ only fetch if domain exists
     keepPreviousData: true,
   });
 };
