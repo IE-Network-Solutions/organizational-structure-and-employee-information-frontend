@@ -720,7 +720,10 @@ const Payroll = () => {
               (acc: number, item: any) => acc + Number(item.amount),
               0,
             ) || 0;
-        const taxableAmount = totalTransportAllowance - 600;
+        
+        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
+        const taxableAmount = totalTransportAllowance >= 600 ? totalTransportAllowance - 600 : 0;
+        
         return <div>{taxableAmount.toFixed(2)}</div>;
       },
     },
