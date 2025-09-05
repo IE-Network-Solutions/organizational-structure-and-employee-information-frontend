@@ -57,7 +57,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     'time-based' | 'achievement-based' | 'both'
   >('time-based');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedWorkScheduleId, setSelectedWorkScheduleId] = useState<string | undefined>();
+  const [, setSelectedWorkScheduleId] = useState<string | undefined>();
   const [workScheduleDays, setWorkScheduleDays] = useState<any[]>([]);
   const [applicableDays, setApplicableDays] = useState<Record<string, boolean>>({});
 
@@ -540,7 +540,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
         }
       }
     }
-  }, [workSchedulesData, checkInRule, form, workScheduleDays.length]);
+  }, [workSchedulesData?.items, checkInRule, form, workScheduleDays.length]);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -794,7 +794,6 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                     
                     {workScheduleDays.map((dayDetail: any, index: number) => {
                       const dayName = dayDetail.day || dayDetail.dayOfWeek || `Day ${index + 1}`;
-                        const isWorkingDay = dayDetail.workDay || false;
                       const isApplicable = applicableDays[dayDetail.id] || false;
 
                         return (
