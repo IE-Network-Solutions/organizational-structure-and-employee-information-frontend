@@ -216,7 +216,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
 
     // Transform form values to match backend expectations
-    const formData = {
+    const formData: any = {
       name: values.name?.trim() || '',
       description: values.description?.trim() || '',
       appliesTo: values.appliesTo,
@@ -224,46 +224,63 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       timeBased: ruleType === 'time-based' || ruleType === 'both',
       achievementBased: ruleType === 'achievement-based' || ruleType === 'both',
       frequency: parseInt(values.frequency) || 1,
-      operation: (ruleType === 'achievement-based' || ruleType === 'both') ? values.operation : undefined,
       tenantId: tenantId,
       categoryId: values.categoryId,
       feedbackId: values.feedbackId,
-      target: values.targetValue ? parseFloat(values.targetValue) : undefined,
-      workScheduleId: values.workScheduleId,
-      targetDate:
-        ruleType === 'time-based' || ruleType === 'both'
-          ? (() => {
-              // Use the selected work schedule days
-              if (!workScheduleDays.length) {
-              
-                return null;
-              }
-
-              // Create targetDate array with selected applicable days and their times
-              const targetDateArray = workScheduleDays
-                .filter((dayDetail: any) => {
-                  const isApplicable = values[`isApplicable_${dayDetail.id}`];
-                       return isApplicable;
-                })
-                .map((dayDetail: any) => {
-                  const startTime = values[`startTime_${dayDetail.id}`] ? values[`startTime_${dayDetail.id}`].format('HH:mm') : dayDetail.startTime;
-                  const endTime = values[`endTime_${dayDetail.id}`] ? values[`endTime_${dayDetail.id}`].format('HH:mm') : dayDetail.endTime;
-                  
-                  const dayData = {
-                    date: dayDetail.day || dayDetail.dayOfWeek || 'Monday',
-                    dayId: dayDetail.id,
-                    startTime: startTime,
-                    endTime: endTime,
-                  };
-                  
-                
-                  return dayData;
-                });
-            
-              return targetDateArray;
-            })()
-          : null,
     };
+
+    // Only include operation if rule type requires it
+    if (ruleType === 'achievement-based' || ruleType === 'both') {
+      formData.operation = values.operation;
+    } else {
+      // Explicitly set to null for time-based rules to clear from database
+      formData.operation = null;
+    }
+
+    // Only include target if rule type requires it
+    if (ruleType === 'achievement-based' || ruleType === 'both') {
+      formData.target = values.targetValue ? parseFloat(values.targetValue) : undefined;
+    } else {
+      // Explicitly set to null for time-based rules to clear from database
+      formData.target = null;
+    }
+
+    // Only include work schedule and target date if rule type requires it
+    if (ruleType === 'time-based' || ruleType === 'both') {
+      formData.workScheduleId = values.workScheduleId;
+      formData.targetDate = (() => {
+        // Use the selected work schedule days
+        if (!workScheduleDays.length) {
+          return null;
+        }
+
+        // Create targetDate array with selected applicable days and their times
+        const targetDateArray = workScheduleDays
+          .filter((dayDetail: any) => {
+            const isApplicable = values[`isApplicable_${dayDetail.id}`];
+            return isApplicable;
+          })
+          .map((dayDetail: any) => {
+            const startTime = values[`startTime_${dayDetail.id}`] ? values[`startTime_${dayDetail.id}`].format('HH:mm') : dayDetail.startTime;
+            const endTime = values[`endTime_${dayDetail.id}`] ? values[`endTime_${dayDetail.id}`].format('HH:mm') : dayDetail.endTime;
+            
+            const dayData = {
+              date: dayDetail.day || dayDetail.dayOfWeek || 'Monday',
+              dayId: dayDetail.id,
+              startTime: startTime,
+              endTime: endTime,
+            };
+            
+            return dayData;
+          });
+      
+        return targetDateArray;
+      })();
+    } else {
+      // Explicitly set to null for achievement-based rules to clear from database
+      formData.workScheduleId = null;
+      formData.targetDate = null;
+    }
 
     if (checkInRule?.id) {
       updateCheckInRule(
@@ -657,8 +674,23 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             <Radio.Group
               value={ruleType}
               onChange={(e) => {
-                setRuleType(e.target.value);
-                form.setFieldValue('ruleType', e.target.value);
+                const newRuleType = e.target.value;
+                setRuleType(newRuleType);
+                form.setFieldValue('ruleType', newRuleType);
+                
+                // Clear fields that are not needed for the new rule type
+                if (newRuleType === 'time-based') {
+                  // Time-based doesn't need operation or target value
+                  form.setFieldValue('operation', undefined);
+                  form.setFieldValue('targetValue', undefined);
+                } else if (newRuleType === 'achievement-based') {
+                  // Achievement-based doesn't need work schedule or target date
+                  form.setFieldValue('workScheduleId', undefined);
+                  setSelectedWorkScheduleId(undefined);
+                  setWorkScheduleDays([]);
+                  setApplicableDays({});
+                }
+                // For 'both', we keep all fields as they are
               }}
               className="w-full"
             >
