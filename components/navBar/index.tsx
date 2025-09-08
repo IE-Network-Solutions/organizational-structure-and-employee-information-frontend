@@ -386,8 +386,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           key: '/tna/management',
           className: 'font-bold',
           permissions: ['manage_training'],
-
-
         },
         // {
         //   title: <span>TNA</span>,
