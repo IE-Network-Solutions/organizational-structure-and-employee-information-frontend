@@ -293,10 +293,10 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           })
           .map((dayDetail: any) => {
             const startTime = values[`startTime_${dayDetail.id}`]
-              ? values[`startTime_${dayDetail.id}`].format('HH:mm')
+              ? values[`startTime_${dayDetail.id}`].format('hh:mm A')
               : dayDetail.startTime;
             const endTime = values[`endTime_${dayDetail.id}`]
-              ? values[`endTime_${dayDetail.id}`].format('HH:mm')
+              ? values[`endTime_${dayDetail.id}`].format('hh:mm A')
               : dayDetail.endTime;
 
             const dayData = {
@@ -483,15 +483,19 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 const endTime = timeEntry.endTime || timeEntry.end;
 
                 if (startTime) {
+                  // Handle both 12-hour (hh:mm A) and 24-hour (HH:mm) formats
+                  const timeFormat = startTime.includes('AM') || startTime.includes('PM') ? 'hh:mm A' : 'HH:mm';
                   formValues[`startTime_${matchingDay.id}`] = dayjs(
                     startTime,
-                    'HH:mm',
+                    timeFormat,
                   );
                 }
                 if (endTime) {
+                  // Handle both 12-hour (hh:mm A) and 24-hour (HH:mm) formats
+                  const timeFormat = endTime.includes('AM') || endTime.includes('PM') ? 'hh:mm A' : 'HH:mm';
                   formValues[`endTime_${matchingDay.id}`] = dayjs(
                     endTime,
-                    'HH:mm',
+                    timeFormat,
                   );
                 }
               } else {
@@ -578,15 +582,19 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 const endTime = timeEntry.endTime || timeEntry.end;
 
                 if (startTime) {
+                  // Handle both 12-hour (hh:mm A) and 24-hour (HH:mm) formats
+                  const timeFormat = startTime.includes('AM') || startTime.includes('PM') ? 'hh:mm A' : 'HH:mm';
                   formValues[`startTime_${matchingDay.id}`] = dayjs(
                     startTime,
-                    'HH:mm',
+                    timeFormat,
                   );
                 }
                 if (endTime) {
+                  // Handle both 12-hour (hh:mm A) and 24-hour (HH:mm) formats
+                  const timeFormat = endTime.includes('AM') || endTime.includes('PM') ? 'hh:mm A' : 'HH:mm';
                   formValues[`endTime_${matchingDay.id}`] = dayjs(
                     endTime,
-                    'HH:mm',
+                    timeFormat,
                   );
                 }
               } else {
