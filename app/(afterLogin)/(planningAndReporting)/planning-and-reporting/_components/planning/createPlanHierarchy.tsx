@@ -77,7 +77,6 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
     taskId?: string | number | null,
   ) =>
     `${String(keyResultId ?? '')}${String(milestoneId ?? '')}${String(taskId ?? '')}`;
-
   const statuses: Record<string, boolean> = {};
 
   return (

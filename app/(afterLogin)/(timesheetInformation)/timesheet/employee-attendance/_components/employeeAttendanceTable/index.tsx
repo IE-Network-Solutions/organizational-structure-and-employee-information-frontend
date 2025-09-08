@@ -12,7 +12,7 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import {
   calculateAttendanceRecordToTotalWorkTime,
   timeToHour,
-  timeToLastMinute,
+  timeToLastMinute
 } from '@/helpers/calculateHelper';
 import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
@@ -134,6 +134,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
         return (
           <div>
+
             {hasBreakTypeFilter &&
             attendanceBreak &&
             attendanceBreak.breakType ? (
@@ -157,6 +158,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                   : '-'}
               </div>
             )}
+
           </div>
         );
       },
@@ -170,6 +172,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
         return (
           <div>
+
             {hasBreakTypeFilter &&
             attendanceBreak &&
             attendanceBreak.breakType ? (
@@ -193,6 +196,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                   : '-'}
               </div>
             )}
+
           </div>
         );
       },
