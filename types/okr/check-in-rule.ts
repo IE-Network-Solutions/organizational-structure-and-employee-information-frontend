@@ -12,7 +12,6 @@ export interface CheckInRule {
   categoryId: string;
   feedbackId?: string;
   target?: number;
-  workScheduleId?: string;
   targetDate?: Array<{
     date: string;
     time?: string; // Keep for backward compatibility
@@ -20,6 +19,11 @@ export interface CheckInRule {
     endTime?: string;
     dayId?: string;
   }>;
+  // User selection fields
+  selectedDepartmentIds?: string[];
+  selectedUserIds?: string[];
+  userIds?: string[]; // Backend might send this instead of selectedUserIds
+  userTypeFilter?: 'all' | 'team leads' | 'team members';
   tenantId: string;
   createdAt?: string;
   updatedAt?: string;
