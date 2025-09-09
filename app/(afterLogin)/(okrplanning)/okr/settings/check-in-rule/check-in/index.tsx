@@ -348,6 +348,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
             // Backend expects this exact format
             const dayData = {
+              date: day.id, // "monday" - the day this rule applies to (the switched on day)
               startDay: startDayId, // "friday"
               startTime: startTime, // "17:30"
               endDay: endDayId, // "monday"
@@ -501,12 +502,13 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
         // Populate days that exist in the database with their switches ON and times
         checkInRule.targetDate.forEach((timeEntry: any) => {
-          // Backend format: { startDay: "friday", startTime: "17:30", endDay: "monday", endTime: "07:30" }
+          // Backend format: { date: "monday", startDay: "friday", startTime: "17:30", endDay: "monday", endTime: "07:30" }
+          const dayId = timeEntry.date; // The day this rule applies to (the switched on day)
           const startDayId = timeEntry.startDay;
           const endDayId = timeEntry.endDay;
 
-          // Find matching day by startDay (the day this rule applies to)
-          const matchingDay = weekDays.find((day) => day.id === startDayId);
+          // Find matching day by date (the day this rule applies to)
+          const matchingDay = weekDays.find((day) => day.id === dayId);
 
           if (matchingDay) {
             // Set the applicable day toggle to true for days that have time entries
