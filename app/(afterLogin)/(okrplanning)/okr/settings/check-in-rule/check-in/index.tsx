@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Form,
   Input,
@@ -14,8 +14,6 @@ import {
   Avatar,
   Space,
   Spin,
-  Table,
-  Tag,
 } from 'antd';
 import dayjs from 'dayjs';
 import {
@@ -83,17 +81,28 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   const { mutate: updateCheckInRule } = useUpdateCheckInRule();
   const { data: planningPeriodsData } = useDefaultPlanningPeriods();
   const { data: feedbackTypesData } = useFetchAllFeedbackTypes();
-  const { mutate: getAllFeedback, data: feedbackData } = useGetAllFeedbackRecords();
+  const { mutate: getAllFeedback, data: feedbackData } =
+    useGetAllFeedbackRecords();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { tenantId } = useAuthenticationStore();
   const queryClient = useQueryClient();
-  const [selectedCategoryId, setSelectedCategoryId] = useState< string | undefined >();
-  const [ruleType, setRuleType] = useState<   'time-based' | 'achievement-based' | 'both'  >('time-based');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<
+    string | undefined
+  >();
+  const [ruleType, setRuleType] = useState<
+    'time-based' | 'achievement-based' | 'both'
+  >('time-based');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [applicableDays, setApplicableDays] = useState<Record<string, boolean>>(   {}, );
-  const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>([]);
+  const [applicableDays, setApplicableDays] = useState<Record<string, boolean>>(
+    {},
+  );
+  const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>(
+    [],
+  );
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
-  const [userTypeFilter, setUserTypeFilter] = useState<'all' | 'team leads' | 'team members'>('all');
+  const [userTypeFilter, setUserTypeFilter] = useState<
+    'all' | 'team leads' | 'team members'
+  >('all');
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
   const handleDrawerClose = () => {
@@ -128,22 +137,29 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       form.setFieldValue(`endTime_${dayId}`, undefined);
     }
   };
-  const weekDays = [
-    { id: 'monday', name: 'Monday' },
-    { id: 'tuesday', name: 'Tuesday' },
-    { id: 'wednesday', name: 'Wednesday' },
-    { id: 'thursday', name: 'Thursday' },
-    { id: 'friday', name: 'Friday' },
-    { id: 'saturday', name: 'Saturday' },
-    { id: 'sunday', name: 'Sunday' },
-  ];
-  const [endDaySelection, setEndDaySelection] = useState<Record<string, string>>({})
-  const [startDaySelection, setStartDaySelection] = useState<Record<string, string>>({});
+  const weekDays = useMemo(
+    () => [
+      { id: 'monday', name: 'Monday' },
+      { id: 'tuesday', name: 'Tuesday' },
+      { id: 'wednesday', name: 'Wednesday' },
+      { id: 'thursday', name: 'Thursday' },
+      { id: 'friday', name: 'Friday' },
+      { id: 'saturday', name: 'Saturday' },
+      { id: 'sunday', name: 'Sunday' },
+    ],
+    [],
+  );
+  const [endDaySelection, setEndDaySelection] = useState<
+    Record<string, string>
+  >({});
+  const [startDaySelection, setStartDaySelection] = useState<
+    Record<string, string>
+  >({});
 
   // User selection handlers
   const handleDepartmentChange = (departmentIds: string[]) => {
     setSelectedDepartmentIds(departmentIds);
-    
+
     if (departmentIds.length === 0) {
       setFilteredUsers([]);
       setSelectedUsers([]);
@@ -153,8 +169,10 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
     // Get all users from selected departments
     const allUsers: any[] = [];
-    departmentIds.forEach(deptId => {
-      const department = departmentData?.find((dept: any) => dept.id === deptId);
+    departmentIds.forEach((deptId) => {
+      const department = departmentData?.find(
+        (dept: any) => dept.id === deptId,
+      );
       if (department?.users) {
         // Add department information to each user
         const usersWithDept = department.users.map((user: any) => ({
@@ -184,23 +202,30 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     }
 
     setFilteredUsers(filteredUsersList);
-    
+
     // Automatically select all filtered users
     setSelectedUsers(filteredUsersList);
-    form.setFieldValue('selectedUserIds', filteredUsersList.map(user => user.id));
+    form.setFieldValue(
+      'selectedUserIds',
+      filteredUsersList.map((user) => user.id),
+    );
   };
 
-  const handleUserTypeFilter = (filter: 'all' | 'team leads' | 'team members') => {
+  const handleUserTypeFilter = (
+    filter: 'all' | 'team leads' | 'team members',
+  ) => {
     setUserTypeFilter(filter);
-    
+
     if (selectedDepartmentIds.length === 0) {
       return;
     }
 
     // Re-filter users with new filter
     const allUsers: any[] = [];
-    selectedDepartmentIds.forEach(deptId => {
-      const department = departmentData?.find((dept: any) => dept.id === deptId);
+    selectedDepartmentIds.forEach((deptId) => {
+      const department = departmentData?.find(
+        (dept: any) => dept.id === deptId,
+      );
       if (department?.users) {
         // Add department information to each user
         const usersWithDept = department.users.map((user: any) => ({
@@ -229,83 +254,36 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
     }
 
     setFilteredUsers(filteredUsersList);
-    
+
     // Automatically select all filtered users
     setSelectedUsers(filteredUsersList);
-    form.setFieldValue('selectedUserIds', filteredUsersList.map(user => user.id));
+    form.setFieldValue(
+      'selectedUserIds',
+      filteredUsersList.map((user) => user.id),
+    );
   };
 
   const handleUserSelection = (selectedUserIds: string[]) => {
     // Get the full user objects for selected users
-    const selectedUserObjects = filteredUsers.filter(user => 
-      selectedUserIds.includes(user.id)
+    const selectedUserObjects = filteredUsers.filter((user) =>
+      selectedUserIds.includes(user.id),
     );
     setSelectedUsers(selectedUserObjects);
   };
 
   const handleEndDayChange = (startDayId: string, endDayId: string) => {
-    setEndDaySelection(prev => ({
+    setEndDaySelection((prev) => ({
       ...prev,
-      [startDayId]: endDayId
+      [startDayId]: endDayId,
     }));
   };
 
   const handleStartDayChange = (dayId: string, startDayId: string) => {
-    setStartDaySelection(prev => ({
+    setStartDaySelection((prev) => ({
       ...prev,
-      [dayId]: startDayId
+      [dayId]: startDayId,
     }));
   };
-
-  // Table columns for users - VP criteria management style
-  const usersTableColumns = [
-    {
-      title: 'Name',
-      dataIndex: 'id',
-      key: 'name',
-      sorter: (a: any, b: any) => a.id.localeCompare(b.id),
-      render: (userId: string) => <EmployeeDetails empId={userId} />,
-    },
-    {
-      title: 'Department',
-      dataIndex: 'departmentName',
-      key: 'department',
-      sorter: (a: any, b: any) => (a.departmentName || '').localeCompare(b.departmentName || ''),
-      render: (departmentName: string) => (
-        <Tag color="blue" className="font-medium">
-          {departmentName || 'N/A'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'User Type',
-      dataIndex: 'userType',
-      key: 'userType',
-      sorter: (a: any, b: any) => (a.userType || '').localeCompare(b.userType || ''),
-      render: (userType: string) => {
-        const isLead = userType?.toLowerCase().includes('lead');
-        return (
-          <Tag 
-            color={isLead ? 'green' : 'orange'} 
-            className="font-medium"
-          >
-            {userType || 'N/A'}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      sorter: (a: any, b: any) => (a.email || '').localeCompare(b.email || ''),
-      render: (email: string) => (
-        <span className="text-gray-600 text-sm">
-          {email || 'N/A'}
-        </span>
-      ),
-    },
-  ];
 
   const onFinish = (values: any) => {
     setIsSubmitting(true); // Start loading
@@ -323,7 +301,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       categoryId: values.categoryId,
       feedbackId: values.feedbackId,
       // User selection - only send the final user IDs
-      userIds: selectedUsers.map(user => user.id),
+      userIds: selectedUsers.map((user) => user.id),
     };
 
     // Only include operation if rule type requires it
@@ -356,24 +334,24 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           .map((day) => {
             // Get the start day (could be same day or previous day)
             const startDayId = startDaySelection[day.id] || day.id;
-            
+
             const startTime = values[`startTime_${day.id}`]
               ? values[`startTime_${day.id}`].format('HH:mm')
               : '09:00';
-            
+
             // Get the end day (could be same day or next day)
             const endDayId = endDaySelection[day.id] || day.id;
-            
+
             const endTime = values[`endTime_${day.id}`]
               ? values[`endTime_${day.id}`].format('HH:mm')
               : '17:00';
 
             // Backend expects this exact format
             const dayData = {
-              startDay: startDayId,    // "friday"
-              startTime: startTime,    // "17:30"
-              endDay: endDayId,        // "monday"
-              endTime: endTime,        // "07:30"
+              startDay: startDayId, // "friday"
+              startTime: startTime, // "17:30"
+              endDay: endDayId, // "monday"
+              endTime: endTime, // "07:30"
             };
 
             return dayData;
@@ -528,9 +506,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           const endDayId = timeEntry.endDay;
 
           // Find matching day by startDay (the day this rule applies to)
-          const matchingDay = weekDays.find(
-            (day) => day.id === startDayId
-          );
+          const matchingDay = weekDays.find((day) => day.id === startDayId);
 
           if (matchingDay) {
             // Set the applicable day toggle to true for days that have time entries
@@ -551,25 +527,22 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             const endTime = timeEntry.endTime;
             if (endTime) {
               // Use only 24-hour format (HH:mm)
-              formValues[`endTime_${matchingDay.id}`] = dayjs(
-                endTime,
-                'HH:mm',
-              );
+              formValues[`endTime_${matchingDay.id}`] = dayjs(endTime, 'HH:mm');
             }
 
             // Set start day selection
             if (startDayId) {
-              setStartDaySelection(prev => ({
+              setStartDaySelection((prev) => ({
                 ...prev,
-                [matchingDay.id]: startDayId
+                [matchingDay.id]: startDayId,
               }));
             }
 
             // Set end day selection
             if (endDayId) {
-              setEndDaySelection(prev => ({
+              setEndDaySelection((prev) => ({
                 ...prev,
-                [matchingDay.id]: endDayId
+                [matchingDay.id]: endDayId,
               }));
             }
           }
@@ -581,7 +554,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
       // Use setTimeout to ensure form is fully populated before validation
       setTimeout(() => {
-      form.setFieldsValue(formValues);
+        form.setFieldsValue(formValues);
       }, 100);
     } else {
       form.resetFields();
@@ -589,17 +562,21 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       setSelectedCategoryId(undefined);
       setApplicableDays({});
     }
-  }, [checkInRule, form, planningPeriodsData]);
-
+  }, [checkInRule, form, planningPeriodsData, weekDays]);
 
   // useEffect to populate filtered users when editing existing rules
   useEffect(() => {
     if (checkInRule && departmentData) {
       // If we have selectedDepartmentIds, use the existing logic
-      if (checkInRule.selectedDepartmentIds && checkInRule.selectedDepartmentIds.length > 0) {
+      if (
+        checkInRule.selectedDepartmentIds &&
+        checkInRule.selectedDepartmentIds.length > 0
+      ) {
         const allUsers: any[] = [];
-        checkInRule.selectedDepartmentIds.forEach(deptId => {
-          const department = departmentData.find((dept: any) => dept.id === deptId);
+        checkInRule.selectedDepartmentIds.forEach((deptId) => {
+          const department = departmentData.find(
+            (dept: any) => dept.id === deptId,
+          );
           if (department?.users) {
             // Add department information to each user
             const usersWithDept = department.users.map((user: any) => ({
@@ -610,7 +587,6 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             allUsers.push(...usersWithDept);
           }
         });
-        
 
         // Apply user type filter - use same logic as VP configuration
         let filteredUsersList = allUsers;
@@ -631,21 +607,21 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
         }
 
         setFilteredUsers(filteredUsersList);
-       
+
         // Also populate selectedUsers state if there are selected user IDs
-        const userIdsToSelect = checkInRule.selectedUserIds || checkInRule.userIds;
-      
+        const userIdsToSelect =
+          checkInRule.selectedUserIds || checkInRule.userIds;
+
         if (userIdsToSelect && userIdsToSelect.length > 0) {
-          const selectedUserObjects = filteredUsersList.filter(user => 
-            userIdsToSelect.includes(user.id)
+          const selectedUserObjects = filteredUsersList.filter((user) =>
+            userIdsToSelect.includes(user.id),
           );
-        
+
           setSelectedUsers(selectedUserObjects);
         }
-      } 
+      }
       // If we only have userIds but no selectedDepartmentIds, we need to find users from all departments
       else if (checkInRule.userIds && checkInRule.userIds.length > 0) {
-    
         const allUsers: any[] = [];
         // Search through all departments to find the users
         departmentData.forEach((department: any) => {
@@ -658,32 +634,30 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             allUsers.push(...usersWithDept);
           }
         });
-        
+
         // Find the specific users that were selected
-        const selectedUserObjects = allUsers.filter(user => 
-          checkInRule.userIds?.includes(user.id)
+        const selectedUserObjects = allUsers.filter((user) =>
+          checkInRule.userIds?.includes(user.id),
         );
-        
-        
+
         // Set the selected users
         setSelectedUsers(selectedUserObjects);
-        
+
         // For filtered users, we can either show all users from the same departments as selected users,
         // or show all users. Let's show all users for now.
         setFilteredUsers(allUsers);
-        
+
         // Set the department IDs based on the selected users' departments
-        const uniqueDepartmentIds = [...new Set(selectedUserObjects.map(user => user.departmentId))];
+        const uniqueDepartmentIds = [
+          ...new Set(selectedUserObjects.map((user) => user.departmentId)),
+        ];
         setSelectedDepartmentIds(uniqueDepartmentIds);
-       
-        
+
         // Update form values with inferred department IDs
         form.setFieldValue('selectedDepartmentIds', uniqueDepartmentIds);
       }
-      
-  
     }
-  }, [checkInRule, departmentData]);
+  }, [checkInRule, departmentData, form]);
 
   const modalHeader = (
     <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
@@ -764,26 +738,22 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           </Form.Item>
 
           {/* User Selection Fields */}
-          <Form.Item
-            label="Department"
-            name="selectedDepartmentIds"
-          >
+          <Form.Item label="Department" name="selectedDepartmentIds">
             <Select
               mode="multiple"
               className="h-12"
               placeholder="Select Department"
               onChange={handleDepartmentChange}
-              options={departmentData?.map((dept: any) => ({
-                value: dept.id,
-                label: dept.name,
-              })) || []}
+              options={
+                departmentData?.map((dept: any) => ({
+                  value: dept.id,
+                  label: dept.name,
+                })) || []
+              }
             />
           </Form.Item>
 
-          <Form.Item
-            label="User Type Filter"
-            name="userTypeFilter"
-          >
+          <Form.Item label="User Type Filter" name="userTypeFilter">
             <Select
               className="h-12"
               placeholder="Select User Type"
@@ -805,14 +775,16 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
               </span>
             }
             name="selectedUserIds"
-            rules={[{ required: true, message: 'Please select at least one user' }]}
+            rules={[
+              { required: true, message: 'Please select at least one user' },
+            ]}
           >
             <Select
               mode="multiple"
               className="h-auto min-h-12"
               placeholder="Select users"
               onChange={handleUserSelection}
-              value={selectedUsers.map(user => user.id)}
+              value={selectedUsers.map((user) => user.id)}
               dropdownStyle={{
                 border: 'none',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -825,7 +797,6 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
               )}
               tagRender={(props) => {
                 const { label, closable, onClose } = props;
-                const user = selectedUsers.find(u => u.id === props.value);
                 return (
                   <div className="inline-flex items-center bg-gray-100 rounded-md px-2 py-1 m-1 text-sm">
                     <span className="text-gray-700">{label}</span>
@@ -946,7 +917,6 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             </Radio.Group>
           </Form.Item>
 
-
           {/* Target Value - shown when Achievement-Based or Both is selected */}
           {(ruleType === 'achievement-based' || ruleType === 'both') && (
             <div className="space-y-4">
@@ -957,18 +927,26 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 label="Target Value *"
                 name="targetValue"
                 rules={[
-                  { 
-                    required: true, 
+                  {
+                    required: true,
                     message: 'Please enter target value',
-                    validator: (_, value) => {
-                      if (value === undefined || value === null || value === '') {
-                        return Promise.reject(new Error('Please enter target value'));
+                    validator: (rule, value) => {
+                      if (
+                        value === undefined ||
+                        value === null ||
+                        value === ''
+                      ) {
+                        return Promise.reject(
+                          new Error('Please enter target value'),
+                        );
                       }
                       if (typeof value === 'number' && value < 1) {
-                        return Promise.reject(new Error('Target value must be at least 1'));
+                        return Promise.reject(
+                          new Error('Target value must be at least 1'),
+                        );
                       }
                       return Promise.resolve();
-                    }
+                    },
                   },
                 ]}
               >
@@ -1028,260 +1006,272 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   {weekDays.map((day, index) => {
                     const isApplicable = applicableDays[day.id] || false;
 
-                        return (
-                          <div
-                            key={index}
-                            className={`${
-                              isApplicable
-                                ? 'bg-white border-blue-200'
-                                : 'bg-gray-50 border-gray-200'
-                            } rounded-md border`}
-                          >
-                            {/* Desktop Layout - Responsive Grid */}
-                            <div className="hidden sm:block">
-                              <div className="grid grid-cols-6 gap-2 px-3 py-2 items-center">
-                                {/* Day Name and Toggle */}
-                                <div className="col-span-1 flex items-center space-x-2">
-                                  <Form.Item
-                                    name={`isApplicable_${day.id}`}
-                                    valuePropName="checked"
-                                    className="mb-0"
-                                  >
-                                    <Switch
-                                      size="small"
-                                      checkedChildren="✓"
-                                      unCheckedChildren="—"
-                                      onChange={(checked) =>
-                                        handleToggleChange(day.id, checked)
-                                      }
-                                    />
-                                  </Form.Item>
-                                  <span
-                                    className={`font-medium text-sm truncate ${
-                                      isApplicable ? 'text-gray-800' : 'text-gray-500'
-                                    }`}
-                                  >
-                                    {day.name}
-                                  </span>
-                                </div>
-
-                                {/* Start Day */}
-                                <div className="col-span-1">
-                                  <Select
-                                    className={`w-full h-8 ${
-                                      isApplicable
-                                        ? 'bg-white border-gray-300'
-                                        : 'bg-gray-100 border-gray-200'
-                                    }`}
-                                    placeholder="Start Day"
-                                    value={startDaySelection[day.id] || day.id}
-                                    onChange={(value) => handleStartDayChange(day.id, value)}
-                                    disabled={!isApplicable}
-                                    size="small"
-                                    options={weekDays.map(d => ({
-                                      value: d.id,
-                                      label: d.name.substring(0, 3) // Show Mon, Tue, etc.
-                                    }))}
-                                  />
-                                </div>
-
-                                {/* Start Time */}
-                                <div className="col-span-1">
-                                  <Form.Item
-                                    name={`startTime_${day.id}`}
-                                    className="mb-0"
-                                  >
-                                    <TimePicker
-                                      className={`w-full h-8 ${
-                                        isApplicable
-                                          ? 'bg-white border-gray-300'
-                                          : 'bg-gray-100 border-gray-200'
-                                      }`}
-                                      placeholder="09:00"
-                                      format="HH:mm"
-                                      minuteStep={15}
-                                      showNow={false}
-                                      use12Hours={false}
-                                      size="small"
-                                      disabled={!isApplicable}
-                                    />
-                                  </Form.Item>
-                                </div>
-
-                                {/* End Time */}
-                                <div className="col-span-1">
-                                  <Form.Item
-                                    name={`endTime_${day.id}`}
-                                    className="mb-0"
-                                  >
-                                    <TimePicker
-                                      className={`w-full h-8 ${
-                                        isApplicable
-                                          ? 'bg-white border-gray-300'
-                                          : 'bg-gray-100 border-gray-200'
-                                      }`}
-                                      placeholder="17:00"
-                                      format="HH:mm"
-                                      minuteStep={15}
-                                      showNow={false}
-                                      use12Hours={false}
-                                      size="small"
-                                      disabled={!isApplicable}
-                                    />
-                                  </Form.Item>
-                                </div>
-
-                                {/* End Day */}
-                                <div className="col-span-1">
-                                  <Select
-                                    className={`w-full h-8 ${
-                                      isApplicable
-                                        ? 'bg-white border-gray-300'
-                                        : 'bg-gray-100 border-gray-200'
-                                    }`}
-                                    placeholder="End Day"
-                                    value={endDaySelection[day.id] || day.id}
-                                    onChange={(value) => handleEndDayChange(day.id, value)}
-                                    disabled={!isApplicable}
-                                    size="small"
-                                    options={weekDays.map(d => ({
-                                      value: d.id,
-                                      label: d.name.substring(0, 3) // Show Mon, Tue, etc.
-                                    }))}
-                                  />
-                                </div>
-
-                                {/* Empty column for spacing */}
-                                <div className="col-span-1"></div>
-                              </div>
+                    return (
+                      <div
+                        key={index}
+                        className={`${
+                          isApplicable
+                            ? 'bg-white border-blue-200'
+                            : 'bg-gray-50 border-gray-200'
+                        } rounded-md border`}
+                      >
+                        {/* Desktop Layout - Responsive Grid */}
+                        <div className="hidden sm:block">
+                          <div className="grid grid-cols-6 gap-2 px-3 py-2 items-center">
+                            {/* Day Name and Toggle */}
+                            <div className="col-span-1 flex items-center space-x-2">
+                              <Form.Item
+                                name={`isApplicable_${day.id}`}
+                                valuePropName="checked"
+                                className="mb-0"
+                              >
+                                <Switch
+                                  size="small"
+                                  checkedChildren="✓"
+                                  unCheckedChildren="—"
+                                  onChange={(checked) =>
+                                    handleToggleChange(day.id, checked)
+                                  }
+                                />
+                              </Form.Item>
+                              <span
+                                className={`font-medium text-sm truncate ${
+                                  isApplicable
+                                    ? 'text-gray-800'
+                                    : 'text-gray-500'
+                                }`}
+                              >
+                                {day.name}
+                              </span>
                             </div>
 
-                            {/* Mobile Layout - Stacked */}
-                            <div className="sm:hidden p-3 space-y-3">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                  <Form.Item
-                                    name={`isApplicable_${day.id}`}
-                                    valuePropName="checked"
-                                    className="mb-0"
-                                  >
-                                    <Switch
-                                      size="small"
-                                      checkedChildren="✓"
-                                      unCheckedChildren="—"
-                                      onChange={(checked) =>
-                                        handleToggleChange(day.id, checked)
-                                      }
-                                    />
-                                  </Form.Item>
-                                  <span
-                                    className={`font-medium text-sm ${
-                                      isApplicable ? 'text-gray-800' : 'text-gray-500'
-                                    }`}
-                                  >
-                                    {day.name}
-                                  </span>
-                                </div>
-                              </div>
+                            {/* Start Day */}
+                            <div className="col-span-1">
+                              <Select
+                                className={`w-full h-8 ${
+                                  isApplicable
+                                    ? 'bg-white border-gray-300'
+                                    : 'bg-gray-100 border-gray-200'
+                                }`}
+                                placeholder="Start Day"
+                                value={startDaySelection[day.id] || day.id}
+                                onChange={(value) =>
+                                  handleStartDayChange(day.id, value)
+                                }
+                                disabled={!isApplicable}
+                                size="small"
+                                options={weekDays.map((d) => ({
+                                  value: d.id,
+                                  label: d.name.substring(0, 3), // Show Mon, Tue, etc.
+                                }))}
+                              />
+                            </div>
 
-                              <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                  <label className="block text-xs text-gray-600 mb-1">
-                                    Start Day
-                                  </label>
-                                  <Select
-                                    className={`w-full h-8 ${
-                                      isApplicable
-                                        ? 'bg-white border-gray-300'
-                                        : 'bg-gray-100 border-gray-200'
-                                    }`}
-                                    placeholder="Start Day"
-                                    value={startDaySelection[day.id] || day.id}
-                                    onChange={(value) => handleStartDayChange(day.id, value)}
-                                    disabled={!isApplicable}
-                                    size="small"
-                                    options={weekDays.map(d => ({
-                                      value: d.id,
-                                      label: d.name.substring(0, 3)
-                                    }))}
-                                  />
-                                </div>
+                            {/* Start Time */}
+                            <div className="col-span-1">
+                              <Form.Item
+                                name={`startTime_${day.id}`}
+                                className="mb-0"
+                              >
+                                <TimePicker
+                                  className={`w-full h-8 ${
+                                    isApplicable
+                                      ? 'bg-white border-gray-300'
+                                      : 'bg-gray-100 border-gray-200'
+                                  }`}
+                                  placeholder="09:00"
+                                  format="HH:mm"
+                                  minuteStep={15}
+                                  showNow={false}
+                                  use12Hours={false}
+                                  size="small"
+                                  disabled={!isApplicable}
+                                />
+                              </Form.Item>
+                            </div>
 
-                                <div>
-                                  <label className="block text-xs text-gray-600 mb-1">
-                                    Start Time
-                                  </label>
-                                  <Form.Item
-                                    name={`startTime_${day.id}`}
-                                    className="mb-0"
-                                  >
-                                    <TimePicker
-                                      className={`w-full h-8 ${
-                                        isApplicable
-                                          ? 'bg-white border-gray-300'
-                                          : 'bg-gray-100 border-gray-200'
-                                      }`}
-                                      placeholder="09:00"
-                                      format="HH:mm"
-                                      minuteStep={15}
-                                      showNow={false}
-                                      use12Hours={false}
-                                      size="small"
-                                      disabled={!isApplicable}
-                                    />
-                                  </Form.Item>
-                                </div>
+                            {/* End Time */}
+                            <div className="col-span-1">
+                              <Form.Item
+                                name={`endTime_${day.id}`}
+                                className="mb-0"
+                              >
+                                <TimePicker
+                                  className={`w-full h-8 ${
+                                    isApplicable
+                                      ? 'bg-white border-gray-300'
+                                      : 'bg-gray-100 border-gray-200'
+                                  }`}
+                                  placeholder="17:00"
+                                  format="HH:mm"
+                                  minuteStep={15}
+                                  showNow={false}
+                                  use12Hours={false}
+                                  size="small"
+                                  disabled={!isApplicable}
+                                />
+                              </Form.Item>
+                            </div>
 
-                                <div>
-                                  <label className="block text-xs text-gray-600 mb-1">
-                                    End Time
-                                  </label>
-                                  <Form.Item
-                                    name={`endTime_${day.id}`}
-                                    className="mb-0"
-                                  >
-                                    <TimePicker
-                                      className={`w-full h-8 ${
-                                        isApplicable
-                                          ? 'bg-white border-gray-300'
-                                          : 'bg-gray-100 border-gray-200'
-                                      }`}
-                                      placeholder="17:00"
-                                      format="HH:mm"
-                                      minuteStep={15}
-                                      showNow={false}
-                                      use12Hours={false}
-                                      size="small"
-                                      disabled={!isApplicable}
-                                    />
-                                  </Form.Item>
-                                </div>
+                            {/* End Day */}
+                            <div className="col-span-1">
+                              <Select
+                                className={`w-full h-8 ${
+                                  isApplicable
+                                    ? 'bg-white border-gray-300'
+                                    : 'bg-gray-100 border-gray-200'
+                                }`}
+                                placeholder="End Day"
+                                value={endDaySelection[day.id] || day.id}
+                                onChange={(value) =>
+                                  handleEndDayChange(day.id, value)
+                                }
+                                disabled={!isApplicable}
+                                size="small"
+                                options={weekDays.map((d) => ({
+                                  value: d.id,
+                                  label: d.name.substring(0, 3), // Show Mon, Tue, etc.
+                                }))}
+                              />
+                            </div>
 
-                                <div>
-                                  <label className="block text-xs text-gray-600 mb-1">
-                                    End Day
-                                  </label>
-                                  <Select
-                                    className={`w-full h-8 ${
-                                      isApplicable
-                                        ? 'bg-white border-gray-300'
-                                        : 'bg-gray-100 border-gray-200'
-                                    }`}
-                                    placeholder="End Day"
-                                    value={endDaySelection[day.id] || day.id}
-                                    onChange={(value) => handleEndDayChange(day.id, value)}
-                                    disabled={!isApplicable}
-                                    size="small"
-                                    options={weekDays.map(d => ({
-                                      value: d.id,
-                                      label: d.name.substring(0, 3)
-                                    }))}
-                                  />
-                                </div>
-                              </div>
+                            {/* Empty column for spacing */}
+                            <div className="col-span-1"></div>
+                          </div>
+                        </div>
+
+                        {/* Mobile Layout - Stacked */}
+                        <div className="sm:hidden p-3 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <Form.Item
+                                name={`isApplicable_${day.id}`}
+                                valuePropName="checked"
+                                className="mb-0"
+                              >
+                                <Switch
+                                  size="small"
+                                  checkedChildren="✓"
+                                  unCheckedChildren="—"
+                                  onChange={(checked) =>
+                                    handleToggleChange(day.id, checked)
+                                  }
+                                />
+                              </Form.Item>
+                              <span
+                                className={`font-medium text-sm ${
+                                  isApplicable
+                                    ? 'text-gray-800'
+                                    : 'text-gray-500'
+                                }`}
+                              >
+                                {day.name}
+                              </span>
                             </div>
                           </div>
-                        );
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">
+                                Start Day
+                              </label>
+                              <Select
+                                className={`w-full h-8 ${
+                                  isApplicable
+                                    ? 'bg-white border-gray-300'
+                                    : 'bg-gray-100 border-gray-200'
+                                }`}
+                                placeholder="Start Day"
+                                value={startDaySelection[day.id] || day.id}
+                                onChange={(value) =>
+                                  handleStartDayChange(day.id, value)
+                                }
+                                disabled={!isApplicable}
+                                size="small"
+                                options={weekDays.map((d) => ({
+                                  value: d.id,
+                                  label: d.name.substring(0, 3),
+                                }))}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">
+                                Start Time
+                              </label>
+                              <Form.Item
+                                name={`startTime_${day.id}`}
+                                className="mb-0"
+                              >
+                                <TimePicker
+                                  className={`w-full h-8 ${
+                                    isApplicable
+                                      ? 'bg-white border-gray-300'
+                                      : 'bg-gray-100 border-gray-200'
+                                  }`}
+                                  placeholder="09:00"
+                                  format="HH:mm"
+                                  minuteStep={15}
+                                  showNow={false}
+                                  use12Hours={false}
+                                  size="small"
+                                  disabled={!isApplicable}
+                                />
+                              </Form.Item>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">
+                                End Time
+                              </label>
+                              <Form.Item
+                                name={`endTime_${day.id}`}
+                                className="mb-0"
+                              >
+                                <TimePicker
+                                  className={`w-full h-8 ${
+                                    isApplicable
+                                      ? 'bg-white border-gray-300'
+                                      : 'bg-gray-100 border-gray-200'
+                                  }`}
+                                  placeholder="17:00"
+                                  format="HH:mm"
+                                  minuteStep={15}
+                                  showNow={false}
+                                  use12Hours={false}
+                                  size="small"
+                                  disabled={!isApplicable}
+                                />
+                              </Form.Item>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">
+                                End Day
+                              </label>
+                              <Select
+                                className={`w-full h-8 ${
+                                  isApplicable
+                                    ? 'bg-white border-gray-300'
+                                    : 'bg-gray-100 border-gray-200'
+                                }`}
+                                placeholder="End Day"
+                                value={endDaySelection[day.id] || day.id}
+                                onChange={(value) =>
+                                  handleEndDayChange(day.id, value)
+                                }
+                                disabled={!isApplicable}
+                                size="small"
+                                options={weekDays.map((d) => ({
+                                  value: d.id,
+                                  label: d.name.substring(0, 3),
+                                }))}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
                   })}
                 </div>
               </Form.Item>
@@ -1290,21 +1280,21 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
           {/* Operation - shown for Achievement-Based or Both rule types */}
           {(ruleType === 'achievement-based' || ruleType === 'both') && (
-          <Form.Item
-            label="Operation"
-            name="operation"
-            rules={[{ required: true, message: 'Please select operation' }]}
-          >
-            <Select
-              className="h-12"
-              placeholder="Select operation"
-              options={[
-                { value: '>', label: '>' },
-                { value: '<', label: '<' },
-                { value: '=', label: '=' },
-              ]}
-            />
-          </Form.Item>
+            <Form.Item
+              label="Operation"
+              name="operation"
+              rules={[{ required: true, message: 'Please select operation' }]}
+            >
+              <Select
+                className="h-12"
+                placeholder="Select operation"
+                options={[
+                  { value: '>', label: '>' },
+                  { value: '<', label: '<' },
+                  { value: '=', label: '=' },
+                ]}
+              />
+            </Form.Item>
           )}
 
           <Form.Item
@@ -1351,8 +1341,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
           {/* Action Buttons - Responsive */}
           <div className="w-full flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 pt-6 border-t border-gray-200">
-            <Button 
-              onClick={handleDrawerClose} 
+            <Button
+              onClick={handleDrawerClose}
               className="w-full sm:w-auto h-10 order-2 sm:order-1"
             >
               Cancel
@@ -1385,23 +1375,23 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           background: #e6f7ff !important;
           border: none !important;
         }
-        
+
         /* Responsive drawer styles */
         .responsive-drawer .ant-drawer-body {
           padding: 16px;
         }
-        
+
         @media (max-width: 640px) {
           .responsive-drawer .ant-drawer-body {
             padding: 12px;
           }
         }
-        
+
         /* Ensure form elements are responsive */
         .responsive-drawer .ant-form-item {
           margin-bottom: 16px;
         }
-        
+
         @media (max-width: 640px) {
           .responsive-drawer .ant-form-item {
             margin-bottom: 12px;
