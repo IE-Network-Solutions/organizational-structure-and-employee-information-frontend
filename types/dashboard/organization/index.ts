@@ -45,6 +45,10 @@ export interface OrganizationState {
   departmentTobeDeletedId: string;
   departmentTobeShiftedId: string;
   selectedKey: string;
+  hasManuallyDeletedDepartments: boolean;
+  setHasManuallyDeletedDepartments: (
+    hasManuallyDeletedDepartments: boolean,
+  ) => void;
   setSelectedKey: (key: string) => void;
   setOrgData: (orgData: OrgData) => void;
   setBranchId: (branchId: string) => void;

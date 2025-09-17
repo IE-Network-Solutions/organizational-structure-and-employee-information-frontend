@@ -29,12 +29,13 @@ const CriteriaDoughnut = () => {
       {
         data: dataValues || [], // Sample data for full-time, part-time, and others
         backgroundColor: [
-          '#1E3A8A', // Navy Blue
-          '#2563EB', // Royal Blue
-          '#3B82F6', // Blue
-          '#60A5FA', // Sky Blue
-          '#93C5FD', // Light Blue
-          '#EF4444', // Red
+          '#0047b3',
+          '#005ce6',
+          '#1a75ff',
+          '#4d94ff',
+          '#80b3ff',
+          '#b3d1ff',
+          '#e6f0ff',
         ],
 
         borderWidth: 4,
@@ -55,7 +56,7 @@ const CriteriaDoughnut = () => {
     },
   };
   return (
-    <div className=" border-[1px] border-gray-200 rounded-lg p-1 px-2 ">
+    <div className=" border-[1px] border-gray-200 rounded-lg p-1 px-2 mt-[1px]">
       <div className="text-lg font-bold ml-1">Criteria Contribution</div>{' '}
       <div className=" ">
         {vpScore?.criteria?.length ? (
