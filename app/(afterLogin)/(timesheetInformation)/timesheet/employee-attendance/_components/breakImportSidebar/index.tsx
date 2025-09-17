@@ -168,7 +168,7 @@ const BreakImportSidebar = () => {
                 fileUpload(file as File)
                   .then((res: any) => {
                     setIsLoading(false);
-                    setFilePath(res.data['viewImage']);
+                    setFilePath(res['viewImage']);
                     onSuccess && onSuccess(res, file);
                   })
                   .catch((err: any) => {
