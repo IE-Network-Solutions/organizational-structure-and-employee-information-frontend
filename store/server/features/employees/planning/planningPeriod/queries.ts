@@ -84,7 +84,7 @@ const fetchPlanningPeriodWithUserGroupedByUser = async (
 
   // Build URL with conditional userId parameter - use the existing endpoint
   let url = `${OKR_URL}/planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`;
-  
+
   if (userId && userId.trim() !== '') {
     url += `&userId=${userId}`;
   }
@@ -105,7 +105,7 @@ const fetchPlanningPeriodWithUserGroupedByUser = async (
       if (!acc[userId]) {
         acc[userId] = {
           userId: userId,
-          planningPeriod: []
+          planningPeriod: [],
         };
       }
       acc[userId].planningPeriod.push(item);
@@ -114,10 +114,10 @@ const fetchPlanningPeriodWithUserGroupedByUser = async (
 
     // Convert to array format and add pagination metadata
     const groupedItems = Object.values(groupedData);
-    
+
     return {
       items: groupedItems,
-      meta: response.meta
+      meta: response.meta,
     };
   }
 
