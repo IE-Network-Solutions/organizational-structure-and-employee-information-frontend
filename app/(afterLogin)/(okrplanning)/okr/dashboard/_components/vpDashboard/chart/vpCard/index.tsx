@@ -30,7 +30,7 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
       loading={isResponseLoading}
       size="default"
       bordered={false}
-      className="border-[1px] border-gray-200 p-3 shadow-none "
+      className="border-[1px] border-gray-200 p-3 shadow-none h-full"
       bodyStyle={{ padding: '0px', margin: '0px' }}
     >
       <div className="py-1 flex flex-col gap-1 ">
