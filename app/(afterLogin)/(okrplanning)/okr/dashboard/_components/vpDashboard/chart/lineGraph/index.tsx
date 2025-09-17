@@ -149,6 +149,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
 
   const options = {
     responsive: true,
+    maxBarThickness: 50,
 
     scales: {
       x: {

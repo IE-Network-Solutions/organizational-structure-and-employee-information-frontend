@@ -171,7 +171,6 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
               }
             }}
             min={0.01}
-            max={0.05}
             step={0.001}
             precision={3}
             style={{ width: 120 }}
@@ -181,16 +180,18 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
         </div>
         <Slider
           min={0.01}
-          max={0.05}
+          max={0.5}
           step={0.001}
           value={currentRadius}
           onChange={handleRadiusChange}
           marks={{
             0.01: '10 m',
-            0.02: '20 m',
-            0.03: '30 m',
-            0.04: '40 m',
             0.05: '50 m',
+            0.1: '100 m',
+            0.2: '200 m',
+            0.3: '300 m',
+            0.4: '400 m',
+            0.5: '500 m',
           }}
           trackStyle={{ backgroundColor: '#3b82f6' }}
           // handleStyle={{
