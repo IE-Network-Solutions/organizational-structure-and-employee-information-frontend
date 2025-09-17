@@ -1,3 +1,4 @@
+
 if (!self.define) {
   let e,
     i = {};
@@ -2481,3 +2482,4 @@ define(['./workbox-00a24876'], function (e) {
       'GET',
     ));
 });
+
