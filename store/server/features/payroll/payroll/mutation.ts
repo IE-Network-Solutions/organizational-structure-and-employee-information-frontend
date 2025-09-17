@@ -211,7 +211,7 @@ const updateBasicSalary = async (values: any, changeMakerUserId?: string) => {
   if (changeMakerUserId) {
     queryParams.append('changeMakerUserId', changeMakerUserId);
   }
-  
+
   const url = `${ORG_AND_EMP_URL}/basic-salary/${values?.id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
   try {
@@ -245,8 +245,13 @@ export const useCreateBasicSalary = () => {
 export const useUpdateBasicSalary = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    ({ values, changeMakerUserId }: { values: any; changeMakerUserId?: string }) =>
-      updateBasicSalary(values, changeMakerUserId),
+    ({
+      values,
+      changeMakerUserId,
+    }: {
+      values: any;
+      changeMakerUserId?: string;
+    }) => updateBasicSalary(values, changeMakerUserId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('basicSalary');

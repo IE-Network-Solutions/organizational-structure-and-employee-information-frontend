@@ -49,7 +49,7 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel }) => {
       });
     } else {
       updateBasicSalary(
-        { 
+        {
           values: { ...formattedValues, id: basicSalaryData?.id },
           changeMakerUserId: loggedInUserId,
         },
