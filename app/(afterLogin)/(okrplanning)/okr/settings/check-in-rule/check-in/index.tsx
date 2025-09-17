@@ -1118,7 +1118,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                 className="mb-0"
                                 rules={[
                                   {
-                                    validator: (_, value) => {
+                                    validator: (rule, value) => {
                                       if (!value || !isApplicable) {
                                         return Promise.resolve();
                                       }
@@ -1278,7 +1278,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                 className="mb-0"
                                 rules={[
                                   {
-                                    validator: (_, value) => {
+                                    validator: (rule, value) => {
                                       if (!value || !isApplicable) {
                                         return Promise.resolve();
                                       }
