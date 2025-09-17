@@ -202,13 +202,21 @@ const createBasicSalary = async (values: any) => {
     throw error;
   }
 };
-const updateBasicSalary = async (values: any) => {
+const updateBasicSalary = async (values: any, changeMakerUserId?: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  if (changeMakerUserId) {
+    queryParams.append('changeMakerUserId', changeMakerUserId);
+  }
+  
+  const url = `${ORG_AND_EMP_URL}/basic-salary/${values?.id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
   try {
     await crudRequest({
-      url: `${ORG_AND_EMP_URL}/basic-salary/${values?.id}`,
+      url,
       method: 'PATCH',
       data: values,
       headers: {
@@ -236,11 +244,15 @@ export const useCreateBasicSalary = () => {
 };
 export const useUpdateBasicSalary = () => {
   const queryClient = useQueryClient();
-  return useMutation(updateBasicSalary, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('basicSalary');
+  return useMutation(
+    ({ values, changeMakerUserId }: { values: any; changeMakerUserId?: string }) =>
+      updateBasicSalary(values, changeMakerUserId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('basicSalary');
+      },
     },
-  });
+  );
 };
 export const useSendToPayroll = () => {
   const queryClient = useQueryClient();

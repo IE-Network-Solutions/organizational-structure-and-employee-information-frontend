@@ -116,11 +116,21 @@ const updateEmployeeRolePermissionMutation = async (
 const updateEmployeeJobInformationMutation = async (
   id: string,
   values: any,
+  changeMakerUserId?: string,
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  if (changeMakerUserId) {
+    queryParams.append('changeMakerUserId', changeMakerUserId);
+  }
+  
+  const url = `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}`,
+    url,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -180,8 +190,8 @@ export const useUpdateEmployeeJobInformation = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, values }: { id: string; values: any }) =>
-      updateEmployeeJobInformationMutation(id, values),
+    ({ id, values, changeMakerUserId }: { id: string; values: any; changeMakerUserId?: string }) =>
+      updateEmployeeJobInformationMutation(id, values, changeMakerUserId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');

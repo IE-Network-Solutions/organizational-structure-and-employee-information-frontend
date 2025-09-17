@@ -7,6 +7,7 @@ import {
   useUpdateBasicSalary,
 } from '@/store/server/features/payroll/payroll/mutation';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface RecognitionModalProps {
   visible: boolean;
@@ -15,6 +16,7 @@ interface RecognitionModalProps {
 
 const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel }) => {
   const [form] = Form.useForm();
+  const { userId: loggedInUserId } = useAuthenticationStore();
   const { basicSalaryData, setBasicSalaryData, isBasicSalaryModalVisible } =
     useEmployeeManagementStore();
   useEffect(() => {
@@ -47,7 +49,10 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel }) => {
       });
     } else {
       updateBasicSalary(
-        { ...formattedValues, id: basicSalaryData?.id },
+        { 
+          values: { ...formattedValues, id: basicSalaryData?.id },
+          changeMakerUserId: loggedInUserId,
+        },
         {
           onSuccess: () => {
             form.resetFields();
