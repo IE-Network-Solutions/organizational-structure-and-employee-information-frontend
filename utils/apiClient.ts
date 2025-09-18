@@ -14,7 +14,7 @@ apiClient.interceptors.request.use(async (config) => {
     try {
       // Convert FormData to an object first
       const formDataObj: Record<string, any> = {};
-      for (let [key, value] of config.data.entries()) {
+      for (const [key, value] of config.data.entries()) {
         formDataObj[key] = value;
       }
 

@@ -27,6 +27,7 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetBranches } from '@/store/server/features/employees/employeeManagment/branchOffice/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
@@ -36,6 +37,7 @@ import { useGetWorkSchedules } from '@/store/server/features/employees/employeeM
 function Job({ id }: { id: string }) {
   const params = useParams();
   const userId = params.id as string;
+  const { userId: loggedInUserId } = useAuthenticationStore();
   const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);
   const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
 
@@ -141,6 +143,7 @@ function Job({ id }: { id: string }) {
       {
         id: selectedJobRecord.id,
         values: updatedValues,
+        changeMakerUserId: loggedInUserId,
       },
       {
         onSuccess: () => {

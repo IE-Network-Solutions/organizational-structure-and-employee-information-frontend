@@ -19,11 +19,10 @@ interface Ids {
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
-
-  const { userId:userId2 } = useAuthenticationStore();
+  const { userId: userId2 } = useAuthenticationStore();
   const [form] = Form.useForm();
   const params = useParams();
-   const userId = (params?.id as string) ?? userId2;
+  const userId = (params?.id as string) ?? userId2;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
