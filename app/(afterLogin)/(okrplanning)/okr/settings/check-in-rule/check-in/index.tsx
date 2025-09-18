@@ -276,7 +276,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       ...prev,
       [startDayId]: endDayId,
     }));
-    
+
     // Clear validation error for end time when end day changes
     form.validateFields([`endTime_${startDayId}`]);
   };
@@ -286,7 +286,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       ...prev,
       [dayId]: startDayId,
     }));
-    
+
     // Trigger validation for end time when start day changes
     form.validateFields([`endTime_${dayId}`]);
   };
@@ -1122,23 +1122,34 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                       if (!value || !isApplicable) {
                                         return Promise.resolve();
                                       }
-                                      
-                                      const startTime = form.getFieldValue(`startTime_${day.id}`);
-                                      const startDay = startDaySelection[day.id] || day.id;
-                                      const endDay = endDaySelection[day.id] || day.id;
-                                      
+
+                                      const startTime = form.getFieldValue(
+                                        `startTime_${day.id}`,
+                                      );
+                                      const startDay =
+                                        startDaySelection[day.id] || day.id;
+                                      const endDay =
+                                        endDaySelection[day.id] || day.id;
+
                                       // Only validate if start and end day are the same
                                       if (startDay === endDay && startTime) {
-                                        const startTimeMinutes = startTime.hour() * 60 + startTime.minute();
-                                        const endTimeMinutes = value.hour() * 60 + value.minute();
-                                        
-                                        if (endTimeMinutes <= startTimeMinutes) {
+                                        const startTimeMinutes =
+                                          startTime.hour() * 60 +
+                                          startTime.minute();
+                                        const endTimeMinutes =
+                                          value.hour() * 60 + value.minute();
+
+                                        if (
+                                          endTimeMinutes <= startTimeMinutes
+                                        ) {
                                           return Promise.reject(
-                                            new Error('End time must be greater than start time')
+                                            new Error(
+                                              'End time must be greater than start time',
+                                            ),
                                           );
                                         }
                                       }
-                                      
+
                                       return Promise.resolve();
                                     },
                                   },
@@ -1282,23 +1293,34 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                       if (!value || !isApplicable) {
                                         return Promise.resolve();
                                       }
-                                      
-                                      const startTime = form.getFieldValue(`startTime_${day.id}`);
-                                      const startDay = startDaySelection[day.id] || day.id;
-                                      const endDay = endDaySelection[day.id] || day.id;
-                                      
+
+                                      const startTime = form.getFieldValue(
+                                        `startTime_${day.id}`,
+                                      );
+                                      const startDay =
+                                        startDaySelection[day.id] || day.id;
+                                      const endDay =
+                                        endDaySelection[day.id] || day.id;
+
                                       // Only validate if start and end day are the same
                                       if (startDay === endDay && startTime) {
-                                        const startTimeMinutes = startTime.hour() * 60 + startTime.minute();
-                                        const endTimeMinutes = value.hour() * 60 + value.minute();
-                                        
-                                        if (endTimeMinutes <= startTimeMinutes) {
+                                        const startTimeMinutes =
+                                          startTime.hour() * 60 +
+                                          startTime.minute();
+                                        const endTimeMinutes =
+                                          value.hour() * 60 + value.minute();
+
+                                        if (
+                                          endTimeMinutes <= startTimeMinutes
+                                        ) {
                                           return Promise.reject(
-                                            new Error('End time must be greater than start time')
+                                            new Error(
+                                              'End time must be greater than start time',
+                                            ),
                                           );
                                         }
                                       }
-                                      
+
                                       return Promise.resolve();
                                     },
                                   },
