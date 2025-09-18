@@ -164,10 +164,12 @@ export const useUpdateAssignPlanningPeriodToUsers = () => {
           description: 'Planning period assignment successfully updated.',
         });
       },
-      onError: () => {
+      onError: (error: any) => {
         NotificationMessage.error({
           message: 'Update Failed',
           description:
+            error?.message ||
+            error?.response?.data?.message ||
             'There was an error updating the planning period assignment.',
         });
       },
