@@ -13,11 +13,11 @@ export interface CheckInRule {
   feedbackId?: string;
   target?: number;
   targetDate?: Array<{
-    date: string;          // "monday" - the day this rule applies to
-    startDay: string;      // "monday" or "friday"
-    startTime: string;     // "03:00" or "17:30"
-    endDay: string;        // "monday" or "saturday"
-    endTime: string;       // "03:00" or "16:00"
+    date: string; // "monday" - the day this rule applies to
+    startDay: string; // "monday" or "friday"
+    startTime: string; // "03:00" or "17:30"
+    endDay: string; // "monday" or "saturday"
+    endTime: string; // "03:00" or "16:00"
     time?: string; // Keep for backward compatibility
     dayId?: string; // Keep for backward compatibility
   }>;
