@@ -12,7 +12,7 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import {
   calculateAttendanceRecordToTotalWorkTime,
   timeToHour,
-  timeToLastMinute
+  timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
@@ -129,53 +129,21 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: 'Clock In',
       dataIndex: 'clockIn',
       key: 'clockIn',
-      render: (date: string, record: any) => {
-        const attendanceBreak = record.attendanceBreaks?.[0];
-        const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
-        return (
-          <div>
-          
-            {hasBreakTypeFilter && attendanceBreak && attendanceBreak.breakType ? (
-              <div className="text-xs text-gray-600 mt-1">
-              
-                <div>
-                 {attendanceBreak.startAt ? dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : <div className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600">
-  Missed Break Clock In
-</div>}
-                </div>
-               
-              </div>
-            ):(  <div>
-              {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
-            </div>)}
-          </div>
-        );
-      },
+      render: (date: string) => (
+        <div>
+          {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
+        </div>
+      ),
     },
     {
       title: 'Clock Out',
       dataIndex: 'clockOut',
       key: 'clockOut',
-      render: (date: string, record: any) => {
-        const attendanceBreak = record.attendanceBreaks?.[0];
-        const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
-        return (
-          <div>
-         
-            {hasBreakTypeFilter && attendanceBreak && attendanceBreak.breakType ? (
-              <div className="text-xs text-gray-600 mt-1">
-                <div>
-                  {attendanceBreak.endAt ? dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : <div className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600">
-  Missed Break Clock Out
-</div>}
-                </div>
-              </div>
-            ):   <div>
-              {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
-            </div>}
-          </div>
-        );
-      },
+      render: (date: string) => (
+        <div>
+          {date ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT) : '-'}
+        </div>
+      ),
     },
     {
       title: 'Status',
@@ -264,7 +232,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
           action: item,
-          attendanceBreaks: item.attendanceBreaks, // Pass through attendance breaks data
         };
       });
 
