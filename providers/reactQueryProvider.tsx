@@ -26,10 +26,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
             const newToken = await getCurrentToken();
             if (newToken) {
               queryClient.invalidateQueries();
-            } else {
+            } else if (process.env.NODE_ENV !== 'production') {
               handleNetworkError(error);
             }
-          } else {
+          } else if (process.env.NODE_ENV !== 'production') {
             handleNetworkError(error);
           }
         },
@@ -40,10 +40,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
             const newToken = await getCurrentToken();
             if (newToken) {
               queryClient.invalidateQueries();
-            } else {
+            } else if (process.env.NODE_ENV !== 'production') {
               handleNetworkError(error);
             }
-          } else {
+          } else if (process.env.NODE_ENV !== 'production') {
             handleNetworkError(error);
           }
         },
@@ -61,10 +61,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
           const newToken = await getCurrentToken();
           if (newToken) {
             queryClient.invalidateQueries();
-          } else {
+          } else if (process.env.NODE_ENV !== 'production') {
             handleNetworkError(error);
           }
-        } else {
+        } else if (process.env.NODE_ENV !== 'production') {
           handleNetworkError(error);
         }
       },
