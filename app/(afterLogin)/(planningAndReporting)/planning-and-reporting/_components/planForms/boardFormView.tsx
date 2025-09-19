@@ -163,9 +163,15 @@ function BoardCardForm({
                     <InputNumber
                       className="w-28 text-xs"
                       defaultValue={0} // Set a default value to avoid null issues
-                      formatter={(value) =>
-                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                      }
+                      formatter={(value) => {
+                        if (!value) return '';
+                        const parts = `${value}`.split('.');
+                        parts[0] = parts[0].replace(
+                          /\B(?=(\d{3})+(?!\d))/g,
+                          ',',
+                        );
+                        return parts.join('.');
+                      }}
                     />
                   </Form.Item>
                 )}

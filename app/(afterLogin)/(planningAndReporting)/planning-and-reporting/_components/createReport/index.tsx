@@ -589,12 +589,16 @@ function CreateReport() {
                                                   min={0}
                                                   step={1}
                                                   className="w-full"
-                                                  formatter={(value) =>
-                                                    `${value}`.replace(
+                                                  formatter={(value) => {
+                                                    if (!value) return '';
+                                                    const parts =
+                                                      `${value}`.split('.');
+                                                    parts[0] = parts[0].replace(
                                                       /\B(?=(\d{3})+(?!\d))/g,
                                                       ',',
-                                                    )
-                                                  }
+                                                    );
+                                                    return parts.join('.');
+                                                  }}
                                                   onChange={(e) => {
                                                     const value = e;
                                                     form.setFieldsValue({
@@ -881,12 +885,15 @@ function CreateReport() {
                                           min={0}
                                           step={1}
                                           className="w-full"
-                                          formatter={(value) =>
-                                            `${value}`.replace(
+                                          formatter={(value) => {
+                                            if (!value) return '';
+                                            const parts = `${value}`.split('.');
+                                            parts[0] = parts[0].replace(
                                               /\B(?=(\d{3})+(?!\d))/g,
                                               ',',
-                                            )
-                                          }
+                                            );
+                                            return parts.join('.');
+                                          }}
                                           onChange={(value) => {
                                             const statusValue =
                                               form.getFieldValue([

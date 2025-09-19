@@ -296,9 +296,15 @@ function DefaultCardForm({
                     <InputNumber
                       className="w-32 text-xs"
                       min={0} // Ensure the value can't go below 0
-                      formatter={(value) =>
-                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                      }
+                      formatter={(value) => {
+                        if (!value) return '';
+                        const parts = `${value}`.split('.');
+                        parts[0] = parts[0].replace(
+                          /\B(?=(\d{3})+(?!\d))/g,
+                          ',',
+                        );
+                        return parts.join('.');
+                      }}
                     />
                   </Form.Item>
                 )}
