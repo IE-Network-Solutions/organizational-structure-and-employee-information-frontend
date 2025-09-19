@@ -168,7 +168,6 @@ export const useUpdateAssignPlanningPeriodToUsers = () => {
         NotificationMessage.error({
           message: 'Update Failed',
           description:
-            error?.message ||
             error?.response?.data?.message ||
             'There was an error updating the planning period assignment.',
         });
