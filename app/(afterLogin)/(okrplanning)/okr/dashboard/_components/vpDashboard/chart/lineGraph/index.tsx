@@ -209,15 +209,17 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
           />
         </div>
       </div>
-      <div className="flex  xl:hidden">
-        <Bar data={data} options={options} height={230} />{' '}
-      </div>
-      <div className="hidden xl:flex 2xl:hidden">
-        <Bar data={data} options={options} height={172} />{' '}
-      </div>
-      <div className="hidden 2xl:flex ">
-        <Bar data={data} options={options} height={130} />
-      </div>
+      <Bar
+        data={data}
+        options={options}
+        height={
+          window.innerWidth >= 1536
+            ? 130 // 2xl
+            : window.innerWidth >= 1280
+              ? 172 // xl
+              : 230 // default/mobile
+        }
+      />
     </div>
   );
 };
