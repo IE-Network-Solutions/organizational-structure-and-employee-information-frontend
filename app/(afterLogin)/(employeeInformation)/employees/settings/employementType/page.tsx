@@ -52,7 +52,7 @@ const EmploymentType = () => {
         setDeleteModalOpen(false);
         setEmploymentTypeToDelete(null);
       } catch (error) {
-        console.error('Error deleting employment type:', error);
+        // Error deleting employment type
       }
     }
   };
@@ -152,7 +152,7 @@ const EmploymentType = () => {
                 ...columns,
                 {
                   key: 'actions',
-                  render: (_: any, record: any) => (
+                  render: (record: any) => (
                     <div className="flex gap-4">
                       <AccessGuard permissions={[Permissions.UpdateEmploymentType]}>
                         <button
