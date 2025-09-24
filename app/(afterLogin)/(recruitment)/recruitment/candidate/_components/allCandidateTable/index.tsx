@@ -19,7 +19,6 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { FaLinkedin } from 'react-icons/fa';
 import { SiGmail } from 'react-icons/si';
 import { TableRowSelection } from 'antd/es/table/interface';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -91,7 +90,7 @@ const AllCandidateTable: React.FC = () => {
     },
 
     {
-      title: 'Social profile',
+      title: 'Email',
       dataIndex: 'LinkedInURL',
     },
     {
@@ -206,16 +205,12 @@ const AllCandidateTable: React.FC = () => {
         ? dayjs(item.graduateYear).format('DD MMMM YYYY')
         : '--',
       LinkedInURL: (
-        <div className="flex justify-around">
-          <a
-            href={item?.LinkedInURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="LinkedIn"
+        <div className="flex justify-center">
+          <a 
+            href={`mailto:${item?.email}`} 
+            title="Send Email"
+            className="text-blue-600 hover:text-blue-800 transition-colors"
           >
-            <FaLinkedin size={20} />
-          </a>
-          <a href={item?.email} title="Email">
             <SiGmail size={20} />
           </a>
         </div>
