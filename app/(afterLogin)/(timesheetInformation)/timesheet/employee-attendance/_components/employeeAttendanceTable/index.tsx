@@ -210,7 +210,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const hasBreakTypeFilter = filter?.breakTypeId; 
     
         if (hasBreakTypeFilter) {
-          const breakStatus = formatBreakTypeToStatus(attendanceBreak.breakType, record);
+          const breakStatus = formatBreakTypeToStatus(attendanceBreak?.breakType, record);
           return (
             <Space>
               <StatusBadge
