@@ -14,7 +14,10 @@ import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
-import { useGetAllAssignedUserGroupedByUser, useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import {
+  useGetAllAssignedUserGroupedByUser,
+  useGetAllPlanningPeriods,
+} from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { GroupedUserWithPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
@@ -72,7 +75,7 @@ const PlanAssignment: React.FC = () => {
     const planningPeriod = allPlanningPeriods?.items?.find(
       (period: any) => period.id === planningPeriodId,
     );
-    return planningPeriod?.name ;
+    return planningPeriod?.name;
   };
 
   const handleEdit = (item: any) => {
@@ -109,26 +112,32 @@ const PlanAssignment: React.FC = () => {
   const dataSources = userToPlanning
     ?.filter((item: GroupedUserWithPlanningPeriods) => {
       if (!employeeData?.items) return true;
-      
+
       // Find the employee in the active employees list
       const employee = employeeData.items.find(
         (user: EmployeeData) => user.id === item.userId,
       );
-      
+
       // Check if employee exists and is active
-      const isActive = employee && 
+      const isActive =
+        employee &&
         (employee.deletedAt === null || employee.deletedAt === undefined) &&
-        (employee.employee_status !== 'inactive' && employee.employee_status !== 'terminated');
-      
+        employee.employee_status !== 'inactive' &&
+        employee.employee_status !== 'terminated';
+
       return isActive;
     })
     ?.map((item: GroupedUserWithPlanningPeriods, index: number) => {
-      const planNames = item?.planningPeriod?.map((plan: any) => {
-        // Use the planningPeriodId to get the planning period name
-        const planName = plan?.planningPeriodId ? getPlanningPeriodName(plan.planningPeriodId) : null;
-        return planName;
-      }).filter(Boolean);
-      
+      const planNames = item?.planningPeriod
+        ?.map((plan: any) => {
+          // Use the planningPeriodId to get the planning period name
+          const planName = plan?.planningPeriodId
+            ? getPlanningPeriodName(plan.planningPeriodId)
+            : null;
+          return planName;
+        })
+        .filter(Boolean);
+
       return {
         id: index + 1,
         name: (
