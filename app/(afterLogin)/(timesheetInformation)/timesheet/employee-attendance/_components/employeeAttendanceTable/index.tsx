@@ -139,11 +139,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           <div>
             {hasBreakTypeFilter &&
             attendanceBreak &&
-            attendanceBreak.breakType ? (
+            attendanceBreak?.breakType ? (
               <div className="text-xs text-gray-600 mt-1">
                 <div>
-                  {attendanceBreak.endAt ? (
-                    dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(
+                  {attendanceBreak?.endAt ? (
+                    dayjs(attendanceBreak?.endAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
@@ -175,11 +175,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           <div>
             {hasBreakTypeFilter &&
             attendanceBreak &&
-            attendanceBreak.breakType ? (
+            attendanceBreak?.breakType ? (
               <div className="text-xs text-gray-600 mt-1">
                 <div>
-                  {attendanceBreak.startAt ? (
-                    dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(
+                  {attendanceBreak?.startAt ? (
+                    dayjs(attendanceBreak?.startAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
