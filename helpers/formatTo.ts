@@ -90,7 +90,7 @@ export const formatBreakTypeToStatus = (
     );
     if (takenBreak) {
       // Handle cases where break times are null (like formatToAttendanceStatuses pattern)
-      if (!takenBreak.startAt && !takenBreak.endAt) {
+      if (!takenBreak?.startAt && !takenBreak?.endAt) {
         return {
           status: {
             text: 'Missed Clock-in & Clock-out',
@@ -100,7 +100,7 @@ export const formatBreakTypeToStatus = (
         };
       }
 
-      if (!takenBreak.startAt) {
+      if (!takenBreak?.startAt) {
         return {
           status: {
             text: 'Missed Clock-out',
@@ -110,7 +110,7 @@ export const formatBreakTypeToStatus = (
         };
       }
 
-      if (!takenBreak.endAt) {
+      if (!takenBreak?.endAt) {
         return {
           status: {
             text: 'Missed Clock-in',
@@ -121,10 +121,10 @@ export const formatBreakTypeToStatus = (
       }
 
       // Show late/early information if available (like formatToAttendanceStatuses)
-      if (takenBreak.earlyByMinutes > 0 && takenBreak.lateByMinutes > 0) {
+      if (takenBreak.earlyByMinutes > 0 && takenBreak?.lateByMinutes > 0) {
         return {
           status: {
-            text: `Early ${minuteToHour(takenBreak.earlyByMinutes)} hr ${minuteToLastMinute(takenBreak.earlyByMinutes)} min, Late ${minuteToHour(takenBreak.lateByMinutes)} hr ${minuteToLastMinute(takenBreak.lateByMinutes)} min`,
+            text: `Early ${minuteToHour(takenBreak?.earlyByMinutes)} hr ${minuteToLastMinute(takenBreak?.earlyByMinutes)} min, Late ${minuteToHour(takenBreak?.lateByMinutes)} hr ${minuteToLastMinute(takenBreak?.lateByMinutes)} min`,
             theme: StatusBadgeTheme.warning,
           },
           disabled: true,
