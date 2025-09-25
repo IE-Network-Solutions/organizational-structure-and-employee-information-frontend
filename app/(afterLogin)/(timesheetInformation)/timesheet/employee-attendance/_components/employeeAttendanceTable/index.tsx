@@ -301,11 +301,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           userId: item.userId,
           createdBy: item.createdBy,
           createdAt: item.createdAt,
-          clockIn: item.startAt,
-          clockOut: item.endAt,
+          clockIn: item?.startAt,
+          clockOut: item?.endAt,
           status: item,
           totalTime:
-            item.startAt &&
+            item?.startAt &&
             item.endAt &&
             `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
