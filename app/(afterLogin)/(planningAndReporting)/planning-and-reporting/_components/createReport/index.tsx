@@ -565,6 +565,7 @@ function CreateReport() {
                                                       );
                                                     }
                                                   },
+
                                                 },
                                               ]}
                                             >
@@ -592,6 +593,7 @@ function CreateReport() {
                                               />
                                             </Form.Item>
                                           )}
+
                                         {/* Comment Form Item, only with the 'Not' status condition */}
                                         {selectedStatuses[task.taskId] ===
                                           'Not' && (
@@ -775,6 +777,7 @@ function CreateReport() {
                                   </div>
                                 </Form.Item>
                                 {/* Actual Value Form Item, with both conditions */}
+
                                 {selectedStatuses[task.taskId] &&
                                   keyresult?.metricType?.name !==
                                     NAME.ACHIEVE &&
@@ -819,6 +822,7 @@ function CreateReport() {
                                                 ),
                                               );
                                             }
+
 
                                             const statusValue =
                                               form.getFieldValue([

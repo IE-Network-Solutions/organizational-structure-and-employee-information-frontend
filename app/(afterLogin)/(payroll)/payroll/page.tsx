@@ -19,6 +19,7 @@ import {
   useGetActivePayroll,
   useGetActivePayrollsForExport,
   useGetAllActiveBasicSalary,
+  useGetActivePayrollsForExport,
   useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
@@ -82,6 +83,8 @@ const Payroll = () => {
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
+  const { data: payrollForExport, refetch: refetchExportData } =
+    useGetActivePayrollsForExport(searchQuery);
 
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
@@ -93,6 +96,7 @@ const Payroll = () => {
   const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
+  const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
 
   useEffect(() => {
     // Check if division filter is applied
@@ -131,6 +135,7 @@ const Payroll = () => {
       }
     }
 
+
     // Handle non-paginated payroll data for export
     if (payrollForExport?.items) {
       let mergedExportData;
@@ -165,6 +170,40 @@ const Payroll = () => {
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
 
+
+    // Handle non-paginated payroll data for export
+    if (payrollForExport?.items) {
+      let mergedExportData;
+
+      if (hasDivisionFilter && payrollForExport?.divisionUsers) {
+        // Use division users from backend when division filter is applied
+        mergedExportData = payrollForExport?.items.map((pay: any) => {
+          const employee = payrollForExport.divisionUsers.find(
+            (emp: any) => emp.id === pay.employeeId,
+          );
+          return {
+            ...pay,
+            employeeInfo: employee || null,
+          };
+        });
+      } else if (allEmployees?.items) {
+        // Use all employees when no division filter is applied
+        mergedExportData = payrollForExport?.items.map((pay: any) => {
+          const employee = allEmployees.items.find(
+            (emp: any) => emp.id === pay.employeeId,
+          );
+          return {
+            ...pay,
+            employeeInfo: employee || null,
+          };
+        });
+      }
+
+      if (mergedExportData) {
+        setMergedPayrollForExport(mergedExportData);
+      }
+    }
+  }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
 
@@ -180,10 +219,12 @@ const Payroll = () => {
 
     if (bankLetter)
       exportTasks.push(
+
         Promise.resolve(
           handleBankLetter(
             payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
           ),
+
         ),
       );
 

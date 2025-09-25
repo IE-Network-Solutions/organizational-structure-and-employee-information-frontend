@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Department,
@@ -80,13 +80,21 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
     }),
   deleteDepartment: (departmentId: string) =>
     set((state) => {
-      const deleteDeptRecursively = (depts: Department[]): Department[] =>
-        depts
+      const deleteDeptRecursively = (
+        depts: Department[] | undefined,
+      ): Department[] => {
+        if (!depts || depts.length === 0) {
+          return [];
+        }
+
+        return depts
           .filter((dept) => dept.id !== departmentId)
-          ?.map((dept) => ({
+          .map((dept) => ({
             ...dept,
             department: deleteDeptRecursively(dept.department),
           }));
+      };
+
       return {
         orgData: {
           ...state.orgData,
@@ -124,6 +132,9 @@ const useOrganizationStore = create<OrganizationState>((set) => ({
     set({ departmentTobeShiftedId }),
   selectedKey: 'structure',
   setSelectedKey: (key) => set({ selectedKey: key }),
+  hasManuallyDeletedDepartments: false,
+  setHasManuallyDeletedDepartments: (hasManuallyDeletedDepartments: boolean) =>
+    set({ hasManuallyDeletedDepartments }),
 }));
 
 export default useOrganizationStore;

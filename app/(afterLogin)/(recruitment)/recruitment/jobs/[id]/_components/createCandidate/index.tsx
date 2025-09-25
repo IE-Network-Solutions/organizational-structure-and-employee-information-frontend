@@ -97,31 +97,41 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
     const formData = new FormData();
-
-    const resumeUrl = formValues.resumeUrl as
-      | {
-          file?: { originFileObj?: File };
-        }
-      | undefined;
-
-    if (resumeUrl?.file?.originFileObj) {
-      formData.append('documentName', resumeUrl.file.originFileObj);
+    
+    // Get the actual file from documentFileList (the Upload component's file list)
+    const fileToUpload = documentFileList?.[0]?.originFileObj || documentFileList?.[0];
+    
+    if (fileToUpload && fileToUpload instanceof File) {
+      formData.append('documentName', fileToUpload);
     }
+
+    // Remove resumeUrl from form values since we're handling file separately
     delete formValues?.resumeUrl;
 
     const formattedValues = {
       ...formValues,
+      // Map form field names to backend expected field names
+      emailAddress: formValues.email,
+      phoneNumber: formValues.phone,
+      // Remove the original field names to avoid confusion
+      email: undefined,
+      phone: undefined,
       isExternal: isInternalApplicant === ' ' ? true : false,
       createdBy: isInternalApplicant,
       jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
       applicantStatusStageId: stageId,
     };
-    formData.append('newFormData', JSON.stringify(formattedValues));
+    
+    // Encrypt only the JSON data, not the entire FormData
+    const { encrypt } = await import('@/utils/crypto');
+    const encryptedData = await encrypt(JSON.stringify(formattedValues));
+    formData.append('data', encryptedData);
 
     createCandidate(formData, {
       onSuccess: () => {
         setCreateJobDrawer(false);
         form.resetFields();
+        setDocumentFileList([]);
       },
     });
   };

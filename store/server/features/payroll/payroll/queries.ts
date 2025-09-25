@@ -64,6 +64,18 @@ const getActivePayrollsForExport = async (searchParams = '') => {
     },
   });
 };
+
+
+export const useGetActivePayrollsForExport = (searchParams = '') =>
+  useQuery(
+    ['payrollForExport', searchParams],
+    () => getActivePayrollsForExport(searchParams),
+    {
+      enabled: true,
+    },
+  );
+
+
 export const useGetActivePayroll = (
   searchParams = '',
   limit: number,

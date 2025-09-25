@@ -13,7 +13,7 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
                         string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD'),
-			string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
+string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
                         env.BRANCH_NAME = branchName
@@ -46,7 +46,7 @@ pipeline {
                 }
             }
         }
-	}
+}
 
         stage('Fetch Environment Variables') {
             parallel {
@@ -308,7 +308,7 @@ pipeline {
                     }
                 }
 
- 	stage('Deploy to Preview') {
+  stage('Deploy to Preview') {
                     when {
                         expression { env.BRANCH_NAME.contains('preview') }
                     }

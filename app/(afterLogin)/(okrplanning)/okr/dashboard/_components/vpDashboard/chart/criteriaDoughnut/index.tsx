@@ -4,6 +4,7 @@ import { Doughnut } from 'react-chartjs-2';
 
 import React from 'react';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Tooltip as AntTooltip } from 'antd';
 Chart.register(ArcElement, Tooltip, Legend);
 interface ChartData {
   labels: string[];
@@ -29,14 +30,17 @@ const CriteriaDoughnut = () => {
       {
         data: dataValues || [], // Sample data for full-time, part-time, and others
         backgroundColor: [
-          '#1E3A8A', // Navy Blue
-          '#2563EB', // Royal Blue
-          '#3B82F6', // Blue
-          '#60A5FA', // Sky Blue
-          '#93C5FD', // Light Blue
-          '#EF4444', // Red
+          '#003366', // darker navy
+          '#004080',
+          '#0047b3',
+          '#005ce6',
+          '#1a75ff',
+          '#3399ff',
+          '#4db8ff',
+          '#80ccff',
+          '#b3e0ff',
+          '#e6f5ff', // very light blue
         ],
-
         borderWidth: 4,
         hoverOffset: 10,
       },
@@ -55,7 +59,7 @@ const CriteriaDoughnut = () => {
     },
   };
   return (
-    <div className=" border-[1px] border-gray-200 rounded-lg p-1 px-2 ">
+    <div className=" border-[1px] border-gray-200 rounded-lg h-full p-2">
       <div className="text-lg font-bold ml-1">Criteria Contribution</div>{' '}
       <div className=" ">
         {vpScore?.criteria?.length ? (
@@ -77,7 +81,7 @@ const CriteriaDoughnut = () => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-1 pr-5 ">
+            <div className="flex flex-col gap-1 pr-5 h-36 overflow-y-scroll scrollbar-hide ">
               {data.labels.map((label: string, i: number) => (
                 <div key={i} className="flex items-center gap-1">
                   <div
@@ -87,7 +91,9 @@ const CriteriaDoughnut = () => {
                     className="w-2 h-2 rounded-full mr-2"
                   />
                   <span className="text-[10px] 2xl:text-xs font-normal">
-                    {label}
+                    <AntTooltip title={label}>
+                      {label?.length > 20 ? label?.slice(0, 20) + '...' : label}
+                    </AntTooltip>
                   </span>
                 </div>
               ))}
