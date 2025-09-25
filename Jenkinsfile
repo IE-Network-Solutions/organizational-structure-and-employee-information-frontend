@@ -161,12 +161,12 @@ pipeline {
                                 else
                                     echo 'Creating new service...'
                                     if [ '${env.BRANCH_NAME}' = 'staging' ]; then
-                                        if ! docker stack deploy -c stage-docker-compose.yml staging; then
+                                        if ! docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging; then
                                             echo 'ERROR: Failed to deploy stack'
                                             exit 1
                                         fi
                                     else
-                                        if ! docker stack deploy -c docker-compose.yml pep; then
+                                        if ! docker stack deploy --with-registry-auth -c docker-compose.yml pep; then
                                             echo 'ERROR: Failed to deploy stack'
                                             exit 1
                                         fi
