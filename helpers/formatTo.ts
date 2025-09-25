@@ -163,7 +163,7 @@ export const formatBreakTypeToStatus = (
   }
 
   // Handle cases where break times are null
-  if (!item.startAt && !item.endAt) {
+  if (!item?.startAt && !item?.endAt) {
     return {
       status: {
         text: 'Missed Clock-in & Clock-out',
@@ -173,7 +173,7 @@ export const formatBreakTypeToStatus = (
     };
   }
 
-  if (!item.startAt) {
+  if (!item?.startAt) {
     return {
       status: {
         text: 'Missed Clock-out',
@@ -183,7 +183,7 @@ export const formatBreakTypeToStatus = (
     };
   }
 
-  if (!item.endAt) {
+  if (!item?.endAt) {
     return {
       status: {
         text: 'Missed Clock-in',
