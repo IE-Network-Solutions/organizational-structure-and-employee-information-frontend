@@ -12,7 +12,7 @@ import { useGetAttendances } from '@/store/server/features/timesheet/attendance/
 import {
   calculateAttendanceRecordToTotalWorkTime,
   timeToHour,
-  timeToLastMinute
+  timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
@@ -23,7 +23,10 @@ import {
   AttendanceRecord,
   AttendanceRecordTypeBadgeTheme,
 } from '@/types/timesheet/attendance';
-import { formatBreakTypeToStatus, formatToAttendanceStatuses } from '@/helpers/formatTo';
+import {
+  formatBreakTypeToStatus,
+  formatToAttendanceStatuses,
+} from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
@@ -134,7 +137,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
         return (
           <div>
-
             {hasBreakTypeFilter &&
             attendanceBreak &&
             attendanceBreak.breakType ? (
@@ -158,7 +160,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                   : '-'}
               </div>
             )}
-
           </div>
         );
       },
@@ -172,7 +173,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
         return (
           <div>
-
             {hasBreakTypeFilter &&
             attendanceBreak &&
             attendanceBreak.breakType ? (
@@ -196,7 +196,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                   : '-'}
               </div>
             )}
-
           </div>
         );
       },
@@ -205,12 +204,15 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (_: any, record: AttendanceRecord) => {
+      render: ( record: AttendanceRecord) => {
         const attendanceBreak = record.attendanceBreaks?.[0];
-        const hasBreakTypeFilter = filter?.breakTypeId; 
-    
+        const hasBreakTypeFilter = filter?.breakTypeId;
+
         if (hasBreakTypeFilter) {
-          const breakStatus = formatBreakTypeToStatus(attendanceBreak?.breakType, record);
+          const breakStatus = formatBreakTypeToStatus(
+            attendanceBreak?.breakType,
+            record,
+          );
           return (
             <Space>
               <StatusBadge
@@ -245,8 +247,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         }
       },
     },
-    
-    
+
     {
       title: 'Over-time',
       dataIndex: 'overTime',

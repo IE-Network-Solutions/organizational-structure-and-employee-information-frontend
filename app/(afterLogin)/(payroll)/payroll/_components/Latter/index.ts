@@ -51,7 +51,7 @@ export const useGenerateBankLetter = () => {
 
   const generateBankLetter = async (amount: number) => {
     if (!tenant || !activeMonth) {
-   throw new Error('Tenant data not available');
+      throw new Error('Tenant data not available');
     }
 
     const currentDate = dayjs().format('MMMM DD, YYYY');

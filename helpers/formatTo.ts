@@ -194,8 +194,10 @@ export const formatBreakTypeToStatus = (
   }
 
   const splitTime = (time: string) => time.split(':');
-  const breakStartTime = +splitTime(item.startAt)[0] * 60 + +splitTime(item.startAt)[1]; // Convert to minutes
-  const breakEndTime = +splitTime(item.endAt)[0] * 60 + +splitTime(item.endAt)[1]; // Convert to minutes
+  const breakStartTime =
+    +splitTime(item.startAt)[0] * 60 + +splitTime(item.startAt)[1]; // Convert to minutes
+  const breakEndTime =
+    +splitTime(item.endAt)[0] * 60 + +splitTime(item.endAt)[1]; // Convert to minutes
 
   // Check if current time is within the break time window
   if (currentTime >= breakStartTime && currentTime <= breakEndTime) {
