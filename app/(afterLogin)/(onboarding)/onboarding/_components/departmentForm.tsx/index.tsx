@@ -22,8 +22,6 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   const { data: departments } = useGetDepartments();
   useEffect(() => {
     if (departmentData) {
-      form.resetFields();
-
       form.setFieldsValue({
         ...departmentData,
       });
@@ -46,8 +44,8 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   };
   const handleCancel = () => {
     form.resetFields();
-    onClose();
     setSelectedDepartment(null);
+    onClose();
   };
   return (
     <Modal

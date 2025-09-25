@@ -123,6 +123,8 @@ const OrgChartComponent: React.FC = () => {
         orgChart: data,
       });
     }
+    // Clear selected department before closing modal
+    setSelectedDepartment(null);
     setIsFormVisible(false);
   };
 
