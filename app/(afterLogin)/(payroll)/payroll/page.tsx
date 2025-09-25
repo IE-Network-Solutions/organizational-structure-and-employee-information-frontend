@@ -17,6 +17,7 @@ import { Workbook } from 'exceljs';
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
+  useGetActivePayrollsForExport,
   useGetAllActiveBasicSalary,
   useGetActivePayrollsForExport,
   useGetEmployeeInfo,
@@ -74,6 +75,8 @@ const Payroll = () => {
     pageSize,
     currentPage,
   );
+  const { data: payrollForExport, refetch: refetchExportData } =
+    useGetActivePayrollsForExport(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
@@ -90,6 +93,7 @@ const Payroll = () => {
 
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
+  const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
   const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
@@ -98,6 +102,7 @@ const Payroll = () => {
     // Check if division filter is applied
     const hasDivisionFilter = searchValue?.divisionId;
 
+    // Handle paginated payroll data for display
     if (payroll?.items) {
       let mergedData;
 
@@ -129,6 +134,42 @@ const Payroll = () => {
         setMergedPayroll(mergedData);
       }
     }
+
+
+    // Handle non-paginated payroll data for export
+    if (payrollForExport?.items) {
+      let mergedExportData;
+
+      if (hasDivisionFilter && payrollForExport?.divisionUsers) {
+        // Use division users from backend when division filter is applied
+        mergedExportData = payrollForExport?.items.map((pay: any) => {
+          const employee = payrollForExport.divisionUsers.find(
+            (emp: any) => emp.id === pay.employeeId,
+          );
+          return {
+            ...pay,
+            employeeInfo: employee || null,
+          };
+        });
+      } else if (allEmployees?.items) {
+        // Use all employees when no division filter is applied
+        mergedExportData = payrollForExport?.items.map((pay: any) => {
+          const employee = allEmployees.items.find(
+            (emp: any) => emp.id === pay.employeeId,
+          );
+          return {
+            ...pay,
+            employeeInfo: employee || null,
+          };
+        });
+      }
+
+      if (mergedExportData) {
+        setMergedPayrollForExport(mergedExportData);
+      }
+    }
+  }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
+
 
     // Handle non-paginated payroll data for export
     if (payrollForExport?.items) {
@@ -178,8 +219,12 @@ const Payroll = () => {
 
     if (bankLetter)
       exportTasks.push(
-        handleBankLetter(
-          payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
+
+        Promise.resolve(
+          handleBankLetter(
+            payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
+          ),
+
         ),
       );
 
@@ -404,7 +449,10 @@ const Payroll = () => {
           ?.reduce((acc: any, item: any) => {
             return acc + Number(item.amount);
           }, 0);
-        const taxableTransport = transportAllowance - 600;
+
+        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
+        const taxableTransport =
+          transportAllowance >= 600 ? transportAllowance - 600 : 0;
         const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {
@@ -750,8 +798,8 @@ const Payroll = () => {
     },
     {
       title: 'Taxable Transport Allowance',
-      dataIndex: 'taxableTransportAllowance', // Fixed typo in dataIndex
-      key: 'taxableTransportAllowance', // Fixed typo in key (taxabale -> taxable)
+      dataIndex: 'taxableTransportAllowance',
+      key: 'taxableTransportAllowance',
       minWidth: 150,
       render: (notused: any, record: any) => {
         const totalTransportAllowance =

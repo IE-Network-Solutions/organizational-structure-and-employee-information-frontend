@@ -179,13 +179,19 @@ pipeline {
             }
         }
 
-        stage('Verify Deployment') {
-            steps {
-                withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
-                    script {
-                        sh """
-                            sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                                echo "Verifying deployment status..."
+
+        stage('Build App') {
+            parallel {
+                stage('Build App on Server 1') {
+                    when {
+                        expression { env.REMOTE_SERVER_1 != null }
+                    }
+                    steps {
+                        script {
+                            sshagent([env.SSH_CREDENTIALS_ID_1]) {
+                                sh """
+                                   ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} 'cd ~/$REPO_DIR && DISABLE_PWA=true npm run build'
+
 
                                 for i in {1..20}; do
                                     STATUS=\$(docker service inspect --format "{{ if .UpdateStatus }}{{ .UpdateStatus.State }}{{ else }}none{{ end }}" ${env.SERVICE_NAME} 2>/dev/null)

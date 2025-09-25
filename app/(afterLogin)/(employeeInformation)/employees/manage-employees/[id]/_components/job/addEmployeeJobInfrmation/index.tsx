@@ -7,7 +7,10 @@ import { CreateEmployeeJobInformationInterface } from '@/store/server/features/e
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 import { useParams } from 'next/navigation';
+
 import { useEffect } from 'react';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface Ids {
@@ -20,6 +23,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
   const { userId: userId2 } = useAuthenticationStore();
+
   const [form] = Form.useForm();
   const params = useParams();
   const userId = (params?.id as string) ?? userId2;
