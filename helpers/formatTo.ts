@@ -81,15 +81,77 @@ export const formatBreakTypeToStatus = (
   item: BreakType,
   currentAttendance: AttendanceRecord | null,
 ): BreakTypeStatus => {
-  const itemStartAt = new Date();
-  const itemEndAt = new Date();
-  const now = Date.now();
+  const now = new Date();
+  const currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes for easier comparison
 
   if (currentAttendance) {
     const takenBreak = currentAttendance.attendanceBreaks?.find(
       (itemBreak) => itemBreak.breakTypeId === item.id,
     );
     if (takenBreak) {
+      // Handle cases where break times are null (like formatToAttendanceStatuses pattern)
+      if (!takenBreak.startAt && !takenBreak.endAt) {
+        return {
+          status: {
+            text: 'Missed Clock-in & Clock-out',
+            theme: StatusBadgeTheme.danger,
+          },
+          disabled: true,
+        };
+      }
+
+      if (!takenBreak.startAt) {
+        return {
+          status: {
+            text: 'Missed Clock-out',
+            theme: StatusBadgeTheme.danger,
+          },
+          disabled: true,
+        };
+      }
+
+      if (!takenBreak.endAt) {
+        return {
+          status: {
+            text: 'Missed Clock-in',
+            theme: StatusBadgeTheme.danger,
+          },
+          disabled: true,
+        };
+      }
+
+      // Show late/early information if available (like formatToAttendanceStatuses)
+      if (takenBreak.earlyByMinutes > 0 && takenBreak.lateByMinutes > 0) {
+        return {
+          status: {
+            text: `Early ${minuteToHour(takenBreak.earlyByMinutes)} hr ${minuteToLastMinute(takenBreak.earlyByMinutes)} min, Late ${minuteToHour(takenBreak.lateByMinutes)} hr ${minuteToLastMinute(takenBreak.lateByMinutes)} min`,
+            theme: StatusBadgeTheme.warning,
+          },
+          disabled: true,
+        };
+      }
+
+      if (takenBreak.earlyByMinutes > 0) {
+        return {
+          status: {
+            text: `Early ${minuteToHour(takenBreak.earlyByMinutes)} hr ${minuteToLastMinute(takenBreak.earlyByMinutes)} min`,
+            theme: StatusBadgeTheme.warning,
+          },
+          disabled: true,
+        };
+      }
+
+      if (takenBreak.lateByMinutes > 0) {
+        return {
+          status: {
+            text: `Late ${minuteToHour(takenBreak.lateByMinutes)} hr ${minuteToLastMinute(takenBreak.lateByMinutes)} min`,
+            theme: StatusBadgeTheme.danger,
+          },
+          disabled: true,
+        };
+      }
+
+      // If no late/early, show completed
       return {
         status: {
           text: 'Checked',
@@ -100,25 +162,66 @@ export const formatBreakTypeToStatus = (
     }
   }
 
-  const splitTime = (time: string) => time.split(':');
-  itemStartAt.setHours(
-    +splitTime(item.startAt)[0],
-    +splitTime(item.startAt)[1],
-  );
-  itemEndAt.setHours(+splitTime(item.endAt)[0], +splitTime(item.endAt)[1]);
-
-  if (itemEndAt.getTime() >= now) {
+  // Handle cases where break times are null
+  if (!item.startAt && !item.endAt) {
     return {
       status: {
-        text: 'Not Yet',
+        text: 'Missed Clock-in & Clock-out',
+        theme: StatusBadgeTheme.danger,
+      },
+      disabled: true,
+    };
+  }
+
+  if (!item.startAt) {
+    return {
+      status: {
+        text: 'Missed Clock-out',
+        theme: StatusBadgeTheme.danger,
+      },
+      disabled: true,
+    };
+  }
+
+  if (!item.endAt) {
+    return {
+      status: {
+        text: 'Missed Clock-in',
+        theme: StatusBadgeTheme.danger,
+      },
+      disabled: true,
+    };
+  }
+
+  const splitTime = (time: string) => time.split(':');
+  const breakStartTime =
+    +splitTime(item.startAt)[0] * 60 + +splitTime(item.startAt)[1]; // Convert to minutes
+  const breakEndTime =
+    +splitTime(item.endAt)[0] * 60 + +splitTime(item.endAt)[1]; // Convert to minutes
+
+  // Check if current time is within the break time window
+  if (currentTime >= breakStartTime && currentTime <= breakEndTime) {
+    return {
+      status: {
+        text: 'Available',
+        theme: StatusBadgeTheme.success,
+      },
+      disabled: false,
+    };
+  } else if (currentTime < breakStartTime) {
+    const minutesUntilStart = breakStartTime - currentTime;
+    return {
+      status: {
+        text: `Not Yet (${minutesUntilStart}m)`,
         theme: StatusBadgeTheme.warning,
       },
       disabled: false,
     };
   } else {
+    const minutesLate = currentTime - breakEndTime;
     return {
       status: {
-        text: 'Missed',
+        text: `Missed (${minutesLate}m late)`,
         theme: StatusBadgeTheme.danger,
       },
       disabled: true,
