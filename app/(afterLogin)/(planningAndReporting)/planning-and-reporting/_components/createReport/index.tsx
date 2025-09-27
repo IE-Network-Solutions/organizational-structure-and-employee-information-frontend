@@ -741,8 +741,9 @@ function CreateReport() {
                                         </Radio.Group>
                                         <Tooltip title={task.taskName}>
                                           <span className="font-medium text-sm truncate flex items-center gap-1">
-                                            {task.taskName?.length >= 40
-                                              ? task.taskName?.slice(0, 40)
+                                            {task.taskName?.length >= 60
+                                              ? task.taskName?.slice(0, 60) +
+                                                '...'
                                               : task.taskName}
                                             {task?.achieveMK ? (
                                               <MdKey size={12} className="" />
