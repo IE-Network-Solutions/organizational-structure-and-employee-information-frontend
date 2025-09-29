@@ -1,14 +1,12 @@
-import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useEmployeeAllFilter,
   useEmployeeBranches,
   useEmployeeDepartments,
 } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { useDebounce } from '@/utils/useDebounce';
-import { Col, Input, Row, Select, DatePicker, Radio, Button } from 'antd';
+import { Select, DatePicker, Radio, Button } from 'antd';
 import { Modal } from 'antd';
-import { LuSettings2 } from 'react-icons/lu';
 
 const { Option } = Select;
 
@@ -21,11 +19,6 @@ const EmployeeSearch: React.FC = () => {
     setJoinedDateType,
   } = useEmployeeManagementStore();
 
-  const { isMobile, isTablet, isTabletLandscape } = useIsMobile();
-
-  // Use mobile layout for tablet landscape
-  const shouldUseMobileLayout = isMobile || isTablet || isTabletLandscape;
-
   const { data: allFilterData } = useEmployeeAllFilter(
     pageSize,
     userCurrentPage,
@@ -34,12 +27,14 @@ const EmployeeSearch: React.FC = () => {
     searchParams.employee_name ? searchParams.employee_name : '',
     searchParams.allStatus ? searchParams.allStatus : '',
     searchParams.gender ? searchParams.gender : '',
+    searchParams.employmentType ? searchParams.employmentType : '',
     searchParams.joinedDate ? searchParams.joinedDate : '',
     searchParams.joinedDateType || 'after',
   );
 
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
+  const { data: EmploymentTypes } = useGetEmployementTypes();
   const { isMobileFilterVisible, setIsMobileFilterVisible } =
     useEmployeeManagementStore();
 
@@ -51,15 +46,6 @@ const EmployeeSearch: React.FC = () => {
   };
 
   const onSelectChange = handleSearchEmployee;
-  const onSearchChange = useDebounce(handleSearchEmployee, 2000);
-
-  const handleSearchInput = (
-    value: string,
-    keyValue: keyof typeof searchParams,
-  ) => {
-    const trimmedValue = value.trim();
-    onSearchChange(trimmedValue, keyValue);
-  };
   const handleBranchChange = (value: string) => {
     onSelectChange(value, 'allOffices');
   };
@@ -74,6 +60,10 @@ const EmployeeSearch: React.FC = () => {
 
   const handleGenderChange = (value: string) => {
     onSelectChange(value, 'gender');
+  };
+
+  const handleEmploymentTypeChange = (value: string) => {
+    onSelectChange(value, 'employmentType');
   };
 
   const handleJoinedDateChange = (date: any, dateString: string | string[]) => {
@@ -91,152 +81,139 @@ const EmployeeSearch: React.FC = () => {
     : 'notNull';
 
   const Filters = (
-    <Row
-      gutter={8}
-      justify="space-between"
-      align="middle"
-      className="mb-5 my-2"
-    >
-      {!shouldUseMobileLayout && (
-        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-          <Input
-            id={`inputEmployeeNames${searchParams.employee_name}`}
-            placeholder="Search employee"
-            onChange={(e) => handleSearchInput(e.target.value, 'employee_name')}
-            className="w-full h-10 rounded-lg"
-            allowClear
-          />
-        </Col>
-      )}
-      <Col xs={24} sm={24} md={24} lg={18} xl={18}>
-        <Row gutter={[8, 8]} justify="end">
-          <Col xs={24} sm={24} md={24} lg={4} xl={4}>
-            <Select
-              id={`selectBranches${searchParams.allOffices}`}
-              placeholder="Office"
-              onChange={handleBranchChange}
-              allowClear
-              className="w-full h-10 rounded-lg"
-            >
-              {EmployeeBranches?.items?.map((item: any) => (
-                <Option key={item?.id} value={item?.id}>
-                  {item?.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={4} xl={4}>
-            <Select
-              id={`selectDepartment${searchParams.allJobs}`}
-              placeholder="Department"
-              onChange={handleDepartmentChange}
-              allowClear
-              className="w-full h-10 rounded-lg"
-            >
-              {EmployeeDepartment?.map((item: any) => (
-                <Option key={item?.id} value={item?.id}>
-                  {item?.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={4} xl={4}>
-            <Select
-              id={`selectGender${searchParams.gender}`}
-              placeholder="Gender"
-              onChange={handleGenderChange}
-              allowClear
-              className="w-full h-10 rounded-lg"
-            >
-              <Option value="male">Male</Option>
-              <Option value="female">Female</Option>
-              <Option value="other">Other</Option>
-            </Select>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={4} xl={4}>
-            <Select
-              id={`selectStatus${searchParams.allStatus}`}
-              placeholder="Status"
-              onChange={handleStatusChange}
-              allowClear
-              className="w-full h-10 rounded-lg"
-            >
-              <Option value={activeStatusValue}>Active</Option>
-              <Option value={inactiveStatusValue}>Inactive</Option>
-            </Select>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={4} xl={4}>
-            <DatePicker
-              id={`datePickerJoinedDate${searchParams.joinedDate}`}
-              placeholder="Joined Date"
-              onChange={handleJoinedDateChange}
-              className="w-full h-10 rounded-lg"
-              format="YYYY-MM-DD"
-              allowClear
-              renderExtraFooter={() => (
-                <div className="flex items-center justify-between w-full px-2">
-                  <span className="font-semibold text-sm">Set Date</span>
-                  <Radio.Group
-                    value={searchParams.joinedDateType || 'after'}
-                    onChange={(e) => setJoinedDateType(e.target.value)}
-                    size="small"
-                  >
-                    <Radio value="before">Before</Radio>
-                    <Radio value="after">After</Radio>
-                  </Radio.Group>
-                </div>
-              )}
-            />
-          </Col>
-        </Row>
-      </Col>
-    </Row>
+    <div className="space-y-4">
+      <div className="space-y-4">
+        <Select
+          id={`selectBranches${searchParams.allOffices}`}
+          placeholder="Office"
+          value={searchParams.allOffices || undefined}
+          onChange={handleBranchChange}
+          allowClear
+          className="w-full h-12 rounded-lg border-gray-200"
+        >
+          {EmployeeBranches?.items?.map((item: any) => (
+            <Option key={item?.id} value={item?.id}>
+              {item?.name}
+            </Option>
+          ))}
+        </Select>
+
+        <Select
+          id={`selectDepartment${searchParams.allJobs}`}
+          placeholder="Department"
+          value={searchParams.allJobs || undefined}
+          onChange={handleDepartmentChange}
+          allowClear
+          className="w-full h-12 rounded-lg border-gray-200"
+        >
+          {EmployeeDepartment?.map((item: any) => (
+            <Option key={item?.id} value={item?.id}>
+              {item?.name}
+            </Option>
+          ))}
+        </Select>
+
+        <Select
+          id={`selectGender${searchParams.gender}`}
+          placeholder="Gender"
+          value={searchParams.gender || undefined}
+          onChange={handleGenderChange}
+          allowClear
+          className="w-full h-12 rounded-lg border-gray-200"
+        >
+          <Option value="male">Male</Option>
+          <Option value="female">Female</Option>
+          <Option value="other">Other</Option>
+        </Select>
+
+        <Select
+          id={`selectEmploymentType${searchParams.employmentType}`}
+          placeholder="Employment Type"
+          value={searchParams.employmentType || undefined}
+          onChange={handleEmploymentTypeChange}
+          allowClear
+          className="w-full h-12 rounded-lg border-gray-200"
+        >
+          {EmploymentTypes?.items?.map((item: any) => (
+            <Option key={item?.id} value={item?.id}>
+              {item?.name}
+            </Option>
+          ))}
+        </Select>
+
+        <Select
+          id={`selectStatus${searchParams.allStatus}`}
+          placeholder="Status"
+          value={searchParams.allStatus || undefined}
+          onChange={handleStatusChange}
+          allowClear
+          className="w-full h-12 rounded-lg border-gray-200"
+        >
+          <Option value={activeStatusValue}>Active</Option>
+          <Option value={inactiveStatusValue}>Inactive</Option>
+        </Select>
+
+        <DatePicker
+          id={`datePickerJoinedDate${searchParams.joinedDate}`}
+          placeholder="Joined Date"
+          value={searchParams.joinedDate ? new Date(searchParams.joinedDate) : undefined}
+          onChange={handleJoinedDateChange}
+          className="w-full h-12 rounded-lg border-gray-200"
+          format="YYYY-MM-DD"
+          allowClear
+          suffixIcon={
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M2 6h12" stroke="currentColor" strokeWidth="1.5"/>
+              <text x="8" y="10" textAnchor="middle" fontSize="6" fill="currentColor">1</text>
+            </svg>
+          }
+          renderExtraFooter={() => (
+            <div className="flex items-center justify-between w-full px-2">
+              <span className="font-semibold text-sm">Set Date</span>
+              <Radio.Group
+                value={searchParams.joinedDateType || 'after'}
+                onChange={(e) => setJoinedDateType(e.target.value)}
+                size="small"
+              >
+                <Radio value="before">Before</Radio>
+                <Radio value="after">After</Radio>
+              </Radio.Group>
+            </div>
+          )}
+        />
+      </div>
+    </div>
   );
   return (
-    <div className="my-7">
-      {shouldUseMobileLayout ? (
-        <div className="flex justify-end my-2 space-x-4">
-          <Input
-            id={`inputEmployeeNames${searchParams.employee_name}`}
-            placeholder="Search employee"
-            onChange={(e) => handleSearchInput(e.target.value, 'employee_name')}
-            className="w-full h-10 rounded-lg"
-            allowClear
-          />
-          <div className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 py-2 px-3">
-            <LuSettings2
-              onClick={() => setIsMobileFilterVisible(true)}
-              className="text-xl cursor-pointer"
-            />
-          </div>
-          <Modal
-            centered
-            title="Filter"
-            open={isMobileFilterVisible}
-            onCancel={() => setIsMobileFilterVisible(false)}
-            footer={
-              <div className="flex justify-center space-x-4 ">
-                <Button
-                  type="default"
-                  onClick={() => setIsMobileFilterVisible(false)}
-                  className="px-8 py-1 rounded-lg "
-                >
-                  Cancel
-                </Button>
-                <Button className="bg-primary text-white px-10 py-1 rounded-lg border-none">
-                  Filter
-                </Button>
-              </div>
-            }
-            className="md:max-w-sm sm:max-w-xs xs:max-w-[280px]"
+    <Modal
+      centered
+      title="Filter"
+      open={isMobileFilterVisible}
+      onCancel={() => setIsMobileFilterVisible(false)}
+      footer={
+        <div className="flex justify-center space-x-4 ">
+          <Button
+            type="default"
+            onClick={() => setIsMobileFilterVisible(false)}
+            className="px-8 py-1 rounded-lg "
           >
-            {Filters}
-          </Modal>
+            Cancel
+          </Button>
+          <Button 
+            className="bg-primary text-white px-10 py-1 rounded-lg border-none"
+            onClick={() => setIsMobileFilterVisible(false)}
+          >
+            Filter
+          </Button>
         </div>
-      ) : (
-        Filters
-      )}
-    </div>
+      }
+      className="max-w-md"
+      width={400}
+    >
+      {Filters}
+    </Modal>
   );
 };
 
