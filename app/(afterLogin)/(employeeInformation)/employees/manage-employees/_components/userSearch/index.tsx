@@ -7,9 +7,8 @@ import {
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useDebounce } from '@/utils/useDebounce';
-import { Col, Input, Row, Select, DatePicker, Radio, Button } from 'antd';
+import { Select, DatePicker, Radio, Button } from 'antd';
 import { Modal } from 'antd';
-import { LuSettings2 } from 'react-icons/lu';
 
 const { Option } = Select;
 
@@ -23,9 +22,6 @@ const EmployeeSearch: React.FC = () => {
   } = useEmployeeManagementStore();
 
   const { isMobile, isTablet, isTabletLandscape } = useIsMobile();
-
-  // Use mobile layout for tablet landscape
-  const shouldUseMobileLayout = isMobile || isTablet || isTabletLandscape;
 
   const { data: allFilterData } = useEmployeeAllFilter(
     pageSize,
@@ -54,15 +50,6 @@ const EmployeeSearch: React.FC = () => {
   };
 
   const onSelectChange = handleSearchEmployee;
-  const onSearchChange = useDebounce(handleSearchEmployee, 2000);
-
-  const handleSearchInput = (
-    value: string,
-    keyValue: keyof typeof searchParams,
-  ) => {
-    const trimmedValue = value.trim();
-    onSearchChange(trimmedValue, keyValue);
-  };
   const handleBranchChange = (value: string) => {
     onSelectChange(value, 'allOffices');
   };

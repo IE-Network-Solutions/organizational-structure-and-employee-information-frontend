@@ -21,7 +21,7 @@ import { CiBookmark } from 'react-icons/ci';
 import { TbLayoutList } from 'react-icons/tb';
 import { useDownloadEmployeeDataByFilter } from '@/store/server/features/employees/employeeManagment/mutations';
 const ManageEmployees: React.FC<any> = () => {
-  const { setOpen, setSearchParams, isMobileFilterVisible, setIsMobileFilterVisible } = useEmployeeManagementStore();
+  const { setOpen, setSearchParams, setIsMobileFilterVisible } = useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
   const { data: employeeStatus, isLoading } = useGetEmployeeStatus('');
