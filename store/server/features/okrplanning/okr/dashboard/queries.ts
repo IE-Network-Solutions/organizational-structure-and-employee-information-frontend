@@ -26,7 +26,7 @@ const getObjectiveDashboardByUser = async (id: number | string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${OKR_URL}/objective/user/${id}`,
+    url: `${OKR_URL}/okr-total-summary/user/dashboard/${id}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
