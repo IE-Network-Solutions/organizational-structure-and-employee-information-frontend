@@ -1,4 +1,3 @@
-import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useEmployeeAllFilter,
   useEmployeeBranches,
@@ -6,7 +5,6 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { useDebounce } from '@/utils/useDebounce';
 import { Select, DatePicker, Radio, Button } from 'antd';
 import { Modal } from 'antd';
 
@@ -20,8 +18,6 @@ const EmployeeSearch: React.FC = () => {
     userCurrentPage,
     setJoinedDateType,
   } = useEmployeeManagementStore();
-
-  const { isMobile, isTablet, isTabletLandscape } = useIsMobile();
 
   const { data: allFilterData } = useEmployeeAllFilter(
     pageSize,
