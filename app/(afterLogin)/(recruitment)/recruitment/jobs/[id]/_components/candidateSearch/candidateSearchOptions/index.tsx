@@ -168,7 +168,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
                 <Button
                   type="primary"
                   className="px-3"
-
+                  onClick={() => setShowMobileFilter(false)}
                 >
                   Filter
                 </Button>
