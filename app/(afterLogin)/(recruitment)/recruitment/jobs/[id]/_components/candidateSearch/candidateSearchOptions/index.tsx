@@ -165,7 +165,11 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
                 >
                   Cancel
                 </Button>
-                <Button type="primary" className="px-3">
+                <Button
+                  type="primary"
+                  className="px-3"
+
+                >
                   Filter
                 </Button>
               </div>
