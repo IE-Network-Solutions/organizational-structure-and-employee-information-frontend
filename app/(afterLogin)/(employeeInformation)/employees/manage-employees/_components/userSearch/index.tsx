@@ -7,6 +7,7 @@ import { useGetEmployementTypes } from '@/store/server/features/employees/employ
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Select, DatePicker, Radio, Button } from 'antd';
 import { Modal } from 'antd';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
@@ -168,7 +169,7 @@ const EmployeeSearch: React.FC = () => {
         <DatePicker
           id={`datePickerJoinedDate${searchParams.joinedDate}`}
           placeholder="Joined Date"
-          value={searchParams.joinedDate ? new Date(searchParams.joinedDate) : undefined}
+          value={searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined}
           onChange={handleJoinedDateChange}
           className="w-full h-12 rounded-lg border-gray-200"
           format="YYYY-MM-DD"
