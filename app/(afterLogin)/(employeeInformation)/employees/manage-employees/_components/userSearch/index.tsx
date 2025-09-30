@@ -89,6 +89,10 @@ const EmployeeSearch: React.FC = () => {
           value={searchParams.allOffices || undefined}
           onChange={handleBranchChange}
           allowClear
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+          }
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeBranches?.items?.map((item: any) => (
@@ -104,6 +108,10 @@ const EmployeeSearch: React.FC = () => {
           value={searchParams.allJobs || undefined}
           onChange={handleDepartmentChange}
           allowClear
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+          }
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeDepartment?.map((item: any) => (
@@ -132,6 +140,10 @@ const EmployeeSearch: React.FC = () => {
           value={searchParams.employmentType || undefined}
           onChange={handleEmploymentTypeChange}
           allowClear
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+          }
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmploymentTypes?.items?.map((item: any) => (

@@ -98,49 +98,49 @@ const ManageEmployees: React.FC<any> = () => {
   // Get active filters
   const getActiveFilters = () => {
     const activeFilters = [];
-    
+
     if (searchParams.allOffices) {
       activeFilters.push({
         key: 'allOffices',
         label: getFilterDisplayName('allOffices', searchParams.allOffices)
       });
     }
-    
+
     if (searchParams.allJobs) {
       activeFilters.push({
         key: 'allJobs',
         label: getFilterDisplayName('allJobs', searchParams.allJobs)
       });
     }
-    
+
     if (searchParams.gender) {
       activeFilters.push({
         key: 'gender',
         label: getFilterDisplayName('gender', searchParams.gender)
       });
     }
-    
+
     if (searchParams.employmentType) {
       activeFilters.push({
         key: 'employmentType',
         label: getFilterDisplayName('employmentType', searchParams.employmentType)
       });
     }
-    
+
     if (searchParams.allStatus) {
       activeFilters.push({
         key: 'allStatus',
         label: getFilterDisplayName('allStatus', searchParams.allStatus)
       });
     }
-    
+
     if (searchParams.joinedDate) {
       activeFilters.push({
         key: 'joinedDate',
         label: getFilterDisplayName('joinedDate', searchParams.joinedDate)
       });
     }
-    
+
     return activeFilters;
   };
 
@@ -234,31 +234,32 @@ const ManageEmployees: React.FC<any> = () => {
               onChange={(e) => setSearchParams('employee_name', e.target.value)}
               value={searchParams.employee_name}
             />
-            
-            {/* Filter Tags */}
-            <div className="flex items-center gap-2 flex-wrap">
+
+            <div className="flex items-center gap-2 flex-wrap bg-blue-600">
               {getActiveFilters().map((filter) => (
                 <Tag
                   key={filter.key}
                   closable
                   onClose={() => removeFilter(filter.key)}
-                  className="bg-blue-100 border border-blue-400 text-blue-700 rounded-md px-3 py-1 flex items-center"
+                  className="bg-white text-blue border-blue  rounded-lg px-3 py-1 flex items-center text-sm font-medium"
                   closeIcon={
-                    <span className="text-blue-700 hover:text-blue-900 ml-1">×</span>
+                    <span className="text-blue hover:!text-[#FF8787] ml-2 text-base">
+                      ×
+                    </span>
                   }
                 >
                   {filter.label}
                 </Tag>
               ))}
             </div>
-            
+
             <Button
               type="primary"
               size="large"
               className="h-12 px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center gap-2"
               onClick={() => setIsMobileFilterVisible(true)}
             >
-             <IoMdSwitch />
+              <IoMdSwitch />
               Filter
             </Button>
           </div>
