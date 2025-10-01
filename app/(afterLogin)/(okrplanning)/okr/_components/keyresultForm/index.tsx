@@ -1,4 +1,5 @@
 import React from 'react';
+import { ThunderboltFilled } from '@ant-design/icons';
 import MilestoneForm from './milestoneForm';
 import AchiveOrNot from './achiveOrNot';
 import CurrencyForm from './currencyForm';
@@ -18,7 +19,17 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
   addKeyResultValue,
 }) => {
   return (
-    <div>
+    <div className="relative">
+      {/* AI Suggestion Indicator */}
+      {keyItem.isAISuggestion && (
+        <div className="mx-4 mt-4 mb-2 px-3 py-2 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg flex items-center gap-2">
+          <ThunderboltFilled className="text-indigo-600" style={{ fontSize: '14px' }} />
+          <span className="text-xs font-medium text-indigo-700">
+            This is a Key Result from the AI
+          </span>
+        </div>
+      )}
+      
       {/* Conditionally render based on key_type */}
       {keyItem.key_type === 'Milestone' ? (
         <MilestoneForm
