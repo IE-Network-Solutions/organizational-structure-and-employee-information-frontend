@@ -149,7 +149,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     // Download the PDF
                     pdf.save(`clearance-certificate-${new Date().toISOString().split('T')[0]}.pdf`);
                   } catch (error) {
-                    console.error('Error generating PDF:', error);
                     alert('Error generating PDF. Please try again.');
                   }
                 }}
