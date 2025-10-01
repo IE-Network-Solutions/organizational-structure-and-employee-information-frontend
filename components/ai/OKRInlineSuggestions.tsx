@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Collapse, Tag, Spin, Empty } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, Tag, Spin, Empty } from 'antd';
 import { PlusOutlined, ThunderboltFilled, CloseOutlined } from '@ant-design/icons';
 import { fetchOKRKeyResultSuggestions, KeyResultSuggestion } from '@/utils/aiService';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-
-const { Panel } = Collapse;
 
 interface OKRInlineSuggestionsProps {
   objectiveTitle: string;
@@ -26,14 +24,7 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<KeyResultSuggestion[]>([]);
 
-  // Auto-generate suggestions when visible and objective is set
-  useEffect(() => {
-    if (isVisible && objectiveTitle && objectiveTitle.trim() !== '' && suggestions.length === 0) {
-      handleGenerate();
-    }
-  }, [isVisible, objectiveTitle]);
-
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     if (!objectiveTitle || objectiveTitle.trim() === '') {
       NotificationMessage.warning({
         message: 'Please enter an objective title first',
@@ -84,7 +75,14 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [objectiveTitle]);
+
+  // Auto-generate suggestions when visible and objective is set
+  useEffect(() => {
+    if (isVisible && objectiveTitle && objectiveTitle.trim() !== '' && suggestions.length === 0) {
+      handleGenerate();
+    }
+  }, [isVisible, objectiveTitle, suggestions.length, handleGenerate]);
 
   const handleAddSuggestion = (suggestion: KeyResultSuggestion, index: number) => {
     const currentTotalWeight = getCurrentTotalWeight();
@@ -135,7 +133,7 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
     });
 
     // Remove the suggestion from the list
-    setSuggestions(prev => prev.filter((_, i) => i !== index));
+    setSuggestions(prev => prev.filter((_item, i) => i !== index));
 
     NotificationMessage.success({
       message: 'AI-suggested Key Result added successfully',

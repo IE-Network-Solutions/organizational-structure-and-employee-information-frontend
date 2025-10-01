@@ -109,9 +109,9 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         }
         
         // Remove the suggestion from the list after successfully adding
-        setItems(prev => prev.filter((_, i) => i !== index));
+        setItems(prev => prev.filter((_item, i) => i !== index));
       } catch (error) {
-        console.error('Validation failed:', error);
+        // Validation failed - error is expected during form validation
       }
     }, 100);
   };

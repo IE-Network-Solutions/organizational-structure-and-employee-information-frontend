@@ -48,7 +48,7 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
         
         // If weights don't sum to 100, adjust proportionally
         if (totalWeight !== 100 && totalWeight > 0) {
-          const adjustedResults = normalizedResults.map((r, idx, arr) => {
+          const adjustedResults = normalizedResults.map((r) => {
             const adjustedWeight = Math.round((r.weight / totalWeight) * 100);
             return { ...r, weight: adjustedWeight };
           });
@@ -125,7 +125,7 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
     });
 
     // Remove the suggestion from the list
-    setSuggestions(prev => prev.filter((_, i) => i !== index));
+    setSuggestions(prev => prev.filter((_item, i) => i !== index));
 
     NotificationMessage.success({
       message: '✨ AI-suggested Key Result added successfully',
