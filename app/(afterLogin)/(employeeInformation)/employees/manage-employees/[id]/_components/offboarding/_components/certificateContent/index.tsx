@@ -26,87 +26,92 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
     return (
         <div
             id="certificate-template"
-            className="relative w-full bg-white overflow-auto"
+            className="relative bg-white flex flex-col"
             style={{
                 backgroundImage: `url('/login-background.png')`,
                 backgroundSize: '100% 100%',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                minHeight: '100vh',
-                width: '100%',
+                height: '832px', // A4 height in pixels
+                width: '595px', // A4 width in pixels
+                margin: '0 auto',
             }}
         >
-            {/* Header */}
-            <div className="relative z-10 flex items-center justify-center pt-8 pb-4">
-                <TitleCard title="SelamNew" />
-            </div>
-
-            {/* Main Title */}
-            <div className="relative z-10 text-center py-6">
-                <h2 className="text-4xl font-bold text-gray-800 mb-2">Clearance Certification</h2>
-            </div>
-
-            {/* Off Boarding Tasks Section */}
-            <div className="relative z-10 px-8 py-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6">Off Boarding Tasks</h3>
-
-                <div className="grid grid-cols-2 gap-4 mb-0">
-                    {completedTasks.map((task, index) => (
-                        <div
-                            key={task.id || index}
-                            className="bg-white rounded-lg shadow-sm p-2 border border-gray-200"
-                        >
-                            <div>
-                                <p className="font-medium text-gray-800 text-xs mb-2">{task.title}</p>
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 border border-gray-300">
-                                        {task.approver?.profilePicture || task.approver?.profileImage || task.approver?.avatar ? (
-                                            <Image
-                                                src={task.approver.profilePicture || task.approver.profileImage || task.approver.avatar}
-                                                alt={`${task.approver?.firstName || 'Approver'} ${task.approver?.lastName || ''}`}
-                                                width={20}
-                                                height={20}
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                }}
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-xs border border-gray-300 leading-none">
-                                                {`${task.approver?.firstName?.[0] || 'A'}${task.approver?.lastName?.[0] || 'P'}`.toUpperCase()}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-gray-500">
-                                        {`${task.approver?.firstName || ''} ${task.approver?.middleName || ''} ${task.approver?.lastName || ''}`.trim()}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+            {/* Main Content - grows to fill space */}
+            <div className="relative z-10 flex-grow px-4 py-2">
+                {/* Header */}
+                <div className="flex items-center justify-center pt-2 pb-1">
+                    <TitleCard title="SelamNew" />
                 </div>
 
+                {/* Main Title */}
+                <div className="text-center py-2">
+                    <h2 className="text-xl font-bold text-gray-800 mb-1">Clearance Certification</h2>
+                </div>
+
+                {/* Off Boarding Tasks Section */}
+                <div className="py-2">
+                    <h3 className="text-base font-bold text-gray-800 mb-2">Off Boarding Tasks</h3>
+
+                    <div className="grid grid-cols-2 gap-4 mb-0">
+                        {completedTasks.map((task, index) => (
+                            <div
+                                key={task.id || index}
+                                className="bg-white rounded-lg shadow-sm p-2 border border-gray-200"
+                            >
+                                <div>
+                                    <p className="font-medium text-gray-800 text-xs mb-2">{task.title}</p>
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 border border-gray-300">
+                                            {task.approver?.profilePicture || task.approver?.profileImage || task.approver?.avatar ? (
+                                                <Image
+                                                    src={task.approver.profilePicture || task.approver.profileImage || task.approver.avatar}
+                                                    alt={`${task.approver?.firstName || 'Approver'} ${task.approver?.lastName || ''}`}
+                                                    width={20}
+                                                    height={20}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-xs border border-gray-300 leading-none">
+                                                    {`${task.approver?.firstName?.[0] || 'A'}${task.approver?.lastName?.[0] || 'P'}`.toUpperCase()}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            {`${task.approver?.firstName || ''} ${task.approver?.middleName || ''} ${task.approver?.lastName || ''}`.trim()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                </div>
+            </div>
+
+            {/* Bottom Section - sticky at bottom */}
+            <div className="relative z-10 px-4 py-2 mt-auto">
                 {/* Employee Name */}
-                <div className="text-center py-4">
-                    <p className="text-2xl font-bold text-gray-800 mb-0">
+                <div className="text-center py-1">
+                    <p className="text-xs text-gray-600 mb-1">This is to certify that</p>
+                    <p className="text-lg font-bold text-gray-800 mb-1 border-b-2 border-blue-500 pb-1 inline-block">
                         {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim()}
                     </p>
                 </div>
 
                 {/* Completion Statement */}
                 <div className="text-center py-0">
-                    <p className="text-xl font-bold text-gray-800 mb-0">
-                        Successfully Completed these <span className=" text-blue px-2 py-1 rounded">Off Boarding Process&apos;s on</span>
+                    <p className="text-sm font-bold text-gray-800 mb-0">
+                        Successfully Completed these <span className="text-blue px-2 py-1 rounded">Off Boarding Process&apos;s on</span>
                     </p>
-                    <p className="text-lg text-gray-700">
-                        Award Date: {currentDate}
-                    </p>
+                    <p className="text-xs text-gray-700">Award Date: {currentDate}</p>
                 </div>
-            </div>
 
-            {/* Signature Section */}
-            <div className="relative z-10 px-8 py-0">
-                <div className="flex justify-between items-end space-x-8">
+                {/* Signature Section */}
+                <div className="flex justify-between items-end space-x-6 mt-3">
                     <div className="flex-1 text-center">
                         <div className="border-b-2 border-gray-400 w-32 mx-auto mb-2 h-8"></div>
                         <p className="text-sm font-medium text-gray-700">SIGNATURE</p>
