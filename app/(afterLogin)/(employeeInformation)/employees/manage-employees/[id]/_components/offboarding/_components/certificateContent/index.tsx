@@ -6,10 +6,12 @@ import TitleCard from '@/components/common/titleCard';
 
 interface CertificateContentProps {
     offboardingTasks?: any[];
+    employeeData?: any;
 }
 
 const CertificateContent: React.FC<CertificateContentProps> = ({
     offboardingTasks = [],
+    employeeData,
 }) => {
     const { data: tenantData } = useGetTenantDetailsForCertificate();
 
@@ -82,6 +84,13 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* Employee Name */}
+                <div className="text-center py-4">
+                    <p className="text-2xl font-bold text-gray-800 mb-0">
+                        {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim()}
+                    </p>
                 </div>
 
                 {/* Completion Statement */}

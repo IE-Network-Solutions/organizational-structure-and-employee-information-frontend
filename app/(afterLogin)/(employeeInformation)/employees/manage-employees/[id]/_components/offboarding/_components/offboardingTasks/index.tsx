@@ -261,6 +261,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
         <CertificateContent
           offboardingTasks={offboardingTasks}
+          employeeData={employeeData}
         />
       </div>
     </div>
