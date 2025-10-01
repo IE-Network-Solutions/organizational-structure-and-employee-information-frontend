@@ -12,7 +12,6 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import PlanningObjectiveComponent from '../planning/createPlanObjective';
 import PlanningHierarchyComponent from '../planning/createPlanHierarchy';
-import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
 
 function EditPlan() {
   const {
@@ -67,6 +66,12 @@ function EditPlan() {
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
+  const modalHeader = (
+    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+      Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
+    </div>
+  );
+
   const handleAddName = (
     currentBoardValues: Record<string, string | number>,
     kId: string,
@@ -101,69 +106,6 @@ function EditPlan() {
       form.setFieldsValue({ [boardsKey]: boards });
     }
   };
-
-  const modalHeader = (
-    <div className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4">
-      <div>
-        Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
-      </div>
-      <div className="text-right">
-        {/* AI Suggestions for all plan types */}
-        <AISuggestionsModal
-          getKeyResults={() => {
-            const out: { id: string; title: string }[] = [];
-            
-            if (!planningPeriodHierarchy?.parentPlan) {
-              // Weekly Plan: Get Key Results from objectives
-              objective?.items?.forEach((obj: any) => {
-                obj?.keyResults?.forEach((kr: any) => {
-                  if (kr?.id && kr?.title)
-                    out.push({ id: String(kr.id), title: kr.title });
-                });
-              });
-
-              // Fallback to current plan KRs if none collected yet
-              if (out.length === 0) {
-                const seen = new Set<string>();
-                (planGroupData?.tasks || []).forEach((t: any) => {
-                  const id = String(t?.keyResult?.id || '');
-                  const title = t?.keyResult?.title;
-                  if (id && title && !seen.has(id)) {
-                    seen.add(id);
-                    out.push({ id, title });
-                  }
-                });
-              }
-            } else {
-              // Daily Plan: Use same logic as hierarchy component
-              const tasks = planningPeriodHierarchy?.parentPlan?.plans?.find(
-                (i: any) => i?.isReported === false,
-              )?.tasks || [];
-              
-              // Group by keyResult to match the planning structure
-              const seen = new Set<string>();
-              tasks.forEach((t: any) => {
-                const krId = String(t?.keyResult?.id || '');
-                const krTitle = t?.keyResult?.title;
-                if (krId && krTitle && !seen.has(krId)) {
-                  seen.add(krId);
-                  out.push({ id: krId, title: krTitle });
-                }
-              });
-            }
-            
-            return out;
-          }}
-          form={form}
-          handleAddBoard={handleAddBoard}
-          handleAddName={handleAddName}
-          planTypeName={planningPeriodHierarchy?.name || 'Weekly'}
-          resolveListNameForKR={(krId: string) => `names-${krId}`}
-          resolveBoardKeyForKR={(krId: string) => krId}
-        />
-      </div>
-    </div>
-  );
 
   const handleOnFinish = (values: Record<string, any>) => {
     const mergeValues = (obj: any) => {

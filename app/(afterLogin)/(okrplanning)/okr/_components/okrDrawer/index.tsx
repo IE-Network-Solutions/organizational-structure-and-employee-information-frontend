@@ -23,7 +23,6 @@ import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/q
 import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -45,7 +44,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const [form] = Form.useForm();
   const { mutate: createObjective, isLoading } = useCreateObjective();
   const { isMobile } = useIsMobile();
-  const [showAISuggestions, setShowAISuggestions] = React.useState(false);
   const modalHeader = (
     <div
       id="okr-drawer-modal-header"
@@ -268,13 +266,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
     // Add key result with the correct metricTypeId
     addKeyResult(key, metricTypeId);
-  };
-
-  const getCurrentTotalWeight = () => {
-    return objective?.keyResults?.reduce(
-      (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-      0,
-    ) || 0;
   };
 
   const keyResultMenu = (
@@ -519,85 +510,55 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           </div>
         )}
 
-        {/* Key Result Section with inline title and buttons */}
+        {/* Key Result Section with inline title and button */}
         <div
           id="okr-drawer-key-result-section-header"
           className="flex justify-between items-center mb-6 mt-8"
         >
           <h2 className="text-xl font-semibold text-gray-800">Key Result</h2>
-          <div className="flex gap-2">
+          <Dropdown overlay={keyResultMenu} trigger={['click']}>
             <Button
-              type="primary"
-              ghost
-              onClick={() => setShowAISuggestions(!showAISuggestions)}
-              disabled={!objectiveValue?.title || objectiveValue.title.trim() === ''}
-              className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
+              type="default"
+              id="okr-drawer-desktop-add-keyresult-button"
+              className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
+              aria-label="Add Key Result"
             >
               <svg
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
-                fill="currentColor"
+                fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                className="text-white"
               >
-                <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
+                <path
+                  d="M12 5V19M5 12H19"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
-              AI Suggestions
-            </Button>
-            <Dropdown overlay={keyResultMenu} trigger={['click']}>
-              <Button
-                type="default"
-                id="okr-drawer-desktop-add-keyresult-button"
-                className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
-                aria-label="Add Key Result"
+              Key Result
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-white"
               >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white"
-                >
-                  <path
-                    d="M12 5V19M5 12H19"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Key Result
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white"
-                >
-                  <path
-                    d="M6 9L12 15L18 9"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Button>
-            </Dropdown>
-          </div>
+                <path
+                  d="M6 9L12 15L18 9"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Button>
+          </Dropdown>
         </div>
-
-        {/* AI Inline Suggestions */}
-        <OKRInlineSuggestions
-          objectiveTitle={objectiveValue?.title || ''}
-          addKeyResult={addKeyResult}
-          getCurrentTotalWeight={getCurrentTotalWeight}
-          metrics={metrics}
-          isVisible={showAISuggestions}
-          onClose={() => setShowAISuggestions(false)}
-        />
 
         <div
           id="okr-drawer-key-results-container"
