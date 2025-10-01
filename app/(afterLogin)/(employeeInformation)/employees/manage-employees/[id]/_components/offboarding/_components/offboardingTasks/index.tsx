@@ -261,7 +261,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       {/* Hidden certificate template for PDF generation */}
       <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
         <CertificateContent
-          employeeData={employeeData}
           offboardingTasks={offboardingTasks}
         />
       </div>

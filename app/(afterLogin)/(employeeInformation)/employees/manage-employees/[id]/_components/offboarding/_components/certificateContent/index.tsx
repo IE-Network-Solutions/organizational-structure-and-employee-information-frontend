@@ -5,13 +5,11 @@ import { useGetTenantDetailsForCertificate } from '@/store/server/features/tenan
 import TitleCard from '@/components/common/titleCard';
 
 interface CertificateContentProps {
-    employeeData?: any;
-    offboardingTasks?: any[];
+  offboardingTasks?: any[];
 }
 
 const CertificateContent: React.FC<CertificateContentProps> = ({
-    employeeData,
-    offboardingTasks = [],
+  offboardingTasks = [],
 }) => {
     const { data: tenantData } = useGetTenantDetailsForCertificate();
 
@@ -56,21 +54,20 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                             className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
                         >
                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-300">
+                                <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border border-gray-300">
                                     {task.approver?.profilePicture || task.approver?.profileImage || task.approver?.avatar ? (
                                         <Image
                                             src={task.approver.profilePicture || task.approver.profileImage || task.approver.avatar}
                                             alt={`${task.approver?.firstName || 'Approver'} ${task.approver?.lastName || ''}`}
-                                            width={40}
-                                            height={40}
+                                            width={24}
+                                            height={24}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
-                                                console.log('Image load error:', e);
                                                 e.currentTarget.style.display = 'none';
                                             }}
                                         />
                                     ) : (
-                                        <div className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-sm border border-gray-300">
+                                        <div className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-xs border border-gray-300">
                                             {`${task.approver?.firstName?.[0] || 'A'}${task.approver?.lastName?.[0] || 'P'}`.toUpperCase()}
                                         </div>
                                     )}
@@ -89,7 +86,7 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                 {/* Completion Statement */}
                 <div className="text-center py-6">
                     <p className="text-xl font-bold text-gray-800 mb-2">
-                        Successfully Completed these <span className=" text-blue px-2 py-1 rounded">Off Boarding Process's on</span>
+                            Successfully Completed these <span className=" text-blue px-2 py-1 rounded">Off Boarding Process&apos;s on</span>
                     </p>
                     <p className="text-lg text-gray-700">
                         Award Date: {currentDate}
