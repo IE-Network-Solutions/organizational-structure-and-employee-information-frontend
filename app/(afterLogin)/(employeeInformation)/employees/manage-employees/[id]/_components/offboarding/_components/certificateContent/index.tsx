@@ -5,11 +5,11 @@ import { useGetTenantDetailsForCertificate } from '@/store/server/features/tenan
 import TitleCard from '@/components/common/titleCard';
 
 interface CertificateContentProps {
-  offboardingTasks?: any[];
+    offboardingTasks?: any[];
 }
 
 const CertificateContent: React.FC<CertificateContentProps> = ({
-  offboardingTasks = [],
+    offboardingTasks = [],
 }) => {
     const { data: tenantData } = useGetTenantDetailsForCertificate();
 
@@ -27,10 +27,11 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
             className="relative w-full bg-white overflow-auto"
             style={{
                 backgroundImage: `url('/login-background.png')`,
-                backgroundSize: 'cover',
+                backgroundSize: '100% 100%',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                minHeight: '600px',
+                minHeight: '100vh',
+                width: '100%',
             }}
         >
             {/* Header */}
@@ -53,27 +54,27 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                             key={task.id || index}
                             className="bg-white rounded-lg shadow-sm p-2 border border-gray-200"
                         >
-                            <div className="flex items-center space-x-2">
-                                <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 border border-gray-300">
-                                    {task.approver?.profilePicture || task.approver?.profileImage || task.approver?.avatar ? (
-                                        <Image
-                                            src={task.approver.profilePicture || task.approver.profileImage || task.approver.avatar}
-                                            alt={`${task.approver?.firstName || 'Approver'} ${task.approver?.lastName || ''}`}
-                                            width={20}
-                                            height={20}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                            }}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-xs border border-gray-300 leading-none">
-                                            {`${task.approver?.firstName?.[0] || 'A'}${task.approver?.lastName?.[0] || 'P'}`.toUpperCase()}
-                                        </div>
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="font-medium text-gray-800 text-xs">{task.title}</p>
+                            <div>
+                                <p className="font-medium text-gray-800 text-xs mb-2">{task.title}</p>
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 border border-gray-300">
+                                        {task.approver?.profilePicture || task.approver?.profileImage || task.approver?.avatar ? (
+                                            <Image
+                                                src={task.approver.profilePicture || task.approver.profileImage || task.approver.avatar}
+                                                alt={`${task.approver?.firstName || 'Approver'} ${task.approver?.lastName || ''}`}
+                                                width={20}
+                                                height={20}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-xs border border-gray-300 leading-none">
+                                                {`${task.approver?.firstName?.[0] || 'A'}${task.approver?.lastName?.[0] || 'P'}`.toUpperCase()}
+                                            </div>
+                                        )}
+                                    </div>
                                     <p className="text-xs text-gray-500">
                                         {`${task.approver?.firstName || ''} ${task.approver?.middleName || ''} ${task.approver?.lastName || ''}`.trim()}
                                     </p>
@@ -86,7 +87,7 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                 {/* Completion Statement */}
                 <div className="text-center py-0">
                     <p className="text-xl font-bold text-gray-800 mb-0">
-                            Successfully Completed these <span className=" text-blue px-2 py-1 rounded">Off Boarding Process&apos;s on</span>
+                        Successfully Completed these <span className=" text-blue px-2 py-1 rounded">Off Boarding Process&apos;s on</span>
                     </p>
                     <p className="text-lg text-gray-700">
                         Award Date: {currentDate}
