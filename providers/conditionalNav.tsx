@@ -1,6 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import Nav from '@/components/navBar';
+import ChatBotButton from '@/components/ai/ChatBotButton';
 import React from 'react';
 
 /**
@@ -27,8 +28,19 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
     '/job/[tenantID]/[jobId]',
   ];
 
+  const shouldShowChatBot = !excludeNavPaths.includes(pathname);
+
   return (
-    <>{excludeNavPaths.includes(pathname) ? children : <Nav>{children}</Nav>}</>
+    <>
+      {excludeNavPaths.includes(pathname) ? (
+        children
+      ) : (
+        <>
+          <Nav>{children}</Nav>
+          {shouldShowChatBot && <ChatBotButton />}
+        </>
+      )}
+    </>
   );
 };
 

@@ -55,7 +55,7 @@ export const useOKRStore = create<OKRState>()(
     setObjectiveId: (objectiveId: string) => set({ objectiveId }),
 
     // Add key result to objective
-    addKeyResult: (keyType = 'Milestone', metricTypeId = '') =>
+    addKeyResult: (keyType = 'Milestone', metricTypeId = '', suggestion?: any) =>
       set((state) => ({
         objective: {
           ...state.objective,
@@ -64,11 +64,11 @@ export const useOKRStore = create<OKRState>()(
             {
               key_type: keyType,
               metricTypeId: metricTypeId,
-              title: '',
-              weight: 0,
+              title: suggestion?.title || '',
+              weight: suggestion?.weight || 0,
               deadline: null,
-              initialValue: 0,
-              targetValue: 0,
+              initialValue: suggestion?.initialValue || 0,
+              targetValue: suggestion?.targetValue || 0,
               milestones: [],
             },
           ],
