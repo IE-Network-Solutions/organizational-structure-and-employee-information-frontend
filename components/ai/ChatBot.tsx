@@ -15,6 +15,7 @@ import { fetchCopilotResponse, ChatContext, UserInfo, UsageInfo } from '@/utils/
 import { useChatBotStore } from '@/store/uistate/features/chatbot/chatbot';
 import { Message, Chat } from '@/store/uistate/features/chatbot/chatbot';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import AIResponseFormatter from './AIResponseFormatter';
 
 const { Text } = Typography;
 
@@ -318,10 +319,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
               justifyContent: 'center',
             }}>
               {[
+                "How to create OKR",
                 "How do I create a daily plan?",
                 "What are OKRs?",
-                "How to add team members?",
-                "Explain reporting features"
+                "How to add team members?"
               ].map((suggestion, index) => (
                 <Button
                   key={index}
@@ -350,7 +351,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                 <div
                   style={{
                     maxWidth: '75%',
-                    padding: '12px 16px',
+                    padding: message.sender === 'bot' ? '16px' : '12px 16px',
                     borderRadius: message.sender === 'user' 
                       ? '16px 16px 4px 16px' 
                       : '16px 16px 16px 4px',
@@ -369,7 +370,19 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                     wordBreak: 'break-word',
                   }}
                 >
-                  {message.text}
+                  {message.sender === 'bot' ? (
+                    <AIResponseFormatter 
+                      response={message.text} 
+                      compact={true}
+                      onActionClick={(action) => {
+                        // Handle action clicks - could navigate to different parts of the app
+                        console.log('Action clicked:', action);
+                        // You can add navigation logic here based on the action
+                      }}
+                    />
+                  ) : (
+                    message.text
+                  )}
                 </div>
                 <div
                   style={{
