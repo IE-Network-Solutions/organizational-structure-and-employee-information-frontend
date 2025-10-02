@@ -150,7 +150,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         {/* Completion Statement */}
         <div className="text-center py-6">
           <p className="text-xl font-bold text-gray-800 mb-2">
-            Successfully Completed these <span className=" text-blue px-2 py-1 rounded">Off Boarding Process&apos;s on</span>
+            Successfully Completed these <span className=" text-blue px-2 py-1 rounded">Off Boarding Process's on</span>
           </p>
           <p className="text-lg text-gray-700">
             Award Date: {currentDate}
