@@ -1,8 +1,14 @@
-import { Select, Spin } from 'antd';
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import { Select, Spin, DatePicker, Button, Pagination } from 'antd';
+import type React from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import Image from 'next/image';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
-import { useGetReporting } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { OKRDashboardStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/dashboard';
+import { CalendarOutlined, DownOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -13,6 +19,20 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { useExcelExport } from './useExcelExport';
+import {
+  useGetAllUsersAverageScoreByDate,
+  useGetUserAverageScoreByDate,
+  useGetActiveMonth,
+} from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import {
+  useGetAllUsers,
+  useEmployeeAllFilter,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 ChartJS.register(
   CategoryScale,
@@ -25,196 +45,663 @@ ChartJS.register(
 
 const Performance: React.FC = () => {
   const { userId } = useAuthenticationStore();
-  const { data: assignedPeriods } = useGetAssignedPlanningPeriodForUserId();
-  const [selectedPeriod, setSelectedPeriod] = useState('Weekly');
-  const [selectedPeriodId, setSelectedPeriodId] = useState<string | undefined>(
-    undefined,
+  const {
+    activeTab,
+    setActiveTab,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    selectedFilter,
+    setSelectedFilter,
+    searchTerm,
+    setSearchTerm,
+    personalFilter,
+    setPersonalFilter,
+    dateRange,
+    setDateRange,
+    personalDateRange,
+    setPersonalDateRange,
+  } = OKRDashboardStore();
+
+  const [isExporting, setIsExporting] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const { exportPerformanceData } = useExcelExport();
+
+  const formatDate = (date: any) => {
+    if (!date) return null;
+    return date.format('YYYY-MM-DD');
+  };
+
+  const formatScore = (score: number | null | undefined) => {
+    if (score === null || score === undefined) return '-';
+    return `${score}%`;
+  };
+
+  const startDate = dateRange?.[0] ? formatDate(dateRange[0]) : null;
+  const endDate = dateRange?.[1] ? formatDate(dateRange[1]) : null;
+  const personalStartDate = personalDateRange?.[0]
+    ? formatDate(personalDateRange[0])
+    : null;
+  const personalEndDate = personalDateRange?.[1]
+    ? formatDate(personalDateRange[1])
+    : null;
+
+  const {
+    searchParams,
+    setSearchParams,
+    pageSize: employeePageSize,
+    userCurrentPage: employeeCurrentPage,
+    setUserCurrentPage: setEmployeeCurrentPage,
+    setPageSize: setEmployeePageSize,
+  } = useEmployeeManagementStore();
+
+  const hasActiveSearchParams = Object.values(searchParams).some(
+    (value) => value && value !== '' && value !== 'after',
   );
 
-  // Find available period types for the user
-  const availablePeriods = assignedPeriods?.map(
-    (p: any) => p.planningPeriod?.name,
-  ) || ['Daily', 'Weekly', 'Monthly'];
+  const { data: filteredEmployeeData, isLoading: isLoadingEmployeeList } =
+    useEmployeeAllFilter(
+      1000,
+      1,
+      searchParams.allOffices || '',
+      searchParams.allJobs || '',
+      searchParams.employee_name || '',
+      searchParams.allStatus || '',
+      searchParams.gender || '',
+      searchParams.employmentType || '',
+      searchParams.joinedDate || '',
+      searchParams.joinedDateType || 'after',
+    );
 
-  // Find the periodId for the selected period
-  useEffect(() => {
-    if (assignedPeriods) {
-      const found = assignedPeriods.find(
-        (p: any) => p.planningPeriod?.name === selectedPeriod,
+  const { data: allEmployees, isLoading: isLoadingAllEmployees } =
+    useGetAllUsers();
+
+  const { data: activeMonth, isLoading: isLoadingActiveMonth } =
+    useGetActiveMonth();
+
+  const activeMonthStart = activeMonth?.startDate
+    ? dayjs(activeMonth.startDate).format('YYYY-MM-DD')
+    : dayjs().startOf('month').format('YYYY-MM-DD');
+  const activeMonthEnd = activeMonth?.endDate
+    ? dayjs(activeMonth.endDate).format('YYYY-MM-DD')
+    : dayjs().endOf('month').format('YYYY-MM-DD');
+
+  const { data: allUsersAverage, isLoading: isLoadingAdmin } =
+    useGetAllUsersAverageScoreByDate({
+      startDate: startDate || activeMonthStart,
+      endDate: endDate || activeMonthEnd,
+      page: currentPage,
+      limit: pageSize,
+    });
+
+  // Separate hook for Excel export with large page size
+  const { data: allUsersForExcel, refetch: refetchAllUsers } =
+    useGetAllUsersAverageScoreByDate(
+      {
+        startDate: startDate || activeMonthStart,
+        endDate: endDate || activeMonthEnd,
+        page: 1,
+        limit: 10000, // Very large limit to get all users
+      },
+      {
+        enabled: false, // Don't fetch automatically
+      },
+    );
+
+  const { data: personalAverage, isLoading: isLoadingPersonal } =
+    useGetUserAverageScoreByDate({
+      userId: userId || '',
+      startDate: personalStartDate || activeMonthStart,
+      endDate: personalEndDate || activeMonthEnd,
+    });
+
+  const { data: selectedUserAverage, isLoading: isLoadingSelectedUser } =
+    useGetUserAverageScoreByDate(
+      {
+        userId: selectedUserId || '',
+        startDate: startDate || activeMonthStart,
+        endDate: endDate || activeMonthEnd,
+      },
+      {
+        enabled: !!selectedUserId,
+      },
+    );
+
+  const { data: assignedPeriods, isLoading: isLoadingPeriods } =
+    useGetAssignedPlanningPeriodForUserId();
+
+  const allUsersForSearch = useMemo(() => {
+    const employeeData = hasActiveSearchParams
+      ? filteredEmployeeData?.items || allEmployees?.items
+      : allEmployees?.items || filteredEmployeeData?.items;
+
+    if (!employeeData || !Array.isArray(employeeData)) return [];
+
+    return employeeData.map((employee: any) => ({
+      id: employee.id,
+      name:
+        `${employee.firstName || ''} ${employee.lastName || ''}`.trim() ||
+        employee.email ||
+        `Employee ${employee.id}`,
+      profileImage: employee.profileImage,
+    }));
+  }, [allEmployees, filteredEmployeeData, hasActiveSearchParams]);
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchTerm(value || '');
+      setCurrentPage(1);
+
+      if (value) {
+        const selectedUser = allUsersForSearch.find(
+          (user: any) => user.name === value,
+        );
+        setSelectedUserId(selectedUser?.id || null);
+      } else {
+        setSelectedUserId(null);
+      }
+    },
+    [setCurrentPage, allUsersForSearch],
+  );
+
+  const handleFilterChange = useCallback((value: string) => {
+    setSelectedFilter(value);
+  }, []);
+
+  const handleDateRangeChange = useCallback((dates: [any, any] | null) => {
+    setDateRange(dates);
+  }, []);
+
+  const employees = useMemo(() => {
+    if (selectedUserId) {
+      const employee = allUsersForSearch.find(
+        (user: any) => user.id === selectedUserId,
       );
-      setSelectedPeriodId(found?.planningPeriodId);
+      return [
+        {
+          id: selectedUserId,
+          name: employee?.name || `Employee ${selectedUserId}`,
+          profileImage: employee?.profileImage || null,
+          monthly: selectedUserAverage?.monthlyAverage?.averageScore ?? null,
+          weekly: selectedUserAverage?.weeklyAverage?.averageScore ?? null,
+          daily: selectedUserAverage?.dailyAverage?.averageScore ?? null,
+        },
+      ];
     }
-  }, [assignedPeriods, selectedPeriod]);
 
-  // Fetch reporting data for the selected period
-  const { data: reportData, isLoading } = useGetReporting({
-    userId: [userId],
-    planPeriodId: selectedPeriodId ?? '',
-    pageReporting: 1,
-    pageSizeReporting: 100,
-  });
+    if (!allUsersAverage?.users || !Array.isArray(allUsersAverage.users)) {
+      return [];
+    }
 
-  // Helper to get start of week (Monday) and start/end of month
-  const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday
-
-  let filteredItems = reportData?.items || [];
-  if (selectedPeriod === 'Daily') {
-    // For daily, sort by createdAt date and take the last 5 days
-    filteredItems = filteredItems
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, 5)
-      .reverse();
-  } else if (selectedPeriod === 'Weekly') {
-    // For weekly, sort by createdAt date and take the last 4 weeks
-    filteredItems = filteredItems
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, 4)
-      .reverse();
-  } else if (selectedPeriod === 'Monthly') {
-    filteredItems = filteredItems
-      .sort(
-        (a: any, b: any) =>
-          Number(b.monthNumber || 0) - Number(a.monthNumber || 0),
-      )
-      .slice(0, 3)
-      .reverse();
-  }
-
-  // --- Bar color logic for all periods ---
-  let barColors: string[] = [];
-  if (filteredItems.length > 0) {
-    const scores = filteredItems.map((item: any) => {
-      const scoreStr = item?.reportScore || '0%%';
-      const numericScore = parseFloat(scoreStr.replace('%%', ''));
-      return isNaN(numericScore) ? 0 : numericScore;
+    const employeeMap = new Map();
+    allUsersForSearch.forEach((employee: any) => {
+      employeeMap.set(employee.id, employee);
     });
-    const max = Math.max(...scores);
-    const min = Math.min(...scores);
-    barColors = scores.map((score: number) => {
-      if (score === max) return '#4C4CFF'; // Highest Average Score
-      if (score === min) return '#E0E0FF'; // Low Average Score
-      return '#8C8CFF'; // Average Score
+
+    return allUsersAverage.users.map((perf: any) => {
+      const employee = employeeMap.get(perf.userId);
+      return {
+        id: perf.userId,
+        name: employee ? employee.name : `Employee ${perf.userId}`,
+        profileImage: employee?.profileImage || null,
+        monthly: perf?.monthlyAverage?.averageScore ?? null,
+        weekly: perf?.weeklyAverage?.averageScore ?? null,
+        daily: perf?.dailyAverage?.averageScore ?? null,
+      };
     });
-  }
+  }, [allUsersAverage, allUsersForSearch, selectedUserId, selectedUserAverage]);
 
-  const chartLabels =
-    filteredItems.map((item: any, idx: number) => {
-      if (selectedPeriod === 'Daily') {
-        // Format date as DD/MM/YYYY for daily view
-        const date = new Date(item.createdAt);
-        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  const filteredEmployees = useMemo(() => {
+    return employees.filter(
+      (employee: any) =>
+        searchTerm === '' ||
+        employee.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [employees, searchTerm]);
+
+  const paginationData = useMemo(() => {
+    if (selectedUserId) {
+      return { totalEmployees: 1, currentEmployees: employees };
+    }
+
+    const totalEmployees = allUsersAverage?.totalUsers || 0;
+    const currentEmployees = employees;
+    return { totalEmployees, currentEmployees };
+  }, [allUsersAverage, employees, selectedUserId]);
+
+  const handleExcelExport = async () => {
+    setIsExporting(true);
+    try {
+      // Fetch all users for Excel export (ignore pagination)
+      const { data: allUsersForExport } = await refetchAllUsers();
+
+      if (
+        !allUsersForExport?.users ||
+        !Array.isArray(allUsersForExport.users)
+      ) {
+        throw new Error('No data available for export');
       }
-      if (selectedPeriod === 'Weekly') {
-        // Use Week 1, Week 2, ...
-        return `Week ${idx + 1}`;
+
+      // Build employee map for all users
+      const employeeMap = new Map();
+      allUsersForSearch.forEach((employee: any) => {
+        employeeMap.set(employee.id, employee);
+      });
+
+      // Create export data with all users
+      const exportData = allUsersForExport.users.map((perf: any) => {
+        const employee = employeeMap.get(perf.userId);
+        return {
+          id: perf.userId,
+          name: employee ? employee.name : `Employee ${perf.userId}`,
+          profileImage: employee?.profileImage || null,
+          monthly: perf?.monthlyAverage?.averageScore ?? null,
+          weekly: perf?.weeklyAverage?.averageScore ?? null,
+          daily: perf?.dailyAverage?.averageScore ?? null,
+        };
+      });
+
+      // Apply search filter if there's a search term
+      const filteredExportData = searchTerm
+        ? exportData.filter((employee: any) =>
+            employee.name.toLowerCase().includes(searchTerm.toLowerCase()),
+          )
+        : exportData;
+
+      await exportPerformanceData(
+        filteredExportData,
+        'Average Performance Report',
+        selectedFilter,
+      );
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const availablePeriods = useMemo(() => {
+    if (!assignedPeriods || !Array.isArray(assignedPeriods)) return [];
+    return assignedPeriods
+      .map((period: any) => period.planningPeriod?.name)
+      .filter(Boolean);
+  }, [assignedPeriods]);
+
+  const personalData = useMemo(
+    () => ({
+      daily: personalAverage?.dailyAverage?.averageScore ?? null,
+      weekly: personalAverage?.weeklyAverage?.averageScore ?? null,
+      monthly: personalAverage?.monthlyAverage?.averageScore ?? null,
+    }),
+    [personalAverage],
+  );
+
+  const personalAvailablePeriods = useMemo(() => {
+    if (!assignedPeriods || !Array.isArray(assignedPeriods)) return [];
+
+    const periods: string[] = [];
+    assignedPeriods.forEach((period: any) => {
+      const periodName = period.planningPeriod?.name;
+      if (periodName) {
+        switch (periodName.toLowerCase()) {
+          case 'daily':
+            periods.push('Daily');
+            break;
+          case 'weekly':
+            periods.push('Weekly');
+            break;
+          case 'monthly':
+            periods.push('Monthly');
+            break;
+        }
       }
-      if (selectedPeriod === 'Monthly') return item?.monthName || '';
-      return '';
-    }) || [];
+    });
 
-  const chartScores =
-    filteredItems.map((item: any) => {
-      const scoreStr = item?.reportScore || '0%%';
-      const numericScore = parseFloat(scoreStr.replace('%%', ''));
-      return isNaN(numericScore) ? 0 : numericScore;
-    }) || [];
+    return periods;
+  }, [assignedPeriods]);
 
-  const chartData = {
-    labels: chartLabels,
+  const getPersonalChartData = () => {
+    if (personalAvailablePeriods.length === 0) {
+      return { labels: [], data: [], colors: [] };
+    }
+
+    if (personalFilter === 'All') {
+      const labels = personalAvailablePeriods;
+      const data = labels.map((period: string) => {
+        switch (period.toLowerCase()) {
+          case 'daily':
+            return personalData.daily ?? 0;
+          case 'weekly':
+            return personalData.weekly ?? 0;
+          case 'monthly':
+            return personalData.monthly ?? 0;
+          default:
+            return 0;
+        }
+      });
+      return {
+        labels,
+        data,
+        colors: labels.map(() => '#8C8CFF'),
+      };
+    }
+
+    const value =
+      personalFilter === 'Daily'
+        ? (personalData.daily ?? 0)
+        : personalFilter === 'Weekly'
+          ? (personalData.weekly ?? 0)
+          : (personalData.monthly ?? 0);
+
+    if (personalAvailablePeriods.includes(personalFilter)) {
+      return { labels: [personalFilter], data: [value], colors: ['#8C8CFF'] };
+    }
+
+    return { labels: [], data: [], colors: [] };
+  };
+
+  const { labels, data, colors } = getPersonalChartData();
+
+  const personalChartData = {
+    labels,
     datasets: [
       {
-        label: 'Score',
-        data: chartScores,
-        backgroundColor: barColors,
+        label: 'Average Performance',
+        data,
+        backgroundColor: colors,
         borderRadius: 10,
-        barThickness: 40,
+        barThickness: 50,
       },
     ],
   };
 
   const chartOptions = {
     responsive: true,
+    indexAxis: 'y' as const,
     plugins: {
       legend: { display: false },
       title: { display: false },
       tooltip: { enabled: true },
     },
     scales: {
-      y: {
+      x: {
         beginAtZero: true,
         max: 100,
-        ticks: { stepSize: 20 },
+        ticks: { stepSize: 10 },
         grid: { color: '#F0F0F0' },
       },
-      x: {
-        grid: { display: false },
-        ticks: { font: { family: 'inherit', size: 14 } },
+      y: {
+        grid: { display: true },
+        ticks: { font: { family: 'inherit', size: 18 } },
       },
     },
   };
 
-  return (
-    <div className="bg-white rounded-xl shadow-md p-6 w-full h-full min-h-[420px] flex flex-col pb-4">
-      <div className="flex justify-between items-center mb-2">
-        <div className="text-xl font-bold text-gray-800">Performance</div>
+  const AdminPageView = () => (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
         <Select
-          placeholder="Period"
-          allowClear={false}
-          className="w-28 h-9 rounded-md text-base font-normal"
-          value={selectedPeriod}
-          onChange={setSelectedPeriod}
-          dropdownStyle={{ minWidth: '100px' }}
+          showSearch
+          allowClear
+          className="w-50 rounded-lg"
+          placeholder="Search employee"
+          value={searchTerm || undefined}
+          onChange={handleSearchChange}
+          options={allUsersForSearch.map((emp: any) => ({
+            value: emp.name,
+            label: emp.name,
+          }))}
+        />
+        <DatePicker.RangePicker
+          placeholder={['From', 'To']}
+          suffixIcon={<CalendarOutlined />}
+          className="rounded-lg w-50"
+          value={dateRange}
+          onChange={handleDateRangeChange}
+        />
+        <Select
+          value={selectedFilter}
+          onChange={handleFilterChange}
+          suffixIcon={<DownOutlined />}
+          className="w-20 rounded-lg"
+          options={[
+            { value: 'All', label: 'All' },
+            { value: 'Daily', label: 'Daily' },
+            { value: 'Weekly', label: 'Weekly' },
+            { value: 'Monthly', label: 'Monthly' },
+          ]}
+        />
+        <Button
+          type="primary"
+          className="bg-blue-500 text-white rounded-lg flex items-center gap-1 h-8 px-3"
+          loading={isExporting}
+          onClick={handleExcelExport}
         >
-          {['Daily', 'Weekly', 'Monthly']
-            .filter((p) => availablePeriods.includes(p))
-            .map((period) => (
-              <Select.Option key={period} value={period}>
-                {period}
-              </Select.Option>
-            ))}
-        </Select>
+          <img
+            src="/icons/file-download.svg"
+            alt="Download"
+            className="w-3 h-6 brightness-0 invert"
+          />
+        </Button>
       </div>
-      <div className="flex-1 flex items-center justify-center">
-        {isLoading ? <Spin /> : <Bar data={chartData} options={chartOptions} />}
+
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+          <div
+            className={`grid gap-3 text-xs font-medium text-gray-600 ${selectedFilter === 'All' ? 'grid-cols-4' : 'grid-cols-2'}`}
+          >
+            <div className="text-center">Employee</div>
+            {selectedFilter === 'All' ? (
+              <>
+                <div className="text-right">Monthly</div>
+                <div className="text-right">Weekly</div>
+                <div className="text-right">Daily</div>
+              </>
+            ) : (
+              <div className="text-right">{selectedFilter}</div>
+            )}
+          </div>
+        </div>
+
+        <div className="max-h-[270px] overflow-y-auto space-y-2 p-3 hide-scrollbar">
+          {(isLoadingAllEmployees ||
+            isLoadingEmployeeList ||
+            isLoadingAdmin ||
+            isLoadingActiveMonth) &&
+          !selectedUserId ? (
+            <div className="flex justify-center items-center h-20">
+              <Spin size="default" />
+            </div>
+          ) : selectedUserId && isLoadingSelectedUser ? (
+            <div className="flex justify-center items-center h-20">
+              <Spin size="default" />
+            </div>
+          ) : paginationData.currentEmployees.length === 0 ? (
+            <div className="flex justify-center items-center h-20 text-gray-500">
+              No employees found
+            </div>
+          ) : (
+            paginationData.currentEmployees.map((employee: any) => (
+              <div
+                key={employee.id}
+                className="bg-white border border-gray-200 rounded-lg p-3"
+              >
+                <div
+                  className={`grid gap-3 items-center ${selectedFilter === 'All' ? 'grid-cols-4' : 'grid-cols-2'}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-gray-100">
+                      <Image
+                        src={employee.profileImage || Avatar}
+                        alt="Employee profile"
+                        layout="fill"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold text-gray-500">
+                        {employee.name}
+                      </span>
+                    </div>
+                  </div>
+                  {selectedFilter === 'All' ? (
+                    <>
+                      <div className="text-right">
+                        <div className="text-xs font-medium text-gray-500">
+                          {formatScore(employee.monthly)}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs font-medium text-gray-500">
+                          {formatScore(employee.weekly)}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs font-medium text-gray-500">
+                          {formatScore(employee.daily)}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-right">
+                      <div className="text-xs font-medium text-gray-500">
+                        {selectedFilter === 'Monthly'
+                          ? formatScore(employee.monthly)
+                          : selectedFilter === 'Weekly'
+                            ? formatScore(employee.weekly)
+                            : formatScore(employee.daily)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+
+          {!selectedUserId && (
+            <div className="flex justify-center pt-2">
+              <Pagination
+                current={allUsersAverage?.page || currentPage}
+                total={allUsersAverage?.totalUsers || 0}
+                pageSize={allUsersAverage?.limit || pageSize}
+                onChange={(page, size) => {
+                  setCurrentPage(page);
+                  if (size && size !== pageSize) setPageSize(size);
+                }}
+                showSizeChanger
+                pageSizeOptions={['10', '20', '50', '100']}
+                size="small"
+                className="pagination-custom"
+              />
+            </div>
+          )}
+        </div>
       </div>
-      {/* Custom Legend for all periods */}
-      <div className="flex w-full justify-between mt-6 px-8">
-        <div className="flex items-center gap-3">
-          <span
-            className="inline-block w-5 h-5 rounded-md"
-            style={{ background: '#4C4CFF' }}
-          ></span>
-          <span className="text-xs text-gray-700 font-medium">
-            Highest Average Score
-          </span>
+    </div>
+  );
+
+  const PersonalPageView = () => {
+    const filterOptions = useMemo(() => {
+      const options = [{ value: 'All', label: 'All' }];
+      personalAvailablePeriods.forEach((period: string) => {
+        options.push({ value: period, label: period });
+      });
+      return options;
+    }, [personalAvailablePeriods]);
+
+    return (
+      <div className="space-y-3">
+        <div className="flex justify-end gap-3">
+          <Select
+            value={personalFilter}
+            onChange={setPersonalFilter}
+            className="w-28 rounded-lg"
+            options={filterOptions}
+          />
+          <DatePicker.RangePicker
+            placeholder={['From', 'To']}
+            suffixIcon={<CalendarOutlined />}
+            className="rounded-lg"
+            value={personalDateRange}
+            onChange={setPersonalDateRange}
+          />
         </div>
-        <div className="flex items-center gap-3">
-          <span
-            className="inline-block w-5 h-5 rounded-md"
-            style={{ background: '#8C8CFF' }}
-          ></span>
-          <span className="text-xs text-gray-700 font-medium">
-            Average Score
-          </span>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-4 w-full">
+          {isLoadingPersonal || isLoadingActiveMonth ? (
+            <div className="flex justify-center items-center h-48">
+              <Spin />
+            </div>
+          ) : personalAvailablePeriods.length === 0 ? (
+            <div className="flex justify-center items-center h-48 text-gray-500">
+              <div className="text-center">
+                <p className="text-lg font-medium">
+                  No Performance record found
+                </p>
+              </div>
+            </div>
+          ) : (
+            <Bar data={personalChartData} options={chartOptions} />
+          )}
         </div>
-        <div className="flex items-center gap-3">
-          <span
-            className="inline-block w-5 h-5 rounded-md"
-            style={{ background: '#E0E0FF' }}
-          ></span>
-          <span className="text-xs text-gray-700 font-medium">
-            Low Average Score
-          </span>
+
+        {personalAvailablePeriods.length > 0 && (
+          <div className="flex justify-center mt-2">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <div
+                  className="w-3 h-3 rounded-sm"
+                  style={{ backgroundColor: colors[0] || '#4C4CFF' }}
+                ></div>
+                <span className="text-sm text-gray-600">
+                  Average Performance
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-md p-4 w-full flex flex-col">
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-lg font-bold text-gray-800">Performance</div>
+        <div className="flex items-center bg-[#f8f8f8] border border-gray-300 rounded-lg w-fit h-10 p-1 gap-6">
+          <AccessGuard permissions={[Permissions.ViewAllEmployeePerformance]}>
+            <button
+              onClick={() => setActiveTab('admin')}
+              className={
+                activeTab === 'admin'
+                  ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
+                  : 'px-3 h-full bg-transparent text-black text-xs'
+              }
+            >
+              Admin Page
+            </button>
+          </AccessGuard>
+          <button
+            onClick={() => setActiveTab('personal')}
+            className={
+              activeTab === 'personal'
+                ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
+                : 'px-3 h-full bg-transparent text-black text-xs'
+            }
+          >
+            Personal
+          </button>
         </div>
       </div>
+
+      {activeTab === 'admin' ? (
+        <AccessGuard permissions={[Permissions.ViewAllEmployeePerformance]}>
+          <AdminPageView />
+        </AccessGuard>
+      ) : (
+        <PersonalPageView />
+      )}
     </div>
   );
 };
