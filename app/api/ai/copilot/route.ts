@@ -6,7 +6,7 @@ const AI_API_BASE_URL = 'https://selamnew-ai.ienetworks.co';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { query, context } = body;
+    const { query, context, memory, top_k, userInfo, usage } = body;
 
     if (!query) {
       return NextResponse.json(
@@ -21,13 +21,33 @@ export async function POST(request: NextRequest) {
     // Limit context to last 10 messages to avoid token limits
     const limitedContext = contextData.slice(-10);
 
-    // Forward the request to the AI backend with context
+    // Prepare enhanced payload with copilot usage information
+    const payload = {
+      query,
+      memory: memory || [],
+      top_k: top_k || 3,
+      context: { messages: limitedContext },
+      // Include user context for personalized responses
+      userInfo: userInfo ? {
+        userId: userInfo.userId,
+        tenantId: userInfo.tenantId,
+        role: userInfo.role,
+        timestamp: new Date().toISOString()
+      } : undefined,
+      // Track copilot usage analytics
+      usage: usage ? {
+        sessionId: usage.sessionId,
+        chatId: usage.chatId,
+        messageCount: usage.messageCount,
+        feature: 'chatbot',
+        timestamp: new Date().toISOString()
+      } : undefined
+    };
+
+    // Forward the request to the AI backend with enhanced payload
     const response = await axios.post(
       `${AI_API_BASE_URL}/copilot`,
-      { 
-        query,
-        context: { messages: limitedContext }
-      },
+      payload,
       {
         headers: {
           'Content-Type': 'application/json',

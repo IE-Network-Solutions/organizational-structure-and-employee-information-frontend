@@ -11,9 +11,10 @@ import {
   MessageOutlined,
   HistoryOutlined
 } from '@ant-design/icons';
-import { fetchCopilotResponse, ChatContext } from '@/utils/aiService';
+import { fetchCopilotResponse, ChatContext, UserInfo, UsageInfo } from '@/utils/aiService';
 import { useChatBotStore } from '@/store/uistate/features/chatbot/chatbot';
 import { Message, Chat } from '@/store/uistate/features/chatbot/chatbot';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { Text } = Typography;
 
@@ -35,6 +36,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
     setIsOpen,
     clearContext,
   } = useChatBotStore();
+
+  const { userId, tenantId, userData } = useAuthenticationStore();
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +84,37 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
         })),
       };
 
-      const response = await fetchCopilotResponse(userInput, context);
+      // Prepare user information for copilot usage tracking
+      const userInfo: UserInfo = {
+        userId,
+        tenantId,
+        role: userData?.role?.slug || userData?.role?.name
+      };
+
+      // Prepare usage information for analytics
+      const usageInfo: UsageInfo = {
+        sessionId: `session_${Date.now()}`, // Generate session ID
+        chatId: currentChatId || 'unknown',
+        messageCount: messages.length + 1 // Include the current message
+      };
+
+      // Prepare memory array (can be enhanced based on chat history or user preferences)
+      const memory = messages.length > 0 ? [
+        {
+          chatHistory: messages.slice(-5).map(msg => ({
+            sender: msg.sender,
+            text: msg.text,
+            timestamp: msg.timestamp
+          }))
+        }
+      ] : [];
+
+      const response = await fetchCopilotResponse(userInput, context, {
+        memory,
+        top_k: 3,
+        userInfo,
+        usage: usageInfo
+      });
 
       // Add bot response
       addMessage({

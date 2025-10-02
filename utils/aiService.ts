@@ -111,13 +111,42 @@ export interface ChatContext {
   }>;
 }
 
-export async function fetchCopilotResponse(query: string, context?: ChatContext): Promise<string> {
+export interface UserInfo {
+  userId: string;
+  tenantId: string;
+  role?: string;
+}
+
+export interface UsageInfo {
+  sessionId?: string;
+  chatId?: string;
+  messageCount?: number;
+}
+
+export interface CopilotRequestOptions {
+  memory?: Array<Record<string, any>>;
+  top_k?: number;
+  userInfo?: UserInfo;
+  usage?: UsageInfo;
+}
+
+export async function fetchCopilotResponse(
+  query: string, 
+  context?: ChatContext, 
+  options?: CopilotRequestOptions
+): Promise<string> {
+  const payload = {
+    query,
+    context: context || { messages: [] },
+    memory: options?.memory || [],
+    top_k: options?.top_k || 3,
+    userInfo: options?.userInfo,
+    usage: options?.usage
+  };
+
   const { data } = await axios.post<CopilotResponse>(
     `${BASE_URL}/copilot`,
-    { 
-      query,
-      context: context || { messages: [] }
-    },
+    payload,
     { headers: { 'Content-Type': 'application/json' } },
   );
 
