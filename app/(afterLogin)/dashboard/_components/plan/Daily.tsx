@@ -61,13 +61,14 @@ const Daily = ({
     return Array.from(keyResultMap.entries()).map(([keyResultId, group]) => ({
       keyResultId,
       keyResult: group.keyResult,
-      parentTasks: Array.from(group.parentTasks.entries()).map(
-        ([parentTaskId, parentGroup]: [string, any]) => ({
+      parentTasks: Array.from(group.parentTasks.entries()).map((entry) => {
+        const [parentTaskId, parentGroup] = entry as [string, any];
+        return {
           parentTaskId,
           parentTask: parentGroup.parentTask,
           dailyTasks: parentGroup.dailyTasks,
-        }),
-      ),
+        };
+      }),
     }));
   }
 
