@@ -44,6 +44,7 @@ export interface KeyResult {
   initialValue: number;
   targetValue: number | string;
   milestones: Milestone[];
+  isAISuggestion?: boolean;
 }
 
 export interface Objective {
