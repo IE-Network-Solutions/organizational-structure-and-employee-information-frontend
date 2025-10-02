@@ -192,6 +192,26 @@ export const useChatBotStore = create<ChatBotState>()(
         chats: state.chats,
         currentChatId: state.currentChatId,
       }),
+      // Custom serialization to handle Date objects
+      serialize: (state) => {
+        return JSON.stringify(state);
+      },
+      // Custom deserialization to convert date strings back to Date objects
+      deserialize: (str) => {
+        const parsed = JSON.parse(str);
+        if (parsed.state?.chats) {
+          parsed.state.chats = parsed.state.chats.map((chat: any) => ({
+            ...chat,
+            createdAt: new Date(chat.createdAt),
+            updatedAt: new Date(chat.updatedAt),
+            messages: chat.messages.map((message: any) => ({
+              ...message,
+              timestamp: new Date(message.timestamp),
+            })),
+          }));
+        }
+        return parsed;
+      },
     }
   )
 );
