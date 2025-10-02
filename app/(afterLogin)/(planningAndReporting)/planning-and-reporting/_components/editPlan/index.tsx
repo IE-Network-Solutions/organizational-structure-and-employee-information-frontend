@@ -154,10 +154,24 @@ function EditPlan() {
             
             return out;
           }}
+          getWeeklyPlanTasks={() => {
+            // Only for daily plans - get all weekly plan tasks
+            if (!planningPeriodHierarchy?.parentPlan) return [];
+            
+            const tasks = planningPeriodHierarchy?.parentPlan?.plans?.find(
+              (i: any) => i?.isReported === false,
+            )?.tasks || [];
+            
+            return tasks.map((t: any) => ({
+              id: String(t?.id || ''),
+              task: t?.task || '',
+            }));
+          }}
           form={form}
           handleAddBoard={handleAddBoard}
           handleAddName={handleAddName}
           planTypeName={planningPeriodHierarchy?.name || 'Weekly'}
+          hasParentPlan={!!planningPeriodHierarchy?.parentPlan}
           resolveListNameForKR={(krId: string) => `names-${krId}`}
           resolveBoardKeyForKR={(krId: string) => krId}
         />

@@ -1,16 +1,21 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Drawer, Input, Button, Spin } from 'antd';
-import { SendOutlined, CloseOutlined } from '@ant-design/icons';
-import { fetchCopilotResponse } from '@/utils/aiService';
+import { Drawer, Input, Button, Spin, Typography, Tooltip, Dropdown, Menu } from 'antd';
+import { 
+  SendOutlined, 
+  CloseOutlined, 
+  PlusOutlined, 
+  DeleteOutlined, 
+  MoreOutlined,
+  MessageOutlined,
+  HistoryOutlined
+} from '@ant-design/icons';
+import { fetchCopilotResponse, ChatContext } from '@/utils/aiService';
+import { useChatBotStore } from '@/store/uistate/features/chatbot/chatbot';
+import { Message, Chat } from '@/store/uistate/features/chatbot/chatbot';
 
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-}
+const { Text } = Typography;
 
 interface ChatBotProps {
   open: boolean;
@@ -18,10 +23,26 @@ interface ChatBotProps {
 }
 
 const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const {
+    chats,
+    currentChatId,
+    isOpen,
+    createNewChat,
+    setCurrentChat,
+    addMessage,
+    deleteChat,
+    clearAllChats,
+    setIsOpen,
+    clearContext,
+  } = useChatBotStore();
+
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Get current chat messages
+  const currentChat = chats.find(chat => chat.id === currentChatId);
+  const messages = currentChat?.messages || [];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -31,42 +52,71 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
     scrollToBottom();
   }, [messages]);
 
+  // Create new chat when component opens
+  useEffect(() => {
+    if (open && !currentChatId) {
+      createNewChat();
+    }
+  }, [open, currentChatId, createNewChat]);
+
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
+    // Add user message
+    addMessage({
       text: inputValue,
       sender: 'user',
-      timestamp: new Date(),
-    };
+    });
 
-    setMessages((prev) => [...prev, userMessage]);
+    const userInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
     try {
-      const response = await fetchCopilotResponse(inputValue);
+      // Prepare context from current chat
+      const context: ChatContext = {
+        messages: messages.map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.text,
+        })),
+      };
 
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
+      const response = await fetchCopilotResponse(userInput, context);
+
+      // Add bot response
+      addMessage({
         text: response,
         sender: 'bot',
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, botMessage]);
+      });
     } catch (error) {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+      addMessage({
         text: 'Sorry, I encountered an error. Please try again.',
         sender: 'bot',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleNewChat = () => {
+    createNewChat();
+  };
+
+  const handleChatSelect = (chatId: string) => {
+    setCurrentChat(chatId);
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    deleteChat(chatId);
+  };
+
+  const handleClearAllChats = () => {
+    clearAllChats();
+  };
+
+  const handleClose = () => {
+    onClose();
+    setIsOpen(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -84,26 +134,91 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
     });
   };
 
+  // Chat history menu
+  const chatHistoryMenu = (
+    <Menu>
+      {chats.map((chat) => (
+        <Menu.Item key={chat.id} onClick={() => handleChatSelect(chat.id)}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ flex: 1, marginRight: '8px' }}>
+              <Text ellipsis style={{ fontSize: '12px' }}>
+                {chat.title}
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: '10px' }}>
+                {chat.messages.length} messages
+              </Text>
+            </div>
+            <Button
+              type="text"
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteChat(chat.id);
+              }}
+              style={{ color: '#ff4d4f' }}
+            />
+          </div>
+        </Menu.Item>
+      ))}
+      {chats.length > 0 && (
+        <>
+          <Menu.Divider />
+          <Menu.Item key="clear-all" onClick={handleClearAllChats}>
+            <Text type="danger">Clear All Chats</Text>
+          </Menu.Item>
+        </>
+      )}
+    </Menu>
+  );
+
   return (
     <Drawer
       title={
         <div style={{ 
-          textAlign: 'center', 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           color: '#5B4FFF',
           fontSize: '16px',
           fontWeight: 600 
         }}>
-          ChatBot
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MessageOutlined />
+            SelamNew AI
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Tooltip title="New Chat">
+              <Button
+                type="text"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={handleNewChat}
+                style={{ color: '#5B4FFF' }}
+              />
+            </Tooltip>
+            {chats.length > 0 && (
+              <Dropdown overlay={chatHistoryMenu} trigger={['click']} placement="bottomRight">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<HistoryOutlined />}
+                  style={{ color: '#5B4FFF' }}
+                />
+              </Dropdown>
+            )}
+          </div>
         </div>
       }
       placement="right"
-      onClose={onClose}
+      onClose={handleClose}
       open={open}
-      width={350}
+      width={400}
       closeIcon={<CloseOutlined style={{ color: '#5B4FFF' }} />}
       styles={{
         header: {
-          borderBottom: 'none',
+          borderBottom: '1px solid #E5E7EB',
           padding: '16px',
           background: 'linear-gradient(180deg, #F8F7FF 0%, #FFFFFF 100%)',
         },
@@ -151,38 +266,39 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                 background: 'rgba(255, 255, 255, 0.2)',
                 animation: 'pulse 2s infinite',
               }} />
-              <svg 
-                width="30" 
-                height="30" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path 
-                  d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" 
-                  fill="white"
-                />
-                <path 
-                  d="M8 10.5C8.82843 10.5 9.5 9.82843 9.5 9C9.5 8.17157 8.82843 7.5 8 7.5C7.17157 7.5 6.5 8.17157 6.5 9C6.5 9.82843 7.17157 10.5 8 10.5Z" 
-                  fill="white"
-                />
-                <path 
-                  d="M16 10.5C16.8284 10.5 17.5 9.82843 17.5 9C17.5 8.17157 16.8284 7.5 16 7.5C15.1716 7.5 14.5 8.17157 14.5 9C14.5 9.82843 15.1716 10.5 16 10.5Z" 
-                  fill="white"
-                />
-                <path 
-                  d="M12 17.5C14.33 17.5 16.31 16.04 17.11 14H15.45C14.76 15.19 13.48 16 12 16C10.52 16 9.24 15.19 8.55 14H6.89C7.69 16.04 9.67 17.5 12 17.5Z" 
-                  fill="white"
-                />
-              </svg>
+              <MessageOutlined style={{ fontSize: '24px', color: 'white' }} />
             </div>
             <div style={{
               color: '#6B7280',
               fontSize: '14px',
               lineHeight: '20px',
-              maxWidth: '250px',
+              maxWidth: '300px',
             }}>
-              Welcome to the selamnew chatbot! I am here to help you with any thing you need with the platform.
+              Welcome to SelamNew AI! I'm here to help you with anything you need on the platform. 
+              Start a conversation or ask me about planning, reporting, or any other features.
+            </div>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              justifyContent: 'center',
+            }}>
+              {[
+                "How do I create a daily plan?",
+                "What are OKRs?",
+                "How to add team members?",
+                "Explain reporting features"
+              ].map((suggestion, index) => (
+                <Button
+                  key={index}
+                  size="small"
+                  type="dashed"
+                  onClick={() => setInputValue(suggestion)}
+                  style={{ fontSize: '12px' }}
+                >
+                  {suggestion}
+                </Button>
+              ))}
             </div>
           </div>
         ) : (
@@ -271,7 +387,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask me about selamnew"
+            placeholder="Ask me about SelamNew platform..."
             autoSize={{ minRows: 1, maxRows: 4 }}
             style={{
               flex: 1,

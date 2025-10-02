@@ -6,7 +6,7 @@ const AI_API_BASE_URL = 'https://selamnew-ai.ienetworks.co';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { query } = body;
+    const { query, context } = body;
 
     if (!query) {
       return NextResponse.json(
@@ -15,10 +15,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Forward the request to the AI backend
+    // Prepare context for the AI backend
+    const contextData = context?.messages || [];
+    
+    // Limit context to last 10 messages to avoid token limits
+    const limitedContext = contextData.slice(-10);
+
+    // Forward the request to the AI backend with context
     const response = await axios.post(
       `${AI_API_BASE_URL}/copilot`,
-      { query },
+      { 
+        query,
+        context: { messages: limitedContext }
+      },
       {
         headers: {
           'Content-Type': 'application/json',
