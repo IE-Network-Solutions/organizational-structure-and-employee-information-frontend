@@ -236,31 +236,32 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                 {(() => {
                   // Get existing tasks from keyResult.tasks
                   const existingTasks = keyResult.tasks || [];
-                  
+
                   // Get AI-added tasks from form data
-                  const aiAddedTasks = form?.getFieldValue(`names-${keyResult.id}`) || [];
-                  
+                  const aiAddedTasks =
+                    form?.getFieldValue(`names-${keyResult.id}`) || [];
+
                   // Combine both lists for display
                   const allTasks = [
                     ...existingTasks.map((task: any, index: number) => ({
                       ...task,
                       isAITask: false,
-                      displayIndex: index + 1
+                      displayIndex: index + 1,
                     })),
                     ...aiAddedTasks.map((task: any, index: number) => ({
                       ...task,
                       id: `ai-${keyResult.id}-${index}`, // Generate unique ID for AI tasks
                       keyResult: { id: keyResult.id, title: keyResult.title },
                       isAITask: true,
-                      displayIndex: existingTasks.length + index + 1
-                    }))
+                      displayIndex: existingTasks.length + index + 1,
+                    })),
                   ];
-                  
+
                   return allTasks.map((task, taskIndex) => {
-                    const compositeKey = task.isAITask 
-                      ? `${keyResult.id}ai-${taskIndex}` 
+                    const compositeKey = task.isAITask
+                      ? `${keyResult.id}ai-${taskIndex}`
                       : buildKey(task?.keyResult?.id, undefined, task?.id);
-                    
+
                     return (
                       <div key={task.id} className="ml-4 mt-2">
                         <div className="flex items-center mb-2 justify-between">
@@ -309,8 +310,9 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                   disabled={
                                     statuses[keyResult?.id] ||
                                     Number(keyResult?.progress) === 100 ||
-                                    (form?.getFieldValue(`names-${compositeKey}`)
-                                      ?.length ?? 0) > 0 ||
+                                    (form?.getFieldValue(
+                                      `names-${compositeKey}`,
+                                    )?.length ?? 0) > 0 ||
                                     form
                                       ?.getFieldValue(`names-${compositeKey}`)
                                       ?.some((i: any) => i?.achieveMK)
@@ -328,7 +330,10 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                               </Tooltip>
                             )}
                             <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                              {task.isAITask ? (task.weight || 0) : (weights[`names-${compositeKey}`] || 0)}%
+                              {task.isAITask
+                                ? task.weight || 0
+                                : weights[`names-${compositeKey}`] || 0}
+                              %
                             </div>
                           </div>
                         </div>

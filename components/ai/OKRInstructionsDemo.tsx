@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Button, Space, Typography, Divider } from 'antd';
+import { Card, Button, Typography, Divider } from 'antd';
 import { PlayCircleOutlined, MessageOutlined } from '@ant-design/icons';
 import OKRInstructionsDisplay from './OKRInstructionsDisplay';
 import AIResponseFormatter from './AIResponseFormatter';
@@ -25,7 +25,8 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
           OKR Instructions Display Demo
         </Title>
         <Paragraph className="text-center text-gray-600">
-          This demo shows how backend AI responses about OKR creation are professionally formatted and displayed in the UI.
+          This demo shows how backend AI responses about OKR creation are
+          professionally formatted and displayed in the UI.
         </Paragraph>
       </div>
 
@@ -45,18 +46,18 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
           <Card title="Chat Bot Format (Compact)" className="h-fit">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
               <div className="bg-white p-4 rounded-lg shadow-sm">
-                <AIResponseFormatter 
-                  response={sampleResponse} 
+                <AIResponseFormatter
+                  response={sampleResponse}
                   compact={true}
-                  onActionClick={(action) => {
-                    console.log('Demo action clicked:', action);
+                  onActionClick={() => {
+                    // console.log('Demo action clicked');
                   }}
                 />
               </div>
             </div>
             <div className="mt-4">
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 icon={<MessageOutlined />}
                 onClick={() => setShowChatFormat(!showChatFormat)}
                 size="small"
@@ -69,8 +70,8 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
           {/* Full Display Preview */}
           <Card title="Full Display Format" className="h-fit">
             <div className="mb-4">
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 icon={<PlayCircleOutlined />}
                 onClick={() => setShowFullDisplay(!showFullDisplay)}
               >
@@ -99,11 +100,11 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
                 {/* Bot response */}
                 <div className="flex justify-start">
                   <div className="bg-white rounded-2xl rounded-bl-sm px-4 py-4 max-w-xs shadow-sm border">
-                    <AIResponseFormatter 
-                      response={sampleResponse} 
+                    <AIResponseFormatter
+                      response={sampleResponse}
                       compact={true}
-                      onActionClick={(action) => {
-                        console.log('Demo action clicked:', action);
+                      onActionClick={() => {
+                        // console.log('Demo action clicked');
                       }}
                     />
                     <p className="text-xs text-gray-500 mt-2">03:41 PM</p>
@@ -119,12 +120,14 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
       {showFullDisplay && (
         <div className="mt-6">
           <Divider />
-          <Title level={3} className="text-center mb-6">Full Display Format</Title>
+          <Title level={3} className="text-center mb-6">
+            Full Display Format
+          </Title>
           <div className="max-w-4xl mx-auto">
-            <OKRInstructionsDisplay 
+            <OKRInstructionsDisplay
               instructionText={sampleResponse}
-              onActionClick={(action) => {
-                console.log('Demo action clicked:', action);
+              onActionClick={() => {
+                // console.log('Demo action clicked');
               }}
             />
           </div>
@@ -137,24 +140,28 @@ To create an OKR, follow these steps: 1. **Go to the OKR Dashboard**: Access the
           <div>
             <Title level={4}>For Chat Bot Integration:</Title>
             <Paragraph>
-              Use <code>AIResponseFormatter</code> with <code>compact=true</code> to display AI responses 
-              in the chat interface. This provides a clean, structured view that fits well within chat bubbles.
+              Use <code>AIResponseFormatter</code> with{' '}
+              <code>compact=true</code> to display AI responses in the chat
+              interface. This provides a clean, structured view that fits well
+              within chat bubbles.
             </Paragraph>
           </div>
-          
+
           <div>
             <Title level={4}>For Full Page Display:</Title>
             <Paragraph>
-              Use <code>OKRInstructionsDisplay</code> for dedicated pages or modals where you want to show 
-              comprehensive OKR creation instructions with full formatting and action buttons.
+              Use <code>OKRInstructionsDisplay</code> for dedicated pages or
+              modals where you want to show comprehensive OKR creation
+              instructions with full formatting and action buttons.
             </Paragraph>
           </div>
 
           <div>
             <Title level={4}>Backend Integration:</Title>
             <Paragraph>
-              Both components automatically parse structured text from your backend AI responses. 
-              They look for numbered steps and format them professionally with icons and proper spacing.
+              Both components automatically parse structured text from your
+              backend AI responses. They look for numbered steps and format them
+              professionally with icons and proper spacing.
             </Paragraph>
           </div>
         </div>

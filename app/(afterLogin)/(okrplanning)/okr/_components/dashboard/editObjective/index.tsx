@@ -256,14 +256,16 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const getCurrentTotalWeight = () => {
-    const existingWeight = objectiveValue.keyResults?.reduce(
-      (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-      0,
-    ) || 0;
-    const newWeight = objective?.keyResults?.reduce(
-      (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-      0,
-    ) || 0;
+    const existingWeight =
+      objectiveValue.keyResults?.reduce(
+        (sum: number, kr: any) => sum + Number(kr?.weight || 0),
+        0,
+      ) || 0;
+    const newWeight =
+      objective?.keyResults?.reduce(
+        (sum: number, kr: any) => sum + Number(kr?.weight || 0),
+        0,
+      ) || 0;
     return existingWeight + newWeight;
   };
 
@@ -519,7 +521,11 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               type="primary"
               ghost
               onClick={() => setShowAISuggestions(!showAISuggestions)}
-              disabled={!objectiveValue?.title || objectiveValue.title.trim() === '' || isEditDisabled}
+              disabled={
+                !objectiveValue?.title ||
+                objectiveValue.title.trim() === '' ||
+                isEditDisabled
+              }
               className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
             >
               <svg

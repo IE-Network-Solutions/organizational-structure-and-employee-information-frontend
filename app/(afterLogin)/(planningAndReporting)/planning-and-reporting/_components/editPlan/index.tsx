@@ -112,7 +112,7 @@ function EditPlan() {
         <AISuggestionsModal
           getKeyResults={() => {
             const out: { id: string; title: string }[] = [];
-            
+
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from objectives
               objective?.items?.forEach((obj: any) => {
@@ -136,10 +136,11 @@ function EditPlan() {
               }
             } else {
               // Daily Plan: Use same logic as hierarchy component
-              const tasks = planningPeriodHierarchy?.parentPlan?.plans?.find(
-                (i: any) => i?.isReported === false,
-              )?.tasks || [];
-              
+              const tasks =
+                planningPeriodHierarchy?.parentPlan?.plans?.find(
+                  (i: any) => i?.isReported === false,
+                )?.tasks || [];
+
               // Group by keyResult to match the planning structure
               const seen = new Set<string>();
               tasks.forEach((t: any) => {
@@ -151,17 +152,18 @@ function EditPlan() {
                 }
               });
             }
-            
+
             return out;
           }}
           getWeeklyPlanTasks={() => {
             // Only for daily plans - get all weekly plan tasks
             if (!planningPeriodHierarchy?.parentPlan) return [];
-            
-            const tasks = planningPeriodHierarchy?.parentPlan?.plans?.find(
-              (i: any) => i?.isReported === false,
-            )?.tasks || [];
-            
+
+            const tasks =
+              planningPeriodHierarchy?.parentPlan?.plans?.find(
+                (i: any) => i?.isReported === false,
+              )?.tasks || [];
+
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',

@@ -28,22 +28,21 @@ const Daily = ({
 
       // Get parent task info (weekly plan task)
       const parentTaskId = item.parentTask?.id || item.parentTaskId;
-      const parentTaskTitle = item.parentTask?.task || item.parentTaskTitle;
 
       if (!keyResultMap.has(keyResultId)) {
         keyResultMap.set(keyResultId, {
           keyResult: item.keyResult,
-          parentTasks: new Map()
+          parentTasks: new Map(),
         });
       }
 
       const keyResultGroup = keyResultMap.get(keyResultId);
-      
+
       if (parentTaskId) {
         if (!keyResultGroup.parentTasks.has(parentTaskId)) {
           keyResultGroup.parentTasks.set(parentTaskId, {
             parentTask: item.parentTask,
-            dailyTasks: []
+            dailyTasks: [],
           });
         }
         keyResultGroup.parentTasks.get(parentTaskId).dailyTasks.push(item);
@@ -52,7 +51,7 @@ const Daily = ({
         if (!keyResultGroup.parentTasks.has('direct')) {
           keyResultGroup.parentTasks.set('direct', {
             parentTask: { id: 'direct', task: 'Direct Tasks' },
-            dailyTasks: []
+            dailyTasks: [],
           });
         }
         keyResultGroup.parentTasks.get('direct').dailyTasks.push(item);
@@ -62,11 +61,13 @@ const Daily = ({
     return Array.from(keyResultMap.entries()).map(([keyResultId, group]) => ({
       keyResultId,
       keyResult: group.keyResult,
-      parentTasks: Array.from(group.parentTasks.entries()).map(([parentTaskId, parentGroup]: [string, any]) => ({
-        parentTaskId,
-        parentTask: parentGroup.parentTask,
-        dailyTasks: parentGroup.dailyTasks
-      }))
+      parentTasks: Array.from(group.parentTasks.entries()).map(
+        ([parentTaskId, parentGroup]: [string, any]) => ({
+          parentTaskId,
+          parentTask: parentGroup.parentTask,
+          dailyTasks: parentGroup.dailyTasks,
+        }),
+      ),
     }));
   }
 
@@ -95,7 +96,7 @@ const Daily = ({
               <BsKey className="text-primary" />
               {keyResultGroup?.keyResult?.title}
             </div>
-            
+
             {/* Parent Tasks (Weekly Plan Tasks) */}
             {keyResultGroup?.parentTasks?.map((parentTaskGroup: any) => (
               <div key={parentTaskGroup?.parentTaskId} className="ml-4 mb-3">
@@ -104,7 +105,7 @@ const Daily = ({
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   {parentTaskGroup?.parentTask?.task}
                 </div>
-                
+
                 {/* Daily Tasks under this Weekly Plan Task */}
                 <div className="ml-4">
                   {parentTaskGroup?.dailyTasks?.map((dailyTask: any) => (
@@ -112,7 +113,11 @@ const Daily = ({
                       <Checkbox
                         checked={dailyTask?.status == 'pre-achieved'}
                         onChange={() =>
-                          onChange(dailyTask?.id, dailyTask?.status, activePlanPeriod?.id)
+                          onChange(
+                            dailyTask?.id,
+                            dailyTask?.status,
+                            activePlanPeriod?.id,
+                          )
                         }
                         disabled={dailyTask?.status == 'completed'}
                       >

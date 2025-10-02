@@ -1,12 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Tag, Spin, Empty } from 'antd';
-import { PlusOutlined, ThunderboltFilled, CloseOutlined } from '@ant-design/icons';
-import { fetchOKRKeyResultSuggestions, KeyResultSuggestion } from '@/utils/aiService';
+import {
+  PlusOutlined,
+  ThunderboltFilled,
+  CloseOutlined,
+} from '@ant-design/icons';
+import {
+  fetchOKRKeyResultSuggestions,
+  KeyResultSuggestion,
+} from '@/utils/aiService';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface OKRInlineSuggestionsProps {
   objectiveTitle: string;
-  addKeyResult: (keyType: string, metricTypeId: string, suggestion?: Partial<KeyResultSuggestion>) => void;
+  addKeyResult: (
+    keyType: string,
+    metricTypeId: string,
+    suggestion?: Partial<KeyResultSuggestion>,
+  ) => void;
   getCurrentTotalWeight: () => number;
   metrics: any;
   isVisible: boolean;
@@ -35,18 +46,22 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
     setLoading(true);
     try {
       const results = await fetchOKRKeyResultSuggestions(objectiveTitle);
-      
+
       // Normalize and validate weights
       if (results && results.length > 0) {
         // Convert weights to percentages (if they're decimals like 0.3, convert to 30)
-        const normalizedResults = results.map(r => ({
+        const normalizedResults = results.map((r) => ({
           ...r,
-          weight: r.weight <= 1 ? Math.round(r.weight * 100) : Math.round(r.weight),
+          weight:
+            r.weight <= 1 ? Math.round(r.weight * 100) : Math.round(r.weight),
         }));
 
         // Calculate total weight
-        const totalWeight = normalizedResults.reduce((sum, r) => sum + r.weight, 0);
-        
+        const totalWeight = normalizedResults.reduce(
+          (sum, r) => sum + r.weight,
+          0,
+        );
+
         // If weights don't sum to 100, adjust proportionally
         if (totalWeight !== 100 && totalWeight > 0) {
           const adjustedResults = normalizedResults.map((r) => {
@@ -55,9 +70,12 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
           });
 
           // Handle rounding errors - ensure total is exactly 100
-          const adjustedTotal = adjustedResults.reduce((sum, r) => sum + r.weight, 0);
+          const adjustedTotal = adjustedResults.reduce(
+            (sum, r) => sum + r.weight,
+            0,
+          );
           if (adjustedTotal !== 100 && adjustedResults.length > 0) {
-            adjustedResults[0].weight += (100 - adjustedTotal);
+            adjustedResults[0].weight += 100 - adjustedTotal;
           }
 
           setSuggestions(adjustedResults);
@@ -79,14 +97,22 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
 
   // Auto-generate suggestions when visible and objective is set
   useEffect(() => {
-    if (isVisible && objectiveTitle && objectiveTitle.trim() !== '' && suggestions.length === 0) {
+    if (
+      isVisible &&
+      objectiveTitle &&
+      objectiveTitle.trim() !== '' &&
+      suggestions.length === 0
+    ) {
       handleGenerate();
     }
   }, [isVisible, objectiveTitle, suggestions.length, handleGenerate]);
 
-  const handleAddSuggestion = (suggestion: KeyResultSuggestion, index: number) => {
+  const handleAddSuggestion = (
+    suggestion: KeyResultSuggestion,
+    index: number,
+  ) => {
     const currentTotalWeight = getCurrentTotalWeight();
-    
+
     // Check if adding this suggestion would exceed 100%
     if (currentTotalWeight + suggestion.weight > 100) {
       NotificationMessage.warning({
@@ -97,12 +123,12 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
 
     // Map metric_type from API to internal key types
     const metricTypeMapping: { [key: string]: string } = {
-      'numeric': 'Numeric',
-      'percentage': 'Percentage',
-      'currency': 'Currency',
-      'milestone': 'Milestone',
-      'achieved': 'Achieved',
-      'achieve': 'Achieved',
+      numeric: 'Numeric',
+      percentage: 'Percentage',
+      currency: 'Currency',
+      milestone: 'Milestone',
+      achieved: 'Achieved',
+      achieve: 'Achieved',
     };
 
     const normalizedMetricType = suggestion.metric_type.toLowerCase();
@@ -110,11 +136,11 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
 
     // Map internal key type to actual metric name for finding metric ID
     const metricNameMapping: { [key: string]: string } = {
-      'Milestone': 'Milestone',
-      'Currency': 'Currency',
-      'Numeric': 'Numeric',
-      'Percentage': 'Percentage',
-      'Achieved': 'Achieve',
+      Milestone: 'Milestone',
+      Currency: 'Currency',
+      Numeric: 'Numeric',
+      Percentage: 'Percentage',
+      Achieved: 'Achieve',
     };
 
     const actualMetricName = metricNameMapping[keyType] || keyType;
@@ -127,13 +153,15 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
     addKeyResult(keyType, metricTypeId, {
       title: suggestion.title,
       weight: suggestion.weight,
-      initialValue: suggestion.initial_value !== undefined ? suggestion.initial_value : 0,
-      targetValue: suggestion.target_value !== undefined ? suggestion.target_value : 100,
+      initialValue:
+        suggestion.initial_value !== undefined ? suggestion.initial_value : 0,
+      targetValue:
+        suggestion.target_value !== undefined ? suggestion.target_value : 100,
       isAISuggestion: true,
     });
 
     // Remove the suggestion from the list
-    setSuggestions(prev => prev.filter((_item, i) => i !== index));
+    setSuggestions((prev) => prev.filter((item, i) => i !== index));
 
     NotificationMessage.success({
       message: 'AI-suggested Key Result added successfully',
@@ -147,13 +175,14 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <ThunderboltFilled className="text-indigo-600" style={{ fontSize: '18px' }} />
+          <ThunderboltFilled
+            className="text-indigo-600"
+            style={{ fontSize: '18px' }}
+          />
           <span className="text-base font-semibold text-indigo-900">
             AI Key Result Suggestion
           </span>
-          <span className="text-sm text-indigo-600">
-            {objectiveTitle}
-          </span>
+          <span className="text-sm text-indigo-600">{objectiveTitle}</span>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -182,20 +211,20 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
             <Spin size="large" />
           </div>
         )}
-        
+
         {!loading && suggestions.length === 0 && (
-          <Empty 
+          <Empty
             description={
               <span className="text-sm text-gray-600">
-                {objectiveTitle && objectiveTitle.trim() !== '' 
-                  ? 'No suggestions available. Click "Regenerate" to try again.' 
+                {objectiveTitle && objectiveTitle.trim() !== ''
+                  ? 'No suggestions available. Click "Regenerate" to try again.'
                   : 'Please enter an objective title first'}
               </span>
             }
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         )}
-        
+
         {!loading && suggestions.length > 0 && (
           <div className="space-y-3">
             {suggestions.map((suggestion, idx) => (
@@ -210,33 +239,33 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
                       {suggestion.title}
                     </p>
                     <div className="flex gap-2 flex-wrap">
-                      <Tag 
+                      <Tag
                         className="rounded-full text-xs font-medium border-0 m-0"
-                        style={{ 
-                          backgroundColor: '#EEF2FF', 
+                        style={{
+                          backgroundColor: '#EEF2FF',
                           color: '#6366f1',
-                          padding: '2px 10px'
+                          padding: '2px 10px',
                         }}
                       >
                         Weight: {suggestion.weight}%
                       </Tag>
-                      <Tag 
+                      <Tag
                         className="rounded-full text-xs font-medium border-0 m-0"
-                        style={{ 
-                          backgroundColor: '#FDF4FF', 
+                        style={{
+                          backgroundColor: '#FDF4FF',
                           color: '#a855f7',
-                          padding: '2px 10px'
+                          padding: '2px 10px',
                         }}
                       >
                         Additional Stat: {suggestion.metric_type}
                       </Tag>
                       {typeof suggestion.initial_value === 'number' && (
-                        <Tag 
+                        <Tag
                           className="rounded-full text-xs font-medium border-0 m-0"
-                          style={{ 
-                            backgroundColor: '#F0FDFA', 
+                          style={{
+                            backgroundColor: '#F0FDFA',
                             color: '#14b8a6',
-                            padding: '2px 10px'
+                            padding: '2px 10px',
                           }}
                         >
                           Additional Stat: {suggestion.initial_value}%
@@ -262,7 +291,10 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
           <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center text-sm text-gray-600">
             <span>Suggested Key Results: {suggestions.length}</span>
             <span>
-              Total Weight: <strong className="text-gray-900">{suggestions.reduce((sum, s) => sum + s.weight, 0)}%</strong>
+              Total Weight:{' '}
+              <strong className="text-gray-900">
+                {suggestions.reduce((sum, s) => sum + s.weight, 0)}%
+              </strong>
             </span>
           </div>
         )}
@@ -272,5 +304,3 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
 };
 
 export default OKRInlineSuggestions;
-
-

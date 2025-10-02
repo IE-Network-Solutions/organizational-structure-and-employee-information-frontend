@@ -271,10 +271,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const getCurrentTotalWeight = () => {
-    return objective?.keyResults?.reduce(
-      (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-      0,
-    ) || 0;
+    return (
+      objective?.keyResults?.reduce(
+        (sum: number, kr: any) => sum + Number(kr?.weight || 0),
+        0,
+      ) || 0
+    );
   };
 
   const keyResultMenu = (
@@ -530,7 +532,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               type="primary"
               ghost
               onClick={() => setShowAISuggestions(!showAISuggestions)}
-              disabled={!objectiveValue?.title || objectiveValue.title.trim() === ''}
+              disabled={
+                !objectiveValue?.title || objectiveValue.title.trim() === ''
+              }
               className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
             >
               <svg

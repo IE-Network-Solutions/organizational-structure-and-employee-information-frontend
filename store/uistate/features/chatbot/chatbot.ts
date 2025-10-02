@@ -22,7 +22,7 @@ export interface ChatBotState {
   chats: Chat[];
   currentChatId: string | null;
   isOpen: boolean;
-  
+
   // Actions
   createNewChat: () => string;
   setCurrentChat: (chatId: string) => void;
@@ -31,10 +31,10 @@ export interface ChatBotState {
   deleteMessage: (messageId: string) => void;
   deleteChat: (chatId: string) => void;
   clearAllChats: () => void;
-  
+
   // UI state
   setIsOpen: (isOpen: boolean) => void;
-  
+
   // Context management
   clearContext: () => void;
 }
@@ -82,10 +82,10 @@ export const useChatBotStore = create<ChatBotState>()(
       // Add a message to the current chat
       addMessage: (messageData) => {
         const { currentChatId, chats } = get();
-        
+
         if (!currentChatId) {
           // Create a new chat if none exists
-          const newChatId = get().createNewChat();
+          get().createNewChat();
           get().addMessage(messageData);
           return;
         }
@@ -100,7 +100,7 @@ export const useChatBotStore = create<ChatBotState>()(
         const updatedChats = chats.map((chat) => {
           if (chat.id === currentChatId) {
             const updatedMessages = [...chat.messages, message];
-            
+
             // Update chat title if this is the first user message
             let updatedTitle = chat.title;
             if (message.sender === 'user' && chat.messages.length === 0) {
@@ -123,11 +123,11 @@ export const useChatBotStore = create<ChatBotState>()(
       // Update a message
       updateMessage: (messageId, updates) => {
         const { chats } = get();
-        
+
         const updatedChats = chats.map((chat) => ({
           ...chat,
           messages: chat.messages.map((message) =>
-            message.id === messageId ? { ...message, ...updates } : message
+            message.id === messageId ? { ...message, ...updates } : message,
           ),
           updatedAt: new Date(),
         }));
@@ -138,7 +138,7 @@ export const useChatBotStore = create<ChatBotState>()(
       // Delete a message
       deleteMessage: (messageId) => {
         const { chats } = get();
-        
+
         const updatedChats = chats.map((chat) => ({
           ...chat,
           messages: chat.messages.filter((message) => message.id !== messageId),
@@ -151,13 +151,16 @@ export const useChatBotStore = create<ChatBotState>()(
       // Delete a chat
       deleteChat: (chatId) => {
         const { chats, currentChatId } = get();
-        
-        const updatedChats = chats.filter((chat) => chat.id !== chatId);
-        const newCurrentChatId = currentChatId === chatId 
-          ? (updatedChats.length > 0 ? updatedChats[0].id : null)
-          : currentChatId;
 
-        set({ 
+        const updatedChats = chats.filter((chat) => chat.id !== chatId);
+        const newCurrentChatId =
+          currentChatId === chatId
+            ? updatedChats.length > 0
+              ? updatedChats[0].id
+              : null
+            : currentChatId;
+
+        set({
           chats: updatedChats,
           currentChatId: newCurrentChatId,
         });
@@ -165,7 +168,7 @@ export const useChatBotStore = create<ChatBotState>()(
 
       // Clear all chats
       clearAllChats: () => {
-        set({ 
+        set({
           chats: [],
           currentChatId: null,
         });
@@ -212,7 +215,6 @@ export const useChatBotStore = create<ChatBotState>()(
         }
         return parsed;
       },
-    }
-  )
+    },
+  ),
 );
-

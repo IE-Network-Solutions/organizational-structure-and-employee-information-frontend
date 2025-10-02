@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { Typography, Steps, Tag, Button, Divider } from 'antd';
-import { 
-  CheckCircleOutlined, 
-  UserOutlined, 
-  PlusOutlined, 
-  EditOutlined, 
+import {
+  CheckCircleOutlined,
+  UserOutlined,
+  PlusOutlined,
+  EditOutlined,
   SaveOutlined,
   BulbOutlined,
   DashboardOutlined,
-  ArrowRightOutlined
+  ArrowRightOutlined,
 } from '@ant-design/icons';
 
 const { Text, Paragraph } = Typography;
@@ -24,17 +24,22 @@ interface AIResponseFormatterProps {
 const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
   response,
   onActionClick,
-  compact = false
+  compact = false,
 }) => {
   // Check if the response contains OKR creation instructions
-  const isOKRInstructions = response.toLowerCase().includes('create an okr') || 
-                           response.toLowerCase().includes('okr') && response.includes('steps');
+  const isOKRInstructions =
+    response.toLowerCase().includes('create an okr') ||
+    (response.toLowerCase().includes('okr') && response.includes('steps'));
 
   // Parse structured content from AI response
   const parseStructuredResponse = (text: string) => {
-    const lines = text.split('\n').filter(line => line.trim());
-    const steps: Array<{ title: string; description: string; icon: React.ReactNode }> = [];
-    
+    const lines = text.split('\n').filter((line) => line.trim());
+    const steps: Array<{
+      title: string;
+      description: string;
+      icon: React.ReactNode;
+    }> = [];
+
     // Define icons for common OKR steps
     const stepIcons = [
       <DashboardOutlined key="dashboard" className="text-blue-500" />,
@@ -42,22 +47,24 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
       <PlusOutlined key="plus" className="text-purple-500" />,
       <EditOutlined key="edit" className="text-orange-500" />,
       <BulbOutlined key="bulb" className="text-yellow-500" />,
-      <SaveOutlined key="save" className="text-indigo-500" />
+      <SaveOutlined key="save" className="text-indigo-500" />,
     ];
 
     let currentStep = -1;
     let hasStructuredSteps = false;
-    
+
     for (const line of lines) {
       // Look for numbered steps with various formats
-      const stepMatch = line.match(/^\d+\.\s*\*\*(.*?)\*\*:?\s*(.*)|^\d+\.\s*(.*?):\s*(.*)|^\d+\.\s+(.*)/);
+      const stepMatch = line.match(
+        /^\d+\.\s*\*\*(.*?)\*\*:?\s*(.*)|^\d+\.\s*(.*?):\s*(.*)|^\d+\.\s+(.*)/,
+      );
       if (stepMatch) {
         hasStructuredSteps = true;
         currentStep++;
-        
+
         let stepTitle = '';
         let stepDescription = '';
-        
+
         if (stepMatch[1] && stepMatch[2]) {
           // Format: 1. **Title**: Description
           stepTitle = stepMatch[1].trim();
@@ -78,16 +85,22 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
             stepDescription = '';
           }
         }
-        
+
         steps.push({
           title: stepTitle,
           description: stepDescription,
-          icon: stepIcons[currentStep] || <CheckCircleOutlined key={currentStep} className="text-gray-500" />
+          icon: stepIcons[currentStep] || (
+            <CheckCircleOutlined key={currentStep} className="text-gray-500" />
+          ),
         });
       } else if (line.trim() && currentStep >= 0 && !line.match(/^\d+\./)) {
         // Add additional description to current step
         const cleanLine = line.replace(/\*\*/g, '').trim();
-        if (cleanLine && steps[currentStep] && !cleanLine.toLowerCase().includes('follow these steps')) {
+        if (
+          cleanLine &&
+          steps[currentStep] &&
+          !cleanLine.toLowerCase().includes('follow these steps')
+        ) {
           if (steps[currentStep].description) {
             steps[currentStep].description += ` ${cleanLine}`;
           } else {
@@ -122,10 +135,18 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
               How to Create OKR
             </Text>
             <div className="flex gap-1 mt-1">
-              <Tag color="blue" className="text-xs px-2 py-0 rounded-full border-0" style={{ fontSize: '10px' }}>
+              <Tag
+                color="blue"
+                className="text-xs px-2 py-0 rounded-full border-0"
+                style={{ fontSize: '10px' }}
+              >
                 {steps.length} Steps
               </Tag>
-              <Tag color="green" className="text-xs px-2 py-0 rounded-full border-0" style={{ fontSize: '10px' }}>
+              <Tag
+                color="green"
+                className="text-xs px-2 py-0 rounded-full border-0"
+                style={{ fontSize: '10px' }}
+              >
                 Guide
               </Tag>
             </div>
@@ -138,10 +159,11 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
             // Compact view for chat
             <div className="space-y-3">
               {steps.map((step, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-shrink-0 mt-0.5">
-                    {step.icon}
-                  </div>
+                <div
+                  key={index}
+                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="flex-shrink-0 mt-0.5">{step.icon}</div>
                   <div className="flex-1">
                     <Text strong className="text-sm text-gray-800 block mb-1">
                       {index + 1}. {step.title}
@@ -161,11 +183,13 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
               direction="vertical"
               size="small"
               className="okr-instruction-steps"
-              items={steps.map((step, index) => ({
+              items={steps.map((step) => ({
                 title: (
                   <div className="flex items-center gap-2">
                     {step.icon}
-                    <span className="font-medium text-gray-800 text-sm">{step.title}</span>
+                    <span className="font-medium text-gray-800 text-sm">
+                      {step.title}
+                    </span>
                   </div>
                 ),
                 description: step.description ? (
@@ -175,7 +199,7 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
                     </Paragraph>
                   </div>
                 ) : null,
-                status: 'wait'
+                status: 'wait',
               }))}
             />
           )}
@@ -233,8 +257,8 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
                 💡 Pro Tip
               </Text>
               <Text className="text-blue-700 text-xs leading-relaxed">
-                Make your objectives SMART (Specific, Measurable, Achievable, Relevant, Time-bound) 
-                and ensure key results are quantifiable.
+                Make your objectives SMART (Specific, Measurable, Achievable,
+                Relevant, Time-bound) and ensure key results are quantifiable.
               </Text>
             </div>
           </div>
@@ -249,8 +273,11 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({
       <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
         {response.split('\n').map((line, index) => {
           // Format bold text
-          const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-          
+          const formattedLine = line.replace(
+            /\*\*(.*?)\*\*/g,
+            '<strong>$1</strong>',
+          );
+
           return (
             <div key={index} className={line.trim() ? 'mb-2' : 'mb-1'}>
               <span dangerouslySetInnerHTML={{ __html: formattedLine }} />

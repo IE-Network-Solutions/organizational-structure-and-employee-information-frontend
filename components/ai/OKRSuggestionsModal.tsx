@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import { Button, Modal, Typography, Tag, Empty, Spin, Collapse } from 'antd';
 import { PlusOutlined, ThunderboltFilled } from '@ant-design/icons';
-import { fetchOKRKeyResultSuggestions, KeyResultSuggestion } from '@/utils/aiService';
+import {
+  fetchOKRKeyResultSuggestions,
+  KeyResultSuggestion,
+} from '@/utils/aiService';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const { Panel } = Collapse;
 
 interface OKRSuggestionsModalProps {
   objectiveTitle: string;
-  addKeyResult: (keyType: string, metricTypeId: string, suggestion?: Partial<KeyResultSuggestion>) => void;
+  addKeyResult: (
+    keyType: string,
+    metricTypeId: string,
+    suggestion?: Partial<KeyResultSuggestion>,
+  ) => void;
   getCurrentTotalWeight: () => number;
   metrics: any;
 }
@@ -34,18 +41,22 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
     setLoading(true);
     try {
       const results = await fetchOKRKeyResultSuggestions(objectiveTitle);
-      
+
       // Normalize and validate weights
       if (results && results.length > 0) {
         // Convert weights to percentages (if they're decimals like 0.3, convert to 30)
-        const normalizedResults = results.map(r => ({
+        const normalizedResults = results.map((r) => ({
           ...r,
-          weight: r.weight <= 1 ? Math.round(r.weight * 100) : Math.round(r.weight),
+          weight:
+            r.weight <= 1 ? Math.round(r.weight * 100) : Math.round(r.weight),
         }));
 
         // Calculate total weight
-        const totalWeight = normalizedResults.reduce((sum, r) => sum + r.weight, 0);
-        
+        const totalWeight = normalizedResults.reduce(
+          (sum, r) => sum + r.weight,
+          0,
+        );
+
         // If weights don't sum to 100, adjust proportionally
         if (totalWeight !== 100 && totalWeight > 0) {
           const adjustedResults = normalizedResults.map((r) => {
@@ -54,9 +65,12 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
           });
 
           // Handle rounding errors - ensure total is exactly 100
-          const adjustedTotal = adjustedResults.reduce((sum, r) => sum + r.weight, 0);
+          const adjustedTotal = adjustedResults.reduce(
+            (sum, r) => sum + r.weight,
+            0,
+          );
           if (adjustedTotal !== 100 && adjustedResults.length > 0) {
-            adjustedResults[0].weight += (100 - adjustedTotal);
+            adjustedResults[0].weight += 100 - adjustedTotal;
           }
 
           setSuggestions(adjustedResults);
@@ -76,9 +90,12 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
     }
   };
 
-  const handleAddSuggestion = (suggestion: KeyResultSuggestion, index: number) => {
+  const handleAddSuggestion = (
+    suggestion: KeyResultSuggestion,
+    index: number,
+  ) => {
     const currentTotalWeight = getCurrentTotalWeight();
-    
+
     // Check if adding this suggestion would exceed 100%
     if (currentTotalWeight + suggestion.weight > 100) {
       NotificationMessage.warning({
@@ -89,12 +106,12 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
 
     // Map metric_type from API to internal key types
     const metricTypeMapping: { [key: string]: string } = {
-      'numeric': 'Numeric',
-      'percentage': 'Percentage',
-      'currency': 'Currency',
-      'milestone': 'Milestone',
-      'achieved': 'Achieved',
-      'achieve': 'Achieved',
+      numeric: 'Numeric',
+      percentage: 'Percentage',
+      currency: 'Currency',
+      milestone: 'Milestone',
+      achieved: 'Achieved',
+      achieve: 'Achieved',
     };
 
     const normalizedMetricType = suggestion.metric_type.toLowerCase();
@@ -102,11 +119,11 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
 
     // Map internal key type to actual metric name for finding metric ID
     const metricNameMapping: { [key: string]: string } = {
-      'Milestone': 'Milestone',
-      'Currency': 'Currency',
-      'Numeric': 'Numeric',
-      'Percentage': 'Percentage',
-      'Achieved': 'Achieve',
+      Milestone: 'Milestone',
+      Currency: 'Currency',
+      Numeric: 'Numeric',
+      Percentage: 'Percentage',
+      Achieved: 'Achieve',
     };
 
     const actualMetricName = metricNameMapping[keyType] || keyType;
@@ -119,19 +136,21 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
     addKeyResult(keyType, metricTypeId, {
       title: suggestion.title,
       weight: suggestion.weight,
-      initialValue: suggestion.initial_value !== undefined ? suggestion.initial_value : 0,
-      targetValue: suggestion.target_value !== undefined ? suggestion.target_value : 100,
+      initialValue:
+        suggestion.initial_value !== undefined ? suggestion.initial_value : 0,
+      targetValue:
+        suggestion.target_value !== undefined ? suggestion.target_value : 100,
       isAISuggestion: true, // Flag to show AI indicator
     });
 
     // Remove the suggestion from the list
-    setSuggestions(prev => prev.filter((_item, i) => i !== index));
+    setSuggestions((prev) => prev.filter((item, i) => i !== index));
 
     NotificationMessage.success({
       message: '✨ AI-suggested Key Result added successfully',
       description: 'All fields have been auto-filled from the suggestion.',
     });
-    
+
     // Close modal after adding
     setOpen(false);
   };
@@ -139,16 +158,20 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
   const handleOpen = () => {
     setOpen(true);
     // Auto-generate on open if objective is set and no suggestions yet
-    if (objectiveTitle && objectiveTitle.trim() !== '' && suggestions.length === 0) {
+    if (
+      objectiveTitle &&
+      objectiveTitle.trim() !== '' &&
+      suggestions.length === 0
+    ) {
       setTimeout(() => handleGenerate(), 300);
     }
   };
 
   return (
     <>
-      <Button 
-        type="primary" 
-        ghost 
+      <Button
+        type="primary"
+        ghost
         onClick={handleOpen}
         disabled={!objectiveTitle || objectiveTitle.trim() === ''}
         icon={<ThunderboltFilled />}
@@ -160,7 +183,9 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
         title={
           <div className="flex items-center gap-2">
             <ThunderboltFilled className="text-indigo-600 text-lg" />
-            <span className="text-base font-semibold">AI Key Result Suggestions</span>
+            <span className="text-base font-semibold">
+              AI Key Result Suggestions
+            </span>
           </div>
         }
         open={open}
@@ -174,9 +199,9 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
               <div className="text-sm text-gray-600 mb-1">Objective:</div>
               <div className="text-base font-medium">{objectiveTitle}</div>
             </div>
-            <Button 
-              loading={loading} 
-              type="primary" 
+            <Button
+              loading={loading}
+              type="primary"
               onClick={handleGenerate}
               disabled={!objectiveTitle || objectiveTitle.trim() === ''}
             >
@@ -194,21 +219,21 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
               <Spin size="large" />
             </div>
           )}
-          
+
           {!loading && suggestions.length === 0 && (
-            <Empty 
+            <Empty
               description={
                 <span className="text-xs">
-                  {objectiveTitle && objectiveTitle.trim() !== '' 
-                    ? 'Click "Generate" to get AI suggestions' 
+                  {objectiveTitle && objectiveTitle.trim() !== ''
+                    ? 'Click "Generate" to get AI suggestions'
                     : 'Please enter an objective title first'}
                 </span>
-              } 
+              }
             />
           )}
-          
+
           {!loading && suggestions.length > 0 && (
-            <Collapse 
+            <Collapse
               accordion={false}
               bordered={false}
               className="ai-suggestions-accordion"
@@ -219,9 +244,15 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
                 <Panel
                   key={idx}
                   header={
-                    <div className="flex items-center justify-between w-full" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="flex items-center justify-between w-full"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex items-center gap-2">
-                        <ThunderboltFilled className="text-[#6366f1]" style={{ fontSize: '16px' }} />
+                        <ThunderboltFilled
+                          className="text-[#6366f1]"
+                          style={{ fontSize: '16px' }}
+                        />
                         <span className="text-sm font-medium text-gray-700">
                           AI Key Result Suggestion
                         </span>
@@ -235,13 +266,17 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
                           handleAddSuggestion(suggestion, idx);
                         }}
                         className="bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none"
-                        style={{ fontSize: '12px', height: '28px', padding: '0 12px' }}
+                        style={{
+                          fontSize: '12px',
+                          height: '28px',
+                          padding: '0 12px',
+                        }}
                       />
                     </div>
                   }
                   className="mb-3 border border-[#e5e7eb] rounded-lg overflow-hidden"
-                  style={{ 
-                    backgroundColor: '#ffffff'
+                  style={{
+                    backgroundColor: '#ffffff',
                   }}
                 >
                   <div className="bg-white px-4 pb-4 -mt-3">
@@ -249,45 +284,45 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
                       {suggestion.title}
                     </Typography.Text>
                     <div className="flex gap-2 flex-wrap">
-                      <Tag 
+                      <Tag
                         className="rounded-full text-xs font-medium border-0"
-                        style={{ 
-                          backgroundColor: '#EEF2FF', 
+                        style={{
+                          backgroundColor: '#EEF2FF',
                           color: '#6366f1',
-                          padding: '2px 10px'
+                          padding: '2px 10px',
                         }}
                       >
                         Weight: {suggestion.weight}%
                       </Tag>
-                      <Tag 
+                      <Tag
                         className="rounded-full text-xs font-medium border-0"
-                        style={{ 
-                          backgroundColor: '#FDF4FF', 
+                        style={{
+                          backgroundColor: '#FDF4FF',
                           color: '#a855f7',
-                          padding: '2px 10px'
+                          padding: '2px 10px',
                         }}
                       >
                         {suggestion.metric_type}
                       </Tag>
                       {typeof suggestion.initial_value === 'number' && (
-                        <Tag 
+                        <Tag
                           className="rounded-full text-xs font-medium border-0"
-                          style={{ 
-                            backgroundColor: '#F0FDFA', 
+                          style={{
+                            backgroundColor: '#F0FDFA',
                             color: '#14b8a6',
-                            padding: '2px 10px'
+                            padding: '2px 10px',
                           }}
                         >
                           Initial: {suggestion.initial_value}
                         </Tag>
                       )}
                       {typeof suggestion.target_value === 'number' && (
-                        <Tag 
+                        <Tag
                           className="rounded-full text-xs font-medium border-0"
-                          style={{ 
-                            backgroundColor: '#F0FDF4', 
+                          style={{
+                            backgroundColor: '#F0FDF4',
                             color: '#22c55e',
-                            padding: '2px 10px'
+                            padding: '2px 10px',
                           }}
                         >
                           Target: {suggestion.target_value}
@@ -308,7 +343,10 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
                 Suggested Key Results: {suggestions.length}
               </span>
               <span className="text-gray-600">
-                Total Weight: <strong>{suggestions.reduce((sum, s) => sum + s.weight, 0)}%</strong>
+                Total Weight:{' '}
+                <strong>
+                  {suggestions.reduce((sum, s) => sum + s.weight, 0)}%
+                </strong>
               </span>
             </div>
           </div>
@@ -319,4 +357,3 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
 };
 
 export default OKRSuggestionsModal;
-

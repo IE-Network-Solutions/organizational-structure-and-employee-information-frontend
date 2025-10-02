@@ -92,7 +92,9 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           showSearch
           filterOption={(input, option) =>
-            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
           className="w-full h-12 rounded-lg border-gray-200"
         >
@@ -111,7 +113,9 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           showSearch
           filterOption={(input, option) =>
-            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
           className="w-full h-12 rounded-lg border-gray-200"
         >
@@ -143,7 +147,9 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           showSearch
           filterOption={(input, option) =>
-            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
           className="w-full h-12 rounded-lg border-gray-200"
         >
@@ -169,17 +175,46 @@ const EmployeeSearch: React.FC = () => {
         <DatePicker
           id={`datePickerJoinedDate${searchParams.joinedDate}`}
           placeholder="Joined Date"
-          value={searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined}
+          value={
+            searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined
+          }
           onChange={handleJoinedDateChange}
           className="w-full h-12 rounded-lg border-gray-200"
           format="YYYY-MM-DD"
           allowClear
           suffixIcon={
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M2 6h12" stroke="currentColor" strokeWidth="1.5"/>
-              <text x="8" y="10" textAnchor="middle" fontSize="6" fill="currentColor">1</text>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="2"
+                y="3"
+                width="12"
+                height="10"
+                rx="1"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M5 1v4M11 1v4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path d="M2 6h12" stroke="currentColor" strokeWidth="1.5" />
+              <text
+                x="8"
+                y="10"
+                textAnchor="middle"
+                fontSize="6"
+                fill="currentColor"
+              >
+                1
+              </text>
             </svg>
           }
           renderExtraFooter={() => (
@@ -214,7 +249,7 @@ const EmployeeSearch: React.FC = () => {
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             className="bg-primary text-white px-10 py-1 rounded-lg border-none"
             onClick={() => setIsMobileFilterVisible(false)}
           >

@@ -46,33 +46,36 @@ export async function fetchDailyPlanSuggestions(weeklyPlan: string) {
   );
 
   const tasks = data?.daily_plan?.DailyTasks ?? [];
-  
+
   // Ensure daily plan tasks have weights that sum to 100
   if (tasks.length > 0) {
-    const totalWeight = tasks.reduce((sum, task) => sum + (task.weight || 0), 0);
-    
+    const totalWeight = tasks.reduce(
+      (sum, task) => sum + (task.weight || 0),
+      0,
+    );
+
     if (totalWeight > 0) {
       // Normalize weights to sum to 100
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         task.weight = Math.round((task.weight / totalWeight) * 100);
       });
-      
+
       // Adjust the last task to ensure exact sum of 100
       const adjustedTotal = tasks.reduce((sum, task) => sum + task.weight, 0);
       if (adjustedTotal !== 100 && tasks.length > 0) {
-        tasks[tasks.length - 1].weight += (100 - adjustedTotal);
+        tasks[tasks.length - 1].weight += 100 - adjustedTotal;
       }
     } else {
       // If no weights provided, distribute equally
       const equalWeight = Math.floor(100 / tasks.length);
-      const remainder = 100 - (equalWeight * tasks.length);
-      
+      const remainder = 100 - equalWeight * tasks.length;
+
       tasks.forEach((task, index) => {
         task.weight = equalWeight + (index < remainder ? 1 : 0);
       });
     }
   }
-  
+
   return tasks;
 }
 
@@ -90,7 +93,9 @@ type OKRResponse = {
   };
 };
 
-export async function fetchOKRKeyResultSuggestions(objective: string): Promise<KeyResultSuggestion[]> {
+export async function fetchOKRKeyResultSuggestions(
+  objective: string,
+): Promise<KeyResultSuggestion[]> {
   const { data } = await axios.post<OKRResponse>(
     `${BASE_URL}/okr`,
     { objective },
@@ -131,9 +136,9 @@ export interface CopilotRequestOptions {
 }
 
 export async function fetchCopilotResponse(
-  query: string, 
-  context?: ChatContext, 
-  options?: CopilotRequestOptions
+  query: string,
+  context?: ChatContext,
+  options?: CopilotRequestOptions,
 ): Promise<string> {
   const payload = {
     query,
@@ -141,7 +146,7 @@ export async function fetchCopilotResponse(
     memory: options?.memory || [],
     top_k: options?.top_k || 3,
     userInfo: options?.userInfo,
-    usage: options?.usage
+    usage: options?.usage,
   };
 
   const { data } = await axios.post<CopilotResponse>(
@@ -152,4 +157,3 @@ export async function fetchCopilotResponse(
 
   return data?.answer ?? '';
 }
-

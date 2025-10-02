@@ -9,12 +9,13 @@ import { useChatBotContextCleanup } from '@/hooks/useChatBotContextCleanup';
 
 const ChatBotButton: React.FC = () => {
   const { isOpen, setIsOpen, chats } = useChatBotStore();
-  
+
   // Initialize context cleanup
   useChatBotContextCleanup();
 
   // Count unread messages (messages in non-current chats)
-  const unreadCount = chats.filter(chat => chat.messages.length > 0).length - 1;
+  const unreadCount =
+    chats.filter((chat) => chat.messages.length > 0).length - 1;
 
   return (
     <>
@@ -42,11 +43,13 @@ const ChatBotButton: React.FC = () => {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.5)';
+            e.currentTarget.style.boxShadow =
+              '0 12px 32px rgba(102, 126, 234, 0.5)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)';
+            e.currentTarget.style.boxShadow =
+              '0 8px 24px rgba(102, 126, 234, 0.4)';
           }}
         />
       </Badge>
@@ -54,7 +57,7 @@ const ChatBotButton: React.FC = () => {
 
       <style jsx global>{`
         @media (max-width: 768px) {
-          .ant-btn-circle[style*="position: fixed"] {
+          .ant-btn-circle[style*='position: fixed'] {
             bottom: 20px !important;
             right: 20px !important;
             width: 56px !important;
@@ -67,4 +70,3 @@ const ChatBotButton: React.FC = () => {
 };
 
 export default ChatBotButton;
-

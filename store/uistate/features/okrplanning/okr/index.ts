@@ -55,7 +55,11 @@ export const useOKRStore = create<OKRState>()(
     setObjectiveId: (objectiveId: string) => set({ objectiveId }),
 
     // Add key result to objective
-    addKeyResult: (keyType = 'Milestone', metricTypeId = '', suggestion?: any) =>
+    addKeyResult: (
+      keyType = 'Milestone',
+      metricTypeId = '',
+      suggestion?: any,
+    ) =>
       set((state) => ({
         objective: {
           ...state.objective,
