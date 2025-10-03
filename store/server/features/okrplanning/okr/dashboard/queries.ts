@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { OKR_URL } from '@/utils/constants';
+import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
@@ -41,6 +41,66 @@ const getPlanningPeriods = async () => {
   return crudRequest({
     url: `${OKR_URL}/planning-periods`,
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getActiveMonth = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/month/active/month`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getAllUsersAverageScoreByDate = async (
+  startDate: string,
+  endDate: string,
+  page: number = 1,
+  limit: number = 5,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${OKR_URL}/average-score`,
+    method: 'POST',
+    data: {
+      startDate,
+      endDate,
+      page: page.toString(),
+      limit: limit.toString(),
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getUserAverageScoreByDate = async (
+  userId: string,
+  startDate: string,
+  endDate: string,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${OKR_URL}/average-score/user/${userId}`,
+    method: 'POST',
+    data: {
+      startDate,
+      endDate,
+    },
     headers: {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
@@ -116,6 +176,14 @@ export const useGetPlanningPeriods = () => {
   return useQuery('periods', getPlanningPeriods);
 };
 
+export const useGetActiveMonth = () => {
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return useQuery('activeMonth', getActiveMonth, {
+    keepPreviousData: true,
+    enabled: !!tenantId,
+  });
+};
+
 export const useGetRockStars = (planningPeriodId: string, options: any) => {
   return useQuery(
     ['rockStars', planningPeriodId],
@@ -133,6 +201,69 @@ export const useGetPerformance = (planningPeriodId: string, userId: string) => {
     () => getPerformance(planningPeriodId, userId),
     {
       keepPreviousData: true,
+    },
+  );
+};
+
+export const useGetAllUsersAverageScoreByDate = (
+  params: { startDate: string; endDate: string; page?: number; limit?: number },
+  options: any = {},
+) => {
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return useQuery(
+    [
+      'allUsersAverageScoreByDate',
+      params.startDate,
+      params.endDate,
+      params.page,
+      params.limit,
+    ],
+    () =>
+      getAllUsersAverageScoreByDate(
+        params.startDate,
+        params.endDate,
+        params.page || 1,
+        params.limit || 5,
+      ),
+    {
+      keepPreviousData: true,
+      enabled: !!tenantId && !!params.startDate && !!params.endDate,
+      ...options,
+    },
+  );
+};
+
+export const useGetUserAverageScoreByDate = (
+  params: {
+    userId: string;
+    startDate: string;
+    endDate: string;
+    page?: number;
+    limit?: number;
+  },
+  options: any = {},
+) => {
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return useQuery(
+    [
+      'userAverageScoreByDate',
+      params.userId,
+      params.startDate,
+      params.endDate,
+      params.page,
+      params.limit,
+    ],
+    () =>
+      getUserAverageScoreByDate(
+        params.userId,
+        params.startDate,
+        params.endDate,
+      ),
+    {
+      keepPreviousData: true,
+      enabled:
+        !!tenantId && !!params.userId && !!params.startDate && !!params.endDate,
+      ...options,
     },
   );
 };

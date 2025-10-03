@@ -54,6 +54,7 @@ export enum Permissions {
   UpdateAppreciationType = 'update-appreciation-type',
   DeleteAppreciationType = 'delete-appreciation-type',
   CreateOkrRule = 'create-okr-rule',
+  ViewAllEmployeePerformance = 'view-all-employee-performance',
 
   // OKR Criteria Management
   CreateVpScoringConfigurations = 'create-vp-scoring-configurations',
