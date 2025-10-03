@@ -2,7 +2,7 @@
 
 import { Select, Spin, DatePicker, Button, Pagination } from 'antd';
 import type React from 'react';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -33,6 +33,7 @@ import {
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 ChartJS.register(
   CategoryScale,
@@ -87,14 +88,7 @@ const Performance: React.FC = () => {
     ? formatDate(personalDateRange[1])
     : null;
 
-  const {
-    searchParams,
-    setSearchParams,
-    pageSize: employeePageSize,
-    userCurrentPage: employeeCurrentPage,
-    setUserCurrentPage: setEmployeeCurrentPage,
-    setPageSize: setEmployeePageSize,
-  } = useEmployeeManagementStore();
+  const { searchParams } = useEmployeeManagementStore();
 
   const hasActiveSearchParams = Object.values(searchParams).some(
     (value) => value && value !== '' && value !== 'after',
@@ -136,18 +130,17 @@ const Performance: React.FC = () => {
     });
 
   // Separate hook for Excel export with large page size
-  const { data: allUsersForExcel, refetch: refetchAllUsers } =
-    useGetAllUsersAverageScoreByDate(
-      {
-        startDate: startDate || activeMonthStart,
-        endDate: endDate || activeMonthEnd,
-        page: 1,
-        limit: 10000, // Very large limit to get all users
-      },
-      {
-        enabled: false, // Don't fetch automatically
-      },
-    );
+  const { refetch: refetchAllUsers } = useGetAllUsersAverageScoreByDate(
+    {
+      startDate: startDate || activeMonthStart,
+      endDate: endDate || activeMonthEnd,
+      page: 1,
+      limit: 10000, // Very large limit to get all users
+    },
+    {
+      enabled: false, // Don't fetch automatically
+    },
+  );
 
   const { data: personalAverage, isLoading: isLoadingPersonal } =
     useGetUserAverageScoreByDate({
@@ -168,8 +161,7 @@ const Performance: React.FC = () => {
       },
     );
 
-  const { data: assignedPeriods, isLoading: isLoadingPeriods } =
-    useGetAssignedPlanningPeriodForUserId();
+  const { data: assignedPeriods } = useGetAssignedPlanningPeriodForUserId();
 
   const allUsersForSearch = useMemo(() => {
     const employeeData = hasActiveSearchParams
@@ -252,14 +244,6 @@ const Performance: React.FC = () => {
     });
   }, [allUsersAverage, allUsersForSearch, selectedUserId, selectedUserAverage]);
 
-  const filteredEmployees = useMemo(() => {
-    return employees.filter(
-      (employee: any) =>
-        searchTerm === '' ||
-        employee.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [employees, searchTerm]);
-
   const paginationData = useMemo(() => {
     if (selectedUserId) {
       return { totalEmployees: 1, currentEmployees: employees };
@@ -315,18 +299,13 @@ const Performance: React.FC = () => {
         selectedFilter,
       );
     } catch (error) {
-      console.error('Export failed:', error);
+      NotificationMessage.error({
+        message: 'Failed to download report. Please try again.',
+      });
     } finally {
       setIsExporting(false);
     }
   };
-
-  const availablePeriods = useMemo(() => {
-    if (!assignedPeriods || !Array.isArray(assignedPeriods)) return [];
-    return assignedPeriods
-      .map((period: any) => period.planningPeriod?.name)
-      .filter(Boolean);
-  }, [assignedPeriods]);
 
   const personalData = useMemo(
     () => ({
@@ -590,7 +569,7 @@ const Performance: React.FC = () => {
                   if (size && size !== pageSize) setPageSize(size);
                 }}
                 showSizeChanger
-                pageSizeOptions={['10', '20', '50', '100']}
+                pageSizeOptions={['5', '10', '20', '50', '100']}
                 size="small"
                 className="pagination-custom"
               />

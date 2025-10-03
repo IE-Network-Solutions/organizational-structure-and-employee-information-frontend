@@ -1,3 +1,4 @@
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import * as ExcelJS from 'exceljs';
 
 interface EmployeePerformanceData {
@@ -135,8 +136,9 @@ export const useExcelExport = () => {
 
       return true;
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
-      throw error;
+      NotificationMessage.error({
+        message: 'Failed to download report. Please try again.',
+      });
     }
   };
 
