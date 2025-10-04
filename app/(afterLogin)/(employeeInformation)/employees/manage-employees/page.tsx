@@ -10,18 +10,22 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { Button, Tooltip, Popover, Input, Tag } from 'antd';
-import { IoMdSwitch } from "react-icons/io";
+import { IoMdSwitch } from 'react-icons/io';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
-import { useEmployeeBranches, useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useEmployeeBranches,
+  useEmployeeDepartments,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { BsFileEarmarkArrowDownFill } from 'react-icons/bs';
 import { CiBookmark } from 'react-icons/ci';
 import { TbLayoutList } from 'react-icons/tb';
 import { useDownloadEmployeeDataByFilter } from '@/store/server/features/employees/employeeManagment/mutations';
 const ManageEmployees: React.FC<any> = () => {
-  const { setOpen, setSearchParams, setIsMobileFilterVisible } = useEmployeeManagementStore();
+  const { setOpen, setSearchParams, setIsMobileFilterVisible } =
+    useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
   const { data: employeeStatus, isLoading } = useGetEmployeeStatus('');
@@ -67,15 +71,21 @@ const ManageEmployees: React.FC<any> = () => {
   const getFilterDisplayName = (key: string, value: string) => {
     switch (key) {
       case 'allOffices':
-        const office = EmployeeBranches?.items?.find((item: any) => item.id === value);
+        const office = EmployeeBranches?.items?.find(
+          (item: any) => item.id === value,
+        );
         return office?.name || value;
       case 'allJobs':
-        const department = EmployeeDepartment?.find((item: any) => item.id === value);
+        const department = EmployeeDepartment?.find(
+          (item: any) => item.id === value,
+        );
         return department?.name || value;
       case 'gender':
         return value.charAt(0).toUpperCase() + value.slice(1);
       case 'employmentType':
-        const employmentType = EmploymentTypes?.items?.find((item: any) => item.id === value);
+        const employmentType = EmploymentTypes?.items?.find(
+          (item: any) => item.id === value,
+        );
         return employmentType?.name || value;
       case 'allStatus':
         return value === 'null' ? 'Active' : 'Inactive';
@@ -83,7 +93,7 @@ const ManageEmployees: React.FC<any> = () => {
         return new Date(value).toLocaleDateString('en-GB', {
           day: '2-digit',
           month: 'short',
-          year: 'numeric'
+          year: 'numeric',
         });
       default:
         return value;
@@ -98,49 +108,52 @@ const ManageEmployees: React.FC<any> = () => {
   // Get active filters
   const getActiveFilters = () => {
     const activeFilters = [];
-    
+
     if (searchParams.allOffices) {
       activeFilters.push({
         key: 'allOffices',
-        label: getFilterDisplayName('allOffices', searchParams.allOffices)
+        label: getFilterDisplayName('allOffices', searchParams.allOffices),
       });
     }
-    
+
     if (searchParams.allJobs) {
       activeFilters.push({
         key: 'allJobs',
-        label: getFilterDisplayName('allJobs', searchParams.allJobs)
+        label: getFilterDisplayName('allJobs', searchParams.allJobs),
       });
     }
-    
+
     if (searchParams.gender) {
       activeFilters.push({
         key: 'gender',
-        label: getFilterDisplayName('gender', searchParams.gender)
+        label: getFilterDisplayName('gender', searchParams.gender),
       });
     }
-    
+
     if (searchParams.employmentType) {
       activeFilters.push({
         key: 'employmentType',
-        label: getFilterDisplayName('employmentType', searchParams.employmentType)
+        label: getFilterDisplayName(
+          'employmentType',
+          searchParams.employmentType,
+        ),
       });
     }
-    
+
     if (searchParams.allStatus) {
       activeFilters.push({
         key: 'allStatus',
-        label: getFilterDisplayName('allStatus', searchParams.allStatus)
+        label: getFilterDisplayName('allStatus', searchParams.allStatus),
       });
     }
-    
+
     if (searchParams.joinedDate) {
       activeFilters.push({
         key: 'joinedDate',
-        label: getFilterDisplayName('joinedDate', searchParams.joinedDate)
+        label: getFilterDisplayName('joinedDate', searchParams.joinedDate),
       });
     }
-    
+
     return activeFilters;
   };
 
@@ -234,7 +247,7 @@ const ManageEmployees: React.FC<any> = () => {
               onChange={(e) => setSearchParams('employee_name', e.target.value)}
               value={searchParams.employee_name}
             />
-            
+
             {/* Filter Tags */}
             <div className="flex items-center gap-2 flex-wrap">
               {getActiveFilters().map((filter) => (
@@ -244,21 +257,23 @@ const ManageEmployees: React.FC<any> = () => {
                   onClose={() => removeFilter(filter.key)}
                   className="bg-blue-100 border border-blue-400 text-blue-700 rounded-md px-3 py-1 flex items-center"
                   closeIcon={
-                    <span className="text-blue-700 hover:text-blue-900 ml-1">×</span>
+                    <span className="text-blue-700 hover:text-blue-900 ml-1">
+                      ×
+                    </span>
                   }
                 >
                   {filter.label}
                 </Tag>
               ))}
             </div>
-            
+
             <Button
               type="primary"
               size="large"
               className="h-12 px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center gap-2"
               onClick={() => setIsMobileFilterVisible(true)}
             >
-             <IoMdSwitch />
+              <IoMdSwitch />
               Filter
             </Button>
           </div>
