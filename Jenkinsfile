@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                        string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
+                        string(credentialsId: 'REMOTE_SERVER_TEST_LAB', variable: 'REMOTE_SERVER_TEST'),
                         string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD')
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(
@@ -19,14 +19,8 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        if (branchName.contains('develop')) {
+                        if (branchName.contains('yonas')) {
                             env.REMOTE_SERVER = REMOTE_SERVER_TEST
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                        } else if (branchName.contains('staging')) {
-                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
-                        } else if (branchName.contains('production')) {
-                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
                         }
                     }
@@ -81,8 +75,9 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
+                        // Fetch Vault secret path (defaults to env/frontend if not set)
                         env.VAULT_SECRET_PATH = sh(
-                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_SECRET_PATH ${secretsFile} | cut -d= -f2'",
+                            script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_SECRET_PATH ${secretsFile} | cut -d= -f2 || echo env/frontend'",
                             returnStdout: true
                         ).trim()
                     }
