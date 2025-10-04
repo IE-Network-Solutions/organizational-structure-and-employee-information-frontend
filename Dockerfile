@@ -31,16 +31,17 @@ RUN set -e && \
     echo "🔑 Fetching secrets from Vault..." && \
     export VAULT_ADDR=$VAULT_ADDR && \
     VAULT_TOKEN=$(vault login -method=userpass \
-        username="$VAULT_USERNAME\" \
-        password=\"$VAULT_PASSWORD\" \
+        username="$VAULT_USERNAME" \
+        password="$VAULT_PASSWORD" \
         -format=json | jq -r .auth.client_token) && \
     export VAULT_TOKEN && \
     vault kv get -format=json $VAULT_SECRET_PATH \
-    | jq -r '.data.data | to_entries[] | \"\(.key)=\(.value)"' > /tmp/.env.vault && \
+    | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > /tmp/.env.vault && \
     set -a && source /tmp/.env.vault && set +a && \
-    echo \"✅ Secrets loaded, building Next.js..." && \
+    echo "✅ Secrets loaded, building Next.js..." && \
     npm run build && \
-    echo \"PORT=${PORT:-3020}" > /tmp/.port.env && rm -f /tmp/.env.vault
+    echo "PORT=${PORT:-3020}" > /tmp/.port.env && \
+    rm -f /tmp/.env.vault
     
 
 # Stage 3: Production Runner
