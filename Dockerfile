@@ -41,7 +41,7 @@ RUN set -e && \
     echo \"✅ Secrets loaded, building Next.js..." && \
     npm run build && \
     echo \"PORT=${PORT:-3020}" > /tmp/.port.env && rm -f /tmp/.env.vault
-    )
+    
 
 # Stage 3: Production Runner
 FROM node:18-alpine AS runner
