@@ -27,7 +27,7 @@ import {
 } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import {
-  useGetAllUsers,
+  useGetActiveEmployee,
   useEmployeeAllFilter,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -109,7 +109,7 @@ const Performance: React.FC = () => {
     );
 
   const { data: allEmployees, isLoading: isLoadingAllEmployees } =
-    useGetAllUsers();
+    useGetActiveEmployee();
 
   const { data: activeMonth, isLoading: isLoadingActiveMonth } =
     useGetActiveMonth();
