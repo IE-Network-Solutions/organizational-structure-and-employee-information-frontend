@@ -565,7 +565,6 @@ function CreateReport() {
                                                       );
                                                     }
                                                   },
-
                                                 },
                                               ]}
                                             >
@@ -822,7 +821,6 @@ function CreateReport() {
                                                 ),
                                               );
                                             }
-
 
                                             const statusValue =
                                               form.getFieldValue([

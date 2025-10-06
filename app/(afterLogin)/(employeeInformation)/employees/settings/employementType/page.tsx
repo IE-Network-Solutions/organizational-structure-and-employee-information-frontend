@@ -24,16 +24,18 @@ const EmploymentType = () => {
   );
   const deleteEmployeeType = useDeleteEmployeeType() as any;
   const { isMobile, isTablet } = useIsMobile();
-  const [editingEmploymentType, setEditingEmploymentType] = React.useState<EmploymentTypeInfo | null>(null);
+  const [editingEmploymentType, setEditingEmploymentType] =
+    React.useState<EmploymentTypeInfo | null>(null);
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
-  const [employmentTypeToDelete, setEmploymentTypeToDelete] = React.useState<EmploymentTypeInfo | null>(null);
+  const [employmentTypeToDelete, setEmploymentTypeToDelete] =
+    React.useState<EmploymentTypeInfo | null>(null);
   const showDrawer = () => {
     setIsEditMode(false);
     setEditingEmploymentType(null);
     setOpen(true);
   };
-  
+
   const handleEdit = (record: EmploymentTypeInfo) => {
     setEditingEmploymentType(record);
     setIsEditMode(true);
@@ -61,7 +63,7 @@ const EmploymentType = () => {
     setDeleteModalOpen(false);
     setEmploymentTypeToDelete(null);
   };
-  
+
   const onClose = () => {
     setOpen(false);
     setIsEditMode(false);
@@ -125,8 +127,8 @@ const EmploymentType = () => {
         </div>
       </div>
 
-      <EmployementTypeSideDrawer 
-        onClose={onClose} 
+      <EmployementTypeSideDrawer
+        onClose={onClose}
         editingEmploymentType={editingEmploymentType}
         isEditMode={isEditMode}
       />
@@ -154,7 +156,9 @@ const EmploymentType = () => {
                   key: 'actions',
                   render: (record: any) => (
                     <div className="flex gap-4">
-                      <AccessGuard permissions={[Permissions.UpdateEmploymentType]}>
+                      <AccessGuard
+                        permissions={[Permissions.UpdateEmploymentType]}
+                      >
                         <button
                           className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#366CF0]"
                           onClick={() => handleEdit(record)}
@@ -163,21 +167,23 @@ const EmploymentType = () => {
                         >
                           <Pencil
                             size={15}
-                           className="text-white cursor-pointer"
+                            className="text-white cursor-pointer"
                           />
                         </button>
                       </AccessGuard>
-                      <AccessGuard permissions={[Permissions.DeleteEmploymentType]}>
+                      <AccessGuard
+                        permissions={[Permissions.DeleteEmploymentType]}
+                      >
                         <button
                           className="w-10 h-10  flex items-center justify-center rounded-xl bg-[#E03137]"
                           onClick={() => handleDelete(record)}
                           aria-label="Delete"
                           type="button"
                         >
-                          <Trash2 
-                           size={15}
-                           className="text-white cursor-pointer"
-                           />
+                          <Trash2
+                            size={15}
+                            className="text-white cursor-pointer"
+                          />
                         </button>
                       </AccessGuard>
                     </div>

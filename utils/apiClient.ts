@@ -10,9 +10,7 @@ apiClient.interceptors.request.use(async (config) => {
     return config;
   }
 
-
   if (config.data && typeof config.data === 'object') {
-
     try {
       const encryptedPayload = await encrypt(JSON.stringify(config.data));
       config.data = { data: encryptedPayload };
@@ -32,14 +30,12 @@ apiClient.interceptors.response.use(async (response) => {
     return response;
   }
 
-
   if (data?.data && typeof data.data === 'string') {
     try {
       const decryptedPayload = decrypt(data.data);
       response.data = JSON.parse(await decryptedPayload);
     } catch (err) {
       throw err;
-
     }
   }
 

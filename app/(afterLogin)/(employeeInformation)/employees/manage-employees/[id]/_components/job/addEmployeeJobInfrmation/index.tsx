@@ -11,8 +11,6 @@ import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-
-
 interface Ids {
   id?: string;
   onInfoSubmition?: () => void;
