@@ -248,16 +248,19 @@ const ManageEmployees: React.FC<any> = () => {
               value={searchParams.employee_name}
             />
 
-            {/* Filter Tags */}
-            <div className="flex items-center gap-2 flex-wrap">
+
+            <div className="flex items-center gap-2 flex-wrap bg-blue-600">
+
               {getActiveFilters().map((filter) => (
                 <Tag
                   key={filter.key}
                   closable
                   onClose={() => removeFilter(filter.key)}
-                  className="bg-blue-100 border border-blue-400 text-blue-700 rounded-md px-3 py-1 flex items-center"
+                  className="bg-white text-blue border-blue  rounded-lg px-3 py-1 flex items-center text-sm font-medium"
                   closeIcon={
-                    <span className="text-blue-700 hover:text-blue-900 ml-1">
+
+                    <span className="text-blue hover:!text-[#FF8787] ml-2 text-base">
+
                       ×
                     </span>
                   }

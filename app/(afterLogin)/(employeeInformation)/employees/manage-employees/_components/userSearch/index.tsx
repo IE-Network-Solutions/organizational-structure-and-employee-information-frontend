@@ -7,6 +7,7 @@ import { useGetEmployementTypes } from '@/store/server/features/employees/employ
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Select, DatePicker, Radio, Button } from 'antd';
 import { Modal } from 'antd';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
@@ -89,6 +90,10 @@ const EmployeeSearch: React.FC = () => {
           value={searchParams.allOffices || undefined}
           onChange={handleBranchChange}
           allowClear
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+          }
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeBranches?.items?.map((item: any) => (
@@ -104,6 +109,10 @@ const EmployeeSearch: React.FC = () => {
           value={searchParams.allJobs || undefined}
           onChange={handleDepartmentChange}
           allowClear
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+          }
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeDepartment?.map((item: any) => (
@@ -132,6 +141,10 @@ const EmployeeSearch: React.FC = () => {
           value={searchParams.employmentType || undefined}
           onChange={handleEmploymentTypeChange}
           allowClear
+          showSearch
+          filterOption={(input, option) =>
+            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+          }
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmploymentTypes?.items?.map((item: any) => (
@@ -156,11 +169,9 @@ const EmployeeSearch: React.FC = () => {
         <DatePicker
           id={`datePickerJoinedDate${searchParams.joinedDate}`}
           placeholder="Joined Date"
-          value={
-            searchParams.joinedDate
-              ? new Date(searchParams.joinedDate)
-              : undefined
-          }
+
+          value={searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined}
+
           onChange={handleJoinedDateChange}
           className="w-full h-12 rounded-lg border-gray-200"
           format="YYYY-MM-DD"
