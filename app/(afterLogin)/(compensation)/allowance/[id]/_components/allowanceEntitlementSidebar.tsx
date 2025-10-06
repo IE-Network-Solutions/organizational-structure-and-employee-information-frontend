@@ -1,12 +1,13 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Button, Form, Select, Spin } from 'antd';
+import { Button, Form, Select, Spin, Checkbox } from 'antd';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 // import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useState } from 'react';
 
 const AllowanceEntitlementSideBar = () => {
   const {
@@ -23,11 +24,15 @@ const AllowanceEntitlementSideBar = () => {
   // const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
+  const [showDepartmentLeadsOnly, setShowDepartmentLeadsOnly] = useState(false);
+  const [showNonLeadsOnly, setShowNonLeadsOnly] = useState(false);
 
   const onClose = () => {
     form.resetFields();
     resetStore();
     setSelectedDepartment(null);
+    setShowDepartmentLeadsOnly(false);
+    setShowNonLeadsOnly(false);
   };
 
   const onFormSubmit = (formValues: any) => {
@@ -38,6 +43,26 @@ const AllowanceEntitlementSideBar = () => {
     });
     onClose();
   };
+
+  // Filter users based on checkbox filters
+  const filteredUsers = allUsers?.items?.filter((user: any) => {
+    if (!showDepartmentLeadsOnly && !showNonLeadsOnly) return true;
+    
+    // Check if user is a department lead
+    const isDepartmentLead = user?.employeeJobInformation?.find(
+      (job: any) => job.isPositionActive
+    )?.departmentLeadOrNot;
+    
+    if (showDepartmentLeadsOnly) {
+      return isDepartmentLead === true;
+    }
+    
+    if (showNonLeadsOnly) {
+      return isDepartmentLead === false || isDepartmentLead === null;
+    }
+    
+    return true;
+  });
 
   // const handleDepartmentChange = (value: string) => {
   //   setSelectedDepartment(value);
@@ -121,6 +146,34 @@ const AllowanceEntitlementSideBar = () => {
               </Select>
             </Form.Item> */}
 
+            <div className="mb-4 space-y-2">
+              <Checkbox
+                checked={showDepartmentLeadsOnly}
+                onChange={(e) => {
+                  setShowDepartmentLeadsOnly(e.target.checked);
+                  if (e.target.checked) {
+                    setShowNonLeadsOnly(false);
+                  }
+                }}
+                data-testid="department-leads-filter"
+              >
+                Show Team Leads
+              </Checkbox>
+              
+              <Checkbox
+                checked={showNonLeadsOnly}
+                onChange={(e) => {
+                  setShowNonLeadsOnly(e.target.checked);
+                  if (e.target.checked) {
+                    setShowDepartmentLeadsOnly(false);
+                  }
+                }}
+                data-testid="non-leads-filter"
+              >
+                Show Subbordinates
+              </Checkbox>
+            </div>
+
             <Form.Item
               className="form-item"
               name="employees"
@@ -140,7 +193,7 @@ const AllowanceEntitlementSideBar = () => {
                     ?.toLowerCase()
                     .includes(input.toLowerCase())
                 }
-                options={allUsers?.items?.map((item: any) => ({
+                options={filteredUsers?.map((item: any) => ({
                   ...item,
                   value: item?.id,
                   label:
