@@ -22,6 +22,7 @@ interface FormField {
   fieldName: string;
   fieldType: 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
   isActive: boolean;
+  isRequired: boolean;
   options: string[];
   fieldValidation: string;
 }
@@ -29,6 +30,7 @@ interface FormField {
 const AddCustomField: React.FC<any> = ({
   formTitle,
   customEmployeeInformationForm,
+  className,
 }) => {
   const createCustomForm = useAddEmployeeInformationForm();
 
@@ -38,6 +40,7 @@ const AddCustomField: React.FC<any> = ({
     'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox'
   >('input');
   const [isActive, setIsActive] = useState(true);
+  const [isRequired, setIsRequired] = useState(false);
   const [options, setOptions] = useState<string[]>([]);
 
   const addFieldIfNotExists = (formData: any, newField: FormField) => {
@@ -72,6 +75,7 @@ const AddCustomField: React.FC<any> = ({
       fieldName: formattedFieldName,
       fieldType: values.fieldType,
       isActive: values.isActive,
+      isRequired: values.isRequired,
       fieldValidation: values.fieldValidation,
       options: values.options || [],
     };
@@ -82,8 +86,11 @@ const AddCustomField: React.FC<any> = ({
     setFieldName('');
     setFieldType('input');
     setIsActive(true);
+    setIsRequired(false);
   };
+
   const handleFormFailed = () => {};
+
   const popoverContent = (
     <div className="w-80">
       <Form
@@ -95,6 +102,7 @@ const AddCustomField: React.FC<any> = ({
         initialValues={{
           fieldType,
           isActive,
+          isRequired: false,
           options,
         }}
       >
@@ -109,6 +117,7 @@ const AddCustomField: React.FC<any> = ({
             onChange={(e) => setFieldName(e.target.value)}
           />
         </Form.Item>
+
         <Form.Item
           label="Field Type"
           name="fieldType"
@@ -130,16 +139,37 @@ const AddCustomField: React.FC<any> = ({
             <Option value="email">Email</Option>
             <Option value="date">Date</Option>
             <Option value="url">URL</Option>
-            <Option value="any">any</Option>
+            <Option value="any">Any</Option>
           </Select>
         </Form.Item>
 
-        <Form.Item label="Is Active" name="isActive" valuePropName="checked">
-          <Switch
-            checked={isActive}
-            onChange={(checked) => setIsActive(checked)}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Is Active"
+              name="isActive"
+              valuePropName="checked"
+            >
+              <Switch
+                checked={isActive}
+                onChange={(checked) => setIsActive(checked)}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Is Required"
+              name="isRequired"
+              valuePropName="checked"
+            >
+              <Switch
+                checked={isRequired}
+                onChange={(checked) => setIsRequired(checked)}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Divider />
         <Form.Item>
           <Button
@@ -156,7 +186,11 @@ const AddCustomField: React.FC<any> = ({
   );
 
   return (
-    <Card bordered={false} bodyStyle={{ padding: 0, border: 'none' }}>
+    <Card
+      bordered={false}
+      bodyStyle={{ padding: 0, border: 'none' }}
+      className={className}
+    >
       <Row gutter={16}>
         <Col xs={24} sm={24} className="flex justify-center items-center ">
           <Form.Item className="font-semibold text-xs">
