@@ -7,7 +7,6 @@ import { useCreateAllowanceEntitlement } from '@/store/server/features/compensat
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useState } from 'react';
 
 const AllowanceEntitlementSideBar = () => {
   const {
@@ -24,15 +23,11 @@ const AllowanceEntitlementSideBar = () => {
   // const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
-  const [showDepartmentLeadsOnly, setShowDepartmentLeadsOnly] = useState(false);
-  const [showNonLeadsOnly, setShowNonLeadsOnly] = useState(false);
 
   const onClose = () => {
     form.resetFields();
     resetStore();
     setSelectedDepartment(null);
-    setShowDepartmentLeadsOnly(false);
-    setShowNonLeadsOnly(false);
   };
 
   const onFormSubmit = (formValues: any) => {
@@ -44,25 +39,30 @@ const AllowanceEntitlementSideBar = () => {
     onClose();
   };
 
-  // Filter users based on checkbox filters
-  const filteredUsers = allUsers?.items?.filter((user: any) => {
-    if (!showDepartmentLeadsOnly && !showNonLeadsOnly) return true;
+  // Filter users based on checkbox filters - this will be computed in the render
+  const getFilteredUsers = () => {
+    const showDepartmentLeadsOnly = form.getFieldValue('showDepartmentLeadsOnly') || false;
+    const showNonLeadsOnly = form.getFieldValue('showNonLeadsOnly') || false;
     
-    // Check if user is a department lead
-    const isDepartmentLead = user?.employeeJobInformation?.find(
-      (job: any) => job.isPositionActive
-    )?.departmentLeadOrNot;
-    
-    if (showDepartmentLeadsOnly) {
-      return isDepartmentLead === true;
-    }
-    
-    if (showNonLeadsOnly) {
-      return isDepartmentLead === false || isDepartmentLead === null;
-    }
-    
-    return true;
-  });
+    return allUsers?.items?.filter((user: any) => {
+      if (!showDepartmentLeadsOnly && !showNonLeadsOnly) return true;
+      
+      // Check if user is a department lead
+      const isDepartmentLead = user?.employeeJobInformation?.find(
+        (job: any) => job.isPositionActive
+      )?.departmentLeadOrNot;
+      
+      if (showDepartmentLeadsOnly) {
+        return isDepartmentLead === true;
+      }
+      
+      if (showNonLeadsOnly) {
+        return isDepartmentLead === false || isDepartmentLead === null;
+      }
+      
+      return true;
+    });
+  };
 
   // const handleDepartmentChange = (value: string) => {
   //   setSelectedDepartment(value);
@@ -147,65 +147,75 @@ const AllowanceEntitlementSideBar = () => {
             </Form.Item> */}
 
             <div className="mb-4 space-y-2">
-              <Checkbox
-                checked={showDepartmentLeadsOnly}
-                onChange={(e) => {
-                  setShowDepartmentLeadsOnly(e.target.checked);
-                  if (e.target.checked) {
-                    setShowNonLeadsOnly(false);
-                  }
-                }}
-                data-testid="department-leads-filter"
-              >
-                Show Team Leads
-              </Checkbox>
+              <Form.Item name="showDepartmentLeadsOnly" valuePropName="checked" noStyle>
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      form.setFieldValue('showNonLeadsOnly', false);
+                    }
+                  }}
+                  data-testid="department-leads-filter"
+                >
+                  Show Team Leads
+                </Checkbox>
+              </Form.Item>
               
-              <Checkbox
-                checked={showNonLeadsOnly}
-                onChange={(e) => {
-                  setShowNonLeadsOnly(e.target.checked);
-                  if (e.target.checked) {
-                    setShowDepartmentLeadsOnly(false);
-                  }
-                }}
-                data-testid="non-leads-filter"
-              >
-                Show Subbordinates
-              </Checkbox>
+              <Form.Item name="showNonLeadsOnly" valuePropName="checked" noStyle>
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      form.setFieldValue('showDepartmentLeadsOnly', false);
+                    }
+                  }}
+                  data-testid="non-leads-filter"
+                >
+                  Show Subordinates
+                </Checkbox>
+              </Form.Item>
             </div>
 
             <Form.Item
-              className="form-item"
-              name="employees"
-              label="Select Employees"
-              rules={[{ required: true, message: 'Please select employees' }]}
-              data-testid="employees-form-item"
+              noStyle
+              shouldUpdate={(prevValues, currentValues) => 
+                prevValues.showDepartmentLeadsOnly !== currentValues.showDepartmentLeadsOnly ||
+                prevValues.showNonLeadsOnly !== currentValues.showNonLeadsOnly
+              }
             >
-              <Select
-                showSearch
-                placeholder="Select a person"
-                mode="multiple"
-                className="w-full h-10 mt-2"
-                allowClear
-                maxTagCount={1}
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={filteredUsers?.map((item: any) => ({
-                  ...item,
-                  value: item?.id,
-                  label:
-                    item?.firstName +
-                    ' ' +
-                    item?.middleName +
-                    ' ' +
-                    item?.lastName,
-                }))}
-                loading={allUserLoading}
-                data-testid="employees-select"
-              />
+              {() => (
+                <Form.Item
+                  className="form-item"
+                  name="employees"
+                  label="Select Employees"
+                  rules={[{ required: true, message: 'Please select employees' }]}
+                  data-testid="employees-form-item"
+                >
+                  <Select
+                    showSearch
+                    placeholder="Select a person"
+                    mode="multiple"
+                    className="w-full h-10 mt-2"
+                    allowClear
+                    maxTagCount={1}
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={getFilteredUsers()?.map((item: any) => ({
+                      ...item,
+                      value: item?.id,
+                      label:
+                        item?.firstName +
+                        ' ' +
+                        item?.middleName +
+                        ' ' +
+                        item?.lastName,
+                    }))}
+                    loading={allUserLoading}
+                    data-testid="employees-select"
+                  />
+                </Form.Item>
+              )}
             </Form.Item>
             {/* <Form.Item
               name="employees"
