@@ -1,11 +1,11 @@
 import { Col, Row } from 'antd';
 import React from 'react';
-import ActualVsTargetChart from './actualVsTarget';
+// import ActualVsTargetChart from './actualVsTarget';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useVariablePayStore } from '@/store/uistate/features/okrplanning/VP';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetCriteriaByFilter } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import CriteriaContributionChart from './criteriaContribution';
+// import CriteriaContributionChart from './criteriaContribution';
 
 interface VPGraphProps {
   id?: string;
@@ -26,7 +26,7 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
   }
 
   const activeMonthIds = getActiveSessionMonthIds(activeCalender);
-  const { data: variablePay } = useGetCriteriaByFilter(
+  useGetCriteriaByFilter(
     { activeMonthIds, userId: identifier },
     searchParams?.selectedRange || '',
   );
@@ -35,10 +35,10 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
     <div className="w-full mt-12">
       <Row gutter={[16, 16]} className="mt-4" justify="space-between">
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-          <ActualVsTargetChart variablePay={variablePay} />
+          {/* <ActualVsTargetChart variablePay={variablePay} /> */}
         </Col>
         <Col xs={24} sm={24} md={10} lg={10} xl={10}>
-          <CriteriaContributionChart variablePay={variablePay} />
+          {/* <CriteriaContributionChart variablePay={variablePay} /> */}
         </Col>
       </Row>
     </div>
