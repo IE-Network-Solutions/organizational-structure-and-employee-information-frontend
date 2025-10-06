@@ -130,7 +130,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
     if (childDepartment.length > 0 && rootDepartment?.id && orgStructureData) {
       Merge();
     }
-  }, [childDepartment, rootDepartment, orgStructureData]);
+  }, [childDepartment, rootDepartment, orgStructureData, Merge]);
 
   return (
     <Form className="pr-10" layout="vertical" form={form}>
@@ -205,7 +205,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
   const setMergeData = useMergeStore((state) => state.setMergeData);
-  const { data: employeeData, isLoading: isEmployeeLoading, error: employeeError } = useGetAllUsersToGetTeamLeads();
+  const { data: employeeData } = useGetAllUsersToGetTeamLeads();
   
 
   const {
@@ -291,6 +291,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
     teamLeader,
     orgStructureData,
     setMergeData,
+    Merge,
   ]);
 
   return (
