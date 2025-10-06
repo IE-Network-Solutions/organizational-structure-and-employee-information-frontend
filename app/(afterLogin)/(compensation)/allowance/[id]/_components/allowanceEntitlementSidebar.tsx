@@ -41,25 +41,26 @@ const AllowanceEntitlementSideBar = () => {
 
   // Filter users based on checkbox filters - this will be computed in the render
   const getFilteredUsers = () => {
-    const showDepartmentLeadsOnly = form.getFieldValue('showDepartmentLeadsOnly') || false;
+    const showDepartmentLeadsOnly =
+      form.getFieldValue('showDepartmentLeadsOnly') || false;
     const showNonLeadsOnly = form.getFieldValue('showNonLeadsOnly') || false;
-    
+
     return allUsers?.items?.filter((user: any) => {
       if (!showDepartmentLeadsOnly && !showNonLeadsOnly) return true;
-      
+
       // Check if user is a department lead
       const isDepartmentLead = user?.employeeJobInformation?.find(
-        (job: any) => job.isPositionActive
+        (job: any) => job.isPositionActive,
       )?.departmentLeadOrNot;
-      
+
       if (showDepartmentLeadsOnly) {
         return isDepartmentLead === true;
       }
-      
+
       if (showNonLeadsOnly) {
         return isDepartmentLead === false || isDepartmentLead === null;
       }
-      
+
       return true;
     });
   };
@@ -147,7 +148,11 @@ const AllowanceEntitlementSideBar = () => {
             </Form.Item> */}
 
             <div className="mb-4 space-y-2">
-              <Form.Item name="showDepartmentLeadsOnly" valuePropName="checked" noStyle>
+              <Form.Item
+                name="showDepartmentLeadsOnly"
+                valuePropName="checked"
+                noStyle
+              >
                 <Checkbox
                   onChange={(e) => {
                     if (e.target.checked) {
@@ -159,8 +164,12 @@ const AllowanceEntitlementSideBar = () => {
                   Show Team Leads
                 </Checkbox>
               </Form.Item>
-              
-              <Form.Item name="showNonLeadsOnly" valuePropName="checked" noStyle>
+
+              <Form.Item
+                name="showNonLeadsOnly"
+                valuePropName="checked"
+                noStyle
+              >
                 <Checkbox
                   onChange={(e) => {
                     if (e.target.checked) {
@@ -176,8 +185,9 @@ const AllowanceEntitlementSideBar = () => {
 
             <Form.Item
               noStyle
-              shouldUpdate={(prevValues, currentValues) => 
-                prevValues.showDepartmentLeadsOnly !== currentValues.showDepartmentLeadsOnly ||
+              shouldUpdate={(prevValues, currentValues) =>
+                prevValues.showDepartmentLeadsOnly !==
+                  currentValues.showDepartmentLeadsOnly ||
                 prevValues.showNonLeadsOnly !== currentValues.showNonLeadsOnly
               }
             >
@@ -186,7 +196,9 @@ const AllowanceEntitlementSideBar = () => {
                   className="form-item"
                   name="employees"
                   label="Select Employees"
-                  rules={[{ required: true, message: 'Please select employees' }]}
+                  rules={[
+                    { required: true, message: 'Please select employees' },
+                  ]}
                   data-testid="employees-form-item"
                 >
                   <Select

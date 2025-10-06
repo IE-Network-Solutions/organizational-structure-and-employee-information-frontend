@@ -19,7 +19,6 @@ import {
   useGetActivePayroll,
   useGetActivePayrollsForExport,
   useGetAllActiveBasicSalary,
-  useGetActivePayrollsForExport,
   useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
@@ -83,8 +82,6 @@ const Payroll = () => {
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
-  const { data: payrollForExport, refetch: refetchExportData } =
-    useGetActivePayrollsForExport(searchQuery);
 
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
@@ -96,7 +93,6 @@ const Payroll = () => {
   const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
-  const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
 
   useEffect(() => {
     // Check if division filter is applied
@@ -135,7 +131,6 @@ const Payroll = () => {
       }
     }
 
-
     // Handle non-paginated payroll data for export
     if (payrollForExport?.items) {
       let mergedExportData;
@@ -170,40 +165,6 @@ const Payroll = () => {
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
 
-
-    // Handle non-paginated payroll data for export
-    if (payrollForExport?.items) {
-      let mergedExportData;
-
-      if (hasDivisionFilter && payrollForExport?.divisionUsers) {
-        // Use division users from backend when division filter is applied
-        mergedExportData = payrollForExport?.items.map((pay: any) => {
-          const employee = payrollForExport.divisionUsers.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      } else if (allEmployees?.items) {
-        // Use all employees when no division filter is applied
-        mergedExportData = payrollForExport?.items.map((pay: any) => {
-          const employee = allEmployees.items.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      }
-
-      if (mergedExportData) {
-        setMergedPayrollForExport(mergedExportData);
-      }
-    }
-  }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
 
@@ -219,12 +180,10 @@ const Payroll = () => {
 
     if (bankLetter)
       exportTasks.push(
-
         Promise.resolve(
           handleBankLetter(
             payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
           ),
-
         ),
       );
 
@@ -449,10 +408,7 @@ const Payroll = () => {
           ?.reduce((acc: any, item: any) => {
             return acc + Number(item.amount);
           }, 0);
-
-        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
-        const taxableTransport =
-          transportAllowance >= 600 ? transportAllowance - 600 : 0;
+        const taxableTransport = transportAllowance - 600;
         const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {
@@ -713,6 +669,8 @@ const Payroll = () => {
         };
       });
 
+
+      
       const exportColumns = [
         { header: 'Employee Name', key: 'employeeName', width: 50 },
         { header: 'Employee Email', key: 'email', width: 50 },
@@ -798,8 +756,8 @@ const Payroll = () => {
     },
     {
       title: 'Taxable Transport Allowance',
-      dataIndex: 'taxableTransportAllowance',
-      key: 'taxableTransportAllowance',
+      dataIndex: 'taxableTransportAllowance', // Fixed typo in dataIndex
+      key: 'taxableTransportAllowance', // Fixed typo in key (taxabale -> taxable)
       minWidth: 150,
       render: (notused: any, record: any) => {
         const totalTransportAllowance =
@@ -809,11 +767,7 @@ const Payroll = () => {
               (acc: number, item: any) => acc + Number(item.amount),
               0,
             ) || 0;
-
-        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
-        const taxableAmount =
-          totalTransportAllowance >= 600 ? totalTransportAllowance - 600 : 0;
-
+        const taxableAmount = totalTransportAllowance - 600;
         return <div>{taxableAmount.toFixed(2)}</div>;
       },
     },

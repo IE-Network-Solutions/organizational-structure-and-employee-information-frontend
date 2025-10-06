@@ -4,7 +4,10 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import { Button, Form, Input } from 'antd';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import TextArea from 'antd/es/input/TextArea';
-import { useAddEmployeeType, useUpdateEmployeeType } from '@/store/server/features/employees/employeeManagment/employmentType/mutations';
+import {
+  useAddEmployeeType,
+  useUpdateEmployeeType,
+} from '@/store/server/features/employees/employeeManagment/employmentType/mutations';
 import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 
 interface EmployementTypeDrawer {
@@ -18,10 +21,10 @@ interface EmployementTypeSideDrawerProps {
   isEditMode?: boolean;
 }
 
-const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({ 
-  onClose, 
-  editingEmploymentType, 
-  isEditMode = false 
+const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
+  onClose,
+  editingEmploymentType,
+  isEditMode = false,
 }) => {
   const { isOpen, setOpen } = EmployeTypeManagementStore();
   const createEmployeType = useAddEmployeeType();
