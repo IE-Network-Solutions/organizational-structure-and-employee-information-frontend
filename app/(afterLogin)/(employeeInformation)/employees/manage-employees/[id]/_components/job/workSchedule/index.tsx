@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Card,
@@ -26,6 +26,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+
 interface DataType {
   key: string;
   workingDay: React.ReactNode;
@@ -33,6 +34,7 @@ interface DataType {
 }
 
 const { Option } = Select;
+
 const WorkScheduleComponent: React.FC = () => {
   const params = useParams();
   const userId = params.id as string;
@@ -51,14 +53,31 @@ const WorkScheduleComponent: React.FC = () => {
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
 
+  // State to track working days selections
+  const [workingDays, setWorkingDays] = useState<Record<number, boolean>>({});
+
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
       .validateFields()
       .then((values) => {
+        // Include working days data in the submission
+        const submissionData = {
+          ...values,
+          workScheduleDetails: selectedWorkSchedule?.detail?.map(
+            (schedule, index) => ({
+              ...schedule,
+              workDay:
+                workingDays[index] !== undefined
+                  ? workingDays[index]
+                  : schedule.workDay,
+            }),
+          ),
+        };
+
         updateEmployeeJobInformation(
           {
             id: employeeData?.employeeJobInformation[0]?.id,
-            values,
+            values: submissionData,
             changeMakerUserId: loggedInUserId,
           },
           {
@@ -71,12 +90,29 @@ const WorkScheduleComponent: React.FC = () => {
       })
       .catch();
   };
+
   const workscheduleChangeHandler = (value: string) => {
     const selectedValue = workSchedules?.items.find(
       (schedule: any) => schedule.id === value,
     );
     setSelectedWorkSchedule(selectedValue || null);
     setWorkSchedule(value);
+
+    // Initialize working days state when schedule changes
+    if (selectedValue?.detail) {
+      const initialWorkingDays: Record<number, boolean> = {};
+      selectedValue.detail.forEach((schedule: any, index: number) => {
+        initialWorkingDays[index] = schedule.workDay;
+      });
+      setWorkingDays(initialWorkingDays);
+    }
+  };
+
+  const handleWorkDayToggle = (index: number, checked: boolean) => {
+    setWorkingDays((prev) => ({
+      ...prev,
+      [index]: checked,
+    }));
   };
 
   const data: any = (selectedWorkSchedule?.detail || []).map(
@@ -89,11 +125,20 @@ const WorkScheduleComponent: React.FC = () => {
         .add(hours, 'hour')
         .add(minutes, 'minute');
 
+      const isWorkDayChecked =
+        workingDays[index] !== undefined
+          ? workingDays[index]
+          : schedule?.workDay;
+
       return {
         key: index.toString(),
         workingDay: (
           <div className="flex space-x-2 justify-start">
-            <Switch checked={schedule?.workDay} disabled />
+            <Switch
+              checked={isWorkDayChecked}
+              disabled={!edit.workSchedule}
+              onChange={(checked) => handleWorkDayToggle(index, checked)}
+            />
             <span>{schedule.day}</span>
           </div>
         ),
@@ -108,6 +153,7 @@ const WorkScheduleComponent: React.FC = () => {
       workscheduleChangeHandler(workSchedule);
     }
   };
+
   const workScheduleColumns: TableProps<DataType>['columns'] = [
     {
       title: 'Working Day',
@@ -131,6 +177,19 @@ const WorkScheduleComponent: React.FC = () => {
     setWorkSchedule(employeeDataInfo?.workScheduleId);
 
     form.setFieldsValue(employeeDataInfo);
+
+    // Initialize working days from employee data
+    const activeSchedule = employeeData?.employeeJobInformation?.find(
+      (e: any) => e.isPositionActive === true,
+    )?.workSchedule;
+
+    if (activeSchedule?.detail) {
+      const initialWorkingDays: Record<number, boolean> = {};
+      activeSchedule.detail.forEach((schedule: any, index: number) => {
+        initialWorkingDays[index] = schedule.workDay;
+      });
+      setWorkingDays(initialWorkingDays);
+    }
   }, [form, employeeData]);
 
   const schedule = workSchedules?.items[0];
@@ -144,6 +203,7 @@ const WorkScheduleComponent: React.FC = () => {
       day: day.dayOfWeek || '',
       hours: day.hours || 0,
     })) || [];
+
   return (
     <Card
       loading={isLoading}
