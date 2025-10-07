@@ -18,6 +18,7 @@ import { useGetEmployees } from '@/store/server/features/employees/employeeManag
 import dayjs from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
 import { LuSettings2 } from 'react-icons/lu';
+import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/leaveExpiry/queries';
 
 const UserLeaveBalance: React.FC = () => {
   const [form] = Form.useForm();
@@ -33,6 +34,8 @@ const UserLeaveBalance: React.FC = () => {
     setEndDate,
     setUserIdOnLeaveBalance,
     userIdOnLeaveBalance,
+    monthsAheadOnLeaveBalanceExpiring,
+    setMonthsAheadOnLeaveBalanceExpiring,
   } = TimeAndAttendaceDashboardStore();
 
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
@@ -47,7 +50,14 @@ const UserLeaveBalance: React.FC = () => {
       userIdOnLeaveBalance ? userIdOnLeaveBalance : (userId as string),
       '',
     );
-
+    const {
+      data: leaveBalanceExpiring,
+      isLoading: leaveBalanceExpiringLoading,
+    } = useGetLeaveBalanceExpiring(
+      userId as string,
+      leaveTypeId || '',
+      monthsAheadOnLeaveBalanceExpiring,
+    );
   const statusColors: { [key: string]: string } = {
     approved: 'text-[#3636F0] bg-[#B2B2FF]',
     pending: 'text-[#FFD023] bg-[#FFDE6533]',
@@ -284,7 +294,7 @@ const UserLeaveBalance: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className="py-4">
+              <div className="py-4 md:border-b border-r border[3px] border-gray-200">
                 <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2  ">
                   <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                     Total Utilized
@@ -296,6 +306,43 @@ const UserLeaveBalance: React.FC = () => {
                   </span>
                 </div>
               </div>
+              <div className="py-4">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2  ">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
+                  About to expire
+                </span>
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
+                  {Number.isNaN(
+                    Number(leaveBalanceExpiring?.totalExpiringAmount),
+                  )
+                    ? '-'
+                    : Number(
+                        leaveBalanceExpiring?.totalExpiringAmount,
+                      )?.toLocaleString() || 0}
+                </span>
+              </div>
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <Select
+                  loading={leaveBalanceExpiringLoading}
+                  value={Number(monthsAheadOnLeaveBalanceExpiring)}
+                  size="small"
+                  className="w-30"
+                  onSelect={(value: number) => {
+                    setMonthsAheadOnLeaveBalanceExpiring(String(value));
+                  }}
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    <Select.Option
+                      key={month}
+                      value={month}
+                      label={`${month} ${month === 1 ? 'Month' : 'Months'}`}
+                    >
+                      In {month} {month === 1 ? 'Month' : 'Months'}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            </div>
             </div>
           </Card>
 
