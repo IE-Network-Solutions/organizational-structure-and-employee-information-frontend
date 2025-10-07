@@ -245,7 +245,9 @@ const UserLeaveBalance: React.FC = () => {
                     setMonthsAheadOnLeaveBalanceExpiring(String(value));
                   }}
                 >
+                  {/*  eslint-disable-next-line @typescript-eslint/naming-convention */}
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    /*  eslint-enable-next-line @typescript-eslint/naming-convention */
                     <Select.Option
                       key={month}
                       value={month}

@@ -1,4 +1,4 @@
-import { Card,Select, Skeleton, Spin, Tag, Tooltip } from 'antd';
+import { Card, Select, Skeleton, Spin, Tag, Tooltip } from 'antd';
 import React from 'react';
 import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
@@ -9,8 +9,14 @@ import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/le
 const MyleaveBalance: React.FC = () => {
   const { userId } = useAuthenticationStore();
 
-  const { leaveTypeId, startDate, endDate, setLeaveTypeId, monthsAheadOnLeaveBalanceExpiring, setMonthsAheadOnLeaveBalanceExpiring } =
-    TimeAndAttendaceDashboardStore();
+  const {
+    leaveTypeId,
+    startDate,
+    endDate,
+    setLeaveTypeId,
+    monthsAheadOnLeaveBalanceExpiring,
+    setMonthsAheadOnLeaveBalanceExpiring,
+  } = TimeAndAttendaceDashboardStore();
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
     useGetUserLeaveBalance(
       userId as string,
@@ -20,10 +26,8 @@ const MyleaveBalance: React.FC = () => {
     );
   const { data: leaveBalance, isLoading: leaveBalanceLoading } =
     useGetLeaveBalance(userId as string, '');
-    const {
-      data: leaveBalanceExpiring,
-      isLoading: leaveBalanceExpiringLoading,
-    } = useGetLeaveBalanceExpiring(
+  const { data: leaveBalanceExpiring, isLoading: leaveBalanceExpiringLoading } =
+    useGetLeaveBalanceExpiring(
       userId as string,
       leaveTypeId || '',
       monthsAheadOnLeaveBalanceExpiring,
@@ -160,7 +164,9 @@ const MyleaveBalance: React.FC = () => {
                     setMonthsAheadOnLeaveBalanceExpiring(String(value));
                   }}
                 >
+                  {/*  eslint-disable-next-line @typescript-eslint/naming-convention */}
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    /*  eslint-enable-next-line @typescript-eslint/naming-convention */
                     <Select.Option
                       key={month}
                       value={month}
