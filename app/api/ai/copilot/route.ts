@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-const AI_API_BASE_URL = 'https://selamnew-ai.ienetworks.co';
+const AI_API_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
 
 export async function POST(request: NextRequest) {
   try {
