@@ -20,6 +20,7 @@ const createIntern = async (data: any) => {
     method: 'POST',
     data,
     headers,
+    skipEncryption: true, // Skip encryption for FormData to preserve multipart/form-data
   });
 };
 
@@ -34,6 +35,7 @@ const updateIntern = async (id: string, data: any) => {
     method: 'PUT',
     data,
     headers,
+    skipEncryption: true, // Skip encryption for FormData to preserve multipart/form-data
   });
 };
 

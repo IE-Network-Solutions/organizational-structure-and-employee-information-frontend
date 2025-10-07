@@ -820,16 +820,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     // Get user's permissions from the authentication store
     // // Check if user has ALL required permissions for this route
-    // const hasAllPermissions = matchingRoute.permissions.every(
-    //   (requiredPermission: any) => {
-    //     const found = userPermissions?.find(
-    //       (permission: any) =>
-    //         permission.permission.slug === requiredPermission,
-    //     );
-    //     return found;
-    //   },
-    // );
-    return true;
+    const userPermissions = userData?.userPermissions || [];
+    const hasAllPermissions = matchingRoute.permissions.every(
+      (requiredPermission: any) => {
+        const found = userPermissions?.find(
+          (permission: any) =>
+            permission.permission.slug === requiredPermission,
+        );
+        return found;
+      },
+    );
+    return hasAllPermissions;
   };
   const { data: departments } = useGetDepartments();
   const { data: employeeData } = useGetEmployee(userId);

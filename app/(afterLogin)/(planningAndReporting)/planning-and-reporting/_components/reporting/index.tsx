@@ -243,7 +243,7 @@ function Reporting() {
   return (
     <Spin spinning={getReportLoading} tip="Loading...">
       <div className="min-h-screen">
-        <div className="flex items-center my-4 gap-4">
+        <div className="flex justify-end items-center my-4 gap-4">
           {hasPermission && (
             <EmployeeSearch
               optionArray1={employeeData?.items}
@@ -260,7 +260,7 @@ function Reporting() {
                 : ''
             }
           >
-            <div className="flex-1" style={{ display: 'inline-block' }}>
+            <div className="" style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
                   // selectedUser.includes(userId) &&

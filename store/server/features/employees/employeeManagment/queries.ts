@@ -78,6 +78,7 @@ export const employeeAllFilter = async (
   branchId: string,
   searchString: string,
   gender: string,
+  employmentTypeId: string,
   joinedDate: string,
   joinedDateType: 'before' | 'after',
 ) => {
@@ -93,7 +94,7 @@ export const employeeAllFilter = async (
   }
 
   const response = await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&gender=${gender}${joinedDateParam}&page=${currentPage}&limit=${pageSize}`,
+    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&gender=${gender}&employmentTypeId=${employmentTypeId}${joinedDateParam}&page=${currentPage}&limit=${pageSize}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -143,6 +144,7 @@ export const useEmployeeAllFilter = (
   isDeleted: string,
   department: string,
   gender: string,
+  employmentTypeId: string,
   joinedDate: string,
   joinedDateType: 'before' | 'after',
 ) => {
@@ -156,6 +158,7 @@ export const useEmployeeAllFilter = (
       isDeleted,
       department,
       gender,
+      employmentTypeId,
       joinedDate,
       joinedDateType,
     ],
@@ -168,6 +171,7 @@ export const useEmployeeAllFilter = (
         searchString,
         isDeleted,
         gender,
+        employmentTypeId,
         joinedDate,
         joinedDateType,
       ),
@@ -288,6 +292,24 @@ const getAllUsersDataWithOutPagination = async () => {
 };
 export const useGetAllUsersData = () =>
   useQuery<any>('allEmployeesData', getAllUsersDataWithOutPagination);
+
+// Hook to get all users to get team leads
+const getAllUsersToGetTeamLeads = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all-users/all`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAllUsersToGetTeamLeads = () =>
+  useQuery<any>('allUsersToGetTeamLeads', getAllUsersToGetTeamLeads);
 
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.

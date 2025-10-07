@@ -14,7 +14,10 @@ import { ColumnsType } from 'antd/es/table';
 import PlanningAssignationDrawer from './_components/planning-assignation-drawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
-import { useGetAllAssignedUserGroupedByUser } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import {
+  useGetAllAssignedUserGroupedByUser,
+  useGetAllPlanningPeriods,
+} from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { GroupedUserWithPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
@@ -48,6 +51,7 @@ const PlanAssignment: React.FC = () => {
 
   const { data: employeeData, isLoading: employeeDataLoading } =
     useGetAllUsers();
+  const { data: allPlanningPeriods } = useGetAllPlanningPeriods();
   const { isMobile, isTablet } = useIsMobile();
 
   // Use the grouped data directly since it's already in the correct format
@@ -65,6 +69,13 @@ const PlanAssignment: React.FC = () => {
     const lastName = employee?.lastName || '';
 
     return `${firstName} ${middleName} ${lastName}`;
+  };
+
+  const getPlanningPeriodName = (planningPeriodId: string) => {
+    const planningPeriod = allPlanningPeriods?.items?.find(
+      (period: any) => period.id === planningPeriodId,
+    );
+    return planningPeriod?.name;
   };
 
   const handleEdit = (item: any) => {
@@ -98,8 +109,35 @@ const PlanAssignment: React.FC = () => {
     const id = value ? value : null;
     setUserId(id);
   };
-  const dataSources = userToPlanning?.map(
-    (item: GroupedUserWithPlanningPeriods, index: number) => {
+  const dataSources = userToPlanning
+    ?.filter((item: GroupedUserWithPlanningPeriods) => {
+      if (!employeeData?.items) return true;
+
+      // Find the employee in the active employees list
+      const employee = employeeData.items.find(
+        (user: EmployeeData) => user.id === item.userId,
+      );
+
+      // Check if employee exists and is active
+      const isActive =
+        employee &&
+        (employee.deletedAt === null || employee.deletedAt === undefined) &&
+        employee.employee_status !== 'inactive' &&
+        employee.employee_status !== 'terminated';
+
+      return isActive;
+    })
+    ?.map((item: GroupedUserWithPlanningPeriods, index: number) => {
+      const planNames = item?.planningPeriod
+        ?.map((plan: any) => {
+          // Use the planningPeriodId to get the planning period name
+          const planName = plan?.planningPeriodId
+            ? getPlanningPeriodName(plan.planningPeriodId)
+            : null;
+          return planName;
+        })
+        .filter(Boolean);
+
       return {
         id: index + 1,
         name: (
@@ -125,9 +163,7 @@ const PlanAssignment: React.FC = () => {
           </Tooltip>
         ),
         nameString: getEmployeeData(item?.userId),
-        plans:
-          item?.planningPeriod?.map((plan: any) => plan?.name).join(', ') ||
-          '-',
+        plans: planNames?.join(', ') || '-',
         key: item?.userId,
         createdAt: item?.planningPeriod?.[0]?.createdAt,
         updatedAt: item?.lastUpdated, // Assign latest updatedAt
@@ -136,8 +172,7 @@ const PlanAssignment: React.FC = () => {
           delete: () => handleDelete(item),
         },
       };
-    },
-  );
+    });
 
   const onPageChange = (page: number, pageSize?: number) => {
     setPage(page);

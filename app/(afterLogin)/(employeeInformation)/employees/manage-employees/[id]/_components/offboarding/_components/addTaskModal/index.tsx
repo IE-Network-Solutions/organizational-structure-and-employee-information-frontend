@@ -161,7 +161,18 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
               className="w-full"
               rules={[{ required: true, message: 'Please select approver' }]}
             >
-              <Select placeholder="Approver" allowClear>
+              <Select 
+                placeholder="Search and select approver" 
+                allowClear
+                showSearch
+                filterOption={(input, option) => {
+                  const user = users?.items?.find((u: any) => u.id === option?.value);
+                  if (!user) return false;
+                  const fullName = `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim().toLowerCase();
+                  return fullName.includes(input.toLowerCase());
+                }}
+                optionFilterProp="children"
+              >
                 {users?.items?.map((user: any) => (
                   <Option key={user.id} value={user.id}>
                     {`${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim()}
