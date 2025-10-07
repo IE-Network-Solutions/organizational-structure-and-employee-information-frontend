@@ -384,12 +384,13 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                 Probation Target Weight:
               </span>
               <span
-                className={`text-sm font-bold ${calculateTotalWeight() === 100
+                className={`text-sm font-bold ${
+                  calculateTotalWeight() === 100
                     ? 'text-green-600'
                     : calculateTotalWeight() > 100
                       ? 'text-red-600'
                       : 'text-orange-600'
-                  }`}
+                }`}
               >
                 {calculateTotalWeight()}/100
               </span>
@@ -400,8 +401,14 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
       {/* Action Buttons */}
       <div className="flex justify-end items-center mt-3 sm:mt-4">
-        <Space direction={isMobile ? 'vertical' : 'horizontal'} size={isMobile ? 8 : 12}>
-          <Button onClick={handleClose} className="border-gray-300 w-full sm:w-auto">
+        <Space
+          direction={isMobile ? 'vertical' : 'horizontal'}
+          size={isMobile ? 8 : 12}
+        >
+          <Button
+            onClick={handleClose}
+            className="border-gray-300 w-full sm:w-auto"
+          >
             Cancel
           </Button>
           <Button

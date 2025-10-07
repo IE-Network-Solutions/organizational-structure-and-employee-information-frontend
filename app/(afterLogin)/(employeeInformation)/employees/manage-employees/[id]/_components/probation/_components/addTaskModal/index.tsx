@@ -43,11 +43,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       createdDate: new Date().toISOString(),
       approver: selectedApprover
         ? {
-          id: selectedApprover.value,
-          firstName: selectedApprover.firstName,
-          lastName: selectedApprover.lastName,
-          avatar: selectedApprover.avatar,
-        }
+            id: selectedApprover.value,
+            firstName: selectedApprover.firstName,
+            lastName: selectedApprover.lastName,
+            avatar: selectedApprover.avatar,
+          }
         : undefined,
     };
 
@@ -157,10 +157,16 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
         <Form.Item className="mt-4">
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
-            <Button type="primary" htmlType="submit" className="w-full sm:w-auto">
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full sm:w-auto"
+            >
               Submit
             </Button>
-            <Button onClick={handleCancel} className="w-full sm:w-auto">Cancel</Button>
+            <Button onClick={handleCancel} className="w-full sm:w-auto">
+              Cancel
+            </Button>
           </div>
         </Form.Item>
       </Form>

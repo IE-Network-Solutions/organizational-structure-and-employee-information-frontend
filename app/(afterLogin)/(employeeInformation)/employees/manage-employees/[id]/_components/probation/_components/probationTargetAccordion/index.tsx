@@ -560,11 +560,9 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                     </div>
                   </div>
 
-
                   <div className="flex items-center gap-2 sm:gap-4">
                     <div className="flex items-center gap-2 sm:gap-4">
                       <Space>
-
                         {completedTargets.has(target.id) && (
                           <Tag
                             className="cursor-pointer"
@@ -592,12 +590,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                                     handleCompleteProbation(target);
                                   }
                                 }}
-                                loading={updateProbationTargetMutation.isLoading}
-                              >
-
-                              </Button>
+                                loading={
+                                  updateProbationTargetMutation.isLoading
+                                }
+                              ></Button>
                             </Tooltip>
-
                           )}
                       </Space>
                     </div>
@@ -629,23 +626,23 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       const items = [
                         canEditTarget
                           ? {
-                            key: 'edit-target',
-                            label: 'Edit Probation Target',
-                            onClick: (e: any) => {
-                              e?.domEvent?.stopPropagation?.();
-                              handleEditTarget(target);
-                            },
-                          }
+                              key: 'edit-target',
+                              label: 'Edit Probation Target',
+                              onClick: (e: any) => {
+                                e?.domEvent?.stopPropagation?.();
+                                handleEditTarget(target);
+                              },
+                            }
                           : null,
                         canEditTask
                           ? {
-                            key: 'edit-task',
-                            label: 'Edit Probation Task',
-                            onClick: (e: any) => {
-                              e?.domEvent?.stopPropagation?.();
-                              openTaskEditDrawer(target);
-                            },
-                          }
+                              key: 'edit-task',
+                              label: 'Edit Probation Task',
+                              onClick: (e: any) => {
+                                e?.domEvent?.stopPropagation?.();
+                                openTaskEditDrawer(target);
+                              },
+                            }
                           : null,
                       ].filter(Boolean) as any[];
 
@@ -683,15 +680,12 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                             handleDeleteTarget(target);
                           }}
                           className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center text-red-600 hover:text-red-800"
-
                         />
                       </AccessGuard>
                     </Tooltip>
                   </div>
-
                 </div>
               }
-
             >
               <div className="space-y-3 max-h-96 sm:max-h-72 overflow-y-auto scrollbar-hide pr-1">
                 {/* Inline Task Panel */}
@@ -715,7 +709,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       task={task}
                       onToggle={() => onToggleTaskComplete?.(task.id)}
                       onDelete={() => handleDeleteClick(task)}
-                      onUpdateScore={onUpdateTaskScore || (() => { })}
+                      onUpdateScore={onUpdateTaskScore || (() => {})}
                       onEdit={() => handleEditClick(task)}
                     />
                   ))
@@ -784,17 +778,23 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
           footer={
             <div className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div
-                className={`text-sm font-bold ${drawerTotalWeight === 100
-                  ? 'text-green-600'
-                  : drawerTotalWeight > 100
-                    ? 'text-red-600'
-                    : 'text-orange-600'
-                  }`}
+                className={`text-sm font-bold ${
+                  drawerTotalWeight === 100
+                    ? 'text-green-600'
+                    : drawerTotalWeight > 100
+                      ? 'text-red-600'
+                      : 'text-orange-600'
+                }`}
               >
                 Total Weight: {drawerTotalWeight}/100
               </div>
               <div className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto">
-                <Button onClick={closeTaskEditDrawer} className="w-full sm:w-auto">Cancel</Button>
+                <Button
+                  onClick={closeTaskEditDrawer}
+                  className="w-full sm:w-auto"
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="primary"
                   loading={createTaskSaveAllMutation.isLoading}

@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 import { Button, Spin } from 'antd';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import ProbationTargetAccordion from './_components/probationTargetAccordion';
 import { useFetchProbationTargetsByUserId } from '@/store/server/features/probation-target/queries';
 import { useCreateProbationTarget } from '@/store/server/features/probation-target/mutation';
@@ -20,8 +19,6 @@ interface Ids {
 
 const ProbationPage: React.FC<Ids> = ({ id }) => {
   const { userId } = useAuthenticationStore();
-  const { isMobile } = useIsMobile();
-
   // Fetch probation targets for the current user
   const {
     data: probationTargets,

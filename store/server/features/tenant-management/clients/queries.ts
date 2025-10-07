@@ -60,7 +60,9 @@ export const useGetClientById = (id: string, isEnabled: boolean = true) =>
   });
 
 export const useGetAllClients = (paginationOptions?: ClientRequestParams) =>
-  useQuery(['clients', paginationOptions], () => getAllClients(paginationOptions));
+  useQuery(['clients', paginationOptions], () =>
+    getAllClients(paginationOptions),
+  );
 
 // New hook to get current tenant/client data
 export const useGetCurrentTenant = () => {
@@ -88,6 +90,6 @@ export const useGetTenantDetailsForCertificate = () => {
       enabled: !!tenantId,
       staleTime: 5 * 60 * 1000, // 5 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
-    }
+    },
   );
 };
