@@ -1,7 +1,12 @@
 'use client';
 import React from 'react';
 import { Card, Checkbox, Button, Dropdown, Empty } from 'antd';
-import { DownOutlined, PlusOutlined, SettingOutlined, DownloadOutlined } from '@ant-design/icons';
+import {
+  DownOutlined,
+  PlusOutlined,
+  SettingOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
 import {
   Task,
   useOffboardingStore,
@@ -81,9 +86,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
 
   // Check if all tasks are completed
-  const allTasksCompleted = offboardingTasks && offboardingTasks.length > 0 
-    ? offboardingTasks.every((task: Task) => task.isCompleted)
-    : false;
+  const allTasksCompleted =
+    offboardingTasks && offboardingTasks.length > 0
+      ? offboardingTasks.every((task: Task) => task.isCompleted)
+      : false;
 
   return (
     <div className="p-2 max-h-[418px] overflow-y-scroll">
@@ -108,9 +114,13 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 onClick={async () => {
                   try {
                     // Generate PDF using html2canvas and jsPDF
-                    const certificateElement = document.getElementById('certificate-template');
+                    const certificateElement = document.getElementById(
+                      'certificate-template',
+                    );
                     if (!certificateElement) {
-                      alert('Certificate template not found. Please try again.');
+                      alert(
+                        'Certificate template not found. Please try again.',
+                      );
                       return;
                     }
 
@@ -125,7 +135,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     // Create PDF
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new jsPDF('p', 'mm', 'a4');
-                    
+
                     // Calculate dimensions to fit the page
                     const imgWidth = 210; // A4 width in mm
                     const pageHeight = 295; // A4 height in mm
@@ -135,19 +145,35 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     let position = 0;
 
                     // Add image to PDF
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    pdf.addImage(
+                      imgData,
+                      'PNG',
+                      0,
+                      position,
+                      imgWidth,
+                      imgHeight,
+                    );
                     heightLeft -= pageHeight;
 
                     // Add new pages if content is longer than one page
                     while (heightLeft >= 0) {
                       position = heightLeft - imgHeight;
                       pdf.addPage();
-                      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                      pdf.addImage(
+                        imgData,
+                        'PNG',
+                        0,
+                        position,
+                        imgWidth,
+                        imgHeight,
+                      );
                       heightLeft -= pageHeight;
                     }
 
                     // Download the PDF
-                    pdf.save(`clearance-certificate-${new Date().toISOString().split('T')[0]}.pdf`);
+                    pdf.save(
+                      `clearance-certificate-${new Date().toISOString().split('T')[0]}.pdf`,
+                    );
                   } catch (error) {
                     alert('Error generating PDF. Please try again.');
                   }
@@ -192,7 +218,13 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   className="mr-3 [&_.ant-checkbox-checked]:bg-blue [&_.ant-checkbox-checked]:border-blue"
                   disabled={userId !== task.approverId}
                 />
-                <span className={task?.isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}>
+                <span
+                  className={
+                    task?.isCompleted
+                      ? 'line-through text-gray-500'
+                      : 'text-gray-800'
+                  }
+                >
                   {task.title}
                 </span>
                 {task.isCompleted && task.approverId && task.completedDate && (
@@ -256,7 +288,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
         <AddTaskModal id={id} />
       </Card>
       <OffboardingTemplate id={id} />
-      
+
       {/* Hidden certificate template for PDF generation */}
       <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
         <CertificateContent

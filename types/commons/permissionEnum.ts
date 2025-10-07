@@ -353,4 +353,13 @@ export enum Permissions {
   //basic Salary
   CreateBasicSalary = 'create-basic-salary',
   UpdateBasicSalary = 'update-basic-salary',
+
+  //probation
+  ViewProbationTarget = 'view-probation-target',
+  CreateProbationTarget = 'create-probation-target',
+  UpdateProbationTarget = 'update-probation-target',
+  DeleteProbationTarget = 'delete-probation-target',
+  CreateProbationTask = 'create-probation-task',
+  UpdateProbationTask = 'update-probation-task',
+  DeleteProbationTask = 'delete-probation-task',
 }

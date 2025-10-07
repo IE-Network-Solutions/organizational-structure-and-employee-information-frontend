@@ -206,7 +206,6 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   const { data: orgStructureData } = useGetOrgCharts();
   const setMergeData = useMergeStore((state) => state.setMergeData);
   const { data: employeeData } = useGetAllUsersToGetTeamLeads();
-  
 
   const {
     rootDeptId,
