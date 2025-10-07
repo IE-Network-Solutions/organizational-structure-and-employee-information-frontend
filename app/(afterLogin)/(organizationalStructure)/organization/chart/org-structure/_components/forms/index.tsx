@@ -6,7 +6,7 @@ import { Form, message, Select, FormInstance, Input } from 'antd';
 import { useEffect } from 'react';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetAllUsersToGetTeamLeads } from '@/store/server/features/employees/employeeManagment/queries';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 import { MdInfo } from 'react-icons/md';
 
@@ -130,7 +130,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
     if (childDepartment.length > 0 && rootDepartment?.id && orgStructureData) {
       Merge();
     }
-  }, [childDepartment, rootDepartment, orgStructureData]);
+  }, [childDepartment, rootDepartment, orgStructureData, Merge]);
 
   return (
     <Form className="pr-10" layout="vertical" form={form}>
@@ -205,7 +205,8 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
   const setMergeData = useMergeStore((state) => state.setMergeData);
-  const { data: employeeData } = useGetAllUsers();
+  const { data: employeeData } = useGetAllUsersToGetTeamLeads();
+  
 
   const {
     rootDeptId,
@@ -290,6 +291,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
     teamLeader,
     orgStructureData,
     setMergeData,
+    Merge,
   ]);
 
   return (

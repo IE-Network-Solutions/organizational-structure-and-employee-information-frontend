@@ -1,6 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Button, Form, Select, Spin } from 'antd';
+import { Button, Form, Select, Spin, Checkbox } from 'antd';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 // import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
@@ -37,6 +37,31 @@ const AllowanceEntitlementSideBar = () => {
       active: true,
     });
     onClose();
+  };
+
+  // Filter users based on checkbox filters - this will be computed in the render
+  const getFilteredUsers = () => {
+    const showDepartmentLeadsOnly = form.getFieldValue('showDepartmentLeadsOnly') || false;
+    const showNonLeadsOnly = form.getFieldValue('showNonLeadsOnly') || false;
+    
+    return allUsers?.items?.filter((user: any) => {
+      if (!showDepartmentLeadsOnly && !showNonLeadsOnly) return true;
+      
+      // Check if user is a department lead
+      const isDepartmentLead = user?.employeeJobInformation?.find(
+        (job: any) => job.isPositionActive
+      )?.departmentLeadOrNot;
+      
+      if (showDepartmentLeadsOnly) {
+        return isDepartmentLead === true;
+      }
+      
+      if (showNonLeadsOnly) {
+        return isDepartmentLead === false || isDepartmentLead === null;
+      }
+      
+      return true;
+    });
   };
 
   // const handleDepartmentChange = (value: string) => {
@@ -121,38 +146,76 @@ const AllowanceEntitlementSideBar = () => {
               </Select>
             </Form.Item> */}
 
+            <div className="mb-4 space-y-2">
+              <Form.Item name="showDepartmentLeadsOnly" valuePropName="checked" noStyle>
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      form.setFieldValue('showNonLeadsOnly', false);
+                    }
+                  }}
+                  data-testid="department-leads-filter"
+                >
+                  Show Team Leads
+                </Checkbox>
+              </Form.Item>
+              
+              <Form.Item name="showNonLeadsOnly" valuePropName="checked" noStyle>
+                <Checkbox
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      form.setFieldValue('showDepartmentLeadsOnly', false);
+                    }
+                  }}
+                  data-testid="non-leads-filter"
+                >
+                  Show Subordinates
+                </Checkbox>
+              </Form.Item>
+            </div>
+
             <Form.Item
-              className="form-item"
-              name="employees"
-              label="Select Employees"
-              rules={[{ required: true, message: 'Please select employees' }]}
-              data-testid="employees-form-item"
+              noStyle
+              shouldUpdate={(prevValues, currentValues) => 
+                prevValues.showDepartmentLeadsOnly !== currentValues.showDepartmentLeadsOnly ||
+                prevValues.showNonLeadsOnly !== currentValues.showNonLeadsOnly
+              }
             >
-              <Select
-                showSearch
-                placeholder="Select a person"
-                mode="multiple"
-                className="w-full h-10 mt-2"
-                allowClear
-                maxTagCount={1}
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={allUsers?.items?.map((item: any) => ({
-                  ...item,
-                  value: item?.id,
-                  label:
-                    item?.firstName +
-                    ' ' +
-                    item?.middleName +
-                    ' ' +
-                    item?.lastName,
-                }))}
-                loading={allUserLoading}
-                data-testid="employees-select"
-              />
+              {() => (
+                <Form.Item
+                  className="form-item"
+                  name="employees"
+                  label="Select Employees"
+                  rules={[{ required: true, message: 'Please select employees' }]}
+                  data-testid="employees-form-item"
+                >
+                  <Select
+                    showSearch
+                    placeholder="Select a person"
+                    mode="multiple"
+                    className="w-full h-10 mt-2"
+                    allowClear
+                    maxTagCount={1}
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={getFilteredUsers()?.map((item: any) => ({
+                      ...item,
+                      value: item?.id,
+                      label:
+                        item?.firstName +
+                        ' ' +
+                        item?.middleName +
+                        ' ' +
+                        item?.lastName,
+                    }))}
+                    loading={allUserLoading}
+                    data-testid="employees-select"
+                  />
+                </Form.Item>
+              )}
             </Form.Item>
             {/* <Form.Item
               name="employees"

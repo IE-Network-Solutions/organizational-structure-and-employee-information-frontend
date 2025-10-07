@@ -293,6 +293,24 @@ const getAllUsersDataWithOutPagination = async () => {
 export const useGetAllUsersData = () =>
   useQuery<any>('allEmployeesData', getAllUsersDataWithOutPagination);
 
+// Hook to get all users to get team leads
+const getAllUsersToGetTeamLeads = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/all-users/all`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAllUsersToGetTeamLeads = () =>
+  useQuery<any>('allUsersToGetTeamLeads', getAllUsersToGetTeamLeads);
+
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
  *
