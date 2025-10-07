@@ -168,8 +168,8 @@ const UserSidebar = (props: any) => {
           )}
           {current === 2 && (
             <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
-              <AdditionalInformationForm />
               <DocumentUploadForm />
+              <AdditionalInformationForm />
               <ButtonContinue
                 handleBackClick={handleBackClick}
                 handleContinueClick={handleContinueClick}
