@@ -144,7 +144,7 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
       title="Add Tasks from Template"
       open={isVisible}
       onCancel={onClose}
-      width={600}
+      width={typeof window !== 'undefined' && window.innerWidth < 640 ? '95%' : 600}
       footer={[
         <Button key="cancel" onClick={onClose}>
           Cancel

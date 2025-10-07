@@ -2,6 +2,7 @@
 import React from 'react';
 import { Modal, Form, Input, Button, Select, message } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useProbationStore,
   ProbationTask,
@@ -25,6 +26,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
   const [form] = useForm();
   const { addTask, resetTaskForm } = useProbationStore();
   const createTaskMutation = useCreateProbationTask();
+  const { isMobile } = useIsMobile();
 
   const handleSubmit = async (values: any) => {
     const selectedApprover = peopleOptions.find(
@@ -41,11 +43,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       createdDate: new Date().toISOString(),
       approver: selectedApprover
         ? {
-            id: selectedApprover.value,
-            firstName: selectedApprover.firstName,
-            lastName: selectedApprover.lastName,
-            avatar: selectedApprover.avatar,
-          }
+          id: selectedApprover.value,
+          firstName: selectedApprover.firstName,
+          lastName: selectedApprover.lastName,
+          avatar: selectedApprover.avatar,
+        }
         : undefined,
     };
 
@@ -96,7 +98,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       open={isVisible}
       onCancel={handleCancel}
       footer={null}
-      width={500}
+      width={isMobile ? '95%' : 500}
     >
       <Form
         form={form}
@@ -114,7 +116,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
         >
           <Input placeholder="Task Name" className="h-11" />
         </Form.Item>
-        <div className="flex space-x-2 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
           <Form.Item
             name="approverId"
             label="*Approver"
@@ -130,7 +132,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                   ?.toLowerCase()
                   .includes(input.toLowerCase())
               }
-              className="h-11"
+              className="h-11 w-full"
             />
           </Form.Item>
 
@@ -154,11 +156,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
         </Form.Item>
 
         <Form.Item className="mt-4">
-          <div className="flex justify-end space-x-2">
-            <Button type="primary" htmlType="submit">
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
+            <Button type="primary" htmlType="submit" className="w-full sm:w-auto">
               Submit
             </Button>
-            <Button onClick={handleCancel}>Cancel</Button>
+            <Button onClick={handleCancel} className="w-full sm:w-auto">Cancel</Button>
           </div>
         </Form.Item>
       </Form>

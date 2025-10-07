@@ -9,6 +9,7 @@ import {
 } from '@/store/server/features/probation-task/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface InlineTaskPanelProps {
   probationTargetId: string;
@@ -32,6 +33,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
   onTaskUpdated,
 }) => {
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
   const createTaskBulkMutation = useCreateProbationTaskBulk();
   const updateTaskMutation = useUpdateProbationTask();
   const { userId } = useAuthenticationStore();
@@ -199,9 +201,9 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
   if (!isVisible) return null;
   return (
-    <div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200 shadow-sm">
+    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 border border-gray-200 shadow-sm">
       {/* Close button */}
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-3 sm:mb-4">
         <Button
           type="text"
           icon={<CloseOutlined />}
@@ -211,18 +213,18 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
       </div>
 
       {/* Task Forms */}
-      <Form form={form} layout="vertical" className="space-y-4">
+      <Form form={form} layout="vertical" className="space-y-3 sm:space-y-4">
         <Form.List name="tasks" initialValue={editMode ? [{}] : [{}]}>
           {(fields, { add, remove }) => (
             <>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {fields.map((field, index) => (
                   <Card
                     key={field.key}
                     size="small"
                     className="bg-white border-gray-200"
                   >
-                    <div className="flex justify-between items-center mb-3">
+                    <div className="flex justify-between items-center mb-2 sm:mb-3">
                       <h4 className="text-sm font-medium text-gray-700">
                         Task {index + 1}
                       </h4>
@@ -237,10 +239,10 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                       )}
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {/* Task Name Row */}
-                      <div className="grid grid-cols-12 gap-3">
-                        <div className="col-span-6">
+                      <div className="grid grid-cols-12 gap-2 sm:gap-3">
+                        <div className="col-span-12 sm:col-span-6">
                           <Form.Item
                             {...field}
                             name={[field.name, 'taskName']}
@@ -264,7 +266,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                           </Form.Item>
                         </div>
 
-                        <div className="col-span-4">
+                        <div className="col-span-12 sm:col-span-4">
                           <Form.Item
                             {...field}
                             name={[field.name, 'approverId']}
@@ -290,7 +292,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                           </Form.Item>
                         </div>
 
-                        <div className="col-span-2">
+                        <div className="col-span-12 sm:col-span-2">
                           <Form.Item
                             {...field}
                             name={[field.name, 'weight']}
@@ -346,7 +348,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                       >
                         <Input.TextArea
                           placeholder="Description (optional)"
-                          rows={2}
+                          rows={isMobile ? 3 : 2}
                           className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         />
                       </Form.Item>
@@ -357,7 +359,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
               {/* Add Another Task Button */}
               {!editMode && (
-                <div className="mt-4">
+                <div className="mt-3 sm:mt-4">
                   <Button
                     type="dashed"
                     icon={<PlusOutlined />}
@@ -375,20 +377,19 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
       {/* Total Weight Display */}
       {!editMode && (
-        <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+        <div className="mt-3 sm:mt-4 p-3 bg-gray-100 rounded-lg">
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <span className="text-sm font-medium text-gray-700">
                 Probation Target Weight:
               </span>
               <span
-                className={`text-sm font-bold ${
-                  calculateTotalWeight() === 100
+                className={`text-sm font-bold ${calculateTotalWeight() === 100
                     ? 'text-green-600'
                     : calculateTotalWeight() > 100
                       ? 'text-red-600'
                       : 'text-orange-600'
-                }`}
+                  }`}
               >
                 {calculateTotalWeight()}/100
               </span>
@@ -398,9 +399,9 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end items-center mt-4">
-        <Space>
-          <Button onClick={handleClose} className="border-gray-300">
+      <div className="flex justify-end items-center mt-3 sm:mt-4">
+        <Space direction={isMobile ? 'vertical' : 'horizontal'} size={isMobile ? 8 : 12}>
+          <Button onClick={handleClose} className="border-gray-300 w-full sm:w-auto">
             Cancel
           </Button>
           <Button
@@ -412,7 +413,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                 : createTaskBulkMutation.isLoading
             }
             disabled={!editMode && calculateTotalWeight() > 100}
-            className="disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="disabled:bg-gray-400 disabled:cursor-not-allowed w-full sm:w-auto"
           >
             {editMode
               ? 'Update Task'

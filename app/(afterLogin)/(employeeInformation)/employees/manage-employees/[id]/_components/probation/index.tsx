@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { Button, Spin } from 'antd';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import ProbationTargetAccordion from './_components/probationTargetAccordion';
 import { useFetchProbationTargetsByUserId } from '@/store/server/features/probation-target/queries';
 import { useCreateProbationTarget } from '@/store/server/features/probation-target/mutation';
@@ -19,6 +20,7 @@ interface Ids {
 
 const ProbationPage: React.FC<Ids> = ({ id }) => {
   const { userId } = useAuthenticationStore();
+  const { isMobile } = useIsMobile();
 
   // Fetch probation targets for the current user
   const {
@@ -146,7 +148,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Create Probation Target Button */}
       <div className="flex justify-end">
         <AccessGuard permissions={[Permissions.CreateProbationTarget]}>
@@ -154,7 +156,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
             type="primary"
             onClick={handleCreateProbationTarget}
             loading={isCreatingTarget}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
           >
             Create Probation Target
           </Button>

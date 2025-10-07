@@ -49,6 +49,7 @@ import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHea
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useCreateProbationTaskSaveAll } from '@/store/server/features/probation-task/mutation';
 import { MdEdit } from 'react-icons/md';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
@@ -107,7 +108,7 @@ const TaskItem: React.FC<{
 
   return (
     <div className="rounded-lg py-1 px-4 mb-3 border border-gray-200 hover:shadow-sm transition-shadow ">
-      <div className="flex items-center justify-between">
+      <div className="flex md:flex-row flex-col md:items-center justify-between">
         <div className="flex items-center flex-1">
           <Checkbox
             checked={task?.isCompleted}
@@ -225,6 +226,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
   onTaskAdded,
   onDeleteTask,
 }) => {
+  const { isMobile } = useIsMobile();
   const [showInlinePanel, setShowInlinePanel] = React.useState<string | null>(
     null,
   );
@@ -532,7 +534,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
               key={target.id}
               header={
                 <div
-                  className="flex items-center justify-between w-full pr-0"
+                  className="flex md:flex-row flex-col items-start md:items-center justify-between w-full pr-0 gap-2"
                   style={{ padding: 0 }} // Ensures no padding in the header container
                 >
                   <div className="flex items-center">
@@ -558,75 +560,75 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4">
-                    <Space>
-                      <Tag color="blue">
-                        {completedTasks}/{target.probationTasks.length} Tasks
-                      </Tag>
-                      {completedTargets.has(target.id) && (
-                        <Tag
-                          className="cursor-pointer"
-                          onClick={() => handleUncompleteProbation(target)}
-                          color="green"
-                        >
-                          ✓ Completed
-                        </Tag>
-                      )}
 
-                      {completedTasks === target.probationTasks.length &&
-                        target.probationTasks.length > 0 &&
-                        !completedTargets.has(target.id) && (
+                  <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <Space>
+
+                        {completedTargets.has(target.id) && (
+                          <Tag
+                            className="cursor-pointer"
+                            onClick={() => handleUncompleteProbation(target)}
+                            color="green"
+                          >
+                            ✓ Completed
+                          </Tag>
+                        )}
+
+                        {completedTasks === target.probationTasks.length &&
+                          target.probationTasks.length > 0 &&
+                          !completedTargets.has(target.id) && (
+                            <Tooltip title="Complete Probation">
+                              <Button
+                                type={'primary'}
+                                size="small"
+                                className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center"
+                                icon={<CheckCircleOutlined />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (completedTargets.has(target.id)) {
+                                    // handleUncompleteProbation(target);
+                                  } else {
+                                    handleCompleteProbation(target);
+                                  }
+                                }}
+                                loading={updateProbationTargetMutation.isLoading}
+                              >
+
+                              </Button>
+                            </Tooltip>
+
+                          )}
+                      </Space>
+                    </div>
+                    {target.probationTasks.length === 0 && (
+                      <Tooltip title="Add Probation Task">
+                        <AccessGuard
+                          permissions={[Permissions.CreateProbationTask]}
+                        >
                           <Button
-                            type={'primary'}
+                            type="primary"
                             size="small"
-                            className={'mr-2'}
-                            icon={<CheckCircleOutlined />}
+                            icon={<PlusOutlined />}
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (completedTargets.has(target.id)) {
-                                // handleUncompleteProbation(target);
-                              } else {
-                                handleCompleteProbation(target);
-                              }
+                              handleAddTask(target.id);
                             }}
-                            loading={updateProbationTargetMutation.isLoading}
-                          >
-                            {'Complete Probation'}
-                          </Button>
-                        )}
-                    </Space>
-                  </div>
-                </div>
-              }
-              extra={
-                <div className="flex items-center space-x-2">
-                  {target.probationTasks.length === 0 && (
-                    <Tooltip title="Add Probation Task ">
-                      <AccessGuard
-                        permissions={[Permissions.CreateProbationTask]}
-                      >
-                        <Button
-                          type="primary"
-                          size="small"
-                          icon={<PlusOutlined />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddTask(target.id);
-                          }}
-                        />
-                      </AccessGuard>
-                    </Tooltip>
-                  )}
-                  {(() => {
-                    const canEditTarget = AccessGuard.checkAccess({
-                      permissions: [Permissions.UpdateProbationTarget],
-                    });
-                    const canEditTask = AccessGuard.checkAccess({
-                      permissions: [Permissions.UpdateProbationTask],
-                    });
-                    const items = [
-                      canEditTarget
-                        ? {
+                            className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center"
+                          />
+                        </AccessGuard>
+                      </Tooltip>
+                    )}
+                    {(() => {
+                      const canEditTarget = AccessGuard.checkAccess({
+                        permissions: [Permissions.UpdateProbationTarget],
+                      });
+                      const canEditTask = AccessGuard.checkAccess({
+                        permissions: [Permissions.UpdateProbationTask],
+                      });
+                      const items = [
+                        canEditTarget
+                          ? {
                             key: 'edit-target',
                             label: 'Edit Probation Target',
                             onClick: (e: any) => {
@@ -634,9 +636,9 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                               handleEditTarget(target);
                             },
                           }
-                        : null,
-                      canEditTask
-                        ? {
+                          : null,
+                        canEditTask
+                          ? {
                             key: 'edit-task',
                             label: 'Edit Probation Task',
                             onClick: (e: any) => {
@@ -644,50 +646,54 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                               openTaskEditDrawer(target);
                             },
                           }
-                        : null,
-                    ].filter(Boolean) as any[];
+                          : null,
+                      ].filter(Boolean) as any[];
 
-                    if (!items.length) return null;
+                      if (!items.length) return null;
 
-                    return (
-                      <Dropdown
-                        menu={{ items }}
-                        trigger={['click']}
-                        placement="bottomRight"
+                      return (
+                        <Dropdown
+                          menu={{ items }}
+                          trigger={['click']}
+                          placement="bottomRight"
+                        >
+                          <Button
+                            size="small"
+                            className="flex items-center w-full"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MdEdit className="mr-1" />
+                            <DownOutlined />
+                          </Button>
+                        </Dropdown>
+                      );
+                    })()}
+
+                    <Tooltip title="Delete Probation Target">
+                      <AccessGuard
+                        permissions={[Permissions.DeleteProbationTarget]}
                       >
                         <Button
+                          type="default"
                           size="small"
-                          className="flex items-center"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MdEdit className="mr-1" />
-                          <DownOutlined />
-                        </Button>
-                      </Dropdown>
-                    );
-                  })()}
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTarget(target);
+                          }}
+                          className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center text-red-600 hover:text-red-800"
 
-                  <Tooltip title="Delete Probation Target">
-                    <AccessGuard
-                      permissions={[Permissions.DeleteProbationTarget]}
-                    >
-                      <Button
-                        type="default"
-                        size="small"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteTarget(target);
-                        }}
-                        className="text-red-600 hover:text-red-800"
-                      />
-                    </AccessGuard>
-                  </Tooltip>
+                        />
+                      </AccessGuard>
+                    </Tooltip>
+                  </div>
+
                 </div>
               }
+
             >
-              <div className="space-y-3 max-h-72 overflow-y-auto scrollbar-hide">
+              <div className="space-y-3 max-h-96 sm:max-h-72 overflow-y-auto scrollbar-hide pr-1">
                 {/* Inline Task Panel */}
                 <InlineTaskPanel
                   probationTargetId={target.id}
@@ -709,7 +715,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       task={task}
                       onToggle={() => onToggleTaskComplete?.(task.id)}
                       onDelete={() => handleDeleteClick(task)}
-                      onUpdateScore={onUpdateTaskScore || (() => {})}
+                      onUpdateScore={onUpdateTaskScore || (() => { })}
                       onEdit={() => handleEditClick(task)}
                     />
                   ))
@@ -722,7 +728,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                   </div>
                 )}
               </div>
-              <div className="flex justify-end mt-4 mr-4">
+              <div className="flex justify-end mt-3 sm:mt-4 mr-0 sm:mr-4 px-2 sm:px-0">
                 <div className="text-[14px] font-bold text-gray-900">
                   Total: {totalScore.toFixed(2)}
                 </div>
@@ -774,27 +780,27 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
               Edit Tasks - {targetForTaskEdit.name}
             </CustomDrawerHeader>
           }
-          width="45%"
+          width={isMobile ? '100%' : '45%'}
           footer={
-            <div className="p-3 flex items-center justify-between">
+            <div className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div
-                className={`text-sm font-bold ${
-                  drawerTotalWeight === 100
-                    ? 'text-green-600'
-                    : drawerTotalWeight > 100
-                      ? 'text-red-600'
-                      : 'text-orange-600'
-                }`}
+                className={`text-sm font-bold ${drawerTotalWeight === 100
+                  ? 'text-green-600'
+                  : drawerTotalWeight > 100
+                    ? 'text-red-600'
+                    : 'text-orange-600'
+                  }`}
               >
                 Total Weight: {drawerTotalWeight}/100
               </div>
-              <div className="flex space-x-2">
-                <Button onClick={closeTaskEditDrawer}>Cancel</Button>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto">
+                <Button onClick={closeTaskEditDrawer} className="w-full sm:w-auto">Cancel</Button>
                 <Button
                   type="primary"
                   loading={createTaskSaveAllMutation.isLoading}
                   disabled={drawerTotalWeight !== 100}
                   onClick={handleDrawerSaveAll}
+                  className="w-full sm:w-auto"
                 >
                   Save Changes
                 </Button>
@@ -964,7 +970,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
         open={showEmploymentModal}
         onCancel={handleEmploymentModalCancel}
         footer={null}
-        width={500}
+        width={isMobile ? '95%' : 500}
       >
         <div className="py-4">
           <p className="mb-4 text-gray-600">
@@ -1017,7 +1023,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
         open={showEditModal}
         onCancel={handleEditModalCancel}
         footer={null}
-        width={400}
+        width={isMobile ? '95%' : 400}
       >
         <div className="py-4">
           <Form

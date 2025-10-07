@@ -196,12 +196,13 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
       <Card
         title="Probation Tasks"
         extra={
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <AccessGuard permissions={[Permissions.AddOffloadingTasks]}>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={handleAddTaskClick}
+                className="w-full sm:w-auto"
               >
                 <span className="hidden sm:inline">Add Task</span>
               </Button>
@@ -215,7 +216,7 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
                   trigger={['click']}
                   placement="bottomRight"
                 >
-                  <Button className="flex items-center">
+                  <Button className="flex items-center w-full sm:w-auto">
                     <SettingOutlined className="mr-2 hidden sm:inline" />
                     <DownOutlined />
                   </Button>
@@ -226,7 +227,7 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
         }
         className="w-full"
       >
-        <div className="space-y-3 max-h-64 overflow-y-scroll scrollbar-none">
+        <div className="space-y-3 max-h-96 sm:max-h-64 overflow-y-scroll scrollbar-none pr-1">
           {probationTasks.length > 0 ? (
             probationTasks.map((task: ProbationTask) => (
               <TaskItem
@@ -251,7 +252,7 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
         </div>
 
         {/* Total Score Display */}
-        <div className="flex justify-end mt-4 mr-4">
+        <div className="flex justify-end mt-3 sm:mt-4 mr-0 sm:mr-4 px-2 sm:px-0">
           <div className="text-[14px] font-bold text-gray-900">
             Total: {getCompletedTasksScore()}
           </div>
