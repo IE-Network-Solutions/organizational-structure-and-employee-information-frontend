@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -14,7 +13,7 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
                         string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD'),
-string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
+			string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
                         env.BRANCH_NAME = branchName
@@ -27,27 +26,18 @@ string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
                         } else if (branchName.contains('production')) {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/ie-env/.osei-front-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/ie-env'
                         } else if (branchName.contains('staging')) {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
                             env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/staging'
-                        } else if (branchName.contains('preview')) {
-                            env.REMOTE_SERVER_2 = REMOTE_SERVER_PROD2
-                            env.SECRETS_PATH = '/home/ubuntu/preview-secrets/.osei-front-env'
-                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/preview'
-                        } else if (branchName.contains('OOO')) {
-                            env.SSH_CREDENTIALS_ID_1 = 'peptest'
-                            env.REMOTE_SERVER_1 = REMOTE_SERVER_TEST
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.pwa-env'
-                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
-                    }
+                        }
                 }
             }
         }
-}
+	}
 
         stage('Fetch Environment Variables') {
             parallel {
@@ -272,9 +262,9 @@ string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
 
         stage('Run Next.js App') {
             parallel {
-                stage('Deploy to Develop/Production') {
+                stage('Deploy to Develop') {
                     when {
-                        expression { env.BRANCH_NAME.contains('develop') || env.BRANCH_NAME.contains('production') }
+                        expression { env.BRANCH_NAME.contains('develop') }
                     }
                     steps {
                         script {
@@ -290,9 +280,9 @@ string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
                         }
                     }
                 }
- stage('Deploy pwa') {
+ stage('Deploy to prod') {
                     when {
-                        expression { env.BRANCH_NAME.contains('OOO') }
+                        expression { env.BRANCH_NAME.contains('production') }
                     }
                     steps {
                         script {
@@ -300,27 +290,8 @@ string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
                                 sh """
                                     ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_1} '
                                         cd ~/$REPO_DIR &&
-                                        sudo pm2 delete osei-front-app-pwa || true &&
-                                        sudo pm2 start pwa-ecosystem.config.js --env production
-                                    '
-                                """
-                            }
-                        }
-                    }
-                }
-
-  stage('Deploy to Preview') {
-                    when {
-                        expression { env.BRANCH_NAME.contains('preview') }
-                    }
-                    steps {
-                        script {
-                             withCredentials([string(credentialsId: 'pepproduction2', variable: 'SERVER_PASSWORD')]) {
-                                sh """
-                                     sshpass -p '$SERVER_PASSWORD' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER_2} '
-                                        cd ~/$REPO_DIR &&
-                                        sudo pm2 delete osei-front-app-preview || true &&
-                                        sudo pm2 start preview-ecosystem.config.js --env production
+                                        sudo pm2 delete osei-front-app-ie || true &&
+                                        sudo pm2 start ie-ecosystem.config.js --env production
                                     '
                                 """
                             }
@@ -400,7 +371,7 @@ string(credentialsId: 'REMOTE_SERVER_PROD2', variable: 'REMOTE_SERVER_PROD2'),
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'yonas.t@ienetworksolutions.com, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com'
+                to: 'yonas.t@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com'
             )
         }
     }
