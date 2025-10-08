@@ -139,11 +139,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           <div>
             {hasBreakTypeFilter &&
             attendanceBreak &&
-            attendanceBreak.breakType ? (
+            attendanceBreak?.breakType ? (
               <div className="text-xs text-gray-600 mt-1">
                 <div>
-                  {attendanceBreak.endAt ? (
-                    dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(
+                  {attendanceBreak?.endAt ? (
+                    dayjs(attendanceBreak?.endAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
@@ -175,11 +175,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           <div>
             {hasBreakTypeFilter &&
             attendanceBreak &&
-            attendanceBreak.breakType ? (
+            attendanceBreak?.breakType ? (
               <div className="text-xs text-gray-600 mt-1">
                 <div>
-                  {attendanceBreak.startAt ? (
-                    dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(
+                  {attendanceBreak?.startAt ? (
+                    dayjs(attendanceBreak?.startAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
@@ -204,7 +204,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (record: AttendanceRecord) => {
+      render: ( record: AttendanceRecord) => {
         const attendanceBreak = record.attendanceBreaks?.[0];
         const hasBreakTypeFilter = filter?.breakTypeId;
 
@@ -301,11 +301,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           userId: item.userId,
           createdBy: item.createdBy,
           createdAt: item.createdAt,
-          clockIn: item.startAt,
-          clockOut: item.endAt,
+          clockIn: item?.startAt,
+          clockOut: item?.endAt,
           status: item,
           totalTime:
-            item.startAt &&
+            item?.startAt &&
             item.endAt &&
             `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
