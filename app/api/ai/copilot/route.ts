@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { AI_BASE_URL } from '@/utils/constants';
 
-const AI_API_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Forward the request to the AI backend with enhanced payload
-    const response = await axios.post(`${AI_API_BASE_URL}/copilot`, payload, {
+    const response = await axios.post(`${AI_BASE_URL}/copilot`, payload, {
       headers: {
         'Content-Type': 'application/json',
       },
