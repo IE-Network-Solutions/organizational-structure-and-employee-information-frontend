@@ -410,11 +410,10 @@ function CreateReport() {
                                                 </Radio.Group>
                                                 <Tooltip title={task.taskName}>
                                                   <span className="font-medium text-sm truncate flex items-center gap-1">
-                                                    {task.taskName?.length >=
-                                                    100
+                                                    {task.taskName?.length >= 50
                                                       ? task.taskName?.slice(
                                                           0,
-                                                          100,
+                                                          50,
                                                         ) + '...'
                                                       : task.taskName}
                                                     {task?.achieveMK ? (
@@ -592,6 +591,7 @@ function CreateReport() {
                                               />
                                             </Form.Item>
                                           )}
+
                                         {/* Comment Form Item, only with the 'Not' status condition */}
                                         {selectedStatuses[task.taskId] ===
                                           'Not' && (
@@ -720,8 +720,9 @@ function CreateReport() {
                                         </Radio.Group>
                                         <Tooltip title={task.taskName}>
                                           <span className="font-medium text-sm truncate flex items-center gap-1">
-                                            {task.taskName?.length >= 40
-                                              ? task.taskName?.slice(0, 40)
+                                            {task.taskName?.length >= 60
+                                              ? task.taskName?.slice(0, 60) +
+                                                '...'
                                               : task.taskName}
                                             {task?.achieveMK ? (
                                               <MdKey size={12} className="" />
@@ -775,6 +776,7 @@ function CreateReport() {
                                   </div>
                                 </Form.Item>
                                 {/* Actual Value Form Item, with both conditions */}
+
                                 {selectedStatuses[task.taskId] &&
                                   keyresult?.metricType?.name !==
                                     NAME.ACHIEVE &&

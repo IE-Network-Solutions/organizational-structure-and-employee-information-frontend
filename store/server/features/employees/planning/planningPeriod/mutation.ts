@@ -15,7 +15,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
   const token = await getCurrentToken();
   return crudRequest({
-    url: `${OKR_URL}/Planning-periods/${id}`,
+    url: `${OKR_URL}/planning-periods/${id}`,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -164,10 +164,11 @@ export const useUpdateAssignPlanningPeriodToUsers = () => {
           description: 'Planning period assignment successfully updated.',
         });
       },
-      onError: () => {
+      onError: (error: any) => {
         NotificationMessage.error({
           message: 'Update Failed',
           description:
+            error?.response?.data?.message ||
             'There was an error updating the planning period assignment.',
         });
       },

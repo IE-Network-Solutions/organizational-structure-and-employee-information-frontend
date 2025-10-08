@@ -1,8 +1,16 @@
 import React, { useEffect } from 'react';
-import { Avatar, Form, Input, notification, Select, Space, Spin } from 'antd';
+import {
+  Avatar,
+  Button,
+  Form,
+  Input,
+  notification,
+  Select,
+  Space,
+  Spin,
+} from 'antd';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useFetchVpScoringById,
@@ -288,20 +296,26 @@ const ScoringDrawer: React.FC = () => {
       }
       width="30%"
       footer={
-        <div className=" w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5">
-          <CustomButton
+        <div className=" w-full bg-[#fff]  flex justify-center gap-5 py-3">
+          <Button
             type="default"
             title="Cancel"
             onClick={() => {
               resetState();
               closeDrawer();
             }}
-          />
-          <CustomButton
+            className="h-10"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
             loading={currentId ? isUpdatingLoading : isCreateLoading}
-            title={currentId ? 'Update' : 'Add'}
             onClick={() => form.submit()}
-          />
+            className="h-10"
+          >
+            {currentId ? 'Update' : 'Create'}
+          </Button>
         </div>
       }
     >

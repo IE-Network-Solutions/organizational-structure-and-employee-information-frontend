@@ -1,7 +1,7 @@
 import { ORG_DEV_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import axios from 'axios';
+import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 // const token = await getCurrentToken();
@@ -17,23 +17,22 @@ const getEmployeeSurvey = async (
 ) => {
   const token = await getCurrentToken();
   try {
-    const response = await axios.post(
-      `${ORG_DEV_URL}/survey-target-score/filtered-data/vp-score?page=${currentPage}&limit=${page}`,
-      {
+    const response = await crudRequest({
+      url: `${ORG_DEV_URL}/survey-target-score/filtered-data/vp-score?page=${currentPage}&limit=${page}`,
+      method: 'POST',
+      data: {
         userId,
         departmentId,
         monthId,
         // updatedBy: logUserId,
         // createdBy: logUserId,
-      }, // merged into one object
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          tenantId: tenantId,
-        },
       },
-    );
-    return response.data;
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }

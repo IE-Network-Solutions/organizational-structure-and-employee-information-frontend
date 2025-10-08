@@ -25,6 +25,7 @@ const MyleaveBalance: React.FC = () => {
     rejected: 'text-[#e03137] bg-[#f9d6d7]',
     cancelled: 'text-gray-500 bg-gray-500/20',
   };
+
   return (
     <div>
       <h2 className="text-[24px] font-bold mb-4">My Leave Balance</h2>
@@ -43,24 +44,24 @@ const MyleaveBalance: React.FC = () => {
           >
             <div className="flex justify-between items-center py-5 cursor-pointer">
               <div>
-                <Tooltip title={item.leaveType.title}>
+                <Tooltip title={item?.leaveType?.title}>
                   <p className="font-bold text-xs capitalize mb-1">
-                    {item.leaveType.title?.slice(0, 15)}...
+                    {item?.leaveType?.title?.slice(0, 15)}...
                   </p>
                 </Tooltip>
                 <Tag
                   className={`font-bold border-none py-0.5 ${
-                    item.leaveType.isFixed
+                    item?.leaveType?.isFixed
                       ? 'bg-[#B2B2FF] text-[#3636F0]'
                       : 'bg-[#55C79033] text-[#0CAF60]'
                   }`}
                 >
-                  {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
+                  {item?.leaveType?.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
               </div>
               <div className="">
                 <div className="text-xl font-bold text-[#3636F0] ">
-                  <span className="">{Math.round(item.totalBalance)}</span>
+                  <span className="">{Math.round(item?.totalBalance)}</span>
                   <span className="text-[10px] mr-2 font-bold ">days</span>
                 </div>
                 <div className="text-sm font-medium text-black ">Avaliable</div>

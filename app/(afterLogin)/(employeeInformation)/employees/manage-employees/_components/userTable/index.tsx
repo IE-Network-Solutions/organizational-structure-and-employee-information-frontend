@@ -104,6 +104,7 @@ const UserTable = () => {
     searchParams.employee_name,
     searchParams.allStatus ? searchParams.allStatus : '',
     searchParams.gender ? searchParams.gender : '',
+    searchParams.employmentType ? searchParams.employmentType : '',
     searchParams.joinedDate ? searchParams.joinedDate : '',
     searchParams.joinedDateType || 'after',
   );
