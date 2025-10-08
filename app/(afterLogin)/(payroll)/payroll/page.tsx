@@ -17,8 +17,8 @@ import { Workbook } from 'exceljs';
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
-  useGetAllActiveBasicSalary,
   useGetActivePayrollsForExport,
+  useGetAllActiveBasicSalary,
   useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
@@ -74,14 +74,14 @@ const Payroll = () => {
     pageSize,
     currentPage,
   );
+  const { data: payrollForExport, refetch: refetchExportData } =
+    useGetActivePayrollsForExport(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
-  const { data: payrollForExport, refetch: refetchExportData } =
-    useGetActivePayrollsForExport(searchQuery);
 
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
@@ -90,14 +90,15 @@ const Payroll = () => {
 
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
+  const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
-  const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
 
   useEffect(() => {
     // Check if division filter is applied
     const hasDivisionFilter = searchValue?.divisionId;
 
+    // Handle paginated payroll data for display
     if (payroll?.items) {
       let mergedData;
 
@@ -163,6 +164,7 @@ const Payroll = () => {
       }
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
+
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
 
@@ -178,8 +180,10 @@ const Payroll = () => {
 
     if (bankLetter)
       exportTasks.push(
-        handleBankLetter(
-          payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
+        Promise.resolve(
+          handleBankLetter(
+            payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
+          ),
         ),
       );
 
@@ -665,6 +669,8 @@ const Payroll = () => {
         };
       });
 
+
+      
       const exportColumns = [
         { header: 'Employee Name', key: 'employeeName', width: 50 },
         { header: 'Employee Email', key: 'email', width: 50 },
@@ -761,11 +767,7 @@ const Payroll = () => {
               (acc: number, item: any) => acc + Number(item.amount),
               0,
             ) || 0;
-
-        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
-        const taxableAmount =
-          totalTransportAllowance >= 600 ? totalTransportAllowance - 600 : 0;
-
+        const taxableAmount = totalTransportAllowance - 600;
         return <div>{taxableAmount.toFixed(2)}</div>;
       },
     },
