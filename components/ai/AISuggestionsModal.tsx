@@ -190,8 +190,15 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       }
     }, 100);
 
-    // Remove the suggestion from the list after successfully adding
-    setItems((prev) => prev.filter((item, i) => i !== index));
+    // Remove the suggestion from the list after successfully adding.
+    // If the list becomes empty, close the modal to match OKR UX.
+    setItems((prev) => {
+      const next = prev.filter((item, i) => i !== index);
+      if (next.length === 0) {
+        setOpen(false);
+      }
+      return next;
+    });
   };
 
   return (
