@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { AI_BASE_URL } from '@/utils/constants';
 
-const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
+
 
 export async function POST(request: Request) {
   try {
