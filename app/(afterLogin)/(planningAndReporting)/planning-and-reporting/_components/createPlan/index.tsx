@@ -61,6 +61,12 @@ function CreatePlan() {
     (item: any) => item.planningPeriod?.id == planningPeriodId,
   )?.id;
 
+  // const modalHeader = (
+  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+  //     Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
+  //     Plan
+  //   </div>
+  // );
   const handleAddName = (
     currentBoardValues: Record<string, string>,
     kId: string,

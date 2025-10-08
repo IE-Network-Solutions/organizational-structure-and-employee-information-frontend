@@ -8,6 +8,7 @@ import Job from './_components/job';
 import Documents from './_components/documents';
 import RolePermission from './_components/rolePermission';
 import OffboardingTask from './_components/offboarding';
+import ProbationTask from './_components/probation';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
@@ -40,7 +41,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const handleConfirmResignation = (resignationId: string) => {
     sendResignationID(resignationId, {
       onSuccess: () => {
-        setActiveTab('5');
+        setActiveTab('6');
       },
     });
   };
@@ -73,10 +74,20 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       label: 'Role Permission',
       children: <RolePermission id={id} />,
     },
+
     {
       key: '5',
       label: 'OffBoarding',
       children: <OffboardingTask id={id} />,
+    },
+    {
+      key: '6',
+      label: 'Probation',
+      children: (
+        <AccessGuard permissions={[Permissions.ViewProbationTarget]}>
+          <ProbationTask id={id} />
+        </AccessGuard>
+      ),
     },
   ];
 

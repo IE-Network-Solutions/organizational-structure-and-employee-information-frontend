@@ -67,6 +67,12 @@ function EditPlan() {
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
+  // const modalHeader = (
+  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+  //     Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
+  //   </div>
+  // );
+
   const handleAddName = (
     currentBoardValues: Record<string, string | number>,
     kId: string,
