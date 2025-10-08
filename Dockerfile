@@ -55,21 +55,25 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /tmp/.port.env /app/.port.env
-
-RUN chown -R nextjs:nodejs /app
-
-USER nextjs
-
-EXPOSE 3000
 ENV HOSTNAME="0.0.0.0"
 
+# Create non-root user and group
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs -G nodejs
+
+# Switch to non-root user
+USER nextjs
+
+# Copy dependencies, build output, and static files with proper ownership
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /tmp/.port.env /app/.port.env
+
+# Expose the port
+EXPOSE 3000
+
+# Start the app using the port from .port.env
 CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && node server.js"]
+
