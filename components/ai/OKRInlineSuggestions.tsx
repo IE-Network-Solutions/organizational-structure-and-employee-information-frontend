@@ -158,6 +158,13 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
       targetValue:
         suggestion.target_value !== undefined ? suggestion.target_value : 100,
       isAISuggestion: true,
+      milestones:
+        keyType === 'Milestone'
+          ? (suggestion.milestones || []).map((m) => ({
+              title: m.title,
+              weight: m.weight,
+            }))
+          : [],
     });
 
     // Remove the suggestion from the list

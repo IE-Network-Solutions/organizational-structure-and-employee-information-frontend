@@ -60,24 +60,59 @@ export const useOKRStore = create<OKRState>()(
       metricTypeId = '',
       suggestion?: any,
     ) =>
-      set((state) => ({
-        objective: {
-          ...state.objective,
-          keyResults: [
-            ...state.objective.keyResults,
-            {
-              key_type: keyType,
-              metricTypeId: metricTypeId,
-              title: suggestion?.title || '',
-              weight: suggestion?.weight || 0,
-              deadline: null,
-              initialValue: suggestion?.initialValue || 0,
-              targetValue: suggestion?.targetValue || 0,
-              milestones: [],
-            },
-          ],
-        },
-      })),
+      set((state) => {
+        const suggestedMilestones = Array.isArray(suggestion?.milestones)
+          ? suggestion.milestones.filter((m: any) => m && m.title)
+          : [];
+
+        // Normalize milestone weights to sum to 100 if provided
+        let normalizedMilestones = suggestedMilestones;
+        if (suggestedMilestones.length > 0) {
+          const total = suggestedMilestones.reduce(
+            (sum: number, m: any) => sum + Number(m.weight || 0),
+            0,
+          );
+          if (total > 0 && total !== 100) {
+            normalizedMilestones = suggestedMilestones.map((m: any) => ({
+              ...m,
+              weight: Math.round((Number(m.weight || 0) / total) * 100),
+            }));
+            const adjustedTotal = normalizedMilestones.reduce(
+              (sum: number, m: any) => sum + Number(m.weight || 0),
+              0,
+            );
+            if (adjustedTotal !== 100 && normalizedMilestones.length > 0) {
+              normalizedMilestones[0] = {
+                ...normalizedMilestones[0],
+                weight:
+                  Number(normalizedMilestones[0].weight || 0) +
+                  (100 - adjustedTotal),
+              };
+            }
+          }
+        }
+
+        const newKeyResult: KeyResult = {
+          // @ts-expect-error id can be added later by backend
+          id: undefined,
+          key_type: keyType,
+          metricTypeId: metricTypeId,
+          title: suggestion?.title || '',
+          weight: suggestion?.weight || 0,
+          deadline: null,
+          initialValue: suggestion?.initialValue || 0,
+          targetValue: suggestion?.targetValue || 0,
+          milestones: keyType === 'Milestone' ? normalizedMilestones : [],
+          isAISuggestion: Boolean(suggestion?.isAISuggestion),
+        };
+
+        return {
+          objective: {
+            ...state.objective,
+            keyResults: [...state.objective.keyResults, newKeyResult],
+          },
+        };
+      }),
 
     // Add last key result to keyResultValue
     addKeyResultValue: (newKeyResult) =>

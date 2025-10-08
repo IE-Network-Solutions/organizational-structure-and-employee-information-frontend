@@ -125,7 +125,11 @@ export interface OKRState {
   setKeyResult: (keyResult: KeyResult[]) => void;
   setKeyResultId: (keyResultId: string) => void;
   setObjectiveId: (objectiveId: string) => void;
-  addKeyResult: (keyType?: string, metricTypeId?: string) => void;
+  addKeyResult: (
+    keyType?: string,
+    metricTypeId?: string,
+    suggestion?: Partial<KeyResult> & { milestones?: Milestone[] }
+  ) => void;
   addKeyResultValue: (value: any) => void;
   handleKeyResultChange: (value: any, index: number, field: string) => void;
   handleSingleKeyResultChange: (value: any, field: string) => void;

@@ -141,6 +141,13 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
       targetValue:
         suggestion.target_value !== undefined ? suggestion.target_value : 100,
       isAISuggestion: true, // Flag to show AI indicator
+      milestones:
+        keyType === 'Milestone'
+          ? (suggestion.milestones || []).map((m) => ({
+              title: m.title,
+              weight: m.weight,
+            }))
+          : [],
     });
 
     // Remove the suggestion from the list
