@@ -285,11 +285,15 @@ const MonthDrawer: React.FC<
         const otherStart = dayjs(otherStartRaw);
         const otherEnd = dayjs(otherEndRaw);
 
-        // Only error if the start date is inside another month's range
-        if (
+        // Check for overlap in both directions
+        const currentOverlapsOther =
           currentStart.isSameOrAfter(otherStart) &&
-          currentStart.isSameOrBefore(otherEnd)
-        ) {
+          currentStart.isSameOrBefore(otherEnd);
+        const otherOverlapsCurrent =
+          otherStart.isSameOrAfter(currentStart) &&
+          otherStart.isSameOrBefore(currentEndRaw);
+
+        if (currentOverlapsOther || otherOverlapsCurrent) {
           throw new Error(
             `Start date for Month ${currentMonthNumber} overlaps with Month ${monthNum}. Please adjust the dates.`,
           );
@@ -319,17 +323,50 @@ const MonthDrawer: React.FC<
         const otherStart = dayjs(otherStartRaw);
         const otherEnd = dayjs(otherEndRaw);
 
-        // Only error if the end date is inside another month's range
-        if (
+        // Check for overlap in both directions
+        const currentOverlapsOther =
           currentEnd.isSameOrAfter(otherStart) &&
-          currentEnd.isSameOrBefore(otherEnd)
-        ) {
+          currentEnd.isSameOrBefore(otherEnd);
+        const otherOverlapsCurrent =
+          otherEnd.isSameOrAfter(currentStartRaw) &&
+          otherEnd.isSameOrBefore(currentEnd);
+
+        if (currentOverlapsOther || otherOverlapsCurrent) {
           throw new Error(
             `End date for Month ${currentMonthNumber} overlaps with Month ${monthNum}. Please adjust the dates.`,
           );
         }
       }
     };
+  };
+
+  // Helper function to validate all related date fields when any date changes
+  const validateAllRelatedDateFields = (changedMonthNumber: number) => {
+    if (!form) return;
+
+    const allMonthNumbers = Array.from({ length: 12 }, (nonused, i) => i + 1);
+    const fieldsToValidate: string[] = [];
+
+    // Add the changed month's fields
+    fieldsToValidate.push(
+      `monthStartDate_${changedMonthNumber}`,
+      `monthEndDate_${changedMonthNumber}`,
+    );
+
+    // Add all other months' date fields that might be affected
+    allMonthNumbers.forEach((monthNum) => {
+      if (monthNum !== changedMonthNumber) {
+        fieldsToValidate.push(
+          `monthStartDate_${monthNum}`,
+          `monthEndDate_${monthNum}`,
+        );
+      }
+    });
+
+    // Validate all related fields
+    form.validateFields(fieldsToValidate).catch(() => {
+      // Ignore validation errors, we just want to trigger re-validation
+    });
   };
 
   return (
@@ -424,9 +461,7 @@ const MonthDrawer: React.FC<
                         );
                       }}
                       onChange={() => {
-                        form?.validateFields([
-                          `monthEndDate_${monthInfo.monthNumber}`,
-                        ]);
+                        validateAllRelatedDateFields(monthInfo.monthNumber);
                       }}
                     />
                   </Form.Item>
@@ -489,9 +524,7 @@ const MonthDrawer: React.FC<
                         );
                       }}
                       onChange={() => {
-                        form?.validateFields([
-                          `monthStartDate_${monthInfo.monthNumber}`,
-                        ]);
+                        validateAllRelatedDateFields(monthInfo.monthNumber);
                       }}
                     />
                   </Form.Item>
