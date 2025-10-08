@@ -3,6 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide scrollbar for webkit browsers */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Leaflet Map Styles */
 .leaflet-container {
   z-index: 1;
