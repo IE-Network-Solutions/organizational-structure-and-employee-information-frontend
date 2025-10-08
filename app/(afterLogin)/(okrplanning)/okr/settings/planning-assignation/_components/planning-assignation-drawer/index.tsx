@@ -59,7 +59,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       form.setFieldsValue({
         userIds: [selectedPlanningUser.userId], // Wrapping userId in an array to match the expected structure
         planningPeriods: selectedPlanningUser.planningPeriod.map(
-          (item: PlanningPeriodItem) => item.id,
+          (item: PlanningPeriodItem) => item.planningPeriodId,
         ),
       });
     } else {

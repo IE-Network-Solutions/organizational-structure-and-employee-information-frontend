@@ -69,6 +69,7 @@ interface SearchParams {
   allJobs: string;
   allStatus: string | null;
   gender: string;
+  employmentType: string;
   joinedDate: string;
   joinedDateType: 'before' | 'after';
 }
@@ -357,6 +358,7 @@ export const useEmployeeManagementStore = create<UserState>()(
       allJobs: '',
       allStatus: '',
       gender: '',
+      employmentType: '',
       joinedDate: '',
       joinedDateType: 'after',
     },

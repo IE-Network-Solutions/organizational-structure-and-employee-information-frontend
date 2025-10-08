@@ -78,6 +78,7 @@ export const employeeAllFilter = async (
   branchId: string,
   searchString: string,
   gender: string,
+  employmentTypeId: string,
   joinedDate: string,
   joinedDateType: 'before' | 'after',
 ) => {
@@ -93,7 +94,7 @@ export const employeeAllFilter = async (
   }
 
   const response = await crudRequest({
-    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&gender=${gender}${joinedDateParam}&page=${currentPage}&limit=${pageSize}`,
+    url: `${ORG_AND_EMP_URL}/users?branchId=${branchId}&departmentId=${departmentId}&searchString=${searchString}&deletedAt=${isDeleted ? isDeleted : null}&gender=${gender}&employmentTypeId=${employmentTypeId}${joinedDateParam}&page=${currentPage}&limit=${pageSize}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -143,6 +144,7 @@ export const useEmployeeAllFilter = (
   isDeleted: string,
   department: string,
   gender: string,
+  employmentTypeId: string,
   joinedDate: string,
   joinedDateType: 'before' | 'after',
 ) => {
@@ -156,6 +158,7 @@ export const useEmployeeAllFilter = (
       isDeleted,
       department,
       gender,
+      employmentTypeId,
       joinedDate,
       joinedDateType,
     ],
@@ -168,6 +171,7 @@ export const useEmployeeAllFilter = (
         searchString,
         isDeleted,
         gender,
+        employmentTypeId,
         joinedDate,
         joinedDateType,
       ),
