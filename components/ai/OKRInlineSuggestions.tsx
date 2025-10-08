@@ -103,6 +103,7 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
       objectiveTitle.trim() !== '' &&
       suggestions.length === 0
     ) {
+      // Only auto-generate the first time panel opens; do not re-generate after user adds/clears
       handleGenerate();
     }
   }, [isVisible, objectiveTitle, suggestions.length, handleGenerate]);
@@ -167,8 +168,14 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
           : [],
     });
 
-    // Remove the suggestion from the list
-    setSuggestions((prev) => prev.filter((item, i) => i !== index));
+    // Remove the suggestion from the list and close panel if none remain
+    setSuggestions((prev) => {
+      const next = prev.filter((item, i) => i !== index);
+      if (next.length === 0) {
+        onClose();
+      }
+      return next;
+    });
 
     NotificationMessage.success({
       message: 'AI-suggested Key Result added successfully',

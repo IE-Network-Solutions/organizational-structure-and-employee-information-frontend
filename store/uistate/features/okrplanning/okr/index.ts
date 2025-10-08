@@ -108,11 +108,12 @@ export const useOKRStore = create<OKRState>()(
           id: undefined,
           key_type: keyType,
           metricTypeId: metricTypeId,
+          // Always use the AI suggestion title as the KR title
           title: suggestion?.title || '',
           weight: suggestion?.weight || 0,
           deadline: null,
-          initialValue: suggestion?.initialValue || 0,
-          targetValue: suggestion?.targetValue || 0,
+          initialValue: suggestion?.initialValue ?? 0,
+          targetValue: suggestion?.targetValue ?? 0,
           milestones: keyType === 'Milestone' ? normalizedMilestones : [],
           isAISuggestion: Boolean(suggestion?.isAISuggestion),
         };
