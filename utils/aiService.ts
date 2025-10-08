@@ -85,6 +85,11 @@ export type KeyResultSuggestion = {
   weight: number;
   initial_value?: number;
   target_value?: number;
+  // Optional milestones coming from AI for milestone-type key results
+  milestones?: Array<{
+    title: string;
+    weight: number;
+  }>;
 };
 
 type OKRResponse = {

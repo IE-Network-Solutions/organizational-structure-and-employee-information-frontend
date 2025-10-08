@@ -61,9 +61,20 @@ export const useOKRStore = create<OKRState>()(
       suggestion?: any,
     ) =>
       set((state) => {
-        const suggestedMilestones = Array.isArray(suggestion?.milestones)
+        // Build suggested milestones for Milestone type; if absent, derive a single parent milestone from the title
+        let suggestedMilestones = Array.isArray(suggestion?.milestones)
           ? suggestion.milestones.filter((m: any) => m && m.title)
           : [];
+        if (keyType === 'Milestone' && suggestedMilestones.length === 0) {
+          if (suggestion?.title) {
+            suggestedMilestones = [
+              {
+                title: suggestion.title,
+                weight: 100,
+              },
+            ];
+          }
+        }
 
         // Normalize milestone weights to sum to 100 if provided
         let normalizedMilestones = suggestedMilestones;
