@@ -94,7 +94,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}\' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             if [ -d "${env.REPO_DIR}" ]; then
                                 sudo chown -R \$USER:\$USER ${env.REPO_DIR}
                                 sudo chmod -R 755 ${env.REPO_DIR}
@@ -109,7 +109,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}\' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             if [ ! -d "${env.REPO_DIR}/.git" ]; then
                                 git clone ${env.REPO_URL} -b ${env.BRANCH_NAME} ${env.REPO_DIR}
                             else
@@ -121,25 +121,55 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
                 withCredentials([
                     usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
                     string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
                 ]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}\' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                            cd ${env.REPO_DIR} &&
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
+                            set -e
+
+                            # Login to Docker Hub first
+                            echo "Logging into Docker Hub..."
+                            echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+
+                            if [ \$? -ne 0 ]; then
+                                echo "ERROR: Docker login failed"
+                                exit 1
+                            fi
+
+                            # Build the image
+                            echo "Building Docker image..."
+                            cd ${env.REPO_DIR}
                             docker build \
-                                --build-arg VAULT_ADDR="${env.VAULT_ADDR}\" \
-                                --build-arg VAULT_USERNAME=\"${env.VAULT_USERNAME}\" \
-                                --build-arg VAULT_PASSWORD=\"${env.VAULT_PASSWORD}\" \
-                                --build-arg VAULT_SECRET_PATH=\"${env.VAULT_SECRET_PATH}" \
-                                -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . &&
-                            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin &&
-                            docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} &&
+                                --build-arg VAULT_ADDR="${env.VAULT_ADDR}" \
+                                --build-arg VAULT_USERNAME="${env.VAULT_USERNAME}" \
+                                --build-arg VAULT_PASSWORD="${env.VAULT_PASSWORD}" \
+                                --build-arg VAULT_SECRET_PATH="${env.VAULT_SECRET_PATH}" \
+                                -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} .
+
+                            if [ \$? -ne 0 ]; then
+                                echo "ERROR: Docker build failed"
+                                exit 1
+                            fi
+
+                            # Push the image
+                            echo "Pushing Docker image..."
+                            docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}
+
+                            if [ \$? -ne 0 ]; then
+                                echo "ERROR: Docker push failed"
+                                exit 1
+                            fi
+
+                            # Clean up
+                            echo "Cleaning up old images..."
                             docker image prune -f
-                        '
+
+                            echo "Build and push completed successfully"
+ENDSSH
                     """
                 }
             }
@@ -153,9 +183,13 @@ pipeline {
                 ]) {
                     script {
                         sh """
-                            sshpass -p '${SERVER_PASSWORD}\' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
+                            sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
+                                set -e
+
+                                # Login to Docker Hub
                                 echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin
 
+                                # Pull the image
                                 if ! docker pull ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}; then
                                     echo 'ERROR: Failed to pull Docker image'
                                     exit 1
@@ -187,7 +221,7 @@ pipeline {
                                         fi
                                     fi
                                 fi
-                            "
+ENDSSH
                         """
                     }
                 }
@@ -199,12 +233,11 @@ pipeline {
                 withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
                     script {
                         sh """
-                            sshpass -p '${SERVER_PASSWORD}\' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                            sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
                                 echo "Verifying deployment status..."
 
                                 for i in {1..20}; do
-                                    STATUS=\$(docker service inspect --format "{{ if .UpdateStatus }}{{ .UpdateStatus.State }}{{ else }}none{{ end }}\" ${env.SERVICE_NAME} 2>/dev/null)
-                                    )
+                                    STATUS=\$(docker service inspect --format "{{ if .UpdateStatus }}{{ .UpdateStatus.State }}{{ else }}none{{ end }}" ${env.SERVICE_NAME} 2>/dev/null)
 
                                     if [ -z "\$STATUS" ]; then
                                         STATUS="none"
@@ -224,7 +257,7 @@ pipeline {
 
                                     sleep 5
                                 done
-                            '
+ENDSSH
                         """
                     }
                 }
@@ -237,14 +270,14 @@ pipeline {
         success {
             withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
                 sh """
-                   sshpass -p '${SERVER_PASSWORD}\' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                   sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
                     if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
                         echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
                         docker ps -a \
-                            --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}\" \
-                            --filter \"status=exited" -q | xargs -r docker rm -f
+                            --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \
+                            --filter "status=exited" -q | xargs -r docker rm -f
                     fi
-                '
+ENDSSH
                 """
             }
         }
