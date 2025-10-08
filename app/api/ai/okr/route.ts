@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { AI_BASE_URL } from '@/utils/constants';
 
-
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();

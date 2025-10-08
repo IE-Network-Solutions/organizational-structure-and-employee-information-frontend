@@ -154,11 +154,10 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
     addKeyResult(keyType, metricTypeId, {
       title: suggestion.title,
       weight: suggestion.weight,
-      initialValue:
+      initial_value:
         suggestion.initial_value !== undefined ? suggestion.initial_value : 0,
-      targetValue:
+      target_value:
         suggestion.target_value !== undefined ? suggestion.target_value : 100,
-      isAISuggestion: true,
       milestones:
         keyType === 'Milestone'
           ? (suggestion.milestones || []).map((m) => ({
