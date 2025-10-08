@@ -26,6 +26,12 @@ COPY . .
 
 # Fetch secrets from Vault (no ARG declared)
 # Expect build args to be passed inline with `--build-arg`
+
+ARG VAULT_ADDR
+ARG VAULT_USERNAME
+ARG VAULT_PASSWORD
+ARG VAULT_SECRET_PATH
+
 RUN set -e && \
     echo "🔑 Fetching secrets from Vault..." && \
     VAULT_TOKEN=$(vault login -method=userpass \
