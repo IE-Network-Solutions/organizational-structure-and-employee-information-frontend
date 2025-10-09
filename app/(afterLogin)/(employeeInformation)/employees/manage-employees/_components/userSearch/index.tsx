@@ -92,7 +92,9 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           showSearch
           filterOption={(input, option) =>
-            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
           className="w-full h-12 rounded-lg border-gray-200"
         >
@@ -111,7 +113,9 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           showSearch
           filterOption={(input, option) =>
-            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
           className="w-full h-12 rounded-lg border-gray-200"
         >
@@ -143,7 +147,9 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           showSearch
           filterOption={(input, option) =>
-            String(option?.children || '').toLowerCase().includes(input.toLowerCase())
+            String(option?.children || '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
           }
           className="w-full h-12 rounded-lg border-gray-200"
         >
@@ -169,9 +175,9 @@ const EmployeeSearch: React.FC = () => {
         <DatePicker
           id={`datePickerJoinedDate${searchParams.joinedDate}`}
           placeholder="Joined Date"
-
-          value={searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined}
-
+          value={
+            searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined
+          }
           onChange={handleJoinedDateChange}
           className="w-full h-12 rounded-lg border-gray-200"
           format="YYYY-MM-DD"
