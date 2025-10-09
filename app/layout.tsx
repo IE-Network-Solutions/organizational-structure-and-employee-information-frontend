@@ -3,6 +3,7 @@ import { Manrope } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
 import AntdConfigProvider from '@/providers/antdProvider';
+import RouteTopLoader from '@/components/RouteTopLoader';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
 import RecaptchaProvider from '@/components/recaptcha';
@@ -240,6 +241,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${manrope.className} pwa-viewport`}>
+        <RouteTopLoader />
         <div className="status-bar-safe">
           <PWAProvider>
             {/* <AuthProvider> */}
