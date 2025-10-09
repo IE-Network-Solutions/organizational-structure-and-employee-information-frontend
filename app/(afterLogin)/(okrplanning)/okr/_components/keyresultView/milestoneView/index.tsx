@@ -524,8 +524,10 @@ const MilestoneView: React.FC<OKRProps> = ({
               )}
             </Form.Item>
 
+          {/* Row 3: Weight and Deadline */}
+          <div className="flex gap-2">
             <Form.Item
-              className="w-24 font-bold mb-0"
+              className="flex-1 font-bold mb-0"
               rules={[
                 { required: true, message: 'Weight required' },
                 {
@@ -550,7 +552,7 @@ const MilestoneView: React.FC<OKRProps> = ({
               />
             </Form.Item>
 
-            <Form.Item className="w-32 font-bold mb-0">
+            <Form.Item className="flex-1 font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
