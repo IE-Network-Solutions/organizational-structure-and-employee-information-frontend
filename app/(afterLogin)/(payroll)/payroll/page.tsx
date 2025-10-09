@@ -921,16 +921,17 @@ const Payroll = () => {
                 title="Send Payslips"
                 description={
                   <div>
-                    {mergedPayroll?.length > 0 ? (
-                      mergedPayroll?.length <
+                    {mergedPayrollForExport?.length > 0 ? (
+                      mergedPayrollForExport?.length <
                       (searchValue?.divisionId
-                        ? payroll?.divisionUsers?.length
+                        ? payrollForExport?.divisionUsers?.length
                         : allEmployees?.items?.length) ? (
                         <p>
-                          This will send payslips to {mergedPayroll?.length}{' '}
-                          selected employees (filtered from{' '}
+                          This will send payslips to{' '}
+                          {mergedPayrollForExport?.length} selected employees
+                          (filtered from{' '}
                           {searchValue?.divisionId
-                            ? payroll?.divisionUsers?.length
+                            ? payrollForExport?.divisionUsers?.length
                             : allEmployees?.items?.length}{' '}
                           total).
                         </p>
@@ -938,7 +939,7 @@ const Payroll = () => {
                         <p>
                           This will send payslips to ALL{' '}
                           {searchValue?.divisionId
-                            ? payroll?.divisionUsers?.length
+                            ? payrollForExport?.divisionUsers?.length
                             : allEmployees?.items?.length}{' '}
                           employees.
                         </p>
@@ -948,11 +949,15 @@ const Payroll = () => {
                         No employees selected. Please adjust your filters.
                       </p>
                     )}
-                    {mergedPayroll?.length > 0 &&
-                      mergedPayroll?.length <
+                    {mergedPayrollForExport?.length > 0 &&
+                      mergedPayrollForExport?.length <
                         (searchValue?.divisionId
-                          ? payroll?.divisionUsers?.length
-                          : allEmployees?.items?.length) && (
+                          ? payrollForExport?.divisionUsers?.length
+                          : allEmployees?.items?.length) &&
+                      (searchValue?.divisionId ||
+                        searchValue?.employeeId ||
+                        searchValue?.monthId ||
+                        searchValue?.departmentId) && (
                         <p style={{ color: 'orange', marginTop: '8px' }}>
                           Note: You&apos;re sending to a filtered subset. Clear
                           filters to send to everyone.
@@ -961,34 +966,34 @@ const Payroll = () => {
                   </div>
                 }
                 okText={
-                  mergedPayroll?.length === 0
+                  mergedPayrollForExport?.length === 0
                     ? 'Cannot Send'
-                    : mergedPayroll?.length <
+                    : mergedPayrollForExport?.length <
                         (searchValue?.divisionId
-                          ? payroll?.divisionUsers?.length
+                          ? payrollForExport?.divisionUsers?.length
                           : allEmployees?.items?.length)
                       ? 'Send to Filtered'
                       : 'Send to All'
                 }
                 cancelText="Cancel"
                 onConfirm={() => {
-                  if (mergedPayroll?.length > 0) {
-                    sendingPaySlipHandler(mergedPayroll);
+                  if (mergedPayrollForExport?.length > 0) {
+                    sendingPaySlipHandler(mergedPayrollForExport);
                   }
                 }}
                 okButtonProps={{
-                  disabled: mergedPayroll?.length === 0,
+                  disabled: mergedPayrollForExport?.length === 0,
                 }}
               >
                 <Tooltip
                   title={
-                    mergedPayroll?.length === 0
+                    mergedPayrollForExport?.length === 0
                       ? 'No employees selected. Please adjust your filters.'
-                      : mergedPayroll?.length <
+                      : mergedPayrollForExport?.length <
                           (searchValue?.divisionId
-                            ? payroll?.divisionUsers?.length
+                            ? payrollForExport?.divisionUsers?.length
                             : allEmployees?.items?.length)
-                        ? `Will send to ${mergedPayroll?.length} filtered employee(s)`
+                        ? `Will send to ${mergedPayrollForExport?.length} filtered employee(s)`
                         : 'Will send to all employees'
                   }
                 >
@@ -999,7 +1004,7 @@ const Payroll = () => {
                       type="default"
                       loading={sendingPaySlipLoading}
                       className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
-                      disabled={mergedPayroll?.length === 0}
+                      disabled={mergedPayrollForExport?.length === 0}
                     >
                       <span className="text-base font-semibold">
                         Send Payslip
