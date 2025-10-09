@@ -270,20 +270,26 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
                           padding: '2px 10px',
                         }}
                       >
-                        Additional Stat: {suggestion.metric_type}
+                        Type: {suggestion.metric_type}
                       </Tag>
-                      {typeof suggestion.initial_value === 'number' && (
-                        <Tag
-                          className="rounded-full text-xs font-medium border-0 m-0"
-                          style={{
-                            backgroundColor: '#F0FDFA',
-                            color: '#14b8a6',
-                            padding: '2px 10px',
-                          }}
-                        >
-                          Additional Stat: {suggestion.initial_value}%
-                        </Tag>
-                      )}
+                      {(suggestion.metric_type.toLowerCase() === 'numeric' ||
+                        suggestion.metric_type.toLowerCase() === 'percentage') &&
+                        typeof suggestion.initial_value === 'number' &&
+                        typeof suggestion.target_value === 'number' && (
+                          <Tag
+                            className="rounded-full text-xs font-medium border-0 m-0"
+                            style={{
+                              backgroundColor: '#F0FDFA',
+                              color: '#14b8a6',
+                              padding: '2px 10px',
+                            }}
+                          >
+                            {suggestion.initial_value} → {suggestion.target_value}
+                            {suggestion.metric_type.toLowerCase() === 'percentage'
+                              ? '%'
+                              : ''}
+                          </Tag>
+                        )}
                     </div>
                   </div>
                   <Button

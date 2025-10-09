@@ -308,32 +308,54 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
                           padding: '2px 10px',
                         }}
                       >
-                        {suggestion.metric_type}
+                        Type: {suggestion.metric_type}
                       </Tag>
-                      {typeof suggestion.initial_value === 'number' && (
-                        <Tag
-                          className="rounded-full text-xs font-medium border-0"
-                          style={{
-                            backgroundColor: '#F0FDFA',
-                            color: '#14b8a6',
-                            padding: '2px 10px',
-                          }}
-                        >
-                          Initial: {suggestion.initial_value}
-                        </Tag>
-                      )}
-                      {typeof suggestion.target_value === 'number' && (
-                        <Tag
-                          className="rounded-full text-xs font-medium border-0"
-                          style={{
-                            backgroundColor: '#F0FDF4',
-                            color: '#22c55e',
-                            padding: '2px 10px',
-                          }}
-                        >
-                          Target: {suggestion.target_value}
-                        </Tag>
-                      )}
+                      {(suggestion.metric_type.toLowerCase() === 'numeric' ||
+                        suggestion.metric_type.toLowerCase() === 'percentage') &&
+                        typeof suggestion.initial_value === 'number' &&
+                        typeof suggestion.target_value === 'number' && (
+                          <Tag
+                            className="rounded-full text-xs font-medium border-0"
+                            style={{
+                              backgroundColor: '#F0FDFA',
+                              color: '#14b8a6',
+                              padding: '2px 10px',
+                            }}
+                          >
+                            {suggestion.initial_value} → {suggestion.target_value}
+                            {suggestion.metric_type.toLowerCase() === 'percentage'
+                              ? '%'
+                              : ''}
+                          </Tag>
+                        )}
+                      {suggestion.metric_type.toLowerCase() !== 'numeric' &&
+                        suggestion.metric_type.toLowerCase() !== 'percentage' &&
+                        typeof suggestion.initial_value === 'number' && (
+                          <Tag
+                            className="rounded-full text-xs font-medium border-0"
+                            style={{
+                              backgroundColor: '#F0FDFA',
+                              color: '#14b8a6',
+                              padding: '2px 10px',
+                            }}
+                          >
+                            Initial: {suggestion.initial_value}
+                          </Tag>
+                        )}
+                      {suggestion.metric_type.toLowerCase() !== 'numeric' &&
+                        suggestion.metric_type.toLowerCase() !== 'percentage' &&
+                        typeof suggestion.target_value === 'number' && (
+                          <Tag
+                            className="rounded-full text-xs font-medium border-0"
+                            style={{
+                              backgroundColor: '#F0FDF4',
+                              color: '#22c55e',
+                              padding: '2px 10px',
+                            }}
+                          >
+                            Target: {suggestion.target_value}
+                          </Tag>
+                        )}
                     </div>
                   </div>
                 </Panel>
