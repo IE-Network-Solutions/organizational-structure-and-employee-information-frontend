@@ -23,7 +23,10 @@ import {
   AttendanceRecord,
   AttendanceRecordTypeBadgeTheme,
 } from '@/types/timesheet/attendance';
-import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import {
+  formatBreakTypeToStatus,
+  formatToAttendanceStatuses,
+} from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
@@ -136,11 +139,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           <div>
             {hasBreakTypeFilter &&
             attendanceBreak &&
-            attendanceBreak.breakType ? (
+            attendanceBreak?.breakType ? (
               <div className="text-xs text-gray-600 mt-1">
                 <div>
-                  {attendanceBreak.startAt ? (
-                    dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(
+                  {attendanceBreak?.endAt ? (
+                    dayjs(attendanceBreak?.endAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
@@ -172,11 +175,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           <div>
             {hasBreakTypeFilter &&
             attendanceBreak &&
-            attendanceBreak.breakType ? (
+            attendanceBreak?.breakType ? (
               <div className="text-xs text-gray-600 mt-1">
                 <div>
-                  {attendanceBreak.endAt ? (
-                    dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(
+                  {attendanceBreak?.startAt ? (
+                    dayjs(attendanceBreak?.startAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
@@ -201,27 +204,50 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (item: AttendanceRecord) => {
-        const statuses = formatToAttendanceStatuses(item);
-        return (
-          <Space>
-            {statuses.map((status) => (
+      render: ( record: AttendanceRecord) => {
+        const attendanceBreak = record.attendanceBreaks?.[0];
+        const hasBreakTypeFilter = filter?.breakTypeId;
+
+        if (hasBreakTypeFilter) {
+          const breakStatus = formatBreakTypeToStatus(
+            attendanceBreak?.breakType,
+            record,
+          );
+          return (
+            <Space>
               <StatusBadge
-                theme={AttendanceRecordTypeBadgeTheme[status.status]}
-                key={status.status}
+                theme={breakStatus.status.theme}
+                key={breakStatus.status.text}
               >
                 <div className="text-center">
-                  <div>{status.status}</div>
-                  {status.text && (
-                    <div className="font-normal">{status.text}</div>
-                  )}
+                  <div>{breakStatus.status.text}</div>
                 </div>
               </StatusBadge>
-            ))}
-          </Space>
-        );
+            </Space>
+          );
+        } else {
+          const statuses = formatToAttendanceStatuses(record);
+          return (
+            <Space>
+              {statuses.map((status) => (
+                <StatusBadge
+                  theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                  key={status.status}
+                >
+                  <div className="text-center">
+                    <div>{status.status}</div>
+                    {status.text && (
+                      <div className="font-normal">{status.text}</div>
+                    )}
+                  </div>
+                </StatusBadge>
+              ))}
+            </Space>
+          );
+        }
       },
     },
+
     {
       title: 'Over-time',
       dataIndex: 'overTime',
@@ -275,11 +301,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           userId: item.userId,
           createdBy: item.createdBy,
           createdAt: item.createdAt,
-          clockIn: item.startAt,
-          clockOut: item.endAt,
+          clockIn: item?.startAt,
+          clockOut: item?.endAt,
           status: item,
           totalTime:
-            item.startAt &&
+            item?.startAt &&
             item.endAt &&
             `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,

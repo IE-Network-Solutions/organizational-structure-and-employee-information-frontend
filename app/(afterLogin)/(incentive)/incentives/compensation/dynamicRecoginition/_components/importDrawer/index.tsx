@@ -116,32 +116,32 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M49.9669 33.5475L50.8783 31.1313L42.8137 29.1792L41.6011 31.6026L22.6576 27.5859L20.7169 32.7591L11.3359 30.4005L15.9811 50.76L40.2901 58.4979L53.0881 34.3173L49.9669 33.5475Z"
                     fill="#3636F0"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M23.4119 14.4129L21.8711 17.9886C21.8711 17.9886 26.9993 17.22 29.9036 17.8224C34.592 18.795 31.481 23.9241 31.481 23.9241L28.511 23.6151L31.3547 31.9851L39.4295 25.3926L36.1856 24.8337C36.1856 24.8337 39.248 20.4537 35.87 16.6182C32.0546 12.2853 23.4119 14.4129 23.4119 14.4129Z"
                     fill="#1D9BF0"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M49.6555 6.88037L42.3544 4.98047C42.3544 4.98047 37.5754 8.68457 40.2352 15.5564L46.9834 16.9784C46.9834 16.9784 44.1091 10.1804 49.6555 6.88037Z"
                     fill="white"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M0.910156 34.6404L7.03196 32.4062C7.03196 32.4062 9.76376 37.9331 11.1588 40.1679L5.90186 44.2647C5.90186 44.2647 3.57596 41.4279 0.910156 34.6404Z"
                     fill="white"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M13.6329 13.5312L13.5381 22.497C13.5381 22.497 2.8236 26.4723 1.5681 27.069C1.5681 27.069 0.678597 19.8504 0.968097 17.2696C0.968097 17.2705 8.2419 14.5017 13.6329 13.5312Z"
                     fill="white"
                   />
@@ -154,38 +154,38 @@ const ImportData: React.FC<ImportDataProps> = ({ parentRecognitionId }) => {
                     fill="#111827"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M2.04716 25.914C2.04716 25.914 1.59716 19.524 1.74446 17.823C1.74446 17.823 9.32006 15.3165 12.8718 14.4219V21.8469L2.04716 25.914Z"
                     fill="#6666FF"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M19.15 9.96787C19.15 9.96787 16.9471 6.17737 16.5352 5.14387C16.5352 5.14387 20.7052 2.96137 22.7536 2.10547L25.0036 6.55297L19.15 9.96787Z"
                     fill="#6666FF"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M1.92188 23.977L4.31768 20.3023L7.30447 22.4113L10.3741 18.4492L12.8941 21.301L12.8701 21.8491L2.04668 25.9162L1.92188 23.977Z"
                     fill="#2B2BBD"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M19.1494 9.96709L18.4453 8.73919L19.0033 6.38029L21.6091 7.33429L22.3573 4.80469L24.7744 6.10129L25.0024 6.55129L19.1494 9.96709Z"
                     fill="#2B2BBD"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M4.12225 18.0352C4.32791 18.0551 4.51876 18.151 4.65762 18.304C4.79648 18.457 4.87341 18.6562 4.87341 18.8629C4.87341 19.0695 4.79648 19.2687 4.65762 19.4217C4.51876 19.5747 4.32791 19.6706 4.12225 19.6906C3.91659 19.6706 3.72574 19.5747 3.58688 19.4217C3.44802 19.2687 3.37109 19.0695 3.37109 18.8629C3.37109 18.6562 3.44802 18.457 3.58688 18.304C3.72574 18.151 3.91659 18.0551 4.12225 18.0352Z"
                     fill="#3636F0"
                   />
                   <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
                     d="M18.149 5.05565C18.3002 5.04815 18.4503 5.08462 18.5812 5.16065C18.712 5.23668 18.8181 5.34901 18.8864 5.48405C19.0229 5.75795 18.914 6.01055 18.6437 6.04805C18.4926 6.0555 18.3425 6.01898 18.2117 5.94289C18.0808 5.8668 17.9749 5.75442 17.9066 5.61935C17.7701 5.34545 17.8787 5.09285 18.149 5.05565Z"
                     fill="#3636F0"
                   />
