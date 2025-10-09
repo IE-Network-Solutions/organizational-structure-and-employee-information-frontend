@@ -273,10 +273,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
               }}
             />
           </Form.Item>
-
-          <div className="flex justify-start items-center gap-2 text-gray-400 mt-8">
-            We will create a unique company URL for you to log into Selamnew
-          </div>
         </Form>
       </div>
     </div>
