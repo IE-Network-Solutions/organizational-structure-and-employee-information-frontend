@@ -19,13 +19,13 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   const { isMobile } = useIsMobile();
 
   return (
-    <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">
+    <div className="relative bg-gray-50 rounded-xl border-none p-3 sm:p-4 md:p-6 mb-4">
       {/* Remove button */}
       <button
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
-        className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+        className="absolute top-2 right-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shadow transition-colors"
         style={{ zIndex: 10 }}
         id={`remove-key-result-${index}`}
       >
@@ -47,10 +47,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
       <Form form={form} layout="vertical" initialValues={keyItem}>
         {/* Desktop Layout */}
         <div
-          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-1 items-center mt-4 mx-4`}
+          className={`${isMobile ? 'hidden' : 'flex'} flex-col lg:flex-row gap-2 items-stretch lg:items-center mt-4 px-2 md:px-4`}
         >
           <Form.Item
-            className="flex-1 mr-2 mb-0"
+            className="flex-1 mb-0"
             name="title"
             rules={[
               { required: true, message: 'Please enter the Key Result name' },
@@ -60,108 +60,18 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             <Input
               placeholder="Key Result Name"
               aria-label="Key Result Name"
-              className="h-10 rounded-lg text-base"
+              className="h-10 md:h-11 rounded-lg text-base"
               value={keyItem.title === '' ? undefined : keyItem.title}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
             />
           </Form.Item>
-          <Form.Item className="w-48 mb-0" id={`select-metric-${index}`}>
-            <Select
-              className="w-full h-10 rounded-lg text-base"
-              onChange={(value) => {
-                const selectedMetric = metrics?.items?.find(
-                  (metric) => metric.id === value,
-                );
-                if (selectedMetric) {
-                  updateKeyResult(index, 'metricTypeId', value);
-                  updateKeyResult(index, 'key_type', selectedMetric.name);
-                }
-              }}
-              value={keyItem.key_type}
-            >
-              {metrics?.items?.map((metric) => (
-                <Option key={metric?.id} value={metric?.id}>
-                  {metric?.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            className="w-24 mb-0"
-            name="weight"
-            rules={[
-              { required: true, message: 'Please enter the Weight' },
-              { type: 'number', message: 'Weight must be a number' },
-            ]}
-            id={`weight-input-${index}`}
-          >
-            <InputNumber
-              className="w-full h-10 rounded-lg text-base"
-              min={0}
-              max={100}
-              suffix="%"
-              placeholder="100"
-              aria-label="Weight"
-              value={keyItem.weight}
-              onChange={(value) => updateKeyResult(index, 'weight', value)}
-            />
-          </Form.Item>
-          <Form.Item
-            className="w-48 mb-0"
-            name={`dead_line_${index}`}
-            rules={[{ required: true, message: 'Please select a deadline' }]}
-            id={`deadline-picker-${index}`}
-          >
-            <DatePicker
-              className="w-full h-10 rounded-lg text-base"
-              value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
-              format="YYYY-MM-DD"
-              disabledDate={(current) => {
-                const startOfToday = dayjs().startOf('day');
-                const objectiveDeadline = dayjs(objectiveValue?.deadline);
-                return (
-                  current &&
-                  (current < startOfToday || current > objectiveDeadline)
-                );
-              }}
-              onChange={(date) =>
-                updateKeyResult(
-                  index,
-                  'deadline',
-                  date ? date.format('YYYY-MM-DD') : null,
-                )
-              }
-              aria-label="Deadline"
-            />
-          </Form.Item>
-        </div>
-        {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}>
-          {/* Row 1: Key Result Name */}
-          <Form.Item
-            className="mb-0"
-            name="title"
-            rules={[
-              { required: true, message: 'Please enter the Key Result name' },
-            ]}
-            id={`key-result-name-mobile-${index}`}
-          >
-            <Input
-              placeholder="Key Result Name"
-              aria-label="Key Result Name"
-              className="h-10 rounded-lg text-base"
-              value={keyItem.title === '' ? undefined : keyItem.title}
-              onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
-            />
-          </Form.Item>
-          {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap lg:flex-nowrap">
             <Form.Item
-              className="w-48 mb-0"
-              id={`select-metric-mobile-${index}`}
+              className="flex-1 lg:w-40 xl:w-48 mb-0 min-w-[180px]"
+              id={`select-metric-${index}`}
             >
               <Select
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 md:h-11 rounded-lg text-base"
                 onChange={(value) => {
                   const selectedMetric = metrics?.items?.find(
                     (metric) => metric.id === value,
@@ -181,16 +91,16 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               </Select>
             </Form.Item>
             <Form.Item
-              className="w-24 mb-0"
+              className="w-20 md:w-24 mb-0"
               name="weight"
               rules={[
                 { required: true, message: 'Please enter the Weight' },
                 { type: 'number', message: 'Weight must be a number' },
               ]}
-              id={`weight-input-mobile-${index}`}
+              id={`weight-input-${index}`}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 md:h-11 rounded-lg text-base"
                 min={0}
                 max={100}
                 suffix="%"
@@ -201,13 +111,108 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               />
             </Form.Item>
             <Form.Item
-              className="w-32 mb-0"
+              className="flex-1 lg:w-40 xl:w-48 mb-0 min-w-[140px]"
               name={`dead_line_${index}`}
               rules={[{ required: true, message: 'Please select a deadline' }]}
+              id={`deadline-picker-${index}`}
+            >
+              <DatePicker
+                className="w-full h-10 md:h-11 rounded-lg text-base"
+                value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
+                format="YYYY-MM-DD"
+                disabledDate={(current) => {
+                  const startOfToday = dayjs().startOf('day');
+                  const objectiveDeadline = dayjs(objectiveValue?.deadline);
+                  return (
+                    current &&
+                    (current < startOfToday || current > objectiveDeadline)
+                  );
+                }}
+                onChange={(date) =>
+                  updateKeyResult(
+                    index,
+                    'deadline',
+                    date ? date.format('YYYY-MM-DD') : null,
+                  )
+                }
+                aria-label="Deadline"
+              />
+            </Form.Item>
+          </div>
+        </div>
+        {/* Mobile Layout */}
+        <div
+          className={`${isMobile ? 'flex' : 'hidden'} flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2`}
+        >
+          {/* Row 1: Key Result Name */}
+          <Form.Item
+            className="mb-0"
+            name="title"
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
+            id={`key-result-name-mobile-${index}`}
+          >
+            <Input
+              placeholder="Key Result Name"
+              aria-label="Key Result Name"
+              className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+              value={keyItem.title === '' ? undefined : keyItem.title}
+              onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
+            />
+          </Form.Item>
+          {/* Row 2: Type (full width on mobile) */}
+          <Form.Item className="mb-0" id={`select-metric-mobile-${index}`}>
+            <Select
+              className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+              onChange={(value) => {
+                const selectedMetric = metrics?.items?.find(
+                  (metric) => metric.id === value,
+                );
+                if (selectedMetric) {
+                  updateKeyResult(index, 'metricTypeId', value);
+                  updateKeyResult(index, 'key_type', selectedMetric.name);
+                }
+              }}
+              value={keyItem.key_type}
+            >
+              {metrics?.items?.map((metric) => (
+                <Option key={metric?.id} value={metric?.id}>
+                  {metric?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          {/* Row 3: Weight and Deadline */}
+          <div className="flex gap-2">
+            <Form.Item
+              className="flex-1 mb-0"
+              name="weight"
+              rules={[
+                { required: true, message: 'Weight required' },
+                { type: 'number', message: 'Must be a number' },
+              ]}
+              id={`weight-input-mobile-${index}`}
+            >
+              <InputNumber
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                min={0}
+                max={100}
+                suffix="%"
+                placeholder="100"
+                aria-label="Weight"
+                value={keyItem.weight}
+                onChange={(value) => updateKeyResult(index, 'weight', value)}
+              />
+            </Form.Item>
+            <Form.Item
+              className="flex-1 mb-0"
+              name={`dead_line_${index}`}
+              rules={[{ required: true, message: 'Deadline required' }]}
               id={`deadline-picker-mobile-${index}`}
             >
               <DatePicker
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                 format="YYYY-MM-DD"
                 disabledDate={(current) => {
