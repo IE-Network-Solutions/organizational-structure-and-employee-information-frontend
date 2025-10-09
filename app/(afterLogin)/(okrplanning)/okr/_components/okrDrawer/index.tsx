@@ -284,7 +284,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       title={modalHeader}
       centered
       width={isMobile ? '100vw' : 1200}
-      bodyStyle={{ padding: isMobile ? 12 : 32 }}
       style={{ top: isMobile ? 0 : 32, padding: 0, maxHeight: '95vh' }}
       maskClosable={false}
       destroyOnClose
@@ -399,7 +398,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 />
               </Form.Item>
             </div>
-            <div className="w-full flex justify-end mb-10">
+            {/* <div className="w-full flex justify-end mb-10">
               <Dropdown
                 overlay={keyResultMenu}
                 trigger={['click']}
@@ -414,7 +413,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   <GoPlus size={24} />
                 </Button>
               </Dropdown>
-            </div>
+            </div> */}
           </div>
         ) : (
           <div id="okr-drawer-desktop-form" className="flex gap-4 w-full">
@@ -521,25 +520,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               type="default"
               id="okr-drawer-desktop-add-keyresult-button"
               className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
-              aria-label="Add Key Result"
             >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-white"
-              >
-                <path
-                  d="M12 5V19M5 12H19"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Key Result
+              <GoPlus size={24} />
               <svg
                 width="12"
                 height="12"

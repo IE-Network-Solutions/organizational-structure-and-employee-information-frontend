@@ -1,4 +1,5 @@
 {
   "cSpell.words": ["APPROVALTYPES", "BRANCHREQUEST", "Offboard"],
-  "reactSnippets.settings.prettierEnabled": true
+  "reactSnippets.settings.prettierEnabled": true,
+  "files.eol": "\n"
 }

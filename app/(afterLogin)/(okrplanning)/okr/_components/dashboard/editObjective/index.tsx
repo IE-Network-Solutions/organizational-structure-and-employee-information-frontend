@@ -270,7 +270,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       centered
       width={isMobile ? '100vw' : 1200}
       bodyStyle={{
-        padding: isMobile ? 12 : 32,
         maxHeight: '80vh',
         overflow: 'hidden',
       }}
