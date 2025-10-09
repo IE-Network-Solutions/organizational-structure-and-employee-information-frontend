@@ -10,10 +10,8 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
-import { Button, Tooltip, Popover, Input, Tag } from 'antd';
+import { Button, Popover, Input, Tag } from 'antd';
 import { IoMdSwitch } from 'react-icons/io';
-import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import {
   useEmployeeBranches,
@@ -29,11 +27,10 @@ const ManageEmployees: React.FC<any> = () => {
     useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
-  const { data: employeeStatus, isLoading } = useGetEmployeeStatus('');
+  useGetEmployeeStatus('');
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: EmploymentTypes } = useGetEmployementTypes();
-
 
   const showDrawer = () => {
     setOpen(true);

@@ -36,7 +36,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     if (isAddEmployeeJobInfoModalVisible) {
       form.resetFields(); // Reset form values on modal open
     }
-  }, [isAddEmployeeJobInfoModalVisible]);
+  }, [isAddEmployeeJobInfoModalVisible, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();

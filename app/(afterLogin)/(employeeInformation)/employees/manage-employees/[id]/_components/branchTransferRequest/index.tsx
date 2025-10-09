@@ -23,10 +23,10 @@ const BranchTransferRequest = ({ employeeData }: { employeeData: any }) => {
   useEffect(() => {
     if (employeeData?.employeeJobInformation[0]?.departmentId)
       getDepartmentApproval();
-  }, [employeeData]);
+  }, [employeeData, getDepartmentApproval]);
   useEffect(() => {
     if (employeeData?.id) getUserApproval();
-  }, [employeeData]);
+  }, [employeeData, getUserApproval]);
 
   const handleSubmit = (requestBranchId: any) => {
     const payload = {

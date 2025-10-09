@@ -44,12 +44,15 @@ const exportAttendanceData = async (data: any) => {
     });
 
     // Response is already a blob from the API
-    const blob = response instanceof Blob ? response : new Blob([response], {
-      type:
-        data.exportType === 'PDF'
-          ? 'application/pdf'
-          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type:
+              data.exportType === 'PDF'
+                ? 'application/pdf'
+                : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');

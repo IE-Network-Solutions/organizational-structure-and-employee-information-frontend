@@ -48,7 +48,7 @@ const AllowanceTypeSideBar = () => {
           selectedAllowanceRecord.applicableTo == 'GLOBAL' ? true : false,
       });
     }
-  }, [selectedAllowanceRecord, form]);
+  }, [selectedAllowanceRecord, form, setIsAllEmployee]);
 
   const onClose = () => {
     form.resetFields();
