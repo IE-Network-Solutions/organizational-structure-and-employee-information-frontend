@@ -11,6 +11,7 @@ const importData = async (data: any) => {
     method: 'POST',
     headers: requestHeaders,
     data,
+    skipEncryption: true, // Skip encryption for file uploads to preserve FormData
   });
 };
 // const logUserId = useAuthenticationStore.getState().userId;

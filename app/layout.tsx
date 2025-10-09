@@ -8,6 +8,7 @@ import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
 import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
+import ChatBotButton from '@/components/ai/ChatBotButton';
 const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -250,6 +251,7 @@ export default function RootLayout({
                 <AntdConfigProvider>
                   <RecaptchaProvider>
                     <ConditionalNav>{children}</ConditionalNav>
+                    <ChatBotButton />
                   </RecaptchaProvider>
                 </AntdConfigProvider>
               </AntdRegistry>

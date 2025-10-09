@@ -58,6 +58,8 @@ export interface TimeAndAttendanceDashboardUseState {
   currentStatusOnAttendance: string;
   setCurrentStatusOnAttendance: (currentStatusOnAttendance: string) => void;
   // handleSearchChange:(item:string,value:any)=>void;
+  monthsAheadOnLeaveBalanceExpiring: string;
+  setMonthsAheadOnLeaveBalanceExpiring: (monthsAheadOnLeaveBalanceExpiring: string) => void;
 }
 
 export const TimeAndAttendaceDashboardStore =
@@ -138,4 +140,7 @@ export const TimeAndAttendaceDashboardStore =
     currentStatusOnAttendance: '',
     setCurrentStatusOnAttendance: (currentStatusOnAttendance: string) =>
       set({ currentStatusOnAttendance }),
+    monthsAheadOnLeaveBalanceExpiring: '3',
+    setMonthsAheadOnLeaveBalanceExpiring: (monthsAheadOnLeaveBalanceExpiring: string) =>
+      set({ monthsAheadOnLeaveBalanceExpiring }),
   }));

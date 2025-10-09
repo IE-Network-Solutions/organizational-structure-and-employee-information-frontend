@@ -48,10 +48,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
         form={form}
         initialValues={{
           ...keyItem,
-          initialValue:
-            keyItem.initialValue === 0 ? undefined : keyItem.initialValue,
-          targetValue:
-            keyItem.targetValue === 0 ? undefined : keyItem.targetValue,
+          // If backend provides 0, keep 0 visible; do not coerce to undefined
+          initialValue: keyItem.initialValue ?? 0,
+          targetValue: keyItem.targetValue ?? 0,
         }}
         layout="vertical"
       >
@@ -172,9 +171,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
               className="w-full h-10 rounded-lg text-base"
               min={0}
               placeholder="Initial Value"
-              value={
-                keyItem.initialValue === 0 ? undefined : keyItem.initialValue
-              }
+              value={keyItem.initialValue ?? 0}
               onChange={(value) =>
                 updateKeyResult(index, 'initialValue', value)
               }
@@ -201,9 +198,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
               className="w-full h-10 rounded-lg text-base"
               min={0}
               placeholder="Target Value"
-              value={
-                keyItem.targetValue === 0 ? undefined : keyItem.targetValue
-              }
+              value={keyItem.targetValue ?? 0}
               onChange={(value) => updateKeyResult(index, 'targetValue', value)}
               onKeyPress={(e) => {
                 if (
@@ -334,9 +329,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 className="w-full h-10 rounded-lg text-base"
                 min={0}
                 placeholder="Initial Value"
-                value={
-                  keyItem.initialValue === 0 ? undefined : keyItem.initialValue
-                }
+                value={keyItem.initialValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'initialValue', value)
                 }
@@ -363,9 +356,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 className="w-full h-10 rounded-lg text-base"
                 min={0}
                 placeholder="Target Value"
-                value={
-                  keyItem.targetValue === 0 ? undefined : keyItem.targetValue
-                }
+                value={keyItem.targetValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'targetValue', value)
                 }
