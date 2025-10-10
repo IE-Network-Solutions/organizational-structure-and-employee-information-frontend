@@ -112,8 +112,15 @@ export const useOKRStore = create<OKRState>()(
           title: suggestion?.title || '',
           weight: suggestion?.weight || 0,
           deadline: null,
-          initialValue: suggestion?.initialValue ?? 0,
-          targetValue: suggestion?.targetValue ?? 0,
+          // For Numeric/Percentage, prefer backend-provided snake_case values exactly
+          initialValue:
+            (keyType === 'Numeric' || keyType === 'Percentage')
+              ? (suggestion?.initialValue ?? suggestion?.initial_value ?? 0)
+              : (suggestion?.initialValue ?? 0),
+          targetValue:
+            (keyType === 'Numeric' || keyType === 'Percentage')
+              ? (suggestion?.targetValue ?? suggestion?.target_value ?? 0)
+              : (suggestion?.targetValue ?? 0),
           milestones: keyType === 'Milestone' ? normalizedMilestones : [],
           isAISuggestion: Boolean(suggestion?.isAISuggestion),
         };
