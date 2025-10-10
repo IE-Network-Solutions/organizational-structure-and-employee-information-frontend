@@ -1,11 +1,9 @@
 import React from 'react';
-import { Collapse, Button, Divider, Tooltip } from 'antd';
+import { Collapse, Button, Divider } from 'antd';
 import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from '../planForms/boardFormView';
 import DefaultCardForm from '../planForms/defaultForm';
 import { groupParentTasks } from '../dataTransformer/plan';
-import { FaPlus } from 'react-icons/fa';
-import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface Plan {
   id: string;
@@ -69,12 +67,9 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
       (i: any) => i.isReported === false,
     )?.tasks || [],
   );
-  // const parentName = planningPeriodHierarchy?.parentPlan?.name;
-  // const parentParentId = planningPeriodHierarchy?.parentPlan?.plans[0]?.id;
   const parentParentId = planningPeriodHierarchy?.parentPlan?.plans?.find(
     (i: any) => i.isReported === false,
   )?.id;
-  const { statuses, setClickStatus } = useClickStatus();
 
   const buildKey = (
     keyResultId?: string | number,
@@ -82,6 +77,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
     taskId?: string | number | null,
   ) =>
     `${String(keyResultId ?? '')}${String(milestoneId ?? '')}${String(taskId ?? '')}`;
+  const statuses: Record<string, boolean> = {};
 
   return (
     <Collapse>
@@ -111,10 +107,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       <span className="font-bold">Milestone:</span>
                       <span className="text-xs ml-2">{milestone.title}</span>
                     </div>
-                    {/* <div className="flex items-center">
-                    <span className="font-normal  ml-3 mt-2">{parentName} Tasks:</span>
-                    
-                  </div> */}
+
                     {milestone.tasks.map((task, taskIndex) => {
                       const compositeKey = buildKey(
                         task?.keyResult?.id,
@@ -135,59 +128,26 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             <div className="flex items-center">
                               <Button
                                 id={`plan-as-task_${keyResult?.id ?? ''}${milestone?.id ?? ''}${task?.id ?? ''}`}
-                                disabled={
-                                  statuses[milestone?.id] ||
-                                  milestone?.status === 'Completed' ||
-                                  Number(keyResult?.progress) === 100 ||
-                                  // ((form?.getFieldValue(`names-${compositeKey}`)?.length ?? 0) > 0) ||
-                                  form
-                                    ?.getFieldValue(`names-${compositeKey}`)
-                                    ?.some((i: any) => i?.achieveMK)
-                                }
                                 onClick={() => {
                                   setMKAsATask(null);
                                   handleAddBoard(compositeKey);
                                 }}
                                 type="link"
-                                icon={<BiPlus size={12} />}
+                                icon={<BiPlus size={14} />}
                                 className="text-[10px]"
+                                disabled={
+                                  statuses[milestone?.id] ||
+                                  milestone?.status === 'Completed' ||
+                                  Number(keyResult?.progress) === 100 ||
+                                  // (form?.getFieldValue(`names-${compositeKey}`)
+                                  //   ?.length ?? 0) > 0 ||
+                                  form
+                                    ?.getFieldValue(`names-${compositeKey}`)
+                                    ?.some((i: any) => i?.achieveMK)
+                                }
                               >
                                 Add Plan Task
                               </Button>
-                              {task?.achieveMK && (
-                                <Tooltip title="Plan Milestone as a Task">
-                                  <Button
-                                    id="plan-milestone-as-task"
-                                    disabled={
-                                      statuses[milestone?.id] ||
-                                      milestone?.status === 'Completed' ||
-                                      Number(keyResult?.progress) === 100 ||
-                                      (form?.getFieldValue(
-                                        `names-${compositeKey}`,
-                                      )?.length ?? 0) > 0 ||
-                                      form
-                                        ?.getFieldValue(`names-${compositeKey}`)
-                                        ?.some((i: any) => i?.achieveMK)
-                                    }
-                                    onClick={() => {
-                                      if (!statuses[milestone?.id]) {
-                                        setMKAsATask({
-                                          title: milestone?.title,
-                                          mid: milestone?.id,
-                                        });
-                                        handleAddBoard(compositeKey);
-                                        setClickStatus(
-                                          milestone?.id + '',
-                                          true,
-                                        ); // Store click status in Zustand
-                                      }
-                                    }}
-                                    size="small"
-                                    className="text-[10px] text-primary"
-                                    icon={<FaPlus />}
-                                  />
-                                </Tooltip>
-                              )}
                               <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
                                 {weights[`names-${compositeKey}`] || 0}%
                               </div>

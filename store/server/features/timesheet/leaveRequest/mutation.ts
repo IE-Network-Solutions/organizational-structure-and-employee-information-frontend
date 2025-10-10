@@ -128,6 +128,7 @@ const setAllFinalApproveLeaveRequest = async (data: any) => {
     data,
   });
 };
+
 const setAllLeaveRequestNotification = async (
   data?: LeaveRequestNotificationBody,
 ) => {
