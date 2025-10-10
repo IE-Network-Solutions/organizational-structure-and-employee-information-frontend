@@ -478,9 +478,7 @@ const Payroll = () => {
 
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m: any) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = formatAmount(
-            merit?.amount || 0,
-          );
+          meritRow[type] = formatAmount(merit?.amount || 0);
         });
 
         payrollData.push(payrollRowData);
