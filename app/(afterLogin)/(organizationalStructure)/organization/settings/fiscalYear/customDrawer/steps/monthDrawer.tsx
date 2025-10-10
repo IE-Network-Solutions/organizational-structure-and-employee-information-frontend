@@ -285,17 +285,14 @@ const MonthDrawer: React.FC<
         const otherStart = dayjs(otherStartRaw);
         const otherEnd = dayjs(otherEndRaw);
 
-        // Check for overlap in both directions
-        const currentOverlapsOther =
+        // Check if current start date overlaps with other month's range
+        const currentStartOverlapsOther =
           currentStart.isSameOrAfter(otherStart) &&
           currentStart.isSameOrBefore(otherEnd);
-        const otherOverlapsCurrent =
-          otherStart.isSameOrAfter(currentStart) &&
-          otherStart.isSameOrBefore(currentEndRaw);
 
-        if (currentOverlapsOther || otherOverlapsCurrent) {
+        if (currentStartOverlapsOther) {
           throw new Error(
-            `Start date for Month ${currentMonthNumber} overlaps with Month ${monthNum}. Please adjust the dates.`,
+            `Start date overlaps with Month ${monthNum} (${otherStart.format('MMM DD')} - ${otherEnd.format('MMM DD')}). Please adjust the start date.`,
           );
         }
       }
@@ -323,49 +320,40 @@ const MonthDrawer: React.FC<
         const otherStart = dayjs(otherStartRaw);
         const otherEnd = dayjs(otherEndRaw);
 
-        // Check for overlap in both directions
-        const currentOverlapsOther =
+        // Check if current end date overlaps with other month's range
+        const currentEndOverlapsOther =
           currentEnd.isSameOrAfter(otherStart) &&
           currentEnd.isSameOrBefore(otherEnd);
-        const otherOverlapsCurrent =
-          otherEnd.isSameOrAfter(currentStartRaw) &&
-          otherEnd.isSameOrBefore(currentEnd);
 
-        if (currentOverlapsOther || otherOverlapsCurrent) {
+        if (currentEndOverlapsOther) {
           throw new Error(
-            `End date for Month ${currentMonthNumber} overlaps with Month ${monthNum}. Please adjust the dates.`,
+            `End date overlaps with Month ${monthNum} (${otherStart.format('MMM DD')} - ${otherEnd.format('MMM DD')}). Please adjust the end date.`,
           );
         }
       }
     };
   };
 
-  // Helper function to validate all related date fields when any date changes
-  const validateAllRelatedDateFields = (changedMonthNumber: number) => {
+  // Helper function to clear validation errors on potentially affected fields
+  const clearRelatedValidationErrors = (changedMonthNumber: number) => {
     if (!form) return;
 
     const allMonthNumbers = Array.from({ length: 12 }, (nonused, i) => i + 1);
-    const fieldsToValidate: string[] = [];
 
-    // Add the changed month's fields
-    fieldsToValidate.push(
-      `monthStartDate_${changedMonthNumber}`,
-      `monthEndDate_${changedMonthNumber}`,
-    );
-
-    // Add all other months' date fields that might be affected
+    // Clear validation errors on all other months' date fields
     allMonthNumbers.forEach((monthNum) => {
       if (monthNum !== changedMonthNumber) {
-        fieldsToValidate.push(
-          `monthStartDate_${monthNum}`,
-          `monthEndDate_${monthNum}`,
-        );
+        form.setFields([
+          {
+            name: `monthStartDate_${monthNum}`,
+            errors: [],
+          },
+          {
+            name: `monthEndDate_${monthNum}`,
+            errors: [],
+          },
+        ]);
       }
-    });
-
-    // Validate all related fields
-    form.validateFields(fieldsToValidate).catch(() => {
-      // Ignore validation errors, we just want to trigger re-validation
     });
   };
 
@@ -461,7 +449,7 @@ const MonthDrawer: React.FC<
                         );
                       }}
                       onChange={() => {
-                        validateAllRelatedDateFields(monthInfo.monthNumber);
+                        clearRelatedValidationErrors(monthInfo.monthNumber);
                       }}
                     />
                   </Form.Item>
@@ -524,7 +512,7 @@ const MonthDrawer: React.FC<
                         );
                       }}
                       onChange={() => {
-                        validateAllRelatedDateFields(monthInfo.monthNumber);
+                        clearRelatedValidationErrors(monthInfo.monthNumber);
                       }}
                     />
                   </Form.Item>
