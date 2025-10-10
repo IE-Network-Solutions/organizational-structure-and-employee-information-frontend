@@ -191,7 +191,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   };
 
   return (
-    <div className="border-[1px] border-gray-200 rounded-lg pb-2 px-3 pt-3 h-96 ">
+    <div className="border-[1px] border-gray-200 rounded-lg pb-2 px-3 pt-3 h-full">
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-lg font-bold">Actual Value </h4>
         <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">

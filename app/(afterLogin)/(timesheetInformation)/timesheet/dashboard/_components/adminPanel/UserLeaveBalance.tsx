@@ -33,6 +33,9 @@ const UserLeaveBalance: React.FC = () => {
     setEndDate,
     setUserIdOnLeaveBalance,
     userIdOnLeaveBalance,
+    monthsAheadOnLeaveBalanceExpiring,
+    setMonthsAheadOnLeaveBalanceExpiring,
+      
   } = TimeAndAttendaceDashboardStore();
 
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
@@ -46,6 +49,14 @@ const UserLeaveBalance: React.FC = () => {
     useGetLeaveBalance(
       userIdOnLeaveBalance ? userIdOnLeaveBalance : (userId as string),
       '',
+    );
+    const {
+      data: leaveBalanceExpiring,
+      isLoading: leaveBalanceExpiringLoading,
+    } = useGetLeaveBalanceExpiring(
+      userId as string,
+      leaveTypeId || '',
+      monthsAheadOnLeaveBalanceExpiring,
     );
 
   const statusColors: { [key: string]: string } = {
