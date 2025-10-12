@@ -657,7 +657,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                               icon={
                                 <VscClose size={18} className="text-white" />
                               }
-                              className="rounded-full w-10 h-10 sm:w-11 sm:h-11 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
+                              className="rounded-full w-10 h-10 sm:w-8 sm:h-8 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
                               type="primary"
                             />
                           </Tooltip>
