@@ -25,6 +25,7 @@ import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 interface DataType {
   key: string;
   workingDay: React.ReactNode;
@@ -35,6 +36,7 @@ const { Option } = Select;
 const WorkScheduleComponent: React.FC = () => {
   const params = useParams();
   const userId = params.id as string;
+  const { userId: loggedInUserId } = useAuthenticationStore();
   const {
     selectedWorkSchedule,
     setSelectedWorkSchedule,
@@ -57,6 +59,7 @@ const WorkScheduleComponent: React.FC = () => {
           {
             id: employeeData?.employeeJobInformation[0]?.id,
             values,
+            changeMakerUserId: loggedInUserId,
           },
           {
             onSuccess: () => {
@@ -128,7 +131,7 @@ const WorkScheduleComponent: React.FC = () => {
     setWorkSchedule(employeeDataInfo?.workScheduleId);
 
     form.setFieldsValue(employeeDataInfo);
-  }, [form, employeeData]);
+  }, [form, employeeData, setWorkSchedule]);
 
   const schedule = workSchedules?.items[0];
 

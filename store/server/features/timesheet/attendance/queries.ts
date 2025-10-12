@@ -12,7 +12,6 @@ import {
   AttendanceImport,
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
-import axios from 'axios';
 // const logUserId = useAuthenticationStore.getState().userId;
 
 const getAttendances = async (
@@ -35,35 +34,29 @@ const getAttendances = async (
 const exportAttendanceData = async (data: any) => {
   const requestHeaders = await requestHeader();
   try {
-    // const payload = {
-    //   ...data,
-    //   updatedBy: logUserId,
-    //   createdBy: logUserId,
-    // };
-    const response = await axios.post(
-      `${TIME_AND_ATTENDANCE_URL}/attendance`,
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
+      method: 'POST',
       data,
-      {
-        headers: requestHeaders,
-        responseType: 'blob',
-      },
-    );
-
-    const blob = new Blob([response.data], {
-      type:
-        data.exportType === 'PDF'
-          ? 'application/pdf'
-          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      headers: requestHeaders,
+      skipEncryption: true, // Skip encryption for file downloads
+      responseType: 'blob', // Tell axios to handle binary data
     });
+
+    // Response is already a blob from the API
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type:
+              data.exportType === 'PDF'
+                ? 'application/pdf'
+                : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    const disposition = response.headers['content-disposition'];
-    let fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
-
-    if (disposition && disposition.includes('filename=')) {
-      fileName = disposition.split('filename=')[1].replace(/"/g, '');
-    }
+    const fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
 
     link.href = url;
     link.setAttribute('download', fileName);

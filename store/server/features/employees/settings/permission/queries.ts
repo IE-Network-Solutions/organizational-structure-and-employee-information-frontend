@@ -1,6 +1,5 @@
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Permission, PermissionDataType } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -82,16 +81,12 @@ const getSearchPermissions = async (searchTerm: {
  * @throws Error if the request fails.
  */
 const getPermission = async (id: string) => {
-  const token = await getCurrentToken();
   try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await axios.get(`${ORG_AND_EMP_URL}/permissions/${id}`, {
-      headers,
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/permissions/${id}`,
+      method: 'GET',
     });
-    return response.data;
+    return response;
   } catch (error) {
     throw error;
   }

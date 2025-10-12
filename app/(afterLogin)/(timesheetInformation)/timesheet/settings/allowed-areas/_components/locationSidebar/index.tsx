@@ -1,7 +1,7 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import React, { useEffect, useState } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Form, Input, Select, Space, Spin, Switch, Tabs } from 'antd';
+import { Form, Input, Space, Spin, Switch, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -11,19 +11,17 @@ import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea
 import { useGetAllowedArea } from '@/store/server/features/timesheet/allowedArea/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import EnhancedLocationPicker from '@/components/common/map/EnhancedLocationPicker';
-import { EnvironmentOutlined } from '@ant-design/icons';
-import { Typography } from 'antd';
-
-const { Title } = Typography;
 
 const LocationSidebar = () => {
   const [areaId, setAreaId] = useState('');
   const [showUsers, setShowUsers] = useState(false);
+
   const [formValues, setFormValues] = useState({
-    latitude: 9.145,
-    longitude: 40.4897,
-    distance: 100,
+    latitude: 9.0322,
+    longitude: 38.7636,
+    distance: 0.01,
   });
+
   const {
     isShowLocationSidebar: isShow,
     setIsShowLocationSidebar: setIsShow,
@@ -49,7 +47,7 @@ const LocationSidebar = () => {
     if (areaId) {
       refetch();
     }
-  }, [areaId]);
+  }, [areaId, refetch]);
 
   useEffect(() => {
     if (allowedAreaData) {
@@ -72,18 +70,18 @@ const LocationSidebar = () => {
       setShowUsers(!item.isGlobal);
     } else {
       // Set default values for new location - centered on Addis Ababa, Ethiopia
-      form.setFieldValue('latitude', 9.145);
-      form.setFieldValue('longitude', 40.4897);
-      form.setFieldValue('distance', 0.1); // 100 meters = 0.1 km
+      form.setFieldValue('latitude', 9.0322);
+      form.setFieldValue('longitude', 38.7636);
+      form.setFieldValue('distance', 0.01); // 10 meters = 0.01 km
       form.setFieldValue('isGlobal', true);
       setFormValues({
-        latitude: 9.145,
-        longitude: 40.4897,
-        distance: 0.1, // 100 meters = 0.1 km
+        latitude: 9.0322,
+        longitude: 38.7636,
+        distance: 0.01, // 10 meters = 0.01 km
       });
       setShowUsers(false);
     }
-  }, [allowedAreaData]);
+  }, [allowedAreaData, form]);
 
   const onClose = () => {
     form.resetFields();
@@ -115,7 +113,7 @@ const LocationSidebar = () => {
     if (isSuccess) {
       onClose();
     }
-  }, [isSuccess]);
+  }, [isSuccess, onClose]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
@@ -184,104 +182,79 @@ const LocationSidebar = () => {
             form={form}
             onFinish={onFinish}
           >
-            <Tabs
-              defaultActiveKey="map"
-              items={[
-                {
-                  key: 'map',
-                  label: 'Map Selection',
-                  children: (
-                    <div className="p-4">
-                      <Space.Compact direction="vertical" className="w-full">
-                        <Form.Item
-                          id="nameOfLocatioInputFieldId"
-                          label="Name of Location"
-                          rules={[{ required: true, message: 'Required' }]}
-                          name="title"
-                        >
-                          <Input className={controlClass} />
-                        </Form.Item>
+            <div className="p-4">
+              <Space.Compact direction="vertical" className="w-full">
+                <Form.Item
+                  id="nameOfLocatioInputFieldId"
+                  label="Name of Location"
+                  rules={[{ required: true, message: 'Required' }]}
+                  name="title"
+                >
+                  <Input className={controlClass} />
+                </Form.Item>
 
-                        {/* Map Section */}
-                        <div>
-                          <Title level={5} className="mb-2">
-                            <EnvironmentOutlined className="mr-2" />
-                            Select Location on Map
-                          </Title>
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                            <div className="flex items-center gap-2">
-                              <div className="text-blue-600 text-lg">📍</div>
-                              <div className="flex-1">
-                                <div className="text-blue-800 font-medium text-sm">
-                                  Double click on the map to set the center
-                                  point of your allowed area
-                                </div>
-                                <div className="text-blue-600 text-xs mt-1">
-                                  Click and drag to explore, then double-click
-                                  to select your location
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-2">
-                            <EnhancedLocationPicker
-                              latitude={formValues.latitude}
-                              longitude={formValues.longitude}
-                              radius={formValues.distance}
-                              onLocationChange={handleLocationChange}
-                              onRadiusChange={handleRadiusChange}
-                              height="400px"
-                            />
-                          </div>
-                        </div>
+                {/* Map Section */}
+                <div>
+                  <div className="text-sm text-gray-600 mb-2">
+                    Double click on the map to set the center point of your
+                    allowed area
+                  </div>
+                  <div className="text-sm text-gray-600 mb-3">
+                    Click and drag to explore, then double-click to select your
+                    location
+                  </div>
+                  <div className="mt-2">
+                    <EnhancedLocationPicker
+                      latitude={formValues.latitude}
+                      longitude={formValues.longitude}
+                      radius={formValues.distance}
+                      onLocationChange={handleLocationChange}
+                      onRadiusChange={handleRadiusChange}
+                      height="400px"
+                    />
+                  </div>
+                </div>
 
-                        {/* Hidden form fields for map values */}
-                        <Form.Item name="latitude" hidden>
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="longitude" hidden>
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="distance" hidden>
-                          <Input />
-                        </Form.Item>
+                {/* Hidden form fields for map values */}
+                <Form.Item name="latitude" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="longitude" hidden>
+                  <Input />
+                </Form.Item>
+                <Form.Item name="distance" hidden>
+                  <Input />
+                </Form.Item>
 
-                        <Form.Item
-                          id="isGlobalLocation"
-                          label="Is Global"
-                          name="isGlobal"
-                        >
-                          <Switch
-                            defaultChecked
-                            onChange={(checked) => setShowUsers(!checked)}
-                          />
-                        </Form.Item>
+                <div className="flex items-center gap-2 py-4">
+                  <span className="text-sm text-gray-700">Is Global</span>
+                  <Switch
+                    defaultChecked
+                    onChange={(checked) => setShowUsers(!checked)}
+                  />
+                </div>
 
-                        {showUsers && (
-                          <Form.Item
-                            id="userAccessList"
-                            label="Select Users"
-                            name="allowedUserAccesses"
-                          >
-                            <Select
-                              mode="multiple"
-                              showSearch
-                              placeholder="Select a person"
-                              className="w-full"
-                              optionFilterProp="label"
-                              options={users?.items?.map((list: any) => ({
-                                value: list?.id,
-                                label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-                              }))}
-                            />
-                          </Form.Item>
-                        )}
-                      </Space.Compact>
-                    </div>
-                  ),
-                },
-              ]}
-            />
+                {showUsers && (
+                  <Form.Item
+                    id="userAccessList"
+                    label="Select Users"
+                    name="allowedUserAccesses"
+                  >
+                    <Select
+                      mode="multiple"
+                      showSearch
+                      placeholder="Select a person"
+                      className="w-full"
+                      optionFilterProp="label"
+                      options={users?.items?.map((list: any) => ({
+                        value: list?.id,
+                        label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                      }))}
+                    />
+                  </Form.Item>
+                )}
+              </Space.Compact>
+            </div>
           </Form>
         </Spin>
       </CustomDrawerLayout>

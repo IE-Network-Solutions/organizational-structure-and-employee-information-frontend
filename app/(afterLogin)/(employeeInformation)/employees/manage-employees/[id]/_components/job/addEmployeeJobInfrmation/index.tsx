@@ -9,12 +9,12 @@ import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryFor
 import { useParams } from 'next/navigation';
 
 import { useEffect } from 'react';
-
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface Ids {
   id?: string;
   onInfoSubmition?: () => void;
+  isNavBarModal?: boolean;
   onJobInfoUpdated?: () => void;
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
@@ -36,7 +36,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     if (isAddEmployeeJobInfoModalVisible) {
       form.resetFields(); // Reset form values on modal open
     }
-  }, [isAddEmployeeJobInfoModalVisible]);
+  }, [isAddEmployeeJobInfoModalVisible, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();

@@ -103,7 +103,14 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       userId: employeeEntitlementData?.employeeId,
     });
     setData(payments);
-  }, [employeeEntitlementData, form, isLoading]);
+  }, [
+    employeeEntitlementData,
+    form,
+    isLoading,
+    setData,
+    setSettlementPeriod,
+    setTotalAmount,
+  ]);
 
   const columns = [
     {

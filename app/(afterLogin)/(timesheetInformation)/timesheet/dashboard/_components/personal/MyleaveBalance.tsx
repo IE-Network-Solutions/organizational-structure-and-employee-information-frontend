@@ -1,15 +1,22 @@
-import { Card, Skeleton, Spin, Tag, Tooltip } from 'antd';
+import { Card, Select, Skeleton, Spin, Tag, Tooltip } from 'antd';
 import React from 'react';
 import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import dayjs from 'dayjs';
-
+import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/leaveExpiry/queries';
 const MyleaveBalance: React.FC = () => {
   const { userId } = useAuthenticationStore();
-  const { leaveTypeId, startDate, endDate, setLeaveTypeId } =
-    TimeAndAttendaceDashboardStore();
+
+  const {
+    leaveTypeId,
+    startDate,
+    endDate,
+    setLeaveTypeId,
+    monthsAheadOnLeaveBalanceExpiring,
+    setMonthsAheadOnLeaveBalanceExpiring,
+  } = TimeAndAttendaceDashboardStore();
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
     useGetUserLeaveBalance(
       userId as string,
@@ -19,12 +26,19 @@ const MyleaveBalance: React.FC = () => {
     );
   const { data: leaveBalance, isLoading: leaveBalanceLoading } =
     useGetLeaveBalance(userId as string, '');
+  const { data: leaveBalanceExpiring, isLoading: leaveBalanceExpiringLoading } =
+    useGetLeaveBalanceExpiring(
+      userId as string,
+      leaveTypeId || '',
+      monthsAheadOnLeaveBalanceExpiring,
+    );
   const statusColors: { [key: string]: string } = {
     approved: 'text-[#3636F0] bg-[#B2B2FF]',
     pending: 'text-[#FFD023] bg-[#FFDE6533]',
     rejected: 'text-[#e03137] bg-[#f9d6d7]',
     cancelled: 'text-gray-500 bg-gray-500/20',
   };
+
   return (
     <div>
       <h2 className="text-[24px] font-bold mb-4">My Leave Balance</h2>
@@ -43,24 +57,24 @@ const MyleaveBalance: React.FC = () => {
           >
             <div className="flex justify-between items-center py-5 cursor-pointer">
               <div>
-                <Tooltip title={item.leaveType.title}>
+                <Tooltip title={item?.leaveType?.title}>
                   <p className="font-bold text-xs capitalize mb-1">
-                    {item.leaveType.title?.slice(0, 15)}...
+                    {item?.leaveType?.title?.slice(0, 15)}...
                   </p>
                 </Tooltip>
                 <Tag
                   className={`font-bold border-none py-0.5 ${
-                    item.leaveType.isFixed
+                    item?.leaveType?.isFixed
                       ? 'bg-[#B2B2FF] text-[#3636F0]'
                       : 'bg-[#55C79033] text-[#0CAF60]'
                   }`}
                 >
-                  {item.leaveType.isFixed ? 'Fixed' : 'Incremental'}
+                  {item?.leaveType?.isFixed ? 'Fixed' : 'Incremental'}
                 </Tag>
               </div>
               <div className="">
                 <div className="text-xl font-bold text-[#3636F0] ">
-                  <span className="">{Math.round(item.totalBalance)}</span>
+                  <span className="">{Math.round(item?.totalBalance)}</span>
                   <span className="text-[10px] mr-2 font-bold ">days</span>
                 </div>
                 <div className="text-sm font-medium text-black ">Avaliable</div>
@@ -123,6 +137,45 @@ const MyleaveBalance: React.FC = () => {
                     userLeaveBalance?.data?.totals?.totalUtilizedLeaves,
                   )?.toLocaleString() || 0}
                 </span>
+              </div>
+            </div>
+            <div className="py-4">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2  ">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
+                  About to expire
+                </span>
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
+                  {Number.isNaN(
+                    Number(leaveBalanceExpiring?.totalExpiringAmount),
+                  )
+                    ? '-'
+                    : Number(
+                        leaveBalanceExpiring?.totalExpiringAmount,
+                      )?.toLocaleString() || 0}
+                </span>
+              </div>
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <Select
+                  loading={leaveBalanceExpiringLoading}
+                  value={Number(monthsAheadOnLeaveBalanceExpiring)}
+                  size="small"
+                  className="w-30"
+                  onSelect={(value: number) => {
+                    setMonthsAheadOnLeaveBalanceExpiring(String(value));
+                  }}
+                >
+                  {/*  eslint-disable-next-line @typescript-eslint/naming-convention */}
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                    <Select.Option
+                      key={month}
+                      value={month}
+                      label={`${month} ${month === 1 ? 'Month' : 'Months'}`}
+                    >
+                      In {month} {month === 1 ? 'Month' : 'Months'}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
             </div>
           </div>

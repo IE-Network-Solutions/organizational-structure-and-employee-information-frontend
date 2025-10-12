@@ -98,15 +98,20 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
       const month = session?.months;
 
       if (month) {
-        const filteredData = lineGraphByMonth?.map((item: any) => {
-          const matchedMonth = month?.find((m: any) => m.id === item.monthId);
-          return {
-            ...item,
-            monthName: matchedMonth?.startDate
-              ? dayjs(matchedMonth.startDate).format('MMMM')
-              : matchedMonth?.name,
-          };
-        });
+        const filteredData = lineGraphByMonth
+          ?.map((item: any) => {
+            const matchedMonth = month?.find((m: any) => m.id === item.monthId);
+            return {
+              ...item,
+              monthName: matchedMonth?.startDate
+                ? dayjs(matchedMonth.startDate).format('MMMM')
+                : matchedMonth?.name,
+            };
+          })
+          ?.sort(
+            (a: any, b: any) =>
+              dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf(),
+          );
 
         setDisplayData(filteredData);
       } else {
@@ -114,17 +119,22 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
       }
     } else if (type === 'Yearly') {
       if (monthData?.items) {
-        const filteredData = lineGraphByMonth?.map((item: any) => {
-          const matchedMonth = monthData?.items?.find(
-            (m: any) => m.id === item.monthId,
+        const filteredData = lineGraphByMonth
+          ?.map((item: any) => {
+            const matchedMonth = monthData?.items?.find(
+              (m: any) => m.id === item.monthId,
+            );
+            return {
+              ...item,
+              monthName: matchedMonth?.startDate
+                ? dayjs(matchedMonth.startDate).format('MMMM')
+                : matchedMonth?.name,
+            };
+          })
+          ?.sort(
+            (a: any, b: any) =>
+              dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf(),
           );
-          return {
-            ...item,
-            monthName: matchedMonth?.startDate
-              ? dayjs(matchedMonth.startDate).format('MMMM')
-              : matchedMonth?.name,
-          };
-        });
 
         setDisplayData(filteredData);
       } else {
@@ -149,6 +159,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
 
   const options = {
     responsive: true,
+    maxBarThickness: 50,
 
     scales: {
       x: {
@@ -180,7 +191,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   };
 
   return (
-    <div className="border-[1px] border-gray-200 rounded-lg pb-2 px-3 pt-3">
+    <div className="border-[1px] border-gray-200 rounded-lg pb-2 px-3 pt-3 h-full">
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-lg font-bold">Actual Value </h4>
         <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
@@ -198,15 +209,17 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
           />
         </div>
       </div>
-      <div className="flex  xl:hidden">
-        <Bar data={data} options={options} height={230} />{' '}
-      </div>
-      <div className="hidden xl:flex 2xl:hidden">
-        <Bar data={data} options={options} height={172} />{' '}
-      </div>
-      <div className="hidden 2xl:flex ">
-        <Bar data={data} options={options} height={140} />
-      </div>{' '}
+      <Bar
+        data={data}
+        options={options}
+        height={
+          window.innerWidth >= 1536
+            ? 130 // 2xl
+            : window.innerWidth >= 1280
+              ? 172 // xl
+              : 230 // default/mobile
+        }
+      />
     </div>
   );
 };

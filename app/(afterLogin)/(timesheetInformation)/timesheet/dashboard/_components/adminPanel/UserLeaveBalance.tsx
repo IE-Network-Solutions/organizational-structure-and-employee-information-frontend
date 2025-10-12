@@ -18,6 +18,7 @@ import { useGetEmployees } from '@/store/server/features/employees/employeeManag
 import dayjs from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
 import { LuSettings2 } from 'react-icons/lu';
+import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/leaveExpiry/queries';
 
 const UserLeaveBalance: React.FC = () => {
   const [form] = Form.useForm();
@@ -33,6 +34,7 @@ const UserLeaveBalance: React.FC = () => {
     setEndDate,
     setUserIdOnLeaveBalance,
     userIdOnLeaveBalance,
+    monthsAheadOnLeaveBalanceExpiring,  
   } = TimeAndAttendaceDashboardStore();
 
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
@@ -46,6 +48,12 @@ const UserLeaveBalance: React.FC = () => {
     useGetLeaveBalance(
       userIdOnLeaveBalance ? userIdOnLeaveBalance : (userId as string),
       '',
+    );
+    const {
+    } = useGetLeaveBalanceExpiring(
+      userId as string,
+      leaveTypeId || '',
+      monthsAheadOnLeaveBalanceExpiring,
     );
 
   const statusColors: { [key: string]: string } = {

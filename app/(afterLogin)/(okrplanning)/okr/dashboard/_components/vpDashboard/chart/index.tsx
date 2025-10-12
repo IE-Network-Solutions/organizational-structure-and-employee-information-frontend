@@ -9,7 +9,7 @@ interface VPChartProps {
 }
 const VPChart: React.FC<VPChartProps> = ({ id }) => {
   return (
-    <Row gutter={[16, 16]} className="mx-4 ">
+    <Row gutter={[16, 16]} className="mx-4">
       <Col xs={24} sm={24} md={24} lg={10} xl={10}>
         <Row gutter={[16, 16]} className="">
           <Col xs={24} sm={24} md={24} lg={24} xl={24} className="">

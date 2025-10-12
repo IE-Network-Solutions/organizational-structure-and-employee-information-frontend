@@ -3,7 +3,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import axios from 'axios';
+
 import { useMutation, useQueryClient } from 'react-query';
 
 // Mutation function for updating profile image
@@ -116,11 +116,21 @@ const updateEmployeeRolePermissionMutation = async (
 const updateEmployeeJobInformationMutation = async (
   id: string,
   values: any,
+  changeMakerUserId?: string,
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  if (changeMakerUserId) {
+    queryParams.append('changeMakerUserId', changeMakerUserId);
+  }
+
+  const url = `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/EmployeeJobInformation/${id}`,
+    url,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -138,10 +148,11 @@ const deleteEmployeeDocument = async (id: string) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     };
-    const response = await axios.delete(
-      `${ORG_AND_EMP_URL}/employee-document/${id}`,
-      { headers },
-    );
+    const response = await crudRequest({
+      url: `${ORG_AND_EMP_URL}/employee-document/${id}`,
+      method: 'DELETE',
+      headers,
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -179,8 +190,15 @@ export const useUpdateEmployeeJobInformation = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, values }: { id: string; values: any }) =>
-      updateEmployeeJobInformationMutation(id, values),
+    ({
+      id,
+      values,
+      changeMakerUserId,
+    }: {
+      id: string;
+      values: any;
+      changeMakerUserId?: string;
+    }) => updateEmployeeJobInformationMutation(id, values, changeMakerUserId),
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');
