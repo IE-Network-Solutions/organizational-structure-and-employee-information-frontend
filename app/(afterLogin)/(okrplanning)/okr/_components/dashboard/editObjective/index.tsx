@@ -384,7 +384,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 />
               </Form.Item>
             </div>
-            <div className="w-full flex justify-end mb-10">
+            {/* <div className="w-full flex justify-end mb-10">
               <Dropdown
                 overlay={keyResultMenu}
                 trigger={['click']}
@@ -400,7 +400,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   <GoPlus size={24} />
                 </Button>
               </Dropdown>
-            </div>
+            </div> */}
           </div>
         ) : (
           <div id="desktop-objective-form" className="flex gap-4 w-full">
@@ -507,23 +507,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm px-4 py-2 rounded-lg"
               aria-label="Add Key Result"
             >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-white"
-              >
-                <path
-                  d="M12 5V19M5 12H19"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Add key Result
+              <GoPlus size={24} />
+              {!isMobile && 'Add key Result'}
             </Button>
           </Dropdown>
         </div>

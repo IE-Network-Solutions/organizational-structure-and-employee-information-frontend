@@ -522,6 +522,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm"
             >
               <GoPlus size={24} />
+              {!isMobile && 'Add key Result'}
               <svg
                 width="12"
                 height="12"

@@ -22,6 +22,7 @@ import {
 } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import { GoPlus } from 'react-icons/go';
 
 const MilestoneView: React.FC<OKRProps> = ({
   keyValue,
@@ -653,9 +654,9 @@ const MilestoneView: React.FC<OKRProps> = ({
                               disabled={milestone?.status === 'Completed'}
                               id={`remove-milestone-${index}-${mindex}`}
                               icon={
-                                <VscClose size={12} className="text-white" />
+                                <VscClose size={18} className="text-white" />
                               }
-                              className="rounded-full w-10 h-10 sm:w-11 sm:h-11 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
+                              className="rounded-full w-10 h-10 sm:w-8 sm:h-8 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
                               type="primary"
                             />
                           </Tooltip>
@@ -669,21 +670,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                             type="primary"
                             onClick={() => addMilestone(index)}
                           >
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M12 5V19M5 12H19"
-                                stroke="white"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
+                            <GoPlus size={24} />
                           </Button>
                         )}
                       </div>
