@@ -306,13 +306,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         form={form}
         layout="vertical"
         className="w-full"
-        initialValues={{
-          title: objectiveValue?.title || '',
-          allignedKeyResultId: objectiveValue?.allignedKeyResultId || null,
-          ObjectiveDeadline: objectiveValue?.deadline
-            ? dayjs(objectiveValue.deadline)
-            : null,
-        }}
       >
         {/* OKR Section Title */}
         <div id="okr-drawer-objective-section-header" className="mb-6">
