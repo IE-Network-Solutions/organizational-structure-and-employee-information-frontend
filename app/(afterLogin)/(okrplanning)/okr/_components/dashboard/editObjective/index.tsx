@@ -589,7 +589,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           }}
         >
           <div id="key-results-list" className="space-y-4">
-            {objectiveValue.keyResults?.map((keyValue: any, index: number) => (
+            {objectiveValue?.keyResults?.map((keyValue: any, index: number) => (
               <KeyResultView
                 key={index}
                 objective={objective}
