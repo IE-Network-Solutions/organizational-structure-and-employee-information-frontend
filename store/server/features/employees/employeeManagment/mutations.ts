@@ -24,6 +24,7 @@ const createEmployee = async (values: any) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
+    skipEncryption: true,
   });
 };
 
@@ -56,6 +57,7 @@ const createJobInformation = async (values: any) => {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
       tenantId: tenantId, // Pass tenantId in the headers
     },
+    skipEncryption: true,
   });
 };
 const updateEmployee = async (values: any) => {
