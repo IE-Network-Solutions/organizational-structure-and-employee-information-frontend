@@ -1,6 +1,6 @@
 /**
  * AI Feature - Main Export File
- * 
+ *
  * This file serves as the central export point for all AI-related functionality.
  * It organizes exports into logical groups for easy importing throughout the application.
  */
@@ -60,4 +60,3 @@ export {
   weeklyPlanRouteHandler,
   dailyPlanRouteHandler,
 } from './routes';
-

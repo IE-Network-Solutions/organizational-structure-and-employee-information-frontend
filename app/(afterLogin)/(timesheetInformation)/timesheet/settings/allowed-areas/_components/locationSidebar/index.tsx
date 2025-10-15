@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { Form, Input, Space, Spin, Switch, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
@@ -83,11 +83,11 @@ const LocationSidebar = () => {
     }
   }, [allowedAreaData, form]);
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     form.resetFields();
     setAllowedAreaId('');
     setIsShow(false);
-  };
+  }, [form, setAllowedAreaId, setIsShow]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -113,7 +113,7 @@ const LocationSidebar = () => {
     if (isSuccess) {
       onClose();
     }
-  }, [isSuccess, onClose]);
+  }, [isSuccess]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
