@@ -15,3 +15,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const microsoftProvider = new OAuthProvider('microsoft.com');
+// Recommended Microsoft scopes to ensure stable idToken and email access
+microsoftProvider.setCustomParameters({ prompt: 'select_account' });
+microsoftProvider.addScope('openid');
+microsoftProvider.addScope('email');
+microsoftProvider.addScope('profile');

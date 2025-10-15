@@ -114,7 +114,6 @@ const handleActionClick = (action: string) => {
       // Open objective creation modal
       break;
     default:
-      console.log('Unknown action:', action);
   }
 };
 ```
