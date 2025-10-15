@@ -32,6 +32,7 @@ const nextConfig = {
     PAYROLL_URL: process.env.PAYROLL_URL,
     TENANT_BASE_URL:process.env.TENANT_BASE_URL,
     TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
+    AI_BASE_URL: process.env.NEXT_PUBLIC_AI_BASE_URL,
   },
 };
 

@@ -19,7 +19,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
   const { data: metrics } = useGetMetrics();
 
   return (
-    <div className="relative bg-gray-50 rounded-xl border-none p-3 sm:p-4 md:p-6 mb-4">
+    <div className="relative bg-gray-50 rounded-xl border-none md:p-6 mb-4">
       {/* Remove button */}
       <button
         onClick={() => removeKeyResult(index)}
@@ -48,10 +48,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
         form={form}
         initialValues={{
           ...keyItem,
-          initialValue:
-            keyItem.initialValue === 0 ? undefined : keyItem.initialValue,
-          targetValue:
-            keyItem.targetValue === 0 ? undefined : keyItem.targetValue,
+          // Keep backend-provided values as-is; show 0 instead of empty
+          initialValue: keyItem.initialValue ?? 0,
+          targetValue: keyItem.targetValue ?? 0,
         }}
         layout="vertical"
       >
@@ -349,7 +348,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 4: Initial Value and Target Value */}
-          <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 pl-2 sm:pl-3">
+          <div className="flex flex-row xs:flex-row gap-3 sm:gap-4 pl-2 sm:pl-3">
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"
@@ -360,9 +359,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 min={0}
                 max={100}
                 placeholder="Initial Value (%)"
-                value={
-                  keyItem.initialValue === 0 ? undefined : keyItem.initialValue
-                }
+                value={keyItem.initialValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'initialValue', value)
                 }
@@ -389,9 +386,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 min={0}
                 max={100}
                 placeholder="Target Value (%)"
-                value={
-                  keyItem.targetValue === 0 ? undefined : keyItem.targetValue
-                }
+                value={keyItem.targetValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'targetValue', value)
                 }

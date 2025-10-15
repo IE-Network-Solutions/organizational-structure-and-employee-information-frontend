@@ -482,51 +482,50 @@ const MilestoneView: React.FC<OKRProps> = ({
             )}
           </Form.Item>
 
-          {/* Row 2: Type (full width) */}
-          <Form.Item
-            className="w-full font-bold mb-0"
-            rules={[
-              {
-                required: true,
-                message: 'Please select a Key Result type',
-              },
-            ]}
-          >
-            {isEdit ? (
-              <Select
-                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
-                placeholder="Select metric type"
-                value={keyValue?.metricTypeId}
-                onChange={(value) => {
-                  const selectedMetric = metrics?.items?.find(
-                    (metric: any) => metric.id === value,
-                  );
-                  if (selectedMetric) {
-                    handleChange(selectedMetric, 'metricType');
-                    handleChange(value, 'metricTypeId');
-                  }
-                }}
-              >
-                {metrics?.items?.map((metric: any) => (
-                  <Select.Option key={metric?.id} value={metric?.id}>
-                    {metric?.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            ) : (
-              <Button
-                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base bg-gray-100 border-gray-300 text-gray-600"
-                disabled
-              >
-                Milestone
-              </Button>
-            )}
-          </Form.Item>
-
-          {/* Row 3: Weight and Deadline */}
+          {/* Row 2: Type, Weight, and Deadline in one row */}
           <div className="flex gap-2">
             <Form.Item
               className="flex-1 font-bold mb-0"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a Key Result type',
+                },
+              ]}
+            >
+              {isEdit ? (
+                <Select
+                  className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                  placeholder="Select metric type"
+                  value={keyValue?.metricTypeId}
+                  onChange={(value) => {
+                    const selectedMetric = metrics?.items?.find(
+                      (metric: any) => metric.id === value,
+                    );
+                    if (selectedMetric) {
+                      handleChange(selectedMetric, 'metricType');
+                      handleChange(value, 'metricTypeId');
+                    }
+                  }}
+                >
+                  {metrics?.items?.map((metric: any) => (
+                    <Select.Option key={metric?.id} value={metric?.id}>
+                      {metric?.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              ) : (
+                <Button
+                  className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base bg-gray-100 border-gray-300 text-gray-600"
+                  disabled
+                >
+                  Milestone
+                </Button>
+              )}
+            </Form.Item>
+
+            <Form.Item
+              className="w-24 font-bold mb-0"
               rules={[
                 { required: true, message: 'Weight required' },
                 {
@@ -551,7 +550,7 @@ const MilestoneView: React.FC<OKRProps> = ({
               />
             </Form.Item>
 
-            <Form.Item className="flex-1 font-bold mb-0">
+            <Form.Item className="w-32 font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -588,7 +587,7 @@ const MilestoneView: React.FC<OKRProps> = ({
               {keyValue?.milestones.map((milestone, mindex) => (
                 <div
                   key={mindex}
-                  className={`flex ${isMobile ? 'flex-col xs:flex-row' : 'flex-col md:flex-row'} items-stretch ${isMobile ? 'xs:items-center' : 'md:items-center'} gap-2`}
+                  className={`flex ${isMobile ? 'flex-col' : 'flex-col md:flex-row'} items-stretch ${isMobile ? '' : 'md:items-center'} gap-2`}
                   id={`milestone-${index}-${mindex}`}
                 >
                   <Form.Item
@@ -614,7 +613,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                   </Form.Item>
 
                   {isMobile ? (
-                    <div className="flex gap-2 w-full xs:w-auto">
+                    <div className="flex gap-2 w-full">
                       <Form.Item className="w-20 sm:w-24 mb-0">
                         <InputNumber
                           disabled={milestone?.status == 'Completed'}
@@ -630,7 +629,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                         />
                       </Form.Item>
 
-                      <div className="flex gap-2 items-center flex-1">
+                      <div className="flex gap-2 items-center">
                         <Popconfirm
                           title="Are you sure you want to remove this milestone?"
                           onConfirm={() =>
@@ -656,7 +655,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                               icon={
                                 <VscClose size={18} className="text-white" />
                               }
-                              className="rounded-full w-10 h-10 sm:w-8 sm:h-8 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
+                              className="rounded-full w-10 h-10 sm:w-11 sm:h-11 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
                               type="primary"
                             />
                           </Tooltip>
@@ -666,11 +665,11 @@ const MilestoneView: React.FC<OKRProps> = ({
                         {mindex === 0 && (
                           <Button
                             id={`add-milestone-${index}`}
-                            className=" bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
+                            className="rounded-full w-10 h-10 sm:w-11 sm:h-11 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none flex items-center justify-center flex-shrink-0 p-0"
                             type="primary"
                             onClick={() => addMilestone(index)}
                           >
-                            <GoPlus size={24} />
+                            <GoPlus size={20} />
                           </Button>
                         )}
                       </div>
@@ -753,7 +752,7 @@ const MilestoneView: React.FC<OKRProps> = ({
               className={`space-y-3 px-2 sm:px-4 md:px-6 ${isEdit ? 'bg-gray-50 rounded-lg py-2' : ''}`}
             >
               <div
-                className={`flex ${isMobile ? 'flex-col xs:flex-row' : 'flex-col md:flex-row'} items-stretch ${isMobile ? 'xs:items-center' : 'md:items-center'} gap-2`}
+                className={`flex ${isMobile ? 'flex-col' : 'flex-col md:flex-row'} items-stretch ${isMobile ? '' : 'md:items-center'} gap-2`}
               >
                 <Form.Item className="flex-1 mb-0">
                   <Input
@@ -764,7 +763,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 </Form.Item>
 
                 {isMobile ? (
-                  <div className="flex gap-2 w-full xs:w-auto">
+                  <div className="flex gap-2 w-full">
                     <Form.Item className="w-20 sm:w-24 mb-0">
                       <InputNumber
                         placeholder="100"
@@ -774,35 +773,21 @@ const MilestoneView: React.FC<OKRProps> = ({
                       />
                     </Form.Item>
 
-                    <div className="flex gap-2 items-center flex-1">
+                    <div className="flex gap-2 items-center">
                       <Button
-                        className="rounded-full w-10 h-10 sm:w-11 sm:h-11 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
+                        className="absolute top-2 right-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shadow transition-colors"
                         disabled
                       >
-                        <VscClose size={12} className="text-white" />
+                        <VscClose />
                       </Button>
 
                       <Button
                         id={`add-milestone-${index}`}
-                        className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center flex-1"
+                        className="rounded-lg w-10 h-10 sm:w-11 sm:h-11 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
                         type="primary"
                         onClick={() => addMilestone(index)}
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M12 5V19M5 12H19"
-                            stroke="white"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        <GoPlus size={20} />
                       </Button>
                     </div>
                   </div>
@@ -820,10 +805,10 @@ const MilestoneView: React.FC<OKRProps> = ({
 
                       <div className="flex gap-2 items-center flex-1 md:w-40 lg:w-48">
                         <Button
-                          className="rounded-full w-10 h-10 md:w-11 md:h-11 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center flex-shrink-0"
+                          className="absolute top-2 right-2 rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
                           disabled
                         >
-                          <VscClose size={12} className="text-white" />
+                          <VscClose className="text-white" />
                         </Button>
 
                         <Button

@@ -48,10 +48,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
         form={form}
         initialValues={{
           ...keyItem,
-          initialValue:
-            keyItem.initialValue === 0 ? undefined : keyItem.initialValue,
-          targetValue:
-            keyItem.targetValue === 0 ? undefined : keyItem.targetValue,
+          // If backend provides 0, keep 0 visible; do not coerce to undefined
+          initialValue: keyItem.initialValue ?? 0,
+          targetValue: keyItem.targetValue ?? 0,
         }}
         layout="vertical"
       >
@@ -229,6 +228,160 @@ const NumericForm: React.FC<OKRFormProps> = ({
               />
             </Form.Item>
           </div>
+          <Form.Item
+            className="flex-1 mr-2 mb-0"
+            name="title"
+            rules={[
+              { required: true, message: 'Please enter the Key Result name' },
+            ]}
+            id={`key-result-title-${index}`}
+          >
+            <Input
+              value={keyItem.title === '' ? undefined : keyItem.title}
+              onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
+              placeholder="Key Result Name"
+              className="h-10 rounded-lg text-base"
+              aria-label="Key Result Name"
+            />
+          </Form.Item>
+          <Form.Item
+            className="w-48 mb-0"
+            rules={[
+              { required: true, message: 'Please select a Key Result type' },
+            ]}
+            id={`key-type-select-${index}`}
+          >
+            <Select
+              className="w-full h-10 rounded-lg text-base"
+              popupClassName="text-base"
+              onChange={(value) => {
+                const selectedMetric = metrics?.items?.find(
+                  (metric) => metric.id === value,
+                );
+                if (selectedMetric) {
+                  updateKeyResult(index, 'metricTypeId', value);
+                  updateKeyResult(index, 'key_type', selectedMetric.name);
+                }
+              }}
+              value={
+                metrics?.items?.find(
+                  (metric) => metric.name === keyItem.key_type,
+                )?.id || ''
+              }
+            >
+              <Option value="" disabled>
+                Please select a metric type
+              </Option>
+              {metrics?.items?.map((metric) => (
+                <Option key={metric?.id} value={metric?.id}>
+                  {metric?.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            className="w-24 mb-0"
+            name="weight"
+            rules={[{ required: true, message: 'Please enter the weight' }]}
+            id={`weight-input-${index}`}
+          >
+            <InputNumber
+              className="w-full h-10 rounded-lg text-base"
+              min={0}
+              max={100}
+              suffix="%"
+              placeholder="100"
+              value={keyItem.weight}
+              onChange={(value) => updateKeyResult(index, 'weight', value)}
+              aria-label="Weight"
+            />
+          </Form.Item>
+          <Form.Item
+            className="w-48 mb-0"
+            name={`dead_line_${index}`}
+            rules={[{ required: true, message: 'Please select a deadline' }]}
+            id={`deadline-picker-${index}`}
+          >
+            <DatePicker
+              className="w-full h-10 rounded-lg text-base"
+              popupClassName="text-base"
+              value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
+              format="YYYY-MM-DD"
+              disabledDate={(current) => {
+                const startOfToday = dayjs().startOf('day');
+                const objectiveDeadline = dayjs(objectiveValue?.deadline);
+                return (
+                  current &&
+                  (current < startOfToday || current > objectiveDeadline)
+                );
+              }}
+              onChange={(date) =>
+                updateKeyResult(
+                  index,
+                  'deadline',
+                  date ? date.format('YYYY-MM-DD') : null,
+                )
+              }
+              aria-label="Deadline"
+            />
+          </Form.Item>
+        </div>
+        {/* Desktop Numeric input row */}
+        <div
+          className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4 mx-4`}
+        >
+          <Form.Item
+            className="w-60 mb-0"
+            name="initialValue"
+            rules={[
+              { required: true, message: 'Please enter the initial value' },
+            ]}
+          >
+            <InputNumber
+              className="w-full h-10 rounded-lg text-base"
+              min={0}
+              placeholder="Initial Value"
+              value={keyItem.initialValue ?? 0}
+              onChange={(value) =>
+                updateKeyResult(index, 'initialValue', value)
+              }
+              onKeyPress={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  e.key !== 'Backspace' &&
+                  e.key !== 'Delete' &&
+                  e.key !== 'Tab'
+                ) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          </Form.Item>
+          <Form.Item
+            className="w-60 mb-0"
+            name="targetValue"
+            rules={[
+              { required: true, message: 'Please enter the target value' },
+            ]}
+          >
+            <InputNumber
+              className="w-full h-10 rounded-lg text-base"
+              min={0}
+              placeholder="Target Value"
+              value={keyItem.targetValue ?? 0}
+              onChange={(value) => updateKeyResult(index, 'targetValue', value)}
+              onKeyPress={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  e.key !== 'Backspace' &&
+                  e.key !== 'Delete' &&
+                  e.key !== 'Tab'
+                ) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          </Form.Item>
         </div>
         {/* Mobile Layout */}
         <div
@@ -337,7 +490,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 4: Initial Value and Target Value */}
-          <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 pl-2 sm:pl-3">
+          <div className="flex flex-row xs:flex-row gap-3 sm:gap-4 pl-2 sm:pl-3">
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"
@@ -347,9 +500,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 min={0}
                 placeholder="Initial Value"
-                value={
-                  keyItem.initialValue === 0 ? undefined : keyItem.initialValue
-                }
+                value={keyItem.initialValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'initialValue', value)
                 }
@@ -374,9 +525,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                 className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 min={0}
                 placeholder="Target Value"
-                value={
-                  keyItem.targetValue === 0 ? undefined : keyItem.targetValue
-                }
+                value={keyItem.targetValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'targetValue', value)
                 }

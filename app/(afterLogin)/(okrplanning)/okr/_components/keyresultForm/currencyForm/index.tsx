@@ -341,7 +341,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 4: Initial Value and Target Value */}
-          <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 pl-2 sm:pl-3">
+          <div className="flex flex-row xs:flex-row gap-3 sm:gap-4 pl-2 sm:pl-3">
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"

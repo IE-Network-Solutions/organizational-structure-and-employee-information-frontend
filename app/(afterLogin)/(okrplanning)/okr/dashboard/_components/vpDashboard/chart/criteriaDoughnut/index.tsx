@@ -59,7 +59,7 @@ const CriteriaDoughnut = () => {
     },
   };
   return (
-    <div className=" border-[1px] border-gray-200 rounded-lg h-full p-2">
+    <div className=" border-[1px] border-gray-200 rounded-lg p-2">
       <div className="text-lg font-bold ml-1">Criteria Contribution</div>{' '}
       <div className=" ">
         {vpScore?.criteria?.length ? (

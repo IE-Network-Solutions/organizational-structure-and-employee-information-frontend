@@ -99,10 +99,10 @@ export const useCreateCandidate = () => {
       // Extract error message from backend response
       let errorMessage = 'Failed to create candidate';
       let errorDescription = 'An unexpected error occurred';
-      
+
       if (error?.response?.data) {
         const errorData = error.response.data;
-        
+
         // Handle different error response formats
         if (typeof errorData === 'string') {
           errorMessage = errorData;
@@ -112,26 +112,33 @@ export const useCreateCandidate = () => {
         } else if (errorData.error) {
           errorMessage = errorData.error;
         }
-        
+
         // Handle specific validation errors
         if (errorData.errors && Array.isArray(errorData.errors)) {
-          errorMessage = errorData.errors.map((err: any) => err.message || err).join(', ');
+          errorMessage = errorData.errors
+            .map((err: any) => err.message || err)
+            .join(', ');
         }
-        
+
         // Handle duplicate field errors
-        if (errorData.message?.includes('duplicate') || errorData.message?.includes('already exists')) {
+        if (
+          errorData.message?.includes('duplicate') ||
+          errorData.message?.includes('already exists')
+        ) {
           if (errorData.message.toLowerCase().includes('email')) {
             errorMessage = 'Email already exists';
-            errorDescription = 'A candidate with this email address already exists';
+            errorDescription =
+              'A candidate with this email address already exists';
           } else if (errorData.message.toLowerCase().includes('phone')) {
             errorMessage = 'Phone number already exists';
-            errorDescription = 'A candidate with this phone number already exists';
+            errorDescription =
+              'A candidate with this phone number already exists';
           }
         }
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
+
       NotificationMessage.error({
         message: errorMessage,
         description: errorDescription,

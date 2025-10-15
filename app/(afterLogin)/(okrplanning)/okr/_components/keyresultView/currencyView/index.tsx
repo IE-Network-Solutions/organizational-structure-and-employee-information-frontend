@@ -379,7 +379,9 @@ const CurrencyView: React.FC<OKRProps> = ({
         </div>
 
         {/* Mobile Layout - Initial and Target Values */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
+        <div
+          className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6 flex flex-row`}
+        >
           <div className="flex gap-4">
             <Form.Item className="flex-1 mb-0">
               <InputNumber

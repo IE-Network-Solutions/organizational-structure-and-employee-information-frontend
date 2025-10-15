@@ -97,10 +97,11 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   const handleSubmit = async () => {
     const formValues = form.getFieldsValue();
     const formData = new FormData();
-    
+
     // Get the actual file from documentFileList (the Upload component's file list)
-    const fileToUpload = documentFileList?.[0]?.originFileObj || documentFileList?.[0];
-    
+    const fileToUpload =
+      documentFileList?.[0]?.originFileObj || documentFileList?.[0];
+
     if (fileToUpload && fileToUpload instanceof File) {
       formData.append('documentName', fileToUpload);
     }
@@ -121,7 +122,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
       applicantStatusStageId: stageId,
     };
-    
+
     // Encrypt only the JSON data, not the entire FormData
     const { encrypt } = await import('@/utils/crypto');
     const encryptedData = await encrypt(JSON.stringify(formattedValues));

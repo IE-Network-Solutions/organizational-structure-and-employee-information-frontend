@@ -1,15 +1,22 @@
-import { Card, Skeleton, Spin, Tag, Tooltip } from 'antd';
+import { Card, Select, Skeleton, Spin, Tag, Tooltip } from 'antd';
 import React from 'react';
 import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import dayjs from 'dayjs';
-
+import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/leaveExpiry/queries';
 const MyleaveBalance: React.FC = () => {
   const { userId } = useAuthenticationStore();
-  const { leaveTypeId, startDate, endDate, setLeaveTypeId } =
-    TimeAndAttendaceDashboardStore();
+
+  const {
+    leaveTypeId,
+    startDate,
+    endDate,
+    setLeaveTypeId,
+    monthsAheadOnLeaveBalanceExpiring,
+    setMonthsAheadOnLeaveBalanceExpiring,
+  } = TimeAndAttendaceDashboardStore();
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
     useGetUserLeaveBalance(
       userId as string,
@@ -19,6 +26,12 @@ const MyleaveBalance: React.FC = () => {
     );
   const { data: leaveBalance, isLoading: leaveBalanceLoading } =
     useGetLeaveBalance(userId as string, '');
+  const { data: leaveBalanceExpiring, isLoading: leaveBalanceExpiringLoading } =
+    useGetLeaveBalanceExpiring(
+      userId as string,
+      leaveTypeId || '',
+      monthsAheadOnLeaveBalanceExpiring,
+    );
   const statusColors: { [key: string]: string } = {
     approved: 'text-[#3636F0] bg-[#B2B2FF]',
     pending: 'text-[#FFD023] bg-[#FFDE6533]',
@@ -114,7 +127,7 @@ const MyleaveBalance: React.FC = () => {
                 </span>
               </div>
             </div>
-            <div className="py-4">
+            <div className="py-4 md:border-b border-r border[3px] border-gray-200">
               <div className="flex items-center justify-center gap-4 px-4">
                 <span className="text-[16px] text-black font-medium text-right w-32">
                   Total Utilized
@@ -124,6 +137,45 @@ const MyleaveBalance: React.FC = () => {
                     userLeaveBalance?.data?.totals?.totalUtilizedLeaves,
                   )?.toLocaleString() || 0}
                 </span>
+              </div>
+            </div>
+            <div className="py-4">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2  ">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
+                  About to expire
+                </span>
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
+                  {Number.isNaN(
+                    Number(leaveBalanceExpiring?.totalExpiringAmount),
+                  )
+                    ? '-'
+                    : Number(
+                        leaveBalanceExpiring?.totalExpiringAmount,
+                      )?.toLocaleString() || 0}
+                </span>
+              </div>
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <Select
+                  loading={leaveBalanceExpiringLoading}
+                  value={Number(monthsAheadOnLeaveBalanceExpiring)}
+                  size="small"
+                  className="w-30"
+                  onSelect={(value: number) => {
+                    setMonthsAheadOnLeaveBalanceExpiring(String(value));
+                  }}
+                >
+                  {/*  eslint-disable-next-line @typescript-eslint/naming-convention */}
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    /*  eslint-enable-next-line @typescript-eslint/naming-convention */
+                    <Select.Option
+                      key={month}
+                      value={month}
+                      label={`${month} ${month === 1 ? 'Month' : 'Months'}`}
+                    >
+                      In {month} {month === 1 ? 'Month' : 'Months'}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
             </div>
           </div>

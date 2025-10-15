@@ -25,7 +25,7 @@ const ReceivedReprimand: React.FC<{ kpi: number; engagement: number }> = ({
             height="40"
             rx="20"
             fill="#FF782D"
-            fill-opacity="0.2"
+            fillOpacity="0.2"
           />
           <g clip-path="url(#clip0_7606_452751)">
             <path

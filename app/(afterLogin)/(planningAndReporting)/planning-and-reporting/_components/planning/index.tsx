@@ -443,34 +443,7 @@ function Planning() {
             </Card>
           </>
         ))}
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={allPlanning?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-          />
-        ) : (
-          <CustomPagination
-            current={page}
-            total={allPlanning?.meta?.totalItems || 1}
-            pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-          />
-        )}
+
         {/* <Pagination
           disabled={!allPlanning?.items?.length} // Ensures no crash if items is undefined
           className="flex justify-end"
@@ -501,6 +474,35 @@ function Planning() {
               </p>
             </div>
           </div>
+        )}
+
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={allPlanning?.meta?.totalItems ?? 0}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            current={page}
+            total={allPlanning?.meta?.totalItems || 1}
+            pageSize={pageSize}
+            onChange={(page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
         )}
       </div>
     </Spin>

@@ -19,7 +19,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   const { isMobile } = useIsMobile();
 
   return (
-    <div className="relative bg-gray-50 rounded-xl border-none p-3 sm:p-4 md:p-6 mb-4">
+    <div className="relative bg-gray-50 rounded-xl border-none md:p-6 mb-4">
       {/* Remove button */}
       <button
         onClick={() => removeKeyResult(index)}

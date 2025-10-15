@@ -95,7 +95,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <div>
               <Form.Item
                 className="mb-0"
-                name={`title-${index}`}
+                name="title"
                 rules={[
                   {
                     required: true,

@@ -16,7 +16,6 @@ import {
 
 import {
   AllPlanningPeriods,
-  // useGetPlanningPeriodsHierarchy,
   useGetReportedPlanning,
   useGetReportingById,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -26,10 +25,10 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { MdKey } from 'react-icons/md';
-// import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-const { Text } = Typography;
 
+const { Text } = Typography;
 const { TextArea } = Input;
+
 function EditReport() {
   const {
     setOpenReportModal,
@@ -48,27 +47,23 @@ function EditReport() {
     setOpenReportModal(false);
     setSelectedReportId('');
     setSelectedPlanId('');
-
     form.resetFields();
     resetWeights();
   };
 
   const { data: planningPeriods } = AllPlanningPeriods();
-
   const { data: reportedData, isLoading: reportedDataLoading } =
     useGetReportingById(selectedReportId);
   const { mutate: editReport, isLoading: editReportLoading } =
     useEditReportByReportId();
 
-  // const planningPeriodId =
-  //   planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
   const planningPeriodName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
 
   const { data: allReportedPlanning } = useGetReportedPlanning(selectedPlanId);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="flex justify-center text-base sm:text-xl font-extrabold text-gray-800 p-4">
       Update {planningPeriodName} Report
     </div>
   );
@@ -90,26 +85,23 @@ function EditReport() {
     groupUnReportedTasksByKeyResultAndMilestone(
       allReportedPlanning?.length == 0 ? [] : allReportedPlanning,
     );
+
   useEffect(() => {
-    // Ensure there is reportedData and valid reportTask array
     if (reportedData?.reportTask?.length > 0) {
-      // Map reportedData to a formatted structure
       const formattedData = reportedData.reportTask.reduce(
         (acc: any, task: any) => {
           acc[task.planTaskId] = {
-            status: task?.status ?? '', // Use existing status or empty string
-            actualValue: Number(task?.actualValue ?? 0), // Default to 0 if null/undefined
-            customReason: task?.customReason ?? '', // Default to empty string
+            status: task?.status ?? '',
+            actualValue: Number(task?.actualValue ?? 0),
+            customReason: task?.customReason ?? '',
           };
           return acc;
         },
         {},
       );
 
-      // Dynamically set form values
       form.setFieldsValue(formattedData);
 
-      // Update individual status for each task
       reportedData.reportTask.forEach((task: any) => {
         setStatus(task.planTaskId, {
           status: task?.status ?? '',
@@ -118,13 +110,12 @@ function EditReport() {
         });
       });
     }
-  }, [reportedData, selectedReportId, form]); // Add dependencies that should trigger re-runs
+  }, [reportedData, selectedReportId, form]);
 
   const totalWeight = formattedData?.reduce((sum: number, objective: any) => {
     return (
       sum +
       objective?.keyResults?.reduce((keyResultSum: number, keyResult: any) => {
-        // Calculate the weight for keyResult.tasks array
         const taskWeight = keyResult?.tasks?.reduce(
           (taskSum: number, task: any) => {
             if (form.getFieldValue([task.taskId, 'status']) === 'Done') {
@@ -135,7 +126,6 @@ function EditReport() {
           0,
         );
 
-        // Calculate the weight for milestones.tasks array
         const milestoneWeight = keyResult?.milestones?.reduce(
           (milestoneSum: number, milestone: any) => {
             return (
@@ -151,7 +141,6 @@ function EditReport() {
           0,
         );
 
-        // Sum up task weights and milestone weights
         return keyResultSum + taskWeight + milestoneWeight;
       }, 0)
     );
@@ -163,7 +152,8 @@ function EditReport() {
         open={selectedReportId !== ''}
         onClose={onClose}
         modalHeader={modalHeader}
-        width="65%"
+        width="95%"
+        className="sm:!w-[85%] md:!w-[75%] lg:!w-[65%]"
       >
         <Spin
           spinning={editReportLoading || reportedDataLoading}
@@ -183,48 +173,46 @@ function EditReport() {
                       {objective?.keyResults?.map(
                         (keyresult: any, index: number) => (
                           <>
-                            <Row className="flex justify-between text-xs">
+                            <Row className="flex justify-between text-xs mb-1">
                               <p>Key Result:</p>
                               <p>Weight</p>
                             </Row>
-                            <Row className="flex justify-between">
-                              <p className="flex items-center gap-2">
-                                <Text className="rounded-lg border-gray-200 border bg-gray-200 w-6 h-6 text-[12px] flex items-center justify-center">
+                            <Row className="flex flex-col sm:flex-row justify-between gap-2 mb-3">
+                              <p className="flex items-center gap-2 flex-1 min-w-0">
+                                <Text className="rounded-lg border-gray-200 border bg-gray-200 w-6 h-6 text-[12px] flex items-center justify-center flex-shrink-0">
                                   {index + 1}.
                                 </Text>
-                                {keyresult?.title}
+                                <span className="break-words">
+                                  {keyresult?.title}
+                                </span>
                               </p>
-                              <Text className="rounded-lg px-1   border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                                {
-                                  // Calculate weight from keyResult.tasks
-                                  keyresult?.tasks?.reduce(
-                                    (taskWeight: number, task: any) => {
+                              <Text className="rounded-lg px-1 border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center flex-shrink-0 self-start sm:self-center">
+                                {keyresult?.tasks?.reduce(
+                                  (taskWeight: number, task: any) => {
+                                    return (
+                                      taskWeight + Number(task?.weight || 0)
+                                    );
+                                  },
+                                  0,
+                                ) +
+                                  keyresult?.milestones?.reduce(
+                                    (totalWeight: number, milestone: any) => {
                                       return (
-                                        taskWeight + Number(task?.weight || 0)
+                                        totalWeight +
+                                        (milestone?.tasks?.reduce(
+                                          (taskWeight: number, task: any) =>
+                                            taskWeight +
+                                            Number(task?.weight || 0),
+                                          0,
+                                        ) || 0)
                                       );
                                     },
                                     0,
-                                  ) +
-                                    // Calculate weight from keyResult.milestones.tasks
-                                    keyresult?.milestones?.reduce(
-                                      (totalWeight: number, milestone: any) => {
-                                        return (
-                                          totalWeight +
-                                          (milestone?.tasks?.reduce(
-                                            (taskWeight: number, task: any) =>
-                                              taskWeight +
-                                              Number(task?.weight || 0),
-                                            0,
-                                          ) || 0)
-                                        );
-                                      },
-                                      0,
-                                    ) || 0
-                                }
+                                  ) || 0}
                                 %
                               </Text>
                             </Row>
-                            <Row className="flex mt-4 justify-between text-xs">
+                            <Row className="flex mt-4 justify-between text-xs mb-2">
                               <p>{planningPeriodName + ' Tasks'}:</p>
                               <p>Point</p>
                             </Row>
@@ -234,16 +222,15 @@ function EditReport() {
                                 milestone?.tasks?.length > 0 && (
                                   <div
                                     key={milestoneIndex}
-                                    className="mb-4 ml-4"
+                                    className="mb-4 ml-2 sm:ml-4"
                                   >
-                                    <h4 className="font-semibold text-xs mb-1">
+                                    <h4 className="font-semibold text-xs mb-2">
                                       {milestone?.title}
                                     </h4>
                                     {milestone?.tasks?.map(
                                       (task: any, taskIndex: number) => (
-                                        <>
+                                        <div key={task.taskId} className="mb-4">
                                           <Form.Item
-                                            key={task.taskId}
                                             name={[task.taskId, 'status']}
                                             className="mb-2"
                                             rules={[
@@ -252,229 +239,206 @@ function EditReport() {
                                                 message:
                                                   'Please select a status!',
                                               },
-                                            ]} // Add validation rule
+                                            ]}
                                           >
-                                            <div className="grid">
-                                              <div className="flex items-center justify-between ml-1">
-                                                {/* Radio Group for Status */}
-                                                <div className="flex  items-center  space-x-2">
-                                                  <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                                                    {index + 1}.{taskIndex + 1}.
-                                                  </Text>
-
-                                                  <Radio.Group
-                                                    className="text-xs"
-                                                    onChange={(e) =>
-                                                      setStatus(
-                                                        task.taskId,
-                                                        e.target.value,
-                                                      )
-                                                    }
-                                                    value={
-                                                      form.getFieldValue([
-                                                        task.taskId,
-                                                        'status',
-                                                      ]) || ''
-                                                    }
-                                                    // Bind value from Zustand
-                                                  >
-                                                    <Radio value="Done">
-                                                      Done
-                                                    </Radio>
-                                                    <Radio value="Not">
-                                                      Not
-                                                    </Radio>
-                                                  </Radio.Group>
+                                            <div className="grid gap-2">
+                                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 ml-1">
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-1 min-w-0 w-full">
+                                                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                                                    <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center flex-shrink-0">
+                                                      {index + 1}.
+                                                      {taskIndex + 1}.
+                                                    </Text>
+                                                    <Radio.Group
+                                                      className="text-xs"
+                                                      onChange={(e) =>
+                                                        setStatus(
+                                                          task.taskId,
+                                                          e.target.value,
+                                                        )
+                                                      }
+                                                      value={
+                                                        form.getFieldValue([
+                                                          task.taskId,
+                                                          'status',
+                                                        ]) || ''
+                                                      }
+                                                    >
+                                                      <Radio value="Done">
+                                                        Done
+                                                      </Radio>
+                                                      <Radio value="Not">
+                                                        Not
+                                                      </Radio>
+                                                    </Radio.Group>
+                                                  </div>
                                                   <Tooltip
                                                     title={task.taskName}
                                                   >
-                                                    <span className="font-medium text-xs truncate">
+                                                    <span className="font-medium text-xs truncate block w-full sm:w-auto">
                                                       {task.taskName}
                                                     </span>
                                                   </Tooltip>
                                                 </div>
 
-                                                {/* Task Details */}
-                                                <div className="flex items-center space-y-1">
-                                                  {/* Task Name */}
-
-                                                  {/* Priority and Value */}
-                                                  <div className="flex items-center space-x-2">
-                                                    <Tag
-                                                      className="font-bold border-none w-16  text-center capitalize text-[10px]"
-                                                      color={
-                                                        task?.priority ===
-                                                        'high'
-                                                          ? 'red'
-                                                          : task?.priority ===
-                                                              'medium'
-                                                            ? 'orange'
-                                                            : 'green'
-                                                      }
-                                                    >
-                                                      {task?.priority || 'None'}
-                                                    </Tag>
-                                                    <span className="rounded-lg border-gray-200 border bg-gray-200 mni-w-6 min-h-6 px-1 text-[12px] flex items-center justify-center">
-                                                      {task.weight || 0}%
-                                                    </span>
-                                                  </div>
+                                                <div className="flex items-center gap-2 self-end sm:self-center">
+                                                  <Tag
+                                                    className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                                                    color={
+                                                      task?.priority === 'high'
+                                                        ? 'red'
+                                                        : task?.priority ===
+                                                            'medium'
+                                                          ? 'orange'
+                                                          : 'green'
+                                                    }
+                                                  >
+                                                    {task?.priority || 'None'}
+                                                  </Tag>
+                                                  <span className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 px-1 text-[12px] flex items-center justify-center">
+                                                    {task.weight || 0}%
+                                                  </span>
                                                 </div>
                                               </div>
 
-                                              <Row>
-                                                {keyresult?.metricType?.name ===
-                                                  NAME.ACHIEVE && (
+                                              {keyresult?.metricType?.name ===
+                                                NAME.ACHIEVE && (
+                                                <Row>
                                                   <div className="text-xs">
                                                     Target
-                                                    <Tag className="uppercase mt-1 ml-1 test-xs">
+                                                    <Tag className="uppercase mt-1 ml-1 text-xs">
                                                       {Number(
                                                         task?.targetValue,
                                                       )?.toLocaleString()}
                                                     </Tag>
                                                   </div>
-                                                )}
-                                              </Row>
+                                                </Row>
+                                              )}
                                             </div>
                                           </Form.Item>
-                                          {/* Actual Value Form Item, with both conditions */}
 
-                                          {
+                                          {keyresult?.metricType?.name !==
+                                            NAME.ACHIEVE &&
                                             keyresult?.metricType?.name !==
-                                              NAME.ACHIEVE &&
-                                              keyresult?.metricType?.name !==
-                                                NAME.MILESTONE && (
-                                                // !parentParentId && (
-                                                <Form.Item
-                                                  key={`${task.taskId}-actualValue`}
-                                                  name={[
+                                              NAME.MILESTONE && (
+                                              <Form.Item
+                                                key={`${task.taskId}-actualValue`}
+                                                name={[
+                                                  task.taskId,
+                                                  'actualValue',
+                                                ]}
+                                                className="mb-1"
+                                                label="Actual value:"
+                                                rules={[
+                                                  {
+                                                    validator(_, value: any) {
+                                                      if (
+                                                        !keyresult ||
+                                                        !keyresult.targetValue ||
+                                                        !keyresult.currentValue
+                                                      ) {
+                                                        return Promise.reject(
+                                                          new Error(
+                                                            'Key result data is incomplete.',
+                                                          ),
+                                                        );
+                                                      }
+
+                                                      if (
+                                                        keyresult?.metricType
+                                                          ?.name ===
+                                                          NAME.ACHIEVE ||
+                                                        keyresult?.metricType
+                                                          ?.name ===
+                                                          NAME.MILESTONE
+                                                      ) {
+                                                        return Promise.resolve();
+                                                      }
+
+                                                      if (
+                                                        value === null ||
+                                                        value === undefined
+                                                      ) {
+                                                        return Promise.reject(
+                                                          new Error(
+                                                            'Please enter a target value.',
+                                                          ),
+                                                        );
+                                                      }
+
+                                                      const numericValue =
+                                                        Number(value);
+                                                      if (isNaN(numericValue)) {
+                                                        return Promise.reject(
+                                                          new Error(
+                                                            'Please enter a valid number.',
+                                                          ),
+                                                        );
+                                                      }
+
+                                                      if (
+                                                        form.getFieldValue([
+                                                          task.taskId,
+                                                          'status',
+                                                        ]) === 'Done'
+                                                      ) {
+                                                        if (
+                                                          numericValue >=
+                                                          task?.targetValue
+                                                        ) {
+                                                          return Promise.resolve();
+                                                        }
+                                                      } else {
+                                                        if (
+                                                          numericValue <=
+                                                          task?.targetValue
+                                                        ) {
+                                                          return Promise.resolve();
+                                                        }
+
+                                                        return Promise.reject(
+                                                          new Error(
+                                                            `Your actual value shouldn't exceed the allowed limits which is : ${Number(task?.targetValue)?.toLocaleString()}`,
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                  },
+                                                ]}
+                                              >
+                                                <InputNumber
+                                                  width="50%"
+                                                  min={0}
+                                                  step={1}
+                                                  className="w-full"
+                                                  formatter={(value) => {
+                                                    if (!value) return '';
+                                                    const parts =
+                                                      `${value}`.split('.');
+                                                    parts[0] = parts[0].replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ',',
+                                                    );
+                                                    return parts.join('.');
+                                                  }}
+                                                  value={form.getFieldValue([
                                                     task.taskId,
                                                     'actualValue',
-                                                  ]}
-                                                  className="mb-1"
-                                                  label="Actual value:" // Optional label
-                                                  rules={[
-                                                    {
-                                                      /* eslint-disable @typescript-eslint/naming-convention */
-                                                      validator(_, value: any) {
-                                                        /* eslint-enable @typescript-eslint/naming-convention */
-                                                        // Check if keyResult is available
-                                                        if (
-                                                          !keyresult ||
-                                                          !keyresult.targetValue ||
-                                                          !keyresult.currentValue
-                                                        ) {
-                                                          return Promise.reject(
-                                                            new Error(
-                                                              'Key result data is incomplete.',
-                                                            ),
-                                                          );
-                                                        }
-
-                                                        // Skip validation for specific metric types
-                                                        if (
-                                                          keyresult?.metricType
-                                                            ?.name ===
-                                                            NAME.ACHIEVE ||
-                                                          keyresult?.metricType
-                                                            ?.name ===
-                                                            NAME.MILESTONE
-                                                        ) {
-                                                          return Promise.resolve(); // Skip validation
-                                                        }
-
-                                                        // Handle null or undefined value
-                                                        if (
-                                                          value === null ||
-                                                          value === undefined
-                                                        ) {
-                                                          return Promise.reject(
-                                                            new Error(
-                                                              'Please enter a target value.',
-                                                            ),
-                                                          );
-                                                        }
-
-                                                        // Ensure value is a valid number
-                                                        const numericValue =
-                                                          Number(value);
-                                                        if (
-                                                          isNaN(numericValue)
-                                                        ) {
-                                                          return Promise.reject(
-                                                            new Error(
-                                                              'Please enter a valid number.',
-                                                            ),
-                                                          );
-                                                        }
-
-                                                        if (
-                                                          form.getFieldValue([
-                                                            task.taskId,
-                                                            'status',
-                                                          ]) === 'Done'
-                                                        ) {
-                                                          if (
-                                                            numericValue >=
-                                                            task?.targetValue
-                                                          ) {
-                                                            return Promise.resolve(); // Validation passed
-                                                          }
-                                                        } else {
-                                                          // Fallback check if targetValue does not exist
-                                                          if (
-                                                            numericValue <=
-                                                            task?.targetValue
-                                                          ) {
-                                                            return Promise.resolve(); // Validation passed
-                                                          }
-
-                                                          // If neither condition is satisfied and the status is not 'Done', reject the promise
-                                                          return Promise.reject(
-                                                            new Error(
-                                                              `Your actual value shouldn't exceed the allowed limits which is : ${Number(task?.targetValue)?.toLocaleString()}`,
-                                                            ),
-                                                          );
-                                                        }
+                                                  ])}
+                                                  onChange={(e) => {
+                                                    const value = e;
+                                                    form.setFieldsValue({
+                                                      [task.taskId]: {
+                                                        actualValue: value
+                                                          ? Number(value)
+                                                          : '',
                                                       },
-                                                    },
-                                                  ]}
-                                                >
-                                                  <InputNumber
-                                                    width="50%"
-                                                    min={0}
-                                                    step={1}
-                                                    className="w-full"
-                                                    formatter={(value) => {
-                                                      if (!value) return '';
-                                                      const parts =
-                                                        `${value}`.split('.');
-                                                      parts[0] =
-                                                        parts[0].replace(
-                                                          /\B(?=(\d{3})+(?!\d))/g,
-                                                          ',',
-                                                        );
-                                                      return parts.join('.');
-                                                    }}
-                                                    value={form.getFieldValue([
-                                                      task.taskId,
-                                                      'actualValue',
-                                                    ])}
-                                                    onChange={(e) => {
-                                                      const value = e;
-                                                      form.setFieldsValue({
-                                                        [task.taskId]: {
-                                                          actualValue: value
-                                                            ? Number(value)
-                                                            : '',
-                                                        },
-                                                      });
-                                                    }}
-                                                  />
-                                                </Form.Item>
-                                              )
-                                            // )
-                                          }
-                                          {/* Comment Form Item, only with the 'Not' status condition */}
+                                                    });
+                                                  }}
+                                                />
+                                              </Form.Item>
+                                            )}
+
                                           {form.getFieldValue([
                                             task.taskId,
                                             'status',
@@ -486,7 +450,7 @@ function EditReport() {
                                                 'customReason',
                                               ]}
                                               className="mb-2"
-                                              label="Reason:" // Optional label
+                                              label="Reason:"
                                               rules={[
                                                 {
                                                   required: true,
@@ -495,48 +459,19 @@ function EditReport() {
                                                 },
                                               ]}
                                             >
-                                              <div
-                                                style={{
-                                                  position: 'relative',
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                }}
-                                              >
+                                              <div className="relative flex items-center">
                                                 <TextArea
                                                   rows={4}
-                                                  style={{
-                                                    paddingRight: '100px',
-                                                    flex: 1,
-                                                  }}
+                                                  className="pr-4 sm:pr-24"
                                                 />
-                                                <div
-                                                  style={{
-                                                    position: 'absolute',
-                                                    right: '100px',
-                                                    top: '0',
-                                                    bottom: '0',
-                                                    width: '1px',
-                                                    backgroundColor: '#ccc',
-                                                  }}
-                                                />
-                                                <Text
-                                                  className="text-black"
-                                                  style={{
-                                                    position: 'absolute',
-                                                    right: '10px',
-                                                    top: '50%',
-                                                    padding: '8px 16px', // 2x (vertical) and 4x (horizontal) assuming x = 4px
-                                                    borderRadius: '8px', // Rounded corners, adjust as needed
-                                                    transform:
-                                                      'translateY(-50%)',
-                                                  }}
-                                                >
+                                                <div className="hidden sm:block absolute right-20 top-0 bottom-0 w-px bg-gray-300" />
+                                                <Text className="hidden sm:block text-black absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-xs">
                                                   Reason
                                                 </Text>
                                               </div>
                                             </Form.Item>
                                           )}
-                                        </>
+                                        </div>
                                       ),
                                     )}
                                   </div>
@@ -556,74 +491,79 @@ function EditReport() {
                                       },
                                     ]}
                                   >
-                                    <div className="grid">
-                                      <div className="flex items-center justify-between ml-1">
-                                        {/* Status Selection */}
-                                        <div className="flex items-center space-x-2">
-                                          <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center">
-                                            {index + 1}.{tasksIndex + 1}
-                                          </Text>
+                                    <div className="grid gap-2">
+                                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 ml-1">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-1 min-w-0 w-full">
+                                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                                            <Text className="rounded-lg border-gray-200 border bg-gray-200 min-w-6 min-h-6 text-[12px] flex items-center justify-center flex-shrink-0">
+                                              {index + 1}.{tasksIndex + 1}
+                                            </Text>
 
-                                          <Radio.Group
-                                            className="text-xs"
-                                            onChange={(e) => {
-                                              setStatus(
-                                                task.taskId,
-                                                e.target.value,
-                                              );
-                                              if (e.target.value === 'Done') {
-                                                form.setFieldsValue({
-                                                  [task.taskId]: {
-                                                    status: e.target.value,
-                                                    actualValue:
-                                                      task?.targetValue,
-                                                  },
-                                                });
-                                              } else if (
-                                                e.target.value === 'Not'
-                                              ) {
-                                                form.setFieldsValue({
-                                                  [task.taskId]: {
-                                                    status: e.target.value,
-                                                    actualValue: 0,
-                                                  },
-                                                });
+                                            <Radio.Group
+                                              className="text-xs"
+                                              onChange={(e) => {
+                                                setStatus(
+                                                  task.taskId,
+                                                  e.target.value,
+                                                );
+                                                if (e.target.value === 'Done') {
+                                                  form.setFieldsValue({
+                                                    [task.taskId]: {
+                                                      status: e.target.value,
+                                                      actualValue:
+                                                        task?.targetValue,
+                                                    },
+                                                  });
+                                                } else if (
+                                                  e.target.value === 'Not'
+                                                ) {
+                                                  form.setFieldsValue({
+                                                    [task.taskId]: {
+                                                      status: e.target.value,
+                                                      actualValue: 0,
+                                                    },
+                                                  });
+                                                }
+                                              }}
+                                              value={
+                                                form.getFieldValue([
+                                                  task.taskId,
+                                                  'status',
+                                                ]) || ''
                                               }
-                                            }}
-                                            value={
-                                              form.getFieldValue([
-                                                task.taskId,
-                                                'status',
-                                              ]) || ''
-                                            }
-                                          >
-                                            <Radio
-                                              className="text-xs"
-                                              value="Done"
                                             >
-                                              Done
-                                            </Radio>
-                                            <Radio
-                                              className="text-xs"
-                                              value="Not"
-                                            >
-                                              Not
-                                            </Radio>
-                                          </Radio.Group>
+                                              <Radio
+                                                className="text-xs"
+                                                value="Done"
+                                              >
+                                                Done
+                                              </Radio>
+                                              <Radio
+                                                className="text-xs"
+                                                value="Not"
+                                              >
+                                                Not
+                                              </Radio>
+                                            </Radio.Group>
+                                          </div>
                                           <Tooltip title={task.taskName}>
                                             <span className="font-medium text-sm truncate flex items-center gap-1">
-                                              {task.taskName?.length >= 40
-                                                ? task.taskName?.slice(0, 40)
-                                                : task.taskName}
+                                              <span className="truncate max-w-[200px] sm:max-w-none">
+                                                {task.taskName?.length >= 40
+                                                  ? task.taskName?.slice(0, 40)
+                                                  : task.taskName}
+                                              </span>
                                               {task?.achieveMK && (
-                                                <MdKey size={12} />
+                                                <MdKey
+                                                  size={12}
+                                                  className="flex-shrink-0"
+                                                />
                                               )}
                                             </span>
                                           </Tooltip>
                                         </div>
 
-                                        {/* Task Details */}
-                                        <div className="flex items-center space-x-2">
+                                        <div className="flex items-center gap-2 self-end sm:self-center">
                                           <Tag
                                             className="font-bold border-none w-16 text-center capitalize text-[10px]"
                                             color={
@@ -642,7 +582,6 @@ function EditReport() {
                                         </div>
                                       </div>
 
-                                      {/* Conditional Target Display */}
                                       {keyresult?.metricType?.name !==
                                         NAME.ACHIEVE &&
                                         keyresult?.metricType?.name !==
@@ -661,131 +600,121 @@ function EditReport() {
                                     </div>
                                   </Form.Item>
 
-                                  {/* Actual Value Field (Only When Required) */}
-                                  {
-                                    selectedStatuses[task.taskId] &&
-                                      keyresult?.metricType?.name !==
-                                        NAME.ACHIEVE &&
-                                      keyresult?.metricType?.name !==
-                                        NAME.MILESTONE && (
-                                        // !parentParentId && (
-                                        <Form.Item
-                                          key={`${task.taskId}-actualValue`}
-                                          name={[task.taskId, 'actualValue']}
-                                          className="mb-2"
-                                          label="Actual value:"
-                                          rules={[
-                                            {
-                                              validator(notused, value) {
-                                                if (
-                                                  !keyresult ||
-                                                  !keyresult.targetValue
-                                                ) {
-                                                  return Promise.reject(
-                                                    new Error(
-                                                      'Key result data is incomplete.',
-                                                    ),
-                                                  );
-                                                }
+                                  {selectedStatuses[task.taskId] &&
+                                    keyresult?.metricType?.name !==
+                                      NAME.ACHIEVE &&
+                                    keyresult?.metricType?.name !==
+                                      NAME.MILESTONE && (
+                                      <Form.Item
+                                        key={`${task.taskId}-actualValue`}
+                                        name={[task.taskId, 'actualValue']}
+                                        className="mb-2"
+                                        label="Actual value:"
+                                        rules={[
+                                          {
+                                            validator(notused, value) {
+                                              if (
+                                                !keyresult ||
+                                                !keyresult.targetValue
+                                              ) {
+                                                return Promise.reject(
+                                                  new Error(
+                                                    'Key result data is incomplete.',
+                                                  ),
+                                                );
+                                              }
 
-                                                if (
-                                                  value === null ||
-                                                  value === undefined
-                                                ) {
-                                                  return Promise.reject(
-                                                    new Error(
-                                                      'Please enter a target value.',
-                                                    ),
-                                                  );
-                                                }
+                                              if (
+                                                value === null ||
+                                                value === undefined
+                                              ) {
+                                                return Promise.reject(
+                                                  new Error(
+                                                    'Please enter a target value.',
+                                                  ),
+                                                );
+                                              }
 
-                                                const numericValue =
-                                                  Number(value);
-                                                if (isNaN(numericValue)) {
-                                                  return Promise.reject(
-                                                    new Error(
-                                                      'Please enter a valid number.',
-                                                    ),
-                                                  );
-                                                }
+                                              const numericValue =
+                                                Number(value);
+                                              if (isNaN(numericValue)) {
+                                                return Promise.reject(
+                                                  new Error(
+                                                    'Please enter a valid number.',
+                                                  ),
+                                                );
+                                              }
 
-                                                const statusValue =
-                                                  form.getFieldValue([
-                                                    task.taskId,
-                                                    'status',
-                                                  ]);
-                                                if (
-                                                  statusValue === 'Done' &&
-                                                  numericValue <
-                                                    task?.targetValue
-                                                ) {
-                                                  return Promise.reject(
-                                                    new Error(
-                                                      `Value should be at least ${Number(task?.targetValue)?.toLocaleString()}`,
-                                                    ),
-                                                  );
-                                                }
-
-                                                if (
-                                                  statusValue === 'Not' &&
-                                                  numericValue >
-                                                    task?.targetValue
-                                                ) {
-                                                  return Promise.reject(
-                                                    new Error(
-                                                      `Actual value shouldn't exceed ${Number(task?.targetValue)?.toLocaleString()}`,
-                                                    ),
-                                                  );
-                                                }
-
-                                                return Promise.resolve();
-                                              },
-                                            },
-                                          ]}
-                                        >
-                                          <InputNumber
-                                            min={0}
-                                            step={1}
-                                            className="w-full"
-                                            formatter={(value) =>
-                                              `${value}`.replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ',',
-                                              )
-                                            }
-                                            onChange={(value) => {
                                               const statusValue =
                                                 form.getFieldValue([
                                                   task.taskId,
                                                   'status',
                                                 ]);
-                                              if (statusValue === 'Done') {
-                                                form.setFieldsValue({
-                                                  [task.taskId]: {
-                                                    actualValue: value
-                                                      ? Number(value)
-                                                      : task?.targetValue,
-                                                  },
-                                                });
-                                              } else if (
-                                                statusValue === 'Not'
+                                              if (
+                                                statusValue === 'Done' &&
+                                                numericValue < task?.targetValue
                                               ) {
-                                                form.setFieldsValue({
-                                                  [task.taskId]: {
-                                                    actualValue: value
-                                                      ? Number(value)
-                                                      : 0,
-                                                  },
-                                                });
+                                                return Promise.reject(
+                                                  new Error(
+                                                    `Value should be at least ${Number(task?.targetValue)?.toLocaleString()}`,
+                                                  ),
+                                                );
                                               }
-                                            }}
-                                          />
-                                        </Form.Item>
-                                      )
-                                    // )
-                                  }
 
-                                  {/* Reason Field (Only When Status is "Not") */}
+                                              if (
+                                                statusValue === 'Not' &&
+                                                numericValue > task?.targetValue
+                                              ) {
+                                                return Promise.reject(
+                                                  new Error(
+                                                    `Actual value shouldn't exceed ${Number(task?.targetValue)?.toLocaleString()}`,
+                                                  ),
+                                                );
+                                              }
+
+                                              return Promise.resolve();
+                                            },
+                                          },
+                                        ]}
+                                      >
+                                        <InputNumber
+                                          min={0}
+                                          step={1}
+                                          className="w-full"
+                                          formatter={(value) =>
+                                            `${value}`.replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ',',
+                                            )
+                                          }
+                                          onChange={(value) => {
+                                            const statusValue =
+                                              form.getFieldValue([
+                                                task.taskId,
+                                                'status',
+                                              ]);
+                                            if (statusValue === 'Done') {
+                                              form.setFieldsValue({
+                                                [task.taskId]: {
+                                                  actualValue: value
+                                                    ? Number(value)
+                                                    : task?.targetValue,
+                                                },
+                                              });
+                                            } else if (statusValue === 'Not') {
+                                              form.setFieldsValue({
+                                                [task.taskId]: {
+                                                  actualValue: value
+                                                    ? Number(value)
+                                                    : 0,
+                                                },
+                                              });
+                                            }
+                                          }}
+                                        />
+                                      </Form.Item>
+                                    )}
+
                                   {form.getFieldValue([task.id, 'status']) ===
                                     'Not' && (
                                     <Form.Item
@@ -812,10 +741,10 @@ function EditReport() {
                     </Collapse.Panel>
                   </Collapse>
                 ))}
-                <div className="flex items-center mt-2 gap-2">
+                <div className="flex items-center mt-2 gap-2 text-sm sm:text-base">
                   <span className="text-black">Total Point:</span>
                   <span
-                    className={`${
+                    className={`font-semibold ${
                       totalWeight > 84
                         ? 'text-green-500'
                         : totalWeight >= 64
@@ -826,14 +755,18 @@ function EditReport() {
                     {totalWeight}%
                   </span>
                 </div>
-                <Row className="flex justify-center space-x-4 mt-4">
-                  <Button htmlType="button" onClick={() => onClose()}>
+                <Row className="flex justify-center gap-3 mt-4">
+                  <Button
+                    htmlType="button"
+                    onClick={() => onClose()}
+                    className="flex-1 sm:flex-none min-w-[100px]"
+                  >
                     Cancel
                   </Button>
                   <Button
                     loading={editReportLoading}
                     htmlType="submit"
-                    className="bg-primary text-white"
+                    className="bg-primary text-white flex-1 sm:flex-none min-w-[100px]"
                   >
                     Edit Report
                   </Button>
