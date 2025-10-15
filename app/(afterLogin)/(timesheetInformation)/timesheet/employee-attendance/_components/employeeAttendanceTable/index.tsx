@@ -204,7 +204,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: ( record: AttendanceRecord) => {
+      render: (record: AttendanceRecord) => {
         const attendanceBreak = record.attendanceBreaks?.[0];
         const hasBreakTypeFilter = filter?.breakTypeId;
 

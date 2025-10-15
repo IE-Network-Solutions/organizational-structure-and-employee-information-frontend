@@ -8,7 +8,7 @@ import {
 
 /**
  * Unified AI API Route Handler
- * 
+ *
  * This single route file handles all AI endpoints using Next.js dynamic routes.
  * Endpoints:
  * - POST /api/ai/copilot
@@ -19,7 +19,7 @@ import {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { endpoint: string } }
+  { params }: { params: { endpoint: string } },
 ) {
   const endpoint = params.endpoint;
 
@@ -27,21 +27,20 @@ export async function POST(
   switch (endpoint) {
     case 'copilot':
       return copilotRouteHandler(request);
-    
+
     case 'okr':
       return okrRouteHandler(request);
-    
+
     case 'weekly-plan':
       return weeklyPlanRouteHandler(request);
-    
+
     case 'daily-plan':
       return dailyPlanRouteHandler(request);
-    
+
     default:
       return NextResponse.json(
         { error: `Unknown AI endpoint: ${endpoint}` },
-        { status: 404 }
+        { status: 404 },
       );
   }
 }
-
