@@ -137,7 +137,7 @@ const Drawer: React.FC = () => {
               message: 'Please input the minimum income!',
             },
             {
-              validator: (_, value) => {
+              validator: (rule, value) => {
                 const maxIncome = form.getFieldValue('maximum-income');
                 if (value && maxIncome && Number(value) >= Number(maxIncome)) {
                   return Promise.reject(new Error('Minimum Income must be less than Maximum Income'));
@@ -167,7 +167,7 @@ const Drawer: React.FC = () => {
               message: 'Please input the maximum income!',
             },
             {
-              validator: (_, value) => {
+              validator: (rule, value) => {
                 const minIncome = form.getFieldValue('minmum-income');
                 if (value && minIncome && Number(value) <= Number(minIncome)) {
                   return Promise.reject(new Error('Maximum Income must be greater than Minimum Income'));
