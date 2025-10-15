@@ -88,7 +88,8 @@ export async function handleCopilotRequest(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error: error.response?.data?.message || 'Failed to get response from AI',
+        error:
+          error.response?.data?.message || 'Failed to get response from AI',
         status: error.response?.status || 500,
       };
     }
@@ -179,4 +180,3 @@ export async function handleDailyPlanRequest(
     };
   }
 }
-

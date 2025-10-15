@@ -17,7 +17,6 @@ import { useGetEmployees } from '@/store/server/features/employees/employeeManag
 import dayjs from 'dayjs';
 import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/leaveExpiry/queries';
 
-
 const UserLeaveBalance: React.FC = () => {
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
@@ -33,7 +32,6 @@ const UserLeaveBalance: React.FC = () => {
     userIdOnLeaveBalance,
     monthsAheadOnLeaveBalanceExpiring,
     setMonthsAheadOnLeaveBalanceExpiring,
-      
   } = TimeAndAttendaceDashboardStore();
 
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
@@ -48,10 +46,8 @@ const UserLeaveBalance: React.FC = () => {
       userIdOnLeaveBalance ? userIdOnLeaveBalance : (userId as string),
       '',
     );
-    const {
-      data: leaveBalanceExpiring,
-      isLoading: leaveBalanceExpiringLoading,
-    } = useGetLeaveBalanceExpiring(
+  const { data: leaveBalanceExpiring, isLoading: leaveBalanceExpiringLoading } =
+    useGetLeaveBalanceExpiring(
       userId as string,
       leaveTypeId || '',
       monthsAheadOnLeaveBalanceExpiring,
