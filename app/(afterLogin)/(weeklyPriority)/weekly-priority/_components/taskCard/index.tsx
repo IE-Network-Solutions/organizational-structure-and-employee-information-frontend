@@ -208,7 +208,7 @@ const TaskCard: React.FC = () => {
           className=" my-3 border border-gray-300"
         >
           <div className="flex justify-between bg-gray-50  p-2 items-center rounded-t-xl">
-            <span className="text-right text-md font-bold">
+            <span className="text-left text-md font-bold">
               {item.departmentId
                 ? getDepartmentData(item.departmentId)?.name +
                     " Team's weekly priority:" || ''

@@ -9,14 +9,14 @@ function Page(): JSX.Element {
 
   return (
     <div>
-      <div className="h-full min-h-screen w-auto p-4">
-        <div className="flex flex-wrap justify-between items-center">
+      <div className="h-full min-h-screen w-auto p-4 md:justify-center md:items-center md:mt-4">
+        <div className="flex flex-col justify-center md:flex-row md:justify-between ">
           <CustomBreadcrumb
-            className="text-sm"
+            className="text-sm md:justify-center md:items-center justify-center items-center"
             title="Weekly Priority"
             subtitle="OKR setting"
           />
-          <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3">
+          <div className="flex items-center bg-gray-50 shadow-md rounded-lg w-fit h-12 p-1 gap-3 mx-auto md:mx-0">
             <button
               onClick={() => setActiveTab(1)}
               className={
