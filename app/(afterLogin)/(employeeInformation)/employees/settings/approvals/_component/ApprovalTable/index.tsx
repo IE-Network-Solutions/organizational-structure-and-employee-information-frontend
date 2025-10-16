@@ -1,10 +1,12 @@
+'use client';
+
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Button, Tooltip } from 'antd';
+import { Button, Tooltip, Skeleton } from 'antd';
 import Image from 'next/image';
-import React from 'react';
+import { useState } from 'react';
 import { FaPencil } from 'react-icons/fa6';
 import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaPlus } from 'react-icons/fa';
@@ -38,7 +40,7 @@ const ApprovalTable = () => {
     setApproverType,
     searchParams,
   } = useApprovalBranchStore();
-  const { data: employeeData } = useGetAllUsers();
+  const { data: employeeData, isLoading: isUserDataLoading } = useGetAllUsers();
   const { data: department } = useGetDepartments();
   const MAX_NAME_LENGTH = 10;
   const MAX_EMAIL_LENGTH = 5;
@@ -69,6 +71,54 @@ const ApprovalTable = () => {
     setDeleteModal(false);
     deleteApproval(id);
   };
+
+  const UserInfoSkeleton = () => (
+    <div className="flex items-center gap-2">
+      <Skeleton.Avatar active size="small" shape="circle" />
+      <div className="flex flex-col gap-1">
+        <Skeleton.Input active size="small" style={{ width: 80, height: 14 }} />
+        <Skeleton.Input active size="small" style={{ width: 60, height: 12 }} />
+      </div>
+    </div>
+  );
+
+  const UserAvatar = ({ userId }: { userId: string }) => {
+    const [imageError, setImageError] = useState(false);
+    const userInfo = getEmployeeInformation(userId);
+
+    const getImageSrc = () => {
+      if (imageError || !userInfo?.profileImage) {
+        return Avatar;
+      }
+
+      if (typeof userInfo.profileImage === 'string') {
+        try {
+          const parsed = JSON.parse(userInfo.profileImage);
+          return parsed.url && parsed.url.startsWith('http')
+            ? parsed.url
+            : Avatar;
+        } catch {
+          return userInfo.profileImage.startsWith('http')
+            ? userInfo.profileImage
+            : Avatar;
+        }
+      }
+      return Avatar;
+    };
+
+    return (
+      <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
+        <Image
+          src={getImageSrc() || '/placeholder.svg'}
+          alt="User avatar"
+          layout="fill"
+          className="object-cover"
+          onError={() => setImageError(true)}
+        />
+      </div>
+    );
+  };
+
   const data = allFilterData?.items?.map((item: any, index: number) => {
     return {
       key: index,
@@ -95,76 +145,72 @@ const ApprovalTable = () => {
             overflowY: 'scroll',
           }}
         >
-          {item?.approvers?.map((employee: any, empIndex: number) => {
-            const fullName =
-              getEmployeeInformation(employee?.userId)?.firstName +
-              '  ' +
-              getEmployeeInformation(employee?.userId)?.middleName;
-            const shortEmail = getEmployeeInformation(employee?.userId)?.email;
-            const displayName =
-              fullName?.length > MAX_NAME_LENGTH
-                ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
-                : fullName;
-            const displayEmail =
-              shortEmail?.length > MAX_EMAIL_LENGTH
-                ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
-                : shortEmail;
+          {isUserDataLoading ? (
+            // Show skeleton loaders while user data is loading
+            <>
+              <UserInfoSkeleton />
+              <UserInfoSkeleton />
+            </>
+          ) : (
+            item?.approvers?.map((employee: any, empIndex: number) => {
+              const userInfo = getEmployeeInformation(employee?.userId);
 
-            return (
-              <Tooltip
-                key={empIndex}
-                title={
-                  <div>
-                    {fullName}
-                    <br />
-                    {getEmployeeInformation(employee?.userId)?.email}
+              if (!userInfo) {
+                return (
+                  <div key={empIndex} className="flex items-center gap-2">
+                    <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
+                      <Image
+                        src={Avatar || '/placeholder.svg'}
+                        alt="Default avatar"
+                        layout="fill"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <p className="text-gray-400">User not found</p>
+                      <p className="font-extralight text-[12px] text-gray-400">
+                        -
+                      </p>
+                    </div>
                   </div>
-                }
-              >
-                <div className="flex items-center flex-wrap sm:flex-row gap-2">
-                  <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                    <Image
-                      src={
-                        getEmployeeInformation(employee?.userId)
-                          ?.profileImage &&
-                        typeof getEmployeeInformation(employee?.userId)
-                          ?.profileImage === 'string'
-                          ? (() => {
-                              try {
-                                const parsed = JSON.parse(
-                                  getEmployeeInformation(employee?.userId)
-                                    ?.profileImage,
-                                );
-                                return parsed.url &&
-                                  parsed.url.startsWith('http')
-                                  ? parsed.url
-                                  : Avatar;
-                              } catch {
-                                return getEmployeeInformation(
-                                  employee?.userId,
-                                )?.profileImage.startsWith('http')
-                                  ? getEmployeeInformation(employee?.userId)
-                                      ?.profileImage
-                                  : Avatar;
-                              }
-                            })()
-                          : Avatar
-                      }
-                      alt="Description of image"
-                      layout="fill"
-                      className="object-cover"
-                    />
+                );
+              }
+
+              const fullName = userInfo.firstName + '  ' + userInfo.middleName;
+              const shortEmail = userInfo.email;
+              const displayName =
+                fullName?.length > MAX_NAME_LENGTH
+                  ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
+                  : fullName;
+              const displayEmail =
+                shortEmail?.length > MAX_EMAIL_LENGTH
+                  ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
+                  : shortEmail;
+
+              return (
+                <Tooltip
+                  key={empIndex}
+                  title={
+                    <div>
+                      {fullName}
+                      <br />
+                      {userInfo.email}
+                    </div>
+                  }
+                >
+                  <div className="flex items-center flex-wrap sm:flex-row gap-2">
+                    <UserAvatar userId={employee?.userId} />
+                    <div className="flex flex-wrap flex-col justify-center">
+                      <p>{displayName || '-'}</p>
+                      <p className="font-extralight text-[12px]">
+                        {displayEmail || '-'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap flex-col justify-center">
-                    <p>{displayName}</p>
-                    <p className="font-extralight text-[12px]">
-                      {displayEmail}
-                    </p>
-                  </div>
-                </div>
-              </Tooltip>
-            );
-          })}
+                </Tooltip>
+              );
+            })
+          )}
         </div>
       ),
       level: item?.approvers ? item?.approvers?.length : '-',
