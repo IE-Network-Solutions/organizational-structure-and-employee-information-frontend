@@ -133,9 +133,7 @@ const AllowanceEntitlementSideBar = () => {
         onSuccess: () => {
           onClose();
         },
-        onError: (error) => {
-          // Handle error silently or show user-friendly message
-        },
+        onError: () => {},
       },
     );
   };
