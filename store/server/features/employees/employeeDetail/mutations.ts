@@ -170,6 +170,7 @@ const createEmployeeDocument = async (formData: FormData) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
+    skipEncryption: true,
   });
 };
 
