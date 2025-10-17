@@ -28,6 +28,7 @@ const AllDeductionTable = () => {
       )
     : [];
 
+
   const groupByEmployeeId = allEntitlementData?.reduce(
     (acc: any, item: any) => {
       if (!acc[item.employeeId]) {
@@ -50,9 +51,30 @@ const AllDeductionTable = () => {
       key: employee.employeeId,
       employeeId: employee.employeeId,
     };
-    employee.allowance.forEach((allowance: any) => {
-      dataRow[allowance.compensationItemId] = allowance.totalAmount;
+
+    // Group allowances by compensationItemId to handle duplicates
+    const allowancesByItem = employee.allowance.reduce(
+      (acc: any, allowance: any) => {
+        if (!acc[allowance.compensationItemId]) {
+          acc[allowance.compensationItemId] = [];
+        }
+        // Convert to number to ensure proper addition instead of string concatenation
+        acc[allowance.compensationItemId].push(Number(allowance.totalAmount));
+        return acc;
+      },
+      {},
+    );
+
+    // For each compensation item, show the sum of all amounts (including duplicates)
+    Object.keys(allowancesByItem).forEach((compensationItemId: string) => {
+      const amounts = allowancesByItem[compensationItemId];
+      const total = amounts.reduce(
+        (sum: number, amount: number) => sum + amount,
+        0,
+      );
+      dataRow[compensationItemId] = total;
     });
+
     return dataRow;
   });
 
