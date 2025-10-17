@@ -29,24 +29,48 @@ const AllDeductionTable = () => {
       )
     : [];
 
-  const dataSource =
-    allEntitlementData?.reduce((acc: any, item: any) => {
-      const existingEmployee = acc.find(
-        (emp: any) => emp.employeeId === item.employeeId,
-      );
-
-      if (existingEmployee) {
-        existingEmployee[item.compensationItemId] = item.totalAmount;
-      } else {
-        acc.push({
-          key: item.employeeId,
-          employeeId: item.employeeId,
-          [item.compensationItemId]: item.totalAmount,
-        });
+  const groupByEmployeeId = allEntitlementData?.reduce(
+    (acc: any, item: any) => {
+      if (!acc[item.employeeId]) {
+        acc[item.employeeId] = { employeeId: item.employeeId, allowance: [] };
       }
-
+      acc[item.employeeId].allowance.push(item);
       return acc;
-    }, []) || [];
+    },
+    {},
+  ) || {};
+
+  const dataSource = Object.values(groupByEmployeeId).map((employee: any) => {
+    const dataRow: any = {
+      key: employee.employeeId,
+      employeeId: employee.employeeId,
+    };
+
+    // Group allowances by compensationItemId to handle duplicates
+    const allowancesByItem = employee.allowance.reduce(
+      (acc: any, allowance: any) => {
+        if (!acc[allowance.compensationItemId]) {
+          acc[allowance.compensationItemId] = [];
+        }
+        // Convert to number to ensure proper addition instead of string concatenation
+        acc[allowance.compensationItemId].push(Number(allowance.totalAmount));
+        return acc;
+      },
+      {},
+    );
+
+    // For each compensation item, show the sum of all amounts (including duplicates)
+    Object.keys(allowancesByItem).forEach((compensationItemId: string) => {
+      const amounts = allowancesByItem[compensationItemId];
+      const total = amounts.reduce(
+        (sum: number, amount: number) => sum + amount,
+        0,
+      );
+      dataRow[compensationItemId] = total;
+    });
+
+    return dataRow;
+  });
 
   const createDeductionColumns = () => {
     if (!Array.isArray(allDeductionEntitlementData)) return [];
