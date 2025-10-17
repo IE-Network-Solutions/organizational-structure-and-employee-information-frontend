@@ -14,47 +14,52 @@ const AllDeductionTable = () => {
     useAllAllowanceStore();
   const { isMobile, isTablet } = useIsMobile();
 
-  const allAllowanceEntitlementData = Array.isArray(allCompensationsData)
+  const allDeductionEntitlementData = Array.isArray(allCompensationsData)
     ? allCompensationsData.filter(
-        (allowanceEntitlement: any) => allowanceEntitlement.type == 'DEDUCTION',
+        (allowanceEntitlement: any) =>
+          allowanceEntitlement.type === 'DEDUCTION',
       )
     : [];
 
-  const allEntitlementData = Array.isArray(allAllowanceEntitlementData)
-    ? allAllowanceEntitlementData.reduce(
+  const allEntitlementData = Array.isArray(allDeductionEntitlementData)
+    ? allDeductionEntitlementData.reduce(
         (acc: any, benefit: any) =>
           acc.concat(benefit.compensationItmeEntitlement),
         [],
       )
     : [];
 
-  const groupByEmployeeId = allEntitlementData?.reduce(
-    (acc: any, item: any) => {
-      if (!acc[item.employeeId]) {
-        acc[item.employeeId] = { employeeId: item.employeeId, allowance: [] };
+  const dataSource =
+    allEntitlementData?.reduce((acc: any, item: any) => {
+      const existingEmployee = acc.find(
+        (emp: any) => emp.employeeId === item.employeeId,
+      );
+
+      if (existingEmployee) {
+        existingEmployee[item.compensationItemId] = item.totalAmount;
+      } else {
+        acc.push({
+          key: item.employeeId,
+          employeeId: item.employeeId,
+          [item.compensationItemId]: item.totalAmount,
+        });
       }
-      acc[item.employeeId].allowance.push({
-        compensationItemId: item?.compensationItemId,
-        totalAmount: item?.totalAmount,
-      });
 
       return acc;
-    },
-    {},
-  );
+    }, []) || [];
 
-  const result = Object.values(groupByEmployeeId ?? {});
+  const createDeductionColumns = () => {
+    if (!Array.isArray(allDeductionEntitlementData)) return [];
 
-  const dataSource = result.map((employee: any) => {
-    const dataRow: any = {
-      key: employee.employeeId,
-      employeeId: employee.employeeId,
-    };
-    employee.allowance.forEach((allowance: any) => {
-      dataRow[allowance.compensationItemId] = allowance.totalAmount;
-    });
-    return dataRow;
-  });
+    return allDeductionEntitlementData.map((item: any) => ({
+      title: <span className="text-xs truncate">{item?.name}</span>,
+      dataIndex: item?.id,
+      key: item?.id,
+      render: (text: string) => (
+        <div data-testid={`deduction-amount-${item?.id}`}>{text || '-'}</div>
+      ),
+    }));
+  };
 
   const columns: TableColumnsType<any> = [
     {
@@ -77,24 +82,22 @@ const AllDeductionTable = () => {
         <div data-testid="deduction-role">{text || '-'}</div>
       ),
     },
-
-    ...(Array.isArray(allAllowanceEntitlementData)
-      ? allAllowanceEntitlementData.map((item: any) => ({
-          title: <span className="text-xs truncate">{item?.name}</span>,
-          dataIndex: item?.id,
-          key: item?.id,
-          render: (text: string) => (
-            <div data-testid={`deduction-amount-${item?.id}`}>
-              {text || '-'}
-            </div>
-          ),
-        }))
-      : []),
+    ...createDeductionColumns(),
   ];
   const paginatedData = dataSource.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
+  };
+
+  const handleSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
 
   return (
     <div data-testid="all-deduction-table-container">
@@ -113,45 +116,18 @@ const AllDeductionTable = () => {
           <CustomMobilePagination
             totalResults={dataSource.length}
             pageSize={pageSize}
-            onChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
-            onShowSizeChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
+            onChange={handlePageChange}
+            onShowSizeChange={handlePageChange}
           />
         ) : (
           <CustomPagination
             current={currentPage}
             total={dataSource.length}
             pageSize={pageSize}
-            onChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
+            onChange={handlePageChange}
+            onShowSizeChange={handleSizeChange}
           />
         )}
-
-        {/* <CustomPagination
-          current={currentPage}
-          total={dataSource.length}
-          pageSize={pageSize}
-          onChange={(page, size) => {
-            setCurrentPage(page);
-            setPageSize(size);
-          }}
-          onShowSizeChange={(size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          }}
-          data-testid="deduction-pagination"
-        /> */}
       </Spin>
     </div>
   );
