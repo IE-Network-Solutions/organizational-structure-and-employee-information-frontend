@@ -42,7 +42,7 @@ function Page() {
     setActivePlanPeriod,
     setActivePlanPeriodId,
   } = PlanningAndReportingStore();
-  const { data: planningPeriods, isLoading } = AllPlanningPeriods();
+  const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
 
   const { data: planningPeriodForUserId } =
