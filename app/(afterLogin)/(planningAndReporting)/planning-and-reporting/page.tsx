@@ -1,8 +1,8 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import React, { useEffect } from 'react';
-import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import React, { useEffect, useMemo } from 'react';
 import { Tabs } from 'antd';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import Planning from './_components/planning';
 import {
   AllPlanningPeriods,
@@ -16,6 +16,23 @@ import CreateReport from './_components/createReport';
 import EditReport from './_components/editReport';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+
+interface PlanningPeriod {
+  id: string;
+  userId: string;
+  planningPeriod: {
+    id: string;
+    name: string;
+    intervalLength: any;
+  };
+}
+
+interface TabItem {
+  label: React.ReactNode;
+  id: string;
+  key: string;
+  children: React.ReactNode;
+}
 
 function Page() {
   const {
@@ -31,7 +48,6 @@ function Page() {
   const { data: planningPeriodForUserId } =
     useGetAssignedPlanningPeriodForUserId();
 
-  // Check if user has permission
   const hasPermission = AccessGuard.checkAccess({
     permissions: [
       Permissions.ViewDailyPlan,
@@ -40,7 +56,7 @@ function Page() {
     ],
   });
 
-  const TabsContent = () => {
+  const processedPlanningPeriods = useMemo(() => {
     const safePlanningPeriods = Array.isArray(planningPeriods)
       ? planningPeriods
       : [];
@@ -50,68 +66,65 @@ function Page() {
       ? defaultPlanningPeriods.items
       : [];
 
-    const existingUserId = safePlanningPeriods[0]?.userId || 'N/A'; // Get userId from first entry
+    if (safePlanningPeriods.length === 0) return [];
+
+    const existingUserId = safePlanningPeriods[0]?.userId || 'N/A';
     const existingPlanningPeriodIds = new Set(
-      safePlanningPeriods.map((item: any) => item?.planningPeriod?.id),
+      safePlanningPeriods.map(
+        (item: PlanningPeriod) => item?.planningPeriod?.id,
+      ),
     );
 
-    // Find missing planning periods from defaultPlanningPeriods
     const missingPlanningPeriods = safeDefaultPlanningPeriods
       .filter((item: any) => !existingPlanningPeriodIds.has(item.id))
       .map((item: any) => ({
-        id: crypto.randomUUID(), // Generate a temporary unique ID
+        id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         deletedAt: null,
         createdBy: 'system',
         updatedBy: 'system',
-        userId: existingUserId, // Use the same userId as existing entries
+        userId: existingUserId,
         tenantId: item.tenantId,
         planningPeriodId: item.id,
         planningPeriod: item,
       }));
 
-    // Merge existing and missing planning periods
     const mergedPlanningPeriods = [
       ...safePlanningPeriods,
       ...missingPlanningPeriods,
     ];
 
-    // Sort by intervalLength for logical order (Daily → Weekly → Monthly)
     mergedPlanningPeriods.sort(
       (a, b) =>
         a.planningPeriod.intervalLength - b.planningPeriod.intervalLength,
     );
 
-    // If user has permission, return mergedPlanningPeriods; otherwise, return safePlanningPeriods
-    const finalPlanningPeriods = hasPermission
-      ? mergedPlanningPeriods
-      : safePlanningPeriods;
+    return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
+  }, [planningPeriods, defaultPlanningPeriods, hasPermission]);
 
-    return finalPlanningPeriods.map((item: any, index: number) => ({
-      label: (
-        <span className="font-semibold text-sm">
-          {item.planningPeriod.name || 'No name available'}
-        </span>
-      ),
-      id: item.planningPeriod.id,
-      key: String(index + 1),
-      children: activeTab === 1 ? <Planning /> : <Reporting />,
-    }));
-  };
-
-  useEffect(() => {
-    const TabsContentData = TabsContent();
-    const selectedTab = TabsContentData?.find(
-      (item) => item.key === String(activePlanPeriod),
+  const tabItems: TabItem[] = useMemo(() => {
+    return processedPlanningPeriods.map(
+      (item: PlanningPeriod, index: number) => ({
+        label: (
+          <span className="font-semibold text-sm">
+            {item.planningPeriod.name || 'No name available'}
+          </span>
+        ),
+        id: item.planningPeriod.id,
+        key: String(index + 1),
+        children: activeTab === 1 ? <Planning /> : <Reporting />,
+      }),
     );
-    setActivePlanPeriodId(selectedTab?.id || '');
-  }, [activePlanPeriod, planningPeriods, defaultPlanningPeriods, isLoading]);
+  }, [processedPlanningPeriods, activeTab]);
 
-  const TabsContentData = TabsContent();
-  const selectedTab = TabsContentData?.find(
+  const selectedTab = tabItems.find(
     (item) => item.key === String(activePlanPeriod),
   );
+
+  useEffect(() => {
+    setActivePlanPeriodId(selectedTab?.id || '');
+  }, [selectedTab?.id, setActivePlanPeriodId]);
 
   return (
     <div>
@@ -125,21 +138,21 @@ function Page() {
           <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-10 sm:h-12 py-[5px] px-[6px] gap-[14px] mx-auto border-1">
             <button
               onClick={() => setActiveTab(1)}
-              className={
+              className={`px-4 h-full text-black text-sm transition-all duration-300 ${
                 activeTab === 1
-                  ? ' px-4  h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm border-1'
-                  : ' px-4 h-full bg-transparent text-black text-sm transition-all duration-300'
-              }
+                  ? 'bg-white rounded-md shadow-sm border-1'
+                  : 'bg-transparent'
+              }`}
             >
               Planning
             </button>
             <button
               onClick={() => setActiveTab(2)}
-              className={
+              className={`px-4 h-full text-black text-sm transition-all duration-300 ${
                 activeTab === 2
-                  ? ' px-4 h-full bg-white text-black text-sm rounded-md transition-all duration-300 shadow-sm border-1'
-                  : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
-              }
+                  ? 'bg-white rounded-md shadow-sm border-1'
+                  : 'bg-transparent'
+              }`}
             >
               Reporting
             </button>
@@ -151,19 +164,17 @@ function Page() {
             defaultActiveKey={selectedTab?.id}
             onChange={(key: any) => setActivePlanPeriod(key)}
             centered
-            items={TabsContent() ?? []}
+            items={tabItems}
           />
           <CreatePlan />
           <EditPlan />
           <CreateReport />
           <EditReport />
 
-          {planningPeriodForUserId?.length === 0 ? (
+          {planningPeriodForUserId?.length === 0 && (
             <div className="w-full h-auto space-y-4 flex justify-center font-semibold">
               There is no Assigned Plan, please assign a Plan for a User first
             </div>
-          ) : (
-            ''
           )}
         </div>
       </div>
