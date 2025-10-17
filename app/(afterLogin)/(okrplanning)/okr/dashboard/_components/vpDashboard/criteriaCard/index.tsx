@@ -15,7 +15,7 @@ const CriteriaCard: React.FC<CriteriaCardProps> = ({ id }) => {
     useGetVPScore(identifier);
 
   return (
-    <div className="relative my-10 mx-5">
+    <div className="relative my-10 mx-2">
       {isResponseLoading || !criteriaCardData ? (
         <Skeleton active />
       ) : (
