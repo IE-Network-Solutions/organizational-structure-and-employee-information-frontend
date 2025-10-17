@@ -412,11 +412,10 @@ function CreateReport() {
                                                 </Radio.Group>
                                                 <Tooltip title={task.taskName}>
                                                   <span className="font-medium text-sm truncate flex items-center gap-1">
-                                                    {task.taskName?.length >=
-                                                    100
+                                                    {task.taskName?.length >= 50
                                                       ? task.taskName?.slice(
                                                           0,
-                                                          100,
+                                                          50,
                                                         ) + '...'
                                                       : task.taskName}
                                                     {task?.achieveMK ? (
@@ -589,12 +588,16 @@ function CreateReport() {
                                                   min={0}
                                                   step={1}
                                                   className="w-full"
-                                                  formatter={(value) =>
-                                                    `${value}`.replace(
+                                                  formatter={(value) => {
+                                                    if (!value) return '';
+                                                    const parts =
+                                                      `${value}`.split('.');
+                                                    parts[0] = parts[0].replace(
                                                       /\B(?=(\d{3})+(?!\d))/g,
                                                       ',',
-                                                    )
-                                                  }
+                                                    );
+                                                    return parts.join('.');
+                                                  }}
                                                   onChange={(e) => {
                                                     const value = e;
                                                     form.setFieldsValue({
@@ -738,8 +741,9 @@ function CreateReport() {
                                         </Radio.Group>
                                         <Tooltip title={task.taskName}>
                                           <span className="font-medium text-sm truncate flex items-center gap-1">
-                                            {task.taskName?.length >= 40
-                                              ? task.taskName?.slice(0, 40)
+                                            {task.taskName?.length >= 60
+                                              ? task.taskName?.slice(0, 60) +
+                                                '...'
                                               : task.taskName}
                                             {task?.achieveMK ? (
                                               <MdKey size={12} className="" />
@@ -881,12 +885,15 @@ function CreateReport() {
                                           min={0}
                                           step={1}
                                           className="w-full"
-                                          formatter={(value) =>
-                                            `${value}`.replace(
+                                          formatter={(value) => {
+                                            if (!value) return '';
+                                            const parts = `${value}`.split('.');
+                                            parts[0] = parts[0].replace(
                                               /\B(?=(\d{3})+(?!\d))/g,
                                               ',',
-                                            )
-                                          }
+                                            );
+                                            return parts.join('.');
+                                          }}
                                           onChange={(value) => {
                                             const statusValue =
                                               form.getFieldValue([

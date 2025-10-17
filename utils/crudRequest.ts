@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { AxiosRequestConfig, Method } from 'axios';
+import { AxiosRequestConfig, Method, ResponseType } from 'axios';
 import apiClient from './apiClient';
 
 interface RequestParams {
@@ -9,6 +9,7 @@ interface RequestParams {
   headers?: Record<string, string>;
   params?: Record<string, any>;
   skipEncryption?: boolean;
+  responseType?: ResponseType;
 }
 
 export const crudRequest = async ({
@@ -18,6 +19,7 @@ export const crudRequest = async ({
   headers = {},
   params,
   skipEncryption = false,
+  responseType,
 }: RequestParams) => {
   const { userId, tenantId } = useAuthenticationStore.getState();
 
@@ -38,6 +40,7 @@ export const crudRequest = async ({
     };
 
     if (data) config.data = data;
+    if (responseType) config.responseType = responseType;
 
     const response = await apiClient(config);
     return response.data;

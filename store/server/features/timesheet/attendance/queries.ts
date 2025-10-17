@@ -34,31 +34,29 @@ const getAttendances = async (
 const exportAttendanceData = async (data: any) => {
   const requestHeaders = await requestHeader();
   try {
-    // const payload = {
-    //   ...data,
-    //   updatedBy: logUserId,
-    //   createdBy: logUserId,
-    // };
     const response = await crudRequest({
       url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
       method: 'POST',
       data,
       headers: requestHeaders,
       skipEncryption: true, // Skip encryption for file downloads
+      responseType: 'blob', // Tell axios to handle binary data
     });
 
-    // Note: crudRequest returns the data directly, so we need to handle blob differently
-    // This might need adjustment based on how the API returns file data
-    const blob = new Blob([response], {
-      type:
-        data.exportType === 'PDF'
-          ? 'application/pdf'
-          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+    // Response is already a blob from the API
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type:
+              data.exportType === 'PDF'
+                ? 'application/pdf'
+                : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    let fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
+    const fileName = `Attendance Data Export.${data.exportType === 'PDF' ? 'pdf' : 'xlsx'}`;
 
     link.href = url;
     link.setAttribute('download', fileName);

@@ -87,4 +87,30 @@ export const useDeleteFeedbackRecordById = () => {
     },
   });
 };
+
+// Simple GET method for feedback
+const getAllFeedbackRecords = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/feedback`,
+    method: 'GET',
+    headers,
+  });
+};
+
+// Export the simple GET mutation hook
+export const useGetAllFeedbackRecords = () => {
+  const queryClient = useQueryClient();
+  return useMutation(getAllFeedbackRecords, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('feedbackRecord');
+    },
+  });
+};
 // eslint-enable-next-line @typescript-eslint/naming-convention

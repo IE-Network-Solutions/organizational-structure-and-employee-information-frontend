@@ -60,11 +60,17 @@ const Login: FC = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    await handleSignIn(() => signInWithPopup(auth, googleProvider));
+    await handleSignIn(
+      () => signInWithPopup(auth, googleProvider),
+      'google.com',
+    );
   };
 
   const handleMicrosoftSignIn = async () => {
-    await handleSignIn(() => signInWithPopup(auth, microsoftProvider));
+    await handleSignIn(
+      () => signInWithPopup(auth, microsoftProvider),
+      'microsoft.com',
+    );
   };
 
   return is2FA ? (

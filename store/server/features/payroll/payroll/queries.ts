@@ -51,6 +51,29 @@ const getActivePayroll = async (
     },
   });
 };
+
+const getActivePayrollsForExport = async (searchParams = '') => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${PAYROLL_URL}/payroll/find-all-payroll-by-pay-period?${searchParams}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetActivePayrollsForExport = (searchParams = '') =>
+  useQuery(
+    ['payrollForExport', searchParams],
+    () => getActivePayrollsForExport(searchParams),
+    {
+      enabled: true,
+    },
+  );
+
 export const useGetActivePayroll = (
   searchParams = '',
   limit: number,

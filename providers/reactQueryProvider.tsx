@@ -40,10 +40,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
             const newToken = await getCurrentToken();
             if (newToken) {
               queryClient.invalidateQueries();
-            } else if (process.env.NODE_ENV !== 'production') {
+            } else {
               handleNetworkError(error);
             }
-          } else if (process.env.NODE_ENV !== 'production') {
+          } else {
             handleNetworkError(error);
           }
         },

@@ -48,10 +48,9 @@ const PercentageForm: React.FC<OKRFormProps> = ({
         form={form}
         initialValues={{
           ...keyItem,
-          initialValue:
-            keyItem.initialValue === 0 ? undefined : keyItem.initialValue,
-          targetValue:
-            keyItem.targetValue === 0 ? undefined : keyItem.targetValue,
+          // Keep backend-provided values as-is; show 0 instead of empty
+          initialValue: keyItem.initialValue ?? 0,
+          targetValue: keyItem.targetValue ?? 0,
         }}
         layout="vertical"
       >
@@ -177,9 +176,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               min={0}
               max={100}
               placeholder="Initial Value (%)"
-              value={
-                keyItem.initialValue === 0 ? undefined : keyItem.initialValue
-              }
+              value={keyItem.initialValue ?? 0}
               onChange={(value) =>
                 updateKeyResult(index, 'initialValue', value)
               }
@@ -208,9 +205,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               min={0}
               max={100}
               placeholder="Target Value (%)"
-              value={
-                keyItem.targetValue === 0 ? undefined : keyItem.targetValue
-              }
+              value={keyItem.targetValue ?? 0}
               onChange={(value) => updateKeyResult(index, 'targetValue', value)}
               onKeyPress={(e) => {
                 if (
@@ -347,9 +342,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 min={0}
                 max={100}
                 placeholder="Initial Value (%)"
-                value={
-                  keyItem.initialValue === 0 ? undefined : keyItem.initialValue
-                }
+                value={keyItem.initialValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'initialValue', value)
                 }
@@ -378,9 +371,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 min={0}
                 max={100}
                 placeholder="Target Value (%)"
-                value={
-                  keyItem.targetValue === 0 ? undefined : keyItem.targetValue
-                }
+                value={keyItem.targetValue ?? 0}
                 onChange={(value) =>
                   updateKeyResult(index, 'targetValue', value)
                 }

@@ -14,7 +14,7 @@ apiClient.interceptors.request.use(async (config) => {
     try {
       // Convert FormData to an object first
       const formDataObj: Record<string, any> = {};
-      for (let [key, value] of config.data.entries()) {
+      for (const [key, value] of config.data.entries()) {
         formDataObj[key] = value;
       }
 
@@ -39,8 +39,13 @@ apiClient.interceptors.request.use(async (config) => {
 apiClient.interceptors.response.use(async (response) => {
   const data = response.data;
 
-  // If skipEncryption is true, don't decrypt
-  if ((data as any).skipEncryption) {
+  // If skipEncryption is true in config, don't decrypt
+  if ((response.config as any).skipEncryption) {
+    return response;
+  }
+
+  // If response is a Blob (binary file download), don't decrypt
+  if (data instanceof Blob) {
     return response;
   }
 

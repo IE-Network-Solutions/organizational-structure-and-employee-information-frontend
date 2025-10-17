@@ -1,47 +1,83 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { Button, Form, Input } from 'antd';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import TextArea from 'antd/es/input/TextArea';
-import { useAddEmployeeType } from '@/store/server/features/employees/employeeManagment/employmentType/mutations';
+import {
+  useAddEmployeeType,
+  useUpdateEmployeeType,
+} from '@/store/server/features/employees/employeeManagment/employmentType/mutations';
+import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 
 interface EmployementTypeDrawer {
   name: string;
   description: string;
 }
 
-const EmployementTypeSideDrawer: React.FC<any> = (props) => {
+interface EmployementTypeSideDrawerProps {
+  onClose: () => void;
+  editingEmploymentType?: EmploymentTypeInfo | null;
+  isEditMode?: boolean;
+}
+
+const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
+  onClose,
+  editingEmploymentType,
+  isEditMode = false,
+}) => {
   const { isOpen, setOpen } = EmployeTypeManagementStore();
   const createEmployeType = useAddEmployeeType();
+  const updateEmployeType = useUpdateEmployeeType();
 
   const [form] = Form.useForm();
+
+  // Set form values when editing
+  useEffect(() => {
+    if (isEditMode && editingEmploymentType) {
+      form.setFieldsValue({
+        name: editingEmploymentType.name,
+        description: editingEmploymentType.description,
+      });
+    } else if (!isEditMode) {
+      // Reset form when switching to create mode
+      form.resetFields();
+    }
+  }, [isEditMode, editingEmploymentType, form]);
 
   const handleCloseDrawer = () => {
     setOpen(false);
     form.resetFields();
+    onClose();
   };
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
     const { name, description } = values as EmployementTypeDrawer;
 
-    await createEmployeType.mutateAsync({
-      name,
-      description,
-    });
+    if (isEditMode && editingEmploymentType) {
+      await updateEmployeType.mutateAsync({
+        id: editingEmploymentType.id,
+        name,
+        description,
+      });
+    } else {
+      await createEmployeType.mutateAsync({
+        name,
+        description,
+      });
+    }
     handleCloseDrawer();
-    form.resetFields();
   };
 
   return (
     isOpen && (
       <CustomDrawerLayout
         open={isOpen}
-        onClose={props?.onClose}
+        onClose={onClose}
         modalHeader={
           <div className="flex justify-start text-base font-extrabold text-gray-800">
-            Add Employee Type
+            {isEditMode ? 'Edit Employee Type' : 'Add Employee Type'}
           </div>
         }
         width="40%"
@@ -59,7 +95,7 @@ const EmployementTypeSideDrawer: React.FC<any> = (props) => {
               type="primary"
               onClick={handleSubmit}
             >
-              Submit
+              {isEditMode ? 'Update' : 'Submit'}
             </Button>
           </div>
         }

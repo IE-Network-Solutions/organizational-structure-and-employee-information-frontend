@@ -129,6 +129,8 @@ const OrgChartComponent: React.FC = () => {
     isDeleteConfirmVisible,
     setIsDeleteConfirmVisible,
     setOrgData,
+    hasManuallyDeletedDepartments,
+    setHasManuallyDeletedDepartments,
   } = useOrganizationStore();
 
   const handleEdit = (department: Department) => {
@@ -157,6 +159,8 @@ const OrgChartComponent: React.FC = () => {
       updateDepartment({ ...selectedDepartment, ...values });
     } else if (parentId) {
       addDepartment(parentId, values);
+      // Reset the flag when adding new departments so defaults can be recreated if needed
+      setHasManuallyDeletedDepartments(false);
     }
     setIsFormVisible(false);
   };
@@ -164,6 +168,8 @@ const OrgChartComponent: React.FC = () => {
   const handleDeleteConfirm = () => {
     if (selectedDepartment) {
       deleteDepartment(selectedDepartment.id);
+      // Mark that departments have been manually deleted
+      setHasManuallyDeletedDepartments(true);
     }
     setIsDeleteConfirmVisible(false);
   };
@@ -171,42 +177,45 @@ const OrgChartComponent: React.FC = () => {
   const { data: branches } = useGetBranches();
 
   useEffect(() => {
+    // Only create default departments if they haven't been manually deleted before
     if (!orgData.department || orgData.department.length === 0) {
-      const defaultDepartments: Department[] = [
-        {
-          id: uuidv4(),
-          name: 'HR',
-          department: [],
-          branchId: null,
-          description: '',
-          collapsed: false,
-        },
-        {
-          id: uuidv4(),
-          name: 'Marketing',
-          department: [],
-          branchId: null,
-          description: '',
-          collapsed: false,
-        },
-        {
-          id: uuidv4(),
-          name: 'Finance',
-          department: [],
-          branchId: null,
-          description: '',
-          collapsed: false,
-        },
-      ];
+      if (!hasManuallyDeletedDepartments) {
+        const defaultDepartments: Department[] = [
+          {
+            id: uuidv4(),
+            name: 'HR',
+            department: [],
+            branchId: null,
+            description: '',
+            collapsed: false,
+          },
+          {
+            id: uuidv4(),
+            name: 'Marketing',
+            department: [],
+            branchId: null,
+            description: '',
+            collapsed: false,
+          },
+          {
+            id: uuidv4(),
+            name: 'Finance',
+            department: [],
+            branchId: null,
+            description: '',
+            collapsed: false,
+          },
+        ];
 
-      setOrgData({
-        ...orgData,
-        name: orgData.name || 'CEO',
-        branchId: null,
-        department: defaultDepartments,
-      });
+        setOrgData({
+          ...orgData,
+          name: orgData.name || 'CEO',
+          branchId: null,
+          department: defaultDepartments,
+        });
+      }
     }
-  }, [branches, orgData.department]);
+  }, [branches, orgData.department, hasManuallyDeletedDepartments]);
 
   const rootDepartment: Department = {
     id: 'root',
@@ -243,7 +252,6 @@ const OrgChartComponent: React.FC = () => {
           )}
         </Tree>
       </div>
-
       <DepartmentForm
         onClose={() => setIsFormVisible(false)}
         open={isFormVisible}
@@ -257,7 +265,6 @@ const OrgChartComponent: React.FC = () => {
               : 'Add Department'
         }
       />
-
       <Modal
         title="Confirm Deletion"
         open={isDeleteConfirmVisible}

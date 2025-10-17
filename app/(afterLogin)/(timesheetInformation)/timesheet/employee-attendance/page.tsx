@@ -122,11 +122,23 @@ const EmployeeAttendance = () => {
   useEffect(() => {
     if (file) {
       setIsLoading(true);
-      fileUpload(file).then((res) => {
-        setFile(null);
-        setIsLoading(false);
-        uploadImport(res.viewImage);
-      });
+      fileUpload(file)
+        .then((res) => {
+          setFile(null);
+          setIsLoading(false);
+          uploadImport(res.viewImage);
+        })
+        .catch(() => {
+          setFile(null);
+          setIsLoading(false);
+          message.error('Failed to upload file. Please try again.');
+        })
+        .finally(() => {
+          // Clear the file input to allow re-importing the same file
+          if (importAttendance.current) {
+            importAttendance.current.value = '';
+          }
+        });
     }
   }, [file]);
 

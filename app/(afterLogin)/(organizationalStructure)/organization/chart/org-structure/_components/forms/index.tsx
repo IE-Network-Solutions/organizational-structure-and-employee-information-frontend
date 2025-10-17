@@ -3,10 +3,10 @@ import { useGetOrgCharts } from '@/store/server/features/organizationStructure/o
 import { useMergeStore } from '@/store/uistate/features/organizationStructure/orgState/mergeDepartmentsStore';
 import { useTransferStore } from '@/store/uistate/features/organizationStructure/orgState/transferDepartmentsStore';
 import { Form, message, Select, FormInstance, Input } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import useOrganizationStore from '@/store/uistate/features/organizationStructure/orgState';
 import { OrgChart } from '@/store/server/features/organizationStructure/organizationalChart/interface';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetAllUsersToGetTeamLeads } from '@/store/server/features/employees/employeeManagment/queries';
 import useDepartmentStore from '@/store/uistate/features/organizationStructure/orgState/departmentStates';
 import { MdInfo } from 'react-icons/md';
 
@@ -26,41 +26,48 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
 
-  const OPTIONS = departments?.map((item: any) => ({
-    value: item.id,
-    label: item.name,
-  }));
+  const OPTIONS = useMemo(
+    () =>
+      departments?.map((item: any) => ({
+        value: item.id,
+        label: item.name,
+      })) || [],
+    [departments],
+  );
 
   const departmentCache: Record<string, any> = {};
 
-  const findDepartmentWithChildren = (tree: any, id: string): any => {
-    if (departmentCache[id]) return departmentCache[id];
+  const findDepartmentWithChildren = useCallback(
+    (tree: any, id: string): any => {
+      if (departmentCache[id]) return departmentCache[id];
 
-    if (tree.id === id) {
-      const departmentData = {
-        id: tree.id,
-        name: tree.name,
-        description: tree.description,
-        branchId: tree.branchId,
-        children: tree.department || [],
-      };
-      departmentCache[id] = departmentData;
-      return departmentData;
-    }
-    if (tree.department?.length) {
-      for (const child of tree.department) {
-        const result = findDepartmentWithChildren(child, id);
-        if (result) {
-          departmentCache[id] = result;
-          return result;
+      if (tree.id === id) {
+        const departmentData = {
+          id: tree.id,
+          name: tree.name,
+          description: tree.description,
+          branchId: tree.branchId,
+          children: tree.department || [],
+        };
+        departmentCache[id] = departmentData;
+        return departmentData;
+      }
+      if (tree.department?.length) {
+        for (const child of tree.department) {
+          const result = findDepartmentWithChildren(child, id);
+          if (result) {
+            departmentCache[id] = result;
+            return result;
+          }
         }
       }
-    }
 
-    return null;
-  };
+      return null;
+    },
+    [],
+  );
 
-  const Merge = () => {
+  const Merge = useCallback(() => {
     if (!orgStructureData || !rootDepartment?.id) {
       message.error(
         'Organization structure data or root department not available',
@@ -99,7 +106,13 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
     };
 
     setTransferDepartment(transferData);
-  };
+  }, [
+    orgStructureData,
+    rootDepartment,
+    childDepartment,
+    findDepartmentWithChildren,
+    setTransferDepartment,
+  ]);
 
   const handleRootDepartmentChange = (id: string) => {
     const department = departments?.find((dept: any) => dept.id === id);
@@ -130,7 +143,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
     if (childDepartment.length > 0 && rootDepartment?.id && orgStructureData) {
       Merge();
     }
-  }, [childDepartment, rootDepartment, orgStructureData]);
+  }, [Merge]);
 
   return (
     <Form className="pr-10" layout="vertical" form={form}>
@@ -205,7 +218,7 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
   const setMergeData = useMergeStore((state) => state.setMergeData);
-  const { data: employeeData } = useGetAllUsers();
+  const { data: employeeData } = useGetAllUsersToGetTeamLeads();
 
   const {
     rootDeptId,
@@ -218,43 +231,56 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
     setTeamLeader,
   } = useDepartmentStore();
 
-  const OPTIONS = departments
-    ?.map((item: any) => ({
-      value: item.id,
-      label: item.name,
-      level: item.level, // Include level for filtering
-    }))
-    .filter((item: any) => item.level !== 0);
-
-  const selectedChildDept = departments?.find(
-    (dept: any) => dept.id === childDeptId,
+  const OPTIONS = useMemo(
+    () =>
+      departments
+        ?.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+          level: item.level, // Include level for filtering
+        }))
+        .filter((item: any) => item.level !== 0) || [],
+    [departments],
   );
+
+  const selectedChildDept = useMemo(
+    () => departments?.find((dept: any) => dept.id === childDeptId),
+    [departments, childDeptId],
+  );
+
   const selectedLevel = selectedChildDept?.level;
 
-  const findDepartmentById = (id: string, orgStructure: any): any => {
-    if (!orgStructure) return null;
-    if (orgStructure.id === id) return orgStructure;
-    for (const dept of orgStructure.department || []) {
-      const found = findDepartmentById(id, dept);
-      if (found) return found;
-    }
-    return null;
-  };
+  const findDepartmentById = useCallback(
+    (id: string, orgStructure: any): any => {
+      if (!orgStructure) return null;
+      if (orgStructure.id === id) return orgStructure;
+      for (const dept of orgStructure.department || []) {
+        const found = findDepartmentById(id, dept);
+        if (found) return found;
+      }
+      return null;
+    },
+    [],
+  );
 
-  const teamLeaderOptions = employeeData?.items
-    ?.filter((emp: any) =>
-      emp?.employeeJobInformation?.some(
-        (job: any) =>
-          [rootDeptId, childDeptId].includes(job.departmentId) &&
-          job.departmentLeadOrNot === true,
-      ),
-    )
-    .map((emp: any) => ({
-      value: emp.id,
-      label: `${emp.firstName} ${emp.lastName}`,
-    }));
+  const teamLeaderOptions = useMemo(
+    () =>
+      employeeData?.items
+        ?.filter((emp: any) =>
+          emp?.employeeJobInformation?.some(
+            (job: any) =>
+              [rootDeptId, childDeptId].includes(job.departmentId) &&
+              job.departmentLeadOrNot === true,
+          ),
+        )
+        .map((emp: any) => ({
+          value: emp.id,
+          label: `${emp.firstName} ${emp.lastName}`,
+        })) || [],
+    [employeeData, rootDeptId, childDeptId],
+  );
 
-  const Merge = () => {
+  const Merge = useCallback(() => {
     if (!rootDeptId || !childDeptId || !mergedDeptName || !teamLeader) return;
 
     const rootDepartment = findDepartmentById(rootDeptId, orgStructureData);
@@ -279,10 +305,6 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
 
       setMergeData(mergeData);
     }
-  };
-
-  useEffect(() => {
-    Merge();
   }, [
     rootDeptId,
     childDeptId,
@@ -290,7 +312,12 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
     teamLeader,
     orgStructureData,
     setMergeData,
+    findDepartmentById,
   ]);
+
+  useEffect(() => {
+    Merge();
+  }, [Merge]);
 
   return (
     <Form layout="vertical" className="flex flex-col gap-2 pr-10" form={form}>

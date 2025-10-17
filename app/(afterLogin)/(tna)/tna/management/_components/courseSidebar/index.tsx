@@ -219,7 +219,7 @@ const CourseCategorySidebar = () => {
           <Form.Item
             name="department"
             label="Department Permission"
-            rules={[{ required: true, message: 'Required' }]}
+            rules={[{ required: courseId ? false : true, message: 'Required' }]}
             className="form-item"
           >
             <TreeSelect

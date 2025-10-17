@@ -11,6 +11,7 @@ const importData = async (data: any) => {
     method: 'POST',
     headers: requestHeaders,
     data,
+    skipEncryption: true, // Skip encryption for file uploads to preserve FormData
   });
 };
 // const logUserId = useAuthenticationStore.getState().userId;
@@ -38,7 +39,7 @@ const exportData = async (data: any) => {
     });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    let fileName = 'Incentive Data Export.xlsx';
+    const fileName = 'Incentive Data Export.xlsx';
 
     link.href = url;
     link.setAttribute('download', fileName);

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Button, Spin, Form } from 'antd';
+import { Button, Spin, Form, Checkbox } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
 // UI‑state stores
@@ -10,6 +10,7 @@ import useOrganizationStore from '@/store/uistate/features/organizationStructure
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { PUBLIC_DOMAIN } from '@/utils/constants';
 
 // Server mutations & queries
 import {
@@ -321,6 +322,7 @@ const OnboardingSteper: React.FC = () => {
   ];
 
   const handleCloseModal = () => togleIsModalVisible();
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   return (
     <div className="flex flex-col items-center p-4 mobile-sm:p-2 mobile-md:p-4 mobile-lg:p-6 tablet-md:p-8 lg:p-12">
@@ -384,7 +386,7 @@ const OnboardingSteper: React.FC = () => {
                 return (
                   <>
                     <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-                      Create and define your organisational structure
+                      Create and define your organizational structure
                     </h2>
                     <p className="text-gray-600 mb-10">
                       Add departments, roles, and reporting hierarchies to
@@ -398,43 +400,65 @@ const OnboardingSteper: React.FC = () => {
           })()}
 
           {/* buttons (desktop) */}
-          <div className="hidden tablet-md:flex space-x-4 items-center">
-            {currentStep > 0 && (
-              <Button
-                onClick={prevStep}
-                icon={<ArrowLeftOutlined />}
-                className="w-36 h-16"
-                size="large"
-                id="goBackButton"
-                disabled={currentStep === 0}
-              >
-                Go Back
-              </Button>
-            )}
-            <Button
-              onClick={
-                currentStep === steps.length - 1
-                  ? onSubmitOnboarding
-                  : handleNextStep
-              }
-              type="primary"
-              size="large"
-              className="w-36 h-16 bg-blue disabled:bg-blue"
-              id={
-                currentStep === steps.length - 1
-                  ? 'finishButton'
-                  : 'continueButton'
-              }
-              disabled={loading}
-            >
-              {loading ? (
-                <Spin size="large" style={{ color: 'white' }} />
-              ) : currentStep === steps.length - 1 ? (
-                'Submit'
-              ) : (
-                'Continue'
+          <div className="hidden tablet-md:flex flex-col space-y-4 items-center">
+            <div className="flex space-x-4">
+              {currentStep > 0 && (
+                <Button
+                  onClick={prevStep}
+                  icon={<ArrowLeftOutlined />}
+                  className="w-36 h-16"
+                  size="large"
+                  id="goBackButton"
+                  disabled={currentStep === 0}
+                >
+                  Go Back
+                </Button>
               )}
-            </Button>
+              <Button
+                onClick={
+                  currentStep === steps.length - 1
+                    ? onSubmitOnboarding
+                    : handleNextStep
+                }
+                type="primary"
+                size="large"
+                className="w-36 h-16 bg-blue disabled:bg-gray-200"
+                id={
+                  currentStep === steps.length - 1
+                    ? 'finishButton'
+                    : 'continueButton'
+                }
+                disabled={loading || (currentStep === 0 && !agreedToTerms)}
+              >
+                {loading ? (
+                  <Spin size="large" style={{ color: 'white' }} />
+                ) : currentStep === steps.length - 1 ? (
+                  'Submit'
+                ) : (
+                  'Continue'
+                )}
+              </Button>
+            </div>
+
+            {currentStep === 0 && (
+              <div className="mt-4">
+                <Checkbox
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  id="termsCheckbox"
+                >
+                  I accept the{' '}
+                  <a
+                    href={`${PUBLIC_DOMAIN}/terms-of-service`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600"
+                  >
+                    Terms & Conditions
+                  </a>
+                </Checkbox>
+              </div>
+            )}
           </div>
         </div>
 
@@ -461,43 +485,66 @@ const OnboardingSteper: React.FC = () => {
             {step.content}
           </div>
         ))}
-        <div className="flex space-x-4 mt-6 items-center">
-          {currentStep > 0 && (
-            <Button
-              onClick={prevStep}
-              icon={<ArrowLeftOutlined />}
-              className="w-36 h-16"
-              size="large"
-              id="goBackButtonMobile"
-              disabled={currentStep === 0}
-            >
-              Go Back
-            </Button>
-          )}
-          <Button
-            onClick={
-              currentStep === steps.length - 1
-                ? onSubmitOnboarding
-                : handleNextStep
-            }
-            type="primary"
-            size="large"
-            className="w-36 h-16 bg-blue disabled:bg-blue"
-            id={
-              currentStep === steps.length - 1
-                ? 'finishButtonMobile'
-                : 'continueButtonMobile'
-            }
-            disabled={loading}
-          >
-            {loading ? (
-              <Spin size="large" style={{ color: 'white' }} />
-            ) : currentStep === steps.length - 1 ? (
-              'Submit'
-            ) : (
-              'Continue'
+
+        <div className="flex flex-col space-y-4 mt-6 items-center">
+          <div className="flex space-x-4">
+            {currentStep > 0 && (
+              <Button
+                onClick={prevStep}
+                icon={<ArrowLeftOutlined />}
+                className="w-36 h-16"
+                size="large"
+                id="goBackButtonMobile"
+                disabled={currentStep === 0}
+              >
+                Go Back
+              </Button>
             )}
-          </Button>
+            <Button
+              onClick={
+                currentStep === steps.length - 1
+                  ? onSubmitOnboarding
+                  : handleNextStep
+              }
+              type="primary"
+              size="large"
+              className="w-36 h-16 bg-blue disabled:bg-gray-200"
+              id={
+                currentStep === steps.length - 1
+                  ? 'finishButtonMobile'
+                  : 'continueButtonMobile'
+              }
+              disabled={loading || (currentStep === 0 && !agreedToTerms)}
+            >
+              {loading ? (
+                <Spin size="large" style={{ color: 'white' }} />
+              ) : currentStep === steps.length - 1 ? (
+                'Submit'
+              ) : (
+                'Continue'
+              )}
+            </Button>
+          </div>
+
+          {currentStep === 0 && (
+            <div className="mt-4">
+              <Checkbox
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                id="termsCheckboxMobile"
+              >
+                I accept the{' '}
+                <a
+                  href={`${PUBLIC_DOMAIN}/terms-of-service`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600"
+                >
+                  Terms of Service
+                </a>
+              </Checkbox>
+            </div>
+          )}
         </div>
       </div>
 

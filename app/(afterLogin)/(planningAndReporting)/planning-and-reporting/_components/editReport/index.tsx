@@ -444,12 +444,17 @@ function EditReport() {
                                                     min={0}
                                                     step={1}
                                                     className="w-full"
-                                                    formatter={(value) =>
-                                                      `${value}`.replace(
-                                                        /\B(?=(\d{3})+(?!\d))/g,
-                                                        ',',
-                                                      )
-                                                    }
+                                                    formatter={(value) => {
+                                                      if (!value) return '';
+                                                      const parts =
+                                                        `${value}`.split('.');
+                                                      parts[0] =
+                                                        parts[0].replace(
+                                                          /\B(?=(\d{3})+(?!\d))/g,
+                                                          ',',
+                                                        );
+                                                      return parts.join('.');
+                                                    }}
                                                     value={form.getFieldValue([
                                                       task.taskId,
                                                       'actualValue',
