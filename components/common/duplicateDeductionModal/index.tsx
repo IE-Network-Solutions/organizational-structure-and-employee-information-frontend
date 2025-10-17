@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
-import { IoDuplicateOutline } from 'react-icons/io5';
 
 interface DuplicateDeductionModalProps {
   open: boolean;
@@ -22,9 +21,9 @@ const DuplicateDeductionModal: React.FC<DuplicateDeductionModalProps> = ({
   deductionName = 'this deduction',
 }) => {
   const modalFooter = (
-    <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
+    <div className="w-full flex justify-center items-center gap-4">
       <Button
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        className="px-8 py-3 text-base font-medium border border-gray-300"
         onClick={onCancel}
         disabled={loading}
       >
@@ -32,7 +31,7 @@ const DuplicateDeductionModal: React.FC<DuplicateDeductionModalProps> = ({
       </Button>
       <Button
         id="confirmDuplicateId"
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        className="px-8 py-3 text-base font-medium"
         type="primary"
         loading={loading}
         onClick={onConfirm}
@@ -46,46 +45,40 @@ const DuplicateDeductionModal: React.FC<DuplicateDeductionModalProps> = ({
     <>
       <Modal
         open={open}
-        width={500}
+        width={400}
+        style={{ height: 500, zIndex: 9999 }}
         onCancel={onCancel}
         footer={modalFooter}
         closeIcon={false}
         closable={false}
         centered
         className="duplicate-deduction-modal"
+        getContainer={() => document.body}
       >
-        <div className="flex flex-col items-center justify-center py-6">
-        {/* Icon */}
-        <div className="flex justify-center items-center h-[120px] mb-4">
-          <IoDuplicateOutline 
-            size={120} 
-            className="text-blue"
-          />
-        </div>
+        <div className="py-4">
+          {/* Title */}
+          <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
+            These are similar deductions of the same type
+          </h3>
 
-        {/* Message */}
-        <p className="text-center text-2xl text-gray-800 font-bold leading-relaxed">
-          There is another deduction
-          <br />
-          of this type are you sure you
-          <br />
-          want to create another
-          <br />
-          one?
-        </p>
-
-        {/* Employee names if provided */}
-        {employeeNames.length > 0 && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg w-full">
-            <p className="text-sm text-gray-600 font-medium mb-2">
-              Employees already in {deductionName}:
-            </p>
-            <div className="text-sm text-gray-700">
-              {employeeNames.slice(0, 3).join(', ')}
-              {employeeNames.length > 3 && ` and ${employeeNames.length - 3} more`}
+          {/* Employee name tags */}
+          {employeeNames.length > 0 && (
+            <div className="flex gap-2 mb-4 p-3 bg-gray-50 border border-gray-300 rounded-lg overflow-x-auto">
+              {employeeNames.map((name, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-md whitespace-nowrap flex-shrink-0"
+                >
+                  {name}
+                </span>
+              ))}
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Confirmation question */}
+          <p className="text-xl font-bold text-gray-800 text-center">
+            Are you sure you want to create another one?
+          </p>
         </div>
       </Modal>
     </>
