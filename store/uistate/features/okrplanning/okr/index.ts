@@ -221,11 +221,12 @@ export const useOKRStore = create<OKRState>()(
       field: string,
     ) =>
       set((state) => {
+        const coercedValue = field === 'weight' ? Number(value ?? 0) : value;
         const newKeyResult = [...state.objectiveValue.keyResults];
         newKeyResult[keyResultIndex].milestones = newKeyResult[
           keyResultIndex
         ].milestones.map((m: any, i: number) =>
-          i === mindex ? { ...m, [field]: value } : m,
+          i === mindex ? { ...m, [field]: coercedValue } : m,
         );
         return {
           objectiveValue: {
@@ -241,10 +242,13 @@ export const useOKRStore = create<OKRState>()(
       field: string,
     ) => {
       set((state) => {
+        const coercedValue = field === 'weight' ? Number(value ?? 0) : value;
         // Update milestones based on the provided index and field
         const updatedMilestones = state.keyResultValue.milestones.map(
           (milestone: any, index: number) =>
-            index === mindex ? { ...milestone, [field]: value } : milestone,
+            index === mindex
+              ? { ...milestone, [field]: coercedValue }
+              : milestone,
         );
 
         // Return the updated keyResultValue
