@@ -18,7 +18,6 @@ const DuplicateDeductionModal: React.FC<DuplicateDeductionModalProps> = ({
   onCancel,
   loading = false,
   employeeNames = [],
-  deductionName = 'this deduction',
 }) => {
   const modalFooter = (
     <div className="w-full flex justify-center items-center gap-4">
