@@ -7,6 +7,37 @@ import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allo
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+
+// Component to handle allowance amount calculation
+const AllowanceAmount = ({
+  employeeId,
+  allowance,
+  allowanceType,
+}: {
+  employeeId: string;
+  allowance: any;
+  allowanceType: any;
+}) => {
+  const { data: basicSalaryData, error } = useGetBasicSalaryById(employeeId);
+
+  if (error || !basicSalaryData) {
+    return <span>-</span>;
+  }
+
+  const employeeBasicSalary =
+    Number(basicSalaryData.find((item: any) => item.status)?.basicSalary) || 0;
+
+  // If it's a rate-based allowance, calculate the amount
+  if (allowanceType.isRate && allowanceType.defaultAmount) {
+    const calculatedAmount =
+      (employeeBasicSalary * Number(allowanceType.defaultAmount)) / 100;
+    return <span>{calculatedAmount ? calculatedAmount : '-'}</span>;
+  }
+
+  // For fixed amounts, use the totalAmount
+  return <span>{allowance.totalAmount ? allowance.totalAmount : '-'}</span>;
+};
 
 const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const { data: allCompensationsData, isLoading } = useFetchAllowances();
@@ -23,7 +54,7 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
   const allEntitlementData = Array.isArray(allAllowanceEntitlementData)
     ? allAllowanceEntitlementData.reduce(
         (acc: any, benefit: any) =>
-          acc.concat(benefit.compensationItmeEntitlement),
+          acc.concat(benefit.compensationItmeEntitlement || []),
         [],
       )
     : [];
@@ -47,7 +78,18 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       employeeId: employee.employeeId,
     };
     employee.allowance.forEach((allowance: any) => {
-      dataRow[allowance.compensationItemId] = allowance.totalAmount;
+      // Find the corresponding allowance type to get the correct ID for the column
+      const allowanceType = allAllowanceEntitlementData.find(
+        (type: any) => type.id === allowance.compensationItemId,
+      );
+      if (allowanceType) {
+        // Store both allowance and allowanceType for proper calculation
+        dataRow[allowanceType.id] = {
+          allowance,
+          allowanceType,
+          employeeId: employee.employeeId,
+        };
+      }
     });
     return dataRow;
   });
@@ -75,11 +117,23 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
           title: <span className="text-xs truncate">{item?.name}</span>,
           dataIndex: item?.id,
           key: item?.id,
-          render: (text: string) => (
-            <div data-testid={`allowance-amount-${item?.id}`}>
-              {text || '-'}
-            </div>
-          ),
+          render: (text: string, record: any) => {
+            const allowanceData = record[item?.id];
+
+            if (!allowanceData) {
+              return <div data-testid={`allowance-amount-${item?.id}`}>-</div>;
+            }
+
+            return (
+              <div data-testid={`allowance-amount-${item?.id}`}>
+                <AllowanceAmount
+                  employeeId={allowanceData.employeeId}
+                  allowance={allowanceData.allowance}
+                  allowanceType={allowanceData.allowanceType}
+                />
+              </div>
+            );
+          },
         }))
       : []),
   ];
