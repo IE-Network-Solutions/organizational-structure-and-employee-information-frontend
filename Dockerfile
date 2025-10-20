@@ -1,11 +1,12 @@
 # =========================
-# Stage 1: Dependencies
+# Stage 1: Dependencies (Build dependencies only)
 # =========================
 FROM node:18-alpine AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --include=dev
+# Only install deps needed for build
+RUN npm ci
 
 
 # =========================
@@ -24,34 +25,35 @@ RUN apk add --no-cache curl jq bash unzip && \
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Vault credentials passed as build args
 ARG VAULT_ADDR
 ARG VAULT_USERNAME
 ARG VAULT_PASSWORD
 ARG VAULT_SECRET_PATH=env/frontend
 
-# Fetch secrets from Vault, build Next.js, and capture APP_PORT
+# Fetch secrets and build app
 RUN set -eux; \
-    echo "🔐 Logging into Vault..."; \
     export VAULT_ADDR="$VAULT_ADDR"; \
     VAULT_TOKEN=$(vault login -method=userpass username="$VAULT_USERNAME" password="$VAULT_PASSWORD" -format=json | jq -r .auth.client_token); \
-    echo "✅ Vault login successful"; \
-    echo "📦 Fetching secrets from $VAULT_SECRET_PATH..."; \
-    vault kv get -format=json "$VAULT_SECRET_PATH" \
-      | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > .env; \
-    echo "✅ Secrets written to .env"; \
+    vault kv get -format=json "$VAULT_SECRET_PATH" | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > .env; \
     export $(cat .env | xargs); \
-    echo "🏗️ Building Next.js app..."; \
-    npm run format || true && \
-    npm run lint -- --fix || true && \
-    npm run build; \
-    # Write APP_PORT to a file for runtime use (fallback to 3000)
+    NODE_OPTIONS="--max-old-space-size=2048" npm run build; \
     echo "PORT=${APP_PORT:-3000}" > /tmp/.port.env; \
-    rm -f .env
+    rm -rf .env node_modules /usr/local/bin/vault /tmp/*
 
 
 # =========================
-# Stage 3: Runner
+# Stage 3: Production Dependencies
+# =========================
+FROM node:18-alpine AS prod-deps
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+# Install ONLY production dependencies
+RUN npm ci --omit=dev
+
+
+# =========================
+# Stage 4: Runner (Final lightweight image)
 # =========================
 FROM node:18-alpine AS runner
 WORKDIR /app
@@ -60,20 +62,19 @@ ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 
 # Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs -G nodejs
-
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs -G nodejs
 USER nextjs
 
-# Copy necessary files
-COPY --from=deps /app/node_modules ./node_modules
+# Copy production node_modules only
+COPY --from=prod-deps /app/node_modules ./node_modules
+# Copy the build output and assets
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /tmp/.port.env /app/.port.env
 
-# Default expose (informational only)
+# Default port (dynamic at runtime)
 EXPOSE 3000
 
-# Use the port from Vault at runtime
-CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && echo \"Starting app on port $PORT\" && node server.js"]
+# Run app using the Vault-defined port
+CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && echo \"Starting on port $PORT
