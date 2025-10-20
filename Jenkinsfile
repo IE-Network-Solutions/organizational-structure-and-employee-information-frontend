@@ -192,8 +192,6 @@ ENDSSH
                         echo "Pulling image ${DOCKERHUB_REPO}:${BRANCH_NAME}..."
                         docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
 
-                        cd ${REPO_DIR}
-
                         export DOCKERHUB_REPO=${DOCKERHUB_REPO}
                         export BRANCH_NAME=${BRANCH_NAME}
 
