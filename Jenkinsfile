@@ -175,7 +175,7 @@ ENDSSH
             }
         }
 
-       stage('Deploy Service') {
+ stage('Deploy Service') {
     steps {
         withCredentials([
             usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
@@ -183,42 +183,43 @@ ENDSSH
         ]) {
             script {
                 sh """
-                    sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
-                        set -e
-                        echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin
-                        if ! docker pull ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}; then
-                            exit 1
-                        fi
-                        APP_PORT=\$(docker run --rm ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} printenv APP_PORT)
-                        export DOCKERHUB_REPO=${env.DOCKERHUB_REPO}
-                        export BRANCH_NAME=${env.BRANCH_NAME}
-                        export APP_PORT=\$APP_PORT
-                        if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
-                            if ! docker service update \
-                                --image ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} \
+                    sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << "ENDSSH"
+                        set -ex
+
+                        echo "Logging into Docker Hub..."
+                        echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin || { echo "Docker login failed"; exit 1; }
+
+                        echo "Pulling image ${DOCKERHUB_REPO}:${BRANCH_NAME}..."
+                        docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
+
+                        cd ${REPO_DIR}
+
+                        export DOCKERHUB_REPO=${DOCKERHUB_REPO}
+                        export BRANCH_NAME=${BRANCH_NAME}
+
+                        if docker service inspect ${SERVICE_NAME} >/dev/null 2>&1; then
+                            echo "Updating existing service ${SERVICE_NAME}..."
+                            docker service update \
+                                --image ${DOCKERHUB_REPO}:${BRANCH_NAME} \
                                 --with-registry-auth \
-                                --publish-rm-all \
-                                --publish-add published=\$APP_PORT,target=\$APP_PORT \
-                                --force ${env.SERVICE_NAME}; then
-                                exit 1
-                            fi
+                                --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
                         else
-                            if [ '${env.BRANCH_NAME}' = 'staging' ]; then
-                                if ! APP_PORT=\$APP_PORT docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging; then
-                                    exit 1
-                                fi
+                            echo "Creating new stack..."
+                            if [ '${BRANCH_NAME}' = 'staging' ]; then
+                                docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
                             else
-                                if ! APP_PORT=\$APP_PORT docker stack deploy --with-registry-auth -c docker-compose.yml pep; then
-                                    exit 1
-                                fi
+                                docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
                             fi
                         fi
+
+                        echo "Deployment completed successfully."
 ENDSSH
                 """
             }
         }
     }
 }
+
 
 
         stage('Verify Deployment') {
