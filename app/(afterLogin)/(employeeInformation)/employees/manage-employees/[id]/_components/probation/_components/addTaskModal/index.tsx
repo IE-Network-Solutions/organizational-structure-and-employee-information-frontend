@@ -43,11 +43,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       createdDate: new Date().toISOString(),
       approver: selectedApprover
         ? {
-          id: selectedApprover.value,
-          firstName: selectedApprover.firstName,
-          lastName: selectedApprover.lastName,
-          avatar: selectedApprover.avatar,
-        }
+            id: selectedApprover.value,
+            firstName: selectedApprover.firstName,
+            lastName: selectedApprover.lastName,
+            avatar: selectedApprover.avatar,
+          }
         : undefined,
     };
 
