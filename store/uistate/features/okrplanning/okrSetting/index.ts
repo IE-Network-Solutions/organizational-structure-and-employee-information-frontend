@@ -23,6 +23,12 @@ interface OKRSettingStore {
   setPage: (page: number) => void;
   userId: string | null;
   setUserId: (userId: string | null) => void;
+
+  // Delete modal state
+  deleteModalVisible: boolean;
+  setDeleteModalVisible: (deleteModalVisible: boolean) => void;
+  deleteItemId: string | null;
+  setDeleteItemId: (deleteItemId: string | null) => void;
 }
 
 export const useOKRSettingStore = create<OKRSettingStore>()(
@@ -50,5 +56,12 @@ export const useOKRSettingStore = create<OKRSettingStore>()(
     setPage: (page: number) => set({ page }),
     userId: null,
     setUserId: (userId: string | null) => set({ userId }),
+
+    // Delete modal state
+    deleteModalVisible: false,
+    setDeleteModalVisible: (deleteModalVisible: boolean) =>
+      set({ deleteModalVisible }),
+    deleteItemId: null,
+    setDeleteItemId: (deleteItemId: string | null) => set({ deleteItemId }),
   })),
 );

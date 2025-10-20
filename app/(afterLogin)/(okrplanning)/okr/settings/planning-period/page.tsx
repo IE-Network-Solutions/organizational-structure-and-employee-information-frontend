@@ -1,6 +1,7 @@
 'use client';
-import { Input, Card, Switch, Dropdown, Menu, Modal, Form, Select } from 'antd';
+import { Input, Card, Switch, Dropdown, Modal, Form, Select } from 'antd';
 import { MoreOutlined, CheckOutlined } from '@ant-design/icons';
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import {
   useDeletePlanningPeriod,
@@ -9,6 +10,7 @@ import {
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import AccessGuard from '@/utils/permissionGuard';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { Permissions } from '@/types/commons/permissionEnum';
 import dayjs from 'dayjs';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
@@ -17,8 +19,7 @@ const { Option } = Select;
 const PlanningPeriod = () => {
   const { data: allPlanningperiod } = useGetAllPlanningPeriods();
   const { mutate: updateStatus, isLoading } = useUpdatePlanningStatus();
-  const { mutate: deletePlanningPeriod, isLoading: deletePlannniggPeriod } =
-    useDeletePlanningPeriod();
+  const { mutate: deletePlanningPeriod } = useDeletePlanningPeriod();
   const { mutate: editPlanningPeriod, isLoading: editPlannningPeriod } =
     useUpdatePlanningPeriod();
 
@@ -29,6 +30,10 @@ const PlanningPeriod = () => {
     setPlanningPeriodName,
     editingPeriod,
     setEditingPeriod,
+    deleteModalVisible,
+    setDeleteModalVisible,
+    deleteItemId,
+    setDeleteItemId,
   } = useOKRSettingStore();
   const [form] = Form.useForm();
 
@@ -85,36 +90,61 @@ const PlanningPeriod = () => {
   );
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this planning period ?',
-      onOk() {
-        deletePlanningPeriod(id);
-      },
-    });
+    setDeleteItemId(id);
+    setDeleteModalVisible(true);
   };
-  const menu = (planningPeriod: any) => (
-    <Menu>
-      <AccessGuard permissions={[Permissions.UpdatePlanningPeriod]}>
-        <Menu.Item
-          key="1"
-          disabled={editPlannningPeriod}
-          onClick={() => handleEdit(planningPeriod)}
-        >
-          Edit
-        </Menu.Item>
-      </AccessGuard>
-      <AccessGuard permissions={[Permissions.DeletePlanningPeriod]}>
-        <Menu.Item
-          key="2"
-          disabled={deletePlannniggPeriod}
-          onClick={() => handleDelete(planningPeriod.id)}
-        >
-          Delete
-        </Menu.Item>
-      </AccessGuard>
-    </Menu>
-  );
+
+  const handleDeleteConfirm = () => {
+    if (deleteItemId) {
+      deletePlanningPeriod(deleteItemId);
+      setDeleteModalVisible(false);
+      setDeleteItemId(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModalVisible(false);
+    setDeleteItemId(null);
+  };
+  const renderMenu = (planningPeriod: any) => {
+    const items = [];
+
+    if (
+      AccessGuard.checkAccess({
+        permissions: [Permissions.UpdatePlanningPeriod],
+      })
+    ) {
+      items.push({
+        key: 'edit',
+        label: (
+          <div className="flex items-center gap-2 hover:bg-blue-50 hover:text-blue-600 px-2 py-1 rounded transition-colors duration-200">
+            <FaEdit />
+            <span>Edit</span>
+          </div>
+        ),
+        onClick: () => handleEdit(planningPeriod),
+      });
+    }
+
+    if (
+      AccessGuard.checkAccess({
+        permissions: [Permissions.DeletePlanningPeriod],
+      })
+    ) {
+      items.push({
+        key: 'delete',
+        label: (
+          <div className="flex items-center gap-2 hover:bg-red-50 hover:text-red-600 px-2 py-1 rounded transition-colors duration-200">
+            <FaTrashAlt />
+            <span>Delete</span>
+          </div>
+        ),
+        onClick: () => handleDelete(planningPeriod.id),
+      });
+    }
+
+    return { items };
+  };
 
   return (
     <div className="p-5 rounded-2xl bg-white h-full">
@@ -141,11 +171,8 @@ const PlanningPeriod = () => {
                     checkedChildren={<CheckOutlined />}
                   />
                 </AccessGuard>
-                <Dropdown overlay={menu(planningPeriod)} trigger={['click']}>
-                  <MoreOutlined
-                    className="cursor-pointer "
-                    style={{ fontSize: '22px', color: '#000000' }}
-                  />
+                <Dropdown menu={renderMenu(planningPeriod)} trigger={['click']}>
+                  <MoreOutlined className="text-lg cursor-pointer" />
                 </Dropdown>
               </div>
             }
@@ -226,6 +253,13 @@ const PlanningPeriod = () => {
           </Form.Item>
         </Form>
       </Modal>
+      <DeleteModal
+        open={deleteModalVisible}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        deleteMessage="Are you sure you want to delete this planning period?"
+        loading={false}
+      />
     </div>
   );
 };
