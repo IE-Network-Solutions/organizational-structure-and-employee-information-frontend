@@ -42,6 +42,8 @@ RUN set -eux; \
     echo "✅ Secrets written to .env"; \
     export $(cat .env | xargs); \
     echo "🏗️ Building Next.js app..."; \
+    npm run format || true && \
+    npm run lint -- --fix || true && \
     npm run build; \
     # Write APP_PORT to a file for runtime use (fallback to 3000)
     echo "PORT=${APP_PORT:-3000}" > /tmp/.port.env; \
