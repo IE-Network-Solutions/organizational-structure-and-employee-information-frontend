@@ -650,7 +650,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                           title="Are you sure you want to remove this milestone?"
                           onConfirm={() =>
                             milestone?.id
-                              ? handleMilestoneDelete(milestone?.id, mindex)
+                              ? handleMilestoneDelete(milestone?.id)
                               : milestoneRemove(index, mindex)
                           }
                           okText="Yes"
@@ -713,7 +713,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                             title="Are you sure you want to remove this milestone?"
                             onConfirm={() =>
                               milestone?.id
-                                ? handleMilestoneDelete(milestone?.id, mindex)
+                                ? handleMilestoneDelete(milestone?.id)
                                 : milestoneRemove(index, mindex)
                             }
                             okText="Yes"
