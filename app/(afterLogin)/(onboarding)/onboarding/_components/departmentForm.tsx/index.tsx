@@ -30,13 +30,17 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
     }
   }, [departmentData, form]);
 
+  useEffect(() => {
+    if (open && !departmentData) {
+      form.resetFields();
+    }
+  }, [open, departmentData, form]);
+
   const handleSubmit = () => {
     form
       .validateFields()
       .then((values) => {
         submitAction(values);
-        onClose();
-        form.resetFields();
       })
       .catch((info) => {
         showValidationErrors(info?.errorFields);

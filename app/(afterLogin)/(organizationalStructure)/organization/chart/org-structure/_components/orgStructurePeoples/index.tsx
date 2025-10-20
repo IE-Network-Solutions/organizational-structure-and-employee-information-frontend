@@ -106,10 +106,19 @@ const OrgChartComponent: React.FC = () => {
 
   const handleFormSubmit = (values: OrgChart) => {
     if (selectedDepartment) {
-      updateDepartment({
-        id: selectedDepartment.id,
-        orgChart: { ...selectedDepartment, ...values },
-      });
+      updateDepartment(
+        {
+          id: selectedDepartment.id,
+          orgChart: { ...selectedDepartment, ...values },
+        },
+        {
+          onSuccess: () => {
+            setSelectedDepartment(null);
+            setIsFormVisible(false);
+            form.resetFields();
+          },
+        },
+      );
     } else if (parentId) {
       const newId = uuidv4();
 
@@ -118,14 +127,22 @@ const OrgChartComponent: React.FC = () => {
         department: [...(parent?.department || []), { ...values, id: newId }],
       };
 
-      updateDepartment({
-        id: parentId,
-        orgChart: data,
-      });
+      updateDepartment(
+        {
+          id: parentId,
+          orgChart: data,
+        },
+        {
+          onSuccess: () => {
+            setSelectedDepartment(null);
+            setIsFormVisible(false);
+            form.resetFields();
+            setParentId('');
+          },
+        },
+      );
     }
     // Clear selected department before closing modal
-    setSelectedDepartment(null);
-    setIsFormVisible(false);
   };
 
   const handleDeleteConfirm = () => {

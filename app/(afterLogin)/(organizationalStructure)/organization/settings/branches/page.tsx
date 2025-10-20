@@ -46,9 +46,22 @@ const Branches = () => {
 
   const handleFormSubmit = (values: Branch) => {
     if (editingBranch && editingBranch.id) {
-      updateBranch({ id: editingBranch.id, branch: values });
+      updateBranch(
+        { id: editingBranch.id, branch: values },
+        {
+          onSuccess: () => {
+            form.resetFields();
+            setFormOpen(false);
+          },
+        },
+      );
     } else {
-      createBranch(values);
+      createBranch(values, {
+        onSuccess: () => {
+          form.resetFields();
+          setFormOpen(false);
+        },
+      });
     }
   };
 

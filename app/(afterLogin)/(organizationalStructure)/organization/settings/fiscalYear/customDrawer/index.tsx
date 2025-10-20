@@ -362,7 +362,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
         open={openfiscalYearDrawer}
         width="35%"
         footer={null}
-        customPadding="0px"
       >
         {formContent}
       </CustomDrawerLayout>
