@@ -234,7 +234,6 @@ function CreateReport() {
         onClose={onClose}
         modalHeader={modalHeader}
         width="95%"
-        className="sm:!w-[85%] md:!w-[75%] lg:!w-[65%]"
       >
         {formattedData?.length > 0 ? (
           <Spin spinning={plannedTaskForReportLoading} tip="Loading...">
