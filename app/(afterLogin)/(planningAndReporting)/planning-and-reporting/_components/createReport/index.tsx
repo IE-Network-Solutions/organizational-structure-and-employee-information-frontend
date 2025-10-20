@@ -457,7 +457,7 @@ function CreateReport() {
                                               label="Actual value:"
                                               rules={[
                                                 {
-                                                  validator(_, value: any) {
+                                                  validator(value: any) {
                                                     if (
                                                       !keyresult ||
                                                       !keyresult.targetValue ||

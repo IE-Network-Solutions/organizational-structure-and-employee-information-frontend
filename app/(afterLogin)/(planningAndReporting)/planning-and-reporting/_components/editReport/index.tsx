@@ -153,7 +153,6 @@ function EditReport() {
         onClose={onClose}
         modalHeader={modalHeader}
         width="95%"
-        className="sm:!w-[85%] md:!w-[75%] lg:!w-[65%]"
       >
         <Spin
           spinning={editReportLoading || reportedDataLoading}
@@ -331,7 +330,10 @@ function EditReport() {
                                                 label="Actual value:"
                                                 rules={[
                                                   {
-                                                    validator(_, value: any) {
+                                                    validator(
+                                                      rule,
+                                                      value: any,
+                                                    ) {
                                                       if (
                                                         !keyresult ||
                                                         !keyresult.targetValue ||
@@ -612,7 +614,7 @@ function EditReport() {
                                         label="Actual value:"
                                         rules={[
                                           {
-                                            validator(notused, value) {
+                                            validator(rule, value) {
                                               if (
                                                 !keyresult ||
                                                 !keyresult.targetValue

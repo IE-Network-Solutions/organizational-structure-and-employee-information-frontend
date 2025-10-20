@@ -536,6 +536,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 </Button>
               )}
             </Form.Item>
+          </div>
 
           {/* Row 3: Weight and Deadline */}
           <div className="flex gap-2">
