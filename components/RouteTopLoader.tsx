@@ -9,11 +9,9 @@ export default function RouteTopLoader() {
     const searchParams = useSearchParams();
     const [visible, setVisible] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [pendingCount, setPendingCount] = useState(0);
     const timerRef = useRef<number | null>(null);
     const rafRef = useRef<number | null>(null);
     const navigatingRef = useRef(false);
-    const waitingForIdleRef = useRef(false);
 
     // Patch history methods to emit navigation start, capture link clicks and back/forward.
     useEffect(() => {
@@ -112,59 +110,12 @@ export default function RouteTopLoader() {
         };
     }, []);
 
-    // Track global network busy/idle events from axios client
-    useEffect(() => {
-        const onBusy = (e: Event) => {
-            const detail = (e as CustomEvent).detail as
-                | { pending?: number }
-                | undefined;
-            const pending =
-                detail?.pending ??
-                (typeof window !== 'undefined'
-                    ? (window as any).__pendingNetworkRequests || 0
-                    : 0);
-            setPendingCount(pending);
-        };
-        const onIdle = () => {
-            setPendingCount(0);
-            if (waitingForIdleRef.current) {
-                // Finish now that network is idle
-                waitingForIdleRef.current = false;
-                setProgress(1);
-                const done = window.setTimeout(() => {
-                    setVisible(false);
-                    setProgress(0);
-                }, 250);
-                return () => window.clearTimeout(done);
-            }
-        };
-
-        if (typeof window !== 'undefined') {
-            // Initialize current count on mount
-            setPendingCount((window as any).__pendingNetworkRequests || 0);
-            window.addEventListener('__network_busy', onBusy as EventListener);
-            window.addEventListener('__network_idle', onIdle as EventListener);
-        }
-        return () => {
-            if (typeof window !== 'undefined') {
-                window.removeEventListener('__network_busy', onBusy as EventListener);
-                window.removeEventListener('__network_idle', onIdle as EventListener);
-            }
-        };
-    }, []);
-
-    // When the route has committed (pathname/search changes), complete and hide the bar,
-    // but wait until there are no pending network requests.
+    // When the route has committed (pathname/search changes), complete and hide the bar.
     useEffect(() => {
         if (!navigatingRef.current) return;
         navigatingRef.current = false;
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         if (timerRef.current) window.clearTimeout(timerRef.current);
-        if (pendingCount > 0) {
-            // Defer finishing until idle event
-            waitingForIdleRef.current = true;
-            return;
-        }
         setProgress(1);
         const done = window.setTimeout(() => {
             setVisible(false);
@@ -190,7 +141,7 @@ export default function RouteTopLoader() {
             }}
         >
             <div
-                className="animate-pulse"
+                className="anianimate-pulse"
                 style={{
                     width: `${Math.round(progress * 100)}%`,
                     height: 2,
