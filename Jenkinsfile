@@ -189,7 +189,6 @@ ENDSSH
                         if ! docker pull ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}; then
                             exit 1
                         fi
-                        cd ${env.REPO_DIR}
                         APP_PORT=\$(docker run --rm ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} printenv APP_PORT)
                         export DOCKERHUB_REPO=${env.DOCKERHUB_REPO}
                         export BRANCH_NAME=${env.BRANCH_NAME}
