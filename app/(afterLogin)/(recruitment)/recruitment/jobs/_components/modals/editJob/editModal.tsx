@@ -30,7 +30,7 @@ const EditJob: React.FC = () => {
       jobTitle: formValues?.jobTitle,
       description: formValues?.description,
       jobLocation: formValues?.jobLocation,
-      jobDeadline: formValues?.jobDeadline,
+      jobDeadline: dayjs(formValues?.jobDeadline).format('YYYY-MM-DD'),
     };
     updateJob(
       { data: updatedFormValues, id: selectedJobId },

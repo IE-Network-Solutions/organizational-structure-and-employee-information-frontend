@@ -90,7 +90,7 @@ const CreateJobs: React.FC = () => {
       const formattedValue = {
         ...formValues,
         createdBy,
-        jobDeadline: dayjs(formValues?.jobDeadline).toISOString(),
+        jobDeadline: dayjs(formValues?.jobDeadline).format('YYYY-MM-DD'),
         yearOfExperience: Number(formValues?.yearOfExperience),
         departmentId: formValues?.department,
         questions: [
