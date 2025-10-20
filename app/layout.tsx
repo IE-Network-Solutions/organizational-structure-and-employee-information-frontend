@@ -8,7 +8,13 @@ import ConditionalNav from '@/providers/conditionalNav';
 import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
 import ChatBotButton from '@/components/ai/ChatBotButton';
+import RouteTopLoader from '@/components/RouteTopLoader';
 const manrope = Manrope({ subsets: ['latin'] });
+
+// Disable static prerendering globally; ensure all pages are rendered dynamically
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export const metadata: Metadata = {
   title: 'Selamnew Workspace',
@@ -241,6 +247,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${manrope.className} pwa-viewport`}>
+        <RouteTopLoader />
         <div className="status-bar-safe">
           <PWAProvider>
             {/* <AuthProvider> */}
