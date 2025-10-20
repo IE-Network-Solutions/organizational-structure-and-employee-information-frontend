@@ -1,8 +1,14 @@
+import dayjs from 'dayjs';
+
 export const transformData = (data: any) => {
   const formatDate = (date: any) => {
-    if (date && date.$d) {
-      return new Date(date.$d).toISOString().split('T')[0];
+    if (!date) return date;
+    // Handle AntD Dayjs object or native Date without converting to UTC
+    if (date?.$d || date instanceof Date) {
+      const d = date?.$d ? dayjs(date.$d) : dayjs(date);
+      return d.format('YYYY-MM-DD');
     }
+    // If already a string (e.g., "2025-09-16"), return as-is
     return date;
   };
 
