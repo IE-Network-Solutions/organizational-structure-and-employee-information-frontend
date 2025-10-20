@@ -105,4 +105,3 @@ export interface DailyPlanPayload {
 export interface OKRPayload {
   objective: string;
 }
-

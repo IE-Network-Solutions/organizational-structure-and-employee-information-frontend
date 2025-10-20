@@ -80,7 +80,8 @@ const MilestoneView: React.FC<OKRProps> = ({
           const remainingWeight =
             100 -
             completedMilestones.reduce(
-              (sum: number, milestone: Milestone) => sum + milestone.weight,
+              (sum: number, milestone: Milestone) =>
+                sum + Number(milestone?.weight ?? 0),
               0,
             );
 
@@ -125,7 +126,7 @@ const MilestoneView: React.FC<OKRProps> = ({
     const remainingWeight =
       100 -
       completedMilestones.reduce(
-        (sum: number, milestone: any) => sum + milestone.weight,
+        (sum: number, milestone: any) => sum + Number(milestone?.weight ?? 0),
         0,
       );
 
@@ -162,37 +163,46 @@ const MilestoneView: React.FC<OKRProps> = ({
     const newKeyResult = [...objectiveValue?.keyResults];
     const currentMilestones = newKeyResult[index]?.milestones || [];
 
-    const completedMilestones = currentMilestones.filter(
-      (milestone: any) => milestone.status === 'Completed',
-    );
-    const nonCompletedMilestones = currentMilestones.filter(
-      (milestone: any) => milestone.status !== 'Completed',
-    );
+    // Keep original index to correctly remove based on overall index
+    const completedMilestonesWithIdx = currentMilestones
+      .map((milestone: any, idx: number) => ({ milestone, idx }))
+      .filter((x: any) => x.milestone.status === 'Completed');
+    const nonCompletedMilestonesWithIdx = currentMilestones
+      .map((milestone: any, idx: number) => ({ milestone, idx }))
+      .filter((x: any) => x.milestone.status !== 'Completed');
 
-    const updatedNonCompletedMilestones = nonCompletedMilestones.filter(
-      (notused: any, mi: number) => mi !== mId,
+    const originalIndexToRemove =
+      typeof mId === 'string'
+        ? currentMilestones.findIndex((m: any) => String(m?.id) === String(mId))
+        : Number(mId);
+
+    const updatedNonCompletedMilestones = nonCompletedMilestonesWithIdx
+      .filter((x: any) => x.idx !== originalIndexToRemove)
+      .map((x: any) => x.milestone);
+
+    const completedMilestones = completedMilestonesWithIdx.map(
+      (x: any) => x.milestone,
     );
 
     const remainingWeight =
       100 -
       completedMilestones.reduce(
-        (sum: number, milestone: any) => sum + milestone.weight,
+        (sum: number, milestone: any) => sum + Number(milestone?.weight ?? 0),
         0,
       );
 
     const totalNonCompletedMilestones = updatedNonCompletedMilestones.length;
 
-    const weightPerMilestone = Math.round(
-      remainingWeight / totalNonCompletedMilestones,
-    );
-
-    const recalculatedMilestones = [
-      ...completedMilestones,
-      ...updatedNonCompletedMilestones.map((milestone: any) => ({
-        ...milestone,
-        weight: weightPerMilestone,
-      })),
-    ];
+    const recalculatedMilestones =
+      totalNonCompletedMilestones <= 0
+        ? [...completedMilestones]
+        : [
+            ...completedMilestones,
+            ...updatedNonCompletedMilestones.map((milestone: any) => ({
+              ...milestone,
+              weight: Math.round(remainingWeight / totalNonCompletedMilestones),
+            })),
+          ];
 
     newKeyResult[index] = {
       ...newKeyResult[index],
@@ -209,7 +219,10 @@ const MilestoneView: React.FC<OKRProps> = ({
 
   const handleRemoveSingleMilestone = (mId: any) => {
     const updatedMilestones = keyResultValue.milestones.filter(
-      (form: any, mi: any) => mi !== mId,
+      (milestone: any, mi: any) =>
+        typeof mId === 'string'
+          ? String(milestone?.id) !== String(mId)
+          : mi !== mId,
     );
     const newKeyResultValue = {
       ...keyResultValue,
@@ -255,7 +268,7 @@ const MilestoneView: React.FC<OKRProps> = ({
       }
     }
   };
-  const milestoneRemove = (index: number, mindex: number) => {
+  const milestoneRemove = (index: number, mindex: number | string) => {
     if (isEdit) {
       handleRemoveSingleMilestone(mindex);
     } else {
@@ -272,10 +285,10 @@ const MilestoneView: React.FC<OKRProps> = ({
       },
     });
   }
-  function handleMilestoneDelete(id: string, mIndex: number) {
+  function handleMilestoneDelete(id: string) {
     deleteMilestone(id, {
       onSuccess: () => {
-        milestoneRemove(index, mIndex);
+        milestoneRemove(index, id);
       },
     });
   }

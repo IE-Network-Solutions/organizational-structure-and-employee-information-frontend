@@ -1,9 +1,9 @@
 /**
  * AI Feature Route Handlers
- * 
+ *
  * This file contains Next.js API route handlers for AI features.
  * These handlers are imported by the route files in /app/api/ai/
- * 
+ *
  * Architecture:
  * Browser → /app/api/ai/* → routes.ts (this file) → api.ts → AI Backend
  */
@@ -25,7 +25,10 @@ export async function copilotRouteHandler(request: NextRequest) {
   const result = await handleCopilotRequest(body);
 
   if (result.error) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status },
+    );
   }
 
   return NextResponse.json(result.data, { status: result.status });
@@ -40,7 +43,10 @@ export async function okrRouteHandler(request: Request) {
   const result = await handleOKRRequest(body);
 
   if (result.error) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status },
+    );
   }
 
   return NextResponse.json(result.data, { status: result.status });
@@ -55,7 +61,10 @@ export async function weeklyPlanRouteHandler(request: Request) {
   const result = await handleWeeklyPlanRequest(body);
 
   if (result.error) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status },
+    );
   }
 
   return NextResponse.json(result.data, { status: result.status });
@@ -70,9 +79,11 @@ export async function dailyPlanRouteHandler(request: Request) {
   const result = await handleDailyPlanRequest(body);
 
   if (result.error) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status },
+    );
   }
 
   return NextResponse.json(result.data, { status: result.status });
 }
-

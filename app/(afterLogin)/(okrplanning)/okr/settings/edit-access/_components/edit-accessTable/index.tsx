@@ -27,17 +27,12 @@ const columns: TableColumnsType<EditAccessTableProps> = [
   },
 ];
 const EditAccessTable: React.FC = () => {
-  const {
-    currentPage,
-    pageSize,
-    checked,
-    searchParams,
-    setPageSize,
-    setCurrentPage,
-  } = useObjectiveEditAccessStore();
+  const { currentPage, pageSize, searchParams, setPageSize, setCurrentPage } =
+    useObjectiveEditAccessStore();
   const [switchStates, setSwitchStates] = React.useState<
     Record<string, boolean>
   >({});
+  const [isInitialized, setIsInitialized] = React.useState(false);
 
   const { isMobile, isTablet } = useIsMobile();
 
@@ -53,9 +48,12 @@ const EditAccessTable: React.FC = () => {
       setPageSize(pageSize);
     }
   };
-  // =============> This area <============
+  const activeSessionId =
+    activeFiscalYear?.sessions?.find((item: any) => item?.active)?.id || '';
+
+  // Initialize switch states based on actual data from allUserObjective
   React.useEffect(() => {
-    if (allUser?.items && allUserObjective?.items) {
+    if (allUser?.items && allUserObjective?.items && !isInitialized) {
       const newSwitchStates = allUser?.items?.reduce(
         (acc: Record<string, boolean>, user: any) => {
           const userObjective = allUserObjective?.items?.find(
@@ -67,26 +65,19 @@ const EditAccessTable: React.FC = () => {
         {},
       );
       setSwitchStates(newSwitchStates);
+      setIsInitialized(true);
     }
-  }, [allUser, allUserObjective]);
+  }, [allUser, allUserObjective, isInitialized]);
 
-  const activeSessionId =
-    activeFiscalYear?.sessions?.find((item: any) => item?.active)?.id || '';
-
-  React.useEffect(() => {
-    if (allUser?.items) {
-      const newSwitchStates = allUser.items.reduce(
-        (acc: Record<string, boolean>, item: any) => {
-          acc[item.id] = checked;
-          return acc;
-        },
-        {},
-      );
-      setSwitchStates(newSwitchStates);
-    }
-  }, [checked, allUser]);
+  // Function to check if user has objectives
+  const hasUserObjectives = (userId: string) => {
+    if (!allUserObjective?.items) return false;
+    return allUserObjective.items.some((obj: any) => obj?.userId === userId);
+  };
 
   const handleToggleAccess = (userId: string, isChecked: boolean) => {
+    const previousState = switchStates[userId];
+
     const formattedValue = {
       isClosed: !isChecked,
       sessionId: activeSessionId,
@@ -95,17 +86,23 @@ const EditAccessTable: React.FC = () => {
 
     grantEditAccess(formattedValue, {
       onSuccess: () => {
+        const action = isChecked ? 'Granted' : 'Revoked';
         NotificationMessage.success({
           message: 'Success',
-          description: 'Edit Access Granted Successfully',
+          description: `Edit Access Successfully ${action}`,
         });
+        setSwitchStates((prev) => ({
+          ...prev,
+          [userId]: isChecked,
+        }));
+      },
+      onError: () => {
+        setSwitchStates((prev) => ({
+          ...prev,
+          [userId]: previousState,
+        }));
       },
     });
-
-    setSwitchStates((prev) => ({
-      ...prev,
-      [userId]: isChecked,
-    }));
   };
 
   const data = allUser?.items?.map((item: any) => {
@@ -130,8 +127,9 @@ const EditAccessTable: React.FC = () => {
       ),
       grant_access: (
         <Switch
-          loading={isLoading}
+          loading={isLoading || !isInitialized}
           checked={switchStates[item?.id] ?? false}
+          disabled={!hasUserObjectives(item?.id)}
           onChange={(isChecked) => handleToggleAccess(item?.id, isChecked)}
         />
       ),
