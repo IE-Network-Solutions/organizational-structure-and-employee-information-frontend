@@ -70,11 +70,5 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /tmp/.port.env /app/.port.env
 
-# Dynamically expose the port from Vault (fallback to 3000)
-ARG APP_PORT=3000
-ENV PORT=${APP_PORT}
-
-EXPOSE ${PORT}
-
-# Start Next.js app with dynamic port
+# Dynamically read port at runtime instead of static EXPOSE
 CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && echo \"🚀 Starting Next.js app on port $PORT\" && npx next start -p $PORT"]
