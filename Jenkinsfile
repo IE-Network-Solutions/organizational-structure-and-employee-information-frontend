@@ -175,58 +175,52 @@ ENDSSH
             }
         }
 
-        stage('Deploy Service') {
-            steps {
-                withCredentials([
-                    usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
-                    string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
-                ]) {
-                    script {
-                        sh """
-                            sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
-                                set -e
-
-                                # Login to Docker Hub
-                                echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin
-
-                                # Pull the image
-                                if ! docker pull ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}; then
-                                    echo 'ERROR: Failed to pull Docker image'
+       stage('Deploy Service') {
+    steps {
+        withCredentials([
+            usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
+            string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
+        ]) {
+            script {
+                sh """
+                    sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
+                        set -e
+                        echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin
+                        if ! docker pull ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}; then
+                            exit 1
+                        fi
+                        cd ${env.REPO_DIR}
+                        APP_PORT=\$(docker run --rm ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} printenv APP_PORT)
+                        export DOCKERHUB_REPO=${env.DOCKERHUB_REPO}
+                        export BRANCH_NAME=${env.BRANCH_NAME}
+                        export APP_PORT=\$APP_PORT
+                        if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
+                            if ! docker service update \
+                                --image ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} \
+                                --with-registry-auth \
+                                --publish-rm-all \
+                                --publish-add published=\$APP_PORT,target=\$APP_PORT \
+                                --force ${env.SERVICE_NAME}; then
+                                exit 1
+                            fi
+                        else
+                            if [ '${env.BRANCH_NAME}' = 'staging' ]; then
+                                if ! APP_PORT=\$APP_PORT docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging; then
                                     exit 1
                                 fi
-
-                                cd ${env.REPO_DIR}
-
-                                # Export variables for docker-compose
-                                export DOCKERHUB_REPO=${env.DOCKERHUB_REPO}
-                                export BRANCH_NAME=${env.BRANCH_NAME}
-
-                                if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
-                                    echo 'Updating existing service...'
-                                    if ! docker service update --image ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} --with-registry-auth --force ${env.SERVICE_NAME}; then
-                                        echo 'ERROR: Failed to update service'
-                                        exit 1
-                                    fi
-                                else
-                                    echo 'Creating new service...'
-                                    if [ '${env.BRANCH_NAME}' = 'staging' ]; then
-                                        if ! docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging; then
-                                            echo 'ERROR: Failed to deploy stack'
-                                            exit 1
-                                        fi
-                                    else
-                                        if ! docker stack deploy --with-registry-auth -c docker-compose.yml pep; then
-                                            echo 'ERROR: Failed to deploy stack'
-                                            exit 1
-                                        fi
-                                    fi
+                            else
+                                if ! APP_PORT=\$APP_PORT docker stack deploy --with-registry-auth -c docker-compose.yml pep; then
+                                    exit 1
                                 fi
+                            fi
+                        fi
 ENDSSH
-                        """
-                    }
-                }
+                """
             }
         }
+    }
+}
+
 
         stage('Verify Deployment') {
             steps {
