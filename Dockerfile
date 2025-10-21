@@ -40,7 +40,7 @@ RUN set -e && \
     npm run format || true && \
     echo "Lint and formatting completed. Building Next.js app..." && \
     npm run build && \
-    echo "PORT=${APP_PORT:-3000}" > /tmp/.port.env && \
+    echo "PORT=${APP_PORT:-3001}" > /tmp/.port.env && \
     rm -f /tmp/.env.vault
 
 # Stage 3: Runner
