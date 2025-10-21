@@ -65,7 +65,6 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        // Fetch Vault credentials
                         env.VAULT_ADDR = sh(
                             script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_ADDR ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
@@ -121,128 +120,127 @@ pipeline {
             }
         }
 
-   stage('Build and Push Docker Image') {
-    steps {
-        withCredentials([
-            usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
-            string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
-        ]) {
-            sh """
-                sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                    set -e
+        stage('Build and Push Docker Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
+                    string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
+                ]) {
+                    sh """
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
+                            set -e
 
-                    echo "Logging into Docker Hub..."
-                    echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
+                            echo 'Logging into Docker Hub...'
+                            echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin || { echo 'Docker login failed'; exit 1; }
 
-                    echo "Building Docker image..."
-                    cd ${env.REPO_DIR}
-                    docker build \\
-                        --build-arg VAULT_ADDR="${env.VAULT_ADDR}" \\
-                        --build-arg VAULT_USERNAME="${env.VAULT_USERNAME}" \\
-                        --build-arg VAULT_PASSWORD="${env.VAULT_PASSWORD}" \\
-                        --build-arg VAULT_SECRET_PATH="${env.VAULT_SECRET_PATH}" \\
-                        -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . || { echo "Docker build failed"; exit 1; }
+                            echo 'Building Docker image...'
+                            cd ${env.REPO_DIR}
+                            docker build \\
+                                --build-arg VAULT_ADDR='${env.VAULT_ADDR}' \\
+                                --build-arg VAULT_USERNAME='${env.VAULT_USERNAME}' \\
+                                --build-arg VAULT_PASSWORD='${env.VAULT_PASSWORD}' \\
+                                --build-arg VAULT_SECRET_PATH='${env.VAULT_SECRET_PATH}' \\
+                                --build-arg VAULT_CACHE_BUSTER=\$(date +%s) \\
+                                -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . || { echo 'Docker build failed'; exit 1; }
 
-                    echo "Pushing Docker image..."
-                    docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} || { echo "Docker push failed"; exit 1; }
+                            echo 'Pushing Docker image...'
+                            docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} || { echo 'Docker push failed'; exit 1; }
 
-                    echo "Cleaning up old images..."
-                    docker image prune -f
+                            echo 'Cleaning up old images...'
+                            docker image prune -f
 
-                    echo "Build and push completed successfully."
-                '
-            """
+                            echo 'Build and push completed successfully.'
+                        "
+                    """
+                }
+            }
+        }
+
+        stage('Deploy Service') {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
+                    string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
+                ]) {
+                    sh """
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                            set -ex
+
+                            echo "Logging into Docker Hub..."
+                            echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
+
+                            echo "Pulling image ${DOCKERHUB_REPO}:${BRANCH_NAME}..."
+                            docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
+
+                            if docker service inspect ${SERVICE_NAME} >/dev/null 2>&1; then
+                                echo "Updating existing service ${SERVICE_NAME}..."
+                                docker service update \\
+                                    --image ${DOCKERHUB_REPO}:${BRANCH_NAME} \\
+                                    --with-registry-auth \\
+                                    --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
+                            else
+                                echo "Creating new stack..."
+                                if [ "${BRANCH_NAME}" = "staging" ]; then
+                                    docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
+                                else
+                                    docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
+                                fi
+                            fi
+
+                            echo "Deployment completed successfully."
+                        '
+                    """
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
+                    sh """
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                            echo "Verifying deployment status..."
+
+                            for i in {1..20}; do
+                                STATUS=\$(docker service inspect --format "{{ if .UpdateStatus }}{{ .UpdateStatus.State }}{{ else }}none{{ end }}" ${env.SERVICE_NAME} 2>/dev/null)
+
+                                [ -z "\$STATUS" ] && STATUS="none"
+                                echo "Current update status: \$STATUS"
+
+                                if [ "\$STATUS" = "rollback_started" ] || [ "\$STATUS" = "rollback_completed" ] || [ "\$STATUS" = "rollback_paused" ]; then
+                                    echo "Service is rolling back! Deployment failed."
+                                    exit 1
+                                fi
+
+                                if [ "\$STATUS" = "completed" ] || [ "\$STATUS" = "none" ]; then
+                                    echo "Service update completed successfully."
+                                    break
+                                fi
+
+                                sleep 5
+                            done
+                        '
+                    """
+                }
+            }
         }
     }
-}
 
-stage('Deploy Service') {
-    steps {
-        withCredentials([
-            usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
-            string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
-        ]) {
-            sh """
-                sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                    set -ex
-
-                    echo "Logging into Docker Hub..."
-                    echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
-
-                    echo "Pulling image ${DOCKERHUB_REPO}:${BRANCH_NAME}..."
-                    docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
-
-                    if docker service inspect ${SERVICE_NAME} >/dev/null 2>&1; then
-                        echo "Updating existing service ${SERVICE_NAME}..."
-                        docker service update \\
-                            --image ${DOCKERHUB_REPO}:${BRANCH_NAME} \\
-                            --with-registry-auth \\
-                            --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
-                    else
-                        echo "Creating new stack..."
-                        if [ "${BRANCH_NAME}" = "staging" ]; then
-                            docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
-                        else
-                            docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
+    post {
+        success {
+            withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
+                sh """
+                    sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
+                            echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
+                            docker ps -a \\
+                                --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \\
+                                --filter "status=exited" -q | xargs -r docker rm -f
                         fi
-                    fi
-
-                    echo "Deployment completed successfully."
-                '
-            """
+                    '
+                """
+            }
         }
-    }
-}
-
-stage('Verify Deployment') {
-    steps {
-        withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
-            sh """
-                sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                    echo "Verifying deployment status..."
-
-                    for i in {1..20}; do
-                        STATUS=\$(docker service inspect --format "{{ if .UpdateStatus }}{{ .UpdateStatus.State }}{{ else }}none{{ end }}" ${env.SERVICE_NAME} 2>/dev/null)
-
-                        [ -z "\$STATUS" ] && STATUS="none"
-                        echo "Current update status: \$STATUS"
-
-                        if [ "\$STATUS" = "rollback_started" ] || [ "\$STATUS" = "rollback_completed" ] || [ "\$STATUS" = "rollback_paused" ]; then
-                            echo "Service is rolling back! Deployment failed."
-                            exit 1
-                        fi
-
-                        if [ "\$STATUS" = "completed" ] || [ "\$STATUS" = "none" ]; then
-                            echo "Service update completed successfully."
-                            break
-                        fi
-
-                        sleep 5
-                    done
-                '
-            """
-        }
-    }
-}
-
-
-    }
-
-post {
-    success {
-        withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
-            sh """
-                sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                    if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
-                        echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
-                        docker ps -a \\
-                            --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \\
-                            --filter "status=exited" -q | xargs -r docker rm -f
-                    fi
-                '
-            """
-        }
-    }
 
         failure {
             echo 'Deployment failed.'
@@ -252,29 +250,12 @@ post {
                     <html>
                         <head>
                             <style>
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    color: #333333;
-                                    line-height: 1.6;
-                                }
-                                h2 {
-                                    color: #e74c3c;
-                                }
-                                .details {
-                                    margin-top: 20px;
-                                }
-                                .label {
-                                    font-weight: bold;
-                                }
-                                .link {
-                                    color: #3498db;
-                                    text-decoration: none;
-                                }
-                                .footer {
-                                    margin-top: 30px;
-                                    font-size: 0.9em;
-                                    color: #7f8c8d;
-                                }
+                                body { font-family: Arial, sans-serif; color: #333333; line-height: 1.6; }
+                                h2 { color: #e74c3c; }
+                                .details { margin-top: 20px; }
+                                .label { font-weight: bold; }
+                                .link { color: #3498db; text-decoration: none; }
+                                .footer { margin-top: 30px; font-size: 0.9em; color: #7f8c8d; }
                             </style>
                         </head>
                         <body>
@@ -290,7 +271,7 @@ post {
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'yonas.t@ienetworks.co'
+                to: 'yonas.t@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
     }
