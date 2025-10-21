@@ -257,7 +257,7 @@ const ManageEmployees: React.FC<any> = () => {
                   className="bg-white text-blue border-blue  rounded-lg px-3 py-1 flex items-center text-sm font-medium"
                   closeIcon={
                     <span className="text-blue hover:!text-[#FF8787] ml-2 text-base">
-                      ×
+                      X
                     </span>
                   }
                 >
