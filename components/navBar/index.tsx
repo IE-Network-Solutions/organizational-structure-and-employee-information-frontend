@@ -81,6 +81,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
 
+  const triggerRouteLoaderStart = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('__route_loader_start'));
+    }
+  };
+
   const [expandedKeys, setExpandedKeys] = useState<
     (string | number | bigint)[]
   >([]);
@@ -882,6 +888,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     const path = String(selectedKey);
     if (pathname !== path) {
+      triggerRouteLoaderStart();
       router.push(path);
       setSelectedKeys([selectedKey]);
     }
@@ -890,6 +897,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const handleDoubleClick = (event: React.MouseEvent, node: any) => {
     const key = node?.key;
     if (!node.children && key) {
+      triggerRouteLoaderStart();
       router.push(String(key));
     }
   };
@@ -979,6 +987,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   e.stopPropagation();
                   const path = String(child.key);
                   if (pathname !== path) {
+                    triggerRouteLoaderStart();
                     router.push(path);
                   }
                   setSelectedKeys([child.key]);

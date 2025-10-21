@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-    // options {
-    //     timeout(time: 15, unit: 'MINUTES')
-    // }
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+    }
 
     stages {
 
@@ -65,7 +65,6 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        // Fetch Vault credentials
                         env.VAULT_ADDR = sh(
                             script: "sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_ADDR ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
@@ -128,48 +127,30 @@ pipeline {
                     string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
                 ]) {
                     sh """
-                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
                             set -e
 
-                            # Login to Docker Hub first
-                            echo "Logging into Docker Hub..."
-                            echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+                            echo 'Logging into Docker Hub...'
+                            echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin || { echo 'Docker login failed'; exit 1; }
 
-                            if [ \$? -ne 0 ]; then
-                                echo "ERROR: Docker login failed"
-                                exit 1
-                            fi
-
-                            # Build the image
-                            echo "Building Docker image..."
+                            echo 'Building Docker image...'
                             cd ${env.REPO_DIR}
-                            docker build \
-                                --build-arg VAULT_ADDR="${env.VAULT_ADDR}" \
-                                --build-arg VAULT_USERNAME="${env.VAULT_USERNAME}" \
-                                --build-arg VAULT_PASSWORD="${env.VAULT_PASSWORD}" \
-                                --build-arg VAULT_SECRET_PATH="${env.VAULT_SECRET_PATH}" \
-                                -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} .
+                            docker build \\
+                                --build-arg VAULT_ADDR='${env.VAULT_ADDR}' \\
+                                --build-arg VAULT_USERNAME='${env.VAULT_USERNAME}' \\
+                                --build-arg VAULT_PASSWORD='${env.VAULT_PASSWORD}' \\
+                                --build-arg VAULT_SECRET_PATH='${env.VAULT_SECRET_PATH}' \\
+                                --build-arg VAULT_CACHE_BUSTER=\$(date +%s) \\
+                                -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . || { echo 'Docker build failed'; exit 1; }
 
-                            if [ \$? -ne 0 ]; then
-                                echo "ERROR: Docker build failed"
-                                exit 1
-                            fi
+                            echo 'Pushing Docker image...'
+                            docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} || { echo 'Docker push failed'; exit 1; }
 
-                            # Push the image
-                            echo "Pushing Docker image..."
-                            docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}
-
-                            if [ \$? -ne 0 ]; then
-                                echo "ERROR: Docker push failed"
-                                exit 1
-                            fi
-
-                            # Clean up
-                            echo "Cleaning up old images..."
+                            echo 'Cleaning up old images...'
                             docker image prune -f
 
-                            echo "Build and push completed successfully"
-ENDSSH
+                            echo 'Build and push completed successfully.'
+                        "
                     """
                 }
             }
@@ -181,49 +162,34 @@ ENDSSH
                     usernamePassword(credentialsId: 'test-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD'),
                     string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')
                 ]) {
-                    script {
-                        sh """
-                            sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
-                                set -e
+                    sh """
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                            set -ex
 
-                                # Login to Docker Hub
-                                echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin
+                            echo "Logging into Docker Hub..."
+                            echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
 
-                                # Pull the image
-                                if ! docker pull ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME}; then
-                                    echo 'ERROR: Failed to pull Docker image'
-                                    exit 1
-                                fi
+                            echo "Pulling image ${DOCKERHUB_REPO}:${BRANCH_NAME}..."
+                            docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
 
-                                cd ${env.REPO_DIR}
-
-                                # Export variables for docker-compose
-                                export DOCKERHUB_REPO=${env.DOCKERHUB_REPO}
-                                export BRANCH_NAME=${env.BRANCH_NAME}
-
-                                if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
-                                    echo 'Updating existing service...'
-                                    if ! docker service update --image ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} --with-registry-auth --force ${env.SERVICE_NAME}; then
-                                        echo 'ERROR: Failed to update service'
-                                        exit 1
-                                    fi
+                            if docker service inspect ${SERVICE_NAME} >/dev/null 2>&1; then
+                                echo "Updating existing service ${SERVICE_NAME}..."
+                                docker service update \\
+                                    --image ${DOCKERHUB_REPO}:${BRANCH_NAME} \\
+                                    --with-registry-auth \\
+                                    --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
+                            else
+                                echo "Creating new stack..."
+                                if [ "${BRANCH_NAME}" = "staging" ]; then
+                                    docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
                                 else
-                                    echo 'Creating new service...'
-                                    if [ '${env.BRANCH_NAME}' = 'staging' ]; then
-                                        if ! docker stack deploy -c stage-docker-compose.yml staging; then
-                                            echo 'ERROR: Failed to deploy stack'
-                                            exit 1
-                                        fi
-                                    else
-                                        if ! docker stack deploy -c docker-compose.yml pep; then
-                                            echo 'ERROR: Failed to deploy stack'
-                                            exit 1
-                                        fi
-                                    fi
+                                    docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
                                 fi
-ENDSSH
-                        """
-                    }
+                            fi
+
+                            echo "Deployment completed successfully."
+                        '
+                    """
                 }
             }
         }
@@ -231,53 +197,47 @@ ENDSSH
         stage('Verify Deployment') {
             steps {
                 withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
-                    script {
-                        sh """
-                            sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
-                                echo "Verifying deployment status..."
+                    sh """
+                        sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                            echo "Verifying deployment status..."
 
-                                for i in {1..20}; do
-                                    STATUS=\$(docker service inspect --format "{{ if .UpdateStatus }}{{ .UpdateStatus.State }}{{ else }}none{{ end }}" ${env.SERVICE_NAME} 2>/dev/null)
+                            for i in {1..20}; do
+                                STATUS=\$(docker service inspect --format "{{ if .UpdateStatus }}{{ .UpdateStatus.State }}{{ else }}none{{ end }}" ${env.SERVICE_NAME} 2>/dev/null)
 
-                                    if [ -z "\$STATUS" ]; then
-                                        STATUS="none"
-                                    fi
+                                [ -z "\$STATUS" ] && STATUS="none"
+                                echo "Current update status: \$STATUS"
 
-                                    echo "Current update status: \$STATUS"
+                                if [ "\$STATUS" = "rollback_started" ] || [ "\$STATUS" = "rollback_completed" ] || [ "\$STATUS" = "rollback_paused" ]; then
+                                    echo "Service is rolling back! Deployment failed."
+                                    exit 1
+                                fi
 
-                                    if [ "\$STATUS" = "rollback_started" ] || [ "\$STATUS" = "rollback_completed" ] || [ "\$STATUS" = "rollback_paused" ]; then
-                                        echo "Service is rolling back! Deployment failed."
-                                        exit 1
-                                    fi
+                                if [ "\$STATUS" = "completed" ] || [ "\$STATUS" = "none" ]; then
+                                    echo "Service update completed successfully."
+                                    break
+                                fi
 
-                                    if [ "\$STATUS" = "completed" ] || [ "\$STATUS" = "none" ]; then
-                                        echo "Service update completed successfully."
-                                        break
-                                    fi
-
-                                    sleep 5
-                                done
-ENDSSH
-                        """
-                    }
+                                sleep 5
+                            done
+                        '
+                    """
                 }
             }
         }
-
     }
 
     post {
         success {
             withCredentials([string(credentialsId: 'sshpassword', variable: 'SERVER_PASSWORD')]) {
                 sh """
-                   sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} << 'ENDSSH'
-                    if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
-                        echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
-                        docker ps -a \
-                            --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \
-                            --filter "status=exited" -q | xargs -r docker rm -f
-                    fi
-ENDSSH
+                    sshpass -p '${SERVER_PASSWORD}' ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                        if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
+                            echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
+                            docker ps -a \\
+                                --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \\
+                                --filter "status=exited" -q | xargs -r docker rm -f
+                        fi
+                    '
                 """
             }
         }
@@ -290,29 +250,12 @@ ENDSSH
                     <html>
                         <head>
                             <style>
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    color: #333333;
-                                    line-height: 1.6;
-                                }
-                                h2 {
-                                    color: #e74c3c;
-                                }
-                                .details {
-                                    margin-top: 20px;
-                                }
-                                .label {
-                                    font-weight: bold;
-                                }
-                                .link {
-                                    color: #3498db;
-                                    text-decoration: none;
-                                }
-                                .footer {
-                                    margin-top: 30px;
-                                    font-size: 0.9em;
-                                    color: #7f8c8d;
-                                }
+                                body { font-family: Arial, sans-serif; color: #333333; line-height: 1.6; }
+                                h2 { color: #e74c3c; }
+                                .details { margin-top: 20px; }
+                                .label { font-weight: bold; }
+                                .link { color: #3498db; text-decoration: none; }
+                                .footer { margin-top: 30px; font-size: 0.9em; color: #7f8c8d; }
                             </style>
                         </head>
                         <body>
@@ -328,7 +271,7 @@ ENDSSH
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'yonas.t@ienetworks.co'
+                to: 'yonas.t@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
     }
