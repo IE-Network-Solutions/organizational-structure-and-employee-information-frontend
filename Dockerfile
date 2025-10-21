@@ -32,7 +32,7 @@ RUN set -e && \
     export VAULT_ADDR="${VAULT_ADDR}" && \
     VAULT_TOKEN=$(vault login -method=userpass username="${VAULT_USERNAME}" password="${VAULT_PASSWORD}" -format=json | jq -r .auth.client_token) && \
     export VAULT_TOKEN="$VAULT_TOKEN" && \
-    vault kv get -format=json "${VAULT_SECRET_PATH:-env/frontend}" \
+    vault kv get -format=json "${VAULT_SECRET_PATH}" \
         | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > /tmp/.env.vault && \
     set -a && source /tmp/.env.vault && set +a && \
     echo "Secrets loaded. Running lint and format checks..." && \
@@ -40,7 +40,7 @@ RUN set -e && \
     npm run format || true && \
     echo "Lint and formatting completed. Building Next.js app..." && \
     npm run build && \
-    echo "PORT=${APP_PORT:-3001}" > /tmp/.port.env && \
+    echo "PORT=${APP_PORT}" > /tmp/.port.env && \
     rm -f /tmp/.env.vault
 
 # Stage 3: Runner
