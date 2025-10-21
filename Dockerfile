@@ -1,16 +1,11 @@
-# =========================
 # Stage 1: Dependencies
-# =========================
 FROM node:18-alpine AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
 RUN npm install --include=dev
 
-
-# =========================
 # Stage 2: Builder
-# =========================
 FROM node:18-alpine AS builder
 WORKDIR /app
 
@@ -32,25 +27,22 @@ ARG VAULT_SECRET_PATH
 
 # Fetch and load secrets from Vault
 RUN set -e && \
-    echo "🔑 Fetching secrets from Vault..." && \
+    echo "Fetching secrets from Vault..." && \
     export VAULT_ADDR="${VAULT_ADDR}" && \
     VAULT_TOKEN=$(vault login -method=userpass username="${VAULT_USERNAME}" password="${VAULT_PASSWORD}" -format=json | jq -r .auth.client_token) && \
     export VAULT_TOKEN="$VAULT_TOKEN" && \
     vault kv get -format=json "${VAULT_SECRET_PATH:-env/frontend}" \
         | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > /tmp/.env.vault && \
     set -a && source /tmp/.env.vault && set +a && \
-    echo "✅ Secrets loaded. Running lint and format checks..." && \
+    echo "Secrets loaded. Running lint and format checks..." && \
     npm run lint || true && \
     npm run format || true && \
-    echo "✅ Lint and formatting completed. Building Next.js app..." && \
+    echo "Lint and formatting completed. Building Next.js app..." && \
     npm run build && \
     echo "PORT=${APP_PORT:-3000}" > /tmp/.port.env && \
     rm -f /tmp/.env.vault
 
-
-# =========================
 # Stage 3: Runner
-# =========================
 FROM node:18-alpine AS runner
 WORKDIR /app
 
@@ -71,4 +63,4 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /tmp/.port.env /app/.port.env
 
 # Dynamically read port at runtime instead of static EXPOSE
-CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && echo \"🚀 Starting Next.js app on port $PORT\" && npx next start -p $PORT"]
+CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && echo \"Starting Next.js app on port $PORT\" && npx next start -p $PORT"]
