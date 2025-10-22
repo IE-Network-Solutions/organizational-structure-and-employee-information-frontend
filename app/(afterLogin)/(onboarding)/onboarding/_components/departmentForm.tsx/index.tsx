@@ -15,6 +15,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   submitAction,
   departmentData,
   title,
+  loading = false,
 }) => {
   const [form] = Form.useForm();
   const { data: branches } = useGetBranches();
@@ -71,6 +72,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
               }
               type="primary"
               onClick={handleSubmit}
+              loading={loading}
             >
               {departmentData ? 'Update' : 'Create'}
             </Button>
