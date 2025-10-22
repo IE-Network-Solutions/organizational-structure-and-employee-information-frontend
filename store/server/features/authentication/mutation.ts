@@ -6,7 +6,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 export interface Get2FACodeProps {
   email: string;
   pass: string;
-  skipEncryption?: boolean;
+  // skipEncryption?: boolean;
 }
 const get2FACode = async (values: Get2FACodeProps) => {
   return crudRequest({
@@ -19,13 +19,13 @@ const get2FACode = async (values: Get2FACodeProps) => {
 const verify2FACode = async (values: {
   uid: string;
   code: string;
-  skipEncryption: boolean;
+  // skipEncryption: boolean;
 }) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/multi-factor-auth/verify`,
     method: 'POST',
     data: values,
-    skipEncryption: true,
+    // skipEncryption: true,
   });
 };
 
