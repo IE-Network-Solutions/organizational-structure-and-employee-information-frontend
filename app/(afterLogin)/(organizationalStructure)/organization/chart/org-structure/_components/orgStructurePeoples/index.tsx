@@ -80,8 +80,7 @@ const OrgChartComponent: React.FC = () => {
 
   const { data: orgStructureData, isLoading: orgStructureLoading } =
     useGetOrgCharts();
-  const { mutate: updateDepartment, isLoading: updateDepartmentLoading } =
-    useUpdateOrgChart();
+  const { mutate: updateDepartment } = useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
 
@@ -143,6 +142,7 @@ const OrgChartComponent: React.FC = () => {
         },
       );
     }
+    // Clear selected department before closing modal
   };
 
   const handleDeleteConfirm = () => {
@@ -250,7 +250,6 @@ const OrgChartComponent: React.FC = () => {
           submitAction={handleFormSubmit}
           departmentData={selectedDepartment ?? undefined}
           title={selectedDepartment ? 'Edit Department' : 'Add Department'}
-          loading={updateDepartmentLoading}
         />
 
         <DeleteModal

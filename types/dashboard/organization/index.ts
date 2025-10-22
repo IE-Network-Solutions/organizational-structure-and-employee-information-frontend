@@ -17,7 +17,6 @@ export interface DepartmentFormProps {
   submitAction: (values: any) => void;
   departmentData?: Department | null | undefined;
   title: string;
-  loading?: boolean;
 }
 
 export interface OrgData {
