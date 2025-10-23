@@ -53,6 +53,11 @@ async function deriveKey(): Promise<CryptoKey> {
 }
 
 export async function encrypt(text: string): Promise<string> {
+  // Return original text in development environment
+  if (process.env.NODE_ENV === 'development') {
+    return text;
+  }
+
   try {
     const iv = hexToBytes(ivHex);
     const key = await deriveKey();
@@ -77,6 +82,11 @@ export async function encrypt(text: string): Promise<string> {
 }
 
 export async function decrypt(ciphertext: string): Promise<string> {
+  // Return original text in development environment
+  if (process.env.NODE_ENV === 'development') {
+    return ciphertext;
+  }
+
   try {
     const [ivHexPart, encryptedHex] = ciphertext.split(':');
     const iv = hexToBytes(ivHexPart);

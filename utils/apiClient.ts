@@ -10,6 +10,11 @@ apiClient.interceptors.request.use(async (config) => {
     return config;
   }
 
+  // Disable encryption in development environment
+  if (process.env.NODE_ENV === 'development') {
+    return config;
+  }
+
   if (config.data instanceof FormData) {
     try {
       // Convert FormData to an object first
@@ -41,6 +46,11 @@ apiClient.interceptors.response.use(async (response) => {
 
   // If skipEncryption is true in config, don't decrypt
   if ((response.config as any).skipEncryption) {
+    return response;
+  }
+
+  // Disable decryption in development environment
+  if (process.env.NODE_ENV === 'development') {
     return response;
   }
 
