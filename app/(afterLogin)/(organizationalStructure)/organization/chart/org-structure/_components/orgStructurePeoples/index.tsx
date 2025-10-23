@@ -80,7 +80,8 @@ const OrgChartComponent: React.FC = () => {
 
   const { data: orgStructureData, isLoading: orgStructureLoading } =
     useGetOrgCharts();
-  const { mutate: updateDepartment } = useUpdateOrgChart();
+  const { mutate: updateDepartment, isLoading: updateDepartmentLoading } =
+    useUpdateOrgChart();
   const { mutate: deleteDepartment, isLoading: deleteLoading } =
     useDeleteOrgChart();
 
@@ -106,10 +107,19 @@ const OrgChartComponent: React.FC = () => {
 
   const handleFormSubmit = (values: OrgChart) => {
     if (selectedDepartment) {
-      updateDepartment({
-        id: selectedDepartment.id,
-        orgChart: { ...selectedDepartment, ...values },
-      });
+      updateDepartment(
+        {
+          id: selectedDepartment.id,
+          orgChart: { ...selectedDepartment, ...values },
+        },
+        {
+          onSuccess: () => {
+            setSelectedDepartment(null);
+            setIsFormVisible(false);
+            form.resetFields();
+          },
+        },
+      );
     } else if (parentId) {
       const newId = uuidv4();
 
@@ -118,14 +128,21 @@ const OrgChartComponent: React.FC = () => {
         department: [...(parent?.department || []), { ...values, id: newId }],
       };
 
-      updateDepartment({
-        id: parentId,
-        orgChart: data,
-      });
+      updateDepartment(
+        {
+          id: parentId,
+          orgChart: data,
+        },
+        {
+          onSuccess: () => {
+            setSelectedDepartment(null);
+            setIsFormVisible(false);
+            form.resetFields();
+            setParentId('');
+          },
+        },
+      );
     }
-    // Clear selected department before closing modal
-    setSelectedDepartment(null);
-    setIsFormVisible(false);
   };
 
   const handleDeleteConfirm = () => {
@@ -233,6 +250,7 @@ const OrgChartComponent: React.FC = () => {
           submitAction={handleFormSubmit}
           departmentData={selectedDepartment ?? undefined}
           title={selectedDepartment ? 'Edit Department' : 'Add Department'}
+          loading={updateDepartmentLoading}
         />
 
         <DeleteModal
