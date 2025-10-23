@@ -29,8 +29,6 @@ const BranchForm: React.FC<{
       ?.validateFields()
       .then((values: Branch) => {
         submitAction(values);
-        onClose();
-        form.resetFields();
       })
       .catch((info: any) => {
         showValidationErrors(info?.errorFields);
