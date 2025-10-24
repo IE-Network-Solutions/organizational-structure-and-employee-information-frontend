@@ -248,12 +248,24 @@ const AllowanceTypeSideBar = () => {
             <Form.Item
               name="nonTaxableAmount"
               label="Non-Taxable Amount"
+              dependencies={['defaultAmount']}
               rules={[
                 {
                   validator: (notused, value) => {
                     if (value && value < 0) {
                       return Promise.reject(
                         new Error('Non-taxable amount cannot be negative'),
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+                {
+                  validator: (notused, value) => {
+                    const defaultAmount = form.getFieldValue('defaultAmount');
+                    if (value && defaultAmount && Number(value) > Number(defaultAmount)) {
+                      return Promise.reject(
+                        new Error('Non-taxable amount cannot exceed the fixed amount'),
                       );
                     }
                     return Promise.resolve();
