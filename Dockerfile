@@ -47,7 +47,6 @@ RUN set -e && \
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 
 # Create non-root user
