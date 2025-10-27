@@ -9,10 +9,8 @@ apiClient.interceptors.request.use(async (config) => {
     return config;
   }
 
-  if (
-    typeof window !== 'undefined' &&
-    window.location.hostname.startsWith('test-main')
-  ) {
+  // Disable encryption in development environment
+  if (process.env.APP_ENV === 'development') {
     return config;
   }
 
@@ -50,10 +48,8 @@ apiClient.interceptors.response.use(async (response) => {
     return response;
   }
 
-  if (
-    typeof window !== 'undefined' &&
-    window.location.hostname.startsWith('test-main')
-  ) {
+  // Disable decryption in development environment
+  if (process.env.APP_ENV === 'development') {
     return response;
   }
 
