@@ -53,8 +53,11 @@ async function deriveKey(): Promise<CryptoKey> {
 }
 
 export async function encrypt(text: string): Promise<string> {
-  // Return original text in development environment
-  if (process.env.NODE_ENV === 'development') {
+  // Return original text if URL starts with "test-main"
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname.startsWith('test-main')
+  ) {
     return text;
   }
 
@@ -82,8 +85,11 @@ export async function encrypt(text: string): Promise<string> {
 }
 
 export async function decrypt(ciphertext: string): Promise<string> {
-  // Return original text in development environment
-  if (process.env.NODE_ENV === 'development') {
+  // Return original text if URL starts with "test-main"
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname.startsWith('test-main')
+  ) {
     return ciphertext;
   }
 

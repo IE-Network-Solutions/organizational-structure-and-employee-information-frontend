@@ -5,13 +5,14 @@ const apiClient = axios.create();
 
 // Encrypt request payload
 apiClient.interceptors.request.use(async (config) => {
-  // If skipEncryption is true, don't encrypt
   if ((config as any).skipEncryption) {
     return config;
   }
 
-  // Disable encryption in development environment
-  if (process.env.NODE_ENV === 'development') {
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname.startsWith('test-main')
+  ) {
     return config;
   }
 
@@ -49,8 +50,10 @@ apiClient.interceptors.response.use(async (response) => {
     return response;
   }
 
-  // Disable decryption in development environment
-  if (process.env.NODE_ENV === 'development') {
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname.startsWith('test-main')
+  ) {
     return response;
   }
 
