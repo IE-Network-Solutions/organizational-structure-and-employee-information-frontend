@@ -33,17 +33,16 @@ RUN set -e && \
     echo "Fetching secrets from Vault..." && \
     VAULT_TOKEN=$(vault login -method=userpass username="${VAULT_USERNAME}" password="${VAULT_PASSWORD}" -format=json | jq -r .auth.client_token) && \
     vault kv get -format=json "${VAULT_SECRET_PATH}" \
-        | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > .env.production && \
+        | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > .env && \
     echo "Secrets written to .env.production"
 
 # Build Next.js app using production environment
-RUN NODE_ENV=production npm run build
+RUN npm run build
 
 # Stage 3: Runner
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 
 # Create non-root user
@@ -57,7 +56,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.env.production ./.env.production
+COPY --from=builder /app/.env.production ./.env
 
 # Dynamically read port at runtime if needed
-CMD ["/bin/sh", "-c", "echo 'Starting Next.js app...' && npx next start -p ${PORT:-3000}"]
+CMD ["/bin/sh", "-c", "echo 'Starting Next.js app...' && npx next start -p ${PORT}"]
