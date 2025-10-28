@@ -174,4 +174,4 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
   );
 };
 
-export { AddTaskModal };
+export default AddTaskModal;
