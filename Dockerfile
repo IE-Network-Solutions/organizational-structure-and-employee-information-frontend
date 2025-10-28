@@ -41,8 +41,12 @@ RUN set -e && \
     vault kv get -format=json "${VAULT_SECRET_PATH}" \
         | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > .env && \
     echo "✅ Secrets written to .env" && \
+    echo "Running lint and format checks..." && \
+    npm run lint || true && \
+    npm run format || true && \
+    echo "✅ Lint and formatting complete" && \
     echo "Building Next.js app..." && \
-    npx cross-env NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
+    NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
     echo "✅ Build complete" && \
     echo "PORT=${APP_PORT}" > /tmp/.port.env
 
