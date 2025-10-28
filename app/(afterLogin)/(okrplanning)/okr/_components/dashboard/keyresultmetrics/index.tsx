@@ -7,18 +7,21 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface KPIMetricsProps {
   keyResult: any;
   myOkr: boolean;
   updatedKeyResults: any;
   objectiveId: string;
+  objectiveUserId: string; // Add this to get the objective's userId
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({
   keyResult,
   updatedKeyResults,
   objectiveId,
+  objectiveUserId,
 }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -28,6 +31,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     useOKRStore();
 
   const { isMobile } = useIsMobile();
+  const { userId } = useAuthenticationStore();
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setKeyResultValue(keyResult);
@@ -49,22 +53,24 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     setOpen(false);
   };
 
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: '1',
-          label: 'Edit',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          label: 'Delete',
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  );
+  // Create menu items - only show if user owns the objective (key results inherit ownership)
+  const menuItems = [];
+
+  // Only show edit/delete options if user owns the objective (key results inherit ownership)
+  if (userId === objectiveUserId) {
+    menuItems.push({
+      key: '1',
+      label: 'Edit',
+      onClick: showDrawer,
+    });
+    menuItems.push({
+      key: '2',
+      label: 'Delete',
+      onClick: showDeleteModal,
+    });
+  }
+
+  const menu = <Menu items={menuItems} />;
 
   function handleKeyResultDelete(id: string) {
     updateAndDelete({
@@ -107,14 +113,20 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         >
           {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
         </h2>
-        {keyResult?.isClosed === false && Number(keyResult?.progress) === 0 && (
-          <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-            <IoIosMore
-              id={`key-result-menu-button-${keyResult?.id}`}
-              className="text-gray-500 text-lg cursor-pointer ml-auto"
-            />
-          </Dropdown>
-        )}
+        {keyResult?.isClosed === false &&
+          Number(keyResult?.progress) === 0 &&
+          userId === objectiveUserId && (
+            <Dropdown
+              overlay={menu}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <IoIosMore
+                id={`key-result-menu-button-${keyResult?.id}`}
+                className="text-gray-500 text-lg cursor-pointer ml-auto"
+              />
+            </Dropdown>
+          )}
       </div>
 
       {/* Content Section */}
