@@ -36,7 +36,7 @@ const Login: FC = () => {
     get2FACode(
       {
         values: {
-          email: values.email,
+          email: values.email.toLowerCase(),
           pass: values.password,
         },
       },
@@ -44,11 +44,11 @@ const Login: FC = () => {
         onSuccess: async (data) => {
           if (data?.is2FAEnabled === false) {
             return await handleSignIn(() =>
-              signInWithEmailAndPassword(auth, values.email, values.password),
+              signInWithEmailAndPassword(auth, values.email.toLowerCase(), values.password),
             );
           } else {
             setUser2FA({
-              email: values.email,
+              email: values.email.toLowerCase(),
               pass: values.password,
             });
             setLocalId(data?.uid);
