@@ -58,7 +58,7 @@ const DeductiontypeSideBar = () => {
         mode: selectedDeductionRecord.mode,
       });
     }
-  }, [selectedDeductionRecord, form]);
+  }, [selectedDeductionRecord, form, setIsAllEmployee]);
 
   useEffect(() => {
     if (departmentUsers.length === 0) {

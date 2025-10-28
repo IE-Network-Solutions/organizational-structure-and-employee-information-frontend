@@ -21,6 +21,15 @@ const getPlanningData = async (params: DataType) => {
     Authorization: `Bearer ${token}`,
   };
 
+  console.log('=== getPlanningData API Call ===');
+  console.log('params:', params);
+  console.log('URL:', `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}`);
+  console.log(
+    'userId data:',
+    params?.userId.length === 0 ? [''] : params?.userId,
+  );
+  console.log('================================');
+
   if (params?.page) {
     return await crudRequest({
       url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}?page=${params?.page}&limit=${params.pageSize}`,
@@ -44,6 +53,16 @@ const getUserPlanningData = async (planPeriodId: string, forPlan: string) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
+
+  console.log('=== getUserPlanningData API Call ===');
+  console.log('planPeriodId:', planPeriodId);
+  console.log('forPlan:', forPlan);
+  console.log('userId:', userId);
+  console.log(
+    'URL:',
+    `${OKR_URL}/plan/find-all-plans/users/${userId}/planning-period/${planPeriodId}?forPlan=${forPlan}`,
+  );
+  console.log('=====================================');
 
   return await crudRequest({
     url: `${OKR_URL}/plan/find-all-plans/users/${userId}/planning-period/${planPeriodId}?forPlan=${forPlan}`,
@@ -69,20 +88,6 @@ const getPlanningPeriodsHierarchy = async (
   });
 };
 
-const getUserChildPlans = async (planId: string | undefined) => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  return await crudRequest({
-    url: `${OKR_URL}/plan/get-user-child-plans/${planId}`,
-    method: 'get',
-    headers,
-  });
-};
 const getAllUnReportedPlanningTask = async (
   planningPeriodId: string | undefined,
   forPlan: number,
@@ -234,7 +239,7 @@ export const useGetPlanning = (params: DataType) => {
 };
 export const useGetUserPlanning = (planPeriodId: string, forPlan: string) => {
   return useQuery<any>(
-    ['okrPlans', planPeriodId, forPlan],
+    ['okrUserPlans', planPeriodId, forPlan],
     () => getUserPlanningData(planPeriodId, forPlan),
     {
       enabled: planPeriodId !== undefined && planPeriodId !== '',
@@ -255,15 +260,6 @@ export const useGetPlanningPeriodsHierarchy = (
   );
 };
 
-export const useGetUserChildPlans = (planId: string | undefined) => {
-  return useQuery<any>(
-    ['childPlans', { planId }],
-    () => getUserChildPlans(planId),
-    {
-      enabled: !!planId, // Ensure both are truthy
-    },
-  );
-};
 export const useGetPlanningById = (planningId: string) => {
   return useQuery<any>(
     ['okrPlan', planningId],

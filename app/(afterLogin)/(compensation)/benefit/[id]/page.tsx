@@ -29,7 +29,12 @@ const BenefitEntitlemetPage = () => {
     if (benefitData?.mode == 'CREDIT') {
       setBenefitDefaultAmount(benefitData?.defaultAmount);
     }
-  }, [benefitData, setBenefitMode]);
+  }, [
+    benefitData,
+    setBenefitMode,
+    setBenefitApplicableTo,
+    setBenefitDefaultAmount,
+  ]);
 
   const handleSearchChange = (value: any) => {
     setSearchQuery(value);
