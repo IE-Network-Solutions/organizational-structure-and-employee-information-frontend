@@ -269,11 +269,12 @@ const ManageEmployees: React.FC<any> = () => {
             <Button
               type="primary"
               size="large"
-              className="h-12 px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center gap-2"
+              className="h-12 w-12 sm:w-auto px-0 sm:px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center justify-center gap-2"
               onClick={() => setIsMobileFilterVisible(true)}
+              aria-label="Open filters"
             >
               <IoMdSwitch />
-              Filter
+              <span className="hidden sm:inline">Filter</span>
             </Button>
           </div>
           <UserTable />
