@@ -1,49 +1,54 @@
+# =========================
 # Stage 1: Dependencies
+# =========================
 FROM node:18-alpine AS deps
 WORKDIR /app
 
+# Install dependencies with caching support
 COPY package.json package-lock.json* ./
-RUN npm install --include=dev
+RUN npm ci --include=dev
 
+# =========================
 # Stage 2: Builder
+# =========================
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Install Vault CLI and jq
+# Install tools: Vault CLI, jq, curl, unzip, bash
 RUN apk add --no-cache curl jq bash unzip && \
-    curl -o /tmp/vault.zip https://releases.hashicorp.com/vault/1.14.4/vault_1.14.4_linux_amd64.zip && \
+    curl -sSL -o /tmp/vault.zip https://releases.hashicorp.com/vault/1.14.4/vault_1.14.4_linux_amd64.zip && \
     unzip /tmp/vault.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/vault && \
     rm -f /tmp/vault.zip
 
+# Copy node_modules and source code
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Declare Vault build args
+# Vault build arguments
 ARG VAULT_ADDR
 ARG VAULT_USERNAME
 ARG VAULT_PASSWORD
 ARG VAULT_SECRET_PATH
 ARG VAULT_CACHE_BUSTER
 
-# Fetch and load secrets from Vault
+# Fetch secrets from Vault and persist to .env
 RUN set -e && \
     echo "Fetching secrets from Vault..." && \
     export VAULT_ADDR="${VAULT_ADDR}" && \
     VAULT_TOKEN=$(vault login -method=userpass username="${VAULT_USERNAME}" password="${VAULT_PASSWORD}" -format=json | jq -r .auth.client_token) && \
     export VAULT_TOKEN="$VAULT_TOKEN" && \
     vault kv get -format=json "${VAULT_SECRET_PATH}" \
-        | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > /tmp/.env.vault && \
-    set -a && source /tmp/.env.vault && set +a && \
-    echo "Secrets loaded. Running lint and format checks..." && \
-    npm run lint || true && \
-    npm run format || true && \
-    echo "Lint and formatting completed. Building Next.js app..." && \
-    npm run build && \
-    echo "PORT=${APP_PORT}" > /tmp/.port.env && \
-    rm -f /tmp/.env.vault
+        | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > .env && \
+    echo "✅ Secrets written to .env" && \
+    echo "Building Next.js app..." && \
+    cross-env NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
+    echo "✅ Build complete" && \
+    echo "PORT=${APP_PORT}" > /tmp/.port.env
 
+# =========================
 # Stage 3: Runner
+# =========================
 FROM node:18-alpine AS runner
 WORKDIR /app
 
@@ -56,12 +61,12 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 USER nextjs
 
-# Copy production files
+# Copy only necessary files for runtime
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /tmp/.port.env /app/.port.env
 
-# Dynamically read port at runtime instead of static EXPOSE
+# Default command: dynamically start app on vault-provided port
 CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && echo \"Starting Next.js app on port $PORT\" && npx next start -p $PORT"]
