@@ -42,7 +42,7 @@ RUN set -e && \
         | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > .env && \
     echo "✅ Secrets written to .env" && \
     echo "Building Next.js app..." && \
-    cross-env NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
+    npx cross-env NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
     echo "✅ Build complete" && \
     echo "PORT=${APP_PORT}" > /tmp/.port.env
 
