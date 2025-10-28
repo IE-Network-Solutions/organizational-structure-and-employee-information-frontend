@@ -83,20 +83,6 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                           '--'}
                       </span>
                     </div>
-                    {/* <div className="flex justify-between gap-5">
-                      <span className="text-md font-normal text-gray-500">
-                        Status:
-                      </span>
-                      <span className="text-md font-normal">
-                        {JobResponse?.jobCandidate
-                          ? JobResponse?.jobCandidate.map((item: any) =>
-                              item?.isExternalApplicant === false
-                                ? 'External'
-                                : 'Internal',
-                            )
-                          : '---'}
-                      </span>
-                    </div> */}
                   </div>
                 </List.Item>
                 <List.Item>
