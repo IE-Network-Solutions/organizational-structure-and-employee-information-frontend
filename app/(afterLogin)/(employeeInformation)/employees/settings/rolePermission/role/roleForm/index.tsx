@@ -200,16 +200,18 @@ const ListOfRoles = () => {
   return (
     <div>
       <Modal
-        // width="50%"
-        className="w-3/4 md:w-1/4 lg:w-1/2 xl:w-1/2"
+        className="w-full sm:w-3/4 md:w-1/2 lg:w-1/2 xl:w-1/2"
         title={modalTitle}
-        style={{ top: '10vh' }}
+        style={{ top: '5vh' }}
         open={true}
         footer={null}
         onCancel={() => {
           form.resetFields();
           setSelectedRole(null);
           setCurrentModal(null);
+        }}
+        styles={{
+          body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }
         }}
       >
         <Form
@@ -221,7 +223,7 @@ const ListOfRoles = () => {
               ? handleRoleUpdate
               : handleCreateRole
           }
-          className="p-4 sm:p-2 md:p-4 lg:p-6"
+          className="p-2 sm:p-4 md:p-4 lg:p-6"
         >
           <div className="grid">
             {currentModal === 'editRoleModal' && (
@@ -319,7 +321,7 @@ const ListOfRoles = () => {
             </div>
           </div>
           <Form.Item>
-            <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+            <div className="flex flex-row justify-center w-full bg-[#fff] px-2 sm:px-6 py-4 sm:py-6 gap-3 sm:gap-6">
               <Button
                 id="cancelButtonForRole"
                 className="px-6 py-3 text-xs font-bold"
