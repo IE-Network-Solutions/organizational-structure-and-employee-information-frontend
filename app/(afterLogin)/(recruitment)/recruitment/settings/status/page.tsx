@@ -1,5 +1,5 @@
 'use client';
-import { Button, message, Typography } from 'antd';
+import { Button, Typography } from 'antd';
 import React from 'react';
 import { useRecruitmentStatusStore } from '@/store/uistate/features/recruitment/settings/status';
 import RecruitmentStatusDrawer from './statusDrawer';
