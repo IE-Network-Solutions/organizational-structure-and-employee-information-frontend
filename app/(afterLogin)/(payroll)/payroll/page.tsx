@@ -17,8 +17,8 @@ import { Workbook } from 'exceljs';
 import Filters from './_components/filters';
 import {
   useGetActivePayroll,
-  useGetAllActiveBasicSalary,
   useGetActivePayrollsForExport,
+  useGetAllActiveBasicSalary,
   useGetEmployeeInfo,
 } from '@/store/server/features/payroll/payroll/queries';
 import {
@@ -74,14 +74,14 @@ const Payroll = () => {
     pageSize,
     currentPage,
   );
+  const { data: payrollForExport, refetch: refetchExportData } =
+    useGetActivePayrollsForExport(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
-  const { data: payrollForExport, refetch: refetchExportData } =
-    useGetActivePayrollsForExport(searchQuery);
 
   const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
     useSendingPayrollPayslip();
@@ -90,14 +90,15 @@ const Payroll = () => {
 
   const [loading, setLoading] = useState(false);
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
+  const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
-  const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
 
   useEffect(() => {
     // Check if division filter is applied
     const hasDivisionFilter = searchValue?.divisionId;
 
+    // Handle paginated payroll data for display
     if (payroll?.items) {
       let mergedData;
 
@@ -163,6 +164,7 @@ const Payroll = () => {
       }
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
+
   const handleExportAll = async () => {
     const exportTasks: Promise<any>[] = []; // Ensure array contains promises
 
@@ -178,8 +180,10 @@ const Payroll = () => {
 
     if (bankLetter)
       exportTasks.push(
-        handleBankLetter(
-          payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
+        Promise.resolve(
+          handleBankLetter(
+            payrollForExport?.totalNetPayAmount || payroll?.totalNetPayAmount,
+          ),
         ),
       );
 
@@ -761,11 +765,7 @@ const Payroll = () => {
               (acc: number, item: any) => acc + Number(item.amount),
               0,
             ) || 0;
-
-        // Correct calculation: If transport allowance >= 600, taxable = transport - 600, else taxable = 0
-        const taxableAmount =
-          totalTransportAllowance >= 600 ? totalTransportAllowance - 600 : 0;
-
+        const taxableAmount = totalTransportAllowance - 600;
         return <div>{taxableAmount.toFixed(2)}</div>;
       },
     },
@@ -921,16 +921,17 @@ const Payroll = () => {
                 title="Send Payslips"
                 description={
                   <div>
-                    {mergedPayroll?.length > 0 ? (
-                      mergedPayroll?.length <
+                    {mergedPayrollForExport?.length > 0 ? (
+                      mergedPayrollForExport?.length <
                       (searchValue?.divisionId
-                        ? payroll?.divisionUsers?.length
+                        ? payrollForExport?.divisionUsers?.length
                         : allEmployees?.items?.length) ? (
                         <p>
-                          This will send payslips to {mergedPayroll?.length}{' '}
-                          selected employees (filtered from{' '}
+                          This will send payslips to{' '}
+                          {mergedPayrollForExport?.length} selected employees
+                          (filtered from{' '}
                           {searchValue?.divisionId
-                            ? payroll?.divisionUsers?.length
+                            ? payrollForExport?.divisionUsers?.length
                             : allEmployees?.items?.length}{' '}
                           total).
                         </p>
@@ -938,7 +939,7 @@ const Payroll = () => {
                         <p>
                           This will send payslips to ALL{' '}
                           {searchValue?.divisionId
-                            ? payroll?.divisionUsers?.length
+                            ? payrollForExport?.divisionUsers?.length
                             : allEmployees?.items?.length}{' '}
                           employees.
                         </p>
@@ -948,11 +949,15 @@ const Payroll = () => {
                         No employees selected. Please adjust your filters.
                       </p>
                     )}
-                    {mergedPayroll?.length > 0 &&
-                      mergedPayroll?.length <
+                    {mergedPayrollForExport?.length > 0 &&
+                      mergedPayrollForExport?.length <
                         (searchValue?.divisionId
-                          ? payroll?.divisionUsers?.length
-                          : allEmployees?.items?.length) && (
+                          ? payrollForExport?.divisionUsers?.length
+                          : allEmployees?.items?.length) &&
+                      (searchValue?.divisionId ||
+                        searchValue?.employeeId ||
+                        searchValue?.monthId ||
+                        searchValue?.departmentId) && (
                         <p style={{ color: 'orange', marginTop: '8px' }}>
                           Note: You&apos;re sending to a filtered subset. Clear
                           filters to send to everyone.
@@ -961,34 +966,34 @@ const Payroll = () => {
                   </div>
                 }
                 okText={
-                  mergedPayroll?.length === 0
+                  mergedPayrollForExport?.length === 0
                     ? 'Cannot Send'
-                    : mergedPayroll?.length <
+                    : mergedPayrollForExport?.length <
                         (searchValue?.divisionId
-                          ? payroll?.divisionUsers?.length
+                          ? payrollForExport?.divisionUsers?.length
                           : allEmployees?.items?.length)
                       ? 'Send to Filtered'
                       : 'Send to All'
                 }
                 cancelText="Cancel"
                 onConfirm={() => {
-                  if (mergedPayroll?.length > 0) {
-                    sendingPaySlipHandler(mergedPayroll);
+                  if (mergedPayrollForExport?.length > 0) {
+                    sendingPaySlipHandler(mergedPayrollForExport);
                   }
                 }}
                 okButtonProps={{
-                  disabled: mergedPayroll?.length === 0,
+                  disabled: mergedPayrollForExport?.length === 0,
                 }}
               >
                 <Tooltip
                   title={
-                    mergedPayroll?.length === 0
+                    mergedPayrollForExport?.length === 0
                       ? 'No employees selected. Please adjust your filters.'
-                      : mergedPayroll?.length <
+                      : mergedPayrollForExport?.length <
                           (searchValue?.divisionId
-                            ? payroll?.divisionUsers?.length
+                            ? payrollForExport?.divisionUsers?.length
                             : allEmployees?.items?.length)
-                        ? `Will send to ${mergedPayroll?.length} filtered employee(s)`
+                        ? `Will send to ${mergedPayrollForExport?.length} filtered employee(s)`
                         : 'Will send to all employees'
                   }
                 >
@@ -999,7 +1004,7 @@ const Payroll = () => {
                       type="default"
                       loading={sendingPaySlipLoading}
                       className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
-                      disabled={mergedPayroll?.length === 0}
+                      disabled={mergedPayrollForExport?.length === 0}
                     >
                       <span className="text-base font-semibold">
                         Send Payslip
