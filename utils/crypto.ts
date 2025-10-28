@@ -52,9 +52,19 @@ async function deriveKey(): Promise<CryptoKey> {
   return key;
 }
 
+// Helper function to check if encryption should be skipped
+const shouldSkipEncryption = () => {
+  // PRIMARY: Next.js public environment variable (GUARANTEED to work)
+  if (process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED === 'true') {
+    return true;
+  }
+
+  return false;
+};
+
 export async function encrypt(text: string): Promise<string> {
-  // Return original text in development environment
-  if (process.env.APP_ENV === 'development') {
+  // Use the guaranteed check
+  if (shouldSkipEncryption()) {
     return text;
   }
 
@@ -82,8 +92,8 @@ export async function encrypt(text: string): Promise<string> {
 }
 
 export async function decrypt(ciphertext: string): Promise<string> {
-  // Return original text in development environment
-  if (process.env.APP_ENV === 'development') {
+  // Use the guaranteed check
+  if (shouldSkipEncryption()) {
     return ciphertext;
   }
 
