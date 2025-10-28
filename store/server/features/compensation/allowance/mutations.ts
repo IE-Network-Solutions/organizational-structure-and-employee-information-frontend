@@ -68,6 +68,7 @@ export const useCreateAllowanceEntitlement = () => {
   return useMutation(createAllowanceEntitlement, {
     onSuccess: (notused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -85,6 +86,7 @@ export const useDeleteAllowanceEntitlement = () => {
   return useMutation(deleteAllowanceEntitlement, {
     onSuccess: (notused: any, variables: any) => {
       queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

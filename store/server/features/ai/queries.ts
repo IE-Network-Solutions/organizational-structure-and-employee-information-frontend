@@ -31,7 +31,10 @@ const postDailyPlan = async (weeklyPlan: string) => {
   const tasks = (data?.daily_plan?.DailyTasks ?? []) as DailyTaskSuggestion[];
 
   if (tasks.length > 0) {
-    const totalWeight = tasks.reduce((sum, task) => sum + (task.weight || 0), 0);
+    const totalWeight = tasks.reduce(
+      (sum, task) => sum + (task.weight || 0),
+      0,
+    );
     if (totalWeight > 0) {
       tasks.forEach((task) => {
         task.weight = Math.round((task.weight / totalWeight) * 100);
@@ -61,28 +64,40 @@ const postOKR = async (objective: string) => {
   return (data?.answer?.['Key Results'] ?? []) as KeyResultSuggestion[];
 };
 
-export const useGetWeeklyPlanSuggestions = (keyResult: string, enabled = true) =>
+export const useGetWeeklyPlanSuggestions = (
+  keyResult: string,
+  enabled = true,
+) =>
   useQuery<WeeklyTaskSuggestion[]>(
     ['ai-weekly-plan', keyResult],
     () => postWeeklyPlan(keyResult),
-    { enabled: Boolean(keyResult) && enabled }
+    { enabled: Boolean(keyResult) && enabled },
   );
 
-export const useGetDailyPlanSuggestions = (weeklyPlan: string, enabled = true) =>
+export const useGetDailyPlanSuggestions = (
+  weeklyPlan: string,
+  enabled = true,
+) =>
   useQuery<DailyTaskSuggestion[]>(
     ['ai-daily-plan', weeklyPlan],
     () => postDailyPlan(weeklyPlan),
-    { enabled: Boolean(weeklyPlan) && enabled }
+    { enabled: Boolean(weeklyPlan) && enabled },
   );
 
-export const useGetOKRKeyResultSuggestions = (objective: string, enabled = true) =>
+export const useGetOKRKeyResultSuggestions = (
+  objective: string,
+  enabled = true,
+) =>
   useQuery<KeyResultSuggestion[]>(
     ['ai-okr-keyresults', objective],
     () => postOKR(objective),
-    { enabled: Boolean(objective) && enabled }
+    { enabled: Boolean(objective) && enabled },
   );
 
 // Compatibility exports matching previous utils/aiService API
-export const fetchWeeklyPlanSuggestions = (keyResult: string) => postWeeklyPlan(keyResult);
-export const fetchDailyPlanSuggestions = (weeklyPlan: string) => postDailyPlan(weeklyPlan);
-export const fetchOKRKeyResultSuggestions = (objective: string) => postOKR(objective);
+export const fetchWeeklyPlanSuggestions = (keyResult: string) =>
+  postWeeklyPlan(keyResult);
+export const fetchDailyPlanSuggestions = (weeklyPlan: string) =>
+  postDailyPlan(weeklyPlan);
+export const fetchOKRKeyResultSuggestions = (objective: string) =>
+  postOKR(objective);

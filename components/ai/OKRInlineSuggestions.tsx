@@ -273,7 +273,8 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
                         Type: {suggestion.metric_type}
                       </Tag>
                       {(suggestion.metric_type.toLowerCase() === 'numeric' ||
-                        suggestion.metric_type.toLowerCase() === 'percentage') &&
+                        suggestion.metric_type.toLowerCase() ===
+                          'percentage') &&
                         typeof suggestion.initial_value === 'number' &&
                         typeof suggestion.target_value === 'number' && (
                           <Tag
@@ -284,8 +285,10 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
                               padding: '2px 10px',
                             }}
                           >
-                            {suggestion.initial_value} → {suggestion.target_value}
-                            {suggestion.metric_type.toLowerCase() === 'percentage'
+                            {suggestion.initial_value} →{' '}
+                            {suggestion.target_value}
+                            {suggestion.metric_type.toLowerCase() ===
+                            'percentage'
                               ? '%'
                               : ''}
                           </Tag>
