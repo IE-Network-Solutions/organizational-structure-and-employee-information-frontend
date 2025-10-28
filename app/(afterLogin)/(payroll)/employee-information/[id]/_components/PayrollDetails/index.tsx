@@ -34,7 +34,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
             {totalAmount(activeMergedPayroll?.breakdown?.allowances)}
           </div>
           <div className="flex gap-6 w-full">
-            <div className="flex flex-col gap-6 w-1/3 justify-center items-start pl-4 text-gray-600">
+            <div className="flex flex-col gap-4 w-1/2 justify-center items-start pl-4 text-gray-600">
               {activeMergedPayroll?.breakdown?.allowances?.map(
                 (item: any, index: any) => (
                   <Text className="text-gray-600" key={index}>
