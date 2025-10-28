@@ -45,7 +45,7 @@ const Drawer: React.FC = () => {
       form.setFieldsValue({
         name: currentTaxRule.name,
         'maximum-income': currentTaxRule.maxIncome,
-        'minmum-income': currentTaxRule.minIncome,
+        'minimum-income': currentTaxRule.minIncome,
         rate: currentTaxRule.rate,
         deduction: currentTaxRule.deduction,
       });
@@ -62,7 +62,7 @@ const Drawer: React.FC = () => {
   const onFinish = async (values: any) => {
     const taxRuleData = {
       name: values.name,
-      minIncome: parseFloat(values['minmum-income']),
+      minIncome: parseFloat(values['minimum-income']),
       maxIncome: parseFloat(values['maximum-income']),
       rate: parseFloat(values.rate),
       deduction: parseFloat(values.deduction),
@@ -129,10 +129,9 @@ const Drawer: React.FC = () => {
 
         <Form.Item
           label="Minimum Income"
-          name="minmum-income"
+          name="minimum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the minimum income!',
             },
@@ -162,13 +161,12 @@ const Drawer: React.FC = () => {
           name="maximum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the maximum income!',
             },
             {
               validator: (rule, value) => {
-                const minIncome = form.getFieldValue('minmum-income');
+                const minIncome = form.getFieldValue('minimum-income');
                 if (value && minIncome && Number(value) <= Number(minIncome)) {
                   return Promise.reject(new Error('Maximum Income must be greater than Minimum Income'));
                 }
