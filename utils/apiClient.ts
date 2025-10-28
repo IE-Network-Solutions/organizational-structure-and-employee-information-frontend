@@ -3,16 +3,24 @@ import { encrypt, decrypt } from './crypto';
 
 const apiClient = axios.create();
 
+// Helper function to check if encryption should be skipped
+const shouldSkipEncryption = () => {
+  // PRIMARY: Next.js public environment variable (GUARANTEED to work)
+  if (process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED === 'true') {
+    return true;
+  }
+
+  return false;
+};
+
 // Encrypt request payload
 apiClient.interceptors.request.use(async (config) => {
   if ((config as any).skipEncryption) {
     return config;
   }
 
-  if (
-    typeof window !== 'undefined' &&
-    window.location.hostname.startsWith('test-main')
-  ) {
+  // Use the guaranteed check
+  if (shouldSkipEncryption()) {
     return config;
   }
 
@@ -50,10 +58,8 @@ apiClient.interceptors.response.use(async (response) => {
     return response;
   }
 
-  if (
-    typeof window !== 'undefined' &&
-    window.location.hostname.startsWith('test-main')
-  ) {
+  // Use the guaranteed check
+  if (shouldSkipEncryption()) {
     return response;
   }
 
