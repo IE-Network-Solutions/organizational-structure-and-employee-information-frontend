@@ -50,6 +50,7 @@ const AllowanceTypeSideBar = () => {
         description: selectedAllowanceRecord.description,
         isRate: selectedAllowanceRecord.isRate,
         defaultAmount: selectedAllowanceRecord.defaultAmount,
+        nonTaxableAmount: selectedAllowanceRecord.notTaxableAmount || 0,
         isAllEmployee:
           selectedAllowanceRecord.applicableTo == 'GLOBAL' ? true : false,
       });
@@ -73,6 +74,7 @@ const AllowanceTypeSideBar = () => {
       mode: 'CREDIT',
       isRate: formValues.isRate,
       defaultAmount: Number(formValues.defaultAmount),
+      notTaxableAmount: Number(formValues.nonTaxableAmount || 0),
       applicableTo: formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE',
       employeeIds: !formValues.isAllEmployee ? formValues.employees : [],
     };
@@ -239,6 +241,44 @@ const AllowanceTypeSideBar = () => {
                 type="number"
                 min={0}
                 placeholder="Enter Allowance Amount"
+                style={{ height: '40px', padding: '4px 8px' }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="nonTaxableAmount"
+              label="Non-Taxable Amount"
+              dependencies={['defaultAmount']}
+              rules={[
+                {
+                  validator: (notused, value) => {
+                    if (value && value < 0) {
+                      return Promise.reject(
+                        new Error('Non-taxable amount cannot be negative'),
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+                {
+                  validator: (notused, value) => {
+                    const defaultAmount = form.getFieldValue('defaultAmount');
+                    if (value && defaultAmount && Number(value) > Number(defaultAmount)) {
+                      return Promise.reject(
+                        new Error('Non-taxable amount cannot exceed the fixed amount'),
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+              className="form-item"
+            >
+              <Input
+                className="control"
+                type="number"
+                min={0}
+                placeholder="Enter Non-Taxable Amount"
                 style={{ height: '40px', padding: '4px 8px' }}
               />
             </Form.Item>
