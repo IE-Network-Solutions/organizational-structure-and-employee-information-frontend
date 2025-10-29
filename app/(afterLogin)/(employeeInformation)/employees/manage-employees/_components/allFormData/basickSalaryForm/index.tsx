@@ -18,7 +18,8 @@ const BasicSalaryForm: React.FC = () => {
               { required: true, message: 'Basic Salary is Required' },
               { type: 'number', message: 'Salary must be a number' },
               {
-                validator: (_, value) => {
+                /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (rule: any, value: any) => {
                   if (value === null || value === undefined || value === '') {
                     return Promise.reject('Salary is required');
                   }

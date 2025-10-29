@@ -361,7 +361,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               { required: true, message: 'Please enter basic salary' },
               { type: 'number', message: 'Basic salary must be a number' },
               {
-                validator: (_, value) => {
+                /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (rule, value) => {
                   if (value === null || value === undefined || value === '') {
                     return Promise.reject('Salary is required');
                   }

@@ -87,7 +87,8 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel }) => {
             { required: true, message: 'Basic salary is required' },
             { type: 'number', message: 'Salary must be a number' },
             {
-              validator: (_, value) => {
+              /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+              validator: (rule, value) => {
                 if (value === null || value === undefined || value === '') {
                   return Promise.reject('Salary is required');
                 }
