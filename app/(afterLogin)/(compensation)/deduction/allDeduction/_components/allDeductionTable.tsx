@@ -29,16 +29,14 @@ const AllDeductionTable = () => {
       )
     : [];
 
-  const groupByEmployeeId = allEntitlementData?.reduce(
-    (acc: any, item: any) => {
+  const groupByEmployeeId =
+    allEntitlementData?.reduce((acc: any, item: any) => {
       if (!acc[item.employeeId]) {
         acc[item.employeeId] = { employeeId: item.employeeId, allowance: [] };
       }
       acc[item.employeeId].allowance.push(item);
       return acc;
-    },
-    {},
-  ) || {};
+    }, {}) || {};
 
   const dataSource = Object.values(groupByEmployeeId).map((employee: any) => {
     const dataRow: any = {
