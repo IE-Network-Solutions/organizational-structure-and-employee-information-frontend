@@ -53,6 +53,9 @@ const benefitEntitlementInitialState = {
   benefitDefaultAmount: 0,
   currentPage: 1,
   pageSize: 6,
+  totalAmount: 0,
+  settlementPeriod: 0,
+  data: [],
 };
 
 type Month = {
@@ -126,6 +129,9 @@ export const useBenefitEntitlementStore = create<BenefitEntitlementTypes>(
           ...benefitEntitlementInitialState,
           benefitDefaultAmount,
           benefitMode,
+          totalAmount: 0,
+          settlementPeriod: 0,
+          data: [],
         };
       });
     },

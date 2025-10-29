@@ -55,6 +55,7 @@ const compensationSettingInitialState = {
   isDeductionOpen: false,
 
   selectedAllowanceRecord: null,
+  selectedDeductionRecord: null,
 
   isBenefitRecurring: false,
   isBenefitOpen: false,
@@ -102,10 +103,8 @@ export const useCompensationSettingStore = create<CompensationSettingTypes>(
     setSelectedAllowanceRecord: (value) =>
       set({ selectedAllowanceRecord: value }),
 
-    isDeductionOpen: false,
     setIsDeductionOpen: (isDeductionOpen: boolean) => set({ isDeductionOpen }),
 
-    selectedDeductionRecord: null,
     setSelectedDeductionRecord: (selectedDeductionRecord: any) =>
       set({ selectedDeductionRecord }),
 
