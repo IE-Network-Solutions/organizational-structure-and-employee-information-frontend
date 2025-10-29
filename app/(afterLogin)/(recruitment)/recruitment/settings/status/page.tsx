@@ -107,20 +107,48 @@ const Status: React.FC = () => {
               <div className="text-medium font-medium">{status?.title}</div>
               <div className="flex items-center justify-center gap-2">
                 <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
-                  <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+                  <div
+                    className={`w-7 h-7 rounded-md flex items-center justify-center ${
+                      status?.isFixed === true
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-[#2f78ee] cursor-pointer'
+                    }`}
+                    onClick={
+                      status?.isFixed === true
+                        ? undefined
+                        : () => handleEditStatus(status)
+                    }
+                  >
                     <Pencil
                       size={15}
-                      className="text-white cursor-pointer"
-                      onClick={() => handleEditStatus(status)}
+                      className={`text-white ${
+                        status?.isFixed === true
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'cursor-pointer'
+                      }`}
                     />
                   </div>
                 </AccessGuard>
                 <AccessGuard permissions={[Permissions.DeleteApplicationStage]}>
-                  <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
+                  <div
+                    className={`w-7 h-7 rounded-md flex items-center justify-center ${
+                      status?.isFixed === true
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-[#e03137] cursor-pointer'
+                    }`}
+                    onClick={
+                      status?.isFixed === true
+                        ? undefined
+                        : () => handleDeleteStatus(status)
+                    }
+                  >
                     <Trash2
                       size={15}
-                      className="text-white cursor-pointer"
-                      onClick={() => handleDeleteStatus(status)}
+                      className={`text-white ${
+                        status?.isFixed === true
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'cursor-pointer'
+                      }`}
                     />
                   </div>
                 </AccessGuard>
