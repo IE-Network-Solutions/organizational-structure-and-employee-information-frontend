@@ -160,14 +160,17 @@ const getDueSoonKeyResults = async (userId: string) => {
   });
 };
 
-export const useGetUserObjectiveDashboard = (postId: number | string) => {
+export const useGetUserObjectiveDashboard = (
+  postId: number | string,
+  enabled: boolean = true,
+) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<ResponseData>(
     ['ObjectiveDashboard', postId],
     () => getObjectiveDashboardByUser(postId),
     {
       keepPreviousData: true,
-      enabled: !!tenantId,
+      enabled: !!tenantId && enabled,
     },
   );
 };
