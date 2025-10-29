@@ -52,15 +52,6 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'candidateName',
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
     },
-    // {
-    //   title: 'AI score',
-    //   dataIndex: 'score',
-    //   render: () => (
-    //     <span className="bg-green-100 px-4 rounded text-green-800 text-xs">
-    //       90%
-    //     </span>
-    //   ),
-    // },
     {
       title: 'Phone Number',
       dataIndex: 'phoneNumber',
@@ -71,11 +62,11 @@ const AllCandidateTable: React.FC = () => {
       dataIndex: 'cgpa',
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
     },
-    {
-      title: 'Internal/ External',
-      dataIndex: 'internal_external',
-      sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
-    },
+    // {
+    //   title: 'Internal/ External',
+    //   dataIndex: 'internal_external',
+    //   sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
+    // },
     {
       title: 'CV',
       dataIndex: 'cv',
@@ -181,10 +172,10 @@ const AllCandidateTable: React.FC = () => {
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
-      internal_external:
-        item?.jobCandidate?.isExternalApplicant === false
-          ? 'External'
-          : 'Internal',
+      // internal_external:
+      //   item?.jobCandidate?.isExternalApplicant === false
+      //     ? 'External'
+      //     : 'Internal',
 
       cv: (
         <a
