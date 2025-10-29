@@ -83,16 +83,51 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel }) => {
         <Form.Item
           label="Basic Salary"
           name="basicSalary"
-          rules={[{ required: true, message: 'Please select a date range' }]}
+          rules={[
+            { required: true, message: 'Basic salary is required' },
+            { type: 'number', message: 'Salary must be a number' },
+            {
+              validator: (_, value) => {
+                if (value === null || value === undefined || value === '') {
+                  return Promise.reject('Salary is required');
+                }
+                if (isNaN(Number(value))) {
+                  return Promise.reject('Salary must be a valid number');
+                }
+                const numValue = Number(value);
+                if (numValue <= 0) {
+                  return Promise.reject('Salary must be greater than zero');
+                }
+                if (numValue > 100000000) {
+                  return Promise.reject('Salary cannot exceed 100,000,000');
+                }
+                if (!Number.isInteger(numValue * 100)) {
+                  return Promise.reject(
+                    'Salary can have at most 2 decimal places',
+                  );
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
         >
           <InputNumber
             style={{ width: '100%' }}
             placeholder="please enter basic salary"
-            min={0} // Set a minimum value to avoid negative numbers
-            defaultValue={0} // Set a default value to avoid null issues
+            min={0}
+            max={100000000}
+            step={1}
+            precision={2}
+            defaultValue={0}
             formatter={(value) =>
               `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
             }
+            parser={(value) => value?.replace(/,/g, '') as any}
+            onKeyPress={(e) => {
+              if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                e.preventDefault();
+              }
+            }}
           />
         </Form.Item>
         <Form.Item
