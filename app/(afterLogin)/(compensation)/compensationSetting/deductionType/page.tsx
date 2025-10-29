@@ -10,7 +10,7 @@ import DeductiontypeSideBar from './_components/DeductiontypeSideBar';
 import { FaPlus } from 'react-icons/fa';
 
 const DeductionTypePage = () => {
-  const { setIsDeductionOpen } = useCompensationSettingStore();
+  const { setIsDeductionOpen, setSelectedDeductionRecord } = useCompensationSettingStore();
 
   return (
     <div className="bg-white rounded-lg px-1 py-4 sm:px-6">
@@ -23,6 +23,7 @@ const DeductionTypePage = () => {
             icon={<FaPlus />}
             className="h-10"
             onClick={() => {
+              setSelectedDeductionRecord(null);
               setIsDeductionOpen(true);
             }}
           >
