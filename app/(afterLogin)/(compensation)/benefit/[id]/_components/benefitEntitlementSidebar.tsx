@@ -34,6 +34,12 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     isBenefitEntitlementSidebarOpen,
     setSelectedDepartment,
     resetStore,
+    totalAmount,
+    setTotalAmount,
+    settlementPeriod,
+    setSettlementPeriod,
+    data,
+    setData,
   } = useBenefitEntitlementStore();
 
   const { mutate: createBenefitEntitlement, isLoading: createBenefitLoading } =
@@ -49,10 +55,6 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
   const { data: existingEntitlements, isLoading: entitlementsLoading } =
     useFetchBenefitEntitlement(id);
-
-  const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [settlementPeriod, setSettlementPeriod] = useState<number>(0);
-  const [data, setData] = useState<any[]>([]);
 
   // State for duplicate confirmation modal
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
@@ -359,7 +361,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
                 </Form.Item>
               </div>
 
-              {data.length > 0 && (
+              {data && data.length > 0 && (
                 <Table
                   columns={columns}
                   dataSource={data}
