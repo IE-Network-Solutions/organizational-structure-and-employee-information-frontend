@@ -3,7 +3,6 @@ import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplannin
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
-import { useEffect } from 'react';
 import { Card, Progress } from 'antd';
 import { useRouter } from 'next/navigation';
 import { GoGoal } from 'react-icons/go';
