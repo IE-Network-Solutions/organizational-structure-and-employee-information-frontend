@@ -80,7 +80,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         return false;
       }
 
-      for (const [index, keyResult] of allKeyResults.entries()) {
+      for (const keyResult of allKeyResults) {
         const keyType = keyResult?.metricType?.name || keyResult?.key_type;
 
         if (keyType === 'Milestone') {
@@ -364,7 +364,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges && !validateKeyResults()) {
         e.preventDefault();
-        e.returnValue = 'You have unsaved changes with validation errors. Are you sure you want to leave?';
+        e.returnValue =
+          'You have unsaved changes with validation errors. Are you sure you want to leave?';
         return 'You have unsaved changes with validation errors. Are you sure you want to leave?';
       }
     };
@@ -770,25 +771,25 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           {/* Total Key Results Weight */}
           {(objectiveValue.keyResults?.length > 0 ||
             objective?.keyResults?.length > 0) && (
-              <div
-                id="total-weight-display"
-                className="flex justify-end mt-4 mb-4"
-              >
-                <span className="text-sm text-gray-500">
-                  Total Key Results Weight:{' '}
-                  <strong>
-                    {[
-                      ...(objectiveValue.keyResults || []),
-                      ...(objective?.keyResults || []),
-                    ].reduce(
-                      (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-                      0,
-                    )}{' '}
-                    %
-                  </strong>
-                </span>
-              </div>
-            )}
+            <div
+              id="total-weight-display"
+              className="flex justify-end mt-4 mb-4"
+            >
+              <span className="text-sm text-gray-500">
+                Total Key Results Weight:{' '}
+                <strong>
+                  {[
+                    ...(objectiveValue.keyResults || []),
+                    ...(objective?.keyResults || []),
+                  ].reduce(
+                    (sum: number, kr: any) => sum + Number(kr?.weight || 0),
+                    0,
+                  )}{' '}
+                  %
+                </strong>
+              </span>
+            </div>
+          )}
         </div>
       </Form>
     </Modal>

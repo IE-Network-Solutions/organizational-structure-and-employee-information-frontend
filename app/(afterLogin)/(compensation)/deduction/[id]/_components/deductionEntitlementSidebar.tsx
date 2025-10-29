@@ -12,7 +12,6 @@ import DuplicateDeductionModal from '@/components/common/duplicateDeductionModal
 import { useState } from 'react';
 
 const AllowanceEntitlementSideBar = () => {
-
   const {
     isAllowanceEntitlementSidebarOpen,
     resetStore,
@@ -41,7 +40,6 @@ const AllowanceEntitlementSideBar = () => {
   const { id } = useParams();
   const { data: existingEntitlements, isLoading: entitlementsLoading } =
     useFetchAllowanceEntitlements(id);
-
 
   const onClose = () => {
     form.resetFields();
