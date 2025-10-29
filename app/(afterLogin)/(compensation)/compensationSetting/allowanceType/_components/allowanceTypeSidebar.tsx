@@ -1,5 +1,7 @@
+'use client';
+
 import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
+  type CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
@@ -8,8 +10,10 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useEffect } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
-import { useCreateAllowanceType } from '@/store/server/features/compensation/settings/mutations';
-// import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+import {
+  useCreateAllowanceType,
+  useEditAllowanceType,
+} from '@/store/server/features/compensation/settings/mutations';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const { TextArea } = Input;
@@ -25,16 +29,18 @@ const AllowanceTypeSideBar = () => {
     setIsAllEmployee,
     setIsRateAllowance,
     resetStore,
-    // selectedDepartment,
-    // setSelectedDepartment,
-    // departmentUsers,
-    // setDepartmentUsers,
     selectedAllowanceRecord,
   } = useCompensationSettingStore();
-  const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
-  // const { data: departments } = useGetDepartmentsWithUsers();
+
+  const { mutate: createAllowanceType, isLoading: isCreating } =
+    useCreateAllowanceType();
+  const { mutate: editAllowanceType, isLoading: isEditing } =
+    useEditAllowanceType();
+
   const [form] = Form.useForm();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
+
+  const isLoading = isCreating || isEditing;
 
   useEffect(() => {
     if (selectedAllowanceRecord) {
@@ -44,11 +50,12 @@ const AllowanceTypeSideBar = () => {
         description: selectedAllowanceRecord.description,
         isRate: selectedAllowanceRecord.isRate,
         defaultAmount: selectedAllowanceRecord.defaultAmount,
+        nonTaxableAmount: selectedAllowanceRecord.notTaxableAmount || 0,
         isAllEmployee:
           selectedAllowanceRecord.applicableTo == 'GLOBAL' ? true : false,
       });
     }
-  }, [selectedAllowanceRecord, form]);
+  }, [selectedAllowanceRecord, form, setIsAllEmployee]);
 
   const onClose = () => {
     form.resetFields();
@@ -60,29 +67,41 @@ const AllowanceTypeSideBar = () => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    createAllowanceType({
+    const payload = {
       name: formValues.name,
       description: formValues.description,
       type: 'ALLOWANCE',
       mode: 'CREDIT',
       isRate: formValues.isRate,
       defaultAmount: Number(formValues.defaultAmount),
+      notTaxableAmount: Number(formValues.nonTaxableAmount || 0),
       applicableTo: formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE',
       employeeIds: !formValues.isAllEmployee ? formValues.employees : [],
-    });
-    onClose();
-  };
+    };
 
-  // const handleDepartmentChange = (value: string) => {
-  //   setSelectedDepartment(value);
-  //   const department = departments.find((dept: any) => dept.name === value);
-  //   if (department) {
-  //     setDepartmentUsers(department.users);
-  //     form.setFieldsValue({
-  //       employees: department.users.map((user: any) => user.id),
-  //     });
-  //   }
-  // };
+    if (selectedAllowanceRecord) {
+      // Edit existing allowance type
+      editAllowanceType(
+        {
+          id: selectedAllowanceRecord.id,
+          data: payload,
+        },
+        {
+          onSuccess: () => {
+            
+            onClose();
+          },
+        },
+      );
+    } else {
+      // Create new allowance type
+      createAllowanceType(payload, {
+        onSuccess: () => {
+          onClose();
+        },
+      });
+    }
+  };
 
   const handleAllEmployeeChange = (checked: any) => {
     setIsAllEmployee(checked);
@@ -108,7 +127,6 @@ const AllowanceTypeSideBar = () => {
       type: 'primary',
       size: 'large',
       loading: isLoading,
-      disabled: selectedAllowanceRecord,
       onClick: () => form.submit(),
     },
   ];
@@ -155,6 +173,7 @@ const AllowanceTypeSideBar = () => {
                 style={{ height: '40px', padding: '4px 8px' }}
               />
             </Form.Item>
+
             <Form.Item
               name="description"
               label="Description"
@@ -168,6 +187,7 @@ const AllowanceTypeSideBar = () => {
                 style={{ height: '32px', padding: '4px 8px' }}
               />
             </Form.Item>
+
             <div style={{ display: 'flex', gap: '20px' }}>
               <Form.Item
                 name="isRate"
@@ -197,6 +217,7 @@ const AllowanceTypeSideBar = () => {
                 />
               </Form.Item>
             </div>
+
             <Form.Item
               name="defaultAmount"
               label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
@@ -219,66 +240,79 @@ const AllowanceTypeSideBar = () => {
                 className="control"
                 type="number"
                 min={0}
-                placeholder="Enter Allowance Ammount"
+                placeholder="Enter Allowance Amount"
                 style={{ height: '40px', padding: '4px 8px' }}
               />
             </Form.Item>
-            {!isAllEmployee && !selectedAllowanceRecord && (
-              <>
-                {/* <Form.Item
-                  className="form-item"
-                  name="department"
-                  label="Select Department"
-                  rules={[
-                    { required: true, message: 'Please select a department' },
-                  ]}
-                >
-                  <Select
-                    placeholder="Select a department"
-                  
-                    onChange={handleDepartmentChange}
-                  >
-                    {departments?.map((department: any) => (
-                      <Select.Option
-                        key={department.id}
-                        value={department.name}
-                      >
-                        {department.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item> */}
 
-                <Form.Item
-                  className="form-item"
-                  name="employees"
-                  label="Select Employees"
-                >
-                  <Select
-                    showSearch
-                    placeholder="Select a person"
-                    mode="multiple"
-                    className="w-full h-14"
-                    allowClear
-                    filterOption={(input: any, option: any) =>
-                      (option?.label ?? '')
-                        ?.toLowerCase()
-                        .includes(input.toLowerCase())
+            <Form.Item
+              name="nonTaxableAmount"
+              label="Non-Taxable Amount"
+              dependencies={['defaultAmount']}
+              rules={[
+                {
+                  validator: (notused, value) => {
+                    if (value && value < 0) {
+                      return Promise.reject(
+                        new Error('Non-taxable amount cannot be negative'),
+                      );
                     }
-                    options={allUsers?.items?.map((item: any) => ({
-                      ...item,
-                      value: item?.id,
-                      label:
-                        item?.firstName +
-                        ' ' +
-                        item?.middleName +
-                        ' ' +
-                        item?.lastName,
-                    }))}
-                    loading={allUserLoading}
-                  />
-                </Form.Item>
-              </>
+                    return Promise.resolve();
+                  },
+                },
+                {
+                  validator: (notused, value) => {
+                    const defaultAmount = form.getFieldValue('defaultAmount');
+                    if (value && defaultAmount && Number(value) > Number(defaultAmount)) {
+                      return Promise.reject(
+                        new Error('Non-taxable amount cannot exceed the fixed amount'),
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+              className="form-item"
+            >
+              <Input
+                className="control"
+                type="number"
+                min={0}
+                placeholder="Enter Non-Taxable Amount"
+                style={{ height: '40px', padding: '4px 8px' }}
+              />
+            </Form.Item>
+
+            {!isAllEmployee && !selectedAllowanceRecord && (
+              <Form.Item
+                className="form-item"
+                name="employees"
+                label="Select Employees"
+              >
+                <Select
+                  showSearch
+                  placeholder="Select a person"
+                  mode="multiple"
+                  className="w-full h-14"
+                  allowClear
+                  filterOption={(input: any, option: any) =>
+                    (option?.label ?? '')
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={allUsers?.items?.map((item: any) => ({
+                    ...item,
+                    value: item?.id,
+                    label:
+                      item?.firstName +
+                      ' ' +
+                      item?.middleName +
+                      ' ' +
+                      item?.lastName,
+                  }))}
+                  loading={allUserLoading}
+                />
+              </Form.Item>
             )}
           </Form>
         </Spin>

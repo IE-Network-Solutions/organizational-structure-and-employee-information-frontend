@@ -13,6 +13,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   submitAction,
   departmentData,
   title,
+  loading,
 }) => {
   const [form] = Form.useForm();
   const { data: branches } = useGetBranches();
@@ -34,8 +35,6 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
       .validateFields()
       .then((values) => {
         submitAction(values);
-        onClose();
-        form.resetFields();
       })
       .catch((info) => {
         NotificationMessage.warning({
@@ -65,6 +64,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
               }
               type="primary"
               onClick={handleSubmit}
+              loading={loading}
             >
               {departmentData ? 'Update' : 'Create'}
             </Button>

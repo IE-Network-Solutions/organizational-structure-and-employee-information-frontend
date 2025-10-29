@@ -35,6 +35,33 @@ const createAllowanceType = async (data: any) => {
 };
 
 /**
+ * Edits a compensation type (allowance type) by sending a PATCH request to the API.
+ *
+ * @async
+ * @function editAllowanceType
+ * @param {string} id - The ID of the compensation type to be edited.
+ * @param {string} id - The ID of the compensation type to be edited.
+ * @param {Object} data - The new data for the compensation type.
+ * @returns {Promise<any>} The response from the API.
+ */
+const editAllowanceType = async (id: string, data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-items/${id}`,
+    method: 'PATCH',
+    headers,
+    data,
+    skipEncryption: true,
+  });
+};
+
+/**
  * Deletes a compensation type (allowance type) by sending a DELETE request to the API.
  *
  * @async
@@ -86,6 +113,23 @@ export const useDeleteAllowanceType = () => {
       handleSuccessMessage(method, 'Compensation type successfully deleted.');
     },
   });
+};
+
+export const useEditAllowanceType = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    async ({ id, data }: { id: string; data: any }) => {
+      return await editAllowanceType(id, data);
+    },
+    {
+      onSuccess: async (unused: any, variables: any) => {
+        await queryClient.invalidateQueries('allowanceType');
+        await queryClient.refetchQueries(['allowanceType']);
+        const method = variables?.method?.toUpperCase?.();
+        handleSuccessMessage(method, 'Compensation type successfully updated.');
+      },
+    },
+  );
 };
 
 const updateCompensationStatus = async ({ id }: { id: string }) => {
