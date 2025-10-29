@@ -2,15 +2,24 @@
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useEffect } from 'react';
 import { Card, Progress } from 'antd';
 import { useRouter } from 'next/navigation';
 import { GoGoal } from 'react-icons/go';
 
 const Header = () => {
-  const { userId } = useAuthenticationStore();
+  const { userId, tenantId } = useAuthenticationStore();
+  const { data: subscriptionResp } = useGetSubscriptionByTenant(
+    tenantId as string,
+    !!tenantId,
+  );
+  const hasOKR = !!(subscriptionResp as any)?.plan?.modules?.some(
+    (m: any) => m?.module?.description === '/okr',
+  );
   const { data: objectiveDashboard, isLoading } =
-    useGetUserObjectiveDashboard(userId);
-  const { data: vpScore } = useGetVPScore(userId);
+    useGetUserObjectiveDashboard(userId, hasOKR);
+  const { data: vpScore } = useGetVPScore(userId, hasOKR);
   const router = useRouter();
 
   const onDetail = () => {
@@ -19,7 +28,8 @@ const Header = () => {
 
   return (
     <>
-      <div className="  w-full pb-6 flex overflow-x-auto  2xl:grid 2xl:grid-cols-5 gap-4 scrollbar-none">
+      {hasOKR && (
+        <div className="  w-full pb-6 flex overflow-x-auto  2xl:grid 2xl:grid-cols-5 gap-4 scrollbar-none">
         <Card
           loading={isLoading}
           bordered={false}
@@ -228,7 +238,8 @@ const Header = () => {
             Total VP Score
           </div>
         </Card>
-      </div>
+        </div>
+      )}
     </>
   );
 };
