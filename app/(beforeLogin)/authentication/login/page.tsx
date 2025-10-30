@@ -44,7 +44,11 @@ const Login: FC = () => {
         onSuccess: async (data) => {
           if (data?.is2FAEnabled === false) {
             return await handleSignIn(() =>
-              signInWithEmailAndPassword(auth, values.email.toLowerCase(), values.password),
+              signInWithEmailAndPassword(
+                auth,
+                values.email.toLowerCase(),
+                values.password,
+              ),
             );
           } else {
             setUser2FA({

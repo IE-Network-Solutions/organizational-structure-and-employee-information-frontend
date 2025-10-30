@@ -4,6 +4,7 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import React, { useEffect } from 'react';
 import { FaPlus, FaDownload } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 import CreateCandidate from './_components/createCandidate';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import CandidateTable from './_components/candidateTable';
@@ -26,6 +27,7 @@ interface CandidateProps {
   params: Params;
 }
 const Candidates = ({ params: { id } }: CandidateProps) => {
+  const router = useRouter();
   const {
     selectedCandidate,
     setCreateJobDrawer,
@@ -112,9 +114,16 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
       });
   };
 
+  const handleListJobClick = () => {
+    router.push('/recruitment/jobs');
+  };
+
   const customBreadCrumbSubTitle = (
     <div className="flex items-center justify-start space-x-4">
-      <div className="flex items-center justify-center text-sm font-normal text-gray-400">
+      <div
+        className="flex items-center justify-center text-sm font-normal text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
+        onClick={handleListJobClick}
+      >
         List Job
       </div>
       <IoIosArrowForward />

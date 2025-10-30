@@ -33,7 +33,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     useOKRStore();
 
   const { isMobile } = useIsMobile();
-  
+
   // Only owner can edit/delete key results (check if objective belongs to current user)
   const canEditDelete = myOkr || objectiveUserId === userId;
   const showDeleteModal = () => {
@@ -116,14 +116,20 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         >
           {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
         </h2>
-        {keyResult?.isClosed === false && Number(keyResult?.progress) === 0 && menu && (
-          <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-            <IoIosMore
-              id={`key-result-menu-button-${keyResult?.id}`}
-              className="text-gray-500 text-lg cursor-pointer ml-auto"
-            />
-          </Dropdown>
-        )}
+        {keyResult?.isClosed === false &&
+          Number(keyResult?.progress) === 0 &&
+          menu && (
+            <Dropdown
+              overlay={menu}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <IoIosMore
+                id={`key-result-menu-button-${keyResult?.id}`}
+                className="text-gray-500 text-lg cursor-pointer ml-auto"
+              />
+            </Dropdown>
+          )}
       </div>
 
       {/* Content Section */}
