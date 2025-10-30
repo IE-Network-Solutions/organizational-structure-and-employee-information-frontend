@@ -109,67 +109,76 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
     {
       dataIndex: 'amount',
       key: 'amount',
-      render: (notused: any, record: any, index: number) => (
-        <>
-          <Form.Item
-            label={'Amount'}
-            name={['payments', index, 'amount']}
-            className="mb-0"
-          >
-            <InputNumber className="w-full" disabled={record?.isPaid} />
-          </Form.Item>
-          <Form.Item name={['payments', index, 'id']} className="mb-0" hidden>
-            <Input className="w-full" value={record.id} />
-          </Form.Item>
-          <Form.Item
-            name={['payments', index, 'isPaid']}
-            className="mb-0"
-            hidden
-          >
-            <Input className="w-full" value={record.isPaid} />
-          </Form.Item>
-        </>
-      ),
+      render: (notused: any, record: any, index: number) => {
+        const isPaid = !!form.getFieldValue(['payments', index, 'isPaid']);
+        return (
+          <>
+            <Form.Item
+              label={'Amount'}
+              name={['payments', index, 'amount']}
+              className="mb-0"
+            >
+              <InputNumber className="w-full" disabled={isPaid} />
+            </Form.Item>
+            <Form.Item name={['payments', index, 'id']} className="mb-0" hidden>
+              <Input className="w-full" value={record.id} />
+            </Form.Item>
+            <Form.Item
+              name={['payments', index, 'isPaid']}
+              className="mb-0"
+              hidden
+            >
+              <Input className="w-full" value={record.isPaid} />
+            </Form.Item>
+          </>
+        );
+      },
     },
     {
       dataIndex: 'payPeriodId',
       key: 'payPeriodId',
-      render: (notused: any, record: any, index: number) => (
-        <Form.Item
-          label={'Pay Period'}
-          required
-          name={['payments', index, 'payPeriodId']}
-          className="mb-0"
-          rules={[{ required: true, message: 'Pay Period is required' }]}
-        >
-          <Select
-            disabled={record?.isPaid}
-            placeholder="Pay Period"
-            allowClear
-            className="w-full"
+      render: (notused: any, record: any, index: number) => {
+        const isPaid = !!form.getFieldValue(['payments', index, 'isPaid']);
+        return (
+          <Form.Item
+            label={'Pay Period'}
+            required
+            name={['payments', index, 'payPeriodId']}
+            className="mb-0"
+            rules={[{ required: true, message: 'Pay Period is required' }]}
           >
-            {payPeriods?.map((period: any) => (
-              <Option key={period.id} value={period.id}>
-                {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
-                {dayjs(period.endDate).format('MMM DD, YYYY')}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      ),
+            <Select
+              disabled={isPaid}
+              placeholder="Pay Period"
+              allowClear
+              className="w-full"
+            >
+              {payPeriods?.map((period: any) => (
+                <Option key={period.id} value={period.id}>
+                  {dayjs(period.startDate).format('MMM DD, YYYY')} –{' '}
+                  {dayjs(period.endDate).format('MMM DD, YYYY')}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        );
+      },
     },
     {
       dataIndex: 'reason',
       key: 'reason',
-      render: (notused: any, record: any, index: number) => (
-        <Form.Item
-          label="Reason"
-          name={['payments', index, 'reason']}
-          className="mb-0"
-        >
-          <TextArea placeholder="reason" autoSize />
-        </Form.Item>
-      ),
+      render: (notused: any, record: any, index: number) => {
+        const isPaid = !!form.getFieldValue(['payments', index, 'isPaid']);
+        return (
+          <Form.Item
+            label="Reason"
+            name={['payments', index, 'reason']}
+            className="mb-0"
+          >
+            <TextArea placeholder="reason" autoSize disabled={isPaid} />
+          </Form.Item>
+        );
+      },
     },
   ];
 
