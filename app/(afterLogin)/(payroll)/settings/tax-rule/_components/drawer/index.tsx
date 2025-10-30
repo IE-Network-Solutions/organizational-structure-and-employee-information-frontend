@@ -211,7 +211,11 @@ const Drawer: React.FC = () => {
           label="Rate in %"
           name="rate"
           rules={[
-            { type: 'number', required: true, message: 'Please input the tax rate!' },
+            {
+              type: 'number',
+              required: true,
+              message: 'Please input the tax rate!',
+            },
           ]}
           valuePropName="value"
           getValueFromEvent={(value) =>
@@ -237,7 +241,11 @@ const Drawer: React.FC = () => {
           label="Deduction"
           name="deduction"
           rules={[
-            { type: 'number', required: true, message: 'Please input the deduction!' },
+            {
+              type: 'number',
+              required: true,
+              message: 'Please input the deduction!',
+            },
           ]}
           valuePropName="value"
           getValueFromEvent={(value) =>

@@ -55,7 +55,11 @@ const TwoFactorAuth = () => {
         {
           onSuccess: async () => {
             await handleSignIn(() =>
-              signInWithEmailAndPassword(auth, user2FA.email.toLowerCase(), user2FA.pass),
+              signInWithEmailAndPassword(
+                auth,
+                user2FA.email.toLowerCase(),
+                user2FA.pass,
+              ),
             );
           },
         },

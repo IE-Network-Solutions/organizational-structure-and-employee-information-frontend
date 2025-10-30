@@ -54,7 +54,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    const paymentAmount = formValues.payments.reduce(
+    const paymentAmount = (formValues?.payments || []).reduce(
       (acc: number, item: { amount?: number }) =>
         acc + Number(item.amount || 0),
       0,
@@ -66,7 +66,10 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       });
     } else {
       updateBenefitEntitlement(
-        { payments: formValues.payments, id: employeeEntitlementData?.id },
+        {
+          payments: formValues?.payments || [],
+          id: employeeEntitlementData?.id,
+        },
         {
           onSuccess: () => {
             form.resetFields();
@@ -78,7 +81,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
   };
 
   useEffect(() => {
-    const payments = employeeEntitlementData?.settlementTracking.map(
+    const payments = (employeeEntitlementData?.settlementTracking || []).map(
       (entry: any) => ({
         amount: parseFloat(entry.amount),
         payPeriodId: entry.payPeriodId || null,
