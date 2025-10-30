@@ -59,7 +59,10 @@ const postDailyPlan = async (
 
   // Ensure daily plan tasks have weights that sum to 100
   if (tasks.length > 0) {
-    const totalWeight = tasks.reduce((sum, task) => sum + (task.weight || 0), 0);
+    const totalWeight = tasks.reduce(
+      (sum, task) => sum + (task.weight || 0),
+      0,
+    );
     if (totalWeight > 0) {
       // Normalize weights to sum to 100
       tasks.forEach((task) => {

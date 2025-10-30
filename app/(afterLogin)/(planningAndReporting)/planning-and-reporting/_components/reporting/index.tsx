@@ -91,7 +91,7 @@ function Reporting() {
   )?.planningPeriodId;
 
   const { data: allUserPlanning, isLoading: getUserPlanningLoading } =
-    useGetUserPlanning(planningPeriodId ?? '', activeTab.toString());
+    useGetUserPlanning(planningPeriodId ?? '', activePlanPeriod.toString());
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
     userId: selectedUser,
     planPeriodId: planningPeriodId ?? '',
@@ -364,10 +364,14 @@ function Reporting() {
 
                           {/* {!dataItem?.isValidated && ( */}
                           <>
-                            {userId ===
+                            {(userId ===
                               getEmployeeData(
                                 dataItem?.userId ?? dataItem?.createdBy,
-                              )?.reportingTo?.id && (
+                              )?.reportingTo?.id ||
+                              userId ===
+                                getEmployeeData(
+                                  dataItem?.userId ?? dataItem?.createdBy,
+                                )?.delegatedTo?.id) && (
                               <Dropdown
                                 overlay={actionsMenu(
                                   dataItem,

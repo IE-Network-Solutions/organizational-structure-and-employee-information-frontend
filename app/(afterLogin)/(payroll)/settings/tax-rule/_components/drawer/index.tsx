@@ -128,19 +128,32 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item
-          label="Maximum Income"
-          name="maximum-income"
+          label="Minimum Income"
+          name="minmum-income"
           rules={[
             {
               type: 'number',
               required: true,
-              message: 'Please input the maximum income!',
+              message: 'Please input the minimum income!',
+            },
+            {
+              validator: (rule, value) => {
+                const maxIncome = form.getFieldValue('maximum-income');
+                if (value && maxIncome && Number(value) >= Number(maxIncome)) {
+                  return Promise.reject(
+                    new Error(
+                      'Minimum Income must be less than Maximum Income',
+                    ),
+                  );
+                }
+                return Promise.resolve();
+              },
             },
           ]}
         >
           <InputNumber
             className="h-12 mt-2 w-full input-number-mobile"
-            placeholder="Input Maximum Income"
+            placeholder="Input Minimum Income"
             min={0}
             step={1}
             controls={true}
@@ -149,15 +162,32 @@ const Drawer: React.FC = () => {
         </Form.Item>
 
         <Form.Item
-          label="Minimum Income"
-          name="minmum-income"
+          label="Maximum Income"
+          name="maximum-income"
           rules={[
-            { required: true, message: 'Please input the minimum income!' },
+            {
+              type: 'number',
+              required: true,
+              message: 'Please input the maximum income!',
+            },
+            {
+              validator: (rule, value) => {
+                const minIncome = form.getFieldValue('minmum-income');
+                if (value && minIncome && Number(value) <= Number(minIncome)) {
+                  return Promise.reject(
+                    new Error(
+                      'Maximum Income must be greater than Minimum Income',
+                    ),
+                  );
+                }
+                return Promise.resolve();
+              },
+            },
           ]}
         >
           <InputNumber
             className="h-12 mt-2 w-full input-number-mobile"
-            placeholder="Input Minimum Income"
+            placeholder="Input Maximum Income"
             min={0}
             step={1}
             controls={true}

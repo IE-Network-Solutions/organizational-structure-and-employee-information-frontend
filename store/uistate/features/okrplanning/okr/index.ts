@@ -114,11 +114,11 @@ export const useOKRStore = create<OKRState>()(
           deadline: null,
           // For Numeric/Percentage, prefer backend-provided snake_case values exactly
           initialValue:
-            (keyType === 'Numeric' || keyType === 'Percentage')
+            keyType === 'Numeric' || keyType === 'Percentage'
               ? (suggestion?.initialValue ?? suggestion?.initial_value ?? 0)
               : (suggestion?.initialValue ?? 0),
           targetValue:
-            (keyType === 'Numeric' || keyType === 'Percentage')
+            keyType === 'Numeric' || keyType === 'Percentage'
               ? (suggestion?.targetValue ?? suggestion?.target_value ?? 0)
               : (suggestion?.targetValue ?? 0),
           milestones: keyType === 'Milestone' ? normalizedMilestones : [],
@@ -221,11 +221,12 @@ export const useOKRStore = create<OKRState>()(
       field: string,
     ) =>
       set((state) => {
+        const coercedValue = field === 'weight' ? Number(value ?? 0) : value;
         const newKeyResult = [...state.objectiveValue.keyResults];
         newKeyResult[keyResultIndex].milestones = newKeyResult[
           keyResultIndex
         ].milestones.map((m: any, i: number) =>
-          i === mindex ? { ...m, [field]: value } : m,
+          i === mindex ? { ...m, [field]: coercedValue } : m,
         );
         return {
           objectiveValue: {
@@ -241,10 +242,13 @@ export const useOKRStore = create<OKRState>()(
       field: string,
     ) => {
       set((state) => {
+        const coercedValue = field === 'weight' ? Number(value ?? 0) : value;
         // Update milestones based on the provided index and field
         const updatedMilestones = state.keyResultValue.milestones.map(
           (milestone: any, index: number) =>
-            index === mindex ? { ...milestone, [field]: value } : milestone,
+            index === mindex
+              ? { ...milestone, [field]: coercedValue }
+              : milestone,
         );
 
         // Return the updated keyResultValue

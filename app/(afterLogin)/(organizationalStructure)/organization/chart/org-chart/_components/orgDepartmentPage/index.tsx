@@ -121,7 +121,6 @@ const OrgChartComponent: React.FC = () => {
     } else if (parentId) {
       addDepartment(parentId, values);
     }
-    setIsFormVisible(false);
   };
 
   const handleDeleteConfirm = () => {

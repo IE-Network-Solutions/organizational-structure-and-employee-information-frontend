@@ -308,16 +308,17 @@ const downloadJobPostPerformanceExport = async (params: {
     const queryString = queryParams.toString();
     const url = `${RECRUITMENT_URL}/${DASHBOARD_API.GET_JOB_POST_PERFORMANCE_EXPORT_API}${queryString ? `?${queryString}` : ''}`;
 
-    // Get the download URL from the API
-    const response = await axios({
+    // First, get the download URL from the API
+    const response = await crudRequest({
       url,
       method: 'GET',
       headers,
-      responseType: 'json',
+      responseType: 'json', // Ensure we still expect JSON with downloadUrl info
     });
 
-    // Extract download URL from response
-    const { downloadUrl } = response.data;
+    // Extract download URL and filename from response
+
+    const { downloadUrl, fileName } = response;
 
     if (!downloadUrl) {
       throw new Error('Download URL not found in response');

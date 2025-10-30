@@ -8,7 +8,6 @@ import {
   SettingOutlined,
   CheckOutlined,
 } from '@ant-design/icons';
-import { AddTaskModal } from '../addTaskModal';
 import ProbationTemplate from '../probationTemplate';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { MdDelete } from 'react-icons/md';
@@ -20,6 +19,7 @@ import {
   useProbationStore,
   ProbationTask,
 } from '@/store/uistate/features/probation';
+import AddTaskModal from '../addTaskModal';
 
 // ProbationTask interface is now imported from the store
 

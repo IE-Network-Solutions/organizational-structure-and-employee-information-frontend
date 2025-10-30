@@ -95,8 +95,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       .then(() => {
         const keyResults = objective?.keyResults || [];
         const keyResultSum = keyResults.reduce(
-          (sum: number, keyResult: Record<string, number>) =>
-            sum + (keyResult?.weight || 0),
+          (sum: number, keyResult: Record<string, any>) =>
+            sum + Number(keyResult?.weight ?? 0),
           0,
         );
         if (keyResultSum !== 100) {
@@ -135,8 +135,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
               // Calculate the sum of milestone values
               const milestoneSum = keyResult.milestones.reduce(
-                (sum: number, milestone: Record<string, number>) =>
-                  sum + (milestone?.weight || 0),
+                (sum: number, milestone: Record<string, any>) =>
+                  sum + Number(milestone?.weight ?? 0),
                 0,
               );
 

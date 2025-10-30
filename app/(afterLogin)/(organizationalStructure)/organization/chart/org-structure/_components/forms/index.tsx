@@ -26,42 +26,46 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
   const { data: departments } = useGetDepartments();
   const { data: orgStructureData } = useGetOrgCharts();
 
-  const OPTIONS = useMemo(() => 
-    departments?.map((item: any) => ({
-      value: item.id,
-      label: item.name,
-    })) || [],
-    [departments]
+  const OPTIONS = useMemo(
+    () =>
+      departments?.map((item: any) => ({
+        value: item.id,
+        label: item.name,
+      })) || [],
+    [departments],
   );
 
   const departmentCache: Record<string, any> = {};
 
-  const findDepartmentWithChildren = useCallback((tree: any, id: string): any => {
-    if (departmentCache[id]) return departmentCache[id];
+  const findDepartmentWithChildren = useCallback(
+    (tree: any, id: string): any => {
+      if (departmentCache[id]) return departmentCache[id];
 
-    if (tree.id === id) {
-      const departmentData = {
-        id: tree.id,
-        name: tree.name,
-        description: tree.description,
-        branchId: tree.branchId,
-        children: tree.department || [],
-      };
-      departmentCache[id] = departmentData;
-      return departmentData;
-    }
-    if (tree.department?.length) {
-      for (const child of tree.department) {
-        const result = findDepartmentWithChildren(child, id);
-        if (result) {
-          departmentCache[id] = result;
-          return result;
+      if (tree.id === id) {
+        const departmentData = {
+          id: tree.id,
+          name: tree.name,
+          description: tree.description,
+          branchId: tree.branchId,
+          children: tree.department || [],
+        };
+        departmentCache[id] = departmentData;
+        return departmentData;
+      }
+      if (tree.department?.length) {
+        for (const child of tree.department) {
+          const result = findDepartmentWithChildren(child, id);
+          if (result) {
+            departmentCache[id] = result;
+            return result;
+          }
         }
       }
-    }
 
-    return null;
-  }, []);
+      return null;
+    },
+    [],
+  );
 
   const Merge = useCallback(() => {
     if (!orgStructureData || !rootDepartment?.id) {
@@ -227,48 +231,53 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
     setTeamLeader,
   } = useDepartmentStore();
 
-  const OPTIONS = useMemo(() => 
-    departments
-      ?.map((item: any) => ({
-        value: item.id,
-        label: item.name,
-        level: item.level, // Include level for filtering
-      }))
-      .filter((item: any) => item.level !== 0) || [],
-    [departments]
+  const OPTIONS = useMemo(
+    () =>
+      departments
+        ?.map((item: any) => ({
+          value: item.id,
+          label: item.name,
+          level: item.level, // Include level for filtering
+        }))
+        .filter((item: any) => item.level !== 0) || [],
+    [departments],
   );
 
-  const selectedChildDept = useMemo(() => 
-    departments?.find((dept: any) => dept.id === childDeptId),
-    [departments, childDeptId]
+  const selectedChildDept = useMemo(
+    () => departments?.find((dept: any) => dept.id === childDeptId),
+    [departments, childDeptId],
   );
-  
+
   const selectedLevel = selectedChildDept?.level;
 
-  const findDepartmentById = useCallback((id: string, orgStructure: any): any => {
-    if (!orgStructure) return null;
-    if (orgStructure.id === id) return orgStructure;
-    for (const dept of orgStructure.department || []) {
-      const found = findDepartmentById(id, dept);
-      if (found) return found;
-    }
-    return null;
-  }, []);
+  const findDepartmentById = useCallback(
+    (id: string, orgStructure: any): any => {
+      if (!orgStructure) return null;
+      if (orgStructure.id === id) return orgStructure;
+      for (const dept of orgStructure.department || []) {
+        const found = findDepartmentById(id, dept);
+        if (found) return found;
+      }
+      return null;
+    },
+    [],
+  );
 
-  const teamLeaderOptions = useMemo(() => 
-    employeeData?.items
-      ?.filter((emp: any) =>
-        emp?.employeeJobInformation?.some(
-          (job: any) =>
-            [rootDeptId, childDeptId].includes(job.departmentId) &&
-            job.departmentLeadOrNot === true,
-        ),
-      )
-      .map((emp: any) => ({
-        value: emp.id,
-        label: `${emp.firstName} ${emp.lastName}`,
-      })) || [],
-    [employeeData, rootDeptId, childDeptId]
+  const teamLeaderOptions = useMemo(
+    () =>
+      employeeData?.items
+        ?.filter((emp: any) =>
+          emp?.employeeJobInformation?.some(
+            (job: any) =>
+              [rootDeptId, childDeptId].includes(job.departmentId) &&
+              job.departmentLeadOrNot === true,
+          ),
+        )
+        .map((emp: any) => ({
+          value: emp.id,
+          label: `${emp.firstName} ${emp.lastName}`,
+        })) || [],
+    [employeeData, rootDeptId, childDeptId],
   );
 
   const Merge = useCallback(() => {

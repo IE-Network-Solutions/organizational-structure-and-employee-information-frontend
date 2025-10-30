@@ -1,6 +1,6 @@
 /**
  * AI Feature - Main Export File
- * 
+ *
  * This file serves as the central export point for all AI-related functionality.
  * All AI requests now go directly to the backend using NEXT_PUBLIC_AI_BASE_URL.
  * 
