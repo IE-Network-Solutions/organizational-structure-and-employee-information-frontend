@@ -21,7 +21,6 @@ import React, { useState, useEffect } from 'react';
 import { FaEye } from 'react-icons/fa';
 import CandidateDetail from '../candidateDetail/page';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { IoIosArrowForward } from 'react-icons/io';
 import { FileDown } from 'lucide-react';
 import { useChangeCandidateStatus } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
