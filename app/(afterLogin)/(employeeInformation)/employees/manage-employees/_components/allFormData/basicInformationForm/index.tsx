@@ -11,7 +11,9 @@ import {
   Select,
   Upload,
   message,
+  Button,
 } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateEmail, validateName } from '@/utils/validation';
 import { UploadFile } from 'antd/lib';
@@ -42,20 +44,22 @@ const BasicInformationForm = ({ form }: any) => {
   };
 
   const handleProfileChange = (info: FileInfo) => {
-    setProfileFileList(info.fileList);
-    if (info.file.status === 'done') {
+    // Only keep the most recent file
+    const latestFile = info.fileList.slice(-1);
+    setProfileFileList(latestFile);
+
+    if (info.file.status !== 'removed') {
       form.setFieldsValue({ profileImage: info });
     }
   };
 
-  const handleProfileRemove = (file: UploadFile) => {
-    const updatedFileList = profileFileList.filter(
-      (item: any) => item.uid !== file.uid,
-    );
-    setProfileFileList(updatedFileList);
+  const handleProfileRemove = () => {
+    // Clear the file list completely
+    setProfileFileList([]);
 
+    // Reset form field
     form.setFieldsValue({
-      profileImage: updatedFileList.length > 0 ? updatedFileList : null,
+      profileImage: null,
     });
   };
 
@@ -85,27 +89,47 @@ const BasicInformationForm = ({ form }: any) => {
             name="profileImage"
             id="profileImageId"
           >
-            <Dragger
-              name="files"
-              fileList={profileFileList}
-              beforeUpload={beforeProfileUpload}
-              onChange={handleProfileChange}
-              onRemove={handleProfileRemove}
-              className="custom-dragger"
-              accept="image/*"
-              maxCount={1}
-              showUploadList={{
-                showPreviewIcon: true,
-                showRemoveIcon: true,
-              }}
-            >
-              {profileFileList.length > 0 ? (
-                <Image
-                  src={getImageUrl(profileFileList)}
-                  alt="Uploaded Preview"
-                  className="w-full h-full object-cover rounded-xl"
-                />
-              ) : (
+            {profileFileList.length > 0 ? (
+              // PREVIEW MODE - Wider image to cover more space
+              <div className="flex justify-center items-center py-2 px-3 border-2 border-dashed border-gray-300 rounded-lg">
+                <div className="relative inline-block">
+                  <Image
+                    src={getImageUrl(profileFileList)}
+                    alt="Profile Preview"
+                    width={400}
+                    height={200}
+                    className="object-cover rounded-lg"
+                    preview={true}
+                    style={{
+                      minWidth: '400px',
+                      minHeight: '200px',
+                      maxWidth: '100%',
+                    }}
+                  />
+                  <Button
+                    type="primary"
+                    danger
+                    size="small"
+                    icon={<CloseOutlined />}
+                    onClick={handleProfileRemove}
+                    className="absolute -top-2 -right-2 shadow-md"
+                    style={{ zIndex: 10 }}
+                    title="Remove image"
+                  />
+                </div>
+              </div>
+            ) : (
+              // UPLOAD MODE - Show dragger when no file
+              <Dragger
+                name="files"
+                fileList={[]}
+                beforeUpload={beforeProfileUpload}
+                onChange={handleProfileChange}
+                className="custom-dragger"
+                accept="image/*"
+                maxCount={1}
+                showUploadList={false}
+              >
                 <div className="bg-white p-0">
                   <p className="ant-upload-drag-icon ">
                     <Image
@@ -122,8 +146,8 @@ const BasicInformationForm = ({ form }: any) => {
                     or drag and drop it here.
                   </p>
                 </div>
-              )}
-            </Dragger>
+              </Dragger>
+            )}
           </Form.Item>
         </Col>
       </Row>
