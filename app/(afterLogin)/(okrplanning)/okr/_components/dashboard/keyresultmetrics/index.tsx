@@ -1,5 +1,6 @@
 import { Dropdown, Menu, Progress } from 'antd';
 import { FC, useState } from 'react';
+import type { ReactNode } from 'react';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -7,7 +8,8 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
-
+import { VscSymbolNumeric } from 'react-icons/vsc';
+import { IoTrophyOutline } from 'react-icons/io5';
 interface KPIMetricsProps {
   keyResult: any;
   myOkr: boolean;
@@ -73,16 +75,16 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
       objectiveId,
     });
   }
-  function getMetricName(metricType: string): string {
+  function getMetricName(metricType: string): ReactNode {
     switch (metricType) {
       case 'Milestone':
-        return isMobile ? '#' : '';
+        return isMobile ? '' : '';
       case 'Achieve':
-        return isMobile ? '🏆' : '';
+        return isMobile ? <IoTrophyOutline /> : '';
       case 'Percentage':
         return isMobile ? '%' : '';
       case 'Numeric':
-        return isMobile ? '🔢' : '';
+        return isMobile ? <VscSymbolNumeric /> : '';
       case 'Currency':
         return isMobile ? '$' : '';
       default:
@@ -92,20 +94,20 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   return (
     <div
       id={`key-result-metrics-${keyResult?.id}`}
-      className={`${isMobile ? 'py-2 px-3' : 'py-3 px-4 sm:px-8'} bg-white shadow-sm rounded-lg border relative`}
+      className={`${isMobile ? 'py-2 px-3' : 'py-3 px-4 sm:px-8 pr-10 pb-8 mb-2 '} bg-white shadow-sm rounded-lg border relative`}
     >
       {/* Title Section */}
       <div className="flex items-start gap-2 mb-3">
         <MdKey
           id={`key-result-icon-${keyResult?.id}`}
-          size={isMobile ? 20 : 24}
+          size={isMobile ? 24 : 28}
           className="text-blue text-xl w-8 sm:w-10"
         />
         <h2
           id={`key-result-title-${keyResult?.id}`}
-          className={`flex items-center gap-1 ${isMobile ? 'text-xs' : 'text-sm'} font-normal`}
+          className={`flex items-center gap-1 ${isMobile ? 'text-sm' : 'text-base'} font-normal`}
         >
-          {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
+          {keyResult?.title} {getMetricName(keyResult.metricType.name)}
         </h2>
         {keyResult?.isClosed === false && Number(keyResult?.progress) === 0 && (
           <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
@@ -125,14 +127,14 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
             <div className="flex items-center gap-1">
               <div
                 id={`key-result-metric-type-${keyResult?.id}`}
-                className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
+                className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10px] p-1.5' : 'text-sm p-2'} flex items-center rounded-lg`}
               >
                 {keyResult?.metricType?.name}
               </div>
               <div className="flex items-center gap-1">
                 <div className="text-[#3636f0] text-xl">&#x2022;</div>
                 <div
-                  className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                  className={`text-[#687588] mt-1 ${isMobile ? 'text-[10px]' : 'text-sm'} flex items-center rounded-lg`}
                 >
                   Metric
                 </div>
@@ -143,14 +145,14 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
           <div className="flex items-center gap-1">
             <div
               id={`key-result-weight-${keyResult?.id}`}
-              className={`bg-light_purple text-[#3636f0] font-bold ${isMobile ? 'text-[6px] p-2' : 'text-xs p-2'} flex items-center rounded-lg`}
+              className={`bg-light_purple text-[#3636f0] font-bold ${isMobile ? 'text-[10px] p-2' : 'text-sm p-2'} flex items-center rounded-lg`}
             >
               {keyResult?.weight}
             </div>
             <div className="flex items-center gap-1">
               <div className="text-[#3636f0] text-xl">&#x2022;</div>
               <div
-                className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                className={`text-[#687588] mt-1 ${isMobile ? 'text-[10px]' : 'text-sm'} flex items-center rounded-lg`}
               >
                 Weight
               </div>
@@ -160,10 +162,10 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
 
         {/* Achieved and Target */}
         <div className="flex flex-wrap gap-2">
-          <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'}`}>
+          <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-3'}`}>
             <div
               id={`key-result-achieved-${keyResult?.id}`}
-              className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-2 w-auto' : 'text-sm p-1 w-16 sm:w-20'} text-center rounded-lg`}
+              className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-xs p-2 w-auto' : 'text-base p-2 w-20 sm:w-24'} text-center rounded-lg`}
             >
               {keyResult?.metricType?.name === 'Milestone'
                 ? keyResult?.milestones?.filter(
@@ -179,16 +181,16 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
             <div className="flex items-center gap-0">
               <div className="text-[#3636f0] text-xl">&#x2022;</div>
               <div
-                className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                className={`text-[#687588] mt-1 ${isMobile ? 'text-[10px]' : 'text-sm'} flex items-center rounded-lg`}
               >
                 Achieved
               </div>
             </div>
           </div>
-          <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'}`}>
+          <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-3'}`}>
             <div
               id={`key-result-target-${keyResult?.id}`}
-              className={`bg-light_purple text-blue font-semibold ${isMobile ? 'text-[6px] p-2 w-auto' : 'text-sm p-1 min-w-16 sm:min-w-20'} text-center rounded-lg`}
+              className={`bg-light_purple text-blue font-semibold ${isMobile ? 'text-xs p-2 w-auto' : 'text-base p-2 min-w-20 sm:min-w-24'} text-center rounded-lg`}
             >
               {keyResult?.metricType?.name === 'Milestone'
                 ? keyResult?.milestones?.length || 0
@@ -199,7 +201,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
             <div className="flex items-center gap-1">
               <div className="text-[#3636f0] text-xl">&#x2022;</div>
               <div
-                className={`text-[#687588] mt-1 ${isMobile ? 'text-[6px]' : 'text-xs'} flex items-center rounded-lg`}
+                className={`text-[#687588] mt-1 ${isMobile ? 'text-[10px]' : 'text-sm'} flex items-center rounded-lg`}
               >
                 {keyResult?.metricType?.name === 'Milestone'
                   ? 'Milestones'
@@ -210,20 +212,20 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         </div>
       </div>
 
-      {/* Progress Section - Bottom Right */}
+      {/* Progress Section - responsive: stacked on mobile, absolute on desktop */}
       <div
         id={`key-result-progress-section-${keyResult?.id}`}
-        className="absolute bottom-2 right-2 flex items-center gap-2"
+        className={`${isMobile ? 'mt-3 flex justify-end items-center gap-2' : 'absolute bottom-2 right-2 flex items-center gap-2'}`}
       >
         <Progress
           type="circle"
           showInfo={false}
           percent={keyResult?.progress}
-          size={isMobile ? 16 : 20}
+          size={isMobile ? 22 : 28}
         />
         <span
           id={`key-result-progress-text-${keyResult?.id}`}
-          className={`${isMobile ? 'text-base' : 'text-lg'}`}
+          className={`${isMobile ? 'text-lg' : 'text-2xl'}`}
         >
           {keyResult?.progress || 0}%
         </span>
