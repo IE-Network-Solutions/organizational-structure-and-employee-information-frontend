@@ -12,14 +12,19 @@ import {
 } from '@/store/uistate/features/okrplanning/okr/interface';
 import { MoreOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
     useOKRStore();
+  const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
   const { isMobile, isTablet } = useIsMobile();
+
+  // Only owner can edit/delete
+  const isOwner = objective?.userId === userId;
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
@@ -42,7 +47,9 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const completedKeyResults =
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
-  const menu = (
+
+  // Owner-only menu
+  const menu = isOwner ? (
     <Menu
       items={[
         {
@@ -57,7 +64,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         },
       ]}
     />
-  );
+  ) : null;
   function handleDeleteObjective(id: string) {
     deleteObjective(id, {
       onSuccess: () => {
@@ -114,7 +121,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {objective?.title}
                 </h2>
               </div>
-              {objective?.isClosed === false ? (
+              {objective?.isClosed === false && menu ? (
                 <Dropdown
                   overlay={menu}
                   trigger={['click']}
@@ -220,6 +227,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           key={keyResult.id}
           updatedKeyResults={updatedKeyResults}
           objectiveId={objectiveId}
+          objectiveUserId={objective?.userId}
         />
       ))}
       <EditObjective

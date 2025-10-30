@@ -25,7 +25,7 @@ export const usePasswordReset = () => {
       }
 
       const values = {
-        email: email,
+        email: email.toLowerCase(),
         url: dynamicLink,
         loginTenantId: loginTenantId,
       };
