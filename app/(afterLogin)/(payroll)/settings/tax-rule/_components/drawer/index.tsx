@@ -44,10 +44,10 @@ const Drawer: React.FC = () => {
     if (currentTaxRule) {
       form.setFieldsValue({
         name: currentTaxRule.name,
-        'maximum-income': currentTaxRule.maxIncome,
-        'minimum-income': currentTaxRule.minIncome,
-        rate: currentTaxRule.rate,
-        deduction: currentTaxRule.deduction,
+        'maximum-income': Number(currentTaxRule.maxIncome),
+        'minimum-income': Number(currentTaxRule.minIncome),
+        rate: Number(currentTaxRule.rate),
+        deduction: Number(currentTaxRule.deduction),
       });
     }
   }, [currentTaxRule, form]);
@@ -57,15 +57,15 @@ const Drawer: React.FC = () => {
       form.resetFields();
       closeDrawer();
     }
-  }, [isCreateLoading, isUpdateSuccess]);
+  }, [isCreateSuccess, isUpdateSuccess]);
 
   const onFinish = async (values: any) => {
     const taxRuleData = {
       name: values.name,
-      minIncome: parseFloat(values['minimum-income']),
-      maxIncome: parseFloat(values['maximum-income']),
-      rate: parseFloat(values.rate),
-      deduction: parseFloat(values.deduction),
+      minIncome: values['minimum-income'],
+      maxIncome: values['maximum-income'],
+      rate: values.rate,
+      deduction: values.deduction,
     };
 
     try {
@@ -132,6 +132,7 @@ const Drawer: React.FC = () => {
           name="minimum-income"
           rules={[
             {
+              type: 'number',
               required: true,
               message: 'Please input the minimum income!',
             },
@@ -139,12 +140,22 @@ const Drawer: React.FC = () => {
               validator: (rule, value) => {
                 const maxIncome = form.getFieldValue('maximum-income');
                 if (value && maxIncome && Number(value) >= Number(maxIncome)) {
-                  return Promise.reject(new Error('Minimum Income must be less than Maximum Income'));
+                  return Promise.reject(
+                    new Error(
+                      'Minimum Income must be less than Maximum Income',
+                    ),
+                  );
                 }
                 return Promise.resolve();
               },
             },
           ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="h-12 mt-2 w-full input-number-mobile"
@@ -161,6 +172,7 @@ const Drawer: React.FC = () => {
           name="maximum-income"
           rules={[
             {
+              type: 'number',
               required: true,
               message: 'Please input the maximum income!',
             },
@@ -168,12 +180,22 @@ const Drawer: React.FC = () => {
               validator: (rule, value) => {
                 const minIncome = form.getFieldValue('minimum-income');
                 if (value && minIncome && Number(value) <= Number(minIncome)) {
-                  return Promise.reject(new Error('Maximum Income must be greater than Minimum Income'));
+                  return Promise.reject(
+                    new Error(
+                      'Maximum Income must be greater than Minimum Income',
+                    ),
+                  );
                 }
                 return Promise.resolve();
               },
             },
           ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="h-12 mt-2 w-full input-number-mobile"
@@ -188,7 +210,15 @@ const Drawer: React.FC = () => {
         <Form.Item
           label="Rate in %"
           name="rate"
-          rules={[{ required: true, message: 'Please input the tax rate!' }]}
+          rules={[
+            { type: 'number', required: true, message: 'Please input the tax rate!' },
+          ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="w-full h-12 mt-2 input-number-mobile"
@@ -206,7 +236,15 @@ const Drawer: React.FC = () => {
         <Form.Item
           label="Deduction"
           name="deduction"
-          rules={[{ required: true, message: 'Please input the deduction!' }]}
+          rules={[
+            { type: 'number', required: true, message: 'Please input the deduction!' },
+          ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="w-full h-12 mt-2 input-number-mobile"
