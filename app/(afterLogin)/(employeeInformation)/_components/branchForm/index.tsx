@@ -4,6 +4,8 @@ import { Form, Input, Button, Space, Modal, FormInstance } from 'antd';
 import { Branch } from '@/store/server/features/organizationStructure/branchs/interface';
 import { showValidationErrors } from '@/utils/showValidationErrors';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 const BranchForm: React.FC<{
   onClose: () => void;
@@ -106,18 +108,9 @@ const BranchForm: React.FC<{
               required: true,
               message: 'Please enter the contact number',
             },
-            {
-              pattern: /^[0-9]{9,10}$/,
-              message: 'Please enter a valid phone number with 9-10 digits',
-            },
           ]}
         >
-          <Input
-            type="number"
-            size="large"
-            placeholder="Enter contact number"
-            addonBefore="+251"
-          />
+          <PhoneInput defaultCountry="et" inputClassName="ant-input" />
         </Form.Item>
 
         <Form.Item
