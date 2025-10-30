@@ -1,10 +1,7 @@
 import React from 'react';
 import { Button, Col, DatePicker, Input, Modal, Row, Select } from 'antd';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
-import {
-  useGetStages,
-  useGetTalentPoolCategory,
-} from '@/store/server/features/recruitment/candidate/queries';
+import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import { useDebounce } from '@/utils/useDebounce';
 import dayjs from 'dayjs';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
@@ -30,7 +27,6 @@ const Filters = () => {
     currentPage,
     page,
   );
-  const { data: talentPoolCategory } = useGetTalentPoolCategory();
   const { data: stageList } = useGetStages();
   const { isMobile, isTablet } = useIsMobile();
 
@@ -55,9 +51,6 @@ const Filters = () => {
     }
   };
 
-  const handleTalentPoolCategoryChange = (value: string) => {
-    onSelectChange(value, 'talentPoolCategory');
-  };
   const handleJobChange = (value: string) => {
     onSelectChange(value, 'job');
   };
@@ -73,33 +66,25 @@ const Filters = () => {
   const Filters = (
     <Row gutter={[16, 16]} justify="space-between">
       <Col lg={8} sm={24} xs={24}>
-        <div className="w-full">
-          <RangePicker
-            id={`inputDateRange${searchParams.date_range}`}
-            onChange={(dates: any) => handleSearchByDateRange(dates)}
-            className="w-full h-14"
-            allowClear
-          />
-        </div>
+        <Input
+          id={`inputSearchByNameTop${searchParams?.search || ''}`}
+          placeholder="Search by name"
+          allowClear
+          className="h-14 text-md placeholder:text-gray-400"
+          value={searchParams?.search || ''}
+          onChange={(e) => onSearchChange(e.target.value, 'search')}
+        />
       </Col>
 
       <Col lg={16} sm={24} xs={24}>
         <Row gutter={[8, 16]}>
           <Col lg={6} sm={12} xs={24}>
-            <Select
-              id={`selectTalentPoolCategory${searchParams?.talentPoolCategory}`}
-              placeholder="Select talent pool category"
-              onChange={handleTalentPoolCategoryChange}
-              allowClear
+            <RangePicker
+              id={`inputDateRange${searchParams.date_range}`}
+              onChange={(dates: any) => handleSearchByDateRange(dates)}
               className="w-full h-14"
-            >
-              {talentPoolCategory &&
-                talentPoolCategory?.items?.map((pool: any) => (
-                  <Option key={pool?.id} value={pool?.id}>
-                    {pool?.title}
-                  </Option>
-                ))}
-            </Select>
+              allowClear
+            />
           </Col>
           <Col lg={6} sm={12} xs={24}>
             <Select
