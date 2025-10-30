@@ -83,13 +83,13 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     if (Array.isArray(existingEntitlements)) {
       entitlementsArray = existingEntitlements;
     } else if (
-      existingEntitlements.compensationItmeEntitlement &&
-      Array.isArray(existingEntitlements.compensationItmeEntitlement)
+      existingEntitlements?.compensationItmeEntitlement &&
+      Array.isArray(existingEntitlements?.compensationItmeEntitlement)
     ) {
       entitlementsArray = existingEntitlements.compensationItmeEntitlement;
     } else if (
-      existingEntitlements.items &&
-      Array.isArray(existingEntitlements.items)
+      existingEntitlements?.items &&
+      Array.isArray(existingEntitlements?.items)
     ) {
       entitlementsArray = existingEntitlements.items;
     }
@@ -119,7 +119,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    const paymentAmount = formValues.payments.reduce(
+    const paymentAmount = (formValues?.payments || []).reduce(
       (acc: number, item: { amount?: number }) =>
         acc + Number(item.amount || 0),
       0,
@@ -133,7 +133,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     }
 
     // Check for duplicates before proceeding
-    const selectedEmployeeIds = formValues.employeeIds;
+    const selectedEmployeeIds = formValues?.employeeIds || [];
     const { hasDuplicates, duplicateNames } =
       checkForDuplicates(selectedEmployeeIds);
 
@@ -151,9 +151,9 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       {
         ...formValues,
         compensationItemId: id,
-        employeeIds: formValues.employeeIds,
-        totalAmount: formValues.totalAmount,
-        settlementPeriod: Number(formValues.settlementPeriod),
+        employeeIds: formValues?.employeeIds || [],
+        totalAmount: formValues?.totalAmount || 0,
+        settlementPeriod: Number(formValues?.settlementPeriod || 0),
         isRate: benefitDatas?.isRate,
       },
       {
