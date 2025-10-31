@@ -1,4 +1,4 @@
-import { Flex, Form, Input, Select, Tooltip, Modal, Button } from 'antd';
+import { Flex, Form, Input, Select, Modal, Button } from 'antd';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { formatToOptions } from '@/helpers/formatTo';
 import { IoSearch } from 'react-icons/io5';

@@ -260,7 +260,7 @@ const EmployeeSearch: React.FC = () => {
       width="100%"
       style={{ top: '80px' }}
       styles={{
-        body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }
+        body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' },
       }}
     >
       {Filters}

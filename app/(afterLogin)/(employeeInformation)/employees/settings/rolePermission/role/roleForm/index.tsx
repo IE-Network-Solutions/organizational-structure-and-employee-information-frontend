@@ -211,7 +211,7 @@ const ListOfRoles = () => {
           setCurrentModal(null);
         }}
         styles={{
-          body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }
+          body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' },
         }}
       >
         <Form

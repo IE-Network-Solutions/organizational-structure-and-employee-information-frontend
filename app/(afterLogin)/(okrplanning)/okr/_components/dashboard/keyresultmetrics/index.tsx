@@ -15,6 +15,7 @@ interface KPIMetricsProps {
   myOkr: boolean;
   updatedKeyResults: any;
   objectiveId: string;
+  objectiveUserId: string;
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({

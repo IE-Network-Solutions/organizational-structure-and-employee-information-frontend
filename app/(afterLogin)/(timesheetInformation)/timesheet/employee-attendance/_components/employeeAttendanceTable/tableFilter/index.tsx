@@ -59,8 +59,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             optionFilterProp="label"
             filterOption={(input, option) =>
               (typeof option?.label === 'string'
-                  ? option.label.toLowerCase()
-                  : ''
+                ? option.label.toLowerCase()
+                : ''
               ).includes(input.toLowerCase())
             }
             style={{ height: '42px' }}
@@ -107,7 +107,10 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   );
 
   return (
-    <Form form={form} onFieldsChange={() => !isSmallScreen && onChange(form.getFieldsValue())}>
+    <Form
+      form={form}
+      onFieldsChange={() => !isSmallScreen && onChange(form.getFieldsValue())}
+    >
       {isSmallScreen ? (
         <>
           {/* Mobile: Date Filter + Filter Button */}
@@ -189,8 +192,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                 optionFilterProp="label"
                 filterOption={(input, option) =>
                   (typeof option?.label === 'string'
-                      ? option.label.toLowerCase()
-                      : ''
+                    ? option.label.toLowerCase()
+                    : ''
                   ).includes(input.toLowerCase())
                 }
               />
