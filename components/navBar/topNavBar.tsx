@@ -8,6 +8,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { usePWA } from '@/hooks/usePWA';
 import { BellOutlined, DownloadOutlined } from '@ant-design/icons';
 import NotificationBar from './notificationBar';
+import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 
 const { Header } = Layout;
 
@@ -93,7 +94,11 @@ const NavBar = ({ page, handleLogout }: NavBarProps) => {
 
         <Dropdown overlay={menu} placement="bottomRight">
           <Avatar
-            src={employeeData?.profileImage}
+            src={
+              employeeData?.profileImage ||
+              (DefaultAvatar as any).src ||
+              (DefaultAvatar as unknown as string)
+            }
             className="cursor-pointer border-gray-300 rounded-full"
           />
         </Dropdown>
