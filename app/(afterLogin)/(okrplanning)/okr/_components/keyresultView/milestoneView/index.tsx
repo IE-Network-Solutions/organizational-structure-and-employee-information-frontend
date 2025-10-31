@@ -315,11 +315,22 @@ const MilestoneView: React.FC<OKRProps> = ({
             okText="Yes"
             cancelText="No"
           >
-            <Button
-              type="text"
-              icon={<VscClose />}
-              className="absolute top-2 right-2 rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
-            />
+            <button className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 6L14 14M6 14L14 6"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
           </Popconfirm>
         </Tooltip>
       )}
@@ -467,52 +478,60 @@ const MilestoneView: React.FC<OKRProps> = ({
         </div>
 
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
-          {/* Row 1: Title */}
-          <Form.Item
-            className="w-full font-bold mb-0"
-            rules={[
-              {
-                required: true,
-                message: 'Milestone title is required',
-                validator: (notused, value) =>
-                  value && value.trim() !== ''
-                    ? Promise.resolve()
-                    : Promise.reject(new Error('Milestone title is required')),
-              },
-            ]}
-          >
-            <Input
-              id={`key-result-title-mobile-${index}`}
-              value={keyValue.title || ''}
-              onChange={(e) => {
-                handleChange(e.target.value, 'title');
-              }}
-              className="h-10 rounded-lg border-gray-300"
-              placeholder="Enter milestone title"
-            />
-            {!keyValue.title && (
-              <div className="text-red-500 font-semibold absolute top-[30px]">
-                Milestone title is required
-              </div>
-            )}
-          </Form.Item>
-
-          {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+        <div
+          className={`${isMobile ? 'block' : 'hidden'} flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2`}
+        >
+          {/* Row 1: Key Result Name */}
+          <div>
             <Form.Item
-              className="w-48 font-bold mb-0"
+              className="mb-0"
+              rules={[
+                {
+                  required: true,
+                  message: 'Milestone title is required',
+                  validator: (notused, value) =>
+                    value && value.trim() !== ''
+                      ? Promise.resolve()
+                      : Promise.reject(
+                          new Error('Milestone title is required'),
+                        ),
+                },
+              ]}
+              id={`key-result-title-mobile-${index}`}
+            >
+              <Input
+                id={`key-result-title-mobile-${index}`}
+                placeholder="Key Result Name"
+                aria-label="Key Result Name"
+                className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                value={keyValue.title === '' ? undefined : keyValue.title}
+                onChange={(e) => {
+                  handleChange(e.target.value, 'title');
+                }}
+              />
+              {!keyValue.title && (
+                <div className="text-red-500 font-semibold absolute top-[30px]">
+                  Milestone title is required
+                </div>
+              )}
+            </Form.Item>
+          </div>
+          {/* Row 2: Type (full width on mobile) */}
+          <div>
+            <Form.Item
+              className="mb-0"
               rules={[
                 {
                   required: true,
                   message: 'Please select a Key Result type',
                 },
               ]}
+              id={`key-result-type-mobile-${index}`}
             >
               {isEdit ? (
                 <Select
-                  className="w-full h-10 rounded-lg text-base"
-                  placeholder="Please select a metric type"
+                  className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                  placeholder="Select metric type"
                   value={keyValue?.metricTypeId}
                   onChange={(value) => {
                     const selectedMetric = metrics?.items?.find(
@@ -532,16 +551,18 @@ const MilestoneView: React.FC<OKRProps> = ({
                 </Select>
               ) : (
                 <Button
-                  className="w-full h-10 rounded-lg text-base bg-gray-100 border-gray-300 text-gray-600"
+                  className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base bg-gray-100 border-gray-300 text-gray-600"
                   disabled
                 >
                   Milestone
                 </Button>
               )}
             </Form.Item>
-
+          </div>
+          {/* Row 3: Weight and Deadline */}
+          <div className="flex flex-row gap-2">
             <Form.Item
-              className="w-24 font-bold mb-0"
+              className="flex-1 mb-0"
               rules={[
                 { required: true, message: 'Weight is required' },
                 {
@@ -551,30 +572,31 @@ const MilestoneView: React.FC<OKRProps> = ({
                   message: 'Weight must be between 1 and 100',
                 },
               ]}
+              id={`key-result-weight-mobile-${index}`}
             >
               <InputNumber
                 id={`key-result-weight-mobile-${index}`}
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 min={1}
                 max={100}
+                suffix="%"
+                placeholder="100"
                 value={keyValue?.weight || 0}
                 onChange={(value) => {
                   handleChange(value, 'weight');
                 }}
-                className="w-full h-10 rounded-lg border-gray-300"
-                suffix="%"
                 disabled={isEdit}
               />
             </Form.Item>
-
-            <Form.Item className="w-32 font-bold mb-0">
+            <Form.Item
+              className="flex-1 mb-0"
+              id={`key-result-deadline-mobile-${index}`}
+            >
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
-                onChange={(dateString) => {
-                  handleChange(dateString, 'deadline');
-                }}
                 format="YYYY-MM-DD"
-                className="w-full h-10 rounded-lg border-gray-300"
                 disabledDate={(current) => {
                   const startOfToday = dayjs().startOf('day');
                   const objectiveDeadline = dayjs(objectiveValue?.deadline);
@@ -583,6 +605,9 @@ const MilestoneView: React.FC<OKRProps> = ({
                     current &&
                     (current < startOfToday || current > objectiveDeadline)
                   );
+                }}
+                onChange={(dateString) => {
+                  handleChange(dateString, 'deadline');
                 }}
               />
               {!keyValue.deadline && (
@@ -596,14 +621,18 @@ const MilestoneView: React.FC<OKRProps> = ({
 
         {/* Milestones Section */}
         {keyValue?.milestones?.length != 0 && keyValue?.milestones && (
-          <Form.Item className="pl-5 mt-4" required>
+          <Form.Item className="mt-4" required>
             <div
-              className={`space-y-3 px-6 ${isEdit ? 'bg-gray-50 rounded-lg py-2' : ''}`}
+              className={`${isMobile ? 'flex flex-col gap-2 sm:pl-3' : 'space-y-3 px-6'} ${isEdit ? 'bg-gray-50 rounded-lg py-2' : ''}`}
             >
               {keyValue?.milestones.map((milestone, mindex) => (
                 <div
                   key={milestone?.id || `${index}-${mindex}`}
-                  className="flex items-center gap-2"
+                  className={
+                    isMobile
+                      ? 'flex flex-col xs:flex-row gap-2'
+                      : 'flex items-center gap-2'
+                  }
                   id={`milestone-${index}-${mindex}`}
                 >
                   <Form.Item
@@ -624,67 +653,153 @@ const MilestoneView: React.FC<OKRProps> = ({
                       onChange={(e) =>
                         milestoneChange(e.target.value, index, mindex, 'title')
                       }
-                      className="h-10 rounded-lg text-base"
+                      className={
+                        isMobile
+                          ? 'h-10 sm:h-11 rounded-lg text-sm sm:text-base'
+                          : 'h-10 rounded-lg text-base'
+                      }
                     />
                   </Form.Item>
 
-                  <Form.Item className="w-24 mb-0">
-                    <InputNumber
-                      disabled={milestone?.status == 'Completed'}
-                      id={`milestone-weight-${index}-${mindex}`}
-                      min={0}
-                      max={100}
-                      suffix="%"
-                      value={milestone.weight}
-                      onChange={(value) =>
-                        milestoneChange(value, index, mindex, 'weight')
-                      }
-                      className="w-full h-10 rounded-lg text-base"
-                    />
-                  </Form.Item>
-
-                  <div className="w-48 flex gap-2 items-center">
-                    <Popconfirm
-                      title="Are you sure you want to remove this milestone?"
-                      onConfirm={() =>
-                        milestone?.id
-                          ? handleMilestoneDelete(milestone?.id)
-                          : milestoneRemove(index, mindex)
-                      }
-                      okText="Yes"
-                      cancelText="No"
-                      placement="top"
-                      disabled={milestone?.status === 'Completed'}
-                    >
-                      <Tooltip
-                        title={
-                          milestone?.status === 'Completed'
-                            ? 'This milestone is completed and cannot be removed.'
-                            : 'Remove Milestone'
-                        }
-                      >
-                        <Button
-                          disabled={milestone?.status === 'Completed'}
-                          id={`remove-milestone-${index}-${mindex}`}
-                          icon={<VscClose size={12} className="text-white" />}
-                          className="rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
-                          type="primary"
+                  {isMobile ? (
+                    <div className="flex gap-2 items-center">
+                      <Form.Item className="flex-1 xs:w-20 sm:w-24 mb-0">
+                        <InputNumber
+                          disabled={milestone?.status == 'Completed'}
+                          id={`milestone-weight-${index}-${mindex}`}
+                          min={0}
+                          max={100}
+                          placeholder="Weight"
+                          suffix="%"
+                          value={milestone.weight}
+                          onChange={(value) =>
+                            milestoneChange(value, index, mindex, 'weight')
+                          }
+                          className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                         />
-                      </Tooltip>
-                    </Popconfirm>
-
-                    {/* Add Milestone Button - only show next to first milestone */}
-                    {mindex === 0 && (
-                      <Button
-                        id={`add-milestone-${index}`}
-                        className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center flex-1"
-                        type="primary"
-                        onClick={() => addMilestone(index)}
+                      </Form.Item>
+                      <Popconfirm
+                        title="Are you sure you want to remove this milestone?"
+                        onConfirm={() =>
+                          milestone?.id
+                            ? handleMilestoneDelete(milestone?.id)
+                            : milestoneRemove(index, mindex)
+                        }
+                        okText="Yes"
+                        cancelText="No"
+                        placement="top"
+                        disabled={milestone?.status === 'Completed'}
                       >
-                        Add Milestone
-                      </Button>
-                    )}
-                  </div>
+                        <Tooltip
+                          title={
+                            milestone?.status === 'Completed'
+                              ? 'This milestone is completed and cannot be removed.'
+                              : 'Remove Milestone'
+                          }
+                        >
+                          <button
+                            disabled={milestone?.status === 'Completed'}
+                            id={`remove-milestone-${index}-${mindex}`}
+                            title="Remove Milestone"
+                            aria-label="Remove Milestone"
+                            className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                            style={{ zIndex: 10 }}
+                          >
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M6 6L14 14M6 14L14 6"
+                                stroke="white"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </button>
+                        </Tooltip>
+                      </Popconfirm>
+
+                      {/* Add Milestone Button - only show next to first milestone */}
+                      {mindex === 0 && (
+                        <Button
+                          id={`add-milestone-${index}`}
+                          className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-lg w-6 h-6 flex items-center justify-center shadow"
+                          aria-label="Add Milestone"
+                          onClick={() => addMilestone(index)}
+                          type="primary"
+                        >
+                          <span className="hidden xs:inline">Add</span>
+                          <span className="xs:hidden">+</span>
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <Form.Item className="w-24 mb-0">
+                        <InputNumber
+                          disabled={milestone?.status == 'Completed'}
+                          id={`milestone-weight-${index}-${mindex}`}
+                          min={0}
+                          max={100}
+                          suffix="%"
+                          value={milestone.weight}
+                          onChange={(value) =>
+                            milestoneChange(value, index, mindex, 'weight')
+                          }
+                          className="w-full h-10 rounded-lg text-base"
+                        />
+                      </Form.Item>
+
+                      <div className="w-48 flex gap-2 items-center">
+                        <Popconfirm
+                          title="Are you sure you want to remove this milestone?"
+                          onConfirm={() =>
+                            milestone?.id
+                              ? handleMilestoneDelete(milestone?.id)
+                              : milestoneRemove(index, mindex)
+                          }
+                          okText="Yes"
+                          cancelText="No"
+                          placement="top"
+                          disabled={milestone?.status === 'Completed'}
+                        >
+                          <Tooltip
+                            title={
+                              milestone?.status === 'Completed'
+                                ? 'This milestone is completed and cannot be removed.'
+                                : 'Remove Milestone'
+                            }
+                          >
+                            <Button
+                              disabled={milestone?.status === 'Completed'}
+                              id={`remove-milestone-${index}-${mindex}`}
+                              icon={
+                                <VscClose size={12} className="text-white" />
+                              }
+                              className="rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
+                              type="primary"
+                            />
+                          </Tooltip>
+                        </Popconfirm>
+
+                        {/* Add Milestone Button - only show next to first milestone */}
+                        {mindex === 0 && (
+                          <Button
+                            id={`add-milestone-${index}`}
+                            className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center flex-1"
+                            type="primary"
+                            onClick={() => addMilestone(index)}
+                          >
+                            Add Milestone
+                          </Button>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -695,44 +810,96 @@ const MilestoneView: React.FC<OKRProps> = ({
         {(!keyValue?.milestones || keyValue?.milestones?.length === 0) && (
           <Form.Item className="pl-5 mt-4" required>
             <div
-              className={`space-y-3 px-6 ${isEdit ? 'bg-gray-50 rounded-lg py-2' : ''}`}
+              className={`${isMobile ? 'flex flex-col gap-2 pl-2 sm:pl-3' : 'space-y-3 px-6'} ${isEdit ? 'bg-gray-50 rounded-lg py-2' : ''}`}
             >
-              <div className="flex items-center gap-2">
-                <Form.Item className="flex-1 mb-0">
-                  <Input
-                    placeholder="Set Milestone"
-                    className="h-10 rounded-lg text-base"
-                    disabled
-                  />
-                </Form.Item>
-
-                <Form.Item className="w-24 mb-0">
-                  <InputNumber
-                    placeholder="100"
-                    suffix="%"
-                    className="w-full h-10 rounded-lg text-base"
-                    disabled
-                  />
-                </Form.Item>
-
-                <div className="w-48 flex gap-2 items-center">
-                  <Button
-                    className="rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
-                    disabled
-                  >
-                    <VscClose size={12} className="text-white" />
-                  </Button>
-
-                  <Button
-                    id={`add-milestone-${index}`}
-                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center flex-1"
-                    type="primary"
-                    onClick={() => addMilestone(index)}
-                  >
-                    Add Milestone
-                  </Button>
+              {isMobile ? (
+                <div className="flex flex-col xs:flex-row gap-2">
+                  <Form.Item className="flex-1 mb-0">
+                    <Input
+                      placeholder="Set Milestone"
+                      className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                      disabled
+                    />
+                  </Form.Item>
+                  <div className="flex gap-2">
+                    <Form.Item className="flex-1 xs:w-20 sm:w-24 mb-0">
+                      <InputNumber
+                        placeholder="Weight"
+                        suffix="%"
+                        className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                        disabled
+                      />
+                    </Form.Item>
+                    <button
+                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shadow transition-colors flex-shrink-0"
+                      disabled
+                      style={{ zIndex: 10 }}
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6 6L14 14M6 14L14 6"
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
+                    <Button
+                      id={`add-milestone-${index}`}
+                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center flex-shrink-0"
+                      aria-label="Add Milestone"
+                      onClick={() => addMilestone(index)}
+                      type="primary"
+                    >
+                      <span className="hidden xs:inline">Add</span>
+                      <span className="xs:hidden">+</span>
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Form.Item className="flex-1 mb-0">
+                    <Input
+                      placeholder="Set Milestone"
+                      className="h-10 rounded-lg text-base"
+                      disabled
+                    />
+                  </Form.Item>
+
+                  <Form.Item className="w-24 mb-0">
+                    <InputNumber
+                      placeholder="100"
+                      suffix="%"
+                      className="w-full h-10 rounded-lg text-base"
+                      disabled
+                    />
+                  </Form.Item>
+
+                  <div className="w-48 flex gap-2 items-center">
+                    <Button
+                      className="rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
+                      disabled
+                    >
+                      <VscClose size={12} className="text-white" />
+                    </Button>
+
+                    <Button
+                      id={`add-milestone-${index}`}
+                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 flex items-center justify-center flex-1"
+                      type="primary"
+                      onClick={() => addMilestone(index)}
+                    >
+                      Add Milestone
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </Form.Item>
         )}

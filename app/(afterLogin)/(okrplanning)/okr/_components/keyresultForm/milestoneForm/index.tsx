@@ -64,7 +64,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const { isMobile } = useIsMobile();
 
   return (
-    <div className="relative bg-gray-50 rounded-xl border-none p-3 sm:p-4 md:p-6 mb-4">
+    <div className="py-3 rounded-lg p-4 relative pb-6 bg-gray-50">
       <button
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
@@ -208,7 +208,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               </Form.Item>
             </div>
             {/* Row 4: Milestone fields */}
-            <div className="flex flex-col gap-2 pl-2 sm:pl-3">
+            <div className="flex flex-col gap-2 sm:pl-3">
               {/* First milestone row */}
               <div className="flex flex-col xs:flex-row gap-2">
                 <Form.Item className="flex-1 mb-0">
@@ -225,7 +225,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     }
                   />
                 </Form.Item>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <Form.Item className="flex-1 xs:w-20 sm:w-24 mb-0">
                     <InputNumber
                       className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
@@ -243,7 +243,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     onClick={() => handleRemoveMilestone(0)}
                     title="Remove Milestone"
                     aria-label="Remove Milestone"
-                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shadow transition-colors flex-shrink-0"
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
                     style={{ zIndex: 10 }}
                   >
                     <svg
