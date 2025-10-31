@@ -127,9 +127,10 @@ export const useGetAllMonth = () => {
   });
 };
 
-export const useGetVPScore = (userId: string) => {
+export const useGetVPScore = (userId: string, enabled: boolean = true) => {
   return useQuery<any>(['VPScores', userId], () => getVpScore(userId), {
     keepPreviousData: true,
+    enabled,
   });
 };
 
