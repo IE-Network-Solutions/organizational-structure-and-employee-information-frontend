@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from 'antd';
 import React, { useEffect } from 'react';
+import SessionFilter from '../filters/SessionFilter';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosOpen, IoMdMore } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
@@ -22,6 +23,7 @@ import {
   useGetPlanningPeriodsHierarchy,
   useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import {
@@ -58,10 +60,16 @@ function Planning() {
     setPageSize,
     activeTab,
     activePlanPeriodId,
+    selectedSessionIds,
+    selectedFiscalYearId,
+    allSessionsOfYear,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { isMobile, isTablet } = useIsMobile();
   const { userId } = useAuthenticationStore();
+  const { data: selectedFiscalYear } = useGetFiscalYearById(
+    selectedFiscalYearId || '',
+  );
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
   const { data: departmentData } = useGetDepartmentsWithUsers();
@@ -100,6 +108,14 @@ function Planning() {
     planPeriodId: planningPeriodId ?? '',
     page,
     pageSize,
+    // If no sessions selected but year is selected, send all sessions
+    // If sessions are selected, send only those
+    sessionId:
+      selectedSessionIds.length > 0
+        ? selectedSessionIds
+        : allSessionsOfYear.length > 0
+          ? allSessionsOfYear
+          : [],
   });
   const { data: allUserPlanning } = useGetUserPlanning(
     planningPeriodId ?? '',
@@ -221,6 +237,29 @@ function Planning() {
       ).length ?? 0) === 0
     : false;
 
+  // Check if data belongs to an active session
+  const isDataFromActiveSession = (createdAt: string): boolean => {
+    // If no fiscal year is selected, allow all actions (default behavior)
+    if (!selectedFiscalYearId || !selectedFiscalYear?.sessions) {
+      return true;
+    }
+
+    const dataDate = dayjs(createdAt);
+
+    // Check if the data falls within any active session
+    const activeSession = selectedFiscalYear.sessions.find((session) => {
+      const sessionStart = dayjs(session.startDate);
+      const sessionEnd = dayjs(session.endDate);
+      return (
+        session.active &&
+        (dataDate.isAfter(sessionStart) || dataDate.isSame(sessionStart)) &&
+        (dataDate.isBefore(sessionEnd) || dataDate.isSame(sessionEnd))
+      );
+    });
+
+    return !!activeSession;
+  };
+
   const getDateLabel = (createdAt: string, activeTabName: string): string => {
     const planDate = dayjs(createdAt);
     const today = dayjs();
@@ -250,12 +289,13 @@ function Planning() {
   return (
     <Spin spinning={getPlanningLoading} tip="Loading...">
       <div className="min-h-screen">
-        <div className="flex  items-center my-4 gap-4">
+        <div className="flex items-center my-4 gap-4">
           <EmployeeSearch
             optionArray1={employeeData?.items}
             optionArray2={PlanningType}
             optionArray3={departmentData}
           />
+          <SessionFilter />
           <Tooltip
             title={
               allUserPlanning?.length != 0
@@ -270,7 +310,7 @@ function Planning() {
                     : ''
             }
           >
-            <div className="flex-1" style={{ display: 'inline-block' }}>
+            <div style={{ display: 'inline-block' }}>
               {userPlanningPeriodId && (
                 <CustomButton
                   disabled={
@@ -393,7 +433,8 @@ function Planning() {
                           )}
                           {userId === dataItem?.createdBy &&
                             dataItem?.isValidated == false &&
-                            dataItem?.isReported == false && (
+                            dataItem?.isReported == false &&
+                            isDataFromActiveSession(dataItem?.createdAt) && (
                               <Dropdown
                                 overlay={actionsMenuEditandDelte(
                                   dataItem,
