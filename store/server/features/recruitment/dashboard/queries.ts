@@ -318,7 +318,7 @@ const downloadJobPostPerformanceExport = async (params: {
 
     // Extract download URL and filename from response
 
-    const { downloadUrl, fileName } = response;
+    const { downloadUrl } = response;
 
     if (!downloadUrl) {
       throw new Error('Download URL not found in response');

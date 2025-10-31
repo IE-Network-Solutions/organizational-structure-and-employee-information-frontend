@@ -20,16 +20,6 @@ const getPlanningData = async (params: DataType) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-
-  console.log('=== getPlanningData API Call ===');
-  console.log('params:', params);
-  console.log('URL:', `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}`);
-  console.log(
-    'userId data:',
-    params?.userId.length === 0 ? [''] : params?.userId,
-  );
-  console.log('================================');
-
   if (params?.page) {
     return await crudRequest({
       url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}?page=${params?.page}&limit=${params.pageSize}`,
@@ -53,16 +43,6 @@ const getUserPlanningData = async (planPeriodId: string, forPlan: string) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
-
-  console.log('=== getUserPlanningData API Call ===');
-  console.log('planPeriodId:', planPeriodId);
-  console.log('forPlan:', forPlan);
-  console.log('userId:', userId);
-  console.log(
-    'URL:',
-    `${OKR_URL}/plan/find-all-plans/users/${userId}/planning-period/${planPeriodId}?forPlan=${forPlan}`,
-  );
-  console.log('=====================================');
 
   return await crudRequest({
     url: `${OKR_URL}/plan/find-all-plans/users/${userId}/planning-period/${planPeriodId}?forPlan=${forPlan}`,
