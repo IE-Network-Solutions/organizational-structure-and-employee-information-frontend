@@ -335,7 +335,17 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           }
           rules={[{ required: true, message: 'Please input department!' }]}
         >
-          <Select placeholder="Department" className="w-full h-10 text-sm">
+          <Select
+            placeholder="Department"
+            className="w-full h-10 text-sm"
+            showSearch
+            allowClear
+            filterOption={(input, option) =>
+              String(option?.children ?? '')
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
             {EmployeeDepartment?.map((item: DepartmentData) => (
               <Option key={item?.id} value={item?.id}>
                 {item?.name}

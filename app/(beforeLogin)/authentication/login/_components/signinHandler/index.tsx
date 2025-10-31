@@ -82,7 +82,7 @@ export const useHandleSignIn = () => {
                 message.error('Please enter your email');
                 return Promise.reject();
               }
-              resolve(inputValue);
+              resolve(inputValue.toLowerCase());
             },
             onCancel: () => resolve(''),
           });
@@ -152,7 +152,7 @@ export const useHandleSignIn = () => {
       if (!email && pendingCred?.idToken) {
         try {
           const decoded = JSON.parse(atob(pendingCred.idToken.split('.')[1]));
-          email = decoded?.email;
+          email = decoded?.email?.toLowerCase();
         } catch {
           message.error('Could not get email from credential');
         }
@@ -170,7 +170,7 @@ export const useHandleSignIn = () => {
 
       let methods: string[] = [];
       try {
-        methods = await fetchSignInMethodsForEmail(auth, email);
+        methods = await fetchSignInMethodsForEmail(auth, email.toLowerCase());
       } catch {
         message.warning('fetchSignInMethodsForEmail failed');
       }
@@ -192,7 +192,7 @@ export const useHandleSignIn = () => {
         if (password) {
           const emailUser = await signInWithEmailAndPassword(
             auth,
-            email,
+            email.toLowerCase(),
             password,
           );
           if (pendingCred) {

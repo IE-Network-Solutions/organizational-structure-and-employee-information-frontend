@@ -48,7 +48,8 @@ RUN set -e && \
     echo "Building Next.js app..." && \
     NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
     echo "✅ Build complete" && \
-    echo "PORT=${APP_PORT}" > /tmp/.port.env
+    cp .env /tmp/.port.env && \
+    echo "✅ Copied .env to /tmp/.port.env"
 
 # =========================
 # Stage 3: Runner

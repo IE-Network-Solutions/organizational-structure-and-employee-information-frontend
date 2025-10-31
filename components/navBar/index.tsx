@@ -246,7 +246,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         {
           title: <span>Settings</span>,
           key: '/recruitment/settings',
-          className: 'fon t-bold',
+          className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
