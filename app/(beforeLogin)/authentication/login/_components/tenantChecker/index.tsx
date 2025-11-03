@@ -11,7 +11,18 @@ export const useTenantChecker = () => {
     setHostName(window.location.hostname);
   }, [setHostName]);
 
-  const domainName = hostname?.split('.')[0];
+  // Derive tenant domain name only for real subdomains; skip localhost/IPs
+  const deriveDomainName = (h: string | undefined) => {
+    if (!h) return '';
+    // Skip localhost and IPv4 addresses in local dev
+    if (h === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(h)) return '';
+    const parts = h.split('.');
+    // Expect subdomain.domain.tld (length >= 3)
+    if (parts.length < 3) return '';
+    return parts[0];
+  };
+
+  const domainName = deriveDomainName(hostname);
 
   const { data: tenantInfo, refetch } = useGetTenantByDomain({
     domain: domainName || '',
@@ -19,7 +30,7 @@ export const useTenantChecker = () => {
 
   useEffect(() => {
     if (domainName) {
-      refetch(); // Only refetch if PWA is true
+      refetch();
     }
   }, [domainName, refetch]);
 
