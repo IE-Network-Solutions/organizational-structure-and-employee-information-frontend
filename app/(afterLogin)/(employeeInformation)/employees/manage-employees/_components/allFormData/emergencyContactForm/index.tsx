@@ -18,7 +18,7 @@ const EmergencyContactForm = () => {
         Emergency Contact
       </div>
       <Row gutter={16}>
-        <Col xs={24} sm={12}>
+        <Col xs={24} sm={8}>
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'firstName']}
@@ -63,7 +63,7 @@ const EmergencyContactForm = () => {
             <Input />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12}>
+        <Col xs={24} sm={8}>
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'lastName']}
@@ -99,12 +99,11 @@ const EmergencyContactForm = () => {
             rules={[
               {
                 required: true,
-                validator: (rule, value) =>
-                  !validatePhoneNumber(value)
-                    ? Promise.resolve()
-                    : Promise.reject(
-                        new Error(validatePhoneNumber(value) || ''),
-                      ),
+                message: 'Phone Number is required.',
+              },
+              {
+                pattern: /^\+?[0-9]\d{6,14}$/,
+                message: 'Enter a valid phone number',
               },
             ]}
           >
@@ -127,7 +126,7 @@ const EmergencyContactForm = () => {
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col xs={24} sm={12}>
+        <Col xs={24} sm={24}>
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'nationality']}
