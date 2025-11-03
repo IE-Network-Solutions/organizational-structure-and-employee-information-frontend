@@ -4,7 +4,7 @@ import { useGetNationalities } from '@/store/server/features/employees/employeeM
 import AddCustomField from '../../addCustomField';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
-import { validateName, validatePhoneNumber } from '@/utils/validation';
+import { validateName } from '@/utils/validation';
 
 const { Option } = Select;
 
