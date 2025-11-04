@@ -78,7 +78,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
   };
 
   useEffect(() => {
-    const payments = employeeEntitlementData?.settlementTracking.map(
+    const payments = (employeeEntitlementData?.settlementTracking || []).map(
       (entry: any) => ({
         amount: parseFloat(entry.amount),
         payPeriodId: entry.payPeriodId || null,
