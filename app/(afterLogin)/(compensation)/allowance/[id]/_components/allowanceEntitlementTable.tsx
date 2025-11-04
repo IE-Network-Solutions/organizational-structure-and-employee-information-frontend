@@ -102,17 +102,10 @@ const AllowanceEntitlementTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (rule: any, record: any) => (
-        <AccessGuard
-          permissions={[
-            Permissions.UpdateAllowanceEntitlement,
-            Permissions.DeleteAllowanceEntitlement,
-          ]}
-        >
+        <AccessGuard permissions={[Permissions.DeleteAllowanceEntitlement]}>
           <div data-testid={`entitlement-actions-${record.id}`}>
             <ActionButtons
               id={record?.id ?? null}
-              onEdit={() => {}}
-              disableEdit
               onDelete={() => handleDelete(record.id)}
             />
           </div>

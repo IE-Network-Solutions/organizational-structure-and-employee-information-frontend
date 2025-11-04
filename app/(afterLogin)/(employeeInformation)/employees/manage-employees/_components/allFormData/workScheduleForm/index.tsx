@@ -53,30 +53,27 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
     selectedWorkSchedule?.detail ||
     selectedWorkScheduleDetails ||
     []
-  ).map((schedule, index) => ({
-    key: index.toString(),
-    workingDay: (
-      <div className="flex space-x-2 justify-start">
-        <Switch checked={schedule?.status || schedule?.workday} disabled />
-        <span>{schedule?.dayOfWeek || schedule?.day}</span>
-      </div>
-    ),
-    time: (
-      <TimePicker
-        defaultValue={dayjs(
-          schedule?.hours ||
-            (schedule?.startTime && schedule?.endTime
-              ? `${dayjs(schedule?.startTime, 'h:mm A').format('HH:mm:ss')} - ${dayjs(
-                  schedule?.endTime,
-                  'h:mm A',
-                ).format('HH:mm:ss')}`
-              : '00:00:00'),
-          'HH:mm:ss',
-        )}
-        disabled
-      />
-    ),
-  }));
+  ).map((schedule, index) => {
+    const timeValue =
+      schedule?.hours ||
+      (schedule?.startTime && schedule?.endTime
+        ? `${dayjs(schedule?.startTime, 'h:mm A').format('HH:mm:ss')} - ${dayjs(
+            schedule?.endTime,
+            'h:mm A',
+          ).format('HH:mm:ss')}`
+        : '00:00:00');
+
+    return {
+      key: `${selectedWorkSchedule?.id || 'default'}-${index}`,
+      workingDay: (
+        <div className="flex space-x-2 justify-start">
+          <Switch checked={schedule?.status || schedule?.workday} disabled />
+          <span>{schedule?.dayOfWeek || schedule?.day}</span>
+        </div>
+      ),
+      time: <TimePicker value={dayjs(timeValue, 'HH:mm:ss')} disabled />,
+    };
+  });
 
   return (
     <div>
