@@ -24,9 +24,31 @@ interface CreateJobsProps {
   stepChange: (value: number) => void;
 }
 
-const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
+const CreateNewJob: React.FC<CreateJobsProps> = ({
+  close,
+  stepChange,
+  form,
+}) => {
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
+
+  const handleNext = async () => {
+    try {
+      await form.validateFields([
+        'jobTitle',
+        'employmentType',
+        'department',
+        'jobLocation',
+        'yearOfExperience',
+        'jobStatus',
+        'compensation',
+        'quantity',
+        'jobDeadline',
+        'description',
+      ]);
+      stepChange(1);
+    } catch (e) {}
+  };
 
   return (
     <div className="p-2">
@@ -310,7 +332,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({ close, stepChange }) => {
           </Button>
           <Button
             id="nextButton"
-            onClick={() => stepChange(1)}
+            onClick={handleNext}
             className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
           >
             Next
