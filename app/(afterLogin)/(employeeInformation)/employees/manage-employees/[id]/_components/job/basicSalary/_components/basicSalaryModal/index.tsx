@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Select, Form, Button, InputNumber, Row, Col, Input } from 'antd';
+import { Modal, Select, Form, Button, InputNumber, Row, Input } from 'antd';
 import type { FC } from 'react';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import {
