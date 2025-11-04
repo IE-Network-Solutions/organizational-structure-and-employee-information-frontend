@@ -16,14 +16,12 @@ import {
   Form,
   Input,
   InputNumber,
-  Modal,
   Popconfirm,
   Radio,
   Row,
   Select,
   Space,
   Switch,
-  Spin,
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
@@ -105,13 +103,13 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
       setSwitchValue(false);
       actualForm.setFieldValue('departmentLeadOrNot', false);
     }
-  }, [department?.length, actualForm]);
+  }, [department?.length, actualForm, setSwitchValue]);
 
   useEffect(() => {
     if (isSuccess) {
       positionRefetch();
     }
-  }, [isSuccess]);
+  }, [isSuccess, positionRefetch]);
 
   // Track modal state and refetch allowance types when modal closes
   useEffect(() => {
@@ -725,8 +723,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
             type: allowanceData.type,
           };
           actualForm.setFieldValue('allowances', [...currentAllowances, newAllowance]);
-
-          console.log('Added allowance to select:', newAllowance);
         }}
       />
     </div>
