@@ -34,6 +34,7 @@ const UserSidebar = (props: any) => {
     setSelectedWorkSchedule,
   } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
+  const { setTempAllowances } = useEmployeeManagementStore();
 
   useEffect(() => {
     if (isSuccess) {
@@ -43,9 +44,10 @@ const UserSidebar = (props: any) => {
       setSelectedPermissions([]);
       setSelectedWorkSchedule(null);
       setCurrent(0);
+      setTempAllowances([]); // Clear temp allowances on success
       form.resetFields();
     }
-  }, [isSuccess]);
+  }, [isSuccess, setTempAllowances]);
 
   const modalHeader = (
     <div className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6">
@@ -101,8 +103,10 @@ const UserSidebar = (props: any) => {
       );
     }
   };
+
   function handleCancel() {
     props?.onClose();
+    setTempAllowances([]); // Clear temp allowances on cancel
     form.resetFields();
     setProfileFileList([]);
   }
@@ -157,7 +161,7 @@ const UserSidebar = (props: any) => {
           )}
           {current === 1 && (
             <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
-              <JobTimeLineForm />
+              <JobTimeLineForm form={form} />
               <RolePermissionForm form={form} />
               <WorkScheduleForm />
               <ButtonContinue
