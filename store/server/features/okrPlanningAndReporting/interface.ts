@@ -69,3 +69,18 @@ type AssignedPlanningPeriod = {
 };
 
 export type AssignedPlanningPeriodLogArray = AssignedPlanningPeriod[];
+
+export type DataType = {
+  userId: string[];
+  sessionId?: string[];
+  planPeriodId: string;
+  page?: number;
+  pageSize?: number;
+  pageReporting?: number;
+  pageSizeReporting?: number;
+};
+
+export type PlanningRequestBody = {
+  userIds: string[];
+  sessionIds?: string[];
+};

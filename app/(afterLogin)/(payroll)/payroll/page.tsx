@@ -740,6 +740,7 @@ const Payroll = () => {
     dataIndex: type.id,
     key: type.id,
     minWidth: 150,
+    //eslint-disable-next-line
     render: (_: any, record: any) => {
       const empAllowance = (record.breakdown?.allowances || []).find(
         (a: any) =>
