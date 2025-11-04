@@ -98,15 +98,12 @@ const BankInformationForm = () => {
               },
               {
                 pattern: /^[0-9]{8,20}$/,
-                message: 'Account number must be 8–20 digits long',
+                message:
+                  'Account number must be a valid number and 8–20 digits long',
               },
             ]}
           >
-            <Input
-              type="number"
-              maxLength={20}
-              placeholder="Enter bank account number"
-            />
+            <Input maxLength={20} placeholder="Enter bank account number" />
           </Form.Item>
         </Col>
       </Row>
