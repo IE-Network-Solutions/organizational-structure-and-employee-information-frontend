@@ -236,7 +236,7 @@ const AllowanceTypeSideBar = ({ asModal = false, modalWidth = 500, onAddToSelect
                   <Form.Item
                     name="nonTaxableAmount"
                     label="Not Taxable Amount"
-                    dependencies={['defaultAmount']}
+                    dependencies={['defaultAmount', 'isRate']}
                     rules={[
                       {
                         validator: (notused, value) => {
@@ -251,11 +251,9 @@ const AllowanceTypeSideBar = ({ asModal = false, modalWidth = 500, onAddToSelect
                       {
                         validator: (notused, value) => {
                           const defaultAmount = form.getFieldValue('defaultAmount');
-                          if (
-                            value &&
-                            defaultAmount &&
-                            Number(value) > Number(defaultAmount)
-                          ) {
+                          const isRate = form.getFieldValue('isRate');
+                          // Only validate if it's not a rate allowance
+                          if (!isRate && value && defaultAmount && Number(value) > Number(defaultAmount)) {
                             return Promise.reject(
                               new Error(
                                 'Non-taxable amount cannot exceed the fixed amount',
