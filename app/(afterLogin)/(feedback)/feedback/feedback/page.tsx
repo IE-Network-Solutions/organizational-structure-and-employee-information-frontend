@@ -112,7 +112,7 @@ const Page = () => {
     if (getAllFeedbackTypes?.items?.length > 0) {
       setActiveTab(getAllFeedbackTypes.items[0].id);
     }
-  }, [getAllFeedbackTypes, userIdData]);
+  }, [getAllFeedbackTypes, userIdData, setUserId, setActiveTab]);
 
   const onChangeFeedbackType = (key: string) => {
     setActiveTab(key);
@@ -150,7 +150,10 @@ const Page = () => {
         });
       }
     } catch (error) {
-      console.error('Export error:', error);
+      NotificationMessage.error({
+        message: 'Export Failed',
+        description: 'An error occurred while exporting feedback data. Please try again.',
+      });
     } finally {
       setIsExporting(false);
     }

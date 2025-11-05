@@ -18,7 +18,7 @@ export const useFeedbackExport = () => {
     data: any[],
     getAllUsers: any,
     getAllFeedbackTypes: any,
-    EmployeeDepartment: any,
+    employeeDepartment: any,
     variantType: 'appreciation' | 'reprimand',
     fileName: string = 'Feedback Export',
   ) => {
@@ -37,7 +37,7 @@ export const useFeedbackExport = () => {
         const feedbackType = getAllFeedbackTypes?.items?.find(
           (item: any) => item.id === record.feedbackTypeId,
         );
-        const department = EmployeeDepartment?.find(
+        const department = employeeDepartment?.find(
           (item: any) =>
             item.id === record.feedbackVariant?.perspective?.departmentId,
         );
