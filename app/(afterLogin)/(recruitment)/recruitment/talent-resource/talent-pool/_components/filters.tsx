@@ -1,7 +1,10 @@
 import React from 'react';
 import { Button, Col, DatePicker, Input, Modal, Row, Select } from 'antd';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
-import { useGetStages, useGetTalentPoolCategory } from '@/store/server/features/recruitment/candidate/queries';
+import {
+  useGetStages,
+  useGetTalentPoolCategory,
+} from '@/store/server/features/recruitment/candidate/queries';
 
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -13,8 +16,6 @@ const { Option } = Select;
 const Filters = () => {
   const {
     searchParams,
-    page,
-    currentPage,
     setCurrentPage,
     setSearchParams,
     showMobileFilter,
