@@ -199,6 +199,9 @@ interface UserState {
   setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
 
   setJoinedDateType: (type: 'before' | 'after') => void;
+  
+  tempAllowances: any[];
+  setTempAllowances: (tempAllowances: any[]) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -376,5 +379,7 @@ export const useEmployeeManagementStore = create<UserState>()(
       set((state) => ({
         searchParams: { ...state.searchParams, joinedDateType: type },
       })),
+    tempAllowances: [],
+    setTempAllowances: (tempAllowances: any[]) => set({ tempAllowances }),
   })),
 );
