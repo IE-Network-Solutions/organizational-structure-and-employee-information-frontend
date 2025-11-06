@@ -24,13 +24,17 @@ const colorPalette = [
 
 const OKRDonutChart: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
-  const { pageSize, currentPage } = useOKRStore();
-  const { data: objectivesData, isLoading } = useGetUserObjective(
+  const { pageSize, currentPage, fiscalYearId, sessionIds } = useOKRStore();
+  const { data: objectivesData, isLoading, isFetching } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
     '',
+    fiscalYearId,
+    sessionIds,
   );
+  
+  const isChartLoading = isLoading || isFetching;
 
   // Dynamically extract metric types and their counts
   const { metricCounts, legend } = useMemo(() => {
@@ -83,7 +87,7 @@ const OKRDonutChart: React.FC = () => {
     <Card className="w-full h-full shadow-md rounded-xl flex flex-col pb-4">
       <div className="font-bold text-lg text-gray-900">OKR Metrics</div>
       <div className="flex flex-row items-center justify-between flex-1">
-        {isLoading ? (
+        {isChartLoading ? (
           <div className="flex items-center justify-center w-[140px] h-[140px]">
             <Spin />
           </div>

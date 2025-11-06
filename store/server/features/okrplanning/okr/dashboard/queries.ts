@@ -22,11 +22,18 @@ type ResponseData = Dashboard;
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
  */
-const getObjectiveDashboardByUser = async (id: number | string) => {
+const getObjectiveDashboardByUser = async (
+  id: number | string,
+  fiscalYearId?: string,
+  sessionId?: string,
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const params = new URLSearchParams();
+  if (fiscalYearId) params.set('fiscalYearId', fiscalYearId);
+  if (sessionId) params.set('sessionId', sessionId);
   return crudRequest({
-    url: `${OKR_URL}/okr-total-summary/user/dashboard/${id}`,
+    url: `${OKR_URL}/okr-total-summary/user/dashboard/${id}?${params.toString()}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -160,11 +167,15 @@ const getDueSoonKeyResults = async (userId: string) => {
   });
 };
 
-export const useGetUserObjectiveDashboard = (postId: number | string) => {
+export const useGetUserObjectiveDashboard = (
+  postId: number | string,
+  fiscalYearId?: string,
+  sessionId?: string,
+) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<ResponseData>(
-    ['ObjectiveDashboard', postId],
-    () => getObjectiveDashboardByUser(postId),
+    ['ObjectiveDashboard', postId, fiscalYearId, sessionId],
+    () => getObjectiveDashboardByUser(postId, fiscalYearId, sessionId),
     {
       keepPreviousData: true,
       enabled: !!tenantId,

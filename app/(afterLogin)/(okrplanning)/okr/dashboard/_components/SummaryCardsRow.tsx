@@ -11,19 +11,15 @@ import { TbCalendarX, TbCalendarTime } from 'react-icons/tb';
 
 const SummaryCardsRow: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
-  const { pageSize, currentPage, selectedCard, setSelectedCard } =
+  const { pageSize, currentPage, selectedCard, setSelectedCard, fiscalYearId, sessionIds } =
     useOKRStore();
-  const { data, isLoading } = useGetUserObjectiveDashboard(userId);
-  const { data: objectivesData, isLoading: objectivesLoading } =
-    useGetUserObjective(userId, pageSize, currentPage, '');
+  const sessionId = sessionIds?.[0];
+  const { data, isLoading, isFetching } = useGetUserObjectiveDashboard(userId, fiscalYearId, sessionId);
+  const { data: objectivesData, isLoading: objectivesLoading, isFetching: objectivesFetching } =
+    useGetUserObjective(userId, pageSize, currentPage, '', fiscalYearId, sessionIds);
 
-  if (isLoading || objectivesLoading) {
-    return (
-      <div className="flex justify-center items-center h-32">
-        <Spin />
-      </div>
-    );
-  }
+  const isSummaryLoading = isLoading || isFetching;
+  const isObjectivesLoading = objectivesLoading || objectivesFetching;
 
   // Fallbacks for missing data
   const userOkr = Number(data?.userOkr ?? 0);
@@ -172,6 +168,7 @@ const SummaryCardsRow: React.FC = () => {
           <Card
             className={`flex flex-col justify-between shadow-md border-0 bg-white rounded-xl px-4 py-3 h-[72px] w-full`}
             bodyStyle={{ padding: 0, width: '100%' }}
+            loading={isSummaryLoading}
           >
             <div className="flex flex-row items-center justify-between w-full">
               <div className="flex flex-col justify-between h-full">
@@ -199,6 +196,7 @@ const SummaryCardsRow: React.FC = () => {
           <Card
             className={`flex flex-col justify-between shadow-md border-0 bg-white rounded-xl px-4 py-3 h-[72px] w-full`}
             bodyStyle={{ padding: 0, width: '100%' }}
+            loading={isSummaryLoading}
           >
             <div className="flex flex-row items-center justify-between w-full">
               <div className="flex flex-col justify-between h-full">
@@ -235,6 +233,7 @@ const SummaryCardsRow: React.FC = () => {
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
               hover:shadow-lg`}
             bodyStyle={{ padding: 0, width: '100%' }}
+            loading={isObjectivesLoading}
           >
             <div className="flex flex-col h-full justify-between">
               <div className="flex flex-col w-full">
@@ -281,6 +280,7 @@ const SummaryCardsRow: React.FC = () => {
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
               hover:shadow-lg`}
             bodyStyle={{ padding: 0, width: '100%' }}
+            loading={isObjectivesLoading}
           >
             <div className="flex flex-col h-full justify-between">
               <div className="flex flex-col w-full">
@@ -327,6 +327,7 @@ const SummaryCardsRow: React.FC = () => {
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
               hover:shadow-lg`}
             bodyStyle={{ padding: 0, width: '100%' }}
+            loading={isObjectivesLoading}
           >
             <div className="flex flex-col h-full justify-between">
               <div className="flex flex-col w-full">
@@ -373,6 +374,7 @@ const SummaryCardsRow: React.FC = () => {
             className={`flex flex-col shadow-md border-0 bg-transparent rounded-xl px-4 py-3 h-[152px] w-full cursor-pointer transition-all duration-150
               hover:shadow-lg`}
             bodyStyle={{ padding: 0, width: '100%' }}
+            loading={isObjectivesLoading}
           >
             <div className="flex flex-col h-full justify-between">
               <div className="flex flex-col w-full">
