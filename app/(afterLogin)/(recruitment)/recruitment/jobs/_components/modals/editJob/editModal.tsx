@@ -1,17 +1,30 @@
 import React from 'react';
-import { Button, Form, Input, Select, DatePicker } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Spin,
+  InputNumber,
+} from 'antd';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useUpdateJobs } from '@/store/server/features/recruitment/job/mutation';
-import { LocationType } from '@/types/enumTypes';
 import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import TextEditor from '@/components/form/textEditor';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
+import { EmploymentType, LocationType } from '@/types/enumTypes';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+
+const { Option } = Select;
 
 const EditJob: React.FC = () => {
   const [form] = Form.useForm();
   const updatedBy = useAuthenticationStore.getState().userId;
+  const { data: departments, isLoading: isDepartmentLoading } =
+    useGetDepartments();
 
   const {
     isEditModalVisible,
@@ -31,9 +44,15 @@ const EditJob: React.FC = () => {
       description: formValues?.description,
       jobLocation: formValues?.jobLocation,
       jobDeadline: dayjs(formValues?.jobDeadline).format('YYYY-MM-DD'),
+      employmentType: formValues?.employmentType,
+      departmentId: formValues?.department,
+      yearOfExperience: Number(formValues?.yearOfExperience),
+      quantity: formValues?.quantity,
+      jobStatus: formValues?.jobStatus,
+      compensation: formValues?.compensation,
     };
     updateJob(
-      { data: updatedFormValues, id: selectedJobId },
+      { data: updatedFormValues, id: selectedJob?.id || selectedJobId },
       {
         onSuccess: () => {
           setEditModalVisible(false);
@@ -53,6 +72,12 @@ const EditJob: React.FC = () => {
         jobLocation: selectedJob.jobLocation,
         description: selectedJob.description,
         jobDeadline: dayjs(selectedJob.jobDeadline),
+        employmentType: selectedJob.employmentType,
+        department: selectedJob.departmentId,
+        yearOfExperience: selectedJob.yearOfExperience,
+        quantity: selectedJob.quantity,
+        jobStatus: selectedJob.jobStatus,
+        compensation: selectedJob.compensation,
       });
     }
   }, [form, selectedJob]);
@@ -115,6 +140,65 @@ const EditJob: React.FC = () => {
             />
           </Form.Item>
           <Form.Item
+            name="employmentType"
+            label={
+              <span className="text-md my-2 font-semibold text-gray-700">
+                Employment Type
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the employment type!',
+              },
+            ]}
+          >
+            <Select
+              id="employmentType"
+              placeholder="Employment type"
+              className="text-sm w-full h-10"
+            >
+              {EmploymentType &&
+                Object.values(EmploymentType).map((type) => (
+                  <Option key={type} value={type}>
+                    {type}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="department"
+            label={
+              <span className="text-md my-2 font-semibold text-gray-700">
+                Department
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the department!',
+              },
+            ]}
+          >
+            <Select
+              id="department"
+              placeholder="Department"
+              className="text-sm w-full h-10"
+            >
+              {isDepartmentLoading && (
+                <div className="flex items-center justify-center h-30">
+                  <Spin size="small" />
+                </div>
+              )}
+              {departments &&
+                departments.map((dep: any) => (
+                  <Option key={dep?.id} value={dep?.id}>
+                    {dep?.name}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
             name="jobLocation"
             label={
               <span className="text-md my-2 font-semibold text-gray-700">
@@ -135,6 +219,106 @@ const EditJob: React.FC = () => {
                 </Select.Option>
               ))}
             </Select>
+          </Form.Item>
+          <Form.Item
+            name="yearOfExperience"
+            label={
+              <span className="text-md my-2 font-semibold text-gray-700">
+                Years of Experience
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                type: 'number',
+                message: 'Please input the years of experience!',
+                transform: (value) => (value ? Number(value) : value),
+              },
+            ]}
+          >
+            <InputNumber
+              id="yearOfExperience"
+              size="large"
+              placeholder="0"
+              className="text-sm w-full h-10"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="jobStatus"
+            label={
+              <span className="text-md my-2 font-semibold text-gray-700">
+                Job Status
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the job status',
+              },
+            ]}
+          >
+            <Select
+              id="jobStatus"
+              placeholder="Job status"
+              className="text-sm w-full h-10"
+            >
+              <Option value="Open">Open</Option>
+              <Option value="Closed">Closed</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="compensation"
+            label={
+              <span className="text-md my-2 font-semibold text-gray-700">
+                Compensation
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the compensation!',
+              },
+            ]}
+          >
+            <Select
+              id="compensation"
+              placeholder="Compensation"
+              className="text-sm w-full h-10"
+            >
+              {EmploymentType &&
+                Object.values(EmploymentType).map((type, index) => (
+                  <Option
+                    id={`compensationOption-${index}`}
+                    key={type}
+                    value={type}
+                  >
+                    {type}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="quantity"
+            label={
+              <span className="text-md my-2 font-semibold text-gray-700">
+                Quantity
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please input the quantity!',
+              },
+            ]}
+          >
+            <InputNumber
+              id="quantity"
+              size="large"
+              placeholder="0"
+              className="text-sm w-full h-10"
+            />
           </Form.Item>
 
           <Form.Item
