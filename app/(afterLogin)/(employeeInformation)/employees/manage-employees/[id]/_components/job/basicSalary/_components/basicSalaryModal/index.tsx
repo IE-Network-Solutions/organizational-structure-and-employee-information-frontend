@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Select, Form, Button, InputNumber, Row, Input } from 'antd';
+import { Modal, Select, Form, Button, InputNumber, Row, Col, Input } from 'antd';
 import type { FC } from 'react';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import {
@@ -203,11 +203,11 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
         </Form.Item>
 
         <Row gutter={16}>
-          <div
-            className="ant-col ant-col-xs-24 css-dev-only-do-not-override-1wmse92"
-            style={{ paddingLeft: 8, paddingRight: 8 }}
-          >
-            <Form.Item label="Allowance Type" name="allowanceIds">
+          <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+            <Form.Item
+              label="Allowance Type"
+              name="allowanceIds"
+            >
               <Form.Item shouldUpdate noStyle>
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
@@ -326,7 +326,7 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
             <Form.Item name="allowances" hidden>
               <Input type="hidden" />
             </Form.Item>
-          </div>
+          </Col>
         </Row>
 
         <div className="flex justify-start gap-4">
