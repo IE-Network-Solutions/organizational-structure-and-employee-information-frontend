@@ -59,7 +59,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       : (values.departmentLeadOrNot = false);
     // Include allowances from form state
     values.allowances = form.getFieldValue('allowances') || [];
- 
+
     createJobInformation(values, {
       onSuccess: () => {
         setTempAllowances([]); // Clear temp allowances on successful submit

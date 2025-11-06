@@ -74,7 +74,13 @@ export const useFeedbackExport = () => {
         { header: 'Objective', key: 'objective', width: 40 },
         { header: 'Name', key: 'name', width: 25 },
         ...(variantType !== 'appreciation'
-          ? [{ header: 'Action To be Taken', key: 'actionToBeTaken', width: 40 }]
+          ? [
+              {
+                header: 'Action To be Taken',
+                key: 'actionToBeTaken',
+                width: 40,
+              },
+            ]
           : []),
         { header: 'Given Date', key: 'givenDate', width: 15 },
       ];
@@ -128,9 +134,7 @@ export const useFeedbackExport = () => {
         if (column.eachCell) {
           let maxLength = 0;
           column.eachCell({ includeEmpty: true }, (cell) => {
-            const columnLength = cell.value
-              ? cell.value.toString().length
-              : 10;
+            const columnLength = cell.value ? cell.value.toString().length : 10;
             if (columnLength > maxLength) {
               maxLength = columnLength;
             }
@@ -171,4 +175,3 @@ export const useFeedbackExport = () => {
 
   return { exportFeedbackData };
 };
-
