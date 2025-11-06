@@ -18,7 +18,6 @@ const Filters = () => {
     page,
     currentPage,
     setCurrentPage,
-    setPage,
     setSearchParams,
     showMobileFilter,
     setShowMobileFilter,
