@@ -1,4 +1,4 @@
-import { Card, Progress, Spin } from 'antd';
+import { Card, Progress } from 'antd';
 import React from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
@@ -11,12 +11,32 @@ import { TbCalendarX, TbCalendarTime } from 'react-icons/tb';
 
 const SummaryCardsRow: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
-  const { pageSize, currentPage, selectedCard, setSelectedCard, fiscalYearId, sessionIds } =
-    useOKRStore();
+  const {
+    pageSize,
+    currentPage,
+    selectedCard,
+    setSelectedCard,
+    fiscalYearId,
+    sessionIds,
+  } = useOKRStore();
   const sessionId = sessionIds?.[0];
-  const { data, isLoading, isFetching } = useGetUserObjectiveDashboard(userId, fiscalYearId, sessionId);
-  const { data: objectivesData, isLoading: objectivesLoading, isFetching: objectivesFetching } =
-    useGetUserObjective(userId, pageSize, currentPage, '', fiscalYearId, sessionIds);
+  const { data, isLoading, isFetching } = useGetUserObjectiveDashboard(
+    userId,
+    fiscalYearId,
+    sessionId,
+  );
+  const {
+    data: objectivesData,
+    isLoading: objectivesLoading,
+    isFetching: objectivesFetching,
+  } = useGetUserObjective(
+    userId,
+    pageSize,
+    currentPage,
+    '',
+    fiscalYearId,
+    sessionIds,
+  );
 
   const isSummaryLoading = isLoading || isFetching;
   const isObjectivesLoading = objectivesLoading || objectivesFetching;
