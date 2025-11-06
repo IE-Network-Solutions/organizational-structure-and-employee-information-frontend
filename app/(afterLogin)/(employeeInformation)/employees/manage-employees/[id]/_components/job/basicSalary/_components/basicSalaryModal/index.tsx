@@ -18,22 +18,31 @@ interface RecognitionModalProps {
   formRef?: React.MutableRefObject<any>;
 }
 
-const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel, formRef }) => {
+const BasicSalaryModal: FC<RecognitionModalProps> = ({
+  visible,
+  onCancel,
+  formRef,
+}) => {
   const [form] = Form.useForm();
-  
+
   // Expose form to parent via ref
   React.useEffect(() => {
     if (formRef) {
       formRef.current = form;
     }
   }, [form, formRef]);
-  
+
   const { userId: loggedInUserId } = useAuthenticationStore();
-  const { basicSalaryData, setBasicSalaryData, isBasicSalaryModalVisible, tempAllowances, setTempAllowances } =
-    useEmployeeManagementStore();
+  const {
+    basicSalaryData,
+    setBasicSalaryData,
+    isBasicSalaryModalVisible,
+    tempAllowances,
+    setTempAllowances,
+  } = useEmployeeManagementStore();
   const { setIsAllowanceOpen, isAllowanceOpen } = useCompensationSettingStore();
   const [wasAllowanceOpen, setWasAllowanceOpen] = useState<boolean>(false);
-  
+
   useEffect(() => {
     const basicSalaryInfo = {
       ...basicSalaryData,
@@ -49,7 +58,8 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel, formRe
     form.setFieldsValue(basicSalaryInfo); // Set form fields with converted values
   }, [form, basicSalaryData, isBasicSalaryModalVisible]);
   const { data: positions } = useGetAllPositions();
-  const { data: allowanceTypes, refetch: refetchAllowanceTypes } = useFetchAllowanceTypesByTypeAllowance();
+  const { data: allowanceTypes, refetch: refetchAllowanceTypes } =
+    useFetchAllowanceTypesByTypeAllowance();
   const { mutate: createBasicSalary, isLoading } = useCreateBasicSalary();
   const { mutate: updateBasicSalary, isLoading: updateLoading } =
     useUpdateBasicSalary();
@@ -193,27 +203,27 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel, formRe
         </Form.Item>
 
         <Row gutter={16}>
-          <div className="ant-col ant-col-xs-24 css-dev-only-do-not-override-1wmse92" style={{ paddingLeft: 8, paddingRight: 8 }}>
-            <Form.Item
-              label="Allowance Type"
-              name="allowanceIds"
-            >
+          <div
+            className="ant-col ant-col-xs-24 css-dev-only-do-not-override-1wmse92"
+            style={{ paddingLeft: 8, paddingRight: 8 }}
+          >
+            <Form.Item label="Allowance Type" name="allowanceIds">
               <Form.Item shouldUpdate noStyle>
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
-                  
+
                   // Combine fetched allowance types with temporary ones
                   const allAllowanceTypes = [
                     ...(allowanceTypes || []),
                     ...tempAllowances,
                   ];
-                  
+
                   const allOptions =
                     allAllowanceTypes?.map((a: any) => ({
                       value: a.id,
                       label: a.name,
                     })) || [];
-                  
+
                   // For tagRender, we need all options (including selected ones) to display labels
                   const dropdownOptions = allOptions.filter(
                     (opt: any) =>
@@ -275,21 +285,22 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({ visible, onCancel, formRe
                             ];
 
                             // Sync allowances array with selected IDs
-                            const allowances = allAllowanceTypes
-                              ?.filter((type: any) =>
-                                newSelectedIds.some(
-                                  (id: any) => String(id) === String(type.id),
-                                ),
-                              )
-                              .map((type: any) => ({
-                                id: type.id,
-                                name: type.name,
-                                description: type.description,
-                                isRate: type.isRate,
-                                defaultAmount: type.defaultAmount,
-                                notTaxableAmount: type.notTaxableAmount,
-                                type: type.type,
-                              })) || [];
+                            const allowances =
+                              allAllowanceTypes
+                                ?.filter((type: any) =>
+                                  newSelectedIds.some(
+                                    (id: any) => String(id) === String(type.id),
+                                  ),
+                                )
+                                .map((type: any) => ({
+                                  id: type.id,
+                                  name: type.name,
+                                  description: type.description,
+                                  isRate: type.isRate,
+                                  defaultAmount: type.defaultAmount,
+                                  notTaxableAmount: type.notTaxableAmount,
+                                  type: type.type,
+                                })) || [];
 
                             setFieldValue('allowances', allowances);
                           }}

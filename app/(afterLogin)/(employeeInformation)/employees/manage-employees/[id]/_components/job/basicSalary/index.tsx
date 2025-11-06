@@ -128,7 +128,7 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
         onCancel={() => setIsBasicSalaryModalVisible(false)}
         formRef={modalFormRef}
       />
-      
+
       {/* Reuse AllowanceTypeSideBar component as centered modal */}
       <AllowanceTypeSideBar
         asModal={true}
@@ -138,12 +138,14 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
           setTempAllowances([...tempAllowances, allowanceData]);
 
           // Get current selected IDs and add the new one
-          const currentIds = modalFormRef.current?.getFieldValue('allowanceIds') || [];
+          const currentIds =
+            modalFormRef.current?.getFieldValue('allowanceIds') || [];
           const newIds = [...currentIds, allowanceData.id];
           modalFormRef.current?.setFieldValue('allowanceIds', newIds);
 
           // Get current allowances and add the new one
-          const currentAllowances = modalFormRef.current?.getFieldValue('allowances') || [];
+          const currentAllowances =
+            modalFormRef.current?.getFieldValue('allowances') || [];
           const newAllowance = {
             id: allowanceData.id,
             name: allowanceData.name,
@@ -153,7 +155,10 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
             notTaxableAmount: allowanceData.notTaxableAmount,
             type: allowanceData.type,
           };
-          modalFormRef.current?.setFieldValue('allowances', [...currentAllowances, newAllowance]);
+          modalFormRef.current?.setFieldValue('allowances', [
+            ...currentAllowances,
+            newAllowance,
+          ]);
         }}
       />
     </div>

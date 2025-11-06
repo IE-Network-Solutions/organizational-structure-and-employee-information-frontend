@@ -81,16 +81,14 @@ const Page = () => {
 
   const [isExporting, setIsExporting] = useState(false);
   const { exportFeedbackData } = useFeedbackExport();
-  const {
-    refetch: refetchExportData,
-    isLoading: isExportDataLoading,
-  } = useFetchAllFeedbackRecordForExport({
-    variantType,
-    activeTab,
-    userId: 'all', // Always use 'all' for export when on All Employees tab
-    empId,
-    givenDate,
-  });
+  const { refetch: refetchExportData, isLoading: isExportDataLoading } =
+    useFetchAllFeedbackRecordForExport({
+      variantType,
+      activeTab,
+      userId: 'all', // Always use 'all' for export when on All Employees tab
+      empId,
+      givenDate,
+    });
 
   const handleDelete = (id: string) => {
     deleteFeedbackRecord(id, {
@@ -146,13 +144,15 @@ const Page = () => {
         // Show message if no data to export
         NotificationMessage.warning({
           message: 'No Data to Export',
-          description: 'There is no feedback data available to export with the current filters.',
+          description:
+            'There is no feedback data available to export with the current filters.',
         });
       }
     } catch (error) {
       NotificationMessage.error({
         message: 'Export Failed',
-        description: 'An error occurred while exporting feedback data. Please try again.',
+        description:
+          'An error occurred while exporting feedback data. Please try again.',
       });
     } finally {
       setIsExporting(false);
@@ -495,9 +495,7 @@ const Page = () => {
               <EmployeeSearchComponent fields={searchField} />
             </div>
             {userId === 'all' && (
-              <AccessGuard
-                permissions={[Permissions.ViewAllEmployeeFeedback]}
-              >
+              <AccessGuard permissions={[Permissions.ViewAllEmployeeFeedback]}>
                 <Tooltip title="Export Feedback Data">
                   <Button
                     type="default"
