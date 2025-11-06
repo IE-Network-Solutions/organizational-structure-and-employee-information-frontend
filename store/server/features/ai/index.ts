@@ -2,7 +2,10 @@
  * AI Feature - Main Export File
  *
  * This file serves as the central export point for all AI-related functionality.
- * It organizes exports into logical groups for easy importing throughout the application.
+ * All AI requests now go directly to the backend using NEXT_PUBLIC_AI_BASE_URL.
+ * 
+ * Architecture:
+ * Browser → mutations.ts/queries.ts → AI Backend (https://selamnew-ai.ienetworks.co)
  */
 
 // ===== Type Definitions =====
@@ -30,6 +33,10 @@ export {
   useGetWeeklyPlanSuggestions,
   useGetDailyPlanSuggestions,
   useGetOKRKeyResultSuggestions,
+  // Direct Function Exports for queries
+  fetchWeeklyPlanSuggestions,
+  fetchDailyPlanSuggestions,
+  fetchOKRKeyResultSuggestions,
 } from './queries';
 
 export {
@@ -38,25 +45,6 @@ export {
   useWeeklyPlanMutation,
   useDailyPlanMutation,
   useOKRMutation,
-  // Direct Function Exports
+  // Direct Function Exports for mutations
   fetchCopilotResponse,
-  fetchWeeklyPlanSuggestions,
-  fetchDailyPlanSuggestions,
-  fetchOKRKeyResultSuggestions,
 } from './mutations';
-
-// ===== Server-side API Handlers =====
-export {
-  handleCopilotRequest,
-  handleOKRRequest,
-  handleWeeklyPlanRequest,
-  handleDailyPlanRequest,
-} from './api';
-
-// ===== Route Handlers =====
-export {
-  copilotRouteHandler,
-  okrRouteHandler,
-  weeklyPlanRouteHandler,
-  dailyPlanRouteHandler,
-} from './routes';
