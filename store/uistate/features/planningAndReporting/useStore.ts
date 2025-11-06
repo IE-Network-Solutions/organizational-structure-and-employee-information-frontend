@@ -60,6 +60,16 @@ export interface PlanningAndReporting {
 
   selectedReportId: string;
   setSelectedReportId: (selectedReportId: string) => void;
+
+  // Fiscal year and session filters
+  selectedFiscalYearId: string | null;
+  setSelectedFiscalYearId: (yearId: string | null) => void;
+
+  selectedSessionIds: string[];
+  setSelectedSessionIds: (sessionIds: string[]) => void;
+
+  allSessionsOfYear: string[];
+  setAllSessionsOfYear: (sessions: string[]) => void;
 }
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -148,5 +158,18 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
       }),
 
     resetWeights: () => set({ weights: {}, totalWeight: 0 }),
+
+    // Fiscal year and session filters
+    selectedFiscalYearId: null,
+    setSelectedFiscalYearId: (selectedFiscalYearId: string | null) =>
+      set({ selectedFiscalYearId }),
+
+    selectedSessionIds: [],
+    setSelectedSessionIds: (selectedSessionIds: string[]) =>
+      set({ selectedSessionIds }),
+
+    allSessionsOfYear: [],
+    setAllSessionsOfYear: (allSessionsOfYear: string[]) =>
+      set({ allSessionsOfYear }),
   })),
 );

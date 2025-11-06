@@ -91,9 +91,19 @@ const BankInformationForm = () => {
             label={
               <span className="mb-1 font-semibold text-xs">Account Number</span>
             }
-            rules={[{ required: true }]}
+            rules={[
+              {
+                required: true,
+                message: 'Please enter your bank account number',
+              },
+              {
+                pattern: /^[0-9]{8,20}$/,
+                message:
+                  'Account number must be a valid number and 8–20 digits long',
+              },
+            ]}
           >
-            <Input />
+            <Input maxLength={20} placeholder="Enter bank account number" />
           </Form.Item>
         </Col>
       </Row>

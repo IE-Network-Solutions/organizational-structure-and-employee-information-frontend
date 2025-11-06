@@ -38,7 +38,10 @@ interface JobTimeLineFormProps {
   form?: any;
 }
 
-const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: formProp }) => {
+const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
+  employeeData,
+  form: formProp,
+}) => {
   const [form] = Form.useForm();
   const actualForm = formProp || form;
   const {
@@ -128,7 +131,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
       const tempIds = formAllowances
         .filter((a: any) => a?.id && String(a.id).startsWith('temp-'))
         .map((a: any) => a.id);
-      
+
       if (tempIds.length > 0) {
         // Restore temp allowances from form state
         const tempAllowancesFromForm = formAllowances.filter((a: any) =>
@@ -143,13 +146,13 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
     if (employeeData?.employeeJobInformation?.length > 0 && allowanceTypes) {
       const latestJobInfo =
         employeeData.employeeJobInformation[
-        employeeData.employeeJobInformation.length - 1
+          employeeData.employeeJobInformation.length - 1
         ];
       if (latestJobInfo?.allowanceIds) {
         const allowanceIds = Array.isArray(latestJobInfo.allowanceIds)
           ? latestJobInfo.allowanceIds
           : [latestJobInfo.allowanceIds];
-        
+
         // Map IDs to full allowance objects
         const allowances = allowanceTypes
           .filter((type: any) => allowanceIds.includes(type.id))
@@ -162,7 +165,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
             notTaxableAmount: type.notTaxableAmount,
             type: type.type,
           }));
-        
+
         actualForm.setFieldValue('allowances', allowances);
         actualForm.setFieldValue('allowanceIds', allowanceIds);
       }
@@ -479,87 +482,90 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
         <Col xs={24}>
           <div className="font-semibold text-xs mb-1">Allowance Type</div>
           <div className="flex items-start gap-2">
-              <Form.Item
-                name="allowanceIds"
-                rules={[{ required: true, message: 'Please select allowance type' }]}
-                className="flex-1"
-              >
-                <Form.Item shouldUpdate noStyle>
-                  {({ getFieldValue, setFieldValue }) => {
-                    const selectedIds = getFieldValue('allowanceIds') || [];
-                    
-                    // Combine fetched allowance types with temporary ones
-                    const allAllowanceTypes = [
-                      ...(allowanceTypes || []),
-                      ...tempAllowances,
-                    ];
-                    
-                    const allOptions =
-                      allAllowanceTypes?.map((a: any) => ({
-                        value: a.id,
-                        label: a.name,
-                      })) || [];
-                    
-                    // For tagRender, we need all options (including selected ones) to display labels
-                    const dropdownOptions = allOptions.filter(
-                      (opt: any) =>
-                        !selectedIds.some(
-                          (id: any) => String(id) === String(opt.value),
-                        ),
-                    );
-                    return (
-                      <Select
-                        mode="multiple"
-                        showSearch
-                        allowClear
-                        className="w-full"
-                        placeholder="Select allowance type"
-                        options={dropdownOptions}
-                        value={selectedIds}
-                        filterOption={(input, opt) =>
-                          String(opt?.label ?? '')
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        maxTagCount={undefined}
-                        tagRender={(props) => {
-                          const { label, value, closable, onClose } = props;
-                          const fullOption = allOptions.find(
-                            (opt: any) => String(opt.value) === String(value),
-                          );
-                          return (
-                            <span
-                              style={{
-                                marginRight: 3,
-                                padding: '2px 8px',
-                                background: '#f0f0f0',
-                                borderRadius: 4,
-                                display: 'inline-block',
-                              }}
-                            >
-                              {fullOption?.label || label}
-                              {closable && (
-                                <span
-                                  onClick={onClose}
-                                  style={{ marginLeft: 4, cursor: 'pointer' }}
-                                >
-                                  ×
-                                </span>
-                              )}
-                            </span>
-                          );
-                        }}
-                        onChange={(newSelectedIds) => {
-                          setFieldValue('allowanceIds', newSelectedIds);
+            <Form.Item
+              name="allowanceIds"
+              rules={[
+                { required: true, message: 'Please select allowance type' },
+              ]}
+              className="flex-1"
+            >
+              <Form.Item shouldUpdate noStyle>
+                {({ getFieldValue, setFieldValue }) => {
+                  const selectedIds = getFieldValue('allowanceIds') || [];
 
-                          // Combine fetched allowance types with temporary ones
-                          const allAllowanceTypes = [
-                            ...(allowanceTypes || []),
-                            ...tempAllowances,
-                          ];
+                  // Combine fetched allowance types with temporary ones
+                  const allAllowanceTypes = [
+                    ...(allowanceTypes || []),
+                    ...tempAllowances,
+                  ];
 
-                          // Sync allowances array with selected IDs
-                          const allowances = allAllowanceTypes
+                  const allOptions =
+                    allAllowanceTypes?.map((a: any) => ({
+                      value: a.id,
+                      label: a.name,
+                    })) || [];
+
+                  // For tagRender, we need all options (including selected ones) to display labels
+                  const dropdownOptions = allOptions.filter(
+                    (opt: any) =>
+                      !selectedIds.some(
+                        (id: any) => String(id) === String(opt.value),
+                      ),
+                  );
+                  return (
+                    <Select
+                      mode="multiple"
+                      showSearch
+                      allowClear
+                      className="w-full"
+                      placeholder="Select allowance type"
+                      options={dropdownOptions}
+                      value={selectedIds}
+                      filterOption={(input, opt) =>
+                        String(opt?.label ?? '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      maxTagCount={undefined}
+                      tagRender={(props) => {
+                        const { label, value, closable, onClose } = props;
+                        const fullOption = allOptions.find(
+                          (opt: any) => String(opt.value) === String(value),
+                        );
+                        return (
+                          <span
+                            style={{
+                              marginRight: 3,
+                              padding: '2px 8px',
+                              background: '#f0f0f0',
+                              borderRadius: 4,
+                              display: 'inline-block',
+                            }}
+                          >
+                            {fullOption?.label || label}
+                            {closable && (
+                              <span
+                                onClick={onClose}
+                                style={{ marginLeft: 4, cursor: 'pointer' }}
+                              >
+                                ×
+                              </span>
+                            )}
+                          </span>
+                        );
+                      }}
+                      onChange={(newSelectedIds) => {
+                        setFieldValue('allowanceIds', newSelectedIds);
+
+                        // Combine fetched allowance types with temporary ones
+                        const allAllowanceTypes = [
+                          ...(allowanceTypes || []),
+                          ...tempAllowances,
+                        ];
+
+                        // Sync allowances array with selected IDs
+                        const allowances =
+                          allAllowanceTypes
                             ?.filter((type: any) =>
                               newSelectedIds.some(
                                 (id: any) => String(id) === String(type.id),
@@ -575,16 +581,16 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
                               type: type.type,
                             })) || [];
 
-                          setFieldValue('allowances', allowances);
-                          // Note: Don't remove tempAllowances from store when deselected
-                          // They should remain available in dropdown even after being removed
-                          // They'll only be cleared on form cancel or successful submit
-                        }}
-                      />
-                    );
-                  }}
-                </Form.Item>
+                        setFieldValue('allowances', allowances);
+                        // Note: Don't remove tempAllowances from store when deselected
+                        // They should remain available in dropdown even after being removed
+                        // They'll only be cleared on form cancel or successful submit
+                      }}
+                    />
+                  );
+                }}
               </Form.Item>
+            </Form.Item>
             <Form.Item name="allowances" hidden>
               <Input type="hidden" />
             </Form.Item>
@@ -712,7 +718,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
           actualForm.setFieldValue('allowanceIds', newIds);
 
           // Get current allowances and add the new one
-          const currentAllowances = actualForm.getFieldValue('allowances') || [];
+          const currentAllowances =
+            actualForm.getFieldValue('allowances') || [];
           const newAllowance = {
             id: allowanceData.id,
             name: allowanceData.name,
@@ -722,7 +729,10 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData, form: f
             notTaxableAmount: allowanceData.notTaxableAmount,
             type: allowanceData.type,
           };
-          actualForm.setFieldValue('allowances', [...currentAllowances, newAllowance]);
+          actualForm.setFieldValue('allowances', [
+            ...currentAllowances,
+            newAllowance,
+          ]);
         }}
       />
     </div>
