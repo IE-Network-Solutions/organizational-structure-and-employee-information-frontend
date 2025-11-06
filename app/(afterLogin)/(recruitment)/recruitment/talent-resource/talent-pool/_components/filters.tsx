@@ -1,11 +1,9 @@
 import React from 'react';
 import { Button, Col, DatePicker, Input, Modal, Row, Select } from 'antd';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
-import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
+import { useGetStages, useGetTalentPoolCategory } from '@/store/server/features/recruitment/candidate/queries';
 
 import dayjs from 'dayjs';
-import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
-import { useEmployeeDepartments } from '@/store/server/features/feedback/category/queries';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { LuSettings2 } from 'react-icons/lu';
 
@@ -22,12 +20,7 @@ const Filters = () => {
     showMobileFilter,
     setShowMobileFilter,
   } = useTalentPoolStore();
-  const { data: EmployeeDepartment } = useEmployeeDepartments();
-  const { data: jobList } = useGetJobs(
-    searchParams?.date_range || '',
-    currentPage,
-    page,
-  );
+  const { data: categoryList } = useGetTalentPoolCategory();
   const { data: stageList } = useGetStages();
   const { isMobile, isTablet } = useIsMobile();
 
@@ -52,13 +45,8 @@ const Filters = () => {
     setCurrentPage(1);
   };
 
-  const handleJobChange = (value: string) => {
-    onSelectChange(value, 'job');
-    setCurrentPage(1);
-  };
-
-  const handleDepartmentChange = (value: string) => {
-    onSelectChange(value, 'department');
+  const handleCategoryChange = (value: string) => {
+    onSelectChange(value, 'talentPoolCategory');
     setCurrentPage(1);
   };
 
@@ -68,8 +56,8 @@ const Filters = () => {
   };
 
   const Filters = (
-    <Row gutter={[16, 16]} justify="space-between">
-      <Col lg={8} sm={24} xs={24}>
+    <Row gutter={[16, 16]}>
+      <Col lg={6} md={12} sm={24} xs={24}>
         <Input
           id={`inputSearchByNameTop${searchParams?.search || ''}`}
           placeholder="Search by name"
@@ -83,82 +71,62 @@ const Filters = () => {
         />
       </Col>
 
-      <Col lg={16} sm={24} xs={24}>
-        <Row gutter={[8, 16]}>
-          <Col lg={6} sm={12} xs={24}>
-            <RangePicker
-              id={`inputDateRange${searchParams.date_range}`}
-              onChange={(dates: any) => handleSearchByDateRange(dates)}
-              value={
-                searchParams.date_range
-                  ? (searchParams.date_range
-                      .split(' to ')
-                      .map((date: string) => dayjs(date)) as [
-                      dayjs.Dayjs | null,
-                      dayjs.Dayjs | null,
-                    ])
-                  : null
-              }
-              className="w-full h-14"
-              allowClear
-              getPopupContainer={(triggerNode) =>
-                (triggerNode as any).parentElement || document.body
-              }
-            />
-          </Col>
-          <Col lg={6} sm={12} xs={24}>
-            <Select
-              id={`selectJobs${searchParams?.job}`}
-              placeholder="Select Job"
-              onChange={handleJobChange}
-              value={searchParams?.job || undefined}
-              allowClear
-              className="w-full h-14"
-            >
-              {jobList &&
-                jobList?.items?.map((job: any) => (
-                  <Option key={job?.id} value={job?.id}>
-                    {job?.jobTitle}
-                  </Option>
-                ))}
-            </Select>
-          </Col>
+      <Col lg={6} md={12} sm={24} xs={24}>
+        <RangePicker
+          id={`inputDateRange${searchParams.date_range}`}
+          onChange={(dates: any) => handleSearchByDateRange(dates)}
+          value={
+            searchParams.date_range
+              ? (searchParams.date_range
+                  .split(' to ')
+                  .map((date: string) => dayjs(date)) as [
+                  dayjs.Dayjs | null,
+                  dayjs.Dayjs | null,
+                ])
+              : null
+          }
+          className="w-full h-14"
+          allowClear
+          getPopupContainer={(triggerNode) =>
+            (triggerNode as any).parentElement || document.body
+          }
+        />
+      </Col>
 
-          <Col lg={6} sm={12} xs={24}>
-            <Select
-              id={`selectDepartment${searchParams?.department}`}
-              placeholder="Select Department"
-              onChange={handleDepartmentChange}
-              value={searchParams?.department || undefined}
-              allowClear
-              className="w-full h-14"
-            >
-              {EmployeeDepartment &&
-                EmployeeDepartment?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.name}
-                  </Option>
-                ))}
-            </Select>
-          </Col>
-          <Col lg={6} sm={12} xs={24}>
-            <Select
-              id={`selectStage${searchParams?.stages}`}
-              placeholder="Select Stage"
-              onChange={handleStageChange}
-              value={searchParams?.stages || undefined}
-              allowClear
-              className="w-full h-14"
-            >
-              {stageList &&
-                stageList?.items?.map((item: any) => (
-                  <Option key={item?.id} value={item?.id}>
-                    {item?.title}
-                  </Option>
-                ))}
-            </Select>
-          </Col>
-        </Row>
+      <Col lg={6} md={12} sm={24} xs={24}>
+        <Select
+          id={`selectCategory${searchParams?.talentPoolCategory}`}
+          placeholder="Select Category"
+          onChange={handleCategoryChange}
+          value={searchParams?.talentPoolCategory || undefined}
+          allowClear
+          className="w-full h-14"
+        >
+          {categoryList &&
+            categoryList?.items?.map((category: any) => (
+              <Option key={category?.id} value={category?.id}>
+                {category?.title}
+              </Option>
+            ))}
+        </Select>
+      </Col>
+
+      <Col lg={6} md={12} sm={24} xs={24}>
+        <Select
+          id={`selectStage${searchParams?.stages}`}
+          placeholder="Select Stage"
+          onChange={handleStageChange}
+          value={searchParams?.stages || undefined}
+          allowClear
+          className="w-full h-14"
+        >
+          {stageList &&
+            stageList?.items?.map((item: any) => (
+              <Option key={item?.id} value={item?.id}>
+                {item?.title}
+              </Option>
+            ))}
+        </Select>
       </Col>
     </Row>
   );
