@@ -171,6 +171,7 @@ export const useGetUserObjectiveDashboard = (
   postId: number | string,
   fiscalYearId?: string,
   sessionId?: string,
+  enabled: boolean = true,
 ) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<ResponseData>(
@@ -178,7 +179,7 @@ export const useGetUserObjectiveDashboard = (
     () => getObjectiveDashboardByUser(postId, fiscalYearId, sessionId),
     {
       keepPreviousData: true,
-      enabled: !!tenantId,
+      enabled: !!tenantId && enabled,
     },
   );
 };

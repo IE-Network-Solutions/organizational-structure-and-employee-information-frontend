@@ -32,11 +32,19 @@ const OkrSearch: React.FC = () => {
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
+  // Only sync fiscal year and sessions on mount or when okrTab changes
+  // This prevents infinite loops by not tracking every data change
   useEffect(() => {
+    // Skip if data isn't loaded yet
+    if (!getAllFiscalYears?.items && !getActiveFisicalYear) {
+      return;
+    }
+
     const selectedFiscalYear = fiscalYearId
       ? getAllFiscalYears?.items?.find((i) => i?.id == fiscalYearId)
       : getActiveFisicalYear;
 
+    // Only set default if no fiscal year is currently selected
     if (!selectedFiscalYear) {
       setFiscalYearId('');
       setSessionIds([]);

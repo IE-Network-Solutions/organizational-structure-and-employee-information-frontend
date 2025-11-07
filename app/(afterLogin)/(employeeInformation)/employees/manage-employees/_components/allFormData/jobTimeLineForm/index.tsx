@@ -29,18 +29,28 @@ import { AiOutlineReload } from 'react-icons/ai';
 import { IoInformationCircleOutline } from 'react-icons/io5';
 import { PlusOutlined } from '@ant-design/icons';
 import { useCreatePosition } from '@/store/server/features/employees/positions/mutation';
+import { useFetchAllowanceTypesByTypeAllowance } from '@/store/server/features/compensation/settings/queries';
+import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
+import AllowanceTypeSideBar from '@/app/(afterLogin)/(compensation)/compensationSetting/allowanceType/_components/allowanceTypeSidebar';
 
 interface JobTimeLineFormProps {
   employeeData?: any;
+  form?: any;
 }
 
-const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
+const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
+  employeeData,
+  form: formProp,
+}) => {
   const [form] = Form.useForm();
+  const actualForm = formProp || form;
   const {
     selectedDepartmentId,
     switchValue,
     setSwitchValue,
     setSelectedDepartmentId,
+    tempAllowances,
+    setTempAllowances,
   } = useEmployeeManagementStore();
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
@@ -57,7 +67,11 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
     isLoading,
     isSuccess,
   } = useCreatePosition();
+  const { data: allowanceTypes, refetch: refetchAllowanceTypes } =
+    useFetchAllowanceTypesByTypeAllowance();
+  const { setIsAllowanceOpen, isAllowanceOpen } = useCompensationSettingStore();
   const [contractType, setContractType] = useState<string>('Permanent');
+  const [wasAllowanceOpen, setWasAllowanceOpen] = useState<boolean>(false);
 
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
@@ -66,7 +80,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartmentId(value);
     setSwitchValue(false);
-    form.setFieldValue('departmentLeadOrNot', false);
+    actualForm.setFieldValue('departmentLeadOrNot', false);
   };
 
   const handleTeamLeadChange = (checked: boolean) => {
@@ -74,31 +88,89 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
       return;
     }
     setSwitchValue(checked);
-    form.setFieldValue('departmentLeadOrNot', checked);
+    actualForm.setFieldValue('departmentLeadOrNot', checked);
   };
 
   const handleTeamLeadConfirm = () => {
     setSwitchValue(true);
-    form.setFieldValue('departmentLeadOrNot', true);
+    actualForm.setFieldValue('departmentLeadOrNot', true);
   };
 
   const handleTeamLeadCancel = () => {
     setSwitchValue(false);
-    form.setFieldValue('departmentLeadOrNot', false);
+    actualForm.setFieldValue('departmentLeadOrNot', false);
   };
 
   useEffect(() => {
     if (department?.length > 0) {
       setSwitchValue(false);
-      form.setFieldValue('departmentLeadOrNot', false);
+      actualForm.setFieldValue('departmentLeadOrNot', false);
     }
-  }, [department?.length, form]);
+  }, [department?.length, actualForm, setSwitchValue]);
 
   useEffect(() => {
     if (isSuccess) {
       positionRefetch();
     }
-  }, [isSuccess]);
+  }, [isSuccess, positionRefetch]);
+
+  // Track modal state and refetch allowance types when modal closes
+  useEffect(() => {
+    if (wasAllowanceOpen && !isAllowanceOpen) {
+      // Modal was just closed, refetch allowance types
+      refetchAllowanceTypes();
+    }
+    setWasAllowanceOpen(isAllowanceOpen);
+  }, [isAllowanceOpen, wasAllowanceOpen, refetchAllowanceTypes]);
+
+  // Restore tempAllowances from form state on mount
+  useEffect(() => {
+    // Only restore if form has allowances and tempAllowances store is empty
+    if (tempAllowances.length === 0) {
+      const formAllowances = actualForm.getFieldValue('allowances') || [];
+      const tempIds = formAllowances
+        .filter((a: any) => a?.id && String(a.id).startsWith('temp-'))
+        .map((a: any) => a.id);
+
+      if (tempIds.length > 0) {
+        // Restore temp allowances from form state
+        const tempAllowancesFromForm = formAllowances.filter((a: any) =>
+          tempIds.includes(a.id),
+        );
+        setTempAllowances(tempAllowancesFromForm);
+      }
+    }
+  }, [actualForm, tempAllowances.length, setTempAllowances]);
+
+  useEffect(() => {
+    if (employeeData?.employeeJobInformation?.length > 0 && allowanceTypes) {
+      const latestJobInfo =
+        employeeData.employeeJobInformation[
+          employeeData.employeeJobInformation.length - 1
+        ];
+      if (latestJobInfo?.allowanceIds) {
+        const allowanceIds = Array.isArray(latestJobInfo.allowanceIds)
+          ? latestJobInfo.allowanceIds
+          : [latestJobInfo.allowanceIds];
+
+        // Map IDs to full allowance objects
+        const allowances = allowanceTypes
+          .filter((type: any) => allowanceIds.includes(type.id))
+          .map((type: any) => ({
+            id: type.id,
+            name: type.name,
+            description: type.description,
+            isRate: type.isRate,
+            defaultAmount: type.defaultAmount,
+            notTaxableAmount: type.notTaxableAmount,
+            type: type.type,
+          }));
+
+        actualForm.setFieldValue('allowances', allowances);
+        actualForm.setFieldValue('allowanceIds', allowanceIds);
+      }
+    }
+  }, [employeeData, actualForm, allowanceTypes]);
 
   return (
     <div>
@@ -360,12 +432,185 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
             rules={[
               { required: true, message: 'Please enter basic salary' },
               { type: 'number', message: 'Basic salary must be a number' },
+              {
+                /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (rule, value) => {
+                  if (value === null || value === undefined || value === '') {
+                    return Promise.reject('Salary is required');
+                  }
+                  if (isNaN(Number(value))) {
+                    return Promise.reject('Salary must be a valid number');
+                  }
+                  const numValue = Number(value);
+                  if (numValue <= 0) {
+                    return Promise.reject('Salary must be greater than zero');
+                  }
+                  if (numValue > 100000000) {
+                    return Promise.reject('Salary cannot exceed 100,000,000');
+                  }
+                  if (!Number.isInteger(numValue * 100)) {
+                    return Promise.reject(
+                      'Salary can have at most 2 decimal places',
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}
           >
-            <InputNumber className="w-full" />
+            <InputNumber
+              className="w-full"
+              placeholder="Enter basic salary"
+              min={0}
+              max={100000000}
+              step={1}
+              precision={2}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
+              parser={(value) => value?.replace(/,/g, '') as any}
+              onKeyPress={(e) => {
+                if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
         </Col>
       </Row>
+      <Row gutter={16}>
+        <Col xs={24}>
+          <div className="font-semibold text-xs mb-1">Allowance Type</div>
+          <div className="flex items-start gap-2">
+            <Form.Item
+              name="allowanceIds"
+              rules={[
+                { required: true, message: 'Please select allowance type' },
+              ]}
+              className="flex-1"
+            >
+              <Form.Item shouldUpdate noStyle>
+                {({ getFieldValue, setFieldValue }) => {
+                  const selectedIds = getFieldValue('allowanceIds') || [];
+
+                  // Combine fetched allowance types with temporary ones
+                  const allAllowanceTypes = [
+                    ...(allowanceTypes || []),
+                    ...tempAllowances,
+                  ];
+
+                  const allOptions =
+                    allAllowanceTypes?.map((a: any) => ({
+                      value: a.id,
+                      label: a.name,
+                    })) || [];
+
+                  // For tagRender, we need all options (including selected ones) to display labels
+                  const dropdownOptions = allOptions.filter(
+                    (opt: any) =>
+                      !selectedIds.some(
+                        (id: any) => String(id) === String(opt.value),
+                      ),
+                  );
+                  return (
+                    <Select
+                      mode="multiple"
+                      showSearch
+                      allowClear
+                      className="w-full"
+                      placeholder="Select allowance type"
+                      options={dropdownOptions}
+                      value={selectedIds}
+                      filterOption={(input, opt) =>
+                        String(opt?.label ?? '')
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      maxTagCount={undefined}
+                      tagRender={(props) => {
+                        const { label, value, closable, onClose } = props;
+                        const fullOption = allOptions.find(
+                          (opt: any) => String(opt.value) === String(value),
+                        );
+                        return (
+                          <span
+                            style={{
+                              marginRight: 3,
+                              padding: '2px 8px',
+                              background: '#f0f0f0',
+                              borderRadius: 4,
+                              display: 'inline-block',
+                            }}
+                          >
+                            {fullOption?.label || label}
+                            {closable && (
+                              <span
+                                onClick={onClose}
+                                style={{ marginLeft: 4, cursor: 'pointer' }}
+                              >
+                                ×
+                              </span>
+                            )}
+                          </span>
+                        );
+                      }}
+                      onChange={(newSelectedIds) => {
+                        setFieldValue('allowanceIds', newSelectedIds);
+
+                        // Combine fetched allowance types with temporary ones
+                        const allAllowanceTypes = [
+                          ...(allowanceTypes || []),
+                          ...tempAllowances,
+                        ];
+
+                        // Sync allowances array with selected IDs
+                        const allowances =
+                          allAllowanceTypes
+                            ?.filter((type: any) =>
+                              newSelectedIds.some(
+                                (id: any) => String(id) === String(type.id),
+                              ),
+                            )
+                            .map((type: any) => ({
+                              id: type.id,
+                              name: type.name,
+                              description: type.description,
+                              isRate: type.isRate,
+                              defaultAmount: type.defaultAmount,
+                              notTaxableAmount: type.notTaxableAmount,
+                              type: type.type,
+                            })) || [];
+
+                        setFieldValue('allowances', allowances);
+                        // Note: Don't remove tempAllowances from store when deselected
+                        // They should remain available in dropdown even after being removed
+                        // They'll only be cleared on form cancel or successful submit
+                      }}
+                    />
+                  );
+                }}
+              </Form.Item>
+            </Form.Item>
+            <Form.Item name="allowances" hidden>
+              <Input type="hidden" />
+            </Form.Item>
+
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setIsAllowanceOpen(true);
+              }}
+              style={{
+                height: '32px',
+                alignSelf: 'flex-start',
+                marginTop: 0,
+              }}
+            />
+          </div>
+        </Col>
+      </Row>
+
       {contractType === 'Contractual' && (
         <Row gutter={16}>
           <Col xs={24}>
@@ -458,6 +703,38 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
           </Form.Item>
         </Col>
       </Row>
+
+      {/* Reuse AllowanceTypeSideBar component as centered modal */}
+      <AllowanceTypeSideBar
+        asModal={true}
+        modalWidth={500}
+        onAddToSelect={(allowanceData) => {
+          // Add the temporary allowance to the store
+          setTempAllowances([...tempAllowances, allowanceData]);
+
+          // Get current selected IDs and add the new one
+          const currentIds = actualForm.getFieldValue('allowanceIds') || [];
+          const newIds = [...currentIds, allowanceData.id];
+          actualForm.setFieldValue('allowanceIds', newIds);
+
+          // Get current allowances and add the new one
+          const currentAllowances =
+            actualForm.getFieldValue('allowances') || [];
+          const newAllowance = {
+            id: allowanceData.id,
+            name: allowanceData.name,
+            description: allowanceData.description,
+            isRate: allowanceData.isRate,
+            defaultAmount: allowanceData.defaultAmount,
+            notTaxableAmount: allowanceData.notTaxableAmount,
+            type: allowanceData.type,
+          };
+          actualForm.setFieldValue('allowances', [
+            ...currentAllowances,
+            newAllowance,
+          ]);
+        }}
+      />
     </div>
   );
 };

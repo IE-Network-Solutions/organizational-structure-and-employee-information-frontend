@@ -12,7 +12,6 @@ import DuplicateDeductionModal from '@/components/common/duplicateDeductionModal
 import { useState } from 'react';
 
 const AllowanceEntitlementSideBar = () => {
-
   const {
     isAllowanceEntitlementSidebarOpen,
     resetStore,
@@ -42,7 +41,6 @@ const AllowanceEntitlementSideBar = () => {
   const { data: existingEntitlements, isLoading: entitlementsLoading } =
     useFetchAllowanceEntitlements(id);
 
-
   const onClose = () => {
     form.resetFields();
     resetStore();
@@ -64,14 +62,14 @@ const AllowanceEntitlementSideBar = () => {
     if (Array.isArray(existingEntitlements)) {
       entitlementsArray = existingEntitlements;
     } else if (
-      existingEntitlements.compensationItmeEntitlement &&
-      Array.isArray(existingEntitlements.compensationItmeEntitlement)
+      existingEntitlements?.compensationItmeEntitlement &&
+      Array.isArray(existingEntitlements?.compensationItmeEntitlement)
     ) {
       // Handle nested structure like in allDeductionTable
       entitlementsArray = existingEntitlements.compensationItmeEntitlement;
     } else if (
-      existingEntitlements.items &&
-      Array.isArray(existingEntitlements.items)
+      existingEntitlements?.items &&
+      Array.isArray(existingEntitlements?.items)
     ) {
       // Handle paginated response
       entitlementsArray = existingEntitlements.items;
@@ -104,7 +102,7 @@ const AllowanceEntitlementSideBar = () => {
   };
 
   const onFormSubmit = (formValues: any) => {
-    const selectedEmployeeIds = formValues.employees;
+    const selectedEmployeeIds = formValues?.employees || [];
     const { hasDuplicates, duplicateNames } =
       checkForDuplicates(selectedEmployeeIds);
 
@@ -123,9 +121,9 @@ const AllowanceEntitlementSideBar = () => {
     createAllowanceEntitlement(
       {
         compensationItemId: id,
-        employeeIds: formValues.employees,
-        totalAmount: Number(formValues.totalAmount),
-        settlementPeriod: Number(formValues.settlementPeriod),
+        employeeIds: formValues?.employees || [],
+        totalAmount: Number(formValues?.totalAmount || 0),
+        settlementPeriod: Number(formValues?.settlementPeriod || 0),
         active: true,
         isRate: formValues?.isRate,
       },

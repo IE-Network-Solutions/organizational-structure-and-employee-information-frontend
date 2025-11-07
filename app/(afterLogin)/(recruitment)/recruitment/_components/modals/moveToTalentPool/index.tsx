@@ -87,7 +87,12 @@ const MoveToTalentPool: React.FC = () => {
             <Button
               key="cancel"
               className="p-6"
-              onClick={() => setMoveToTalentPoolModal(false)}
+              onClick={() => {
+                setMoveToTalentPoolModal(false);
+                form.resetFields();
+                setSelectedCandidate([]);
+                setSelectedRowKeys([]);
+              }}
             >
               Cancel
             </Button>
