@@ -23,6 +23,20 @@ const updateProfileImageMutation = async (formData: FormData) => {
   });
 };
 
+const deleteProfileImageMutation = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/${id}/profile-image`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 // useUpdateProfileImage hook
 export const useUpdateProfileImage = () => {
   const queryClient = useQueryClient();
@@ -46,6 +60,29 @@ export const useUpdateProfileImage = () => {
         NotificationMessage.error({
           message: 'Update Failed',
           description: 'Failed to update profile image. Please try again.',
+        });
+      },
+    },
+  );
+};
+
+export const useDeleteProfileImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ id }: { id: string }) => deleteProfileImageMutation(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('employee'); // Invalidate queries related to employee data
+        NotificationMessage.success({
+          message: 'Successfully Deleted',
+          description: 'Profile image successfully removed.',
+        });
+      },
+      onError: () => {
+        NotificationMessage.error({
+          message: 'Delete Failed',
+          description: 'Failed to delete profile image. Please try again.',
         });
       },
     },

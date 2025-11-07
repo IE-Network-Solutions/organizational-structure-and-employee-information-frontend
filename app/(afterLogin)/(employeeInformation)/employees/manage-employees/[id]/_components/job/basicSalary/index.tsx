@@ -2,12 +2,13 @@ import { useGetBasicSalaryById } from '@/store/server/features/employees/employe
 import { useGetPositionsById } from '@/store/server/features/employees/positions/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Card, Space, Spin, Table, Tooltip } from 'antd';
-import React from 'react';
+import React, { useRef } from 'react';
 import { HiPlus } from 'react-icons/hi';
 import BasicSalaryModal from './_components/basicSalaryModal';
 import { MdEdit } from 'react-icons/md';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import AllowanceTypeSideBar from '@/app/(afterLogin)/(compensation)/compensationSetting/allowanceType/_components/allowanceTypeSidebar';
 
 interface Ids {
   id: string;
@@ -40,7 +41,10 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
     setIsBasicSalaryModalVisible,
     isBasicSalaryModalVisible,
     setBasicSalaryData,
+    tempAllowances,
+    setTempAllowances,
   } = useEmployeeManagementStore();
+  const modalFormRef = useRef<any>(null);
   const columns = [
     {
       title: 'Date',
@@ -122,6 +126,40 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
       <BasicSalaryModal
         visible={isBasicSalaryModalVisible}
         onCancel={() => setIsBasicSalaryModalVisible(false)}
+        formRef={modalFormRef}
+      />
+
+      {/* Reuse AllowanceTypeSideBar component as centered modal */}
+      <AllowanceTypeSideBar
+        asModal={true}
+        modalWidth={500}
+        onAddToSelect={(allowanceData) => {
+          // Add the temporary allowance to the store
+          setTempAllowances([...tempAllowances, allowanceData]);
+
+          // Get current selected IDs and add the new one
+          const currentIds =
+            modalFormRef.current?.getFieldValue('allowanceIds') || [];
+          const newIds = [...currentIds, allowanceData.id];
+          modalFormRef.current?.setFieldValue('allowanceIds', newIds);
+
+          // Get current allowances and add the new one
+          const currentAllowances =
+            modalFormRef.current?.getFieldValue('allowances') || [];
+          const newAllowance = {
+            id: allowanceData.id,
+            name: allowanceData.name,
+            description: allowanceData.description,
+            isRate: allowanceData.isRate,
+            defaultAmount: allowanceData.defaultAmount,
+            notTaxableAmount: allowanceData.notTaxableAmount,
+            type: allowanceData.type,
+          };
+          modalFormRef.current?.setFieldValue('allowances', [
+            ...currentAllowances,
+            newAllowance,
+          ]);
+        }}
       />
     </div>
   );

@@ -32,22 +32,56 @@ const OkrSearch: React.FC = () => {
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
+  // Only sync fiscal year and sessions on mount or when okrTab changes
+  // This prevents infinite loops by not tracking every data change
   useEffect(() => {
+    // Skip if data isn't loaded yet
+    if (!getAllFiscalYears?.items && !getActiveFisicalYear) {
+      return;
+    }
+
     const selectedFiscalYear = fiscalYearId
       ? getAllFiscalYears?.items?.find((i) => i?.id == fiscalYearId)
       : getActiveFisicalYear;
 
+    // Only set default if no fiscal year is currently selected
     if (!selectedFiscalYear) {
-      setFiscalYearId(''); // or null, depending on your app
-      setSessionIds([]);
       return;
     }
 
-    const sessionIds =
-      selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-    setSessionIds(sessionIds);
-    setFiscalYearId(selectedFiscalYear?.id || '');
-  }, [getAllFiscalYears, fiscalYearId, okrTab]);
+    // Only update if we need to set the default active fiscal year
+    if (!fiscalYearId && getActiveFisicalYear?.id) {
+      const nextFiscalYearId = getActiveFisicalYear.id;
+      const nextSessionIds =
+        getActiveFisicalYear?.sessions?.map((item: any) => item.id) || [];
+
+      setFiscalYearId(nextFiscalYearId);
+      setSessionIds(nextSessionIds);
+      return;
+    }
+
+    // If a fiscal year is selected, sync sessions based on the selected year
+    if (fiscalYearId && selectedFiscalYear) {
+      const nextSessionIds =
+        selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+
+      // Only update sessions if they've actually changed
+      const currentSessionsStr = JSON.stringify([...sessionIds].sort());
+      const nextSessionsStr = JSON.stringify([...nextSessionIds].sort());
+
+      if (currentSessionsStr !== nextSessionsStr) {
+        setSessionIds(nextSessionIds);
+      }
+    }
+  }, [
+    // Only run when tab changes or when data first loads
+    okrTab,
+    // Use stable primitive values instead of object references
+    getAllFiscalYears?.items?.length,
+    getActiveFisicalYear?.id,
+    // Include fiscalYearId so we can sync sessions when it changes
+    fiscalYearId,
+  ]);
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
