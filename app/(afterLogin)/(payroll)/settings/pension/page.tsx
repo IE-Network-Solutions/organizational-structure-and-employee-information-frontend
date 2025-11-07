@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { useGetAllPensionRule } from '@/store/server/features/payroll/payroll/queries';
 import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
 import { FaPlus } from 'react-icons/fa';
+import Drawer from './_components/drawer';
+import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
 
 type PensionRule = {
   id: string;
@@ -30,6 +32,7 @@ const Pension = () => {
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
   const { mutate: pensionRuleUpdate, isLoading: updatePensionRule } =
     useUpdatePensionRule();
+  const { openDrawer } = useDrawerStore();
 
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
@@ -53,6 +56,10 @@ const Pension = () => {
 
   const handleInputChange = (field: string, value: any) => {
     setEditedData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddRule = () => {
+    openDrawer();
   };
 
   const columns: ColumnType[] = [
@@ -145,8 +152,9 @@ const Pension = () => {
         <Button
           className="h-10 w-10 sm:w-auto"
           type="primary"
-          disabled
           icon={<FaPlus />}
+          onClick={handleAddRule}
+          disabled={pensionRule && pensionRule.length > 0}
         >
           <span className="hidden lg:inline"> Pension Rule</span>
         </Button>
@@ -161,6 +169,7 @@ const Pension = () => {
           />
         </div>
       </div>
+      <Drawer />
     </div>
   );
 };
