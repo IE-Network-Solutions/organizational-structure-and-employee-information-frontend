@@ -10,7 +10,11 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 type ResponseData = {
   items: KeyResult[];
 };
-const getKeyResultByUser = async (id: number | string): Promise<any> => {
+const getKeyResultByUser = async (
+  id: number | string,
+  fiscalYearId?: string,
+  sessionId?: string,
+): Promise<any> => {
   const token = await getCurrentToken();
 
   if (id) {
@@ -22,8 +26,11 @@ const getKeyResultByUser = async (id: number | string): Promise<any> => {
 
       // First try with normal encryption handling
       try {
+        const params = new URLSearchParams();
+        if (fiscalYearId) params.set('fiscalYearId', fiscalYearId);
+        if (sessionId) params.set('sessionId', sessionId);
         const response = await crudRequest({
-          url: `${OKR_AND_PLANNING_URL}/key-results/user/${id}`,
+          url: `${OKR_AND_PLANNING_URL}/key-results/user/${id}?${params.toString()}`,
           method: 'GET',
           headers,
         });
@@ -36,8 +43,11 @@ const getKeyResultByUser = async (id: number | string): Promise<any> => {
 
       // Fallback: try with skipEncryption if the above fails
       try {
+        const params2 = new URLSearchParams();
+        if (fiscalYearId) params2.set('fiscalYearId', fiscalYearId);
+        if (sessionId) params2.set('sessionId', sessionId);
         const response = await crudRequest({
-          url: `${OKR_AND_PLANNING_URL}/key-results/user/${id}`,
+          url: `${OKR_AND_PLANNING_URL}/key-results/user/${id}?${params2.toString()}`,
           method: 'GET',
           headers,
           skipEncryption: true,
@@ -60,10 +70,14 @@ const getKeyResultByUser = async (id: number | string): Promise<any> => {
   return { items: [] }; // Return empty array if no ID is provided
 };
 
-export const useGetUserKeyResult = (postId: number | string) =>
+export const useGetUserKeyResult = (
+  postId: number | string,
+  fiscalYearId?: string,
+  sessionId?: string,
+) =>
   useQuery<ResponseData>(
-    ['ObjectiveInformation', postId],
-    () => getKeyResultByUser(postId),
+    ['ObjectiveInformation', postId, fiscalYearId, sessionId],
+    () => getKeyResultByUser(postId, fiscalYearId, sessionId),
     {
       keepPreviousData: true,
     },
