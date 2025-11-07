@@ -5,7 +5,11 @@ import {
   fetchDailyPlanSuggestions,
 } from '@/utils/aiService';
 
-type KeyResultOption = { id: string; title: string };
+import { fetchAllPlanningPeriods, fetchPlanningPeriodsHierarchy, getReportingData } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+
+type KeyResultOption = { id: string; title: string; progress?: number; metricType?: { name: string } };
 type WeeklyPlanTask = { id: string; task: string };
 
 interface AISuggestionsModalProps {
@@ -57,13 +61,171 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       ? !hasParentPlan
       : (planTypeName || '').toLowerCase().includes('week');
 
+  // Helper to robustly extract tasks from a report item
+  const extractReportTasks = (report: any): any[] => {
+    const pools: any[][] = [];
+    if (Array.isArray(report?.tasks)) pools.push(report.tasks);
+    if (Array.isArray(report?.reportTasks)) pools.push(report.reportTasks);
+    if (Array.isArray(report?.okrReportTasks)) pools.push(report.okrReportTasks);
+    if (Array.isArray(report?.okrReport?.tasks)) pools.push(report.okrReport.tasks);
+    if (Array.isArray(report?.reportTask)) pools.push(report.reportTask);
+    // Flatten and filter truthy entries
+    return pools.flat().filter(Boolean);
+  };
+
+  // Utility: normalize text for fuzzy comparisons
+  const normalizeText = (s: any) =>
+    (s ?? '')
+      .toString()
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const normalizeId = (v: any) => (v === null || v === undefined ? '' : String(v));
+
+  const isCompletedStatus = (status: any) => {
+    const s = normalizeText(status);
+    return s === 'done' || s === 'completed' || s === 'achieved';
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
     try {
       if (isWeekly) {
         const selected = keyResults.find((k) => k.id === keyResultId);
         if (!selected) return;
-        const res = await fetchWeeklyPlanSuggestions(selected.title);
+        
+        const progress = selected.progress || 0;
+        const userId = useAuthenticationStore.getState().userId;
+        const planPeriodId = PlanningAndReportingStore.getState().activePlanPeriodId;
+        
+        let weeklyReportsResult: any = { items: [] };
+        try {
+          weeklyReportsResult = await getReportingData({
+            userId: [userId],
+            planPeriodId,
+            pageReporting: 1,
+            pageSizeReporting: 1000,
+            // align with Reporting page behavior if available in store
+            sessionId:
+              PlanningAndReportingStore.getState().selectedSessionIds?.length
+                ? PlanningAndReportingStore.getState().selectedSessionIds
+                : PlanningAndReportingStore.getState().allSessionsOfYear || [],
+          });
+        } catch (_) {}
+        const allWeeklyReports = weeklyReportsResult?.items || [];
+        
+        // Fetch only the daily child period of the current weekly period
+        let allDailyReports: any[] = [];
+        try {
+          const hierarchy = await fetchPlanningPeriodsHierarchy(userId, planPeriodId);
+          const dailyChildId = hierarchy?.child?.planningPeriodId || hierarchy?.child?.id;
+          if (dailyChildId) {
+            const dailyRes = await getReportingData({
+              userId: [userId],
+              planPeriodId: dailyChildId,
+              pageReporting: 1,
+              pageSizeReporting: 1000,
+              sessionId:
+                PlanningAndReportingStore.getState().selectedSessionIds?.length
+                  ? PlanningAndReportingStore.getState().selectedSessionIds
+                  : PlanningAndReportingStore.getState().allSessionsOfYear || [],
+            });
+            allDailyReports = dailyRes?.items || [];
+          }
+        } catch (_) {}
+        
+        // Now build krReport using allWeeklyReports
+        const krReport = {
+          tasks: [] as any[],
+          keyResultProgress: progress + '%',
+          metricType: selected.metricType?.name || 'Unknown'
+        };
+        
+        const doneTasks: string[] = [];
+        
+        allWeeklyReports.forEach((report: any) => {
+          const reportTasks = extractReportTasks(report);
+          reportTasks.forEach((task: any) => {
+            if (task.planTask?.keyResultId === keyResultId) {
+              const weeklyTask = {
+                title: task.planTask?.task ?? task?.task,
+                status: task.status,
+                reason: task.customReason || 'No reason provided',
+                dailyTasks: [] as any[],
+              };
+              
+              // Add nested daily
+              allDailyReports.forEach((dailyReport: any) => {
+                const dailyReportTasks = extractReportTasks(dailyReport);
+                dailyReportTasks.forEach((dailyTask: any) => {
+                  const weeklyIdCandidates = [
+                    task.planTask?.id,
+                    task.planTaskId,
+                    task?.id,
+                  ]
+                    .filter(Boolean)
+                    .map(normalizeId);
+                  const dailyParentCandidates = [
+                    dailyTask.planTask?.parentTask?.id,
+                    dailyTask.planTask?.parentTaskId,
+                    dailyTask?.parentTaskId,
+                    dailyTask?.parentTask?.id,
+                    dailyTask?.parentPlanTaskId,
+                  ]
+                    .filter(Boolean)
+                    .map(normalizeId);
+
+                  // Fallback title-based match
+                  const weeklyTitle = normalizeText(
+                    task.planTask?.task || task?.task,
+                  );
+                  const parentTitle = normalizeText(
+                    dailyTask.planTask?.parentTask?.task ||
+                      dailyTask?.parentTask?.task,
+                  );
+
+                  const titlesMatch =
+                    weeklyTitle && parentTitle &&
+                    (weeklyTitle === parentTitle ||
+                      weeklyTitle.includes(parentTitle) ||
+                      parentTitle.includes(weeklyTitle));
+
+                  const idsMatch = weeklyIdCandidates.some((wid: string) =>
+                    dailyParentCandidates.includes(wid),
+                  );
+
+                  const isChildOfWeekly = idsMatch || titlesMatch;
+
+                  if (isChildOfWeekly && isCompletedStatus(dailyTask.status)) {
+                    weeklyTask.dailyTasks.push({
+                      title: dailyTask.planTask?.task ?? dailyTask?.task,
+                      status: dailyTask.status,
+                      reason: dailyTask.customReason || 'No reason provided',
+                    });
+                  }
+                });
+              });
+              
+              krReport.tasks.push(weeklyTask);
+              
+              if (isCompletedStatus(task.status)) {
+                doneTasks.push(task.planTask?.task ?? task?.task);
+              }
+            }
+          });
+        });
+        
+        const keyResultReport = [krReport];
+        
+        // Then in payload include report: keyResultReport and completed_tasks: doneTasks
+
+        const res = await fetchWeeklyPlanSuggestions({
+          key_result: selected.title,
+          progress,
+          completed_tasks: doneTasks,
+          report: keyResultReport
+        });
         setItems(
           res.map((r) => ({
             title: r.title,
@@ -73,20 +235,117 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
           })),
         );
       } else if (isDaily) {
-        // Get selected key result title
         const selectedKeyResult = keyResults.find((k) => k.id === keyResultId);
         if (!selectedKeyResult) return;
 
-        // Get selected weekly plan task
         const selectedWeeklyTask = weeklyPlanTasks.find(
           (t) => t.id === weeklyPlanTaskId,
         );
         if (!selectedWeeklyTask) return;
 
-        // Combine key result and weekly plan task as one string
-        const combinedPrompt = `Key Result: ${selectedKeyResult.title}\nWeekly Plan: ${selectedWeeklyTask.task}`;
+        const progress = selectedKeyResult.progress || 0;
+        const userId = useAuthenticationStore.getState().userId;
+        const planPeriodId = PlanningAndReportingStore.getState().activePlanPeriodId;
+        
+        // Get all daily periods, fetch all daily reports
+        
+        const allAssignedResponse = await fetchAllPlanningPeriods();
+        const allAssigned = allAssignedResponse?.items || [];
+        
+        const dailyPeriods = allAssigned.filter((p: any) => p.planningPeriod?.name?.toLowerCase().includes('day'));
+        
+        const allDailyReportsPromises = dailyPeriods.map(async (period: any) => {
+          try {
+            const res = await getReportingData({
+              userId: [userId],
+              planPeriodId: period.planningPeriodId,
+              pageReporting: 1,
+              pageSizeReporting: 1000,
+              sessionId:
+                PlanningAndReportingStore.getState().selectedSessionIds?.length
+                  ? PlanningAndReportingStore.getState().selectedSessionIds
+                  : PlanningAndReportingStore.getState().allSessionsOfYear || [],
+            });
+            return res.items || [];
+          } catch (e) {
+            return [];
+          }
+        });
+        
+        const allDailyReports = (await Promise.all(allDailyReportsPromises)).flat();
+        
+        const krReport = {
+          tasks: [] as any[],
+          keyResultProgress: progress + '%',
+          metricType: selectedKeyResult.metricType?.name || 'Unknown'
+        };
+        
+        const doneTasks: string[] = [];
+        
+        // Since for specific weekly task, create one entry
+        const weeklyTaskEntry = {
+          title: selectedWeeklyTask.task,
+          dailyTasks: [] as any[],
+        };
+        
+        allDailyReports.forEach((report: any) => {
+          const reportTasks = extractReportTasks(report);
+          reportTasks.forEach((task: any) => {
+            const weeklyIdCandidates = [weeklyPlanTaskId]
+              .filter(Boolean)
+              .map(normalizeId);
+            const dailyParentCandidates = [
+              task.planTask?.parentTask?.id,
+              task.planTask?.parentTaskId,
+              task?.parentTaskId,
+              task?.parentTask?.id,
+              task?.parentPlanTaskId,
+            ]
+              .filter(Boolean)
+              .map(normalizeId);
 
-        const res = await fetchDailyPlanSuggestions(combinedPrompt);
+            const weeklyTitle = normalizeText(selectedWeeklyTask.task);
+            const parentTitle = normalizeText(
+              task.planTask?.parentTask?.task || task?.parentTask?.task,
+            );
+
+            const titlesMatch =
+              weeklyTitle && parentTitle &&
+              (weeklyTitle === parentTitle ||
+                weeklyTitle.includes(parentTitle) ||
+                parentTitle.includes(weeklyTitle));
+
+            const idsMatch = weeklyIdCandidates.some((wid: string) =>
+              dailyParentCandidates.includes(wid),
+            );
+
+            const isChildOfWeekly = idsMatch || titlesMatch;
+
+            if (isChildOfWeekly) {
+              weeklyTaskEntry.dailyTasks.push({
+                title: task.planTask?.task ?? task?.task,
+                status: task.status,
+                reason: task.customReason || 'No reason provided',
+              });
+
+              if (isCompletedStatus(task.status)) {
+                doneTasks.push(task.planTask?.task ?? task?.task);
+              }
+            }
+          });
+        });
+        
+        krReport.tasks.push(weeklyTaskEntry);
+        
+        const keyResultReport = [krReport];
+        
+        const combinedPrompt = `Key Result: ${selectedKeyResult.title}\nWeekly Plan: ${selectedWeeklyTask.task}`;
+        const res = await fetchDailyPlanSuggestions({
+          weekly_plan: combinedPrompt,
+          progress,
+          completed_tasks: doneTasks,
+          report: keyResultReport
+        });
         setItems(
           res.map((r) => ({
             title: r.title,

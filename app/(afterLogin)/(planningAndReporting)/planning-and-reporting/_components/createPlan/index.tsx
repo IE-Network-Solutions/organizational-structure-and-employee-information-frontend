@@ -105,14 +105,19 @@ function CreatePlan() {
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {
-            const out: { id: string; title: string }[] = [];
+            const out: { id: string; title: string; progress?: number; metricType?: { name: string } }[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from Objectives
               objective?.items?.forEach((obj: any) => {
                 obj?.keyResults?.forEach((kr: any) => {
                   if (kr?.id && kr?.title) {
-                    out.push({ id: String(kr.id), title: kr.title });
+                    out.push({ 
+                      id: String(kr.id), 
+                      title: kr.title,
+                      progress: kr.progress,
+                      metricType: kr.metricType
+                    });
                   }
                 });
               });
@@ -130,7 +135,12 @@ function CreatePlan() {
                 const krTitle = t?.keyResult?.title;
                 if (krId && krTitle && !seen.has(krId)) {
                   seen.add(krId);
-                  out.push({ id: krId, title: krTitle });
+                  out.push({ 
+                    id: krId, 
+                    title: krTitle,
+                    progress: t?.keyResult?.progress,
+                    metricType: t?.keyResult?.metricType
+                  });
                 }
               });
             }

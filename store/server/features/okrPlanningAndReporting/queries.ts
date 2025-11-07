@@ -333,3 +333,10 @@ export const useGetReportedPlanning = (planId: string) => {
     },
   );
 };
+
+export { getReportingData };
+
+// Expose a non-hook function so non-React code can fetch planning periods
+export const fetchAllPlanningPeriods = getAllPlanningPeriods;
+
+export const fetchPlanningPeriodsHierarchy = getPlanningPeriodsHierarchy;
