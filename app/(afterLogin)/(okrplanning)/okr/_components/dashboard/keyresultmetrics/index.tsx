@@ -7,27 +7,35 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
 import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface KPIMetricsProps {
   keyResult: any;
   myOkr: boolean;
   updatedKeyResults: any;
   objectiveId: string;
+  objectiveUserId?: string;
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({
   keyResult,
+  myOkr,
   updatedKeyResults,
   objectiveId,
+  objectiveUserId,
 }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+  const { userId } = useAuthenticationStore();
 
   const { keyResultValue, setKeyResultValue, setKeyResultId, setObjectiveId } =
     useOKRStore();
 
   const { isMobile } = useIsMobile();
+
+  // Only owner can edit/delete key results (check if objective belongs to current user)
+  const canEditDelete = myOkr || objectiveUserId === userId;
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setKeyResultValue(keyResult);
@@ -49,7 +57,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     setOpen(false);
   };
 
-  const menu = (
+  // Only show edit/delete menu if user can edit/delete this key result
+  const menu = canEditDelete ? (
     <Menu
       items={[
         {
@@ -64,7 +73,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         },
       ]}
     />
-  );
+  ) : null;
 
   function handleKeyResultDelete(id: string) {
     updateAndDelete({
@@ -107,14 +116,20 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         >
           {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
         </h2>
-        {keyResult?.isClosed === false && Number(keyResult?.progress) === 0 && (
-          <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-            <IoIosMore
-              id={`key-result-menu-button-${keyResult?.id}`}
-              className="text-gray-500 text-lg cursor-pointer ml-auto"
-            />
-          </Dropdown>
-        )}
+        {keyResult?.isClosed === false &&
+          Number(keyResult?.progress) === 0 &&
+          menu && (
+            <Dropdown
+              overlay={menu}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <IoIosMore
+                id={`key-result-menu-button-${keyResult?.id}`}
+                className="text-gray-500 text-lg cursor-pointer ml-auto"
+              />
+            </Dropdown>
+          )}
       </div>
 
       {/* Content Section */}

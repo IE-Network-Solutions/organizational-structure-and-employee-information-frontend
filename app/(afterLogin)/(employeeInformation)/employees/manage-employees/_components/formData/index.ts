@@ -54,6 +54,7 @@ export const transformData = (data: any) => {
       employmentContractType: data.employmentContractType,
       workScheduleId: data.workScheduleId,
       basicSalary: Number(data.basicSalary),
+      allowances: data.allowances || [],
     },
     createEmployeeDocumentDto: {
       documentName: data?.documentName?.file?.originFileObj ?? '',

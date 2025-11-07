@@ -56,7 +56,10 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       footer={
         <div className="flex justify-center items-center space-x-5 p-2">
           <Button
-            onClick={onClose}
+            onClick={() => {
+              form.resetFields();
+              onClose();
+            }}
             className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300 "
           >
             Cancel
@@ -82,7 +85,17 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           name="candidateId"
           rules={[{ required: true, message: 'Please select a candidate!' }]}
         >
-          <Select placeholder="Select a candidate" className="h-10">
+          <Select
+            placeholder="Select a candidate"
+            className="h-10"
+            showSearch
+            allowClear
+            filterOption={(input, option) =>
+              String(option?.children ?? '')
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
             {candidates?.items?.map((candidate: any) => (
               <Select.Option key={candidate.id} value={candidate.id}>
                 {candidate?.fullName}
@@ -99,7 +112,17 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           name="category"
           rules={[{ required: true, message: 'Please select a category!' }]}
         >
-          <Select placeholder="Select a talent pool category" className="h-10">
+          <Select
+            placeholder="Select a talent pool category"
+            className="h-10"
+            showSearch
+            allowClear
+            filterOption={(input, option) =>
+              String(option?.children ?? '')
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
             {talentPoolCategory?.items?.map((item: any) => (
               <Select.Option key={item.id} value={item?.id}>
                 {item?.title}
