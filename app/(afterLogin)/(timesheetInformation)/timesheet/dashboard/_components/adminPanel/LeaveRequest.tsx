@@ -254,7 +254,7 @@ const LeaveRequest = () => {
                         {item.leaveType}
                       </div>
                       <p className="text-xs text-black font-bold">
-                        {`${dayjs(item.leaveStartDate).format('D')}-${dayjs(item.leaveEndDate).format('D MMM YYYY')}`}
+                        {`${dayjs(item.leaveStartDate).format('D MMM YYYY')} to ${dayjs(item.leaveEndDate).format('D MMM YYYY')}`}
                       </p>
                     </div>
                   </div>
