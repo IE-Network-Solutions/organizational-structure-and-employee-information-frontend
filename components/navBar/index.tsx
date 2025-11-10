@@ -125,7 +125,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/employee-information/[id]',
       permissions: [], // Allow all users to access employee information
     },
-   
   ];
 
   const getRoutesAndPermissions = (

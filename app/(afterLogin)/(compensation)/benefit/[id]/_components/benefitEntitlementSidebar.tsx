@@ -55,9 +55,6 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
   const { data: existingEntitlements, isLoading: entitlementsLoading } =
     useFetchBenefitEntitlement(id);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [settlementPeriod, setSettlementPeriod] = useState<number>(0);
-  const [data, setData] = useState<any[]>([]);
 
   // State for duplicate confirmation modal
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);

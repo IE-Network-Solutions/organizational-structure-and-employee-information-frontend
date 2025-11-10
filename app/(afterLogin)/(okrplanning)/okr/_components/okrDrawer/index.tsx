@@ -70,7 +70,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     // Only update if title is empty and we have a new objectiveTitle to set
     // Also check if the title would actually change to prevent infinite loops
     const currentTitle = objectiveValue?.title?.trim() || '';
-    const newTitle = objectiveTitle?.trim() || '';  
+    const newTitle = objectiveTitle?.trim() || '';
     if (!currentTitle && newTitle) {
       setObjectiveValue({
         ...objectiveValue,

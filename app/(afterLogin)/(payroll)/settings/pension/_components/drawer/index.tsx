@@ -34,7 +34,7 @@ const Drawer: React.FC = () => {
   } = useCreatePensionRule();
 
   const [form] = Form.useForm();
-  
+
   // Reset form when drawer opens
   useEffect(() => {
     if (isDrawerVisible) {
@@ -116,10 +116,7 @@ const Drawer: React.FC = () => {
           <Input placeholder="Pension Rule Name" className="h-12 mt-2" />
         </Form.Item>
 
-        <Form.Item
-          label="Description"
-          name="description"
-        >
+        <Form.Item label="Description" name="description">
           <Input.TextArea
             rows={3}
             placeholder="Enter description (optional)"
@@ -204,4 +201,3 @@ const Drawer: React.FC = () => {
 };
 
 export default Drawer;
-
