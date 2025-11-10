@@ -3957,6 +3957,7 @@ commondir@^1.0.1:
     react-dom "^18"
     react-google-recaptcha-v3 "^1.11.0"
     react-icons "^5.2.1"
+    react-international-phone "^4.6.0"
     react-leaflet "^4.2.1"
     react-organizational-chart "^2.2.1"
     react-pdf-html "^2.1.3"
@@ -8465,6 +8466,11 @@ react-icons@^5.2.1:
   version "5.5.0"
   resolved "https://registry.npmjs.org/react-icons/-/react-icons-5.5.0.tgz"
   integrity sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==
+
+react-international-phone@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.npmjs.org/react-international-phone/-/react-international-phone-4.6.0.tgz"
+  integrity sha512-lzj5fLfACRKeaitggFIHWl6LM69aO2uivJbEVyVBjAe0+kkvZjToduqnK2/dm9Zu+l8XfVjd+Fn1ZAyG/t8XAg==
 
 react-is@^16.13.1:
   version "16.13.1"

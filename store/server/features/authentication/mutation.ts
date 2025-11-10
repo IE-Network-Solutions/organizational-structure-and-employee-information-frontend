@@ -12,8 +12,10 @@ const get2FACode = async (values: Get2FACodeProps) => {
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/multi-factor-auth`,
     method: 'POST',
-    data: values,
-   
+    data: {
+      ...values,
+      email: values.email.toLowerCase(),
+    },
   });
 };
 

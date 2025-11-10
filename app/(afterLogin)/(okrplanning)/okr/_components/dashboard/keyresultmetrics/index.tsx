@@ -14,11 +14,12 @@ interface KPIMetricsProps {
   myOkr: boolean;
   updatedKeyResults: any;
   objectiveId: string;
-  objectiveUserId: string; // Add this to get the objective's userId
+  objectiveUserId?: string;
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({
   keyResult,
+  myOkr,
   updatedKeyResults,
   objectiveId,
   objectiveUserId,
@@ -26,12 +27,15 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+  const { userId } = useAuthenticationStore();
 
   const { keyResultValue, setKeyResultValue, setKeyResultId, setObjectiveId } =
     useOKRStore();
 
   const { isMobile } = useIsMobile();
-  const { userId } = useAuthenticationStore();
+
+  // Only owner can edit/delete key results (check if objective belongs to current user)
+  const canEditDelete = myOkr || objectiveUserId === userId;
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setKeyResultValue(keyResult);
@@ -53,24 +57,23 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     setOpen(false);
   };
 
-  // Create menu items - only show if user owns the objective (key results inherit ownership)
-  const menuItems = [];
-
-  // Only show edit/delete options if user owns the objective (key results inherit ownership)
-  if (userId === objectiveUserId) {
-    menuItems.push({
-      key: '1',
-      label: 'Edit',
-      onClick: showDrawer,
-    });
-    menuItems.push({
-      key: '2',
-      label: 'Delete',
-      onClick: showDeleteModal,
-    });
-  }
-
-  const menu = <Menu items={menuItems} />;
+  // Only show edit/delete menu if user can edit/delete this key result
+  const menu = canEditDelete ? (
+    <Menu
+      items={[
+        {
+          key: '1',
+          label: 'Edit',
+          onClick: showDrawer,
+        },
+        {
+          key: '2',
+          label: 'Delete',
+          onClick: showDeleteModal,
+        },
+      ]}
+    />
+  ) : null;
 
   function handleKeyResultDelete(id: string) {
     updateAndDelete({
@@ -115,7 +118,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         </h2>
         {keyResult?.isClosed === false &&
           Number(keyResult?.progress) === 0 &&
-          userId === objectiveUserId && (
+          menu && (
             <Dropdown
               overlay={menu}
               trigger={['click']}

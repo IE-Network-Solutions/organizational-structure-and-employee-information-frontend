@@ -17,11 +17,14 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
     useOKRStore();
+  const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
   const { isMobile, isTablet } = useIsMobile();
-  const { userId } = useAuthenticationStore();
+
+  // Only owner can edit/delete
+  const isOwner = objective?.userId === userId;
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
@@ -45,24 +48,23 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
 
-  // Create menu items - only show if user owns the objective
-  const menuItems = [];
-
-  // Only show edit/delete options if user owns the objective
-  if (userId === objective?.userId) {
-    menuItems.push({
-      key: '1',
-      label: 'Edit',
-      onClick: showDrawer,
-    });
-    menuItems.push({
-      key: '2',
-      label: 'Delete',
-      onClick: showDeleteModal,
-    });
-  }
-
-  const menu = <Menu items={menuItems} />;
+  // Owner-only menu
+  const menu = isOwner ? (
+    <Menu
+      items={[
+        {
+          key: '1',
+          label: 'Edit',
+          onClick: showDrawer,
+        },
+        {
+          key: '2',
+          label: 'Delete',
+          onClick: showDeleteModal,
+        },
+      ]}
+    />
+  ) : null;
   function handleDeleteObjective(id: string) {
     deleteObjective(id, {
       onSuccess: () => {
@@ -119,19 +121,18 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {objective?.title}
                 </h2>
               </div>
-              {objective?.isClosed === false &&
-                userId === objective?.userId && (
-                  <Dropdown
-                    overlay={menu}
-                    trigger={['click']}
-                    placement="bottomRight"
-                  >
-                    <MoreOutlined
-                      id={`objective-menu-button-${objective?.id}`}
-                      className="text-gray-500 text-lg cursor-pointer"
-                    />
-                  </Dropdown>
-                )}
+              {objective?.isClosed === false && menu ? (
+                <Dropdown
+                  overlay={menu}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <MoreOutlined
+                    id={`objective-menu-button-${objective?.id}`}
+                    className="text-gray-500 text-lg cursor-pointer"
+                  />
+                </Dropdown>
+              ) : null}
             </div>
 
             <div

@@ -10,7 +10,10 @@ const RequestVerification: FC = () => {
   const { mutate: resetPassword, isLoading } = usePasswordReset();
 
   const handleFinish = async (values: { email: string }) => {
-    resetPassword({ email: values.email, loginTenantId: tenant?.id });
+    resetPassword({
+      email: values.email.toLowerCase(),
+      loginTenantId: tenant?.id,
+    });
   };
 
   return (

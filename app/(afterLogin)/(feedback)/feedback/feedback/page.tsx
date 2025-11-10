@@ -4,15 +4,19 @@ import { TabsProps } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
 import { PiPlus } from 'react-icons/pi';
+import { PiExportLight } from 'react-icons/pi';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   useEmployeeDepartments,
   useGetAllUsers,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import CreateFeedbackForm from './_components/createFeedback';
-import { useFetchAllFeedbackRecord } from '@/store/server/features/feedback/feedbackRecord/queries';
+import {
+  useFetchAllFeedbackRecord,
+  useFetchAllFeedbackRecordForExport,
+} from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
@@ -23,6 +27,8 @@ import { FeedbackCard, FeedbackCardSkeleton } from './_components/feedbackCard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import CustomPagination from '@/components/customPagination';
+import { useFeedbackExport } from './_components/useFeedbackExport';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const Page = () => {
   const {
@@ -73,6 +79,19 @@ const Page = () => {
     userId,
   );
 
+  const [isExporting, setIsExporting] = useState(false);
+  const { exportFeedbackData } = useFeedbackExport();
+  const {
+    refetch: refetchExportData,
+    isLoading: isExportDataLoading,
+  } = useFetchAllFeedbackRecordForExport({
+    variantType,
+    activeTab,
+    userId: 'all', // Always use 'all' for export when on All Employees tab
+    empId,
+    givenDate,
+  });
+
   const handleDelete = (id: string) => {
     deleteFeedbackRecord(id, {
       onSuccess: () => {},
@@ -93,10 +112,51 @@ const Page = () => {
     if (getAllFeedbackTypes?.items?.length > 0) {
       setActiveTab(getAllFeedbackTypes.items[0].id);
     }
-  }, [getAllFeedbackTypes, userIdData]);
+  }, [getAllFeedbackTypes, userIdData, setUserId, setActiveTab]);
 
   const onChangeFeedbackType = (key: string) => {
     setActiveTab(key);
+  };
+
+  const handleExport = async () => {
+    if (userId !== 'all') {
+      return; // Only allow export on All Employees tab
+    }
+
+    setIsExporting(true);
+    try {
+      const exportResponse = await refetchExportData();
+      const exportData = exportResponse.data;
+
+      if (exportData?.items && exportData.items.length > 0) {
+        const activeTabName =
+          getAllFeedbackTypes?.items?.find(
+            (item: FeedbackTypeItems) => item.id === activeTab,
+          )?.category ?? 'Feedback';
+
+        await exportFeedbackData(
+          exportData.items,
+          getAllUsers,
+          getAllFeedbackTypes,
+          EmployeeDepartment,
+          variantType,
+          `${activeTabName}_${variantType}`,
+        );
+      } else {
+        // Show message if no data to export
+        NotificationMessage.warning({
+          message: 'No Data to Export',
+          description: 'There is no feedback data available to export with the current filters.',
+        });
+      }
+    } catch (error) {
+      NotificationMessage.error({
+        message: 'Export Failed',
+        description: 'An error occurred while exporting feedback data. Please try again.',
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // const activeTabName =
@@ -430,7 +490,28 @@ const Page = () => {
           allowSearch={false}
           permissionsData={[Permissions.CreateFeedback]}
         >
-          <EmployeeSearchComponent fields={searchField} />
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex-1">
+              <EmployeeSearchComponent fields={searchField} />
+            </div>
+            {userId === 'all' && (
+              <AccessGuard
+                permissions={[Permissions.ViewAllEmployeeFeedback]}
+              >
+                <Tooltip title="Export Feedback Data">
+                  <Button
+                    type="default"
+                    icon={<PiExportLight size={20} />}
+                    onClick={handleExport}
+                    loading={isExporting || isExportDataLoading}
+                    className="ml-4"
+                  >
+                    Export
+                  </Button>
+                </Tooltip>
+              </AccessGuard>
+            )}
+          </div>
           <div className="flex overflow-x-auto scrollbar-none w-full">
             <Table
               loading={getFeedbackRecordLoading}
