@@ -54,7 +54,7 @@ const StatsCards: React.FC = () => {
   ];
 
   return (
-    <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+    <div className="mb-6 grid grid-flow-col auto-cols-[200px] sm:grid-cols-2 lg:grid-cols-5 gap-5 overflow-x-auto scrollbar-none">
       {statsData.map((stat, index) => {
         const cardContent = (
           <Card

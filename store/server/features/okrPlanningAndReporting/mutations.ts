@@ -125,6 +125,7 @@ export const useApprovalPlanningPeriods = () => {
   return useMutation(approveOrRejectPlanningPeriods, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',
@@ -150,6 +151,7 @@ export const useCreateReportForUnReportedtasks = () => {
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
         queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('okrUserPlans');
         queryClient.invalidateQueries('okrPlannedData');
         NotificationMessage.success({
           message: 'Successfully updated',
@@ -184,6 +186,7 @@ export const useDeletePlanById = () => {
   return useMutation(deletePlanById, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'OKR plan Deleted successfully',
