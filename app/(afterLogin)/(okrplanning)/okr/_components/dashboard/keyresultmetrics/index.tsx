@@ -15,6 +15,7 @@ interface KPIMetricsProps {
   updatedKeyResults: any;
   objectiveId: string;
   objectiveUserId?: string;
+  isInActiveSession?: boolean;
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({
@@ -23,6 +24,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   updatedKeyResults,
   objectiveId,
   objectiveUserId,
+  isInActiveSession = true,
 }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -35,7 +37,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   const { isMobile } = useIsMobile();
 
   // Only owner can edit/delete key results (check if objective belongs to current user)
-  const canEditDelete = myOkr || objectiveUserId === userId;
+  const canEditDelete = (myOkr || objectiveUserId === userId) && isInActiveSession;
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setKeyResultValue(keyResult);
