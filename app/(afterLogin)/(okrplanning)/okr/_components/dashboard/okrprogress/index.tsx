@@ -7,10 +7,13 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 export default function OkrProgress() {
   const { userId } = useAuthenticationStore();
-  const { okrTab } = useOKRStore();
-  const { data: objectiveDashboard, isLoading } =
-    useGetUserObjectiveDashboard(userId);
+  const { okrTab, fiscalYearId, sessionIds } = useOKRStore();
+  const sessionId = sessionIds?.[0];
+  const { data: objectiveDashboard, isLoading, isFetching } =
+    useGetUserObjectiveDashboard(userId, fiscalYearId, sessionId);
   const { isMobile } = useIsMobile();
+  
+  const isSummaryLoading = isLoading || isFetching;
 
   return (
     <div
@@ -23,21 +26,21 @@ export default function OkrProgress() {
           <ProgressPercent
             title="Average OKR"
             percent={(objectiveDashboard?.userOkr as number) || 0}
-            loading={isLoading}
+            loading={isSummaryLoading}
             type="percent"
           />
         ) : okrTab == 2 ? (
           <ProgressPercent
             title="Team  OKR"
             percent={(objectiveDashboard?.teamOkr as number) || 0}
-            loading={isLoading}
+            loading={isSummaryLoading}
             type="percent"
           />
         ) : okrTab == 3 ? (
           <ProgressPercent
             title="Company OKR"
             percent={(objectiveDashboard?.companyOkr as number) || 0}
-            loading={isLoading}
+            loading={isSummaryLoading}
             type="percent"
           />
         ) : null}
@@ -49,7 +52,7 @@ export default function OkrProgress() {
         <ProgressPercent
           title="Supervisor OKR"
           percent={(objectiveDashboard?.supervisorOkr as number) || 0}
-          loading={isLoading}
+          loading={isSummaryLoading}
           type="percent"
         />
       </div>
@@ -64,7 +67,7 @@ export default function OkrProgress() {
               ((objectiveDashboard?.keyResultCount as number) || 0)) *
             100
           }
-          loading={isLoading}
+          loading={isSummaryLoading}
           type="ratio"
           format={`${objectiveDashboard?.okrCompleted || 0}/${objectiveDashboard?.keyResultCount || 0}`}
         />
@@ -76,7 +79,7 @@ export default function OkrProgress() {
         <ProgressPercent
           title="Days Left"
           percent={(objectiveDashboard?.daysLeft as number) || 0}
-          loading={isLoading}
+          loading={isSummaryLoading}
           type="daysLeft"
         />
       </div>
