@@ -28,7 +28,7 @@ pipeline {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env/ie-env'
+                            env.FRONTEND_ENV_PATH = '/home/ubuntu/frontend-env'
                         } else if (branchName.contains('staging')) {
                             env.SSH_CREDENTIALS_ID_1 = 'pepproduction'
                             env.REMOTE_SERVER_1 = REMOTE_SERVER_PROD
