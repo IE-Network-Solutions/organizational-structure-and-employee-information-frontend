@@ -361,9 +361,49 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
             rules={[
               { required: true, message: 'Please enter basic salary' },
               { type: 'number', message: 'Basic salary must be a number' },
+              {
+                /*  eslint-disable-next-line @typescript-eslint/naming-convention */
+                validator: (rule, value) => {
+                  if (value === null || value === undefined || value === '') {
+                    return Promise.reject('Salary is required');
+                  }
+                  if (isNaN(Number(value))) {
+                    return Promise.reject('Salary must be a valid number');
+                  }
+                  const numValue = Number(value);
+                  if (numValue <= 0) {
+                    return Promise.reject('Salary must be greater than zero');
+                  }
+                  if (numValue > 100000000) {
+                    return Promise.reject('Salary cannot exceed 100,000,000');
+                  }
+                  if (!Number.isInteger(numValue * 100)) {
+                    return Promise.reject(
+                      'Salary can have at most 2 decimal places',
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}
           >
-            <InputNumber className="w-full" />
+            <InputNumber
+              className="w-full"
+              placeholder="Enter basic salary"
+              min={0}
+              max={100000000}
+              step={1}
+              precision={2}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
+              parser={(value) => value?.replace(/,/g, '') as any}
+              onKeyPress={(e) => {
+                if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                  e.preventDefault();
+                }
+              }}
+            />
           </Form.Item>
         </Col>
       </Row>

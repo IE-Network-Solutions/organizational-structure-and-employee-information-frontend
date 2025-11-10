@@ -57,6 +57,9 @@ const DeductiontypeSideBar = () => {
           selectedDeductionRecord.applicableTo == 'GLOBAL' ? true : false,
         mode: selectedDeductionRecord.mode,
       });
+    } else {
+      // Clear form when switching back to Add mode
+      form.resetFields();
     }
   }, [selectedDeductionRecord, form, setIsAllEmployee]);
 
@@ -74,9 +77,9 @@ const DeductiontypeSideBar = () => {
   }, [departmentUsers, form]);
 
   const onClose = () => {
-    setIsDeductionOpen(false);
-    form.resetFields();
     resetStore();
+    form.resetFields();
+    setIsDeductionOpen(false);
   };
 
   // const onRateToggle = (checked: any) => {
