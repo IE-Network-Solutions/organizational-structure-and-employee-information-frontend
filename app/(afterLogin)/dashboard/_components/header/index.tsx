@@ -31,15 +31,21 @@ const Header = () => {
     <>
       {hasOKR && (
         <div className="  w-full pb-6 flex overflow-x-auto  2xl:grid 2xl:grid-cols-5 gap-4 scrollbar-none">
-          <Card
-            loading={isLoading}
-            bordered={false}
-            bodyStyle={{ padding: '10px' }}
-            className="flex flex-col gap-3 rounded-lg bg-white p-2 min-w-56  sm:shrink-0 shadow-lg"
-          >
-            <div className="flex items-center justify-between">
-              <div className="bg-gray-100 rounded-md">
-                <GoGoal size={12} className="text-[#7152f3] w-8 h-8 p-2" />
+        <Card
+          loading={isLoading}
+          bordered={false}
+          bodyStyle={{ padding: '10px' }}
+          className="flex flex-col gap-3 rounded-lg bg-white p-2 min-w-56  sm:shrink-0 shadow-lg"
+        >
+          <div className="flex items-center justify-between">
+            <div className="bg-gray-100 rounded-md">
+              <GoGoal size={12} className="text-[#7152f3] w-8 h-8 p-2" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="">
+              <div className="text-xl font-bold ">
+                {Number(objectiveDashboard?.userOkr?.toFixed(2))}
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -242,7 +248,11 @@ const Header = () => {
             <div className="text-gray-500  w-full text-start text-xs">
               Total VP Score
             </div>
-          </Card>
+          </div>
+          <div className="text-gray-500  w-full text-start text-xs">
+            Total VP Score
+          </div>
+        </Card>
         </div>
       )}
     </>
