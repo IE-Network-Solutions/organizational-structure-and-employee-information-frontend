@@ -10,7 +10,6 @@ export const EmployeeDetails = ({
   fallbackProfileImage?: string;
 }) => {
   const { data: userDetails, isLoading, error } = useGetEmployee(empId);
-
   if (isLoading)
     return (
       <div data-testid="employee-details-loading">

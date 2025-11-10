@@ -12,7 +12,6 @@ import DuplicateDeductionModal from '@/components/common/duplicateDeductionModal
 import { useState } from 'react';
 
 const AllowanceEntitlementSideBar = () => {
-
   const {
     isAllowanceEntitlementSidebarOpen,
     resetStore,
@@ -41,7 +40,6 @@ const AllowanceEntitlementSideBar = () => {
   const { id } = useParams();
   const { data: existingEntitlements, isLoading: entitlementsLoading } =
     useFetchAllowanceEntitlements(id);
-
 
   const onClose = () => {
     form.resetFields();
@@ -99,7 +97,6 @@ const AllowanceEntitlementSideBar = () => {
       const user = allUsers?.items?.find((user: any) => user.id === empId);
       return user ? `${user.firstName} ${user.lastName}` : `Employee ${empId}`;
     });
-
     return { hasDuplicates: true, duplicateNames };
   };
 
