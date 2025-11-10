@@ -3,14 +3,42 @@ import { encrypt, decrypt } from './crypto';
 
 const apiClient = axios.create();
 
+// Helper function to check if encryption should be skipped
+const shouldSkipEncryption = () => {
+  // PRIMARY: Next.js public environment variable (GUARANTEED to work)
+  if (process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED === 'true') {
+    return true;
+  }
+
+  return false;
+};
+
 // Encrypt request payload
 apiClient.interceptors.request.use(async (config) => {
-  // If skipEncryption is true, don't encrypt
   if ((config as any).skipEncryption) {
     return config;
   }
 
-  if (config.data && typeof config.data === 'object') {
+  // Use the guaranteed check
+  if (shouldSkipEncryption()) {
+    return config;
+  }
+
+  if (config.data instanceof FormData) {
+    try {
+      // Convert FormData to an object first
+      const formDataObj: Record<string, any> = {};
+      for (const [key, value] of config.data.entries()) {
+        formDataObj[key] = value;
+      }
+
+      // Encrypt the converted object
+      const encryptedPayload = await encrypt(JSON.stringify(formDataObj));
+      config.data = { data: encryptedPayload };
+    } catch (err) {
+      throw err;
+    }
+  } else if (config.data && typeof config.data === 'object') {
     try {
       const encryptedPayload = await encrypt(JSON.stringify(config.data));
       config.data = { data: encryptedPayload };
@@ -27,6 +55,11 @@ apiClient.interceptors.response.use(async (response) => {
 
   // If skipEncryption is true in config, don't decrypt
   if ((response.config as any).skipEncryption) {
+    return response;
+  }
+
+  // Use the guaranteed check
+  if (shouldSkipEncryption()) {
     return response;
   }
 
