@@ -62,10 +62,10 @@ const Drawer: React.FC = () => {
   const onFinish = async (values: any) => {
     const taxRuleData = {
       name: values.name,
-      minIncome: values['minimum-income'],
-      maxIncome: values['maximum-income'],
-      rate: values.rate,
-      deduction: values.deduction,
+      minIncome: parseFloat(values['minimum-income']),
+      maxIncome: parseFloat(values['maximum-income']),
+      rate: parseFloat(values.rate),
+      deduction: parseFloat(values.deduction),
     };
 
     try {
@@ -132,7 +132,6 @@ const Drawer: React.FC = () => {
           name="minimum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the minimum income!',
             },
@@ -172,7 +171,6 @@ const Drawer: React.FC = () => {
           name="maximum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the maximum income!',
             },

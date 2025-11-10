@@ -131,7 +131,7 @@ const WorkScheduleComponent: React.FC = () => {
     setWorkSchedule(employeeDataInfo?.workScheduleId);
 
     form.setFieldsValue(employeeDataInfo);
-  }, [form, employeeData]);
+  }, [form, employeeData, setWorkSchedule]);
 
   const schedule = workSchedules?.items[0];
 
