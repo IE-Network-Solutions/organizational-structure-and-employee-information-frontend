@@ -415,7 +415,8 @@ const Payroll = () => {
           ?.reduce((acc: any, item: any) => {
             return acc + Number(item.amount);
           }, 0);
-        const taxableTransport = transportAllowance >= 600?transportAllowance - 600:0;
+        const taxableTransport =
+          transportAllowance >= 600 ? transportAllowance - 600 : 0;
         const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {

@@ -9,10 +9,13 @@ export default function OkrProgress() {
   const { userId } = useAuthenticationStore();
   const { okrTab, fiscalYearId, sessionIds } = useOKRStore();
   const sessionId = sessionIds?.[0];
-  const { data: objectiveDashboard, isLoading, isFetching } =
-    useGetUserObjectiveDashboard(userId, fiscalYearId, sessionId);
+  const {
+    data: objectiveDashboard,
+    isLoading,
+    isFetching,
+  } = useGetUserObjectiveDashboard(userId, fiscalYearId, sessionId);
   const { isMobile } = useIsMobile();
-  
+
   const isSummaryLoading = isLoading || isFetching;
 
   return (
