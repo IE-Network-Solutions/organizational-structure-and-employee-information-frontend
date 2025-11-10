@@ -12,6 +12,7 @@ import {
 } from '@/store/uistate/features/okrplanning/okr/interface';
 import { MoreOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
@@ -20,6 +21,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
   const { isMobile, isTablet } = useIsMobile();
+  const { userId } = useAuthenticationStore();
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
@@ -42,22 +44,25 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const completedKeyResults =
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: '1',
-          label: 'Edit',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          label: 'Delete',
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  );
+
+  // Create menu items - only show if user owns the objective
+  const menuItems = [];
+
+  // Only show edit/delete options if user owns the objective
+  if (userId === objective?.userId) {
+    menuItems.push({
+      key: '1',
+      label: 'Edit',
+      onClick: showDrawer,
+    });
+    menuItems.push({
+      key: '2',
+      label: 'Delete',
+      onClick: showDeleteModal,
+    });
+  }
+
+  const menu = <Menu items={menuItems} />;
   function handleDeleteObjective(id: string) {
     deleteObjective(id, {
       onSuccess: () => {
@@ -114,18 +119,19 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {objective?.title}
                 </h2>
               </div>
-              {objective?.isClosed === false ? (
-                <Dropdown
-                  overlay={menu}
-                  trigger={['click']}
-                  placement="bottomRight"
-                >
-                  <MoreOutlined
-                    id={`objective-menu-button-${objective?.id}`}
-                    className="text-gray-500 text-lg cursor-pointer"
-                  />
-                </Dropdown>
-              ) : null}
+              {objective?.isClosed === false &&
+                userId === objective?.userId && (
+                  <Dropdown
+                    overlay={menu}
+                    trigger={['click']}
+                    placement="bottomRight"
+                  >
+                    <MoreOutlined
+                      id={`objective-menu-button-${objective?.id}`}
+                      className="text-gray-500 text-lg cursor-pointer"
+                    />
+                  </Dropdown>
+                )}
             </div>
 
             <div
@@ -220,6 +226,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           key={keyResult.id}
           updatedKeyResults={updatedKeyResults}
           objectiveId={objectiveId}
+          objectiveUserId={objective?.userId}
         />
       ))}
       <EditObjective
