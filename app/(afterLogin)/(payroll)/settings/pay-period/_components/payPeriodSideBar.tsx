@@ -15,7 +15,7 @@ import {
 import { useCreatePayPeriods } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import dayjs from 'dayjs';
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -28,7 +28,7 @@ const { Option } = Select;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
-  const [activePicker, setActivePicker] = useState<{
+  const [, setActivePicker] = useState<{
     index: number | null;
     part: 'start' | 'end' | null;
   }>({ index: null, part: null });
@@ -52,23 +52,6 @@ const PayPeriodSideBar = () => {
   const { data: existingPayPeriods } = useFetchActiveFiscalYearPayPeriods(
     selectedFiscalYear?.id,
   );
-
-  const calculateDivisions = (mode: string) => {
-    if (!selectedFiscalYear) return;
-    const { startDate, endDate } = selectedFiscalYear;
-    const start = dayjs(startDate);
-    const end = dayjs(endDate);
-
-    let intervals: [dayjs.Dayjs, dayjs.Dayjs][] = [];
-    if (mode === 'Weekly') {
-      intervals = calculateEqualIntervals(start, end, 7);
-    } else if (mode === 'Bi-weekly') {
-      intervals = calculateEqualIntervals(start, end, 14);
-    } else if (mode === 'Monthly') {
-      intervals = calculateMonthlyIntervals(start, end);
-    }
-    setDivisions(intervals);
-  };
 
   const calculateEqualIntervals = (
     start: dayjs.Dayjs,
@@ -109,9 +92,29 @@ const PayPeriodSideBar = () => {
     return intervals;
   };
 
+  const calculateDivisions = useCallback(
+    (mode: string) => {
+      if (!selectedFiscalYear) return;
+      const { startDate, endDate } = selectedFiscalYear;
+      const start = dayjs(startDate);
+      const end = dayjs(endDate);
+
+      let intervals: [dayjs.Dayjs, dayjs.Dayjs][] = [];
+      if (mode === 'Weekly') {
+        intervals = calculateEqualIntervals(start, end, 7);
+      } else if (mode === 'Bi-weekly') {
+        intervals = calculateEqualIntervals(start, end, 14);
+      } else if (mode === 'Monthly') {
+        intervals = calculateMonthlyIntervals(start, end);
+      }
+      setDivisions(intervals);
+    },
+    [selectedFiscalYear, setDivisions],
+  );
+
   useEffect(() => {
     if (selectedFiscalYear) calculateDivisions(payPeriodMode);
-  }, [selectedFiscalYear, payPeriodMode]);
+  }, [selectedFiscalYear, payPeriodMode, calculateDivisions]);
 
   const formattedDivisions = divisions.map(
     (range: [dayjs.Dayjs, dayjs.Dayjs]) =>
@@ -192,7 +195,7 @@ const PayPeriodSideBar = () => {
       });
 
       form.setFields(
-        divisions.map((_, index) => {
+        divisions.map((unused, index) => {
           const fieldErrors = errors.filter((err) =>
             err.includes(`Pay period ${index + 1}`),
           );
@@ -220,7 +223,7 @@ const PayPeriodSideBar = () => {
   };
 
   const handleDeleteDivision = (index: number) => {
-    const updatedDivisions = divisions.filter((_, i) => i !== index);
+    const updatedDivisions = divisions.filter((unused, i) => i !== index);
     setDivisions(updatedDivisions);
   };
 
@@ -355,7 +358,7 @@ const PayPeriodSideBar = () => {
                             message: 'Please select a date range',
                           },
                           {
-                            validator: async (_, value) => {
+                            validator: async (unused, value) => {
                               if (
                                 !value ||
                                 value.length !== 2 ||
@@ -418,7 +421,7 @@ const PayPeriodSideBar = () => {
                               setActivePicker({ index: null, part: null });
                             else setActivePicker({ index, part: 'start' });
                           }}
-                          onCalendarChange={(dates, _, info) => {
+                          onCalendarChange={(dates, unused, info) => {
                             if (
                               info?.range === 'start' ||
                               info?.range === 'end'
