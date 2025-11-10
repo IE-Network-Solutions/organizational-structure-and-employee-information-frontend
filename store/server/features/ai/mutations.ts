@@ -16,8 +16,8 @@ import {
   KeyResultSuggestion,
 } from './interface';
 
-// Use local API routes to avoid CORS issues
-const BASE_URL = '/api/ai';
+// Call AI backend directly now that CORS is fixed
+const BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL || 'https://selamnew-ai.ienetworks.co';
 
 // Copilot mutation
 const postCopilot = async (payload: CopilotPayload): Promise<string> => {
@@ -185,15 +185,3 @@ export const fetchCopilotResponse = async (
 
   return postCopilot(payload);
 };
-
-export const fetchWeeklyPlanSuggestions = (
-  keyResult: string,
-): Promise<WeeklyTaskSuggestion[]> => postWeeklyPlan(keyResult);
-
-export const fetchDailyPlanSuggestions = (
-  weeklyPlan: string,
-): Promise<DailyTaskSuggestion[]> => postDailyPlan(weeklyPlan);
-
-export const fetchOKRKeyResultSuggestions = (
-  objective: string,
-): Promise<KeyResultSuggestion[]> => postOKR(objective);

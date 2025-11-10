@@ -44,10 +44,10 @@ const Drawer: React.FC = () => {
     if (currentTaxRule) {
       form.setFieldsValue({
         name: currentTaxRule.name,
-        'maximum-income': currentTaxRule.maxIncome,
-        'minimum-income': currentTaxRule.minIncome,
-        rate: currentTaxRule.rate,
-        deduction: currentTaxRule.deduction,
+        'maximum-income': Number(currentTaxRule.maxIncome),
+        'minimum-income': Number(currentTaxRule.minIncome),
+        rate: Number(currentTaxRule.rate),
+        deduction: Number(currentTaxRule.deduction),
       });
     }
   }, [currentTaxRule, form]);
@@ -57,7 +57,7 @@ const Drawer: React.FC = () => {
       form.resetFields();
       closeDrawer();
     }
-  }, [isCreateLoading, isUpdateSuccess]);
+  }, [isCreateSuccess, isUpdateSuccess]);
 
   const onFinish = async (values: any) => {
     const taxRuleData = {
@@ -149,6 +149,12 @@ const Drawer: React.FC = () => {
               },
             },
           ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="h-12 mt-2 w-full input-number-mobile"
@@ -182,6 +188,12 @@ const Drawer: React.FC = () => {
               },
             },
           ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="h-12 mt-2 w-full input-number-mobile"
@@ -196,7 +208,15 @@ const Drawer: React.FC = () => {
         <Form.Item
           label="Rate in %"
           name="rate"
-          rules={[{ required: true, message: 'Please input the tax rate!' }]}
+          rules={[
+            { type: 'number', required: true, message: 'Please input the tax rate!' },
+          ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="w-full h-12 mt-2 input-number-mobile"
@@ -214,7 +234,15 @@ const Drawer: React.FC = () => {
         <Form.Item
           label="Deduction"
           name="deduction"
-          rules={[{ required: true, message: 'Please input the deduction!' }]}
+          rules={[
+            { type: 'number', required: true, message: 'Please input the deduction!' },
+          ]}
+          valuePropName="value"
+          getValueFromEvent={(value) =>
+            value === null || value === undefined || value === ''
+              ? undefined
+              : value
+          }
         >
           <InputNumber
             className="w-full h-12 mt-2 input-number-mobile"
