@@ -68,22 +68,12 @@ apiClient.interceptors.response.use(async (response) => {
     return response;
   }
 
-  // Handle case where encrypted data is directly in data field
-  if (data && typeof data === 'string') {
+  if (data?.data && typeof data.data === 'string') {
     try {
-      const decryptedPayload = await decrypt(data);
-      response.data = JSON.parse(decryptedPayload);
+      const decryptedPayload = decrypt(data.data);
+      response.data = JSON.parse(await decryptedPayload);
     } catch (err) {
-      return response;
-    }
-  }
-  // Handle case where encrypted data is nested under data.data
-  else if (data?.data && typeof data.data === 'string') {
-    try {
-      const decryptedPayload = await decrypt(data.data);
-      response.data = JSON.parse(decryptedPayload);
-    } catch (err) {
-      return response;
+      throw err;
     }
   }
 

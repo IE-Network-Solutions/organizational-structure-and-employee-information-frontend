@@ -97,7 +97,6 @@ const AllowanceEntitlementSideBar = () => {
       const user = allUsers?.items?.find((user: any) => user.id === empId);
       return user ? `${user.firstName} ${user.lastName}` : `Employee ${empId}`;
     });
-
     return { hasDuplicates: true, duplicateNames };
   };
 
