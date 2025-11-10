@@ -167,11 +167,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       dataIndex: 'cgpa',
       sorter: (a: any, b: any) => a.cgpa - b.cgpa,
     },
-    {
-      title: 'Internal/External',
-      dataIndex: 'internal_external',
-      sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
-    },
+    // {
+    //   title: 'Internal/External',
+    //   dataIndex: 'internal_external',
+    //   sorter: (a, b) => a.internal_external.localeCompare(b.internal_external),
+    // },
     {
       title: 'CV',
       dataIndex: 'cv',
@@ -261,10 +261,10 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
-      internal_external:
-        item?.jobCandidate?.isExternalApplicant === false
-          ? 'External'
-          : 'Internal',
+      // internal_external:
+      //   item?.jobCandidate?.isExternalApplicant === false
+      //     ? 'External'
+      //     : 'Internal',
       cv: (
         <div className="flex items-center justify-between ">
           <span
