@@ -42,7 +42,7 @@ const pwaConfig = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
   register: true,
-  skipWaiting: true,
+  skipWaiting: false,
   sw: 'sw.js',
   fallbacks: {
     document: '/offline',
