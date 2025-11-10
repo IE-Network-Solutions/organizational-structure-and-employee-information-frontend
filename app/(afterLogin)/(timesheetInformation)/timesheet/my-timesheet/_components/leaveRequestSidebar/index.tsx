@@ -21,6 +21,8 @@ import { useAllApproval } from '@/store/server/features/approver/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { showValidationErrors } from '@/utils/showValidationErrors';
 
 const LeaveRequestSidebar = () => {
   const {
@@ -42,25 +44,87 @@ const LeaveRequestSidebar = () => {
   const { data: leaveTypesData } = useGetLeaveTypes();
   const userData = employeeData?.items?.find((item: any) => item.id === userId);
 
-  const { data: approvalDepartmentData, refetch: getDepartmentApproval } =
-    useAllApproval(
-      userData?.employeeJobInformation[0]?.departmentId || '',
-      APPROVALTYPES?.LEAVE,
-    );
+  const { 
+    data: approvalDepartmentData, 
+    refetch: getDepartmentApproval, 
+    isLoading: isLoadingDepartmentApproval,
+    error: departmentApprovalError,
+  } = useAllApproval(
+    userData?.employeeJobInformation[0]?.departmentId || '',
+    APPROVALTYPES?.LEAVE,
+  );
 
-  const { data: approvalUserData, refetch: getUserApproval } = useAllApproval(
+  const { 
+    data: approvalUserData, 
+    refetch: getUserApproval, 
+    isLoading: isLoadingUserApproval,
+    error: userApprovalError,
+  } = useAllApproval(
     userData?.id || '',
     APPROVALTYPES?.LEAVE,
   );
 
+  // Check for CORS errors
   useEffect(() => {
-    if (userData?.employeeJobInformation[0]?.departmentId) {
-      getDepartmentApproval();
+    const departmentError = departmentApprovalError as any;
+    const userError = userApprovalError as any;
+    const hasCorsError = 
+      (departmentError && (
+        (typeof departmentError?.message === 'string' && 
+         (departmentError.message.includes('CORS') || departmentError.message.includes('blocked'))) ||
+        departmentError?.response?.status === 0
+      )) ||
+      (userError && (
+        (typeof userError?.message === 'string' && 
+         (userError.message.includes('CORS') || userError.message.includes('blocked'))) ||
+        userError?.response?.status === 0
+      ));
+    
+    if (hasCorsError && isShowLeaveRequestSidebar) {
+      NotificationMessage.warning({
+        message: 'CORS Configuration Issue',
+        description: 'Unable to fetch approval workflows due to CORS policy. Please contact your administrator to configure CORS on the backend server.',
+      });
     }
-  }, [userData]);
+  }, [departmentApprovalError, userApprovalError, isShowLeaveRequestSidebar]);
+
+  // Refetch approval data when sidebar opens and userData is available
   useEffect(() => {
-    if (userData?.id) getUserApproval();
-  }, [userData]);
+    if (isShowLeaveRequestSidebar && userData) {
+      const timer = setTimeout(() => {
+        const departmentId = userData?.employeeJobInformation?.[0]?.departmentId;
+        const userId = userData?.id;
+        
+        if (departmentId && departmentId !== '') {
+          getDepartmentApproval();
+        }
+        if (userId && userId !== '') {
+          getUserApproval();
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isShowLeaveRequestSidebar, userData?.id, userData?.employeeJobInformation?.[0]?.departmentId]);
+
+  // Debug: Log approval data to see what's being returned
+  useEffect(() => {
+    if (isShowLeaveRequestSidebar) {
+      console.log('=== Approval Workflow Data Debug ===');
+      console.log('Approval User Data:', approvalUserData);
+      console.log('Approval User Data Type:', typeof approvalUserData);
+      console.log('Is Array?', Array.isArray(approvalUserData));
+      console.log('Approval Department Data:', approvalDepartmentData);
+      console.log('Approval Department Data Type:', typeof approvalDepartmentData);
+      console.log('Is Array?', Array.isArray(approvalDepartmentData));
+      console.log('User Data:', userData);
+      console.log('User ID:', userData?.id);
+      console.log('Department ID:', userData?.employeeJobInformation?.[0]?.departmentId);
+      console.log('User Approval Error:', userApprovalError);
+      console.log('Department Approval Error:', departmentApprovalError);
+      console.log('=====================================');
+    }
+  }, [isShowLeaveRequestSidebar, approvalUserData, approvalDepartmentData, userData, userApprovalError, departmentApprovalError]);
 
   const {
     mutate: updateLeaveRequest,
@@ -167,24 +231,110 @@ const LeaveRequestSidebar = () => {
     },
     {
       label:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1
-          ? 'You lack an assigned approver.'
-          : leaveRequest
-            ? 'Update'
-            : 'Create',
+        (() => {
+          const approvalUserArray = Array.isArray(approvalUserData)
+            ? approvalUserData
+            : approvalUserData?.items || [];
+          const approvalDepartmentArray = Array.isArray(approvalDepartmentData)
+            ? approvalDepartmentData
+            : approvalDepartmentData?.items || [];
+          return approvalUserArray.length < 1 && approvalDepartmentArray.length < 1
+            ? 'You lack an assigned approver.'
+            : leaveRequest
+              ? 'Update'
+              : 'Create';
+        })(),
       key: 'create',
       className: 'h-[40px] sm:h-[56px] text-base',
       size: 'large',
       type: 'primary',
-      loading: isLoadingRequest || isLoading,
+      loading: isLoadingRequest || isLoading || isLoadingDepartmentApproval || isLoadingUserApproval,
       onClick: () => form.submit(),
       disabled:
-        approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
+        (() => {
+          const approvalUserArray = Array.isArray(approvalUserData)
+            ? approvalUserData
+            : approvalUserData?.items || [];
+          const approvalDepartmentArray = Array.isArray(approvalDepartmentData)
+            ? approvalDepartmentData
+            : approvalDepartmentData?.items || [];
+          return approvalUserArray.length < 1 && approvalDepartmentArray.length < 1;
+        })(),
     },
   ];
 
   const onFinish = () => {
     const value = form.getFieldsValue();
+
+    // Validate required fields
+    if (!value.type) {
+      NotificationMessage.error({
+        message: 'Validation Error',
+        description: 'Please select a leave type',
+      });
+      return;
+    }
+
+    if (!value.startDate || !value.endDate) {
+      NotificationMessage.error({
+        message: 'Validation Error',
+        description: 'Please select both start and end dates',
+      });
+      return;
+    }
+
+    // Validate approval workflow
+    // Handle different response structures: array or object with items
+    const approvalUserArray = Array.isArray(approvalUserData)
+      ? approvalUserData
+      : approvalUserData?.items || [];
+    const approvalDepartmentArray = Array.isArray(approvalDepartmentData)
+      ? approvalDepartmentData
+      : approvalDepartmentData?.items || [];
+
+    const approvalWorkflowId =
+      approvalUserArray?.length > 0
+        ? approvalUserArray[0]?.id
+        : approvalDepartmentArray?.[0]?.id;
+
+    if (!approvalWorkflowId) {
+      // Check if it's a CORS error
+      const departmentError = departmentApprovalError as any;
+      const userError = userApprovalError as any;
+      const hasCorsError = 
+        (departmentError && (
+          (typeof departmentError?.message === 'string' && 
+           (departmentError.message.includes('CORS') || departmentError.message.includes('blocked'))) ||
+          departmentError?.response?.status === 0
+        )) ||
+        (userError && (
+          (typeof userError?.message === 'string' && 
+           (userError.message.includes('CORS') || userError.message.includes('blocked'))) ||
+          userError?.response?.status === 0
+        ));
+
+      if (hasCorsError) {
+        NotificationMessage.error({
+          message: 'CORS Configuration Issue',
+          description: 'Unable to fetch approval workflows due to CORS policy. The backend server needs to be configured to allow requests from this origin. Please contact your administrator.',
+        });
+      } else {
+        NotificationMessage.error({
+          message: 'Validation Error',
+          description: 'No approval workflow found. Please ensure an approval workflow is configured for your user or department, and contact your administrator if needed.',
+        });
+      }
+      return;
+    }
+
+    // Validate dates
+    if (dayjs(value.startDate).isAfter(dayjs(value.endDate))) {
+      NotificationMessage.error({
+        message: 'Validation Error',
+        description: 'Start date cannot be after end date',
+      });
+      return;
+    }
 
     updateLeaveRequest({
       item: {
@@ -199,14 +349,15 @@ const LeaveRequestSidebar = () => {
           : null,
         justificationNote: value.note,
         status: LeaveRequestStatus.PENDING,
-        approvalWorkflowId:
-          approvalUserData?.length > 0
-            ? approvalUserData[0]?.id
-            : approvalDepartmentData[0]?.id,
+        approvalWorkflowId,
         approvalType: 'Leave',
       },
       userId,
     });
+  };
+
+  const onFinishFailed = (errorInfo: any) => {
+    showValidationErrors(errorInfo?.errorFields);
   };
 
   const typeOptions = () =>
@@ -250,13 +401,14 @@ const LeaveRequestSidebar = () => {
         }
         width="400px"
       >
-        <Spin spinning={isLoading || isLoadingRequest}>
+        <Spin spinning={isLoading || isLoadingRequest || isLoadingDepartmentApproval || isLoadingUserApproval}>
           <Form
             layout="vertical"
             requiredMark={CustomLabel}
             form={form}
             autoComplete="off"
             onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
           >
             <Space.Compact
               direction="vertical"
