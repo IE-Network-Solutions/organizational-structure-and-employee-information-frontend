@@ -7,7 +7,10 @@ import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useFetchBenefit, useFetchBenefitEntitlement } from '@/store/server/features/compensation/benefit/queries';
+import {
+  useFetchBenefit,
+  useFetchBenefitEntitlement,
+} from '@/store/server/features/compensation/benefit/queries';
 import { useEffect, useState } from 'react';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
@@ -44,7 +47,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
   const { data: benefitDatas } = useFetchBenefit(id);
   const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
-  const { data: existingEntitlements, isLoading: entitlementsLoading } = useFetchBenefitEntitlement(id);
+  const { data: existingEntitlements, isLoading: entitlementsLoading } =
+    useFetchBenefitEntitlement(id);
 
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [settlementPeriod, setSettlementPeriod] = useState<number>(0);
@@ -53,7 +57,9 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
   // State for duplicate confirmation modal
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<any>(null);
-  const [duplicateEmployeeNames, setDuplicateEmployeeNames] = useState<string[]>([]);
+  const [duplicateEmployeeNames, setDuplicateEmployeeNames] = useState<
+    string[]
+  >([]);
 
   const onClose = () => {
     form.resetFields();
@@ -74,9 +80,15 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
     if (Array.isArray(existingEntitlements)) {
       entitlementsArray = existingEntitlements;
-    } else if (existingEntitlements.compensationItmeEntitlement && Array.isArray(existingEntitlements.compensationItmeEntitlement)) {
+    } else if (
+      existingEntitlements.compensationItmeEntitlement &&
+      Array.isArray(existingEntitlements.compensationItmeEntitlement)
+    ) {
       entitlementsArray = existingEntitlements.compensationItmeEntitlement;
-    } else if (existingEntitlements.items && Array.isArray(existingEntitlements.items)) {
+    } else if (
+      existingEntitlements.items &&
+      Array.isArray(existingEntitlements.items)
+    ) {
       entitlementsArray = existingEntitlements.items;
     }
 
@@ -120,7 +132,8 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
     // Check for duplicates before proceeding
     const selectedEmployeeIds = formValues.employeeIds;
-    const { hasDuplicates, duplicateNames } = checkForDuplicates(selectedEmployeeIds);
+    const { hasDuplicates, duplicateNames } =
+      checkForDuplicates(selectedEmployeeIds);
 
     if (hasDuplicates) {
       setDuplicateEmployeeNames(duplicateNames);
@@ -278,7 +291,6 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
       ),
     },
   ];
-
 
   return (
     <>

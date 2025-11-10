@@ -88,7 +88,6 @@ const AllowanceTypeSideBar = () => {
         },
         {
           onSuccess: () => {
-            
             onClose();
           },
         },
@@ -263,9 +262,15 @@ const AllowanceTypeSideBar = () => {
                 {
                   validator: (notused, value) => {
                     const defaultAmount = form.getFieldValue('defaultAmount');
-                    if (value && defaultAmount && Number(value) > Number(defaultAmount)) {
+                    if (
+                      value &&
+                      defaultAmount &&
+                      Number(value) > Number(defaultAmount)
+                    ) {
                       return Promise.reject(
-                        new Error('Non-taxable amount cannot exceed the fixed amount'),
+                        new Error(
+                          'Non-taxable amount cannot exceed the fixed amount',
+                        ),
                       );
                     }
                     return Promise.resolve();
