@@ -381,7 +381,7 @@ const ApprovalListTable = () => {
                 disabled
                 placeholder="Select Workflow"
                 style={{ width: '200px' }}
-                options={approvalWorkflowData?.items.map((item) => ({
+                options={approvalWorkflowData?.items?.map((item) => ({
                   label: item.name,
                   value: item.id, // ✅ Use `value` instead of `id`
                 }))}
@@ -401,7 +401,7 @@ const ApprovalListTable = () => {
                 placeholder="Select Workflow"
                 allowClear
                 style={{ width: '200px' }}
-                options={approvalWorkflowData?.items.map((item) => ({
+                options={approvalWorkflowData?.items?.map((item) => ({
                   label: item.name,
                   value: item.id,
                 }))}

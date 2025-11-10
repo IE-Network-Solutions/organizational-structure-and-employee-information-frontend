@@ -21,7 +21,6 @@ import React, { useState, useEffect } from 'react';
 import { FaEye } from 'react-icons/fa';
 import CandidateDetail from '../candidateDetail/page';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import { IoIosArrowForward } from 'react-icons/io';
 import { FileDown } from 'lucide-react';
 import { useChangeCandidateStatus } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -62,6 +61,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setDeleteCandidateId,
     setDeleteCandidateModal,
     setMoveToTalentPoolModal,
+    selectedRowKeys,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const handleCandidateDetail = (candidate: any) => {
@@ -258,6 +259,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
 
     return {
       key: index,
+      id: item?.id,
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
@@ -315,16 +317,6 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             menu={{
               items: [
                 {
-                  key: 'moveToTalentPool',
-                  label: (
-                    <div className="text-primary font-normal text-sm flex items-center justify-start gap-1">
-                      Move to Talent Pool
-                      <IoIosArrowForward size={12} />
-                    </div>
-                  ),
-                  onClick: () => handleMenuClick('moveToTalentPool', item),
-                },
-                {
                   key: 'hireCandidate',
                   label: (
                     <Popover
@@ -378,7 +370,9 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   });
 
   const rowSelection: TableRowSelection<CandidateData> = {
-    onChange: (nonused, selectedRows) => {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(newSelectedRowKeys);
       setSelectedCandidate(
         candidateList?.items?.filter((item: CandidateData) =>
           selectedRows.some((row: CandidateData) => row.id === item.id),

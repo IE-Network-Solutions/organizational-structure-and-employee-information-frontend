@@ -46,12 +46,14 @@ import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
   const [bankLetter, setBankLetter] = useState(true);
   const [paySlip, setPaySlip] = useState(false);
+  const { data: allowanceTypesData } = useFetchAllowanceTypes();
   const [exportPayrollData, setExportPayrollData] = useState(true);
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
 
@@ -93,6 +95,11 @@ const Payroll = () => {
   const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
   const { mutate: deletePayroll, isLoading: deleteLoading } =
     useDeletePayroll();
+  const activeAllowanceTypes = Array.isArray(allowanceTypesData)
+    ? allowanceTypesData.filter(
+        (item: any) => item.type === 'ALLOWANCE' && item.isActive,
+      )
+    : [];
 
   useEffect(() => {
     // Check if division filter is applied
@@ -707,6 +714,72 @@ const Payroll = () => {
     }
   };
 
+  const truncateText = (text: string, max = 25) =>
+    typeof text === 'string' && text.length > max
+      ? `${text.slice(0, max)}...`
+      : text;
+
+  const dynamicAllowanceColumns = activeAllowanceTypes.map((type: any) => ({
+    title: (
+      <Tooltip title={type.name}>
+        <span
+          style={{
+            display: 'inline-block',
+            maxWidth: 260,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {truncateText(type.name, 25)}
+        </span>
+      </Tooltip>
+    ),
+    dataIndex: type.id,
+    key: type.id,
+    minWidth: 150,
+    //eslint-disable-next-line
+    render: (_: any, record: any) => {
+      const empAllowance = (record.breakdown?.allowances || []).find(
+        (a: any) =>
+          String(a.compensationItemId) === String(type.id) ||
+          a.type === type.name,
+      );
+      if (!empAllowance) return <div>-</div>;
+
+      const basicSalary =
+        record.employeeInfo?.basicSalaries?.find((s: any) => s.status)
+          ?.basicSalary || 0;
+
+      if (type.isRate && type.defaultAmount) {
+        const percent = (basicSalary * Number(type.defaultAmount)) / 100;
+        return (
+          <div>
+            {percent
+              ? Number(percent).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              : '-'}
+          </div>
+        );
+      }
+
+      const amount = empAllowance.amount ?? empAllowance.totalAmount ?? null;
+
+      return (
+        <div>
+          {amount != null
+            ? Number(amount).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-'}
+        </div>
+      );
+    },
+  }));
+
   const columns = [
     {
       title: 'Full Name',
@@ -734,39 +807,9 @@ const Payroll = () => {
         return activeSalary ? activeSalary.basicSalary : 0;
       },
     },
-    {
-      title: 'Transport Allowance',
-      dataIndex: 'transportAllowance',
-      key: 'transportAllowance',
-      minWidth: 150,
-      render: (notused: any, record: any) => {
-        const totalTransportAllowance =
-          record.breakdown?.allowances
-            ?.filter((item: any) => item.type === 'Transport Allowance')
-            ?.reduce(
-              (acc: number, item: any) => acc + Number(item.amount),
-              0,
-            ) || 0;
-        return <div>{totalTransportAllowance.toFixed(2)}</div>;
-      },
-    },
-    {
-      title: 'Taxable Transport Allowance',
-      dataIndex: 'taxableTransportAllowance', // Fixed typo in dataIndex
-      key: 'taxableTransportAllowance', // Fixed typo in key (taxabale -> taxable)
-      minWidth: 150,
-      render: (notused: any, record: any) => {
-        const totalTransportAllowance =
-          record.breakdown?.allowances
-            ?.filter((item: any) => item.type === 'Transport Allowance')
-            ?.reduce(
-              (acc: number, item: any) => acc + Number(item.amount),
-              0,
-            ) || 0;
-        const taxableAmount = totalTransportAllowance - 600;
-        return <div>{taxableAmount.toFixed(2)}</div>;
-      },
-    },
+
+    ...dynamicAllowanceColumns,
+
     {
       title: 'Total Allowance',
       dataIndex: 'totalAllowance',

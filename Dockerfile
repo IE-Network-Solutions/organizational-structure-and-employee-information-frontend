@@ -1,3 +1,4 @@
+
 # =========================
 # Stage 1: Dependencies
 # =========================
@@ -13,6 +14,8 @@ RUN npm ci --include=dev
 # =========================
 FROM node:18-alpine AS builder
 WORKDIR /app
+
+ENV DISABLE_PWA=true
 
 # Install tools: Vault CLI, jq, curl, unzip, bash
 RUN apk add --no-cache curl jq bash unzip && \
@@ -58,6 +61,7 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV DISABLE_PWA=true
 ENV HOSTNAME="0.0.0.0"
 
 # Create non-root user
