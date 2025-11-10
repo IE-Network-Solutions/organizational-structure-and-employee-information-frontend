@@ -117,6 +117,19 @@ const AllowanceTypeTable = () => {
       ),
     },
     {
+      title: 'Non-Taxable Amount',
+      dataIndex: 'notTaxableAmount',
+      key: 'notTaxableAmount',
+      sorter: true,
+      render: (notTaxableAmount: number, record: any) => (
+        <div data-testid={`allowance-type-non-taxable-${record.id}`}>
+          <div className="text-xs truncate">
+            {notTaxableAmount ? `${notTaxableAmount} ETB` : '-'}
+          </div>
+        </div>
+      ),
+    },
+    {
       title: 'Applicable to',
       dataIndex: 'applicableTo',
       key: 'applicableTo',

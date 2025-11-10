@@ -124,6 +124,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({ employeeData }) => {
               disabledDate={(current) => {
                 // Get the last position's effective start date
                 const jobInformation = employeeData?.employeeJobInformation;
+
                 if (!jobInformation || jobInformation.length === 0)
                   return false;
 

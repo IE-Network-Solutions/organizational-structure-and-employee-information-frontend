@@ -12,6 +12,7 @@ import {
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import BranchTransferRequest from '../branchTransferRequest';
 import { Upload } from 'antd';
@@ -182,9 +183,11 @@ function BasicInfo({ id }: { id: string }) {
           }}
         >
           {profileFileList.length > 0 ? (
-            <img
+            <Image
               src={getImageUrl(profileFileList)}
               alt="Uploaded Preview"
+              width={400}
+              height={256}
               className="w-full h-auto max-h-64 object-cover rounded-xl"
             />
           ) : (
