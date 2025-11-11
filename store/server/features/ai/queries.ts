@@ -12,7 +12,7 @@ import {
 // Call AI backend directly now that CORS is fixed
 const BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL || 'https://selamnew-ai.ienetworks.co';
 
-const postWeeklyPlan = async (payload: { key_result: string; progress?: number; completed_tasks?: string[]; report?: any[] }) => {
+const postWeeklyPlan = async (payload: { keyResultReport: any[] }) => {
   const { data } = await axios.post<WeeklyPlanResponse>(
     `${BASE_URL}/weekly-plan`,
     payload,
@@ -21,7 +21,7 @@ const postWeeklyPlan = async (payload: { key_result: string; progress?: number; 
   return data?.weekly_plan?.WeeklyTasks ?? [];
 };
 
-const postDailyPlan = async (payload: { weekly_plan: string; progress?: number; completed_tasks?: string[]; report?: any[] }) => {
+const postDailyPlan = async (payload: { daily_plan_request: any }) => {
   const { data } = await axios.post<DailyPlanResponse>(
     `${BASE_URL}/daily-plan`,
     payload,
@@ -43,7 +43,7 @@ const postDailyPlan = async (payload: { weekly_plan: string; progress?: number; 
       if (adjustedTotal !== 100 && tasks.length > 0) {
         tasks[0].weight += 100 - adjustedTotal;
       }
-    } else if (totalWeight === 0) {
+    } else if (totalWeight === 0 && tasks.length > 0) {
       const equalWeight = Math.floor(100 / tasks.length);
       const remainder = 100 - equalWeight * tasks.length;
       tasks.forEach((task, index) => {
@@ -65,23 +65,23 @@ const postOKR = async (objective: string) => {
 };
 
 export const useGetWeeklyPlanSuggestions = (
-  payload: { key_result: string; progress?: number; completed_tasks?: string[]; report?: any[] },
+  payload: { keyResultReport: any[] },
   enabled = true,
 ) =>
   useQuery<WeeklyTaskSuggestion[]>(
     ['ai-weekly-plan', JSON.stringify(payload)],
     () => postWeeklyPlan(payload),
-    { enabled: Boolean(payload.key_result) && enabled },
+    { enabled: Array.isArray(payload.keyResultReport) && payload.keyResultReport.length > 0 && enabled },
   );
 
 export const useGetDailyPlanSuggestions = (
-  payload: { weekly_plan: string; progress?: number; completed_tasks?: string[]; report?: any[] },
+  payload: { daily_plan_request: any },
   enabled = true,
 ) =>
   useQuery<DailyTaskSuggestion[]>(
     ['ai-daily-plan', JSON.stringify(payload)],
     () => postDailyPlan(payload),
-    { enabled: Boolean(payload.weekly_plan) && enabled },
+    { enabled: Boolean(payload.daily_plan_request) && enabled },
   );
 
 export const useGetOKRKeyResultSuggestions = (
@@ -95,9 +95,9 @@ export const useGetOKRKeyResultSuggestions = (
   );
 
 // Compatibility exports matching previous utils/aiService API
-export const fetchWeeklyPlanSuggestions = (payload: { key_result: string; progress?: number; completed_tasks?: string[]; report?: any[] }) =>
+export const fetchWeeklyPlanSuggestions = (payload: { keyResultReport: any[] }) =>
   postWeeklyPlan(payload);
-export const fetchDailyPlanSuggestions = (payload: { weekly_plan: string; progress?: number; completed_tasks?: string[]; report?: any[] }) =>
+export const fetchDailyPlanSuggestions = (payload: { daily_plan_request: any }) =>
   postDailyPlan(payload);
 export const fetchOKRKeyResultSuggestions = (objective: string) =>
   postOKR(objective);
