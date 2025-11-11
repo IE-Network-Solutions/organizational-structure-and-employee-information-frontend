@@ -408,6 +408,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/payroll-menu',
       className: 'font-bold',
+      permissions: ['view_payroll_overview'],
       disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
