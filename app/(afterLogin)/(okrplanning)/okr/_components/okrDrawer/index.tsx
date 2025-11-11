@@ -67,14 +67,19 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       )?.title;
 
   useEffect(() => {
-    if (!objectiveValue?.title || objectiveValue.title.trim() === '') {
+    // Only update if title is empty and we have a new objectiveTitle to set
+    // Also check if the title would actually change to prevent infinite loops
+    const currentTitle = objectiveValue?.title?.trim() || '';
+    const newTitle = objectiveTitle?.trim() || '';
+
+    if (!currentTitle && newTitle) {
       setObjectiveValue({
         ...objectiveValue,
-        title: objectiveTitle || '',
+        title: newTitle,
       });
-      form.setFieldsValue({ title: objectiveTitle || '' });
+      form.setFieldsValue({ title: newTitle });
     }
-  }, [objectiveTitle, form]);
+  }, [objectiveTitle, objectiveValue?.title, form, setObjectiveValue]);
   const handleDrawerClose = () => {
     form.resetFields(); // Reset all form fields
     setObjectiveValue(defaultObjective); // Reset the objectiveValue state

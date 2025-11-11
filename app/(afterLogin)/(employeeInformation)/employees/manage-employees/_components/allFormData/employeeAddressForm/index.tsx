@@ -55,6 +55,36 @@ const EmployeeAddressForm = () => {
             <Input />
           </Form.Item>
         </Col>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            name={['address', 'subCity']}
+            label={<span className="mb-1 font-semibold text-xs">Sub City</span>}
+            id="addressSubCityId"
+          >
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col xs={24} sm={12}>
+          <Form.Item
+            name={['address', 'phoneNumber']}
+            label={
+              <span className="mb-1 font-semibold text-xs">Phone Number</span>
+            }
+            id="phoneNumber"
+            rules={[
+              {
+                required: true,
+                message: 'Phone Number is required.',
+              },
+              {
+                pattern: /^\+?[0-9]\d{6,14}$/,
+                message: 'Enter a valid phone number',
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Col>
       </Row>
       <DynamicFormFields formTitle="address" fields={currentAddressForm.form} />
       <AddCustomField

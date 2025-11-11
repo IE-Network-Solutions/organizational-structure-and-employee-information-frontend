@@ -32,20 +32,37 @@ const OkrSearch: React.FC = () => {
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
+  // Only sync fiscal year and sessions on mount or when okrTab changes
+  // This prevents infinite loops by not tracking every data change
   useEffect(() => {
+    // Skip if data isn't loaded yet
+    if (!getAllFiscalYears?.items && !getActiveFisicalYear) {
+      return;
+    }
+
     const selectedFiscalYear = fiscalYearId
       ? getAllFiscalYears?.items?.find((i) => i?.id == fiscalYearId)
       : getActiveFisicalYear;
 
+    // Only set default if no fiscal year is currently selected
     if (!selectedFiscalYear) {
-      setFiscalYearId(''); // or null, depending on your app
+      setFiscalYearId('');
       setSessionIds([]);
       return;
     }
 
-    const sessionIds =
-      selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-    setSessionIds(sessionIds);
+    if (okrTab == 4) {
+      const allSessionIds =
+        selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+      setSessionIds(allSessionIds);
+    } else {
+      const activeSessionId = selectedFiscalYear?.sessions?.find(
+        (s: any) => s?.active,
+      )?.id;
+      const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+      const chosen = activeSessionId || fallbackFirstSessionId || '';
+      setSessionIds(chosen ? [chosen] : []);
+    }
     setFiscalYearId(selectedFiscalYear?.id || '');
   }, [getAllFiscalYears, fiscalYearId, okrTab]);
 
@@ -66,7 +83,6 @@ const OkrSearch: React.FC = () => {
         <label className="text-sm text-gray-600">Fiscal year</label>
         <Select
           loading={fyLoading}
-          disabled={okrTab != 4}
           value={fiscalYearId}
           id="mobile-fiscal-year-select"
           placeholder="Filter by Fiscal Year"
@@ -94,15 +110,22 @@ const OkrSearch: React.FC = () => {
         <label className="text-sm text-gray-600">Session</label>
         <Select
           loading={fyLoading}
-          value={sessionIds}
-          disabled={okrTab != 4}
+          value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
           id="mobile-session-select"
           placeholder="Filter by Session"
-          mode="multiple"
           className="w-full h-14 overflow-y-auto text-[10px]"
           allowClear
           showSearch
-          onChange={setSessionIds}
+          onChange={(value: any) => {
+            if (okrTab == 4) {
+              setSessionIds(
+                Array.isArray(value) ? value : value ? [value] : [],
+              );
+            } else {
+              setSessionIds(value ? [value] : []);
+            }
+          }}
+          mode={okrTab == 4 ? 'multiple' : undefined}
           filterOption={(input, option) =>
             (option?.children as any)
               .toLowerCase()
@@ -208,7 +231,6 @@ const OkrSearch: React.FC = () => {
           <div className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}>
             <Select
               loading={fyLoading}
-              disabled={okrTab != 4}
               value={fiscalYearId}
               id="desktop-fiscal-year-select"
               placeholder="Filter by Fiscal Year"
@@ -235,15 +257,22 @@ const OkrSearch: React.FC = () => {
           <div className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}>
             <Select
               loading={fyLoading}
-              value={sessionIds}
-              disabled={okrTab != 4}
+              value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
               id="desktop-session-select"
               placeholder="Filter by Session"
-              mode="multiple"
               className="w-full h-14 overflow-y-auto text-[10px]"
               allowClear
               showSearch
-              onChange={setSessionIds}
+              onChange={(value: any) => {
+                if (okrTab == 4) {
+                  setSessionIds(
+                    Array.isArray(value) ? value : value ? [value] : [],
+                  );
+                } else {
+                  setSessionIds(value ? [value] : []);
+                }
+              }}
+              mode={okrTab == 4 ? 'multiple' : undefined}
               filterOption={(input, option) =>
                 (option?.children as any)
                   .toLowerCase()

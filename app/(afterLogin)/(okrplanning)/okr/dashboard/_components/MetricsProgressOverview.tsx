@@ -20,13 +20,21 @@ const colorPalette = [
 
 const MetricsProgressOverview: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
-  const { pageSize, currentPage } = useOKRStore();
-  const { data: objectivesData, isLoading } = useGetUserObjective(
+  const { pageSize, currentPage, fiscalYearId, sessionIds } = useOKRStore();
+  const {
+    data: objectivesData,
+    isLoading,
+    isFetching,
+  } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
     '',
+    fiscalYearId,
+    sessionIds,
   );
+
+  const isMetricsLoading = isLoading || isFetching;
 
   // Calculate percent achieved for each metric type dynamically
   const metrics = useMemo(() => {
@@ -72,7 +80,7 @@ const MetricsProgressOverview: React.FC = () => {
       <div className="font-bold text-lg text-gray-900 mb-4">
         Metrics Progress Overview
       </div>
-      {isLoading ? (
+      {isMetricsLoading ? (
         <div className="flex justify-center items-center h-24">
           <Spin />
         </div>

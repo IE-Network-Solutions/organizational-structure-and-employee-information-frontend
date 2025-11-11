@@ -18,6 +18,7 @@ import AdditionalInformationForm from '../allFormData/additionalInformationForm'
 import ButtonContinue from '../allFormData/SaveAndContinueButton';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+//import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 
 const { Step } = Steps;
 
@@ -34,6 +35,7 @@ const UserSidebar = (props: any) => {
     setSelectedWorkSchedule,
   } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
+  const { setTempAllowances } = useEmployeeManagementStore();
 
   useEffect(() => {
     if (isSuccess) {
@@ -43,9 +45,20 @@ const UserSidebar = (props: any) => {
       setSelectedPermissions([]);
       setSelectedWorkSchedule(null);
       setCurrent(0);
+      setTempAllowances([]); // Clear temp allowances on success
       form.resetFields();
     }
-  }, [isSuccess]);
+  }, [
+    isSuccess,
+    setTempAllowances,
+    form,
+    setCurrent,
+    setDocumentFileList,
+    setOpen,
+    setProfileFileList,
+    setSelectedPermissions,
+    setSelectedWorkSchedule,
+  ]);
 
   const modalHeader = (
     <div className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6">
@@ -101,8 +114,10 @@ const UserSidebar = (props: any) => {
       );
     }
   };
+
   function handleCancel() {
     props?.onClose();
+    setTempAllowances([]); // Clear temp allowances on cancel
     form.resetFields();
     setProfileFileList([]);
   }

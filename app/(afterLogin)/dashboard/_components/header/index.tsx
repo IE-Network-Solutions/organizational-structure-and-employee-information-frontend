@@ -18,6 +18,8 @@ const Header = () => {
   );
   const { data: objectiveDashboard, isLoading } = useGetUserObjectiveDashboard(
     userId,
+    undefined,
+    undefined,
     hasOKR,
   );
   const { data: vpScore } = useGetVPScore(userId, hasOKR);
