@@ -285,6 +285,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
           width: panelWidth,
           maxWidth: 'calc(100vw - 32px)',
           maxHeight: 'calc(100vh - 48px)',
+          height: 'min(700px, calc(100vh - 48px))',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '24px',
@@ -298,6 +299,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
             display: 'flex',
             flexDirection: 'column',
             height: '100%',
+            minHeight: 0,
           }}
         >
           <div
@@ -390,6 +392,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
               display: 'flex',
               flexDirection: 'column',
               gap: '16px',
+              minHeight: 0,
             }}
           >
             {messages.length === 0 ? (
