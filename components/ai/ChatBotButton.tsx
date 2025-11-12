@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button, Badge } from 'antd';
-import { MessageOutlined } from '@ant-design/icons';
+import { Button, Badge, Tooltip, Avatar } from 'antd';
 import ChatBot from './ChatBot';
 import { useChatBotStore } from '@/store/uistate/features/chatbot/chatbot';
 import { useChatBotContextCleanup } from '@/hooks/useChatBotContextCleanup';
@@ -19,40 +18,51 @@ const ChatBotButton: React.FC = () => {
 
   return (
     <>
-      <Badge count={unreadCount > 0 ? unreadCount : 0} size="small">
-        <Button
-          type="primary"
-          shape="circle"
-          size="large"
-          icon={<MessageOutlined style={{ fontSize: '24px' }} />}
-          onClick={() => setIsOpen(true)}
-          style={{
-            position: 'fixed',
-            bottom: '32px',
-            right: '32px',
-            width: '60px',
-            height: '60px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
-            border: 'none',
-            boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
-            zIndex: 1000,
-            transition: 'all 0.3s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.boxShadow =
-              '0 12px 32px rgba(102, 126, 234, 0.5)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow =
-              '0 8px 24px rgba(102, 126, 234, 0.4)';
-          }}
-        />
-      </Badge>
+      <Tooltip title="Chat with SelamNew AI">
+        <Badge count={unreadCount > 0 ? unreadCount : 0} size="small">
+          <Button
+            type="text"
+            shape="circle"
+            size="large"
+            onClick={() => setIsOpen(true)}
+            style={{
+              position: 'fixed',
+              bottom: '32px',
+              right: '32px',
+              width: '68px',
+              height: '68px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#FFFFFF',
+              border: '2px solid rgba(91, 79, 255, 0.5)',
+              boxShadow: '0 12px 32px rgba(102, 126, 234, 0.25)',
+              zIndex: 1000,
+              transition: 'all 0.3s ease',
+              padding: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow =
+                '0 18px 40px rgba(102, 126, 234, 0.35)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow =
+                '0 12px 32px rgba(102, 126, 234, 0.25)';
+            }}
+          >
+            <Avatar
+              src="/icons/512.png"
+              alt="SelamNew AI"
+              size={48}
+              style={{
+                background: 'transparent',
+              }}
+            />
+          </Button>
+        </Badge>
+      </Tooltip>
       <ChatBot open={isOpen} onClose={() => setIsOpen(false)} />
 
       <style jsx global>{`
