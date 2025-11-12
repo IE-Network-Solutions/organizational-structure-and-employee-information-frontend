@@ -148,7 +148,7 @@ function CreatePlan() {
             return out;
           }}
           getWeeklyPlanTasks={() => {
-            // Only for daily plans - get all weekly plan tasks
+            // Only for daily plans - get all weekly plan tasks WITH krId
             if (!planningPeriodHierarchy?.parentPlan) return [];
 
             const tasks =
@@ -159,6 +159,7 @@ function CreatePlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
+              krId: String(t?.keyResult?.id || ''), // Add krId to the task object
             }));
           }}
           form={form}

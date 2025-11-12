@@ -51,6 +51,12 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     [getWeeklyPlanTasks],
   );
 
+  // Only show weekly tasks under the selected key result (expects krId in task objects)
+  const filteredWeeklyTasks = useMemo(() => {
+    if (!keyResultId) return [] as any[];
+    return (weeklyPlanTasks || []).filter((t: any) => String(t?.krId || '') === String(keyResultId));
+  }, [weeklyPlanTasks, keyResultId]);
+
   // Determine plan type: use hasParentPlan if provided, otherwise fall back to name matching
   const isDaily =
     hasParentPlan !== undefined
@@ -346,7 +352,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         
         const keyResultReport = [krReport];
         
-        // Build daily_plan_request from child Daily period reports
+        // Build daily_plan_request from child Daily period reports (fallback approach)
         let previousDaily: { title: string; status: string }[] = [];
         try {
           const hierarchy = await fetchPlanningPeriodsHierarchy(userId, planPeriodId);
@@ -365,9 +371,12 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             const dailyReports = dailyRes?.items || [];
             const allDailyTasks = dailyReports.flatMap((dr: any) => extractReportTasks(dr));
             const matched = allDailyTasks.filter((t: any) => {
-              const idMatch = normalizeId(t?.planTask?.parentTaskId) === normalizeId(selectedWeeklyTask?.id);
-              const titleMatch = normalizeText(t?.planTask?.parentTask?.task || t?.parentTask?.task) === normalizeText(selectedWeeklyTask.task);
-              return idMatch || titleMatch;
+              const parentMatch = normalizeId(t?.planTask?.parentTaskId) === normalizeId(weeklyPlanTaskId);
+              const krMatch = normalizeId(t?.planTask?.keyResultId) === normalizeId(selectedKeyResult?.id);
+              // Fallback title match if ids missing
+              const parentTitle = normalizeText(t?.planTask?.parentTask?.task || t?.parentTask?.task);
+              const titleMatch = parentTitle && parentTitle === normalizeText(selectedWeeklyTask.task);
+              return (parentMatch && krMatch) || titleMatch;
             });
             const normalizeDailyStatus = (s: any) => {
               const v = normalizeText(s);
@@ -573,7 +582,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                     <Select
                       className="flex-1"
                       placeholder="Select a weekly plan task"
-                      options={weeklyPlanTasks.map((t) => ({
+                      options={filteredWeeklyTasks.map((t) => ({
                         label: t.task,
                         value: t.id,
                       }))}
