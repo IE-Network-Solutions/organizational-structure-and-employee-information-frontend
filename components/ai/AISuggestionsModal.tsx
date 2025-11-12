@@ -74,7 +74,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     Modal.confirm({
       title: 'Need more suggestions?',
       content: 'Regenerate additional weekly tasks for this key result?',
-      onOk: () => handleGenerate(),
+      onOk: () => {
+        // Reset existing suggestions before regenerating (not additive)
+        setItems([]);
+        handleGenerate();
+      },
     });
   };
 
@@ -100,7 +104,19 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   React.useEffect(() => {
     // Reset milestone when KR changes
     setMilestoneId(undefined);
+    // Reset suggestions when KR changes
+    setItems([]);
   }, [keyResultId]);
+  React.useEffect(() => {
+    // If milestone changes under a milestone KR in weekly planning, reset suggestions
+    const isWeeklyLocal =
+      hasParentPlan !== undefined
+        ? !hasParentPlan
+        : (planTypeName || '').toLowerCase().includes('week');
+    if (isWeeklyLocal) {
+      setItems([]);
+    }
+  }, [milestoneId, hasParentPlan, planTypeName]);
 
   // Only show weekly tasks under the selected key result (expects krId in task objects)
   const filteredWeeklyTasks = useMemo(() => {
@@ -307,11 +323,27 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
           keyResultReport: keyResultReportNestedWeekly,
         });
         setItems(
-          res.map((r) => ({
-            title: r.title,
-            weight: r.weight,
-            priority: r.priority,
-          })),
+          res.map((r) => {
+            // Normalize target from backend (number or numeric string)
+            const rawTarget: any =
+              r?.target !== undefined
+                ? r.target
+                : (r as any)?.targetValue !== undefined
+                ? (r as any).targetValue
+                : undefined;
+            const parsedTarget =
+              typeof rawTarget === 'number'
+                ? rawTarget
+                : typeof rawTarget === 'string' && rawTarget.trim() !== '' && !isNaN(Number(rawTarget))
+                ? Number(rawTarget)
+                : undefined;
+            return {
+              title: r.title,
+              weight: r.weight,
+              priority: r.priority,
+              ...(parsedTarget !== undefined ? { target: parsedTarget } : {}),
+            };
+          }),
         );
       } else if (isDaily) {
         const selectedKeyResult = keyResults.find((k) => k.id === keyResultId);
@@ -516,6 +548,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         onCancel={() => setOpen(false)}
         footer={null}
         width={720}
+        style={{ maxWidth: 720, width: 'calc(100vw - 32px)' }}
+        bodyStyle={{ padding: 12 }}
       >
         {ongoingKeyResults.length === 0 ? (
           <Empty
@@ -532,13 +566,27 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             <div className="mb-4">
               {isWeekly && (
                 <>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm">Key Result</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span className="text-sm w-24">Key Result</span>
                     <Select
-                      className="w-full"
+                      className="flex-1 max-w-full"
                       placeholder="Choose a key result"
+                      optionLabelProp="shortLabel"
+                      dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                      dropdownMatchSelectWidth
+                      getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                      style={{ width: '100%', maxWidth: '100%' }}
                       options={ongoingKeyResults.map((k) => ({
-                        label: k.title,
+                        // Full text in dropdown
+                        label: (
+                          <div className="whitespace-normal break-words">
+                            {k.title}
+                          </div>
+                        ),
+                        // Truncated in selector
+                        shortLabel: (
+                          <div className="truncate">{k.title}</div>
+                        ),
                         value: k.id,
                       }))}
                       value={keyResultId}
@@ -577,71 +625,124 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           value: String(m?.id),
                         })) || [];
                     return (
-                      <div className="flex items-center gap-3 mt-3">
-                        <span className="text-sm">Milestone</span>
-                        <Select
-                          className="w-full"
+                      <>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3">
+                          <span className="text-sm w-24">Milestone</span>
+                          <Select
+                            className="flex-1 max-w-full"
                           placeholder="Choose a milestone under the selected key result"
-                          options={milestoneOptions}
+                          optionLabelProp="shortLabel"
+                          dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                          dropdownMatchSelectWidth
+                          getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                          style={{ width: '100%', maxWidth: '100%' }}
+                          options={milestoneOptions.map((m) => ({
+                            ...m,
+                            // Full text in dropdown
+                            label: (
+                              <div className="whitespace-normal break-words">
+                                {m.label}
+                              </div>
+                            ),
+                            // Truncated in selector
+                            shortLabel: (
+                              <div className="truncate">{m.label}</div>
+                            ),
+                          }))}
                           value={milestoneId}
                           onChange={setMilestoneId}
                           disabled={!keyResultId}
                           showSearch
-                          filterOption={(input, option) =>
-                            (option?.label ?? '')
-                              .toLowerCase()
-                              .includes(input.toLowerCase())
-                          }
-                        />
-                        <Button
-                          loading={loading}
-                          type="primary"
-                          onClick={() =>
-                            items.length > 0
-                              ? onConfirmRegenerate()
-                              : handleGenerate()
-                          }
-                          disabled={!keyResultId || !milestoneId}
-                        >
-                          {items.length ? 'Regenerate' : 'Generate'}
-                        </Button>
-                      </div>
+                          filterOption={(input, option) => {
+                            const labelNode: any = (option as any)?.label;
+                            const labelText = String(
+                              labelNode?.props?.children ?? labelNode ?? '',
+                            );
+                            return labelText.toLowerCase().includes(input.toLowerCase());
+                          }}
+                          />
+                        </div>
+                        <div className="flex justify-end mt-3">
+                          <Button
+                            loading={loading}
+                            type="primary"
+                            onClick={() =>
+                              items.length > 0
+                                ? onConfirmRegenerate()
+                                : handleGenerate()
+                            }
+                            disabled={!keyResultId || !milestoneId}
+                          >
+                            {items.length ? 'Regenerate' : 'Generate'}
+                          </Button>
+                        </div>
+                      </>
                     );
                   })()}
                 </>
               )}
               {isDaily && (
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <span className="text-sm w-24">Key Result</span>
                     <Select
-                      className="flex-1"
+                      className="flex-1 max-w-full"
                       placeholder="Choose a key result to attach tasks"
+                      optionLabelProp="shortLabel"
+                      dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                      dropdownMatchSelectWidth
+                      getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                      style={{ width: '100%', maxWidth: '100%' }}
                       options={ongoingKeyResults.map((k) => ({
-                        label: k.title,
+                        // Full text in dropdown
+                        label: (
+                          <div className="whitespace-normal break-words">
+                            {k.title}
+                          </div>
+                        ),
+                        // Truncated in selector
+                        shortLabel: (
+                          <div className="truncate">{k.title}</div>
+                        ),
                         value: k.id,
                       }))}
                       value={keyResultId}
                       onChange={setKeyResultId}
                     />
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <span className="text-sm w-24">Weekly Plan</span>
                     <Select
-                      className="flex-1"
+                      className="flex-1 max-w-full"
                       placeholder="Select a weekly plan task"
+                      optionLabelProp="shortLabel"
+                      dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                      dropdownMatchSelectWidth
+                      getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                      style={{ width: '100%', maxWidth: '100%' }}
                       options={filteredWeeklyTasks.map((t) => ({
-                        label: t.task,
+                        // Full text in dropdown
+                        label: (
+                          <div className="whitespace-normal break-words">
+                            {t.task}
+                          </div>
+                        ),
+                        // Truncated in selector
+                        shortLabel: (
+                          <div className="truncate">{t.task}</div>
+                        ),
                         value: t.id,
                       }))}
                       value={weeklyPlanTaskId}
                       onChange={setWeeklyPlanTaskId}
                       showSearch
-                      filterOption={(input, option) =>
-                        (option?.label ?? '')
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
+                      filterOption={(input, option) => {
+                        const labelNode: any = (option as any)?.label;
+                        const labelText = String(
+                          labelNode?.props?.children ?? labelNode ?? '',
+                        );
+                        return labelText.toLowerCase().includes(input.toLowerCase());
+                      }}
                     />
                   </div>
                   <div className="flex justify-end">
@@ -669,13 +770,13 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
               {items.map((s, idx) => (
                 <div
                   key={idx}
-                  className="border rounded-lg p-3 flex justify-between items-start"
+                  className="border rounded-lg p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
                 >
                   <div className="flex-1 pr-3">
-                    <Typography.Text className="text-sm">
+                    <Typography.Text className="text-sm whitespace-normal break-words">
                       {s.title}
                     </Typography.Text>
-                    <div className="mt-2 flex gap-2">
+                    <div className="mt-2 flex flex-wrap gap-2">
                       {typeof s.weight === 'number' && (
                         <Tag>Weight: {s.weight}</Tag>
                       )}
@@ -685,7 +786,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                    <Button type="primary" onClick={() => addToForm(s, idx)}>
+                      Add
+                    </Button>
                     <Button
                       icon={<CloseOutlined />}
                       onClick={() => {
@@ -696,9 +800,6 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       }}
                       shape="circle"
                     />
-                    <Button type="primary" onClick={() => addToForm(s, idx)}>
-                      Add
-                    </Button>
                   </div>
                 </div>
               ))}
