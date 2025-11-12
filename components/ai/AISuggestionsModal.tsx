@@ -4,12 +4,19 @@ import {
   fetchWeeklyPlanSuggestions,
   fetchDailyPlanSuggestions,
 } from '@/utils/aiService';
+import { NAME } from '@/types/enumTypes';
 
 import { fetchAllPlanningPeriods, fetchPlanningPeriodsHierarchy, getReportingData } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
-type KeyResultOption = { id: string; title: string; progress?: number; metricType?: { name: string } };
+type KeyResultOption = {
+  id: string;
+  title: string;
+  progress?: number;
+  metricType?: { name: string };
+  milestones?: Array<{ id: string | number; title: string; status?: string }>;
+};
 type WeeklyPlanTask = { id: string; task: string };
 
 interface AISuggestionsModalProps {
@@ -44,12 +51,31 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   const [items, setItems] = useState<
     { title: string; weight: number; priority: string; target?: number }[]
   >([]);
+  const [milestoneId, setMilestoneId] = useState<string | undefined>();
 
   const keyResults = useMemo(() => getKeyResults(), [getKeyResults]);
   const weeklyPlanTasks = useMemo(
     () => getWeeklyPlanTasks?.() || [],
     [getWeeklyPlanTasks],
   );
+  const ongoingKeyResults = useMemo(
+    () =>
+      (keyResults || []).filter((k) => {
+        const progress = Number(k?.progress ?? 0);
+        return isFinite(progress) && progress < 100;
+      }),
+    [keyResults],
+  );
+  React.useEffect(() => {
+    if (!keyResultId) return;
+    if (!ongoingKeyResults.some((k) => k.id === keyResultId)) {
+      setKeyResultId(undefined);
+    }
+  }, [keyResultId, ongoingKeyResults]);
+  React.useEffect(() => {
+    // Reset milestone when KR changes
+    setMilestoneId(undefined);
+  }, [keyResultId]);
 
   // Only show weekly tasks under the selected key result (expects krId in task objects)
   const filteredWeeklyTasks = useMemo(() => {
@@ -100,6 +126,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       if (isWeekly) {
         const selected = keyResults.find((k) => k.id === keyResultId);
         if (!selected) return;
+        // Guard against generating for completed key results
+        if (Number(selected.progress ?? 0) >= 100) return;
         
         const progress = selected.progress || 0;
         const userId = useAuthenticationStore.getState().userId;
@@ -418,6 +446,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   ) => {
     const targetKeyResultId = keyResultId || keyResults[0]?.id;
     if (!targetKeyResultId) return;
+    const selectedKR = keyResults.find((k) => k.id === targetKeyResultId);
 
     // For daily plans, we need to include the parentTaskId in the form field name
     let boardKey, listName;
@@ -433,12 +462,27 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         : `names-${compositeKey}`;
     } else {
       // Weekly plan: use only keyResultId
-      boardKey = resolveBoardKeyForKR
-        ? resolveBoardKeyForKR(targetKeyResultId)
-        : targetKeyResultId;
-      listName = resolveListNameForKR
-        ? resolveListNameForKR(targetKeyResultId)
-        : `names-${targetKeyResultId}`;
+      // Weekly plan:
+      // If KR is milestone metric and a milestone selected, use composite key of KR + milestone
+      if (
+        selectedKR?.metricType?.name === NAME.MILESTONE &&
+        milestoneId
+      ) {
+        const compositeKey = `${targetKeyResultId}${milestoneId}`;
+        boardKey = resolveBoardKeyForKR
+          ? resolveBoardKeyForKR(compositeKey)
+          : compositeKey;
+        listName = resolveListNameForKR
+          ? resolveListNameForKR(compositeKey)
+          : `names-${compositeKey}`;
+      } else {
+        boardKey = resolveBoardKeyForKR
+          ? resolveBoardKeyForKR(targetKeyResultId)
+          : targetKeyResultId;
+        listName = resolveListNameForKR
+          ? resolveListNameForKR(targetKeyResultId)
+          : `names-${targetKeyResultId}`;
+      }
     }
 
     // Create the board form if it doesn't exist
@@ -453,7 +497,12 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       weight: item.weight,
       priority: (item.priority || 'medium').toLowerCase(),
       targetValue: typeof item.target === 'number' ? item.target : 0,
-      achieveMK: false, // Set to false for regular tasks
+      // Always false for generated tasks; only true when planning milestone itself elsewhere
+      achieveMK: false,
+      // If adding under a milestone, include milestoneId
+      ...(isWeekly &&
+        selectedKR?.metricType?.name === NAME.MILESTONE &&
+        milestoneId && { milestoneId }),
       // For daily plans, include parentTaskId
       ...(isDaily && weeklyPlanTaskId && { parentTaskId: weeklyPlanTaskId }),
     };
@@ -527,13 +576,13 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         footer={null}
         width={720}
       >
-        {keyResults.length === 0 ? (
+        {ongoingKeyResults.length === 0 ? (
           <Empty
             description={
               <div className="text-sm">
                 {isDaily
-                  ? 'No key results found. Please create a weekly plan with tasks first.'
-                  : 'No key results found. Please create objectives with key results first.'}
+                  ? 'No in-progress key results found. Please ensure weekly plan has in-progress KRs.'
+                  : 'No in-progress key results found. Please create objectives with in-progress key results.'}
               </div>
             }
           />
@@ -541,26 +590,76 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
           <>
             <div className="mb-4">
               {isWeekly && (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm">Key Result</span>
-                  <Select
-                    className="w-full"
-                    placeholder="Choose a key result"
-                    options={keyResults.map((k) => ({
-                      label: k.title,
-                      value: k.id,
-                    }))}
-                    value={keyResultId}
-                    onChange={setKeyResultId}
-                  />
-                  <Button
-                    loading={loading}
-                    type="primary"
-                    onClick={handleGenerate}
-                  >
-                    {items.length ? 'Regenerate' : 'Generate'}
-                  </Button>
-                </div>
+                <>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm">Key Result</span>
+                    <Select
+                      className="w-full"
+                      placeholder="Choose a key result"
+                      options={ongoingKeyResults.map((k) => ({
+                        label: k.title,
+                        value: k.id,
+                      }))}
+                      value={keyResultId}
+                      onChange={setKeyResultId}
+                    />
+                  </div>
+                  {(() => {
+                    const selectedKR = ongoingKeyResults.find((k) => k.id === keyResultId);
+                    const isMilestoneKR =
+                      selectedKR?.metricType?.name === NAME.MILESTONE ||
+                      String(selectedKR?.metricType?.name || '').toLowerCase() ===
+                        String(NAME.MILESTONE).toLowerCase();
+                    if (!isMilestoneKR) {
+                      return (
+                        <div className="flex justify-end mt-3">
+                          <Button
+                            loading={loading}
+                            type="primary"
+                            onClick={handleGenerate}
+                            disabled={!keyResultId}
+                          >
+                            {items.length ? 'Regenerate' : 'Generate'}
+                          </Button>
+                        </div>
+                      );
+                    }
+                    const milestoneOptions =
+                      (selectedKR?.milestones || [])
+                        .filter((m: any) => String(m?.status || '').toLowerCase() !== 'completed')
+                        .map((m: any) => ({
+                          label: m?.title,
+                          value: String(m?.id),
+                        })) || [];
+                    return (
+                      <div className="flex items-center gap-3 mt-3">
+                        <span className="text-sm">Milestone</span>
+                        <Select
+                          className="w-full"
+                          placeholder="Choose a milestone under the selected key result"
+                          options={milestoneOptions}
+                          value={milestoneId}
+                          onChange={setMilestoneId}
+                          disabled={!keyResultId}
+                          showSearch
+                          filterOption={(input, option) =>
+                            (option?.label ?? '')
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                        />
+                        <Button
+                          loading={loading}
+                          type="primary"
+                          onClick={handleGenerate}
+                          disabled={!keyResultId || !milestoneId}
+                        >
+                          {items.length ? 'Regenerate' : 'Generate'}
+                        </Button>
+                      </div>
+                    );
+                  })()}
+                </>
               )}
               {isDaily && (
                 <div className="flex flex-col gap-3">
@@ -569,7 +668,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                     <Select
                       className="flex-1"
                       placeholder="Choose a key result to attach tasks"
-                      options={keyResults.map((k) => ({
+                      options={ongoingKeyResults.map((k) => ({
                         label: k.title,
                         value: k.id,
                       }))}

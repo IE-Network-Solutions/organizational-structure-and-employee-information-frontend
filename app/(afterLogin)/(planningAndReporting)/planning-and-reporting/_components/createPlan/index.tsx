@@ -105,7 +105,13 @@ function CreatePlan() {
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {
-            const out: { id: string; title: string; progress?: number; metricType?: { name: string } }[] = [];
+            const out: {
+              id: string;
+              title: string;
+              progress?: number;
+              metricType?: { name: string };
+              milestones?: Array<{ id: string | number; title: string; status?: string }>;
+            }[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from Objectives
@@ -116,7 +122,14 @@ function CreatePlan() {
                       id: String(kr.id), 
                       title: kr.title,
                       progress: kr.progress,
-                      metricType: kr.metricType
+                      metricType: kr.metricType,
+                      milestones: Array.isArray(kr?.milestones)
+                        ? kr.milestones.map((m: any) => ({
+                            id: m?.id,
+                            title: m?.title,
+                            status: m?.status,
+                          }))
+                        : [],
                     });
                   }
                 });
