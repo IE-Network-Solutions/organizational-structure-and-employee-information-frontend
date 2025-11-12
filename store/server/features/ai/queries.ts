@@ -10,7 +10,8 @@ import {
 } from './interface';
 
 // Call AI backend directly now that CORS is fixed
-const BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL || 'https://selamnew-ai.ienetworks.co';
+const BASE_URL =
+  process.env.NEXT_PUBLIC_AI_BASE_URL || 'https://selamnew-ai.ienetworks.co';
 
 const postWeeklyPlan = async (payload: { keyResultReport: any[] }) => {
   const { data } = await axios.post<WeeklyPlanResponse>(
@@ -71,7 +72,12 @@ export const useGetWeeklyPlanSuggestions = (
   useQuery<WeeklyTaskSuggestion[]>(
     ['ai-weekly-plan', JSON.stringify(payload)],
     () => postWeeklyPlan(payload),
-    { enabled: Array.isArray(payload.keyResultReport) && payload.keyResultReport.length > 0 && enabled },
+    {
+      enabled:
+        Array.isArray(payload.keyResultReport) &&
+        payload.keyResultReport.length > 0 &&
+        enabled,
+    },
   );
 
 export const useGetDailyPlanSuggestions = (
@@ -95,9 +101,11 @@ export const useGetOKRKeyResultSuggestions = (
   );
 
 // Compatibility exports matching previous utils/aiService API
-export const fetchWeeklyPlanSuggestions = (payload: { keyResultReport: any[] }) =>
-  postWeeklyPlan(payload);
-export const fetchDailyPlanSuggestions = (payload: { daily_plan_request: any }) =>
-  postDailyPlan(payload);
+export const fetchWeeklyPlanSuggestions = (payload: {
+  keyResultReport: any[];
+}) => postWeeklyPlan(payload);
+export const fetchDailyPlanSuggestions = (payload: {
+  daily_plan_request: any;
+}) => postDailyPlan(payload);
 export const fetchOKRKeyResultSuggestions = (objective: string) =>
   postOKR(objective);

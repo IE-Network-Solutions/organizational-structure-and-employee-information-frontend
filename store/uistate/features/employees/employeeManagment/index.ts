@@ -199,7 +199,7 @@ interface UserState {
   setIsMobileFilterVisible: (isMobileFilterVisible: boolean) => void;
 
   setJoinedDateType: (type: 'before' | 'after') => void;
-  
+
   tempAllowances: any[];
   setTempAllowances: (tempAllowances: any[]) => void;
 }

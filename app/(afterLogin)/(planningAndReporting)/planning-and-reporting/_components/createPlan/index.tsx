@@ -110,7 +110,11 @@ function CreatePlan() {
               title: string;
               progress?: number;
               metricType?: { name: string };
-              milestones?: Array<{ id: string | number; title: string; status?: string }>;
+              milestones?: Array<{
+                id: string | number;
+                title: string;
+                status?: string;
+              }>;
             }[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
@@ -118,8 +122,8 @@ function CreatePlan() {
               objective?.items?.forEach((obj: any) => {
                 obj?.keyResults?.forEach((kr: any) => {
                   if (kr?.id && kr?.title) {
-                    out.push({ 
-                      id: String(kr.id), 
+                    out.push({
+                      id: String(kr.id),
                       title: kr.title,
                       progress: kr.progress,
                       metricType: kr.metricType,
@@ -148,11 +152,11 @@ function CreatePlan() {
                 const krTitle = t?.keyResult?.title;
                 if (krId && krTitle && !seen.has(krId)) {
                   seen.add(krId);
-                  out.push({ 
-                    id: krId, 
+                  out.push({
+                    id: krId,
                     title: krTitle,
                     progress: t?.keyResult?.progress,
-                    metricType: t?.keyResult?.metricType
+                    metricType: t?.keyResult?.metricType,
                   });
                 }
               });

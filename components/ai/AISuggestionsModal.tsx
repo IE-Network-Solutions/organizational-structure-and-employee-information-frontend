@@ -7,7 +7,11 @@ import {
 } from '@/utils/aiService';
 import { NAME } from '@/types/enumTypes';
 
-import { fetchAllPlanningPeriods, fetchPlanningPeriodsHierarchy, getReportingData, fetchDailyTasksByWeeklyTask } from '@/store/server/features/okrPlanningAndReporting/queries';
+import {
+  fetchPlanningPeriodsHierarchy,
+  getReportingData,
+  fetchDailyTasksByWeeklyTask,
+} from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
@@ -121,7 +125,9 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   // Only show weekly tasks under the selected key result (expects krId in task objects)
   const filteredWeeklyTasks = useMemo(() => {
     if (!keyResultId) return [] as any[];
-    return (weeklyPlanTasks || []).filter((t: any) => String(t?.krId || '') === String(keyResultId));
+    return (weeklyPlanTasks || []).filter(
+      (t: any) => String(t?.krId || '') === String(keyResultId),
+    );
   }, [weeklyPlanTasks, keyResultId]);
 
   // Determine plan type: use hasParentPlan if provided, otherwise fall back to name matching
@@ -139,8 +145,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     const pools: any[][] = [];
     if (Array.isArray(report?.tasks)) pools.push(report.tasks);
     if (Array.isArray(report?.reportTasks)) pools.push(report.reportTasks);
-    if (Array.isArray(report?.okrReportTasks)) pools.push(report.okrReportTasks);
-    if (Array.isArray(report?.okrReport?.tasks)) pools.push(report.okrReport.tasks);
+    if (Array.isArray(report?.okrReportTasks))
+      pools.push(report.okrReportTasks);
+    if (Array.isArray(report?.okrReport?.tasks))
+      pools.push(report.okrReport.tasks);
     if (Array.isArray(report?.reportTask)) pools.push(report.reportTask);
     // Flatten and filter truthy entries
     return pools.flat().filter(Boolean);
@@ -148,13 +156,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
 
   // Utility: normalize text for fuzzy comparisons
   const normalizeText = (s: any) =>
-    (s ?? '')
-      .toString()
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim();
+    (s ?? '').toString().toLowerCase().replace(/\s+/g, ' ').trim();
 
-  const normalizeId = (v: any) => (v === null || v === undefined ? '' : String(v));
+  const normalizeId = (v: any) =>
+    v === null || v === undefined ? '' : String(v);
 
   const isCompletedStatus = (status: any) => {
     const s = normalizeText(status);
@@ -169,11 +174,12 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         if (!selected) return;
         // Guard against generating for completed key results
         if (Number(selected.progress ?? 0) >= 100) return;
-        
+
         const progress = selected.progress || 0;
         const userId = useAuthenticationStore.getState().userId;
-        const planPeriodId = PlanningAndReportingStore.getState().activePlanPeriodId;
-        
+        const planPeriodId =
+          PlanningAndReportingStore.getState().activePlanPeriodId;
+
         let weeklyReportsResult: any = { items: [] };
         try {
           weeklyReportsResult = await getReportingData({
@@ -182,43 +188,47 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             pageReporting: 1,
             pageSizeReporting: 1000,
             // align with Reporting page behavior if available in store
-            sessionId:
-              PlanningAndReportingStore.getState().selectedSessionIds?.length
-                ? PlanningAndReportingStore.getState().selectedSessionIds
-                : PlanningAndReportingStore.getState().allSessionsOfYear || [],
+            sessionId: PlanningAndReportingStore.getState().selectedSessionIds
+              ?.length
+              ? PlanningAndReportingStore.getState().selectedSessionIds
+              : PlanningAndReportingStore.getState().allSessionsOfYear || [],
           });
         } catch (_) {}
         const allWeeklyReports = weeklyReportsResult?.items || [];
-        
+
         // Fetch only the daily child period of the current weekly period
         let allDailyReports: any[] = [];
         try {
-          const hierarchy = await fetchPlanningPeriodsHierarchy(userId, planPeriodId);
-          const dailyChildId = hierarchy?.child?.planningPeriodId || hierarchy?.child?.id;
+          const hierarchy = await fetchPlanningPeriodsHierarchy(
+            userId,
+            planPeriodId,
+          );
+          const dailyChildId =
+            hierarchy?.child?.planningPeriodId || hierarchy?.child?.id;
           if (dailyChildId) {
             const dailyRes = await getReportingData({
               userId: [userId],
               planPeriodId: dailyChildId,
               pageReporting: 1,
               pageSizeReporting: 1000,
-              sessionId:
-                PlanningAndReportingStore.getState().selectedSessionIds?.length
-                  ? PlanningAndReportingStore.getState().selectedSessionIds
-                  : PlanningAndReportingStore.getState().allSessionsOfYear || [],
+              sessionId: PlanningAndReportingStore.getState().selectedSessionIds
+                ?.length
+                ? PlanningAndReportingStore.getState().selectedSessionIds
+                : PlanningAndReportingStore.getState().allSessionsOfYear || [],
             });
             allDailyReports = dailyRes?.items || [];
           }
         } catch (_) {}
-        
+
         // Now build krReport using allWeeklyReports
         const krReport = {
           tasks: [] as any[],
           keyResultProgress: progress + '%',
-          metricType: selected.metricType?.name || 'Unknown'
+          metricType: selected.metricType?.name || 'Unknown',
         };
-        
+
         const doneTasks: string[] = [];
-        
+
         allWeeklyReports.forEach((report: any) => {
           const reportTasks = extractReportTasks(report);
           reportTasks.forEach((task: any) => {
@@ -229,7 +239,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                 reason: task.customReason || 'No reason provided',
                 dailyTasks: [] as any[],
               };
-              
+
               // Add nested daily
               allDailyReports.forEach((dailyReport: any) => {
                 const dailyReportTasks = extractReportTasks(dailyReport);
@@ -261,7 +271,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                   );
 
                   const titlesMatch =
-                    weeklyTitle && parentTitle &&
+                    weeklyTitle &&
+                    parentTitle &&
                     (weeklyTitle === parentTitle ||
                       weeklyTitle.includes(parentTitle) ||
                       parentTitle.includes(weeklyTitle));
@@ -281,16 +292,16 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                   }
                 });
               });
-              
+
               krReport.tasks.push(weeklyTask);
-              
+
               if (isCompletedStatus(task.status)) {
                 doneTasks.push(task.planTask?.task ?? task?.task);
               }
             }
           });
         });
-        
+
         // Build clean weekly payload per API ({ keyResultReport })
         const weeklyTasksClean = (krReport.tasks || []).map((t: any) => ({
           title: t?.title,
@@ -329,14 +340,16 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
               r?.target !== undefined
                 ? r.target
                 : (r as any)?.targetValue !== undefined
-                ? (r as any).targetValue
-                : undefined;
+                  ? (r as any).targetValue
+                  : undefined;
             const parsedTarget =
               typeof rawTarget === 'number'
                 ? rawTarget
-                : typeof rawTarget === 'string' && rawTarget.trim() !== '' && !isNaN(Number(rawTarget))
-                ? Number(rawTarget)
-                : undefined;
+                : typeof rawTarget === 'string' &&
+                    rawTarget.trim() !== '' &&
+                    !isNaN(Number(rawTarget))
+                  ? Number(rawTarget)
+                  : undefined;
             return {
               title: r.title,
               weight: r.weight,
@@ -356,35 +369,41 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
 
         // Fetch previously reported daily tasks for this weekly task
         let previousDaily: { title: string; status: string }[] = [];
-        
+
         try {
-          const dailyTasksResponse = await fetchDailyTasksByWeeklyTask(weeklyPlanTaskId);
-          
+          const dailyTasksResponse = await fetchDailyTasksByWeeklyTask(
+            String(weeklyPlanTaskId),
+          );
+
           // Backend returns array directly: [{ title, status, reason }, ...]
           // Handle both array format and object format
-          const dailyTasks = Array.isArray(dailyTasksResponse) 
-            ? dailyTasksResponse 
-            : (dailyTasksResponse?.dailyTasks || []);
-          
+          const dailyTasks = Array.isArray(dailyTasksResponse)
+            ? dailyTasksResponse
+            : dailyTasksResponse?.dailyTasks || [];
+
           // Transform to AI format
           previousDaily = dailyTasks
             .map((task: any) => {
               const statusText = normalizeText(task?.status);
               let normalizedStatus = 'pending';
-              
+
               // Map various status values to 'completed' or 'pending'
-              if (statusText === 'done' || 
-                  statusText === 'completed' || 
-                  statusText === 'achieved') {
+              if (
+                statusText === 'done' ||
+                statusText === 'completed' ||
+                statusText === 'achieved'
+              ) {
                 normalizedStatus = 'completed';
-              } else if (statusText === 'not done' || 
-                         statusText === 'notdone' || 
-                         statusText === 'pending' || 
-                         statusText === 'in progress' || 
-                         statusText === 'inprogress') {
+              } else if (
+                statusText === 'not done' ||
+                statusText === 'notdone' ||
+                statusText === 'pending' ||
+                statusText === 'in progress' ||
+                statusText === 'inprogress'
+              ) {
                 normalizedStatus = 'pending';
               }
-              
+
               return {
                 title: String(task?.title || '').trim(),
                 status: normalizedStatus,
@@ -394,7 +413,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         } catch (error: any) {
           // Silently handle errors - empty context is acceptable for first day
         }
-        
+
         // Send to AI engine
         const res = await fetchDailyPlanSuggestions({
           daily_plan_request: {
@@ -440,10 +459,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       // Weekly plan: use only keyResultId
       // Weekly plan:
       // If KR is milestone metric and a milestone selected, use composite key of KR + milestone
-      if (
-        selectedKR?.metricType?.name === NAME.MILESTONE &&
-        milestoneId
-      ) {
+      if (selectedKR?.metricType?.name === NAME.MILESTONE && milestoneId) {
         const compositeKey = `${targetKeyResultId}${milestoneId}`;
         boardKey = resolveBoardKeyForKR
           ? resolveBoardKeyForKR(compositeKey)
@@ -572,9 +588,15 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       className="flex-1 max-w-full"
                       placeholder="Choose a key result"
                       optionLabelProp="shortLabel"
-                      dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                      dropdownStyle={{
+                        maxWidth: '100%',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                      }}
                       dropdownMatchSelectWidth
-                      getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                      getPopupContainer={(trigger) =>
+                        trigger?.parentElement || document.body
+                      }
                       style={{ width: '100%', maxWidth: '100%' }}
                       options={ongoingKeyResults.map((k) => ({
                         // Full text in dropdown
@@ -584,9 +606,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           </div>
                         ),
                         // Truncated in selector
-                        shortLabel: (
-                          <div className="truncate">{k.title}</div>
-                        ),
+                        shortLabel: <div className="truncate">{k.title}</div>,
                         value: k.id,
                       }))}
                       value={keyResultId}
@@ -594,11 +614,14 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                     />
                   </div>
                   {(() => {
-                    const selectedKR = ongoingKeyResults.find((k) => k.id === keyResultId);
+                    const selectedKR = ongoingKeyResults.find(
+                      (k) => k.id === keyResultId,
+                    );
                     const isMilestoneKR =
                       selectedKR?.metricType?.name === NAME.MILESTONE ||
-                      String(selectedKR?.metricType?.name || '').toLowerCase() ===
-                        String(NAME.MILESTONE).toLowerCase();
+                      String(
+                        selectedKR?.metricType?.name || '',
+                      ).toLowerCase() === String(NAME.MILESTONE).toLowerCase();
                     if (!isMilestoneKR) {
                       return (
                         <div className="flex justify-end mt-3">
@@ -619,7 +642,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                     }
                     const milestoneOptions =
                       (selectedKR?.milestones || [])
-                        .filter((m: any) => String(m?.status || '').toLowerCase() !== 'completed')
+                        .filter(
+                          (m: any) =>
+                            String(m?.status || '').toLowerCase() !==
+                            'completed',
+                        )
                         .map((m: any) => ({
                           label: m?.title,
                           value: String(m?.id),
@@ -630,36 +657,44 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           <span className="text-sm w-24">Milestone</span>
                           <Select
                             className="flex-1 max-w-full"
-                          placeholder="Choose a milestone under the selected key result"
-                          optionLabelProp="shortLabel"
-                          dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
-                          dropdownMatchSelectWidth
-                          getPopupContainer={(trigger) => trigger?.parentElement || document.body}
-                          style={{ width: '100%', maxWidth: '100%' }}
-                          options={milestoneOptions.map((m) => ({
-                            ...m,
-                            // Full text in dropdown
-                            label: (
-                              <div className="whitespace-normal break-words">
-                                {m.label}
-                              </div>
-                            ),
-                            // Truncated in selector
-                            shortLabel: (
-                              <div className="truncate">{m.label}</div>
-                            ),
-                          }))}
-                          value={milestoneId}
-                          onChange={setMilestoneId}
-                          disabled={!keyResultId}
-                          showSearch
-                          filterOption={(input, option) => {
-                            const labelNode: any = (option as any)?.label;
-                            const labelText = String(
-                              labelNode?.props?.children ?? labelNode ?? '',
-                            );
-                            return labelText.toLowerCase().includes(input.toLowerCase());
-                          }}
+                            placeholder="Choose a milestone under the selected key result"
+                            optionLabelProp="shortLabel"
+                            dropdownStyle={{
+                              maxWidth: '100%',
+                              whiteSpace: 'normal',
+                              wordBreak: 'break-word',
+                            }}
+                            dropdownMatchSelectWidth
+                            getPopupContainer={(trigger) =>
+                              trigger?.parentElement || document.body
+                            }
+                            style={{ width: '100%', maxWidth: '100%' }}
+                            options={milestoneOptions.map((m) => ({
+                              ...m,
+                              // Full text in dropdown
+                              label: (
+                                <div className="whitespace-normal break-words">
+                                  {m.label}
+                                </div>
+                              ),
+                              // Truncated in selector
+                              shortLabel: (
+                                <div className="truncate">{m.label}</div>
+                              ),
+                            }))}
+                            value={milestoneId}
+                            onChange={setMilestoneId}
+                            disabled={!keyResultId}
+                            showSearch
+                            filterOption={(input, option) => {
+                              const labelNode: any = (option as any)?.label;
+                              const labelText = String(
+                                labelNode?.props?.children ?? labelNode ?? '',
+                              );
+                              return labelText
+                                .toLowerCase()
+                                .includes(input.toLowerCase());
+                            }}
                           />
                         </div>
                         <div className="flex justify-end mt-3">
@@ -689,9 +724,15 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       className="flex-1 max-w-full"
                       placeholder="Choose a key result to attach tasks"
                       optionLabelProp="shortLabel"
-                      dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                      dropdownStyle={{
+                        maxWidth: '100%',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                      }}
                       dropdownMatchSelectWidth
-                      getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                      getPopupContainer={(trigger) =>
+                        trigger?.parentElement || document.body
+                      }
                       style={{ width: '100%', maxWidth: '100%' }}
                       options={ongoingKeyResults.map((k) => ({
                         // Full text in dropdown
@@ -701,9 +742,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           </div>
                         ),
                         // Truncated in selector
-                        shortLabel: (
-                          <div className="truncate">{k.title}</div>
-                        ),
+                        shortLabel: <div className="truncate">{k.title}</div>,
                         value: k.id,
                       }))}
                       value={keyResultId}
@@ -716,9 +755,15 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       className="flex-1 max-w-full"
                       placeholder="Select a weekly plan task"
                       optionLabelProp="shortLabel"
-                      dropdownStyle={{ maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
+                      dropdownStyle={{
+                        maxWidth: '100%',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                      }}
                       dropdownMatchSelectWidth
-                      getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                      getPopupContainer={(trigger) =>
+                        trigger?.parentElement || document.body
+                      }
                       style={{ width: '100%', maxWidth: '100%' }}
                       options={filteredWeeklyTasks.map((t) => ({
                         // Full text in dropdown
@@ -728,9 +773,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           </div>
                         ),
                         // Truncated in selector
-                        shortLabel: (
-                          <div className="truncate">{t.task}</div>
-                        ),
+                        shortLabel: <div className="truncate">{t.task}</div>,
                         value: t.id,
                       }))}
                       value={weeklyPlanTaskId}
@@ -741,7 +784,9 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                         const labelText = String(
                           labelNode?.props?.children ?? labelNode ?? '',
                         );
-                        return labelText.toLowerCase().includes(input.toLowerCase());
+                        return labelText
+                          .toLowerCase()
+                          .includes(input.toLowerCase());
                       }}
                     />
                   </div>
@@ -796,7 +841,9 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                         if (items.length === 1) {
                           askAnotherKR();
                         }
-                        setItems((prev) => prev.filter((_, i) => i !== idx));
+                        setItems((prev) =>
+                          prev.filter((unusedItem, i) => i !== idx),
+                        );
                       }}
                       shape="circle"
                     />

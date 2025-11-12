@@ -26,7 +26,9 @@ const JobCard: React.FC<JobCardProps> = ({
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+            {title}
+          </h3>
           <p className="text-sm text-gray-500 mt-1">{department}</p>
           <div className="flex items-center gap-4 text-xs text-gray-500 mt-3">
             <span className="flex items-center gap-1">
@@ -36,7 +38,8 @@ const JobCard: React.FC<JobCardProps> = ({
               <MdOutlineAccessTime className="text-gray-400" /> {postedAgo}
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-300" /> {applicants} applicants
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />{' '}
+              {applicants} applicants
             </span>
           </div>
         </div>
@@ -113,7 +116,3 @@ const AIJobMatchingPage: React.FC = () => {
 };
 
 export default AIJobMatchingPage;
-
-
-
-

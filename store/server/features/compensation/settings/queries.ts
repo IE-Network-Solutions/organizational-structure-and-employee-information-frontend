@@ -53,7 +53,6 @@ export const useFetchAllowanceTypes = () => {
   return useQuery(['allowanceType'], () => fetchAllowanceTypes());
 };
 
-
 const fetchAllowanceTypesByCompType = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;

@@ -122,7 +122,11 @@ function EditPlan() {
               title: string;
               progress?: number;
               metricType?: { name: string };
-              milestones?: Array<{ id: string | number; title: string; status?: string }>;
+              milestones?: Array<{
+                id: string | number;
+                title: string;
+                status?: string;
+              }>;
             }[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
