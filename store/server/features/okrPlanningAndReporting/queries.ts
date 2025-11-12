@@ -334,9 +334,29 @@ export const useGetReportedPlanning = (planId: string) => {
   );
 };
 
+// Fetch reported daily tasks by weekly task ID
+const getDailyTasksByWeeklyTask = async (weeklyTaskId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report-task/daily-plans/${weeklyTaskId}`,
+    method: 'get',
+    headers,
+  });
+};
+
 export { getReportingData };
 
 // Expose a non-hook function so non-React code can fetch planning periods
 export const fetchAllPlanningPeriods = getAllPlanningPeriods;
 
 export const fetchPlanningPeriodsHierarchy = getPlanningPeriodsHierarchy;
+
+// Export the new endpoint for fetching daily tasks by weekly task
+export const fetchDailyTasksByWeeklyTask = getDailyTasksByWeeklyTask;

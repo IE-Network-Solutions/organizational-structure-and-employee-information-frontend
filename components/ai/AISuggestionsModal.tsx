@@ -7,7 +7,7 @@ import {
 } from '@/utils/aiService';
 import { NAME } from '@/types/enumTypes';
 
-import { fetchAllPlanningPeriods, fetchPlanningPeriodsHierarchy, getReportingData } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { fetchAllPlanningPeriods, fetchPlanningPeriodsHierarchy, getReportingData, fetchDailyTasksByWeeklyTask } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
@@ -322,142 +322,48 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         );
         if (!selectedWeeklyTask) return;
 
-        const progress = selectedKeyResult.progress || 0;
-        const userId = useAuthenticationStore.getState().userId;
-        const planPeriodId = PlanningAndReportingStore.getState().activePlanPeriodId;
-        
-        // Get all daily periods, fetch all daily reports
-        
-        const allAssignedResponse = await fetchAllPlanningPeriods();
-        const allAssigned = allAssignedResponse?.items || [];
-        
-        const dailyPeriods = allAssigned.filter((p: any) => p.planningPeriod?.name?.toLowerCase().includes('day'));
-        
-        const allDailyReportsPromises = dailyPeriods.map(async (period: any) => {
-          try {
-            const res = await getReportingData({
-              userId: [userId],
-              planPeriodId: period.planningPeriodId,
-              pageReporting: 1,
-              pageSizeReporting: 1000,
-              sessionId:
-                PlanningAndReportingStore.getState().selectedSessionIds?.length
-                  ? PlanningAndReportingStore.getState().selectedSessionIds
-                  : PlanningAndReportingStore.getState().allSessionsOfYear || [],
-            });
-            return res.items || [];
-          } catch (e) {
-            return [];
-          }
-        });
-        
-        const allDailyReports = (await Promise.all(allDailyReportsPromises)).flat();
-        
-        const krReport = {
-          tasks: [] as any[],
-          keyResultProgress: progress + '%',
-          metricType: selectedKeyResult.metricType?.name || 'Unknown'
-        };
-        
-        const doneTasks: string[] = [];
-        
-        // Since for specific weekly task, create one entry
-        const weeklyTaskEntry = {
-          title: selectedWeeklyTask.task,
-          dailyTasks: [] as any[],
-        };
-        
-        allDailyReports.forEach((report: any) => {
-          const reportTasks = extractReportTasks(report);
-          reportTasks.forEach((task: any) => {
-            const weeklyIdCandidates = [weeklyPlanTaskId]
-              .filter(Boolean)
-              .map(normalizeId);
-            const dailyParentCandidates = [
-              task.planTask?.parentTask?.id,
-              task.planTask?.parentTaskId,
-              task?.parentTaskId,
-              task?.parentTask?.id,
-              task?.parentPlanTaskId,
-            ]
-              .filter(Boolean)
-              .map(normalizeId);
-
-            const weeklyTitle = normalizeText(selectedWeeklyTask.task);
-            const parentTitle = normalizeText(
-              task.planTask?.parentTask?.task || task?.parentTask?.task,
-            );
-
-            const titlesMatch =
-              weeklyTitle && parentTitle &&
-              (weeklyTitle === parentTitle ||
-                weeklyTitle.includes(parentTitle) ||
-                parentTitle.includes(weeklyTitle));
-
-            const idsMatch = weeklyIdCandidates.some((wid: string) =>
-              dailyParentCandidates.includes(wid),
-            );
-
-            const isChildOfWeekly = idsMatch || titlesMatch;
-
-            if (isChildOfWeekly) {
-              weeklyTaskEntry.dailyTasks.push({
-                title: task.planTask?.task ?? task?.task,
-                status: task.status,
-                reason: task.customReason || 'No reason provided',
-              });
-
-              if (isCompletedStatus(task.status)) {
-                doneTasks.push(task.planTask?.task ?? task?.task);
-              }
-            }
-          });
-        });
-        
-        krReport.tasks.push(weeklyTaskEntry);
-        
-        const keyResultReport = [krReport];
-        
-        // Build daily_plan_request from child Daily period reports (fallback approach)
+        // Fetch previously reported daily tasks for this weekly task
         let previousDaily: { title: string; status: string }[] = [];
+        
         try {
-          const hierarchy = await fetchPlanningPeriodsHierarchy(userId, planPeriodId);
-          const dailyChildId = hierarchy?.child?.planningPeriodId || hierarchy?.child?.id;
-          if (dailyChildId) {
-            const dailyRes = await getReportingData({
-              userId: [userId],
-              planPeriodId: dailyChildId,
-              pageReporting: 1,
-              pageSizeReporting: 1000,
-              sessionId:
-                PlanningAndReportingStore.getState().selectedSessionIds?.length
-                  ? PlanningAndReportingStore.getState().selectedSessionIds
-                  : PlanningAndReportingStore.getState().allSessionsOfYear || [],
-            });
-            const dailyReports = dailyRes?.items || [];
-            const allDailyTasks = dailyReports.flatMap((dr: any) => extractReportTasks(dr));
-            const matched = allDailyTasks.filter((t: any) => {
-              const parentMatch = normalizeId(t?.planTask?.parentTaskId) === normalizeId(weeklyPlanTaskId);
-              const krMatch = normalizeId(t?.planTask?.keyResultId) === normalizeId(selectedKeyResult?.id);
-              // Fallback title match if ids missing
-              const parentTitle = normalizeText(t?.planTask?.parentTask?.task || t?.parentTask?.task);
-              const titleMatch = parentTitle && parentTitle === normalizeText(selectedWeeklyTask.task);
-              return (parentMatch && krMatch) || titleMatch;
-            });
-            const normalizeDailyStatus = (s: any) => {
-              const v = normalizeText(s);
-              if (v === 'done' || v === 'completed' || v === 'achieved') return 'completed';
-              return v || 'pending';
-            };
-            previousDaily = matched
-              .map((t: any) => ({
-                title: t?.planTask?.task || t?.task || '',
-                status: normalizeDailyStatus(t?.status),
-              }))
-              .filter((d: any) => d.title);
-          }
-        } catch (_) {}
-
+          const dailyTasksResponse = await fetchDailyTasksByWeeklyTask(weeklyPlanTaskId);
+          
+          // Backend returns array directly: [{ title, status, reason }, ...]
+          // Handle both array format and object format
+          const dailyTasks = Array.isArray(dailyTasksResponse) 
+            ? dailyTasksResponse 
+            : (dailyTasksResponse?.dailyTasks || []);
+          
+          // Transform to AI format
+          previousDaily = dailyTasks
+            .map((task: any) => {
+              const statusText = normalizeText(task?.status);
+              let normalizedStatus = 'pending';
+              
+              // Map various status values to 'completed' or 'pending'
+              if (statusText === 'done' || 
+                  statusText === 'completed' || 
+                  statusText === 'achieved') {
+                normalizedStatus = 'completed';
+              } else if (statusText === 'not done' || 
+                         statusText === 'notdone' || 
+                         statusText === 'pending' || 
+                         statusText === 'in progress' || 
+                         statusText === 'inprogress') {
+                normalizedStatus = 'pending';
+              }
+              
+              return {
+                title: String(task?.title || '').trim(),
+                status: normalizedStatus,
+              };
+            })
+            .filter((task: any) => task.title.length > 0);
+        } catch (error: any) {
+          // Silently handle errors - empty context is acceptable for first day
+        }
+        
+        // Send to AI engine
         const res = await fetchDailyPlanSuggestions({
           daily_plan_request: {
             selected_key_result: selectedKeyResult.title,
