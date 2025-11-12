@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Modal, Select, Typography, Tag, Empty } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import {
   fetchWeeklyPlanSuggestions,
   fetchDailyPlanSuggestions,
@@ -52,6 +53,30 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     { title: string; weight: number; priority: string; target?: number }[]
   >([]);
   const [milestoneId, setMilestoneId] = useState<string | undefined>();
+  const askAnotherKR = () => {
+    if (!isWeekly) return;
+    Modal.confirm({
+      title: 'Need suggestions for another key result?',
+      content:
+        'Would you like to select a different key result to generate more weekly suggestions?',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: () => {
+        setItems([]);
+        setKeyResultId(undefined);
+        setMilestoneId(undefined);
+      },
+      onCancel: () => setOpen(false),
+    });
+  };
+  const onConfirmRegenerate = () => {
+    // Ask before regenerating when items already exist
+    Modal.confirm({
+      title: 'Need more suggestions?',
+      content: 'Regenerate additional weekly tasks for this key result?',
+      onOk: () => handleGenerate(),
+    });
+  };
 
   const keyResults = useMemo(() => getKeyResults(), [getKeyResults]);
   const weeklyPlanTasks = useMemo(
@@ -256,9 +281,22 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
           status: t?.status ?? null,
           reason: t?.reason || 'No reason provided',
         }));
+        // For Milestone metric type, use milestone name as keyResultTitle when a milestone is selected
+        const selectedMilestoneTitle =
+          (selected?.metricType?.name === NAME.MILESTONE ||
+            String(selected?.metricType?.name || '').toLowerCase() ===
+              String(NAME.MILESTONE).toLowerCase()) &&
+          milestoneId
+            ? String(
+                (selected?.milestones || []).find(
+                  (m: any) => String(m?.id) === String(milestoneId),
+                )?.title || selected.title,
+              )
+            : selected.title;
+
         const keyResultReportNestedWeekly = [
           {
-            keyResultTitle: selected.title,
+            keyResultTitle: selectedMilestoneTitle,
             metricType: selected.metricType?.name || 'Unknown',
             keyResultProgress: `${Number(progress).toFixed(0)}%`,
             weeklyTasks: weeklyTasksClean,
@@ -552,14 +590,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     }, 100);
 
     // Remove the suggestion from the list after successfully adding.
-    // If the list becomes empty, close the modal to match OKR UX.
-    setItems((prev) => {
-      const next = prev.filter((item, i) => i !== index);
-      if (next.length === 0) {
-        setOpen(false);
-      }
-      return next;
-    });
+    // If the list becomes empty, ask to switch to another key result (weekly only).
+    if (items.length === 1) {
+      askAnotherKR();
+    }
+    setItems((prev) => prev.filter((item, i) => i !== index));
   };
 
   return (
@@ -616,7 +651,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           <Button
                             loading={loading}
                             type="primary"
-                            onClick={handleGenerate}
+                            onClick={() =>
+                              items.length > 0
+                                ? onConfirmRegenerate()
+                                : handleGenerate()
+                            }
                             disabled={!keyResultId}
                           >
                             {items.length ? 'Regenerate' : 'Generate'}
@@ -651,7 +690,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                         <Button
                           loading={loading}
                           type="primary"
-                          onClick={handleGenerate}
+                          onClick={() =>
+                            items.length > 0
+                              ? onConfirmRegenerate()
+                              : handleGenerate()
+                          }
                           disabled={!keyResultId || !milestoneId}
                         >
                           {items.length ? 'Regenerate' : 'Generate'}
@@ -722,7 +765,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                   key={idx}
                   className="border rounded-lg p-3 flex justify-between items-start"
                 >
-                  <div>
+                  <div className="flex-1 pr-3">
                     <Typography.Text className="text-sm">
                       {s.title}
                     </Typography.Text>
@@ -736,9 +779,21 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       )}
                     </div>
                   </div>
-                  <Button type="primary" onClick={() => addToForm(s, idx)}>
-                    Add
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      icon={<CloseOutlined />}
+                      onClick={() => {
+                        if (items.length === 1) {
+                          askAnotherKR();
+                        }
+                        setItems((prev) => prev.filter((_, i) => i !== idx));
+                      }}
+                      shape="circle"
+                    />
+                    <Button type="primary" onClick={() => addToForm(s, idx)}>
+                      Add
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
