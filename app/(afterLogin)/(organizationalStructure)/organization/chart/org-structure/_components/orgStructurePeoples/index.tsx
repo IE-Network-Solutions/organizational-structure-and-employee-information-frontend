@@ -214,6 +214,7 @@ const OrgChartComponent: React.FC = () => {
             <Tree
               label={
                 <DepartmentNode
+                  data-cy="org-structure-department-node"
                   data={{
                     id: orgStructureData?.id || '',
                     name: orgStructureData?.name || '',
@@ -251,6 +252,7 @@ const OrgChartComponent: React.FC = () => {
           departmentData={selectedDepartment ?? undefined}
           title={selectedDepartment ? 'Edit Department' : 'Add Department'}
           loading={updateDepartmentLoading}
+          data-cy="org-structure-department-form"
         />
 
         <DeleteModal
@@ -258,6 +260,7 @@ const OrgChartComponent: React.FC = () => {
           onConfirm={handleDeleteConfirm}
           onCancel={() => setIsDeleteConfirmVisible(false)}
           loading={deleteLoading}
+          data-cy="org-structure-delete-modal"
         />
       </div>
     </div>

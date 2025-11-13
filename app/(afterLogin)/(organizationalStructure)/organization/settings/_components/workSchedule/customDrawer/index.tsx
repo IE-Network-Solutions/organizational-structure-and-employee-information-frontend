@@ -208,92 +208,122 @@ const CustomWorkingScheduleDrawer = () => {
       title: 'Working Day',
       dataIndex: 'dayOfWeek',
       key: 'dayOfWeek',
-      render: (s, record) => (
-        <Form.Item
-          name={`${record.dayOfWeek}-working`}
-          valuePropName="checked"
-          noStyle
-        >
-          <div className="flex gap-2 md:gap-4 justify-start items-center">
-            <Switch
-              checked={record.status}
-              checkedChildren={<CheckOutlined />}
-              unCheckedChildren={<CloseOutlined />}
-              size="small"
-              onChange={(checked) =>
-                handleSwitchChange(record.dayOfWeek, checked)
-              }
-            />
-            <p>{record.dayOfWeek}</p>
-          </div>
-        </Form.Item>
-      ),
+      render: (s, record) => {
+        const dayKey =
+          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        return (
+          <Form.Item
+            name={`${record.dayOfWeek}-working`}
+            valuePropName="checked"
+            noStyle
+            data-cy={`org-settings-work-schedule-working-form-item-${dayKey}`}
+            id={`org-settings-work-schedule-working-form-item-${dayKey}`}
+          >
+            <div className="flex gap-2 md:gap-4 justify-start items-center" data-cy={`org-settings-work-schedule-working-content-${dayKey}`} id={`org-settings-work-schedule-working-content-${dayKey}`}>
+              <Switch
+                checked={record.status}
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                size="small"
+                onChange={(checked) =>
+                  handleSwitchChange(record.dayOfWeek, checked)
+                }
+                data-cy={`org-settings-work-schedule-working-switch-${dayKey}`}
+                id={`org-settings-work-schedule-working-switch-${dayKey}`}
+              />
+              <p data-cy={`org-settings-work-schedule-working-label-${dayKey}`} id={`org-settings-work-schedule-working-label-${dayKey}`}>
+                {record.dayOfWeek}
+              </p>
+            </div>
+          </Form.Item>
+        );
+      },
     },
     {
       title: 'Starting Time',
       dataIndex: 'startTime',
       key: 'startTime',
-      render: (s, record) => (
-        <Form.Item name={`${record.dayOfWeek}-start`} noStyle>
-          <TimePicker
-            format="h:mm A"
-            disabled={!record.status}
-            use12Hours
-            className="min-w-[90px] h-7 custom-timepicker"
-            onChange={(time) =>
-              setDetail(record.dayOfWeek, {
-                startTime: time ? dayjs(time).format('h:mm A') : '',
-              })
-            }
-            size="small"
-          />
-        </Form.Item>
-      ),
+      render: (s, record) => {
+        const dayKey =
+          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        return (
+          <Form.Item name={`${record.dayOfWeek}-start`} noStyle data-cy={`org-settings-work-schedule-start-time-form-item-${dayKey}`} id={`org-settings-work-schedule-start-time-form-item-${dayKey}`}>
+            <TimePicker
+              format="h:mm A"
+              disabled={!record.status}
+              use12Hours
+              className="min-w-[90px] h-7 custom-timepicker"
+              onChange={(time) =>
+                setDetail(record.dayOfWeek, {
+                  startTime: time ? dayjs(time).format('h:mm A') : '',
+                })
+              }
+              size="small"
+              data-cy={`org-settings-work-schedule-start-time-${dayKey}`}
+              id={`org-settings-work-schedule-start-time-${dayKey}`}
+            />
+          </Form.Item>
+        );
+      },
     },
     {
       title: 'End Time',
       dataIndex: 'endTime',
       key: 'endTime',
-      render: (s, record) => (
-        <Form.Item name={`${record.dayOfWeek}-end`} noStyle>
-          <TimePicker
-            format="h:mm A"
-            disabled={!record.status}
-            use12Hours
-            className="min-w-[90px] h-7 custom-timepicker"
-            onChange={(time) =>
-              setDetail(record.dayOfWeek, {
-                endTime: time ? dayjs(time).format('h:mm A') : '',
-              })
-            }
-            size="small"
-          />
-        </Form.Item>
-      ),
+      render: (s, record) => {
+        const dayKey =
+          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        return (
+          <Form.Item name={`${record.dayOfWeek}-end`} noStyle data-cy={`org-settings-work-schedule-end-time-form-item-${dayKey}`} id={`org-settings-work-schedule-end-time-form-item-${dayKey}`}>
+            <TimePicker
+              format="h:mm A"
+              disabled={!record.status}
+              use12Hours
+              className="min-w-[90px] h-7 custom-timepicker"
+              onChange={(time) =>
+                setDetail(record.dayOfWeek, {
+                  endTime: time ? dayjs(time).format('h:mm A') : '',
+                })
+              }
+              size="small"
+              data-cy={`org-settings-work-schedule-end-time-${dayKey}`}
+              id={`org-settings-work-schedule-end-time-${dayKey}`}
+            />
+          </Form.Item>
+        );
+      },
     },
     {
       title: 'Duration',
       dataIndex: 'hours',
       key: 'hours',
-      render: (s, record) => (
-        <Form.Item shouldUpdate noStyle>
-          {({ getFieldValue }) => {
-            const start = getFieldValue(`${record.dayOfWeek}-start`);
-            const end = getFieldValue(`${record.dayOfWeek}-end`);
-            const duration =
-              start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
-            const hours = Math.floor(duration);
-            const minutes = Math.round((duration - hours) * 60);
-            return (
-              <span className="inline-block py-1 px-4 border rounded-lg bg-white text-[10px] min-w-[70px] text-center text-[#1a202c]">
-                {record.status
-                  ? `${hours}h ${minutes.toString().padStart(2, '0')}m`
-                  : '0h 00m'}
-              </span>
-            );
-          }}
-        </Form.Item>
-      ),
+      render: (s, record) => {
+        const dayKey =
+          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        return (
+          <Form.Item shouldUpdate noStyle data-cy={`org-settings-work-schedule-duration-form-item-${dayKey}`} id={`org-settings-work-schedule-duration-form-item-${dayKey}`}>
+            {({ getFieldValue }) => {
+              const start = getFieldValue(`${record.dayOfWeek}-start`);
+              const end = getFieldValue(`${record.dayOfWeek}-end`);
+              const duration =
+                start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
+              const hours = Math.floor(duration);
+              const minutes = Math.round((duration - hours) * 60);
+              return (
+                <span
+                  className="inline-block py-1 px-4 border rounded-lg bg-white text-[10px] min-w-[70px] text-center text-[#1a202c]"
+                  data-cy={`org-settings-work-schedule-duration-${dayKey}`}
+                  id={`org-settings-work-schedule-duration-${dayKey}`}
+                >
+                  {record.status
+                    ? `${hours}h ${minutes.toString().padStart(2, '0')}m`
+                    : '0h 00m'}
+                </span>
+              );
+            }}
+          </Form.Item>
+        );
+      },
     },
   ];
 
