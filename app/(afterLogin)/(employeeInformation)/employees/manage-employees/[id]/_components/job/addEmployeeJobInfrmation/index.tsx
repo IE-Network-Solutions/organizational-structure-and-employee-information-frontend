@@ -5,7 +5,9 @@ import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 import { useParams } from 'next/navigation';
+
 import { useEffect } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
@@ -17,26 +19,24 @@ interface Ids {
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
-  id,
 }) => {
   const { userId: userId2 } = useAuthenticationStore();
+
   const [form] = Form.useForm();
   const params = useParams();
-  const userId = id ?? (params?.id as string) ?? userId2;
+  const userId = (params?.id as string) ?? userId2;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
     setEmployeeJobInfoModalWidth,
     employeeJobInfoModalWidth,
-    setTempAllowances,
   } = useEmployeeManagementStore();
 
   useEffect(() => {
     if (isAddEmployeeJobInfoModalVisible) {
       form.resetFields(); // Reset form values on modal open
-      setTempAllowances([]); // Clear temp allowances when modal opens
     }
-  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances]);
+  }, [isAddEmployeeJobInfoModalVisible, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
@@ -44,7 +44,6 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
     setEmployeeJobInfoModalWidth(null);
-    setTempAllowances([]); // Clear temp allowances when modal closes
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
@@ -58,12 +57,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
-    // Include allowances from form state
-    values.allowances = form.getFieldValue('allowances') || [];
-
     createJobInformation(values, {
       onSuccess: () => {
-        setTempAllowances([]); // Clear temp allowances on successful submit
         handleClose();
 
         // Call the callback to refresh job information data
@@ -87,7 +82,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         destroyOnClose
       >
         <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm employeeData={employeeData} form={form} />
+          <JobTimeLineForm employeeData={employeeData} />
+          <BasicSalaryForm />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail

@@ -8,6 +8,10 @@ interface RequestParams {
   data?: any;
   headers?: Record<string, string>;
   params?: Record<string, any>;
+
+  requestedBy?: string;
+  createdBy?: string;
+
   skipEncryption?: boolean;
   responseType?: ResponseType;
 }
