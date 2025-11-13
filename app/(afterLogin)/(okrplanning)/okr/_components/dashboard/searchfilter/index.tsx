@@ -46,15 +46,16 @@ const OkrSearch: React.FC = () => {
     }
 
     // Check if fiscalYearId was changed externally (by user selection)
-    const fiscalYearChangedExternally = prevFiscalYearIdRef.current !== fiscalYearId;
+    const fiscalYearChangedExternally =
+      prevFiscalYearIdRef.current !== fiscalYearId;
     const okrTabChanged = prevOkrTabRef.current !== okrTab;
 
     // If fiscal year was changed externally, update sessions for that fiscal year
     if (fiscalYearChangedExternally && fiscalYearId) {
       const selectedFiscalYear = getAllFiscalYears?.items?.find(
-        (i) => i?.id == fiscalYearId
+        (i) => i?.id == fiscalYearId,
       );
-      
+
       if (selectedFiscalYear) {
         if (okrTab == 4) {
           const allSessionIds =
@@ -85,7 +86,7 @@ const OkrSearch: React.FC = () => {
       }
 
       const newFiscalYearId = selectedFiscalYear?.id || '';
-      
+
       if (okrTab == 4) {
         const allSessionIds =
           selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
@@ -98,7 +99,7 @@ const OkrSearch: React.FC = () => {
         const chosen = activeSessionId || fallbackFirstSessionId || '';
         setSessionIds(chosen ? [chosen] : []);
       }
-      
+
       setFiscalYearId(newFiscalYearId);
       prevFiscalYearIdRef.current = newFiscalYearId;
       prevOkrTabRef.current = okrTab;
@@ -109,7 +110,7 @@ const OkrSearch: React.FC = () => {
     // If okrTab changed, update sessions for current fiscal year
     if (okrTabChanged && fiscalYearId) {
       const selectedFiscalYear = getAllFiscalYears?.items?.find(
-        (i) => i?.id == fiscalYearId
+        (i) => i?.id == fiscalYearId,
       );
 
       if (selectedFiscalYear) {
@@ -129,7 +130,14 @@ const OkrSearch: React.FC = () => {
       // Update ref after handling the change
       prevOkrTabRef.current = okrTab;
     }
-  }, [getAllFiscalYears?.items, getActiveFisicalYear, okrTab, fiscalYearId]);
+  }, [
+    getAllFiscalYears?.items,
+    getActiveFisicalYear,
+    okrTab,
+    fiscalYearId,
+    setFiscalYearId,
+    setSessionIds,
+  ]);
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
