@@ -23,17 +23,18 @@ const RecruitmentPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 min-h-screen sm:p-6 bg-[#ffffff]">
+    <div id="talent-acquisition-jobs-page-div-container" data-cy="talent-acquisition-jobs-page-div-container" className="p-4 min-h-screen sm:p-6 bg-[#ffffff]">
       <div
         className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-1 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
       >
         <CustomBreadcrumb title="Jobs" subtitle="Here's all job list" />
-        <div className="flex items-center sm:justify-between gap-10 md:gap-8 sm:gap-4">
+        <div id="talent-acquisition-jobs-div-buttons" data-cy="talent-acquisition-jobs-div-buttons" className="flex items-center sm:justify-between gap-10 md:gap-8 sm:gap-4">
           <WhatYouNeed />
           <AccessGuard permissions={[Permissions.CreateJobDescription]}>
             <CustomButton
               title={<span className="hidden sm:inline sm:mr-2">Add New</span>}
               id="createJobButton"
+              data-cy="talent-acquisition-jobs-button-add-new"
               icon={<FaPlus className="md:mr-0 ml-2" />}
               onClick={() => handleAddNewDrawer()}
               className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "

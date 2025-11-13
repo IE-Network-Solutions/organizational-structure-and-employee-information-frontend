@@ -163,16 +163,18 @@ const RecruitmentPipeline = () => {
       bodyStyle={{ padding: '0px' }}
       className="bg-white p-6 rounded-xl shadow-lg mx-1"
     >
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-[16px] font-bold">Recruitment Pipeline</h2>
-        <div className="flex items-center gap-4">
+      <div id="talent-acquisition-recruitment-pipeline-div-header" data-cy="talent-acquisition-recruitment-pipeline-div-header" className="flex justify-between items-center mb-6">
+        <h2 id="talent-acquisition-recruitment-pipeline-h2" data-cy="talent-acquisition-recruitment-pipeline-h2" className="text-[16px] font-bold">Recruitment Pipeline</h2>
+        <div id="talent-acquisition-recruitment-pipeline-div-buttons" data-cy="talent-acquisition-recruitment-pipeline-div-buttons" className="flex items-center gap-4">
           {jobId && (
-            <div className="text-[18px] text-[#4E4EF1] font-bold">
+            <div id="talent-acquisition-recruitment-pipeline-div-days-to-hire" data-cy="talent-acquisition-recruitment-pipeline-div-days-to-hire" className="text-[18px] text-[#4E4EF1] font-bold">
               <span className="">Days to Hire:</span> {averageDaysToHire}
             </div>
           )}
 
           <Button
+            id="talent-acquisition-recruitment-pipeline-button-export"
+            data-cy="talent-acquisition-recruitment-pipeline-button-export"
             icon={<LuFileDown />}
             type="default"
             onClick={handleExport}
@@ -184,14 +186,18 @@ const RecruitmentPipeline = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div id="talent-acquisition-recruitment-pipeline-div-filters" data-cy="talent-acquisition-recruitment-pipeline-div-filters" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Input
+          id="talent-acquisition-recruitment-pipeline-input-search"
+          data-cy="talent-acquisition-recruitment-pipeline-input-search"
           placeholder="Search candidate"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-14"
         />
         <Select
+          id="talent-acquisition-recruitment-pipeline-select-department"
+          data-cy="talent-acquisition-recruitment-pipeline-select-department"
           placeholder="Department"
           allowClear
           showSearch
@@ -207,6 +213,8 @@ const RecruitmentPipeline = () => {
           className="h-14"
         />
         <Select
+          id="talent-acquisition-recruitment-pipeline-select-stage"
+          data-cy="talent-acquisition-recruitment-pipeline-select-stage"
           placeholder="Stage"
           allowClear
           showSearch
@@ -222,6 +230,8 @@ const RecruitmentPipeline = () => {
           className="h-14"
         />
         <Select
+          id="talent-acquisition-recruitment-pipeline-select-job"
+          data-cy="talent-acquisition-recruitment-pipeline-select-job"
           placeholder="Job"
           allowClear
           showSearch

@@ -34,6 +34,7 @@ const TalentPoolPage = () => {
             <Button
               type="primary"
               id="createUserButton"
+              data-cy="talent-acquisition-talent-pool-page-button-add"
               className="h-10 w-10 sm:w-auto"
               icon={<FaPlus />}
               onClick={handleAdd}

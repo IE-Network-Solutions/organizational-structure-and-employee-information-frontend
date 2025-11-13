@@ -60,7 +60,8 @@ const Filters = () => {
     <Row gutter={[16, 16]}>
       <Col lg={6} md={12} sm={24} xs={24}>
         <Input
-          id={`inputSearchByNameTop${searchParams?.search || ''}`}
+         id={`inputSearchByNameTop${searchParams?.search || ''}`}
+          data-cy="talent-acquisition-talent-pool-filter-input-search"
           placeholder="Search by name"
           allowClear
           className="h-14 text-md placeholder:text-gray-400"
@@ -74,7 +75,8 @@ const Filters = () => {
 
       <Col lg={6} md={12} sm={24} xs={24}>
         <RangePicker
-          id={`inputDateRange${searchParams.date_range}`}
+            id={`inputDateRange${searchParams.date_range}`}
+          data-cy="talent-acquisition-talent-pool-filter-date-picker"
           onChange={(dates: any) => handleSearchByDateRange(dates)}
           value={
             searchParams.date_range
@@ -97,6 +99,7 @@ const Filters = () => {
       <Col lg={6} md={12} sm={24} xs={24}>
         <Select
           id={`selectCategory${searchParams?.talentPoolCategory}`}
+          data-cy="talent-acquisition-talent-pool-filter-select-category"
           placeholder="Select Category"
           onChange={handleCategoryChange}
           value={searchParams?.talentPoolCategory || undefined}
@@ -105,7 +108,7 @@ const Filters = () => {
         >
           {categoryList &&
             categoryList?.items?.map((category: any) => (
-              <Option key={category?.id} value={category?.id}>
+              <Option key={category?.id} value={category?.id} id={`talent-acquisition-talent-pool-filter-option-category-${category?.id}`} data-cy={`talent-acquisition-talent-pool-filter-option-category-${category?.id}`}>
                 {category?.title}
               </Option>
             ))}
@@ -115,6 +118,7 @@ const Filters = () => {
       <Col lg={6} md={12} sm={24} xs={24}>
         <Select
           id={`selectStage${searchParams?.stages}`}
+          data-cy="talent-acquisition-talent-pool-filter-select-stage"
           placeholder="Select Stage"
           onChange={handleStageChange}
           value={searchParams?.stages || undefined}
@@ -123,7 +127,7 @@ const Filters = () => {
         >
           {stageList &&
             stageList?.items?.map((item: any) => (
-              <Option key={item?.id} value={item?.id}>
+              <Option key={item?.id} value={item?.id} id={`talent-acquisition-talent-pool-filter-option-stage-${item?.id}`} data-cy={`talent-acquisition-talent-pool-filter-option-stage-${item?.id}`}>
                 {item?.title}
               </Option>
             ))}
@@ -138,6 +142,8 @@ const Filters = () => {
         <>
           <div className="flex justify-end m-2 space-x-4">
             <Input
+              id="talent-acquisition-talent-pool-filter-input-search-mobile"
+              data-cy="talent-acquisition-talent-pool-filter-input-search-mobile"
               placeholder="Search employee"
               allowClear
               className="h-14 text-md placeholder:text-gray-400"
@@ -149,12 +155,16 @@ const Filters = () => {
             />
             <div className="flex items-center justify-center rounded-xl border-[1px] border-gray-200 py-3 px-5">
               <LuSettings2
+                id="talent-acquisition-talent-pool-filter-button-mobile-filter"
+                data-cy="talent-acquisition-talent-pool-filter-button-mobile-filter"
                 onClick={() => setShowMobileFilter(true)}
                 className="text-xl cursor-pointer"
               />
             </div>
           </div>
           <Modal
+            id="talent-acquisition-talent-pool-filter-modal-mobile"
+            data-cy="talent-acquisition-talent-pool-filter-modal-mobile"
             centered
             title="Filter"
             open={showMobileFilter}
@@ -163,13 +173,15 @@ const Filters = () => {
             footer={
               <div className="flex justify-center items-center space-x-4">
                 <Button
+                  id="talent-acquisition-talent-pool-filter-button-cancel"
+                  data-cy="talent-acquisition-talent-pool-filter-button-cancel"
                   type="default"
                   className="px-3"
                   onClick={() => setShowMobileFilter(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="primary" className="px-3">
+                <Button id="talent-acquisition-talent-pool-filter-button-apply" data-cy="talent-acquisition-talent-pool-filter-button-apply" type="primary" className="px-3">
                   Filter
                 </Button>
               </div>

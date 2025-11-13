@@ -121,6 +121,8 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   const customBreadCrumbSubTitle = (
     <div className="flex items-center justify-start space-x-4">
       <div
+        id="talent-acquisition-job-detail-link-list-job"
+        data-cy="talent-acquisition-job-detail-link-list-job"
         className="flex items-center justify-center text-sm font-normal text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
         onClick={handleListJobClick}
       >
@@ -132,13 +134,13 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   );
 
   return (
-    <div className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
-      <div className="flex flex-wrap justify-between items-center">
+    <div id="talent-acquisition-job-detail-page-div-container" data-cy="talent-acquisition-job-detail-page-div-container" className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
+      <div id="talent-acquisition-job-detail-div-header" data-cy="talent-acquisition-job-detail-div-header" className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
           title="Recruitment"
           subtitle={customBreadCrumbSubTitle}
         />
-        <div className="flex items-center my-4 gap-4 md:gap-8">
+        <div id="talent-acquisition-job-detail-div-buttons" data-cy="talent-acquisition-job-detail-div-buttons" className="flex items-center my-4 gap-4 md:gap-8">
           <div className="hidden sm:block">
             <WhatYouNeed />
           </div>
@@ -154,6 +156,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                   )
                 }
                 id="createUserButton"
+                data-cy="talent-acquisition-job-detail-button-move-talent-pool"
                 icon={<IoIosShareAlt className="md:mr-0 ml-2" size={20} />}
                 onClick={handleMoveToTalentsPool}
                 className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
@@ -167,6 +170,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               )
             }
             id="createUserButton"
+            data-cy="talent-acquisition-job-detail-button-add-candidate"
             icon={<FaPlus className="mr-2" />}
             onClick={showDrawer}
             className="bg-blue-600 hover:bg-blue-700"
@@ -174,6 +178,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
           <Button
             type="primary"
             id="downloadExcelButton"
+            data-cy="talent-acquisition-job-detail-button-download-excel"
             icon={<FaDownload size={16} />}
             onClick={handleDownloadExcel}
             loading={isDownloading}

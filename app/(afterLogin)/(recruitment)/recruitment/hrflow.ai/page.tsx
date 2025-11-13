@@ -26,25 +26,27 @@ const AllCandidates: React.FC = () => {
       <div className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
           title="Candidates"
+          data-cy="talent-acquisition-hrflow-breadcrumb"
           subtitle="This is the data of all candidates who applied"
         />
-        <div className="flex items-center my-4 gap-4 md:gap-8">
+        <div id="talent-acquisition-hrflow-div-buttons" data-cy="talent-acquisition-hrflow-div-buttons" className="flex items-center my-4 gap-4 md:gap-8">
           <WhatYouNeed />
           <AccessGuard permissions={[Permissions.CreateCandidate]}>
             <CustomButton
               title="Add candidate"
               id="createUserButton"
+              data-cy="talent-acquisition-hrflow-button-add-candidate"
               icon={<FaPlus className="mr-2" />}
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700"
             />
-            <CreateCandidate onClose={onClose} />
+            <CreateCandidate data-cy="talent-acquisition-hrflow-create-candidate" onClose={onClose} />
           </AccessGuard>
         </div>
       </div>
-      <div className="w-full h-auto">
-        <SearchOptions />
-        <AllCandidateTable />
+      <div id="talent-acquisition-hrflow-div-table" data-cy="talent-acquisition-hrflow-div-table" className="w-full h-auto">
+        <SearchOptions data-cy="talent-acquisition-hrflow-search-options" />
+        <AllCandidateTable data-cy="talent-acquisition-hrflow-table" />
       </div>
     </div>
   );

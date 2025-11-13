@@ -221,6 +221,8 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           : '--',
         resumeUrl: (
           <a
+            id={`talent-acquisition-intern-table-link-cv-${item.id}`}
+            data-cy={`talent-acquisition-intern-table-link-cv-${item.id}`}
             href={item?.resumeUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -286,6 +288,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
               <Col xs={20} sm={20} flex="auto">
                 <Input
                   id={`inputInternNames`}
+                  data-cy="talent-acquisition-intern-table-input-search"
                   placeholder="Search intern"
                   value={searchParams.fullName}
                   onChange={(e) =>
@@ -298,6 +301,8 @@ const InternTable = ({ onEdit }: InternTableProps) => {
               <Col xs={4} sm={4} className="block sm:hidden">
                 <div className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
                   <VscSettings
+                    id="talent-acquisition-intern-table-button-mobile-filter"
+                    data-cy="talent-acquisition-intern-table-button-mobile-filter"
                     size={20}
                     onClick={() => setShowMobileFilter(true)}
                   />
@@ -310,7 +315,8 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             <Row gutter={[8, 16]} align="middle">
               <Col lg={14} sm={12} xs={24}>
                 <RangePicker
-                  id={`inputDateRange`}
+                   id={`inputDateRange`}
+                  data-cy="talent-acquisition-intern-table-date-picker"
                   onChange={(dates) => handleSearchByDateRange(dates)}
                   value={
                     searchParams.dateRange
@@ -328,7 +334,8 @@ const InternTable = ({ onEdit }: InternTableProps) => {
               </Col>
               <Col lg={10} sm={12} xs={24}>
                 <Select
-                  id={`selectDepartment`}
+                 id={`selectDepartment`}
+                  data-cy="talent-acquisition-intern-table-select-department"
                   placeholder="Select Department"
                   onChange={(value: string) => handleDepartmentChange(value)}
                   value={searchParams.selectedDepartment || undefined}
@@ -336,7 +343,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                   className="w-full h-12"
                 >
                   {EmployeeDepartment?.map((item: Department) => (
-                    <Option key={item?.id} value={item?.id}>
+                    <Option key={item?.id} value={item?.id}  data-cy={`talent-acquisition-intern-table-option-department-${item?.id}`}>
                       {item?.name}
                     </Option>
                   ))}
@@ -347,6 +354,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         </Row>
 
         <Modal
+          data-cy="talent-acquisition-intern-table-modal-mobile-filter"
           centered
           title="Filter Interns"
           open={showMobileFilter}
@@ -354,6 +362,8 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           footer={
             <div className="flex justify-center items-center space-x-4">
               <Button
+                id="talent-acquisition-intern-table-button-filter-cancel"
+                data-cy="talent-acquisition-intern-table-button-filter-cancel"
                 type="default"
                 className="px-3"
                 onClick={() => setShowMobileFilter(false)}
@@ -361,6 +371,8 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                 Cancel
               </Button>
               <Button
+                id="talent-acquisition-intern-table-button-filter-apply"
+                data-cy="talent-acquisition-intern-table-button-filter-apply"
                 onClick={() => setShowMobileFilter(false)}
                 type="primary"
                 className="px-3"
@@ -372,6 +384,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         >
           <RangePicker
             id={`inputDateRangeMobile`}
+            data-cy="talent-acquisition-intern-table-date-picker-mobile"
             onChange={(dates) => handleSearchByDateRange(dates)}
             className="w-full mb-4"
             allowClear
@@ -381,7 +394,8 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           />
 
           <Select
-            id={`selectDepartmentMobile`}
+             id={`selectDepartmentMobile`}
+            data-cy="talent-acquisition-intern-table-select-department-mobile"
             placeholder="Select Department"
             onChange={(value: string) => handleDepartmentChange(value)}
             allowClear
@@ -389,7 +403,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             value={searchParams.selectedDepartment || undefined}
           >
             {EmployeeDepartment?.map((item: Department) => (
-              <Option key={item?.id} value={item?.id}>
+              <Option key={item?.id} value={item?.id}  data-cy={`talent-acquisition-intern-table-option-department-mobile-${item?.id}`}>
                 {item?.name}
               </Option>
             ))}

@@ -230,6 +230,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             ]}
           >
             <DatePicker
+              id={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
               className="w-full"
               placeholder="Select date"
               format="DD MMM YYYY"
@@ -237,6 +239,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           </Form.Item>
           <div className="flex justify-center gap-2 mt-4">
             <Button
+              id={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
               type="primary"
               size="small"
               onClick={() => handleHireCandidate(item)}
@@ -246,6 +250,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               Hire Candidate
             </Button>
             <Button
+              id={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
               size="small"
               onClick={() => handleCancelHire(item?.id)}
               className="h-8"
@@ -277,7 +283,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               ? `${item.documentName.slice(0, 8)}...`
               : (item?.documentName ?? 'CV.pdf')}{' '}
           </span>
-          <div className="cursor-pointer" onClick={handleDownload}>
+          <div id={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`} data-cy={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`} className="cursor-pointer" onClick={handleDownload}>
             <FileDown size={20} strokeWidth={1.25} />
           </div>
         </div>
@@ -285,6 +291,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
         <Select
+          id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
+          data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
           defaultValue={item?.jobCandidate?.map(
             (e: any) => e?.applicantStatusStage?.title ?? '--',
           )}
@@ -297,7 +305,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           }
         >
           {statusStage?.items?.map((stage: any) => (
-            <Select.Option key={stage.id} value={stage.id}>
+            <Select.Option key={stage.id} value={stage.id} id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`} data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}>
               {stage.title}
             </Select.Option>
           ))}
@@ -307,6 +315,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         <div className="flex items-center justify-between gap-4 text-white">
           <Button
             id={`editUserButton${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-button-view-${item?.id}`}
             disabled={item?.deletedAt !== null}
             className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
             onClick={() => handleCandidateDetail(item)}
@@ -314,12 +323,15 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             <FaEye />
           </Button>
           <Dropdown
+            data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
             menu={{
               items: [
                 {
                   key: 'hireCandidate',
                   label: (
                     <Popover
+                      id={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
+                      data-cy={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
                       content={hirePopoverContent}
                       trigger="click"
                       open={hirePopoverVisible[item?.id]}

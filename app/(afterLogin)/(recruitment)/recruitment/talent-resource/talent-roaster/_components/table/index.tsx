@@ -315,7 +315,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             <Row gutter={8} align="middle">
               <Col xs={20} sm={20} flex="auto">
                 <Input
-                  id={`inputTalentRoasterNames`}
+                 id={`inputTalentRoasterNames`}
+                  data-cy="talent-acquisition-talent-roaster-table-input-search"
                   placeholder="Search talent roster"
                   value={searchParams.fullName}
                   onChange={(e) =>
@@ -328,6 +329,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
               <Col xs={4} sm={4} className="block sm:hidden">
                 <div className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
                   <VscSettings
+                    id="talent-acquisition-talent-roaster-table-button-mobile-filter"
+                    data-cy="talent-acquisition-talent-roaster-table-button-mobile-filter"
                     size={20}
                     onClick={() => setShowMobileFilter(true)}
                   />
@@ -340,7 +343,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             <Row gutter={[8, 16]}>
               <Col lg={14} sm={12} xs={24}>
                 <RangePicker
-                  id={`inputDateRange`}
+                   id={`inputDateRange`}
+                  data-cy="talent-acquisition-talent-roaster-table-date-picker"
                   onChange={(dates) => handleSearchByDateRange(dates)}
                   value={
                     searchParams.dateRange
@@ -361,7 +365,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
               </Col>
               <Col lg={10} sm={12} xs={24}>
                 <Select
-                  id={`selectDepartment`}
+                 id={`selectDepartment`}
+                  data-cy="talent-acquisition-talent-roaster-table-select-department"
                   placeholder="Select Department"
                   onChange={handleDepartmentChange}
                   value={searchParams.selectedDepartment || undefined}
@@ -369,7 +374,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                   className="w-full h-12"
                 >
                   {EmployeeDepartment?.map((item: DepartmentData) => (
-                    <Option key={item?.id} value={item?.id}>
+                    <Option key={item?.id} value={item?.id}  data-cy={`talent-acquisition-talent-roaster-table-option-department-${item?.id}`}>
                       {item?.name}
                     </Option>
                   ))}
@@ -380,6 +385,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         </Row>
 
         <Modal
+          data-cy="talent-acquisition-talent-roaster-table-modal-mobile-filter"
           centered
           title="Filter Talent Roster"
           open={showMobileFilter}
@@ -387,6 +393,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           footer={
             <div className="flex justify-center items-center space-x-4">
               <Button
+                id="talent-acquisition-talent-roaster-table-button-filter-cancel"
+                data-cy="talent-acquisition-talent-roaster-table-button-filter-cancel"
                 type="default"
                 className="px-3"
                 onClick={() => setShowMobileFilter(false)}
@@ -394,6 +402,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                 Cancel
               </Button>
               <Button
+                id="talent-acquisition-talent-roaster-table-button-filter-apply"
+                data-cy="talent-acquisition-talent-roaster-table-button-filter-apply"
                 onClick={() => setShowMobileFilter(false)}
                 type="primary"
                 className="px-3"
@@ -404,7 +414,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           }
         >
           <RangePicker
-            id={`inputDateRangeMobile`}
+           id={`inputDateRangeMobile`}
+            data-cy="talent-acquisition-talent-roaster-table-date-picker-mobile"
             onChange={(dates) => handleSearchByDateRange(dates)}
             value={
               searchParams.dateRange
@@ -424,7 +435,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           />
 
           <Select
-            id={`selectDepartmentMobile`}
+             id={`selectDepartmentMobile`}
+            data-cy="talent-acquisition-talent-roaster-table-select-department-mobile"
             placeholder="Select Department"
             onChange={(value: string) => handleDepartmentChange(value)}
             value={searchParams.selectedDepartment || undefined}
@@ -432,7 +444,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             className="w-full mb-4"
           >
             {EmployeeDepartment?.map((item: DepartmentData) => (
-              <Option key={item?.id} value={item?.id}>
+              <Option key={item?.id} value={item?.id} data-cy={`talent-acquisition-talent-roaster-table-option-department-mobile-${item?.id}`}>
                 {item?.name}
               </Option>
             ))}

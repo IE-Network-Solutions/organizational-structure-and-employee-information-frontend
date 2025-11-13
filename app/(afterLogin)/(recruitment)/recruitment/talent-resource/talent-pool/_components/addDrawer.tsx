@@ -45,6 +45,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
 
   return (
     <CustomDrawerLayout
+      data-cy="talent-acquisition-talent-pool-drawer-add-candidate"
       open={open}
       onClose={onClose}
       modalHeader={
@@ -56,6 +57,8 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       footer={
         <div className="flex justify-center items-center space-x-5 p-2">
           <Button
+            id="talent-acquisition-talent-pool-button-cancel"
+            data-cy="talent-acquisition-talent-pool-button-cancel"
             onClick={() => {
               form.resetFields();
               onClose();
@@ -64,13 +67,15 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           >
             Cancel
           </Button>
-          <Button className=" p-4 px-10 h-10" type="primary" onClick={onSubmit}>
+          <Button id="talent-acquisition-talent-pool-button-submit" data-cy="talent-acquisition-talent-pool-button-submit" className=" p-4 px-10 h-10" type="primary" onClick={onSubmit}>
             Submit
           </Button>
         </div>
       }
     >
       <Form
+        id="talent-acquisition-talent-pool-form-add-candidate"
+        data-cy="talent-acquisition-talent-pool-form-add-candidate"
         // className="h-full"
         form={form}
         layout="vertical"
@@ -86,6 +91,8 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           rules={[{ required: true, message: 'Please select a candidate!' }]}
         >
           <Select
+            id="talent-acquisition-talent-pool-select-candidate"
+            data-cy="talent-acquisition-talent-pool-select-candidate"
             placeholder="Select a candidate"
             className="h-10"
             showSearch
@@ -97,7 +104,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
             }
           >
             {candidates?.items?.map((candidate: any) => (
-              <Select.Option key={candidate.id} value={candidate.id}>
+              <Select.Option key={candidate.id} value={candidate.id} id={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`} data-cy={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}>
                 {candidate?.fullName}
               </Select.Option>
             ))}
@@ -113,6 +120,8 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           rules={[{ required: true, message: 'Please select a category!' }]}
         >
           <Select
+            id="talent-acquisition-talent-pool-select-category"
+            data-cy="talent-acquisition-talent-pool-select-category"
             placeholder="Select a talent pool category"
             className="h-10"
             showSearch
@@ -124,7 +133,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
             }
           >
             {talentPoolCategory?.items?.map((item: any) => (
-              <Select.Option key={item.id} value={item?.id}>
+              <Select.Option key={item.id} value={item?.id} id={`talent-acquisition-talent-pool-option-category-${item.id}`} data-cy={`talent-acquisition-talent-pool-option-category-${item.id}`}>
                 {item?.title}
               </Select.Option>
             ))}
@@ -139,7 +148,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           name="reason"
           rules={[{ required: true, message: 'Please input the reason!' }]}
         >
-          <TextArea rows={6} placeholder="Reason for selecting candidate" />
+          <TextArea id="talent-acquisition-talent-pool-textarea-reason" data-cy="talent-acquisition-talent-pool-textarea-reason" rows={6} placeholder="Reason for selecting candidate" />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

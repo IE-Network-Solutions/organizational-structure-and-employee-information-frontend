@@ -66,6 +66,8 @@ export default function JobPerformance({
   return (
     <div>
       <Table
+        id="talent-acquisition-dashboard-job-performance-table"
+        data-cy="talent-acquisition-dashboard-job-performance-table"
         columns={columns}
         dataSource={data?.results}
         loading={isLoading}
@@ -74,6 +76,7 @@ export default function JobPerformance({
         className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0"
       />
       <CustomPagination
+        data-cy="talent-acquisition-dashboard-job-performance-pagination"
         total={data?.total}
         pageSize={jobPostLimit}
         current={jobPostPage}

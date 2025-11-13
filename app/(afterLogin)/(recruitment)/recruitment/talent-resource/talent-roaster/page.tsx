@@ -181,6 +181,7 @@ const TalentRoasterPage = () => {
                   )
                 }
                 id="createUserButton"
+                data-cy="talent-acquisition-talent-roaster-button-move-job"
                 icon={<IoIosShareAlt className="md:mr-0 ml-2" size={20} />}
                 onClick={handleMoveToJobPipeline}
                 className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
@@ -190,6 +191,7 @@ const TalentRoasterPage = () => {
           <Button
             type="primary"
             id="createUserButton"
+            data-cy="talent-acquisition-talent-roaster-button-new"
             className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
             onClick={handleCreate}
@@ -199,6 +201,7 @@ const TalentRoasterPage = () => {
           <Button
             type="primary"
             id="copyLinkButton"
+            data-cy="talent-acquisition-talent-roaster-button-copy-link"
             className="h-10 w-10 sm:w-auto"
             icon={<FaCopy />}
             onClick={handleCopyLink}

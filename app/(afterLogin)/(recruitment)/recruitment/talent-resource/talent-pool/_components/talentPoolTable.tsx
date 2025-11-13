@@ -94,6 +94,8 @@ const TalentPoolTable: React.FC<any> = () => {
 
         return (
           <a
+            id={`talent-acquisition-talent-pool-table-link-cv-${text || 'default'}`}
+            data-cy={`talent-acquisition-talent-pool-table-link-cv-${text || 'default'}`}
             className="flex justify-start gap-7 items-center"
             href={text ? text : '#'}
             target="_blank"
@@ -119,6 +121,8 @@ const TalentPoolTable: React.FC<any> = () => {
       render: (_: any, record: any) => (
         <AccessGuard permissions={[Permissions.TransferCandidate]}>
           <Button
+            id={`talent-acquisition-talent-pool-table-button-reonboard-${record?.jobCandidateInformation?.id || record?.id}`}
+            data-cy={`talent-acquisition-talent-pool-table-button-reonboard-${record?.jobCandidateInformation?.id || record?.id}`}
             className="bg-[#ADD5F0] border-none"
             onClick={() => showModal(record)}
           >

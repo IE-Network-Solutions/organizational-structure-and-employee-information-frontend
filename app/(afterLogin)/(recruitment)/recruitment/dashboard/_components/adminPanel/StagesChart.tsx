@@ -62,10 +62,12 @@ const ChartFilter = () => {
 
   return (
     <div className="flex  items-center mb-4 gap-4">
-      <h3 className="font-semibold text-[16px]">Stages</h3>
+      <h3 id="talent-acquisition-stages-chart-h3" data-cy="talent-acquisition-stages-chart-h3" className="font-semibold text-[16px]">Stages</h3>
 
-      <Form.Item name="jobId" noStyle>
+      <Form.Item name="jobId" id="talent-acquisition-stages-chart-form-item-job" data-cy="talent-acquisition-stages-chart-form-item-job" noStyle>
         <Select
+          id="talent-acquisition-stages-chart-select-job"
+          data-cy="talent-acquisition-stages-chart-select-job"
           placeholder="Job"
           allowClear
           showSearch
@@ -82,6 +84,8 @@ const ChartFilter = () => {
       </Form.Item>
       <Form.Item name="stageId" noStyle>
         <Select
+          id="talent-acquisition-stages-chart-select-stage"
+          data-cy="talent-acquisition-stages-chart-select-stage"
           placeholder="Stage"
           allowClear
           showSearch
@@ -135,7 +139,7 @@ export default function StagesChart() {
 
   return (
     <Card className="shadow-lg mx-1">
-      <Form form={form}>
+      <Form id="talent-acquisition-stages-chart-form" data-cy="talent-acquisition-stages-chart-form" form={form}>
         <ChartFilter />
       </Form>
       <Spin spinning={isLoading} tip="Loading...">

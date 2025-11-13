@@ -150,6 +150,7 @@ const JobCard: React.FC = () => {
                 {/* Dropdown positioned at top-right corner */}
                 <div className="absolute top-0 right-0">
                   <Dropdown
+                    data-cy={`talent-acquisition-job-card-dropdown-${job?.id}`}
                     menu={{
                       items: filteredItems.map(({ label, key, onClick }) => ({
                         label,
@@ -160,6 +161,8 @@ const JobCard: React.FC = () => {
                     trigger={['click']}
                   >
                     <Button
+                      id={`talent-acquisition-job-card-button-menu-${job?.id}`}
+                      data-cy={`talent-acquisition-job-card-button-menu-${job?.id}`}
                       icon={<BsThreeDotsVertical />}
                       className="border-0"
                       size="small"
@@ -168,7 +171,7 @@ const JobCard: React.FC = () => {
                 </div>
 
                 <div>
-                  <Link href={`/recruitment/jobs/${job?.id}`} className="block">
+                  <Link id={`talent-acquisition-job-card-link-${job?.id}`} data-cy={`talent-acquisition-job-card-link-${job?.id}`} href={`/recruitment/jobs/${job?.id}`} className="block">
                     <div className="w-full">
                       {/* Title and Status - Mobile: Stack vertically, Desktop: Side by side */}
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-3">

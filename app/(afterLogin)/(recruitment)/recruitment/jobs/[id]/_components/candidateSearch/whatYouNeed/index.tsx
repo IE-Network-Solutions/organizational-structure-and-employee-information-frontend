@@ -27,7 +27,8 @@ const WhatYouNeed: React.FC = () => {
   return (
     <div className="w-full">
       <Input
-        id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
+         id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
+        data-cy="talent-acquisition-job-candidate-search-input"
         placeholder="Search what you need"
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
         className="w-full h-14"

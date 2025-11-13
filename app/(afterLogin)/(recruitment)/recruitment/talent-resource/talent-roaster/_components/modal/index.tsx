@@ -41,6 +41,7 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
 
   return (
     <Modal
+      data-cy="talent-acquisition-talent-roaster-modal-add-job-pipeline"
       open={open}
       onCancel={handleCancel}
       centered
@@ -51,7 +52,7 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
       <div className="p-6">
         <h2 className="text-xl font-semibold mb-6">Add to Job Pipeline</h2>
 
-        <Form form={form} layout="vertical" onFinish={onSubmit}>
+        <Form id="talent-acquisition-talent-roaster-form-add-job-pipeline" data-cy="talent-acquisition-talent-roaster-form-add-job-pipeline" form={form} layout="vertical" onFinish={onSubmit}>
           {/* Selected Applicants Section */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -61,6 +62,8 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
               {selectedCandidates?.map((candidate) => (
                 <Tag
                   key={candidate.id}
+                  id={`talent-acquisition-talent-roaster-tag-candidate-${candidate.id}`}
+                  data-cy={`talent-acquisition-talent-roaster-tag-candidate-${candidate.id}`}
                   closable
                   onClose={() => onRemoveCandidate(candidate.id)}
                   closeIcon={<CloseOutlined />}
@@ -87,9 +90,9 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
               },
             ]}
           >
-            <Select placeholder="Selection" className="w-full" size="large">
+            <Select id="talent-acquisition-talent-roaster-select-job-pipeline" data-cy="talent-acquisition-talent-roaster-select-job-pipeline" placeholder="Selection" className="w-full" size="large">
               {availableJobs?.map((job) => (
-                <Option key={job.id} value={job.id}>
+                <Option key={job.id} value={job.id} id={`talent-acquisition-talent-roaster-option-job-${job.id}`} data-cy={`talent-acquisition-talent-roaster-option-job-${job.id}`}>
                   {job.jobTitle}
                 </Option>
               ))}
@@ -112,6 +115,8 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
             ]}
           >
             <TextArea
+              id="talent-acquisition-talent-roaster-textarea-reason"
+              data-cy="talent-acquisition-talent-roaster-textarea-reason"
               placeholder="Reason for selection"
               rows={4}
               className="w-full"
@@ -121,6 +126,8 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
           {/* Footer Buttons */}
           <div className="flex justify-center gap-4 mt-8">
             <Button
+              id="talent-acquisition-talent-roaster-button-cancel-job-pipeline"
+              data-cy="talent-acquisition-talent-roaster-button-cancel-job-pipeline"
               onClick={handleCancel}
               className="px-8 py-2 h-auto"
               size="large"
@@ -128,6 +135,8 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
               Cancel
             </Button>
             <Button
+              id="talent-acquisition-talent-roaster-button-add-job-pipeline"
+              data-cy="talent-acquisition-talent-roaster-button-add-job-pipeline"
               type="primary"
               onClick={handleSubmit}
               className="px-8 py-2 h-auto bg-blue-600 hover:bg-blue-700"

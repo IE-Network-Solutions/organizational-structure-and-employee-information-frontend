@@ -65,6 +65,8 @@ const TalentRoasterDetails = () => {
       {/* Back Button */}
       <div className="mb-4">
         <Button
+          id="talent-acquisition-talent-roaster-detail-button-back"
+          data-cy="talent-acquisition-talent-roaster-detail-button-back"
           type="text"
           icon={<ArrowLeftOutlined />}
           onClick={() => router.back()}
@@ -94,6 +96,8 @@ const TalentRoasterDetails = () => {
                   <Space>
                     <FileTextOutlined />
                     <a
+                      id="talent-acquisition-talent-roaster-detail-link-cv"
+                      data-cy="talent-acquisition-talent-roaster-detail-link-cv"
                       href={talentData.resumeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -102,6 +106,8 @@ const TalentRoasterDetails = () => {
                       {talentData?.documentName || 'CV.pdf'}
                     </a>
                     <Button
+                      id="talent-acquisition-talent-roaster-detail-button-download-cv"
+                      data-cy="talent-acquisition-talent-roaster-detail-button-download-cv"
                       type="link"
                       size="small"
                       icon={<DownloadOutlined />}

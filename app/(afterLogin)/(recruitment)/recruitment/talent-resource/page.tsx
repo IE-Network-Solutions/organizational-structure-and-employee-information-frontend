@@ -19,6 +19,8 @@ const TalentResourcePage = () => {
           />
           <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-8 sm:h-16  gap-4 sm:gap-12 mx-3 sm:mx-0">
             <button
+              id="talent-acquisition-talent-resource-tab-talent-pool"
+              data-cy="talent-acquisition-talent-resource-tab-talent-pool"
               onClick={() => setActiveTab(1)}
               className={
                 activeTab === 1
@@ -31,6 +33,8 @@ const TalentResourcePage = () => {
               </span>
             </button>
             <button
+              id="talent-acquisition-talent-resource-tab-talent-roster"
+              data-cy="talent-acquisition-talent-resource-tab-talent-roster"
               onClick={() => setActiveTab(2)}
               className={
                 activeTab === 2
@@ -43,6 +47,8 @@ const TalentResourcePage = () => {
               </span>
             </button>
             <button
+              id="talent-acquisition-talent-resource-tab-intern"
+              data-cy="talent-acquisition-talent-resource-tab-intern"
               onClick={() => setActiveTab(3)}
               className={
                 activeTab === 3

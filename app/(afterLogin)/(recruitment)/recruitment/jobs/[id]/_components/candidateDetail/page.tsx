@@ -94,6 +94,7 @@ const CandidateDetail: React.FC = ({}) => {
   return (
     candidateDetailDrawer && (
       <CustomDrawerLayout
+        data-cy="talent-acquisition-job-candidate-detail-drawer"
         open={candidateDetailDrawer}
         onClose={() => setCandidateDetailDrawer(false)}
         modalHeader={candidateDrawerHeader}
@@ -105,6 +106,8 @@ const CandidateDetail: React.FC = ({}) => {
                 title="Cancel "
                 onClick={() => setCandidateDetailDrawer(false)}
                 type="default"
+                id="talent-acquisition-job-candidate-detail-button-cancel"
+                data-cy="talent-acquisition-job-candidate-detail-button-cancel"
               />
             </div>
           </div>
@@ -112,6 +115,8 @@ const CandidateDetail: React.FC = ({}) => {
       >
         <div className="flex items-center justify-start gap-2">
           <Tabs
+            id="talent-acquisition-job-candidate-detail-tabs"
+            data-cy="talent-acquisition-job-candidate-detail-tabs"
             items={items}
             // tabBarGutter={16}
             size="small"

@@ -83,6 +83,7 @@ const InternPage = () => {
           <Button
             type="primary"
             id="createUserButton"
+            data-cy="talent-acquisition-intern-button-new"
             className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
             onClick={handleCreate}
@@ -92,6 +93,7 @@ const InternPage = () => {
           <Button
             type="primary"
             id="createUserButton"
+            data-cy="talent-acquisition-intern-button-copy-link"
             className="h-10 w-10 sm:w-auto"
             icon={<FaCopy />}
             onClick={handleCopyLink}
