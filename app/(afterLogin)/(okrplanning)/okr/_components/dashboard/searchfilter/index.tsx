@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Select, Modal } from 'antd';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
@@ -32,39 +32,104 @@ const OkrSearch: React.FC = () => {
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
-  // Only sync fiscal year and sessions on mount or when okrTab changes
-  // This prevents infinite loops by not tracking every data change
+  // Use refs to track previous values and prevent infinite loops
+  const prevFiscalYearIdRef = useRef<string>(fiscalYearId);
+  const prevOkrTabRef = useRef<number | string>(okrTab);
+  const initializedRef = useRef<boolean>(false);
+
+  // Only sync fiscal year and sessions on mount or when okrTab/fiscalYearId changes
+  // This prevents infinite loops by checking if values actually changed
   useEffect(() => {
     // Skip if data isn't loaded yet
     if (!getAllFiscalYears?.items && !getActiveFisicalYear) {
       return;
     }
 
-    const selectedFiscalYear = fiscalYearId
-      ? getAllFiscalYears?.items?.find((i) => i?.id == fiscalYearId)
-      : getActiveFisicalYear;
+    // Check if fiscalYearId was changed externally (by user selection)
+    const fiscalYearChangedExternally = prevFiscalYearIdRef.current !== fiscalYearId;
+    const okrTabChanged = prevOkrTabRef.current !== okrTab;
 
-    // Only set default if no fiscal year is currently selected
-    if (!selectedFiscalYear) {
-      setFiscalYearId('');
-      setSessionIds([]);
+    // If fiscal year was changed externally, update sessions for that fiscal year
+    if (fiscalYearChangedExternally && fiscalYearId) {
+      const selectedFiscalYear = getAllFiscalYears?.items?.find(
+        (i) => i?.id == fiscalYearId
+      );
+      
+      if (selectedFiscalYear) {
+        if (okrTab == 4) {
+          const allSessionIds =
+            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+          setSessionIds(allSessionIds);
+        } else {
+          const activeSessionId = selectedFiscalYear?.sessions?.find(
+            (s: any) => s?.active,
+          )?.id;
+          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+          const chosen = activeSessionId || fallbackFirstSessionId || '';
+          setSessionIds(chosen ? [chosen] : []);
+        }
+      }
+      // Update refs after handling the change
+      prevFiscalYearIdRef.current = fiscalYearId;
+      prevOkrTabRef.current = okrTab;
       return;
     }
 
-    if (okrTab == 4) {
-      const allSessionIds =
-        selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-      setSessionIds(allSessionIds);
-    } else {
-      const activeSessionId = selectedFiscalYear?.sessions?.find(
-        (s: any) => s?.active,
-      )?.id;
-      const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-      const chosen = activeSessionId || fallbackFirstSessionId || '';
-      setSessionIds(chosen ? [chosen] : []);
+    // Only initialize default fiscal year if not already initialized and no fiscal year is set
+    if (!initializedRef.current && !fiscalYearId) {
+      const selectedFiscalYear = getActiveFisicalYear;
+
+      if (!selectedFiscalYear) {
+        initializedRef.current = true;
+        return;
+      }
+
+      const newFiscalYearId = selectedFiscalYear?.id || '';
+      
+      if (okrTab == 4) {
+        const allSessionIds =
+          selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+        setSessionIds(allSessionIds);
+      } else {
+        const activeSessionId = selectedFiscalYear?.sessions?.find(
+          (s: any) => s?.active,
+        )?.id;
+        const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+        const chosen = activeSessionId || fallbackFirstSessionId || '';
+        setSessionIds(chosen ? [chosen] : []);
+      }
+      
+      setFiscalYearId(newFiscalYearId);
+      prevFiscalYearIdRef.current = newFiscalYearId;
+      prevOkrTabRef.current = okrTab;
+      initializedRef.current = true;
+      return;
     }
-    setFiscalYearId(selectedFiscalYear?.id || '');
-  }, [getAllFiscalYears, fiscalYearId, okrTab]);
+
+    // If okrTab changed, update sessions for current fiscal year
+    if (okrTabChanged && fiscalYearId) {
+      const selectedFiscalYear = getAllFiscalYears?.items?.find(
+        (i) => i?.id == fiscalYearId
+      );
+
+      if (selectedFiscalYear) {
+        if (okrTab == 4) {
+          const allSessionIds =
+            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+          setSessionIds(allSessionIds);
+        } else {
+          const activeSessionId = selectedFiscalYear?.sessions?.find(
+            (s: any) => s?.active,
+          )?.id;
+          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+          const chosen = activeSessionId || fallbackFirstSessionId || '';
+          setSessionIds(chosen ? [chosen] : []);
+        }
+      }
+      // Update ref after handling the change
+      prevOkrTabRef.current = okrTab;
+    }
+  }, [getAllFiscalYears?.items, getActiveFisicalYear, okrTab, fiscalYearId]);
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
