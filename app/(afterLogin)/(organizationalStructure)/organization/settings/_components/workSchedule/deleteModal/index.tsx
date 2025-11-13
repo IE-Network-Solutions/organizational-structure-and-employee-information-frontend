@@ -19,6 +19,7 @@ function CustomDeleteWorkingSchduel() {
         setDeleteMode(false);
       }}
       onConfirm={() => handleDeleteScheudle(id ?? '')}
+      data-cy="org-settings-work-schedule-delete-modal"
     />
   );
 }

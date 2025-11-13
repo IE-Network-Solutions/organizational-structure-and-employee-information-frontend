@@ -20,12 +20,16 @@ export const exportOrgStrucutreMenu = (
         exportToPDFOrJPEG(chartRef, false);
       }
     }}
+    data-cy="org-structure-export-menu"
+    id="org-structure-export-menu"
   >
     <Menu.Item
       key="pdf"
       icon={<FaFilePdf size={24} />}
       className="font-semibold text-md px-2"
       style={{ display: 'inline-flex', alignItems: 'center' }}
+      data-cy="org-structure-export-pdf-btn"
+      id="org-structure-export-pdf-btn"
     >
       PDF
     </Menu.Item>
@@ -34,6 +38,8 @@ export const exportOrgStrucutreMenu = (
       icon={<FaFileImage size={24} />}
       className="font-semibold text-md"
       style={{ display: 'inline-flex', alignItems: 'center' }}
+      data-cy="org-structure-export-jpeg-btn"
+      id="org-structure-export-jpeg-btn"
     >
       JPEG
     </Menu.Item>
@@ -59,7 +65,7 @@ export const showDrawer = (
 };
 
 export const orgComposeAndMergeMenues = (
-  <Menu>
+  <Menu data-cy="org-structure-actions-menu" id="org-structure-actions-menu">
     <AccessGuard permissions={[Permissions.DeleteDepartment]}>
       <Menu.Item
         key="1"
@@ -68,6 +74,8 @@ export const orgComposeAndMergeMenues = (
         onClick={() =>
           showDrawer('transfer', 'Transfer', 'Transfer Department')
         }
+        data-cy="org-structure-transfer-menu-item"
+        id="org-structure-transfer-menu-item"
       >
         Transfer
       </Menu.Item>
@@ -76,6 +84,8 @@ export const orgComposeAndMergeMenues = (
         className="py-2 bg-white hover:bg-gray-200"
         style={{ paddingRight: '64px' }}
         onClick={() => showDrawer('merge', 'Merge', 'Merge Department')}
+        data-cy="org-structure-merge-menu-item"
+        id="org-structure-merge-menu-item"
       >
         Merge
       </Menu.Item>

@@ -8,7 +8,7 @@ const OrgChartComponent = dynamic(
 function OrgChart() {
   return (
     <div>
-      <OrgChartComponent />
+      <OrgChartComponent data-cy="org-chart-component" />
     </div>
   );
 }

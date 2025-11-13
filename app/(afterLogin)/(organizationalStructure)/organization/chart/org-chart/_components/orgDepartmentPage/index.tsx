@@ -131,12 +131,12 @@ const OrgChartComponent: React.FC = () => {
   };
 
   return (
-    <Card className="border-none">
-      <div className="w-full py-7 overflow-x-auto">
+    <Card className="border-none" data-cy="org-chart-container" id="org-chart-container">
+      <div className="w-full py-7 overflow-x-auto" data-cy="org-chart-content" id="org-chart-content">
         {orgStructureLoading ? (
           <OrgChartSkeleton loading={orgStructureLoading} />
         ) : (
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef} data-cy="org-chart-tree-container" id="org-chart-tree-container">
             <Tree
               label={
                 <DepartmentNode
@@ -174,8 +174,9 @@ const OrgChartComponent: React.FC = () => {
           open={isDeleteConfirmVisible}
           onOk={handleDeleteConfirm}
           onCancel={() => setIsDeleteConfirmVisible(false)}
+          data-cy="org-chart-delete-modal"
         >
-          <p>Are you sure you want to delete this department?</p>
+          <p data-cy="org-chart-delete-confirmation-text" id="org-chart-delete-confirmation-text">Are you sure you want to delete this department?</p>
         </Modal>
       </div>
     </Card>

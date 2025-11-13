@@ -47,16 +47,18 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
   return (
     <Modal
       title={title}
+      data-cy="org-chart-department-form"
       width={520}
       onCancel={onClose}
       open={open}
       footer={
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: 'right' }} data-cy="org-chart-department-form-footer" id="org-chart-department-form-footer">
           <Space>
-            <Button id="cancelDepartmentButton" onClick={onClose}>
+            <Button data-cy="org-chart-department-form-cancel-btn" id="org-chart-department-form-cancel-btn" onClick={onClose}>
               Cancel
             </Button>
             <Button
+              data-cy="org-chart-department-form-submit-btn"
               id={
                 departmentData
                   ? `updateDepartmentButton`
@@ -72,13 +74,15 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         </div>
       }
     >
-      <Form layout="vertical" form={form} initialValues={departmentData || {}}>
+      <Form layout="vertical" form={form} initialValues={departmentData || {}} data-cy="org-chart-department-form-container" id="org-chart-department-form-container">
         <Form.Item
           name="name"
           label="Department/Team Name"
           rules={[
             { required: true, message: 'Please enter the department name' },
           ]}
+          data-cy="org-chart-department-form-item-name"
+          id="org-chart-department-form-item-name"
         >
           <Input size="large" placeholder="Enter department/team name" />
         </Form.Item>
@@ -86,6 +90,8 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
           name="branchId"
           label="Select Branch"
           rules={[{ required: true, message: 'Please select a branch' }]}
+          data-cy="org-chart-department-form-item-branch-id"
+          id="org-chart-department-form-item-branch-id"
         >
           <Select size="large" placeholder="Select a branch">
             {branches?.items?.map((branch, i) => (
@@ -95,11 +101,13 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="description" label="Department Description">
+        <Form.Item name="description" label="Department Description" data-cy="org-chart-department-form-item-description" id="org-chart-department-form-item-description">
           <Input.TextArea
             size="large"
             rows={4}
             placeholder="Enter a brief description of the department"
+            data-cy="org-chart-department-form-item-description-input"
+            id="org-chart-department-form-item-description-input"
           />
         </Form.Item>
       </Form>

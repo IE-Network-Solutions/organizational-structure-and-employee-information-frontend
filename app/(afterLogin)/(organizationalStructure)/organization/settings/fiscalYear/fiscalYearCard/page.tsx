@@ -40,7 +40,7 @@ const FiscalYearListCard: React.FC = () => {
   const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>(
     {},
   );
-  /* eslint-enable @typescript-eslint/naming-convention */
+  /* eslint-enable @typescript-eslint/naming-convention */      
 
   const toggleExpand = (id: string, type: 'year' | 'session' | 'month') => {
     if (type === 'year') {
@@ -77,15 +77,17 @@ const FiscalYearListCard: React.FC = () => {
   };
 
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
+    <div className="p-5 rounded-2xl bg-white h-full" data-cy="org-settings-fiscal-year-container" id="org-settings-fiscal-year-container">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Fiscal Year</h2>
+        <h2 className="text-xl font-bold" data-cy="org-settings-fiscal-year-title" id="org-settings-fiscal-year-title">Fiscal Year</h2>
         <AccessGuard permissions={[Permissions.CreateCalendar]}>
           <Button
             className="h-10 w-10 sm:w-auto"
             type="primary"
             icon={<FaPlus />}
             onClick={handelDrawerOpen}
+            data-cy="org-settings-fiscal-year-create-btn"
+            id="org-settings-fiscal-year-create-btn"
           >
             <span className="hidden lg:inline">Create Fiscal Year</span>
           </Button>
@@ -93,106 +95,122 @@ const FiscalYearListCard: React.FC = () => {
       </div>
 
       {fiscalYears?.items && fiscalYears.items.length > 0 ? (
-        fiscalYears.items.map((fYear: FiscalYear) => (
-          <Card
-            key={fYear?.id}
-            className="my-3"
-            bodyStyle={{ padding: 0, margin: 0 }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col w-full ">
-                <div
-                  className={`flex items-center justify-between gap-x-4 cursor-pointer p-2 rounded-lg ${
-                    expandedYears[fYear?.id || ''] ? 'bg-gray-100' : ''
-                  }`}
-                  onClick={() => toggleExpand(fYear?.id || '', 'year')}
-                >
-                  <div className="flex items-center justify-center">
-                    <div className="font-light">
-                      {expandedYears[fYear?.id || ''] ? (
-                        <MdKeyboardArrowUp size={20} />
-                      ) : (
-                        <IoIosArrowDown />
-                      )}
-                    </div>
-                    <div className="m-3">
-                      <p className="font-semibold uppercase text-slate-500">
-                        {fYear.name ?? 'Fiscal Year'}
-                      </p>
-                      <div className="font-normal text-xs">
-                        {dayjs(fYear.startDate).format('DD MMM, YYYY')} —{' '}
-                        {dayjs(fYear.endDate).format('DD MMM, YYYY')}
-                      </div>
-                    </div>
-                  </div>
-                  {fYear?.isActive && (
-                    <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text">
-                      <span className="text-[#0BA259]">Active</span>
-                    </div>
-                  )}
-                </div>
-
-                {expandedYears[fYear?.id || ''] &&
-                  fYear.sessions?.map((session: Session) => (
-                    <div key={session.id} className="mt-2 ml-7">
-                      <div
-                        className={`flex items-center justify-start gap-x-4 cursor-pointer p-2 rounded-lg ${
-                          expandedSessions[session.id] ? 'bg-gray-100' : ''
-                        }`}
-                        onClick={() => toggleExpand(session.id, 'session')}
-                      >
-                        <div className="font-light">
-                          {expandedSessions[session.id] ? (
-                            <MdKeyboardArrowUp size={20} />
-                          ) : (
-                            <IoIosArrowDown />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-semibold uppercase text-slate-500">
-                            {session.name ?? 'Session One'}
-                          </p>
-                          <div className="font-normal text-xs">
-                            {dayjs(session.startDate).format('DD MMM, YYYY')} —{' '}
-                            {dayjs(session.endDate).format('DD MMM, YYYY')}
-                          </div>
-                        </div>
-                        {session?.active && (
-                          <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text">
-                            <span className="text-[#0BA259]">Active</span>
-                          </div>
+        fiscalYears.items.map((fYear: FiscalYear, index: number) => {
+          const fiscalYearId = fYear?.id || `fiscal-year-${index}`;
+          return (
+            <Card
+              key={fYear?.id}
+              className="my-3"
+              bodyStyle={{ padding: 0, margin: 0 }}
+              data-cy={`org-settings-fiscal-year-card-${fiscalYearId}`}
+              id={`org-settings-fiscal-year-card-${fiscalYearId}`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col w-full ">
+                  <div
+                    className={`flex items-center justify-between gap-x-4 cursor-pointer p-2 rounded-lg ${
+                      expandedYears[fYear?.id || ''] ? 'bg-gray-100' : ''
+                    }`}
+                    onClick={() => toggleExpand(fYear?.id || '', 'year')}
+                    data-cy={`org-settings-fiscal-year-header-${fiscalYearId}`}
+                    id={`org-settings-fiscal-year-header-${fiscalYearId}`}
+                  >
+                    <div className="flex items-center justify-center">
+                      <div className="font-light">
+                        {expandedYears[fYear?.id || ''] ? (
+                          <MdKeyboardArrowUp size={20} />
+                        ) : (
+                          <IoIosArrowDown />
                         )}
                       </div>
+                      <div className="m-3">
+                        <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-name-${fiscalYearId}`} id={`org-settings-fiscal-year-name-${fiscalYearId}`}>
+                          {fYear.name ?? 'Fiscal Year'}
+                        </p>
+                        <div className="font-normal text-xs" data-cy={`org-settings-fiscal-year-dates-${fiscalYearId}`} id={`org-settings-fiscal-year-dates-${fiscalYearId}`}>
+                          {dayjs(fYear.startDate).format('DD MMM, YYYY')} —{' '}
+                          {dayjs(fYear.endDate).format('DD MMM, YYYY')}
+                        </div>
+                      </div>
+                    </div>
+                    {fYear?.isActive && (
+                      <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-active-badge-${fiscalYearId}`} id={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}>
+                        <span className="text-[#0BA259]">Active</span>
+                      </div>
+                    )}
+                  </div>
 
-                      {expandedSessions[session.id] &&
-                        session.months?.map((month: Month) => (
-                          <div key={month.id} className="mt-2 ml-10">
-                            <div
-                              className="flex items-center justify-between gap-3 cursor-pointer gap-x-4 p-2"
-                              onClick={() => toggleExpand(month.id, 'month')}
-                            >
-                              <div>
-                                <p className="font-semibold uppercase text-slate-500">
-                                  {month?.name ?? 'Month'}
-                                </p>
-                                <div className="font-normal text-xs">
-                                  {dayjs(month.startDate).format(
-                                    'DD MMM, YYYY',
-                                  )}{' '}
-                                  —{' '}
-                                  {dayjs(month.endDate).format('DD MMM, YYYY')}
-                                </div>
-                              </div>
-                              {month?.active && (
-                                <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text">
-                                  <span className="text-[#0BA259]">Active</span>
-                                </div>
-                              )}
+                {expandedYears[fYear?.id || ''] &&
+                  fYear.sessions?.map((session: Session, index: number) => {
+                    const sessionId = session.id || `session-${index}`;
+                    return (
+                      <div key={session.id} className="mt-2 ml-7" data-cy={`org-settings-fiscal-year-session-${sessionId}`} id={`org-settings-fiscal-year-session-${sessionId}`}>
+                        <div
+                          className={`flex items-center justify-start gap-x-4 cursor-pointer p-2 rounded-lg ${
+                            expandedSessions[session.id] ? 'bg-gray-100' : ''
+                          }`}
+                          onClick={() => toggleExpand(session.id, 'session')}
+                          data-cy={`org-settings-fiscal-year-session-header-${sessionId}`}
+                          id={`org-settings-fiscal-year-session-header-${sessionId}`}
+                        >
+                          <div className="font-light">
+                            {expandedSessions[session.id] ? (
+                              <MdKeyboardArrowUp size={20} />
+                            ) : (
+                              <IoIosArrowDown />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-session-name-${sessionId}`} id={`org-settings-fiscal-year-session-name-${sessionId}`}>
+                              {session.name ?? 'Session One'}
+                            </p>
+                            <div className="font-normal text-xs" data-cy={`org-settings-fiscal-year-session-dates-${sessionId}`} id={`org-settings-fiscal-year-session-dates-${sessionId}`}>
+                              {dayjs(session.startDate).format('DD MMM, YYYY')} —{' '}
+                              {dayjs(session.endDate).format('DD MMM, YYYY')}
                             </div>
                           </div>
-                        ))}
-                    </div>
-                  ))}
+                          {session?.active && (
+                            <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-session-active-badge-${sessionId}`} id={`org-settings-fiscal-year-session-active-badge-${sessionId}`}>
+                              <span className="text-[#0BA259]">Active</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {expandedSessions[session.id] &&
+                          session.months?.map((month: Month, index: number) => {
+                            const monthId = month.id || `month-${index}`;
+                            return (
+                              <div key={month.id} className="mt-2 ml-10" data-cy={`org-settings-fiscal-year-month-${monthId}`} id={`org-settings-fiscal-year-month-${monthId}`}>
+                                <div
+                                  className="flex items-center justify-between gap-3 cursor-pointer gap-x-4 p-2"
+                                  onClick={() => toggleExpand(month.id, 'month')}
+                                  data-cy={`org-settings-fiscal-year-month-header-${monthId}`}
+                                  id={`org-settings-fiscal-year-month-header-${monthId}`}
+                                >
+                                  <div>
+                                    <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-month-name-${monthId}`} id={`org-settings-fiscal-year-month-name-${monthId}`}>
+                                      {month?.name ?? 'Month'}
+                                    </p>
+                                    <div className="font-normal text-xs" data-cy={`org-settings-fiscal-year-month-dates-${monthId}`} id={`org-settings-fiscal-year-month-dates-${monthId}`}>
+                                      {dayjs(month.startDate).format(
+                                        'DD MMM, YYYY',
+                                      )}{' '}
+                                      —{' '}
+                                      {dayjs(month.endDate).format('DD MMM, YYYY')}
+                                    </div>
+                                  </div>
+                                  {month?.active && (
+                                    <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-month-active-badge-${monthId}`} id={`org-settings-fiscal-year-month-active-badge-${monthId}`}>
+                                      <span className="text-[#0BA259]">Active</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    );
+                  })}
               </div>
               {/* Dropdown for edit/delete actions */}
               <AccessGuard
@@ -221,15 +239,17 @@ const FiscalYearListCard: React.FC = () => {
                     ],
                   }}
                   trigger={['click']}
+                  data-cy={`org-settings-fiscal-year-dropdown-${fiscalYearId}`}
                 >
-                  <MoreOutlined className="text-lg cursor-pointer" />
+                  <MoreOutlined className="text-lg cursor-pointer" data-cy={`org-settings-fiscal-year-actions-${fiscalYearId}`} id={`org-settings-fiscal-year-actions-${fiscalYearId}`} />
                 </Dropdown>
               </AccessGuard>
             </div>
           </Card>
-        ))
+          );
+        })
       ) : (
-        <div className="mx-auto p-4 text-center">
+        <div className="mx-auto p-4 text-center" data-cy="org-settings-fiscal-year-empty" id="org-settings-fiscal-year-empty">
           <p>No Fiscal Year found.</p>
         </div>
       )}
@@ -245,6 +265,7 @@ const FiscalYearListCard: React.FC = () => {
           setPageSize(size);
           setCurrentPage(1);
         }}
+        data-cy="org-settings-fiscal-year-pagination"
       />
       <CustomWorFiscalYearDrawer />
       <CustomDeleteFiscalYears />

@@ -172,14 +172,16 @@ const MonthDrawer: React.FC<DrawerProps> = ({
     <>
       <div
         className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0 items-center w-full h-full`}
+        data-cy="org-settings-month-drawer-container"
+        id="org-settings-month-drawer-container"
       >
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2">
+        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2" data-cy="org-settings-month-drawer-title" id="org-settings-month-drawer-title">
           Set up Month
         </div>
 
         {Object.entries(groupedMonths).map(([section, months]) => {
           return (
-            <div key={section} className="px-3 sm:px-0">
+            <div key={section} className="px-3 sm:px-0" data-cy={`org-settings-month-drawer-form-item-${section}`} id={`org-settings-month-drawer-form-item-${section}`}>
               {months.map((month, index) => {
                 const { startDate, endDate } = getMonthStartEndDates(month);
                 const monthName =
@@ -188,6 +190,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                 return (
                   <React.Fragment key={month}>
                     <Form.Item
+                      data-cy={`org-settings-month-drawer-form-item-name-${month}`}
                       id={`monthNameId_${month}`}
                       name={`monthName_${month}`}
                       label={
@@ -213,6 +216,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                     <Row gutter={[16, 10]}>
                       <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <Form.Item
+                          data-cy={`org-settings-month-drawer-form-item-start-date-${month}`}
                           id={`monthStartDateId_${month}`}
                           name={`monthStartDate_${month}`}
                           label={
@@ -231,6 +235,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                       </Col>
                       <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                         <Form.Item
+                          data-cy={`org-settings-month-drawer-form-item-end-date-${month}`}
                           id={`monthEndDateId_${month}`}
                           name={`monthEndDate_${month}`}
                           label={<span className="font-medium">End Date</span>}
@@ -242,12 +247,13 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                           ]}
                           initialValue={endDate}
                         >
-                          <DatePicker className="w-full" />
+                          <DatePicker className="w-full" data-cy={`org-settings-month-drawer-form-item-end-date-input-${month}`} id={`org-settings-month-drawer-form-item-end-date-input-${month}`} />
                         </Form.Item>
                       </Col>
                     </Row>
 
                     <Form.Item
+                      data-cy={`org-settings-month-drawer-form-item-description-${month}`}
                       id={`monthDescriptionId_${month}`}
                       name={`monthDescription_${month}`}
                       label={<span className="font-medium">Description</span>}
@@ -256,6 +262,8 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                         placeholder={`Enter description for ${monthName}`}
                         className={'h-32 font-normal text-sm mt-2'}
                         size="large"
+                        data-cy={`org-settings-month-drawer-form-item-description-input-${month}`}
+                        id={`org-settings-month-drawer-form-item-description-input-${month}`}
                       />
                     </Form.Item>
                   </React.Fragment>
@@ -265,14 +273,18 @@ const MonthDrawer: React.FC<DrawerProps> = ({
           );
         })}
 
-        <Form.Item className="mb-0">
+        <Form.Item className="mb-0" data-cy="org-settings-month-drawer-next-btn-form-item" id="org-settings-month-drawer-next-btn-form-item">
           <div
             className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+            data-cy="org-settings-month-drawer-form-item-next-btn-container"
+            id="org-settings-month-drawer-form-item-next-btn-container"
           >
             <Button
               type="default"
               onClick={() => setCurrent(1)}
               className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              data-cy="org-settings-month-drawer-form-item-previous-btn"
+              id="org-settings-month-drawer-form-item-previous-btn"
             >
               Previous
             </Button>
@@ -285,17 +297,19 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                 }
               }}
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              data-cy="org-settings-month-drawer-form-item-next-btn"
+              id="org-settings-month-drawer-form-item-next-btn"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <div>
-                  <Spin />
+                  <Spin data-cy="org-settings-month-drawer-form-item-next-btn-spinner" />
                 </div>
               ) : isEditMode ? (
-                <span>Edit</span>
+                <span data-cy="org-settings-month-drawer-form-item-next-btn-text" id="org-settings-month-drawer-form-item-next-btn-text">Edit</span>
               ) : departments?.length > 0 ? (
-                <span> Create </span>
+                <span data-cy="org-settings-month-drawer-form-item-next-btn-text" id="org-settings-month-drawer-form-item-next-btn-text">Create</span>
               ) : (
-                <span>Continue</span>
+                <span data-cy="org-settings-month-drawer-form-item-next-btn-text" id="org-settings-month-drawer-form-item-next-btn-text">Continue</span>
               )}
             </Button>
           </div>

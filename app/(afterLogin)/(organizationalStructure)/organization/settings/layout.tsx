@@ -87,10 +87,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen " data-cy="org-settings-layout" id="org-settings-layout">
       {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
       {hasEndedFiscalYear && (
-        <div className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none ">
+        <div className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none " data-cy="org-settings-fiscal-year-warning" id="org-settings-fiscal-year-warning">
           <span className="text-[#FFDE65] px-2">
             Your Have Finished Your Fiscal Year
           </span>
@@ -102,10 +102,11 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       <div className="min-h-screen bg-[#f5f5f5]">
         <PageHeader title="Settings" description="Manage your settings here" />
         <div className="flex  flex-col lg:flex-row gap-6 m-4">
-          <SidebarMenu menuItems={menuItems} />
+          <SidebarMenu menuItems={menuItems} data-cy="org-settings-sidebar-menu" />
           <BlockWrapper
             padding="0px"
             className="flex-1 h-max overflow-x-auto bg-[#fafafa] "
+            data-cy="org-settings-content-wrapper"
           >
             {children}
           </BlockWrapper>

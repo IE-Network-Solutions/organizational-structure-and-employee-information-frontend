@@ -357,8 +357,10 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
   ]);
 
   return (
-    <div className="flex flex-col h-[calc(50vh)] md:h-[calc(100vh-100px)]">
+    <div className="flex flex-col h-[calc(50vh)] md:h-[calc(100vh-100px)]" data-cy="org-settings-fiscal-year-drawer-form-container" id="org-settings-fiscal-year-drawer-form-container">
       <Form
+        data-cy="org-settings-fiscal-year-drawer-form"
+        id="org-settings-fiscal-year-drawer-form"
         form={form}
         layout="vertical"
         onValuesChange={(nonused, allValues) => {
@@ -402,10 +404,11 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
         }}
         className="flex flex-col flex-grow h-full"
       >
-        <div className="flex flex-col justify-between h-full ">
-          <div className="">
-            <div className="px-3 sm:px-0">
+        <div className="flex flex-col justify-between h-full " data-cy="org-settings-fiscal-year-drawer-form-content" id="org-settings-fiscal-year-drawer-form-content">
+          <div className="" data-cy="org-settings-fiscal-year-drawer-form-content-div" id="org-settings-fiscal-year-drawer-form-content-div">
+            <div className="px-3 sm:px-0" data-cy="org-settings-fiscal-year-drawer-form-content-div-inner" id="org-settings-fiscal-year-drawer-form-content-div-inner">
               <Form.Item
+                data-cy="org-settings-fiscal-year-name-input"
                 id="fiscalNameId"
                 name="fiscalYearName"
                 label={<span className="font-medium">Fiscal Year Name</span>}
@@ -420,12 +423,15 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                   size="large"
                   className="h-12 mt-2 w-full font-normal text-sm"
                   placeholder="Enter fiscal year name"
+                  data-cy="org-settings-fiscal-year-name-input-value"
+                  id="org-settings-fiscal-year-name-input-value"
                 />
               </Form.Item>
 
               <Row gutter={[16, 10]}>
                 <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                   <Form.Item
+                    data-cy="org-settings-fiscal-year-start-date-input"
                     id="fiscalYearStartDateId"
                     name="fiscalYearStartDate"
                     label={<span className="font-medium">Start Date</span>}
@@ -438,6 +444,8 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     ]}
                   >
                     <DatePicker
+                      data-cy="org-settings-fiscal-year-start-date-input-datepicker"
+                      id="org-settings-fiscal-year-start-date-input-datepicker"
                       onChange={(value: any) => handleStartDateChange(value)}
                       onBlur={() => {
                         // Trigger validation on blur to catch copy-paste scenarios
@@ -453,9 +461,9 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     />
                   </Form.Item>
                   {!isEditMode ? (
-                    <span className="text-xs font-normal mt-0 flex items-start text-nowrap mb-4 ml-1">
+                    <span className="text-xs font-normal mt-0 flex items-start text-nowrap mb-4 ml-1" data-cy="org-settings-fiscal-year-start-date-input-datepicker-value" id="org-settings-fiscal-year-start-date-input-datepicker-value">
                       Active Calendar End date:
-                      <span className="font-semibold ">
+                      <span className="font-semibold" data-cy="org-settings-fiscal-year-start-date-input-datepicker-value-span" id="org-settings-fiscal-year-start-date-input-datepicker-value-span">
                         {activeCalendar?.endDate
                           ? dayjs(activeCalendar.endDate)
                               .add(1, 'day')
@@ -469,6 +477,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                 </Col>
                 <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                   <Form.Item
+                    data-cy="org-settings-fiscal-year-end-date-input"
                     id="fiscalYearEndDateId"
                     name="fiscalYearEndDate"
                     label={<span className="font-medium"> End Date</span>}
@@ -484,11 +493,14 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                         form.validateFields(['fiscalYearEndDate']);
                       }}
                       className="h-12 w-full font-normal text-xl mt-2"
+                      data-cy="org-settings-fiscal-year-end-date-input-value"
+                      id="org-settings-fiscal-year-end-date-input-value"
                     />
                   </Form.Item>
                 </Col>
               </Row>
               <Form.Item
+                data-cy="org-settings-fiscal-year-calendar-input"
                 id="fiscalYearCalenderId"
                 name="fiscalYearCalenderId"
                 label={
@@ -504,17 +516,21 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                   onChange={(value) => handleValuesChange(value)}
                   value={isEditMode ? calendarType : undefined}
                   disabled={isEditMode}
+                  data-cy="org-settings-fiscal-year-calendar-input-value"
+                  id="org-settings-fiscal-year-calendar-input-value"
                 >
-                  <Select.Option value="Quarter">Quarter</Select.Option>
-                  <Select.Option value="Semester">Semester</Select.Option>
-                  <Select.Option value="Year">Year</Select.Option>
+                  <Select.Option value="Quarter" data-cy="org-settings-fiscal-year-calendar-input-option-quarter" id="org-settings-fiscal-year-calendar-input-option-quarter">Quarter</Select.Option>
+                  <Select.Option value="Semester" data-cy="org-settings-fiscal-year-calendar-input-option-semester" id="org-settings-fiscal-year-calendar-input-option-semester">Semester</Select.Option>
+                  <Select.Option value="Year" data-cy="org-settings-fiscal-year-calendar-input-option-year" id="org-settings-fiscal-year-calendar-input-option-year">Year</Select.Option>
                 </Select>
               </Form.Item>
             </div>
           </div>
-          <div className="mt-auto">
-            <Form.Item className="mb-0">
+          <div className="mt-auto" data-cy="org-settings-fiscal-year-cancel-btn-container" id="org-settings-fiscal-year-cancel-btn-container">
+            <Form.Item className="mb-0" data-cy="org-settings-fiscal-year-cancel-btn-form-item" id="org-settings-fiscal-year-cancel-btn-form-item">
               <div
+                data-cy="org-settings-fiscal-year-cancel-btn-div"
+                id="org-settings-fiscal-year-cancel-btn-div"
                 className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${
                   isMobile
                     ? 'shadow-[10px_20px_50px_0px_#00000033]'
@@ -525,10 +541,14 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                   type="default"
                   onClick={handleClose}
                   className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+                  data-cy="org-settings-fiscal-year-cancel-btn"
+                  id="org-settings-fiscal-year-cancel-btn"
                 >
                   Cancel
                 </Button>
                 <Popconfirm
+                  data-cy="org-settings-fiscal-year-next-btn-popconfirm"
+                  id="org-settings-fiscal-year-next-btn-popconfirm"
                   title="Invalid Fiscal Year"
                   description={
                     hasOverlapError
@@ -540,6 +560,8 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                   disabled={!isFormValid || hasOverlapError}
                 >
                   <Button
+                    data-cy="org-settings-fiscal-year-next-btn"
+                    id="org-settings-fiscal-year-next-btn"
                     onClick={handleNext}
                     disabled={!isFormValid || hasOverlapError}
                     className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"

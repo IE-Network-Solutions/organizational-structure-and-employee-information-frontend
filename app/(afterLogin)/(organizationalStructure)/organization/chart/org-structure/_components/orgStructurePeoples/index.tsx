@@ -205,12 +205,12 @@ const OrgChartComponent: React.FC = () => {
   // };
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="w-full py-7 overflow-x-auto ">
+    <div className="w-full overflow-x-auto" data-cy="org-structure-container" id="org-structure-container">
+      <div className="w-full py-7 overflow-x-auto " data-cy="org-structure-content" id="org-structure-content">
         {orgStructureLoading ? (
           <OrgChartSkeleton loading={orgStructureLoading} />
         ) : (
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef} data-cy="org-structure-tree-container" id="org-structure-tree-container">
             <Tree
               label={
                 <DepartmentNode

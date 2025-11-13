@@ -372,8 +372,10 @@ const MonthDrawer: React.FC<
           return (
             <React.Fragment
               key={`${monthInfo.monthNumber}-${monthInfo.startDate?.format('YYYY-MM-DD')}-${monthInfo.endDate?.format('YYYY-MM-DD')}`}
+              data-cy={`org-settings-fiscal-year-month-${monthInfo.monthNumber}`}
             >
               <Form.Item
+                data-cy={`org-settings-fiscal-year-month-name-${monthInfo.monthNumber}`}
                 id={`monthNameId_${monthInfo.monthNumber}`}
                 name={`monthName_${monthInfo.monthNumber}`}
                 label={
@@ -390,12 +392,16 @@ const MonthDrawer: React.FC<
                   size="large"
                   className="w-full text-sm"
                   placeholder={`Enter name for ${monthName}`}
+                  data-cy={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
+                  id={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
                 />
               </Form.Item>
 
               <Row gutter={[16, 10]}>
                 <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                   <Form.Item
+                    data-cy={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
+                    id={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     name={`monthStartDate_${monthInfo.monthNumber}`}
                     label={<span className="font-medium">Start Date</span>}
                     validateTrigger="onChange"
@@ -456,6 +462,8 @@ const MonthDrawer: React.FC<
                 </Col>
                 <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                   <Form.Item
+                    data-cy={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
+                    id={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     name={`monthEndDate_${monthInfo.monthNumber}`}
                     label={<span className="font-medium">End Date</span>}
                     validateTrigger="onChange"
@@ -520,7 +528,8 @@ const MonthDrawer: React.FC<
               </Row>
 
               <Form.Item
-                id={`monthDescriptionId_${monthInfo.monthNumber}`}
+                data-cy={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
+                id={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 name={`monthDescription_${monthInfo.monthNumber}`}
                 label={<span className="font-medium">Description</span>}
               >
@@ -528,6 +537,8 @@ const MonthDrawer: React.FC<
                   placeholder={`Enter description for ${monthName}`}
                   className={'h-32 font-normal text-sm mt-2'}
                   size="large"
+                  data-cy={`org-settings-fiscal-year-month-description-input-${monthInfo.monthNumber}`}
+                  id={`org-settings-fiscal-year-month-description-input-${monthInfo.monthNumber}`}
                 />
               </Form.Item>
             </React.Fragment>
@@ -559,6 +570,8 @@ const MonthDrawer: React.FC<
                 setCurrent(1); // Go to previous step
               }}
               className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              data-cy="org-settings-fiscal-year-month-previous-btn"
+              id="org-settings-fiscal-year-month-previous-btn"
             >
               Previous
             </Button>
@@ -566,15 +579,17 @@ const MonthDrawer: React.FC<
               type="primary"
               htmlType="submit"
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              data-cy="org-settings-fiscal-year-month-next-btn"
+              id="org-settings-fiscal-year-month-next-btn"
             >
               {isCreateLoading || isUpdateLoading ? (
                 <div>
-                  <Spin />
+                  <Spin data-cy="org-settings-fiscal-year-month-next-btn-spinner" />
                 </div>
               ) : isEditMode ? (
-                <span>Edit</span>
+                <span data-cy="org-settings-fiscal-year-month-next-btn-text" id="org-settings-fiscal-year-month-next-btn-text">Edit</span>
               ) : (
-                <span>Create</span>
+                <span data-cy="org-settings-fiscal-year-month-next-btn-text" id="org-settings-fiscal-year-month-next-btn-text">Create</span>
               )}
             </Button>
           </div>

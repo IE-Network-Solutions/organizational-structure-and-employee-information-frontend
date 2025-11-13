@@ -59,6 +59,8 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
             key={1}
             onClick={() => handlePageChange(1)}
             className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
+            data-cy="org-settings-pagination-page-number-1"
+            id="org-settings-pagination-page-number-1"
           >
             1
           </button>,
@@ -80,6 +82,8 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
                 ? 'bg-gray-100 text-gray-700 border-gray-300'
                 : 'text-gray-600 border-gray-300 hover:bg-gray-100'
             }`}
+            data-cy={`org-settings-pagination-page-number-${i}`}
+            id={`org-settings-pagination-page-number-${i}`}
           >
             {i}
           </button>,
@@ -97,6 +101,8 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
             key={totalPages}
             onClick={() => handlePageChange(totalPages)}
             className="w-8 h-8 flex items-center justify-center border rounded text-gray-600 border-gray-300 hover:bg-gray-100"
+            data-cy={`org-settings-pagination-page-number-${totalPages}`}
+            id={`org-settings-pagination-page-number-${totalPages}`}
           >
             {totalPages}
           </button>,
@@ -118,6 +124,8 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
               ? 'text-gray-300 border-gray-200'
               : 'text-gray-600 border-gray-300 hover:bg-gray-100'
           }`}
+          data-cy="org-settings-pagination-previous-btn"
+          id="org-settings-pagination-previous-btn"
         >
           <LeftOutlined />
         </button>
@@ -130,12 +138,14 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
               ? 'text-gray-300 border-gray-200'
               : 'text-gray-600 border-gray-300 hover:bg-gray-100'
           }`}
+          data-cy="org-settings-pagination-next-btn"
+          id="org-settings-pagination-next-btn"
         >
           <RightOutlined />
         </button>
       </div>
       <div className="flex items-center">
-        <span className="mr-2 text-sm text-gray-400">
+        <span className="mr-2 text-sm text-gray-400" data-cy="org-settings-pagination-showing-text" id="org-settings-pagination-showing-text">
           Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
           {Math.min(total, current * pageSize)} out of {total} entries
         </span>
@@ -143,10 +153,12 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
           value={pageSize}
           className="w-24"
           onChange={(value) => handleSizeChange(value)}
+          data-cy="org-settings-pagination-select"
+          id="org-settings-pagination-select"
         >
-          <Option value={4}>Show 4</Option>
-          <Option value={10}>Show 10</Option>
-          <Option value={25}>Show 25</Option>
+          <Option value={4} data-cy="org-settings-pagination-select-option-4" id="org-settings-pagination-select-option-4">Show 4</Option>
+          <Option value={10} data-cy="org-settings-pagination-select-option-10" id="org-settings-pagination-select-option-10">Show 10</Option>
+          <Option value={25} data-cy="org-settings-pagination-select-option-25" id="org-settings-pagination-select-option-25">Show 25</Option>
         </Select>
       </div>
     </div>

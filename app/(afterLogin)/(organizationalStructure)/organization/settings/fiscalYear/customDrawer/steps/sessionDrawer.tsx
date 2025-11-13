@@ -358,13 +358,15 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   // Render session form items
   const renderSessionForm = useCallback(
     (session: SessionData, index: number) => (
-      <div className="px-3 sm:px-0" key={index}>
+      <div className="px-3 sm:px-0" key={index} data-cy={`org-settings-fiscal-year-session-${index}`} id={`org-settings-fiscal-year-session-${index}`}>
         <Form.Item
           name={['sessionData', index, 'sessionName']}
           label={<span className="font-medium">Session {index + 1} Name</span>}
           rules={[
             { required: true, message: 'Please input the session name!' },
           ]}
+          data-cy={`org-settings-fiscal-year-session-name-${index}`}
+          id={`org-settings-fiscal-year-session-name-${index}`}
         >
           <Input
             size="large"
@@ -385,6 +387,8 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 },
                 { validator: validateSessionStartDate },
               ]}
+              data-cy={`org-settings-fiscal-year-session-start-date-${index}`}
+              id={`org-settings-fiscal-year-session-start-date-${index}`}
             >
               <DatePicker format="YYYY-MM-DD" className="w-full" />
             </Form.Item>
@@ -400,6 +404,8 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 },
                 { validator: validateSessionEndDate },
               ]}
+              data-cy={`org-settings-fiscal-year-session-end-date-${index}`}
+              id={`org-settings-fiscal-year-session-end-date-${index}`}
             >
               <DatePicker format="YYYY-MM-DD" className="w-full" />
             </Form.Item>
@@ -409,6 +415,8 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         <Form.Item
           name={['sessionData', index, 'sessionDescription']}
           label={<span className="font-medium">Description</span>}
+          data-cy={`org-settings-fiscal-year-session-description-${index}`}
+          id={`org-settings-fiscal-year-session-description-${index}`}
         >
           <TextArea
             placeholder="Enter description"
@@ -448,6 +456,8 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               type="default"
               onClick={handlePrevious}
               className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              data-cy="org-settings-fiscal-year-session-previous-btn"
+              id="org-settings-fiscal-year-session-previous-btn"
             >
               Previous
             </Button>
@@ -462,11 +472,13 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                   onClick={handleNext}
                   className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
                   disabled={hasErrors}
+                  data-cy="org-settings-fiscal-year-session-next-btn"
+                  id="org-settings-fiscal-year-session-next-btn"
                 >
                   {isCreateLoading || isUpdateLoading ? (
-                    <Spin />
+                    <Spin data-cy="org-settings-fiscal-year-session-next-btn-spinner" />
                   ) : (
-                    <span>Next</span>
+                    <span data-cy="org-settings-fiscal-year-session-next-btn-text" id="org-settings-fiscal-year-session-next-btn-text">Next</span>
                   )}
                 </Button>
               </span>

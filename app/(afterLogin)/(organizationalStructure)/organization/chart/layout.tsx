@@ -101,14 +101,14 @@ export default function ChartLayout({
 
   return (
     <ChartRefContext.Provider value={chartRef}>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full" data-cy="org-structure-layout" id="org-structure-layout">
         {/* ORG Structure Section */}
         <div className="w-full overflow-x-auto">
           <Card
             className="w-full border-none"
-            title={<div className="text-2xl font-bold">ORG Structure</div>}
+            title={<div className="text-2xl font-bold" data-cy="org-structure-title" id="org-structure-title">ORG Structure</div>}
             extra={
-              <div className="py-4 flex justify-center items-center gap-4">
+              <div className="py-4 flex justify-center items-center gap-4" data-cy="org-structure-actions" id="org-structure-actions">
                 <Dropdown
                   overlay={exportOrgStrucutreMenu(
                     chartRef as RefObject<HTMLDivElement>,
@@ -116,6 +116,7 @@ export default function ChartLayout({
                   )}
                   trigger={['click']}
                   placement="bottomRight"
+                  data-cy="org-structure-export-dropdown"
                 >
                   {/* <AccessGuard
                     permissions={[Permissions.DownloadOrganizationStructure]}
@@ -125,6 +126,8 @@ export default function ChartLayout({
                     icon={<FaDownload size={16} />}
                     type="default"
                     className="h-10 sm:h-14 w-10 sm:w-auto"
+                    data-cy="org-structure-download-btn"
+                    id="org-structure-download-btn"
                   >
                     <span className="hidden sm:inline">Download</span>
                   </Button>
@@ -136,10 +139,13 @@ export default function ChartLayout({
                       overlay={orgComposeAndMergeMenues}
                       trigger={['click']}
                       placement="bottomRight"
+                      data-cy="org-structure-actions-dropdown"
                     >
                       <Button
                         type="primary"
                         className="w-10 sm:w-[68px] h-10 sm:h-14  rounded-lg flex items-center justify-center gap-2"
+                        data-cy="org-structure-actions-btn"
+                        id="org-structure-actions-btn"
                       >
                         <BsThreeDotsVertical size={24} />
                       </Button>
@@ -156,6 +162,8 @@ export default function ChartLayout({
                 mode="horizontal"
                 selectedKeys={[selectedKey]}
                 onClick={onMenuClick}
+                data-cy="org-structure-tabs-menu"
+                id="org-structure-tabs-menu"
               />
             </div>
             <CustomDrawer
@@ -198,7 +206,7 @@ export default function ChartLayout({
         </div>
 
         {/* Page Content */}
-        <main className="p-4">{children}</main>
+        <main className="p-4" data-cy="org-structure-main-content" id="org-structure-main-content">{children}</main>
       </div>
     </ChartRefContext.Provider>
   );

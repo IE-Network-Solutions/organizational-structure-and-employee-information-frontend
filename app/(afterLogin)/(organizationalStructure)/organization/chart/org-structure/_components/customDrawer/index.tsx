@@ -38,22 +38,27 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
         return null;
     }
   };
+  const drawerDataCy = `org-structure-${drawerContent}-drawer`;
+  const drawerId = `org-structure-${drawerContent}-drawer`;
+  
   return (
     <CustomDrawerLayout
       open={visible}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-start text-xl font-extrabold text-gray-800 ">
+        <div className="flex justify-start text-xl font-extrabold text-gray-800 " data-cy={`${drawerDataCy}-header`} id={`${drawerId}-header`}>
           {title}
         </div>
       }
       width={width}
       footer={
-        <div className="w-full flex justify-center space-x-5 p-4 ">
+        <div className="w-full flex justify-center space-x-5 p-4 " data-cy={`${drawerDataCy}-footer`} id={`${drawerId}-footer`}>
           <Button
             className="h-[40px] text-base px-10"
             type="default"
             onClick={onClose}
+            data-cy={`${drawerDataCy}-cancel-btn`}
+            id={`${drawerId}-cancel-btn`}
           >
             Cancel
           </Button>
@@ -62,6 +67,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             type="primary"
             onClick={onSubmit}
             loading={loading}
+            data-cy={`${drawerDataCy}-submit-btn`}
+            id={`${drawerId}-submit-btn`}
           >
             {footerButtonText}
           </Button>

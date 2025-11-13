@@ -230,7 +230,7 @@ const FiscalYearForm: React.FC = () => {
   }, [formValidation, setIsFormValid, calendarType]);
 
   return (
-    <div className="flex flex-col h-[calc(50vh)] md:h-[calc(100vh-100px)]">
+    <div className="flex flex-col h-[calc(50vh)] md:h-[calc(100vh-100px)]" data-cy="org-settings-fiscal-year-drawer-form-container" id="org-settings-fiscal-year-drawer-form-container">
       <Form
         form={form}
         layout="vertical"
@@ -251,6 +251,7 @@ const FiscalYearForm: React.FC = () => {
           <div className="">
             <div className="px-3 sm:px-0">
               <Form.Item
+                data-cy="org-settings-fiscal-year-drawer-form-item-name"
                 id="fiscalNameId"
                 name="fiscalYearName"
                 label={<span className="font-medium">Fiscal Year Name</span>}
@@ -271,6 +272,7 @@ const FiscalYearForm: React.FC = () => {
               <Row gutter={[16, 10]}>
                 <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                   <Form.Item
+                    data-cy="org-settings-fiscal-year-drawer-form-item-start-date"
                     id="fiscalYearStartDateId"
                     name="fiscalYearStartDate"
                     label={<span className="font-medium">Start Date</span>}
@@ -302,6 +304,7 @@ const FiscalYearForm: React.FC = () => {
                 </Col>
                 <Col xs={24} sm={24} md={12} lg={12} xl={12}>
                   <Form.Item
+                    data-cy="org-settings-fiscal-year-drawer-form-item-end-date"
                     id="fiscalYearEndDateId"
                     name="fiscalYearEndDate"
                     label={<span className="font-medium"> End Date</span>}
@@ -318,6 +321,7 @@ const FiscalYearForm: React.FC = () => {
                 </Col>
               </Row>
               <Form.Item
+                data-cy="org-settings-fiscal-year-drawer-form-item-calendar-type"
                 id="fiscalYearCalenderId"
                 name="fiscalYearCalenderId"
                 label={
@@ -342,19 +346,23 @@ const FiscalYearForm: React.FC = () => {
             </div>
           </div>
           <div className="mt-auto">
-            <Form.Item className="mb-0">
+            <Form.Item className="mb-0" data-cy="org-settings-fiscal-year-drawer-form-item-next-btn-form-item" id="org-settings-fiscal-year-drawer-form-item-next-btn-form-item">
               <div
                 className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${
                   isMobile
                     ? 'shadow-[10px_20px_50px_0px_#00000033]'
                     : 'shadow-none'
                 }`}
+                data-cy="org-settings-fiscal-year-drawer-form-item-next-btn-container"
+                id="org-settings-fiscal-year-drawer-form-item-next-btn-container"
               >
                 {departments?.length > 0 && (
                   <Button
                     type="default"
                     onClick={handleClose}
                     className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+                    data-cy="org-settings-fiscal-year-drawer-form-item-previous-btn"
+                    id="org-settings-fiscal-year-drawer-form-item-previous-btn"
                   >
                     Cancel
                   </Button>
@@ -371,6 +379,8 @@ const FiscalYearForm: React.FC = () => {
                     onClick={handleNext}
                     disabled={!isFormValid && !isEditMode}
                     className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+                    data-cy="org-settings-fiscal-year-drawer-form-item-next-btn"
+                    id="org-settings-fiscal-year-drawer-form-item-next-btn"
                   >
                     Next
                   </Button>
