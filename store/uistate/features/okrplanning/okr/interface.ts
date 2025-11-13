@@ -60,6 +60,7 @@ export interface Objective {
   user?: User;
   keyResultValue?: KeyResult[] | any;
   isClosed: boolean;
+  sessionId?: string;
 }
 export const defaultObjective: Objective = {
   allignedKeyResultId: '',
