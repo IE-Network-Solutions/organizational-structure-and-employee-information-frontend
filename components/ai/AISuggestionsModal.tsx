@@ -57,27 +57,55 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     { title: string; weight: number; priority: string; target?: number }[]
   >([]);
   const [milestoneId, setMilestoneId] = useState<string | undefined>();
-  const askAnotherKR = () => {
-    if (!isWeekly) return;
-    Modal.confirm({
-      title: 'Need suggestions for another key result?',
-      content:
-        'Would you like to select a different key result to generate more weekly suggestions?',
-      okText: 'Yes',
-      cancelText: 'No',
-      onOk: () => {
-        setItems([]);
-        setKeyResultId(undefined);
-        setMilestoneId(undefined);
-      },
-      onCancel: () => setOpen(false),
-    });
+  const askAnother = () => {
+    // Weekly: ask for another key result (or milestone)
+    const isWeeklyLocal =
+      hasParentPlan !== undefined
+        ? !hasParentPlan
+        : (planTypeName || '').toLowerCase().includes('week');
+    const isDailyLocal =
+      hasParentPlan !== undefined
+        ? hasParentPlan
+        : (planTypeName || '').toLowerCase().includes('day');
+
+    if (isWeeklyLocal) {
+      Modal.confirm({
+        title: 'Need suggestions for another key result?',
+        content:
+          'Would you like to select a different key result to generate more weekly suggestions?',
+        okText: 'Yes',
+        cancelText: 'No',
+        onOk: () => {
+          setItems([]);
+          setKeyResultId(undefined);
+          setMilestoneId(undefined);
+        },
+        onCancel: () => setOpen(false),
+      });
+      return;
+    }
+
+    if (isDailyLocal) {
+      Modal.confirm({
+        title: 'Need suggestions for another weekly plan task?',
+        content:
+          'Would you like to select a different key result or weekly plan task to generate more daily suggestions?',
+        okText: 'Yes',
+        cancelText: 'No',
+        onOk: () => {
+          setItems([]);
+          setWeeklyPlanTaskId(undefined);
+          setKeyResultId(undefined);
+        },
+        onCancel: () => setOpen(false),
+      });
+    }
   };
   const onConfirmRegenerate = () => {
     // Ask before regenerating when items already exist
     Modal.confirm({
       title: 'Need more suggestions?',
-      content: 'Regenerate additional weekly tasks for this key result?',
+      content: 'Regenerate suggestions for the current selection?',
       onOk: () => {
         // Reset existing suggestions before regenerating (not additive)
         setItems([]);
@@ -121,6 +149,16 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       setItems([]);
     }
   }, [milestoneId, hasParentPlan, planTypeName]);
+  React.useEffect(() => {
+    // Reset suggestions when the selected weekly plan task changes (daily flow)
+    const isDailyLocal =
+      hasParentPlan !== undefined
+        ? hasParentPlan
+        : (planTypeName || '').toLowerCase().includes('day');
+    if (isDailyLocal) {
+      setItems([]);
+    }
+  }, [weeklyPlanTaskId, hasParentPlan, planTypeName]);
 
   // Only show weekly tasks under the selected key result (expects krId in task objects)
   const filteredWeeklyTasks = useMemo(() => {
@@ -546,7 +584,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     // Remove the suggestion from the list after successfully adding.
     // If the list becomes empty, ask to switch to another key result (weekly only).
     if (items.length === 1) {
-      askAnotherKR();
+      askAnother();
     }
     setItems((prev) => prev.filter((item, i) => i !== index));
   };
@@ -794,7 +832,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                     <Button
                       loading={loading}
                       type="primary"
-                      onClick={handleGenerate}
+                      onClick={() =>
+                        items.length > 0
+                          ? onConfirmRegenerate()
+                          : handleGenerate()
+                      }
                       disabled={!keyResultId || !weeklyPlanTaskId}
                     >
                       {items.length ? 'Regenerate' : 'Generate'}
@@ -839,7 +881,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       icon={<CloseOutlined />}
                       onClick={() => {
                         if (items.length === 1) {
-                          askAnotherKR();
+                          askAnother();
                         }
                         setItems((prev) =>
                           prev.filter((unusedItem, i) => i !== idx),
