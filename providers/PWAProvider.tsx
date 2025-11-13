@@ -33,15 +33,13 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       navigator.serviceWorker
         .register('/sw.js', {
           scope: '/',
-          updateViaCache: 'none', // Disable cache for service worker updates
+          updateViaCache: 'imports', // Allow caching for imported scripts to reduce update checks
         })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .then((registration) => {
-          // console.log('Service Worker registered successfully:', registration);
-
-          // Force immediate activation for better data persistence
-          if (registration.waiting) {
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
+          // console.log('Service Worker registered successfully:', _registration);
+          // Let service worker update naturally without forcing immediate activation
+          // This prevents unexpected page reloads during active usage
         })
         .catch((e) => {
           alert(e);
@@ -62,8 +60,9 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       const now = Date.now();
       const timeDiff = now - lastActiveTime;
 
-      // If app was inactive for more than 5 minutes, refresh the page
-      if (timeDiff > 5 * 60 * 1000) {
+      // If app was inactive for more than 30 minutes, refresh the page
+      // Increased from 5 to 30 minutes to prevent disruption during multitasking
+      if (timeDiff > 30 * 60 * 1000) {
         // console.log('App reopened after long inactivity, refreshing data...');
 
         // Trigger data refresh by reloading the current page
@@ -98,9 +97,10 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       // In PWA mode, also listen for page show event (handles back/forward navigation)
       const handlePageShow = (event: PageTransitionEvent) => {
         if (event.persisted) {
-          // Page was loaded from cache, refresh data
-          // console.log('PWA page loaded from cache, refreshing...');
-          window.location.reload();
+          // Page was loaded from cache
+          // console.log('PWA page loaded from cache');
+          // Note: Removed automatic reload to prevent disruption during navigation
+          // Data will be refreshed through normal React Query/API patterns
         }
       };
 

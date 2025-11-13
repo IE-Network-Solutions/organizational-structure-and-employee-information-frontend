@@ -27,7 +27,6 @@ const DynamicTabs = dynamic(() => Promise.resolve(Tabs), { ssr: false });
 export default function OkrTab() {
   const [isMounted, setIsMounted] = useState(false);
   const { userId } = useAuthenticationStore();
-  // const { data: departments } = useGetUserDepartment();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
   const departmentId = userData?.employeeJobInformation[0]?.departmentId;
@@ -42,6 +41,8 @@ export default function OkrTab() {
     currentPage,
     setCurrentPage,
     searchObjParams,
+    fiscalYearId,
+    sessionIds,
     setTeamCurrentPage,
     setTeamPageSize,
     teamCurrentPage,
@@ -61,16 +62,20 @@ export default function OkrTab() {
   const {
     data: userObjectives,
     isLoading,
+    isFetching: userFetching,
     refetch: userRefetch,
   } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
     searchObjParams?.metricTypeId,
+    fiscalYearId,
+    sessionIds,
   );
   const {
     data: teamObjective,
     isLoading: teamLoading,
+    isFetching: teamFetching,
     refetch,
   } = useGetTeamObjective(
     teamPageSize,
@@ -78,11 +83,14 @@ export default function OkrTab() {
     users,
     searchObjParams.userId || userId, // Use current userId if searchObjParams.userId is empty
     searchObjParams?.metricTypeId || '', // Provide empty string as fallback
+    fiscalYearId,
+    sessionIds,
   );
 
   const {
     data: companyObjective,
     isLoading: companyLoading,
+    isFetching: companyFetching,
     refetch: CompanyRefetch,
   } = useGetCompanyObjective(
     userId,
@@ -91,7 +99,13 @@ export default function OkrTab() {
     usersInDepartment,
     searchObjParams.userId,
     searchObjParams?.metricTypeId,
+    fiscalYearId,
+    sessionIds,
   );
+
+  const isUserLoading = isLoading || userFetching;
+  const isTeamLoading = teamLoading || teamFetching;
+  const isCompanyLoading = companyLoading || companyFetching;
 
   const canVieTeamOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewTeamOkr],
@@ -115,6 +129,13 @@ export default function OkrTab() {
       refetch();
     }
   }, [teamPageSize, teamCurrentPage, isMounted]);
+
+  // Refetch Team OKR when year/session filters change
+  useEffect(() => {
+    if (isMounted) {
+      refetch();
+    }
+  }, [fiscalYearId, sessionIds, isMounted]);
 
   useEffect(() => {
     if (isMounted) {
@@ -144,7 +165,7 @@ export default function OkrTab() {
             children: (
               <div id="my-okr-tab-content">
                 <OkrProgress />
-                {isLoading && (
+                {isUserLoading && (
                   <Spin
                     size="large"
                     style={{ color: 'white' }}
@@ -206,7 +227,7 @@ export default function OkrTab() {
                   children: (
                     <div id="team-okr-tab-content">
                       <OkrProgress />
-                      {teamLoading && (
+                      {isTeamLoading && (
                         <Spin
                           size="large"
                           style={{ color: 'white' }}
@@ -274,7 +295,7 @@ export default function OkrTab() {
                   label: 'Company OKR',
                   children: (
                     <div id="company-okr-tab-content">
-                      {companyLoading && (
+                      {isCompanyLoading && (
                         <Spin
                           size="large"
                           style={{ color: 'white' }}

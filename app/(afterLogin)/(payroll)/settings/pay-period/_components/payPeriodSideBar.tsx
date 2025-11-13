@@ -114,7 +114,7 @@ const PayPeriodSideBar = () => {
     form.setFieldsValue(fields);
   }, [divisions, form]);
 
-  const allMonths = activeFiscalYear?.sessions?.flatMap(
+  const allMonths = selectedFiscalYear?.sessions?.flatMap(
     (session) => session.months,
   );
   const monthsWithStartEndDates = allMonths?.map((month) => ({
