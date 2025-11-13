@@ -22,7 +22,7 @@ export const useTenantChecker = () => {
     return parts[0];
   };
 
-  const domainName = deriveDomainName(hostname);
+  const domainName = deriveDomainName(hostname ?? undefined);
 
   const { data: tenantInfo, refetch } = useGetTenantByDomain({
     domain: domainName || '',
