@@ -163,7 +163,6 @@ const Filters = () => {
             </div>
           </div>
           <Modal
-            id="talent-acquisition-talent-pool-filter-modal-mobile"
             data-cy="talent-acquisition-talent-pool-filter-modal-mobile"
             centered
             title="Filter"
