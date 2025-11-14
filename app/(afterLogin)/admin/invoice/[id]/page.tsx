@@ -248,7 +248,10 @@ const InvoiceItem = () => {
                   {[
                     ['Invoice Number:', `#${invoiceData?.invoiceNumber || ''}`],
                     ['Issue Date:', formatDate(invoiceData?.invoiceAt)],
-                    ['Payment Date:', formatDate(invoiceData?.dueAt)],
+                    [
+                      'Payment Date:',
+                      formatDate(invoiceData?.payments[0]?.paymentAt) || '-',
+                    ],
                     [
                       'Billing Period:',
                       invoiceData?.subscription?.startAt &&
