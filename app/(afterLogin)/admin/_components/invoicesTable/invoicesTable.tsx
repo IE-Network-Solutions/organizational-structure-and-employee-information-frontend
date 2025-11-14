@@ -236,10 +236,11 @@ const InvoicesTable = ({
     },
     {
       title: 'Payment Date',
-      dataIndex: 'dueAt',
+      dataIndex: 'paymentAt',
       sorter: (a, b) =>
         new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
-      render: (date: string) => dayjs(date).format('MMMM D, YYYY'),
+      render: (date: string) =>
+        date ? dayjs(date).format('MMMM D, YYYY') : '-',
     },
     {
       title: 'Status',
