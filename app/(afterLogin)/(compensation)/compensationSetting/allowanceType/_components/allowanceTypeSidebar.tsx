@@ -349,7 +349,7 @@ const AllowanceTypeSideBar = ({
             <Form.Item
               name="nonTaxableAmount"
               label="Non-Taxable Amount"
-              dependencies={['defaultAmount']}
+              dependencies={['defaultAmount', 'isRate']}
               rules={[
                 {
                   validator: (notused, value) => {
@@ -364,7 +364,9 @@ const AllowanceTypeSideBar = ({
                 {
                   validator: (notused, value) => {
                     const defaultAmount = form.getFieldValue('defaultAmount');
+                    const isRate = form.getFieldValue('isRate');
                     if (
+                      !isRate &&
                       value &&
                       defaultAmount &&
                       Number(value) > Number(defaultAmount)
