@@ -70,6 +70,7 @@ const JobPostPerformance = () => {
     <Card
       bodyStyle={{ padding: '0px' }}
       className="bg-white p-6 rounded-xl shadow-lg mx-1"
+      data-cy="talent-acquisition-job-post-performance-card"
     >
       <div id="talent-acquisition-job-post-performance-div-header" data-cy="talent-acquisition-job-post-performance-div-header" className="flex justify-between items-center mb-6">
         <h2 id="talent-acquisition-job-post-performance-h2" data-cy="talent-acquisition-job-post-performance-h2" className="text-[16px] font-bold">Job Post Performance</h2>

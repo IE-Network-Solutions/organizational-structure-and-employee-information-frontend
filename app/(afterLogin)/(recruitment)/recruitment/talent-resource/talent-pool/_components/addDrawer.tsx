@@ -55,7 +55,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       }
       width="40%"
       footer={
-        <div className="flex justify-center items-center space-x-5 p-2">
+        <div id="talent-acquisition-talent-pool-drawer-footer" data-cy="talent-acquisition-talent-pool-drawer-footer" className="flex justify-center items-center space-x-5 p-2">
           <Button
             id="talent-acquisition-talent-pool-button-cancel"
             data-cy="talent-acquisition-talent-pool-button-cancel"

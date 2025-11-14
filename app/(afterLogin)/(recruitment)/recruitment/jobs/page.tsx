@@ -29,10 +29,10 @@ const RecruitmentPage: React.FC = () => {
         data-cy="talent-acquisition-jobs-page-div-header"
         className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-1 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
       >
-        <CustomBreadcrumb title="Jobs" subtitle="Here's all job list" />
+        <CustomBreadcrumb data-cy="talent-acquisition-jobs-page-breadcrumb" title="Jobs" subtitle="Here's all job list" />
         <div id="talent-acquisition-jobs-div-buttons" data-cy="talent-acquisition-jobs-div-buttons" className="flex items-center sm:justify-between gap-10 md:gap-8 sm:gap-4">
-          <WhatYouNeed />
-          <AccessGuard permissions={[Permissions.CreateJobDescription]}>
+          <WhatYouNeed data-cy="talent-acquisition-jobs-page-what-you-need" />
+          <AccessGuard data-cy="talent-acquisition-jobs-page-access-guard" permissions={[Permissions.CreateJobDescription]}>
             <CustomButton
               title={<span className="hidden sm:inline sm:mr-2">Add New</span>}
               id="createJobButton"
@@ -47,9 +47,9 @@ const RecruitmentPage: React.FC = () => {
       <div id="talent-acquisition-jobs-page-div-job-card" data-cy="talent-acquisition-jobs-page-div-job-card">
         <JobCard />
       </div>
-      <CreateJobs />
-      <AddFormResult />
-      <ShareToSocialMedia />
+      <CreateJobs data-cy="talent-acquisition-jobs-page-create-jobs" />
+      <AddFormResult data-cy="talent-acquisition-jobs-page-add-form-result" />
+      <ShareToSocialMedia data-cy="talent-acquisition-jobs-page-share-to-social-media" />
     </div>
   );
 };

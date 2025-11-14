@@ -45,10 +45,10 @@ const AllCandidates: React.FC = () => {
   return (
     <div id="talent-acquisition-candidate-page-div-container" data-cy="talent-acquisition-candidate-page-div-container" className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
       <div id="talent-acquisition-candidate-page-div-header" data-cy="talent-acquisition-candidate-page-div-header" className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb title="Candidates" subtitle="All who applied" />
+        <CustomBreadcrumb data-cy="talent-acquisition-candidate-page-breadcrumb" title="Candidates" subtitle="All who applied" />
         <div id="talent-acquisition-candidate-page-div-buttons" data-cy="talent-acquisition-candidate-page-div-buttons" className="flex items-center justify-between my-4 ">
           <div id="talent-acquisition-candidate-page-div-what-you-need" data-cy="talent-acquisition-candidate-page-div-what-you-need" className="hidden sm:block mr-4">
-            <WhatYouNeed />
+            <WhatYouNeed data-cy="talent-acquisition-candidate-page-what-you-need" />
           </div>
 
           {selectedCandidate?.length > 0 && (
@@ -82,7 +82,7 @@ const AllCandidates: React.FC = () => {
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
             />
-            <CreateCandidate onClose={onClose} />
+            <CreateCandidate data-cy="talent-acquisition-candidate-page-create-candidate" onClose={onClose} />
           </AccessGuard>
         </div>
       </div>

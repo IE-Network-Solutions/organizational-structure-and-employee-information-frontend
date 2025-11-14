@@ -273,10 +273,10 @@ const AllCandidateTable: React.FC = () => {
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
       />
-      <CandidateDetail />
-      <DeleteCandidate />
-      <EditCandidate />
-      <MoveToTalentPool />
+      <CandidateDetail data-cy="talent-acquisition-hrflow-table-candidate-detail" />
+      <DeleteCandidate data-cy="talent-acquisition-hrflow-table-delete-candidate" />
+      <EditCandidate data-cy="talent-acquisition-hrflow-table-edit-candidate" />
+      <MoveToTalentPool data-cy="talent-acquisition-hrflow-table-move-to-talent-pool" />
     </div>
   );
 };

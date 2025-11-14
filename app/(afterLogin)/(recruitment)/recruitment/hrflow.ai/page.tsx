@@ -30,8 +30,8 @@ const AllCandidates: React.FC = () => {
           subtitle="This is the data of all candidates who applied"
         />
         <div id="talent-acquisition-hrflow-div-buttons" data-cy="talent-acquisition-hrflow-div-buttons" className="flex items-center my-4 gap-4 md:gap-8">
-          <WhatYouNeed />
-          <AccessGuard permissions={[Permissions.CreateCandidate]}>
+          <WhatYouNeed data-cy="talent-acquisition-hrflow-what-you-need" />
+          <AccessGuard permissions={[Permissions.CreateCandidate]} data-cy="talent-acquisition-hrflow-access-guard">
             <CustomButton
               title="Add candidate"
               id="createUserButton"

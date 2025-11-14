@@ -58,15 +58,16 @@ const StatsCards: React.FC = () => {
           bodyStyle={{ padding: 5 }}
           key={index}
           className="h-[102px] hover:shadow-md transition-shadow shadow-lg"
+          data-cy="talent-acquisition-stats-cards-card"
           loading={isLoading}
         >
           <div id={`talent-acquisition-stats-cards-div-card-${index}`} data-cy={`talent-acquisition-stats-cards-div-card-${index}`} className="flex justify-between mt-4 px-2 items-center">
             <div id={`talent-acquisition-stats-cards-div-main-${index}`} data-cy={`talent-acquisition-stats-cards-div-main-${index}`} className="flex flex-col">
               <div id={`talent-acquisition-stats-cards-div-title-${index}`} data-cy={`talent-acquisition-stats-cards-div-title-${index}`} className={`flex items-center gap-2`}>
-                <span className="w-6 h-6 bg-light_purple rounded-lg flex items-center justify-center ">
+                <span id={`talent-acquisition-stats-cards-div-icon-${index}`} data-cy={`talent-acquisition-stats-cards-div-icon-${index}`} className="w-6 h-6 bg-light_purple rounded-lg flex items-center justify-center ">
                   {stat.icon}
                 </span>
-                <p className="text-gray-500 text-[10px] mb-1">{stat.title}</p>
+                <p id={`talent-acquisition-stats-cards-div-title-text-${index}`} data-cy={`talent-acquisition-stats-cards-div-title-text-${index}`} className="text-gray-500 text-[10px] mb-1">{stat.title}</p>
               </div>
               <div id={`talent-acquisition-stats-cards-div-value-${index}`} data-cy={`talent-acquisition-stats-cards-div-value-${index}`}>
                 <p className={`text-[26.5px] font-bold text-center`}>

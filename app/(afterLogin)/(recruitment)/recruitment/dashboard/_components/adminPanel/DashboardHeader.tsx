@@ -6,6 +6,7 @@ const DashboardHeader: React.FC = () => {
     <div id="talent-acquisition-dashboard-header-div-container" data-cy="talent-acquisition-dashboard-header-div-container" className="mb-6">
       <div id="talent-acquisition-dashboard-header-div-content" data-cy="talent-acquisition-dashboard-header-div-content" className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
+          data-cy="talent-acquisition-dashboard-header-breadcrumb"
           className="text-sm"
           title="Talent Acquisition"
           subtitle="Manage your Jobs"
