@@ -84,7 +84,7 @@ const MoveToTalentPool: React.FC = () => {
         confirmLoading={isLoading}
         width={700}
         footer={
-          <div className="w-full flex justify-center gap-4">
+          <div id="talent-acquisition-move-talent-pool-div-footer" data-cy="talent-acquisition-move-talent-pool-div-footer" className="w-full flex justify-center gap-4">
             <Button
               id="talent-acquisition-move-talent-pool-button-cancel"
               data-cy="talent-acquisition-move-talent-pool-button-cancel"
@@ -113,10 +113,10 @@ const MoveToTalentPool: React.FC = () => {
           </div>
         }
       >
-        <div className="text-xl font-bold text-start py-2">
+        <div id="talent-acquisition-move-talent-pool-div-title" data-cy="talent-acquisition-move-talent-pool-div-title" className="text-xl font-bold text-start py-2">
           Move to Talent Pool?
         </div>
-        <div className="mb-20">
+        <div id="talent-acquisition-move-talent-pool-div-form-container" data-cy="talent-acquisition-move-talent-pool-div-form-container" className="mb-20">
           <Form
             id="talent-acquisition-move-talent-pool-form"
             data-cy="talent-acquisition-move-talent-pool-form"
@@ -164,7 +164,7 @@ const MoveToTalentPool: React.FC = () => {
                   return (
                     <div id="talent-acquisition-move-talent-pool-div-candidate-option" data-cy="talent-acquisition-move-talent-pool-div-candidate-option" className="flex items-center gap-2 px-2 py-1 border rounded bg-gray-100 m-1">
                       <Checkbox checked={true} />{' '}
-                      <div className="flex flex-col">
+                      <div id="talent-acquisition-move-talent-pool-div-candidate-info" data-cy="talent-acquisition-move-talent-pool-div-candidate-info" className="flex flex-col">
                         <span>{label}</span>
                         <span className="text-gray-500 text-xs">
                           ({candidate?.phone})
@@ -182,7 +182,7 @@ const MoveToTalentPool: React.FC = () => {
                   );
 
                   return (
-                    <div className="flex items-center cursor-pointer">
+                    <div id="talent-acquisition-move-talent-pool-div-option-item" data-cy="talent-acquisition-move-talent-pool-div-option-item" className="flex items-center cursor-pointer">
                       <Checkbox checked={isChecked} />
                       <span className="ml-2">{option.label}</span>
                     </div>

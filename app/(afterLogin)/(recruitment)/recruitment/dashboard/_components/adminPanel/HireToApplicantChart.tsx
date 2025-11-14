@@ -63,11 +63,13 @@ export default function HireToApplicantChart() {
         Hire to applicant Trend
       </h3>
       {isLoading ? (
-        <div className="flex justify-center items-center ">
+        <div id="talent-acquisition-hire-applicant-chart-div-loading" data-cy="talent-acquisition-hire-applicant-chart-div-loading" className="flex justify-center items-center ">
           <Spin size="large" />
         </div>
       ) : (
         <div
+          id="talent-acquisition-hire-applicant-chart-div-chart"
+          data-cy="talent-acquisition-hire-applicant-chart-div-chart"
           className="flex justify-center items-center"
           style={{ height: '300px' }}
         >

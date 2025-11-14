@@ -25,7 +25,7 @@ const WhatYouNeed: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
+    <div id="talent-acquisition-what-you-need-div-container" data-cy="talent-acquisition-what-you-need-div-container" className="w-full">
       <Input
          id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
         data-cy="talent-acquisition-job-candidate-search-input"

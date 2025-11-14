@@ -22,8 +22,8 @@ const AllCandidates: React.FC = () => {
   };
 
   return (
-    <div className="h-auto w-full p-4  bg-white">
-      <div className="flex flex-wrap justify-between items-center">
+    <div id="talent-acquisition-hrflow-page-div-container" data-cy="talent-acquisition-hrflow-page-div-container" className="h-auto w-full p-4  bg-white">
+      <div id="talent-acquisition-hrflow-page-div-header" data-cy="talent-acquisition-hrflow-page-div-header" className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
           title="Candidates"
           data-cy="talent-acquisition-hrflow-breadcrumb"

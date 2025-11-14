@@ -217,7 +217,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     };
 
     const hirePopoverContent = (
-      <div className="w-64">
+      <div id={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`} data-cy={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`} className="w-64">
         <h3 className="text-lg font-semibold mb-4 text-center">Date Hired</h3>
         <Form form={hireForm} layout="vertical">
           <Form.Item
@@ -237,7 +237,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               format="DD MMM YYYY"
             />
           </Form.Item>
-          <div className="flex justify-center gap-2 mt-4">
+          <div id={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`} data-cy={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`} className="flex justify-center gap-2 mt-4">
             <Button
               id={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
               data-cy={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
@@ -274,7 +274,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       //     ? 'External'
       //     : 'Internal',
       cv: (
-        <div className="flex items-center justify-between ">
+        <div id={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`} data-cy={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`} className="flex items-center justify-between ">
           <span
             className="text-xs font-semibold cursor-pointer"
             title={item?.documentName ?? 'CV.pdf'}
@@ -312,7 +312,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         </Select>
       ),
       action: (
-        <div className="flex items-center justify-between gap-4 text-white">
+        <div id={`talent-acquisition-job-candidate-table-div-action-${item?.id}`} data-cy={`talent-acquisition-job-candidate-table-div-action-${item?.id}`} className="flex items-center justify-between gap-4 text-white">
           <Button
             id={`editUserButton${item?.id}`}
             data-cy={`talent-acquisition-job-candidate-table-button-view-${item?.id}`}
@@ -397,7 +397,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setCurrentPage(1);
   };
   return (
-    <div>
+    <div id="talent-acquisition-job-candidate-table-div-container" data-cy="talent-acquisition-job-candidate-table-div-container">
       <Table
         className="w-full"
         columns={columns}

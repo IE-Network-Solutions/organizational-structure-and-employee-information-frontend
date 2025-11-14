@@ -201,7 +201,7 @@ const AllCandidateTable: React.FC = () => {
 
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
-        <div>
+        <div id="talent-acquisition-hrflow-table-div-stages" data-cy="talent-acquisition-hrflow-table-div-stages">
           <Select
             id={`talent-acquisition-hrflow-table-select-stage-${item?.id}`}
             data-cy={`talent-acquisition-hrflow-table-select-stage-${item?.id}`}
@@ -225,7 +225,7 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       action: (
-        <div className="flex items-center justify-between gap-4 text-white">
+        <div id="talent-acquisition-hrflow-table-div-action" data-cy="talent-acquisition-hrflow-table-div-action" className="flex items-center justify-between gap-4 text-white">
           <Button
             id={`editUserButton${item?.id}`}
             data-cy={`talent-acquisition-hrflow-table-button-view-${item?.id}`}
@@ -255,7 +255,7 @@ const AllCandidateTable: React.FC = () => {
   });
 
   return (
-    <div>
+    <div id="talent-acquisition-hrflow-table-div-container" data-cy="talent-acquisition-hrflow-table-div-container">
       <Table
         className="w-full"
         id="talent-acquisition-hrflow-table"

@@ -211,7 +211,7 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       stages: (
-        <div>
+        <div id="talent-acquisition-candidate-table-div-stages" data-cy="talent-acquisition-candidate-table-div-stages">
           <Select
             id={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
             data-cy={`talent-acquisition-candidate-table-select-stage-${item?.id}`}

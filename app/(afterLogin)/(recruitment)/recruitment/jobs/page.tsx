@@ -25,6 +25,8 @@ const RecruitmentPage: React.FC = () => {
   return (
     <div id="talent-acquisition-jobs-page-div-container" data-cy="talent-acquisition-jobs-page-div-container" className="p-4 min-h-screen sm:p-6 bg-[#ffffff]">
       <div
+        id="talent-acquisition-jobs-page-div-header"
+        data-cy="talent-acquisition-jobs-page-div-header"
         className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-1 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
       >
         <CustomBreadcrumb title="Jobs" subtitle="Here's all job list" />
@@ -42,7 +44,7 @@ const RecruitmentPage: React.FC = () => {
           </AccessGuard>
         </div>
       </div>
-      <div>
+      <div id="talent-acquisition-jobs-page-div-job-card" data-cy="talent-acquisition-jobs-page-div-job-card">
         <JobCard />
       </div>
       <CreateJobs />

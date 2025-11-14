@@ -275,7 +275,7 @@ const EditCandidate: React.FC = () => {
                   placeholder="CGPA"
                 />
               </Form.Item>
-              <div className="flex items-center justify-start gap-1 ml-1">
+              <div id="talent-acquisition-edit-candidate-div-cgpa-info-wrapper" data-cy="talent-acquisition-edit-candidate-div-cgpa-info-wrapper" className="flex items-center justify-start gap-1 ml-1">
                 <FaInfoCircle />
                 <div id="talent-acquisition-edit-candidate-div-cgpa-info" data-cy="talent-acquisition-edit-candidate-div-cgpa-info" className="text-xs font-md">Put your point 4.0 scale</div>
               </div>
@@ -340,7 +340,7 @@ const EditCandidate: React.FC = () => {
               </div>
             </Dragger>
           </Form.Item>
-          <div className="text-sm font-md mb-5 ">
+          <div id="talent-acquisition-edit-candidate-div-file-info" data-cy="talent-acquisition-edit-candidate-div-file-info" className="text-sm font-md mb-5 ">
             Max file size : 5MB. File format : .pdf
           </div>
           <Form.Item
@@ -372,7 +372,7 @@ const EditCandidate: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+            <div id="talent-acquisition-edit-candidate-div-buttons" data-cy="talent-acquisition-edit-candidate-div-buttons" className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
               <Button
                 id="talent-acquisition-edit-candidate-button-cancel"
                 data-cy="talent-acquisition-edit-candidate-button-cancel"

@@ -10,14 +10,14 @@ import InternPage from './intern/page';
 const TalentResourcePage = () => {
   const { setActiveTab, activeTab } = useTalentResourceStore();
   return (
-    <div className="h-auto w-full">
+    <div id="talent-acquisition-talent-resource-page-div-container" data-cy="talent-acquisition-talent-resource-page-div-container" className="h-auto w-full">
       <BlockWrapper className="h-auto w-full">
-        <div className="flex flex-wrap justify-between items-center">
+        <div id="talent-acquisition-talent-resource-page-div-header" data-cy="talent-acquisition-talent-resource-page-div-header" className="flex flex-wrap justify-between items-center">
           <CustomBreadcrumb
             title="Talent Resource"
             subtitle="Profiles of interested and prospective talent."
           />
-          <div className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-8 sm:h-16  gap-4 sm:gap-12 mx-3 sm:mx-0">
+          <div id="talent-acquisition-talent-resource-page-div-tabs" data-cy="talent-acquisition-talent-resource-page-div-tabs" className="flex items-center bg-[#f5f5f5] shadow-md rounded-lg w-fit h-8 sm:h-16  gap-4 sm:gap-12 mx-3 sm:mx-0">
             <button
               id="talent-acquisition-talent-resource-tab-talent-pool"
               data-cy="talent-acquisition-talent-resource-tab-talent-pool"
@@ -61,7 +61,7 @@ const TalentResourcePage = () => {
           </div>
         </div>
 
-        <div className="w-full h-auto bg-white rounded-lg p-6 shadow mt-4">
+        <div id="talent-acquisition-talent-resource-page-div-content" data-cy="talent-acquisition-talent-resource-page-div-content" className="w-full h-auto bg-white rounded-lg p-6 shadow mt-4">
           {activeTab === 1 && <TalentPoolPage />}
           {activeTab === 2 && <TalentRoasterPage />}
           {activeTab === 3 && <InternPage />}

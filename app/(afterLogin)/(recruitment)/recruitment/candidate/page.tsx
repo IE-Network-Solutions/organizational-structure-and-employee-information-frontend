@@ -44,15 +44,15 @@ const AllCandidates: React.FC = () => {
   };
   return (
     <div id="talent-acquisition-candidate-page-div-container" data-cy="talent-acquisition-candidate-page-div-container" className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
-      <div className="flex flex-wrap justify-between items-center">
+      <div id="talent-acquisition-candidate-page-div-header" data-cy="talent-acquisition-candidate-page-div-header" className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb title="Candidates" subtitle="All who applied" />
         <div id="talent-acquisition-candidate-page-div-buttons" data-cy="talent-acquisition-candidate-page-div-buttons" className="flex items-center justify-between my-4 ">
-          <div className="hidden sm:block mr-4">
+          <div id="talent-acquisition-candidate-page-div-what-you-need" data-cy="talent-acquisition-candidate-page-div-what-you-need" className="hidden sm:block mr-4">
             <WhatYouNeed />
           </div>
 
           {selectedCandidate?.length > 0 && (
-            <div className="mr-4">
+            <div id="talent-acquisition-candidate-page-div-move-button" data-cy="talent-acquisition-candidate-page-div-move-button" className="mr-4">
               <CustomButton
                 title={
                   !(isMobile || isTablet) && (

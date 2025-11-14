@@ -54,7 +54,7 @@ export default function CandidateTable({
     },
   ];
   return (
-    <div>
+    <div id="talent-acquisition-dashboard-candidate-table-div-container" data-cy="talent-acquisition-dashboard-candidate-table-div-container">
       <Spin spinning={isLoading}>
         <Table
           id="talent-acquisition-dashboard-candidate-table"

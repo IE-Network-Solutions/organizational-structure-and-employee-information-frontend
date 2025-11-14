@@ -52,7 +52,7 @@ const StatsCards: React.FC = () => {
   ];
 
   return (
-    <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mx-1">
+    <div id="talent-acquisition-stats-cards-div-container" data-cy="talent-acquisition-stats-cards-div-container" className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mx-1">
       {statsData.map((stat, index) => (
         <Card
           bodyStyle={{ padding: 5 }}
@@ -60,27 +60,27 @@ const StatsCards: React.FC = () => {
           className="h-[102px] hover:shadow-md transition-shadow shadow-lg"
           loading={isLoading}
         >
-          <div className="flex justify-between mt-4 px-2 items-center">
-            <div className="flex flex-col">
-              <div className={`flex items-center gap-2`}>
+          <div id={`talent-acquisition-stats-cards-div-card-${index}`} data-cy={`talent-acquisition-stats-cards-div-card-${index}`} className="flex justify-between mt-4 px-2 items-center">
+            <div id={`talent-acquisition-stats-cards-div-main-${index}`} data-cy={`talent-acquisition-stats-cards-div-main-${index}`} className="flex flex-col">
+              <div id={`talent-acquisition-stats-cards-div-title-${index}`} data-cy={`talent-acquisition-stats-cards-div-title-${index}`} className={`flex items-center gap-2`}>
                 <span className="w-6 h-6 bg-light_purple rounded-lg flex items-center justify-center ">
                   {stat.icon}
                 </span>
                 <p className="text-gray-500 text-[10px] mb-1">{stat.title}</p>
               </div>
-              <div>
+              <div id={`talent-acquisition-stats-cards-div-value-${index}`} data-cy={`talent-acquisition-stats-cards-div-value-${index}`}>
                 <p className={`text-[26.5px] font-bold text-center`}>
                   {stat.value}
                 </p>
               </div>
             </div>
-            <div className="flex flex-col">
-              <div className={`flex items-center gap-4`}>
+            <div id={`talent-acquisition-stats-cards-div-other-${index}`} data-cy={`talent-acquisition-stats-cards-div-other-${index}`} className="flex flex-col">
+              <div id={`talent-acquisition-stats-cards-div-other-title-${index}`} data-cy={`talent-acquisition-stats-cards-div-other-title-${index}`} className={`flex items-center gap-4`}>
                 <p className="text-gray-500 text-[10px] mb-1">
                   {stat.otherTitle}
                 </p>
               </div>
-              <div>
+              <div id={`talent-acquisition-stats-cards-div-other-value-${index}`} data-cy={`talent-acquisition-stats-cards-div-other-value-${index}`}>
                 <p className={`text-[26.5px] font-bold text-center `}>
                   {stat.OtherValue}
                 </p>

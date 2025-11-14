@@ -9,9 +9,9 @@ import JobPostPerformance from './JobPostPerformance';
 
 export default function DashboardComponent() {
   return (
-    <div className="space-y-8 pb-5">
+    <div id="talent-acquisition-dashboard-component-div-container" data-cy="talent-acquisition-dashboard-component-div-container" className="space-y-8 pb-5">
       <StatsCards />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div id="talent-acquisition-dashboard-component-div-charts" data-cy="talent-acquisition-dashboard-component-div-charts" className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <HireToApplicantChart />
         <StagesChart />
       </div>
