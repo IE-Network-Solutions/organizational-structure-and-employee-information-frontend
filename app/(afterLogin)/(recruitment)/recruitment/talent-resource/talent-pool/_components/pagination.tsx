@@ -12,7 +12,7 @@ const Pagination = () => {
     }
   };
   return (
-    <div className="flex justify-end mt-4">
+    <div id="talent-acquisition-talent-pool-pagination-container" data-cy="talent-acquisition-talent-pool-pagination-container" className="flex justify-end mt-4">
       <AntPagination
         data-cy="talent-acquisition-talent-pool-pagination"
         current={currentPage}

@@ -247,7 +247,7 @@ const AllCandidateTable: React.FC = () => {
             trigger={['click']}
             placement="bottomRight"
           >
-            <FaEllipsisVertical  className="text-lg text-gray-400 cursor-pointer" />
+            <FaEllipsisVertical data-cy={`talent-acquisition-hrflow-table-icon-menu-${item?.id}`} className="text-lg text-gray-400 cursor-pointer" />
           </Dropdown>
         </div>
       ),

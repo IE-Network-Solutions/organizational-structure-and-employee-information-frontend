@@ -205,7 +205,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
 
         const depName = `${getAllDepartment?.name}` || '-';
         return (
-          <div className="flex gap-2 items-center">{<div>{depName}</div>}</div>
+          <div id="talent-acquisition-intern-table-cell-department" data-cy={`talent-acquisition-intern-table-cell-department-${id}`} className="flex gap-2 items-center">{<div>{depName}</div>}</div>
         );
       };
 
@@ -275,9 +275,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
   };
 
   return (
-    <div>
-      <div>
+    <div id="talent-acquisition-intern-table-container" data-cy="talent-acquisition-intern-table-container">
+      <div id="talent-acquisition-intern-table-filters" data-cy="talent-acquisition-intern-table-filters">
         <Row
+          data-cy="talent-acquisition-intern-table-row-filters"
           gutter={[16, 24]}
           justify="space-between"
           align="middle"
@@ -299,7 +300,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                 />
               </Col>
               <Col xs={4} sm={4} className="block sm:hidden">
-                <div className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
+                <div id="talent-acquisition-intern-table-div-mobile-filter-button" data-cy="talent-acquisition-intern-table-div-mobile-filter-button" className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
                   <VscSettings
                     id="talent-acquisition-intern-table-button-mobile-filter"
                     data-cy="talent-acquisition-intern-table-button-mobile-filter"
@@ -311,9 +312,9 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             </Row>
           </Col>
 
-          <Col lg={14} className="hidden sm:block ">
-            <Row gutter={[8, 16]} align="middle">
-              <Col lg={14} sm={12} xs={24}>
+          <Col data-cy="talent-acquisition-intern-table-col-desktop-filters" lg={14} className="hidden sm:block ">
+            <Row data-cy="talent-acquisition-intern-table-row-desktop-filters" gutter={[8, 16]} align="middle">
+              <Col data-cy="talent-acquisition-intern-table-col-date" lg={14} sm={12} xs={24}>
                 <RangePicker
                    id={`inputDateRange`}
                   data-cy="talent-acquisition-intern-table-date-picker"
@@ -332,7 +333,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                   }
                 />
               </Col>
-              <Col lg={10} sm={12} xs={24}>
+              <Col data-cy="talent-acquisition-intern-table-col-department" lg={10} sm={12} xs={24}>
                 <Select
                  id={`selectDepartment`}
                   data-cy="talent-acquisition-intern-table-select-department"
@@ -360,7 +361,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           open={showMobileFilter}
           width="85%"
           footer={
-            <div className="flex justify-center items-center space-x-4">
+            <div id="talent-acquisition-intern-table-modal-footer" data-cy="talent-acquisition-intern-table-modal-footer" className="flex justify-center items-center space-x-4">
               <Button
                 id="talent-acquisition-intern-table-button-filter-cancel"
                 data-cy="talent-acquisition-intern-table-button-filter-cancel"
@@ -411,6 +412,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         </Modal>
       </div>
       <Table
+        data-cy="talent-acquisition-intern-table"
         className="w-full"
         columns={columns}
         dataSource={data}
@@ -432,20 +434,24 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         })}
       />
       {isMobile || isTablet ? (
-        <CustomMobilePagination
-          totalResults={intern?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
+        <div id="talent-acquisition-intern-table-pagination-mobile" data-cy="talent-acquisition-intern-table-pagination-mobile">
+          <CustomMobilePagination
+            totalResults={intern?.meta?.totalItems ?? 1}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        </div>
       ) : (
-        <CustomPagination
-          current={currentPage}
-          total={intern?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
+        <div id="talent-acquisition-intern-table-pagination-desktop" data-cy="talent-acquisition-intern-table-pagination-desktop">
+          <CustomPagination
+            current={currentPage}
+            total={intern?.meta?.totalItems ?? 1}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onSizeChange}
+          />
+        </div>
       )}
     </div>
   );

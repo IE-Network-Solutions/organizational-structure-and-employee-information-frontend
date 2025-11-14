@@ -42,13 +42,13 @@ const TransferTalentPoolToCandidateModal: React.FC<
       open={visible}
       onClose={onCancel}
       modalHeader={
-        <div className="flex justify-start  text-xl font-extrabold text-gray-800">
+        <div id="talent-acquisition-talent-pool-modal-header-reonboard" data-cy="talent-acquisition-talent-pool-modal-header-reonboard" className="flex justify-start  text-xl font-extrabold text-gray-800">
           Re-onboard
         </div>
       }
       width="40%"
       footer={
-        <div className="flex justify-center items-center space-x-5 p-2">
+        <div id="talent-acquisition-talent-pool-modal-footer-reonboard" data-cy="talent-acquisition-talent-pool-modal-footer-reonboard" className="flex justify-center items-center space-x-5 p-2">
           <Button
             id="talent-acquisition-talent-pool-button-reonboard-cancel"
             data-cy="talent-acquisition-talent-pool-button-reonboard-cancel"
@@ -80,7 +80,7 @@ const TransferTalentPoolToCandidateModal: React.FC<
         <Form.Item
           name="departmentId"
           label={
-            <span className="text-md my-2 font-semibold text-gray-700">
+            <span data-cy="talent-acquisition-talent-pool-form-label-department" className="text-md my-2 font-semibold text-gray-700">
               Select Department
             </span>
           }
@@ -109,7 +109,7 @@ const TransferTalentPoolToCandidateModal: React.FC<
         <Form.Item
           name="jobInformations"
           label={
-            <span className="text-md my-2 font-semibold text-gray-700">
+            <span data-cy="talent-acquisition-talent-pool-form-label-job-information" className="text-md my-2 font-semibold text-gray-700">
               Job Information
             </span>
           }

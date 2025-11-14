@@ -54,7 +54,7 @@ const TalentPoolTable: React.FC<any> = () => {
       dataIndex: ['jobCandidateInformation', 'fullName'],
       key: 'name',
       render: (_: any, record: any) => (
-        <div>
+        <div id="talent-acquisition-talent-pool-table-cell-name" data-cy={`talent-acquisition-talent-pool-table-cell-name-${record?.jobCandidateInformation?.id || record?.id}`}>
           <p className="font-bold">
             {record?.jobCandidateInformation?.fullName ?? '-'}
           </p>
@@ -112,7 +112,7 @@ const TalentPoolTable: React.FC<any> = () => {
       dataIndex: 'createdAt',
       key: 'movedInDate',
       render: (text: string) => (
-        <div className="">{dayjs(text).format('DD/MMM/YYYY')}</div>
+        <div id="talent-acquisition-talent-pool-table-cell-date" data-cy={`talent-acquisition-talent-pool-table-cell-date-${text}`} className="">{dayjs(text).format('DD/MMM/YYYY')}</div>
       ),
     },
     {
@@ -170,7 +170,7 @@ const TalentPoolTable: React.FC<any> = () => {
   return (
     <>
       {responseLoading ? (
-        <>
+        <div id="talent-acquisition-talent-pool-table-loading" data-cy="talent-acquisition-talent-pool-table-loading">
           <SkeletonLoading
             alignment="vertical"
             componentType="table"
@@ -178,9 +178,10 @@ const TalentPoolTable: React.FC<any> = () => {
             type="default"
             columns={columns}
           />
-        </>
+        </div>
       ) : (
         <Table
+          data-cy="talent-acquisition-talent-pool-table"
           dataSource={filteredItems}
           columns={columns}
           pagination={false}
@@ -190,20 +191,24 @@ const TalentPoolTable: React.FC<any> = () => {
       )}
 
       {isMobile || isTablet ? (
-        <CustomMobilePagination
-          totalResults={candidates?.meta?.totalItems ?? 1}
-          pageSize={page}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
+        <div id="talent-acquisition-talent-pool-pagination-mobile" data-cy="talent-acquisition-talent-pool-pagination-mobile">
+          <CustomMobilePagination
+            totalResults={candidates?.meta?.totalItems ?? 1}
+            pageSize={page}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        </div>
       ) : (
-        <CustomPagination
-          current={currentPage}
-          total={candidates?.meta?.totalItems ?? 1}
-          pageSize={page}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
+        <div id="talent-acquisition-talent-pool-pagination-desktop" data-cy="talent-acquisition-talent-pool-pagination-desktop">
+          <CustomPagination
+            current={currentPage}
+            total={candidates?.meta?.totalItems ?? 1}
+            pageSize={page}
+            onChange={onPageChange}
+            onShowSizeChange={onSizeChange}
+          />
+        </div>
       )}
       <TransferTalentPoolToCandidateModal
         visible={isModalVisible}

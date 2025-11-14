@@ -137,12 +137,13 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     <div id="talent-acquisition-job-detail-page-div-container" data-cy="talent-acquisition-job-detail-page-div-container" className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
       <div id="talent-acquisition-job-detail-div-header" data-cy="talent-acquisition-job-detail-div-header" className="flex flex-wrap justify-between items-center">
         <CustomBreadcrumb
+          data-cy="talent-acquisition-job-detail-breadcrumb"
           title="Recruitment"
           subtitle={customBreadCrumbSubTitle}
         />
         <div id="talent-acquisition-job-detail-div-buttons" data-cy="talent-acquisition-job-detail-div-buttons" className="flex items-center my-4 gap-4 md:gap-8">
           <div id="talent-acquisition-job-detail-div-what-you-need" data-cy="talent-acquisition-job-detail-div-what-you-need" className="hidden sm:block">
-            <WhatYouNeed />
+            <WhatYouNeed data-cy="talent-acquisition-job-detail-what-you-need" />
           </div>
 
           {selectedCandidate?.length > 0 && (
@@ -189,8 +190,8 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
         </div>
       </div>
       <div id="talent-acquisition-job-detail-div-table-container" data-cy="talent-acquisition-job-detail-div-table-container" className="w-full h-auto bg-white p-2 px-4 rounded-lg">
-        <SearchOptions jobId={id} />
-        <CandidateTable jobId={id} />
+        <SearchOptions data-cy="talent-acquisition-job-detail-search-options" jobId={id} />
+        <CandidateTable data-cy="talent-acquisition-job-detail-candidate-table" jobId={id} />
       </div>
     </div>
   );

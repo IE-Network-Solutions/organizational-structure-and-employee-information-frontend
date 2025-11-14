@@ -49,7 +49,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       open={open}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-start  text-xl font-extrabold text-gray-800">
+        <div id="talent-acquisition-talent-pool-drawer-header" data-cy="talent-acquisition-talent-pool-drawer-header" className="flex justify-start  text-xl font-extrabold text-gray-800">
           Add New Candidate
         </div>
       }
@@ -83,7 +83,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       >
         <Form.Item
           label={
-            <span className="text-md my-2 font-semibold text-gray-700">
+            <span id="talent-acquisition-talent-pool-form-label-candidate" data-cy="talent-acquisition-talent-pool-form-label-candidate" className="text-md my-2 font-semibold text-gray-700">
               Candidate
             </span>
           }
@@ -112,7 +112,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </Form.Item>
         <Form.Item
           label={
-            <span className="text-md my-2 font-semibold text-gray-700">
+            <span  data-cy="talent-acquisition-talent-pool-form-label-category" className="text-md my-2 font-semibold text-gray-700">
               Category
             </span>
           }
@@ -141,7 +141,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </Form.Item>
         <Form.Item
           label={
-            <span className="text-md my-2 font-semibold text-gray-700">
+            <span data-cy="talent-acquisition-talent-pool-form-label-reason" className="text-md my-2 font-semibold text-gray-700">
               Reason
             </span>
           }

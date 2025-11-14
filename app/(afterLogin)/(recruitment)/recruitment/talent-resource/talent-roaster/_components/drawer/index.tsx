@@ -117,7 +117,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
   }, [isEdit, editData, open, form, setDocumentFileList]);
 
   const talentRoasterDrawerHeader = (
-    <div className=" text-xl font-extrabold text-gray-800 ">
+    <div id="talent-acquisition-talent-roaster-drawer-header" data-cy="talent-acquisition-talent-roaster-drawer-header" className=" text-xl font-extrabold text-gray-800 ">
       {isEdit ? 'Edit Talent Roaster Applicant' : 'Talent Roaster Applicants'}
     </div>
   );
@@ -307,7 +307,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                 placeholder="CGPA"
               />
             </Form.Item>
-            <div className="flex items-center justify-start gap-1 ml-1">
+            <div id="talent-acquisition-talent-roaster-drawer-div-cgpa-info" data-cy="talent-acquisition-talent-roaster-drawer-div-cgpa-info" className="flex items-center justify-start gap-1 ml-1">
               <FaInfoCircle />
               <div className="text-xs font-md">Put your point 4.0 scale</div>
             </div>

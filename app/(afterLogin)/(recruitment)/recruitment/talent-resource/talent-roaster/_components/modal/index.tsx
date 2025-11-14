@@ -49,16 +49,16 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
       footer={null}
       title={null}
     >
-      <div className="p-6">
-        <h2 className="text-xl font-semibold mb-6">Add to Job Pipeline</h2>
+      <div id="talent-acquisition-talent-roaster-modal-content" data-cy="talent-acquisition-talent-roaster-modal-content" className="p-6">
+        <h2 id="talent-acquisition-talent-roaster-modal-title" data-cy="talent-acquisition-talent-roaster-modal-title" className="text-xl font-semibold mb-6">Add to Job Pipeline</h2>
 
         <Form id="talent-acquisition-talent-roaster-form-add-job-pipeline" data-cy="talent-acquisition-talent-roaster-form-add-job-pipeline" form={form} layout="vertical" onFinish={onSubmit}>
           {/* Selected Applicants Section */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+          <div id="talent-acquisition-talent-roaster-modal-div-selected-applicants" data-cy="talent-acquisition-talent-roaster-modal-div-selected-applicants" className="mb-6">
+            <label id="talent-acquisition-talent-roaster-modal-label-selected-applicants" data-cy="talent-acquisition-talent-roaster-modal-label-selected-applicants" className="block text-sm font-medium text-gray-700 mb-3">
               Selected Applicants <span className="text-red-500">*</span>
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div id="talent-acquisition-talent-roaster-modal-div-applicant-tags" data-cy="talent-acquisition-talent-roaster-modal-div-applicant-tags" className="flex flex-wrap gap-2">
               {selectedCandidates?.map((candidate) => (
                 <Tag
                   key={candidate.id}
@@ -124,7 +124,7 @@ const AddToJobPipeline: React.FC<AddToJobPipelineProps> = ({
           </Form.Item>
 
           {/* Footer Buttons */}
-          <div className="flex justify-center gap-4 mt-8">
+          <div id="talent-acquisition-talent-roaster-modal-footer-buttons" data-cy="talent-acquisition-talent-roaster-modal-footer-buttons" className="flex justify-center gap-4 mt-8">
             <Button
               id="talent-acquisition-talent-roaster-button-cancel-job-pipeline"
               data-cy="talent-acquisition-talent-roaster-button-cancel-job-pipeline"

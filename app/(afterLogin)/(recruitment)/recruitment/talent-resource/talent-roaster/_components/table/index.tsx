@@ -219,7 +219,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
 
         const depName = `${getAllDepartment?.name}` || '-';
         return (
-          <div className="flex gap-2 items-center">{<div>{depName}</div>}</div>
+          <div id="talent-acquisition-talent-roaster-table-cell-department" data-cy={`talent-acquisition-talent-roaster-table-cell-department-${id}`} className="flex gap-2 items-center">{<div>{depName}</div>}</div>
         );
       };
 
@@ -235,6 +235,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           : '--',
         resumeUrl: (
           <a
+            data-cy={`talent-acquisition-talent-roaster-table-link-cv-${item.id}`}
             href={item?.resumeUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -303,9 +304,10 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
   };
 
   return (
-    <div>
-      <div>
-        <Row
+    <div id="talent-acquisition-talent-roaster-table-container" data-cy="talent-acquisition-talent-roaster-table-container">
+      <div id="talent-acquisition-talent-roaster-table-filters" data-cy="talent-acquisition-talent-roaster-table-filters">
+        <Row 
+          data-cy="talent-acquisition-talent-roaster-table-row-filters"
           gutter={[16, 24]}
           justify="space-between"
           align="middle"
@@ -327,7 +329,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                 />
               </Col>
               <Col xs={4} sm={4} className="block sm:hidden">
-                <div className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
+                <div id="talent-acquisition-talent-roaster-table-div-mobile-filter-button" data-cy="talent-acquisition-talent-roaster-table-div-mobile-filter-button" className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
                   <VscSettings
                     id="talent-acquisition-talent-roaster-table-button-mobile-filter"
                     data-cy="talent-acquisition-talent-roaster-table-button-mobile-filter"
@@ -339,9 +341,9 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             </Row>
           </Col>
 
-          <Col lg={14} className="hidden sm:block ">
-            <Row gutter={[8, 16]}>
-              <Col lg={14} sm={12} xs={24}>
+          <Col data-cy="talent-acquisition-talent-roaster-table-col-desktop-filters" lg={14} className="hidden sm:block ">
+            <Row data-cy="talent-acquisition-talent-roaster-table-row-desktop-filters" gutter={[8, 16]}>
+              <Col data-cy="talent-acquisition-talent-roaster-table-col-date" lg={14} sm={12} xs={24}>
                 <RangePicker
                    id={`inputDateRange`}
                   data-cy="talent-acquisition-talent-roaster-table-date-picker"
@@ -363,7 +365,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                   }
                 />
               </Col>
-              <Col lg={10} sm={12} xs={24}>
+              <Col data-cy="talent-acquisition-talent-roaster-table-col-department" lg={10} sm={12} xs={24}>
                 <Select
                  id={`selectDepartment`}
                   data-cy="talent-acquisition-talent-roaster-table-select-department"
@@ -390,8 +392,8 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           title="Filter Talent Roster"
           open={showMobileFilter}
           width="85%"
-          footer={
-            <div className="flex justify-center items-center space-x-4">
+            footer={
+            <div id="talent-acquisition-talent-roaster-table-modal-footer" data-cy="talent-acquisition-talent-roaster-table-modal-footer" className="flex justify-center items-center space-x-4">
               <Button
                 id="talent-acquisition-talent-roaster-table-button-filter-cancel"
                 data-cy="talent-acquisition-talent-roaster-table-button-filter-cancel"
@@ -453,6 +455,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       </div>
 
       <Table
+        data-cy="talent-acquisition-talent-roaster-table"
         className="w-full"
         columns={columns}
         dataSource={data}
@@ -477,20 +480,24 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         })}
       />
       {isMobile || isTablet ? (
-        <CustomMobilePagination
-          totalResults={talentRoaster?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
+        <div id="talent-acquisition-talent-roaster-table-pagination-mobile" data-cy="talent-acquisition-talent-roaster-table-pagination-mobile">
+          <CustomMobilePagination
+            totalResults={talentRoaster?.meta?.totalItems ?? 1}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        </div>
       ) : (
-        <CustomPagination
-          current={currentPage}
-          total={talentRoaster?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
+        <div id="talent-acquisition-talent-roaster-table-pagination-desktop" data-cy="talent-acquisition-talent-roaster-table-pagination-desktop">
+          <CustomPagination
+            current={currentPage}
+            total={talentRoaster?.meta?.totalItems ?? 1}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onSizeChange}
+          />
+        </div>
       )}
     </div>
   );

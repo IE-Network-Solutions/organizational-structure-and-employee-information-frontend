@@ -113,7 +113,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
   }, [isEdit, editData, open, form, setDocumentFileList]);
 
   const internApplicantsDrawerHeader = (
-    <div className=" text-xl font-extrabold text-gray-800 ">
+    <div id="talent-acquisition-intern-drawer-header" data-cy="talent-acquisition-intern-drawer-header" className=" text-xl font-extrabold text-gray-800 ">
       {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}
     </div>
   );
@@ -302,7 +302,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 placeholder="CGPA"
               />
             </Form.Item>
-            <div className="flex items-center justify-start gap-1 ml-1">
+            <div data-cy="talent-acquisition-intern-drawer-div-cgpa-info" className="flex items-center justify-start gap-1 ml-1">
               <FaInfoCircle />
               <div className="text-xs font-md">Put your point 4.0 scale</div>
             </div>

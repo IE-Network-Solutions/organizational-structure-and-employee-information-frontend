@@ -57,8 +57,8 @@ const Filters = () => {
   };
 
   const Filters = (
-    <Row gutter={[16, 16]}>
-      <Col lg={6} md={12} sm={24} xs={24}>
+    <Row data-cy="talent-acquisition-talent-pool-filter-row" gutter={[16, 16]}>
+      <Col data-cy="talent-acquisition-talent-pool-filter-col-search" lg={6} md={12} sm={24} xs={24}>
         <Input
          id={`inputSearchByNameTop${searchParams?.search || ''}`}
           data-cy="talent-acquisition-talent-pool-filter-input-search"
@@ -73,7 +73,7 @@ const Filters = () => {
         />
       </Col>
 
-      <Col lg={6} md={12} sm={24} xs={24}>
+      <Col data-cy="talent-acquisition-talent-pool-filter-col-date" lg={6} md={12} sm={24} xs={24}>
         <RangePicker
             id={`inputDateRange${searchParams.date_range}`}
           data-cy="talent-acquisition-talent-pool-filter-date-picker"
@@ -96,7 +96,7 @@ const Filters = () => {
         />
       </Col>
 
-      <Col lg={6} md={12} sm={24} xs={24}>
+      <Col data-cy="talent-acquisition-talent-pool-filter-col-category" lg={6} md={12} sm={24} xs={24}>
         <Select
           id={`selectCategory${searchParams?.talentPoolCategory}`}
           data-cy="talent-acquisition-talent-pool-filter-select-category"
@@ -115,7 +115,7 @@ const Filters = () => {
         </Select>
       </Col>
 
-      <Col lg={6} md={12} sm={24} xs={24}>
+      <Col data-cy="talent-acquisition-talent-pool-filter-col-stage" lg={6} md={12} sm={24} xs={24}>
         <Select
           id={`selectStage${searchParams?.stages}`}
           data-cy="talent-acquisition-talent-pool-filter-select-stage"
@@ -137,10 +137,10 @@ const Filters = () => {
   );
 
   return (
-    <div className="my-3">
+    <div id="talent-acquisition-talent-pool-filter-div-container" data-cy="talent-acquisition-talent-pool-filter-div-container" className="my-3">
       {isMobile || isTablet ? (
         <>
-          <div className="flex justify-end m-2 space-x-4">
+          <div id="talent-acquisition-talent-pool-filter-div-mobile-search" data-cy="talent-acquisition-talent-pool-filter-div-mobile-search" className="flex justify-end m-2 space-x-4">
             <Input
               id="talent-acquisition-talent-pool-filter-input-search-mobile"
               data-cy="talent-acquisition-talent-pool-filter-input-search-mobile"
@@ -153,7 +153,7 @@ const Filters = () => {
                 setCurrentPage(1);
               }}
             />
-            <div className="flex items-center justify-center rounded-xl border-[1px] border-gray-200 py-3 px-5">
+            <div id="talent-acquisition-talent-pool-filter-div-mobile-settings" data-cy="talent-acquisition-talent-pool-filter-div-mobile-settings" className="flex items-center justify-center rounded-xl border-[1px] border-gray-200 py-3 px-5">
               <LuSettings2
                 id="talent-acquisition-talent-pool-filter-button-mobile-filter"
                 data-cy="talent-acquisition-talent-pool-filter-button-mobile-filter"
@@ -170,7 +170,7 @@ const Filters = () => {
             onCancel={() => setShowMobileFilter(false)}
             bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
             footer={
-              <div className="flex justify-center items-center space-x-4">
+              <div id="talent-acquisition-talent-pool-filter-modal-footer" data-cy="talent-acquisition-talent-pool-filter-modal-footer" className="flex justify-center items-center space-x-4">
                 <Button
                   id="talent-acquisition-talent-pool-filter-button-cancel"
                   data-cy="talent-acquisition-talent-pool-filter-button-cancel"
@@ -191,7 +191,7 @@ const Filters = () => {
           </Modal>
         </>
       ) : (
-        <>{Filters}</>
+        <div id="talent-acquisition-talent-pool-filter-div-desktop" data-cy="talent-acquisition-talent-pool-filter-div-desktop">{Filters}</div>
       )}
     </div>
   );

@@ -123,7 +123,7 @@ const TalentRoasterDetails = () => {
               }
             />
           </Col>
-          <Col xs={24} md={12}>
+          <Col data-cy="talent-acquisition-talent-roaster-detail-col-personal-info-right" xs={24} md={12}>
             <InfoRow
               label="Year of Graduation"
               data-cy="talent-acquisition-talent-roaster-detail-info-row-year-of-graduation"
@@ -150,7 +150,7 @@ const TalentRoasterDetails = () => {
       {/* Address Section */}
       <Card data-cy="talent-acquisition-talent-roaster-detail-card-address" title={<Title level={4}>Address</Title>} className="w-full">
         <Row data-cy="talent-acquisition-talent-roaster-detail-row-address" gutter={[24, 16]}>
-          <Col xs={24} md={12}>
+          <Col data-cy="talent-acquisition-talent-roaster-detail-col-address" xs={24} md={12}>
             <InfoRow data-cy="talent-acquisition-talent-roaster-detail-info-row-email-address" label="Email Address" value={talentData?.email || 'N/A'} />
             <InfoRow data-cy="talent-acquisition-talent-roaster-detail-info-row-phone-number" label="Phone Number" value={talentData?.phone || 'N/A'} />
           </Col>
@@ -159,6 +159,7 @@ const TalentRoasterDetails = () => {
 
       {/* Additional Information Section */}
       <Card
+        data-cy="talent-acquisition-talent-roaster-detail-card-additional-info"
         title={<Title level={4}>Additional Information</Title>}
         className="w-full"
       >
@@ -190,7 +191,7 @@ const TalentRoasterDetails = () => {
             <Text className="text-gray-600">
               Why are you interested in this Company?
             </Text>
-            <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+            <div id="talent-acquisition-talent-roaster-detail-div-additional-info-why-interested-value" data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-why-interested-value" className="mt-2 p-3 bg-gray-50 rounded-lg">
               <Text>{talentData?.whyInterested || 'No response provided'}</Text>
             </div>
           </div>
@@ -199,7 +200,7 @@ const TalentRoasterDetails = () => {
 
       {/* Cover Letter Section */}
       {talentData?.coverLetter && (
-        <Card title={<Title level={4}>Cover Letter</Title>} className="w-full">
+        <Card data-cy="talent-acquisition-talent-roaster-detail-card-cover-letter" title={<Title level={4}>Cover Letter</Title>} className="w-full">
           <div data-cy="talent-acquisition-talent-roaster-detail-div-cover-letter-value" className="p-3 bg-gray-50 rounded-lg">
             <Text style={{ whiteSpace: 'pre-wrap' }}>
               {talentData.coverLetter}

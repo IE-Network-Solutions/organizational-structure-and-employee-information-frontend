@@ -57,7 +57,7 @@ const TalentResourcePage = () => {
                   : ' px-4  h-full bg-transparent text-black text-sm transition-all duration-300'
               }
             >
-              <span  className="text-xs sm:text-sm text-nowrap">Intern</span>
+              <span data-cy="talent-acquisition-talent-resource-page-tab-intern-label" className="text-xs sm:text-sm text-nowrap">Intern</span>
             </button>
           </div>
         </div>
