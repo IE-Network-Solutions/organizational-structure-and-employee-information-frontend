@@ -64,7 +64,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   handleAddName,
   handleRemoveBoard,
   weights,
-  failedTasksByKeyResult = {},
 }) => {
   const { statuses, setClickStatus } = useClickStatus();
 

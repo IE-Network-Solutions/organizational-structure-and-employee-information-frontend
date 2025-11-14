@@ -71,7 +71,6 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
   handleAddName,
   handleRemoveBoard,
   weights,
-  failedTasksByKeyResult = {},
 }) => {
   const formattedData = groupParentTasks(
     planningPeriodHierarchy?.parentPlan?.plans?.find(
