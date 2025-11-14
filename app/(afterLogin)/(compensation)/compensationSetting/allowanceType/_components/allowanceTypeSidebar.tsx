@@ -84,7 +84,7 @@ const AllowanceTypeSideBar = ({
       mode: 'CREDIT',
       isRate: formValues.isRate,
       defaultAmount: Number(formValues.defaultAmount),
-      notTaxableAmount: Number(formValues.nonTaxableAmount || 0),
+      nonTaxableAmount: Number(formValues.nonTaxableAmount || 0),
       applicableTo: formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE',
       employeeIds: !formValues.isAllEmployee ? formValues.employees : [],
     };
@@ -98,7 +98,7 @@ const AllowanceTypeSideBar = ({
         description: payload.description,
         isRate: payload.isRate,
         defaultAmount: payload.defaultAmount,
-        notTaxableAmount: payload.notTaxableAmount,
+        notTaxableAmount: payload.nonTaxableAmount,
         type: payload.type,
       };
       onAddToSelect(tempAllowanceData);
