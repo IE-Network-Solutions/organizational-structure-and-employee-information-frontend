@@ -38,10 +38,18 @@ interface CollapseComponentProps {
   planningUserId: string;
   mkAsATask: boolean | null;
   setMKAsATask: (value: any) => void;
-  handleAddBoard: (id: string) => void;
+  handleAddBoard: (
+    id: string,
+    keyResultId?: string,
+    milestoneId?: string | null,
+  ) => void;
   handleAddName: (arg1: Record<string, string>, arg2: string) => void;
   handleRemoveBoard: (arg1: number, arg2: string) => void;
   weights: Record<string, number>;
+  failedTasksByKeyResult?: Record<
+    string,
+    Record<string | 'noMilestone', any[]>
+  >;
 }
 
 const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
@@ -56,6 +64,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   handleAddName,
   handleRemoveBoard,
   weights,
+  failedTasksByKeyResult = {},
 }) => {
   const { statuses, setClickStatus } = useClickStatus();
 
@@ -99,7 +108,9 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                     <div className="flex gap-3 items-center">
                       <Button
                         id={`plan-as-task_${kr?.id ?? ''}`}
-                        onClick={() => handleAddBoard(kr?.id)}
+                        onClick={() =>
+                          handleAddBoard(kr?.id, String(kr?.id || ''), null)
+                        }
                         type="link"
                         icon={<BiPlus />}
                         className="text-[10px]"
@@ -151,7 +162,11 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
                               onClick={() => {
                                 setMKAsATask(null);
-                                handleAddBoard(kr?.id + ml?.id);
+                                handleAddBoard(
+                                  kr?.id + ml?.id,
+                                  String(kr?.id || ''),
+                                  ml?.id ? String(ml.id) : null,
+                                );
                               }}
                               type="link"
                               icon={<BiPlus size={14} />}
