@@ -89,22 +89,22 @@ function WorkScheduleTab() {
     // Reset standard hours before calculating
     setStandardHours(0);
 
-    let updatedDetails: UpdatedDetails;
+    let updatedDetails: Partial<ScheduleDetail>;
     data.detail.forEach((dayData: ScheduleDetail) => {
-      const hours = dayData.duration ? parseFloat(dayData.duration) : 0;
+      const duration = dayData.duration ? parseFloat(dayData.duration) : 0;
       updatedDetails = {
         id: dayData.id,
-        dayOfWeek: dayData.day,
-        hours: hours,
+        day: dayData.day,
+        duration: duration,
         startTime: dayData.startTime || '',
         endTime: dayData.endTime || '',
-        status: dayData.workDay,
+        workDay: dayData.workDay,
       };
       setDetail(dayData.day, updatedDetails);
 
-      // Add hours only for working days
-      if (dayData.workDay && hours > 0) {
-        setStandardHours(useScheduleStore.getState().standardHours + hours);
+      // Add duration only for working days
+      if (dayData.workDay && duration > 0) {
+        setStandardHours(useScheduleStore.getState().standardHours + duration);
       }
     });
     openDrawer();
