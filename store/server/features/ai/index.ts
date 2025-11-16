@@ -3,7 +3,7 @@
  *
  * This file serves as the central export point for all AI-related functionality.
  * All AI requests now go directly to the backend using NEXT_PUBLIC_AI_BASE_URL.
- * 
+ *
  * Architecture:
  * Browser → mutations.ts/queries.ts → AI Backend (https://selamnew-ai.ienetworks.co)
  */
@@ -48,4 +48,3 @@ export {
   // Direct Function Exports for mutations
   fetchCopilotResponse,
 } from './mutations';
-

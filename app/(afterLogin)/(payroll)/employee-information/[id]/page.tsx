@@ -73,15 +73,35 @@ const EmployeeProfile = () => {
 
   const downloadPayslip = () => {
     if (!payslipRef.current) return;
-    const payslipElement = payslipRef.current;
+    const payslipElement = payslipRef.current as HTMLElement;
 
-    html2canvas(payslipElement, { scale: 2 }).then((canvas) => {
+    html2canvas(payslipElement, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+    }).then((canvas) => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210;
+      const pageWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      // Calculate how many pages are needed
+      const totalPages = Math.ceil(imgHeight / pageHeight);
+
+      // Add pages with properly positioned content
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+        // Calculate the Y position for this page
+        // For the first page, start at 0, for subsequent pages, shift up
+        const yPosition = -(i * pageHeight);
+        pdf.addImage(imgData, 'PNG', 0, yPosition, imgWidth, imgHeight);
+      }
+
       pdf.save(
         `${activeMergedPayroll?.employeeInfo?.firstName}_${
           activeMergedPayroll?.employeeInfo?.lastName
@@ -368,7 +388,16 @@ const EmployeeProfile = () => {
                       activeMergedPayroll={activeMergedPayroll || undefined}
                     />
                     <div className="h-0 overflow-hidden">
-                      <div ref={payslipRef} className="p-4">
+                      <div
+                        ref={payslipRef}
+                        className="p-4"
+                        style={{
+                          width: '210mm',
+                          minWidth: '210mm',
+                          maxWidth: '210mm',
+                          backgroundColor: '#ffffff',
+                        }}
+                      >
                         <Divider className="m-2" />
                         <header className="text-center border-b pb-4 mb-4">
                           <h2 className="text-xl font-semibold text-center">

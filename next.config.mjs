@@ -4,7 +4,7 @@ import withPWA from 'next-pwa';
 const nextConfig = {
   experimental: {
     // This can help reduce memory usage during builds on servers with many cores.
-    cpus: 1, 
+    cpus: 1,
   },
   images: {
     domains: [
@@ -30,9 +30,11 @@ const nextConfig = {
     EMAIL_URL: process.env.EMAIL_URL,
     INCENTIVE_URL: process.env.INCENTIVE_URL,
     PAYROLL_URL: process.env.PAYROLL_URL,
-    TENANT_BASE_URL:process.env.TENANT_BASE_URL,
+    TENANT_BASE_URL: process.env.TENANT_BASE_URL,
     TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
     AI_BASE_URL: process.env.NEXT_PUBLIC_AI_BASE_URL,
+    NEXT_PUBLIC_ENCRYPTION_DISABLED:
+      process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED,
   },
 };
 
@@ -40,7 +42,7 @@ const pwaConfig = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
   register: true,
-  skipWaiting: true,
+  skipWaiting: false,
   sw: 'sw.js',
   fallbacks: {
     document: '/offline',

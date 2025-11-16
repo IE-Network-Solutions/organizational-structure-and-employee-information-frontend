@@ -1,152 +1,515 @@
+import React from 'react';
 import jsPDF from 'jspdf';
-import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetEmployee,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import dayjs from 'dayjs';
+import { message, Spin } from 'antd';
 
 interface Ids {
   id: string;
 }
 
+// Utility function to convert number to words
+const numberToWords = (num: number): string => {
+  // Round to nearest integer to handle decimal values
+  num = Math.round(num);
+
+  if (num === 0) return 'Zero';
+
+  const ones = [
+    '',
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+  ];
+  const tens = [
+    '',
+    '',
+    'Twenty',
+    'Thirty',
+    'Forty',
+    'Fifty',
+    'Sixty',
+    'Seventy',
+    'Eighty',
+    'Ninety',
+  ];
+  const teens = [
+    'Ten',
+    'Eleven',
+    'Twelve',
+    'Thirteen',
+    'Fourteen',
+    'Fifteen',
+    'Sixteen',
+    'Seventeen',
+    'Eighteen',
+    'Nineteen',
+  ];
+
+  const convertHundreds = (n: number): string => {
+    n = Math.floor(n); // Ensure integer
+    if (n === 0) return '';
+    if (n < 10) return ones[n];
+    if (n < 20) return teens[n - 10];
+    if (n < 100) {
+      const tensDigit = Math.floor(n / 10);
+      const onesDigit = n % 10;
+      return tens[tensDigit] + (onesDigit ? ' ' + ones[onesDigit] : '');
+    }
+    const hundredsDigit = Math.floor(n / 100);
+    const remainder = n % 100;
+    return (
+      ones[hundredsDigit] +
+      ' Hundred' +
+      (remainder ? ' ' + convertHundreds(remainder) : '')
+    );
+  };
+
+  if (num < 1000) return convertHundreds(num);
+  if (num < 1000000) {
+    const thousands = Math.floor(num / 1000);
+    const remainder = num % 1000;
+    return (
+      convertHundreds(thousands) +
+      ' Thousand' +
+      (remainder ? ' ' + convertHundreds(remainder) : '')
+    );
+  }
+  if (num < 1000000000) {
+    const millions = Math.floor(num / 1000000);
+    const remainder = num % 1000000;
+    return (
+      convertHundreds(millions) +
+      ' Million' +
+      (remainder ? ' ' + numberToWords(remainder) : '')
+    );
+  }
+  return num.toLocaleString();
+};
+
+// Utility function to get employee title
+const getEmployeeTitle = (gender?: string, maritalStatus?: string): string => {
+  const genderLower = gender?.toLowerCase();
+  if (genderLower === 'male') return 'Mr';
+  if (genderLower === 'female' && maritalStatus === 'SINGLE') return 'Miss';
+  if (genderLower === 'female') return 'Ms';
+  // Default to Mr if gender is undefined/unknown
+  return 'Mr';
+};
+
+// Utility function to get pronoun
+const getPronoun = (
+  gender?: string,
+  type: 'subject' | 'object' | 'possessive' = 'object',
+): string => {
+  const genderLower = gender?.toLowerCase();
+  if (genderLower === 'male') {
+    return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
+  }
+  // Default to male pronouns if unknown
+  return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
+};
+
 const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   const { data: employeeData } = useGetEmployee(id);
+  const { data: allEmployeesData } = useGetAllUsersData(); // Fetch all employees with full data
   const { data: companyInfo } = useGetCompanyProfileByTenantId(
     employeeData?.tenantId,
   );
+  const { data: basicSalaryData } = useGetBasicSalaryById(id);
+  const [isGenerating, setIsGenerating] = React.useState(false);
 
-  const generatePDF = () => {
-    const doc = new jsPDF();
+  const generatePDF = async () => {
+    setIsGenerating(true);
 
-    doc.setFontSize(16);
-    doc.setTextColor('#4da6ff');
+    // Validation
+    if (!employeeData || !companyInfo) {
+      message.error('Employee or company information not available');
+      setIsGenerating(false);
+      return;
+    }
 
-    doc.text(companyInfo?.companyName ?? '', 10, 10);
-    doc.setFontSize(12);
-    doc.text(companyInfo?.address ?? '', 10, 16);
-    doc.text(companyInfo?.phoneNumber ?? '', 10, 22);
-    doc.setLineWidth(0.5);
-    doc.line(10, 26, 200, 26);
+    if (!employeeData.employeeJobInformation?.length) {
+      message.error('No job history available');
+      setIsGenerating(false);
+      return;
+    }
 
-    doc.setFontSize(22);
-    doc.setTextColor('#003366');
-    const title = 'CERTIFICATE OF SERVICE';
-    const pageWidth = doc.internal.pageSize.width;
-    const titleWidth = doc.getTextWidth(title);
-    const titleX = (pageWidth - titleWidth) / 2;
-    doc.text(title, titleX, 40);
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      let y = 20;
 
-    doc.setFontSize(14);
-    doc.setTextColor('#444444');
-    let y = 60;
-    doc.text(
-      `This is to certify that ${
-        employeeData?.employeeInformation?.gender === 'male'
-          ? 'Mr'
-          : employeeData?.employeeInformation?.gender === 'female' &&
-              employeeData?.employeeInformation?.maritalStatus === 'SINGLE'
-            ? 'Miss'
-            : 'Ms'
-      } ${employeeData?.firstName ?? ''} ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} has been a permanent employee of ${companyInfo?.companyName}, working as:`,
-      15,
-      y,
-      { maxWidth: 180 },
-    );
+      // Extract employee data
+      // Note: For inactive employees, employeeInformation is null from the single employee API
+      // So we fetch the full data from the all employees list which includes complete data
+      let gender = employeeData?.employeeInformation?.gender;
+      let maritalStatus = employeeData?.employeeInformation?.maritalStatus;
 
-    const sortedJobInformation = employeeData.employeeJobInformation.sort(
-      (a: any, b: any) => {
+      // If no gender data (inactive employees), get it from the all employees list
+      if (!gender && !employeeData?.employeeInformation && allEmployeesData) {
+        // Check if data is nested (e.g., { items: [...] }) or direct array
+        const employeesList = Array.isArray(allEmployeesData)
+          ? allEmployeesData
+          : allEmployeesData?.items ||
+            allEmployeesData?.data ||
+            allEmployeesData?.users ||
+            [];
+
+        // Find this employee in the all employees data
+        const fullEmployeeData = employeesList.find(
+          (emp: any) => emp.id === id,
+        );
+
+        if (fullEmployeeData?.employeeInformation) {
+          gender = fullEmployeeData.employeeInformation.gender;
+          maritalStatus = fullEmployeeData.employeeInformation.maritalStatus;
+        }
+      }
+
+      const title = getEmployeeTitle(gender, maritalStatus);
+      const fullName =
+        `${employeeData?.firstName ?? ''} ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''}`.trim();
+
+      // Determine employee status based on deletedAt field
+      // If deletedAt is null = Active, if deletedAt has value = Inactive
+      const isActive = !employeeData?.deletedAt;
+
+      // Get dates - for inactive users, employeeInformation might be null
+      // So we need to get joinedDate from employeeJobInformation instead
+      let joinedDate = employeeData?.employeeInformation?.joinedDate;
+
+      // If no joinedDate and we have job information, use the earliest job start date
+      if (!joinedDate && employeeData?.employeeJobInformation?.length > 0) {
+        // Filter out jobs with null/undefined effectiveStartDate, then sort
+        const jobsWithDates = employeeData.employeeJobInformation.filter(
+          (job: any) => job.effectiveStartDate,
+        );
+        if (jobsWithDates.length > 0) {
+          const earliestJob = jobsWithDates.sort(
+            (a: any, b: any) =>
+              new Date(a.effectiveStartDate).getTime() -
+              new Date(b.effectiveStartDate).getTime(),
+          )[0];
+          joinedDate = earliestJob?.effectiveStartDate;
+        }
+      }
+
+      // Get termination date for inactive employees
+      let terminationDate = null;
+      if (!isActive) {
+        // Try to get from latest job's effectiveEndDate, resignationSubmittedDate, or use deletedAt
+        const latestJob =
+          employeeData?.employeeJobInformation?.[
+            employeeData.employeeJobInformation.length - 1
+          ];
+        terminationDate =
+          latestJob?.effectiveEndDate ||
+          latestJob?.resignationSubmittedDate ||
+          employeeData?.deletedAt;
+      }
+
+      // Sort job information (oldest to newest)
+      const sortedJobInformation = [
+        ...employeeData.employeeJobInformation,
+      ].sort((a: any, b: any) => {
         const dateA = new Date(a.effectiveStartDate || 0).getTime();
         const dateB = new Date(b.effectiveStartDate || 0).getTime();
         return dateA - dateB;
-      },
-    );
+      });
 
-    y += 10;
-    doc.setFontSize(12);
+      // Get current/last position
+      const activeJob = sortedJobInformation.find(
+        (job: any) => job.isPositionActive,
+      );
+      const currentPosition =
+        activeJob?.position?.name ||
+        sortedJobInformation[sortedJobInformation.length - 1]?.position?.name ||
+        '-';
 
-    sortedJobInformation.forEach(
-      (employeeJobInformation: any, index: number) => {
-        y += 10;
-        const effectiveStartDate = employeeJobInformation.effectiveStartDate
-          ? employeeJobInformation.effectiveStartDate.slice(0, 10)
-          : '-';
+      // Get previous positions (exclude current)
+      const previousPositions = sortedJobInformation.filter(
+        (job: any) => !job.isPositionActive,
+      );
 
-        const nextJobInformation = sortedJobInformation[index + 1];
-        const endDate = nextJobInformation?.effectiveStartDate
-          ? nextJobInformation.effectiveStartDate.slice(0, 10)
-          : 'now';
+      // Get salary - try from query first, then from employeeData.basicSalaries
+      let activeSalaryRecord = null;
 
-        doc.text(
-          ` Start from ${effectiveStartDate} to ${endDate} as ${employeeJobInformation.position?.name ?? '-'}`,
-          24,
-          y,
+      // Try from the query (works for active employees)
+      if (Array.isArray(basicSalaryData) && basicSalaryData.length > 0) {
+        activeSalaryRecord = basicSalaryData.find(
+          (salary: any) => salary.status === true,
         );
-      },
-    );
+      }
 
-    y += 20;
-    doc.setFontSize(14);
-    doc.text(
-      `${
-        employeeData?.employeeInformation?.gender === 'male'
-          ? 'Mr'
-          : employeeData?.employeeInformation?.gender === 'female' &&
-              employeeData?.employeeInformation?.maritalStatus === 'SINGLE'
-            ? 'Miss'
-            : 'Ms'
-      } ${employeeData?.firstName ?? ''}  ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} was drawing a monthly gross salary of Birr ________ (__________) per month. Income tax & pension contributions have been duly deducted and paid to the relevant Government Authority.`,
-      15,
-      y,
-      { maxWidth: 180 },
-    );
+      // Fallback: try from employeeData.basicSalaries (for inactive employees)
+      if (!activeSalaryRecord && employeeData?.basicSalaries?.length > 0) {
+        activeSalaryRecord = employeeData.basicSalaries.find(
+          (salary: any) => salary.status === true,
+        );
+      }
 
-    y += 20;
-    doc.text(
-      `${
-        employeeData?.employeeInformation?.gender === 'male'
-          ? 'Mr'
-          : employeeData?.employeeInformation?.gender === 'female'
-            ? 'her'
-            : ''
-      } ${employeeData?.firstName ?? ''}  ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} has resigned from our company on his/her own accord.`,
-      15,
-      y,
-      { maxWidth: 180 },
-    );
+      const currentSalary = activeSalaryRecord?.basicSalary || 0;
 
-    y += 20;
-    doc.text(
-      `${companyInfo?.companyName} wishes ${
-        employeeData?.employeeInformation?.gender === 'male'
-          ? 'him'
-          : employeeData?.employeeInformation?.gender === 'female'
-            ? 'her'
-            : ''
-      } all the best in ${
-        employeeData?.employeeInformation?.gender === 'male'
-          ? 'his'
-          : employeeData?.employeeInformation?.gender === 'female'
-            ? 'her'
-            : ''
-      } future endeavors.`,
-      15,
-      y,
-      { maxWidth: 180 },
-    );
+      // Generate reference number
+      const refDate = dayjs().format('YYYY');
+      const refNumber = `HR/EXP/${refDate}/${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
 
-    y += 35;
-    doc.setFontSize(12);
-    doc.text('Sincerely,', 15, y + 10);
-    y += 20;
-    doc.line(10, y + 30, 200, y + 30);
+      // === HEADER SECTION ===
+      // Company Name as text (logo placeholder)
+      if (companyInfo?.companyName) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(54, 54, 240); // Blue color #3636F0
+        doc.text(companyInfo.companyName, 15, y + 10);
+      }
 
-    doc.save(
-      `${employeeData?.firstName ?? ''}  ${employeeData?.middleName ?? ''} ${employeeData?.lastName ?? ''} Job History.pdf`,
-    );
+      // Date and Reference Number (top right)
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date: ${dayjs().format('YYYY-MM-DD')}`, pageWidth - 15, y, {
+        align: 'right',
+      });
+      doc.text(`Ref No: ${refNumber}`, pageWidth - 15, y + 6, {
+        align: 'right',
+      });
+
+      y += 35;
+
+      // === MAIN TITLE ===
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      const mainTitle = 'TO WHOM IT MAY CONCERN';
+      const mainTitleWidth = doc.getTextWidth(mainTitle);
+      const mainTitleX = (pageWidth - mainTitleWidth) / 2;
+      doc.text(mainTitle, mainTitleX, y);
+
+      y += 10;
+
+      // === SUBJECT LINE ===
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 102, 204); // Blue color
+      const subjectText = 'Subject: Issuance of work Experience Certificate';
+      const subjectWidth = doc.getTextWidth(subjectText);
+      const subjectX = (pageWidth - subjectWidth) / 2;
+      doc.text(subjectText, subjectX, y);
+
+      y += 15;
+
+      // === BODY - EMPLOYMENT CERTIFICATION ===
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(68, 68, 68);
+
+      // Employment period statement (conditional based on status)
+      const formattedJoinedDate = joinedDate
+        ? dayjs(joinedDate).format('MMMM D,YYYY')
+        : '-';
+
+      // Build employment statement with bold position
+      let employmentStatementPart1 = '';
+      const employmentStatementPart2 = ' in the position of ';
+
+      if (isActive) {
+        employmentStatementPart1 = `This is to certify that ${title} ${fullName} has been working in our company from ${formattedJoinedDate} and is currently employed`;
+      } else {
+        const formattedTerminationDate = terminationDate
+          ? dayjs(terminationDate).format('MMMM D,YYYY')
+          : dayjs().format('MMMM D,YYYY');
+        employmentStatementPart1 = `This is to certify that ${title} ${fullName} has been working in our company from ${formattedJoinedDate} up to ${formattedTerminationDate}`;
+      }
+
+      // Split and render text with bold position
+      const part1Lines = doc.splitTextToSize(
+        employmentStatementPart1 + employmentStatementPart2,
+        180,
+      );
+
+      // Calculate where to add bold text
+      const lastLineIndex = part1Lines.length - 1;
+      const lastLine = part1Lines[lastLineIndex];
+
+      // Render all lines except the last
+      for (let i = 0; i < lastLineIndex; i++) {
+        doc.text(part1Lines[i], 15, y);
+        y += 6;
+      }
+
+      // Render last line with position
+      doc.text(lastLine, 15, y);
+      const lastLineWidth = doc.getTextWidth(lastLine);
+
+      // Add bold position name
+      doc.setFont('helvetica', 'bold');
+      doc.text(currentPosition, 15 + lastLineWidth, y);
+      const positionWidth = doc.getTextWidth(currentPosition);
+
+      // Add period
+      doc.setFont('helvetica', 'normal');
+      doc.text('.', 15 + lastLineWidth + positionWidth, y);
+
+      y += 10;
+
+      // Add horizontal line separator
+      doc.setDrawColor(203, 213, 224); // Grey color #CBD5E0
+      doc.setLineWidth(0.5);
+      doc.line(15, y, 195, y);
+
+      y += 10;
+
+      // === PREVIOUS POSITIONS SECTION ===
+      if (previousPositions.length > 0) {
+        // Add light purple background box
+        doc.setFillColor(240, 235, 255); // Light purple
+        const boxHeight = Math.min(previousPositions.length * 7 + 8, 50);
+        doc.rect(15, y, 180, boxHeight, 'F');
+
+        doc.setTextColor(68, 68, 68);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+
+        previousPositions.forEach((job: any, index: number) => {
+          if (y > 260) {
+            // Check for page overflow
+            doc.addPage();
+            y = 20;
+          }
+
+          const startDate = job.effectiveStartDate
+            ? dayjs(job.effectiveStartDate).format('MMM DD,YYYY')
+            : '-';
+
+          // Calculate end date as start of next position
+          const nextJob =
+            sortedJobInformation[sortedJobInformation.indexOf(job) + 1];
+          const endDate = nextJob?.effectiveStartDate
+            ? dayjs(nextJob.effectiveStartDate).format('MMM DD,YYYY')
+            : dayjs().format('MMM DD,YYYY');
+
+          const positionText = `Previous position from ${startDate} to ${endDate} of ${job.position?.name || '-'}`;
+          doc.text(positionText, 20, y + 5 + index * 7);
+        });
+
+        y += boxHeight + 5;
+      }
+
+      // === SALARY SECTION ===
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+
+      // Add horizontal line before salary
+      doc.setDrawColor(203, 213, 224); // Grey color
+      doc.setLineWidth(0.5);
+      doc.line(15, y, 195, y);
+      y += 8;
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(68, 68, 68);
+      const salaryInWords = numberToWords(currentSalary);
+      const salaryStatement = `${title.toUpperCase()} ${fullName} was drawing a monthly gross salary of birr ${currentSalary.toLocaleString()} (${salaryInWords} Birr) per month. Income tax & pension contribution have been duly deducted and paid to the Ethiopian Ministry of Revenue.`;
+
+      const salaryLines = doc.splitTextToSize(salaryStatement, 180);
+      doc.text(salaryLines, 15, y);
+      y += salaryLines.length * 6 + 8;
+
+      // === CONDITIONAL CLOSING STATEMENTS ===
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+
+      if (isActive) {
+        // Active employee - not a release letter
+        const activeStatement = `We have issued this certificate of work experience to ${title}, ${fullName} in the testimony of the above and cannot be considered as a release letter.`;
+        const activeLines = doc.splitTextToSize(activeStatement, 180);
+        doc.text(activeLines, 15, y);
+        y += activeLines.length * 6 + 10;
+      } else {
+        // Inactive employee - resignation and wishes
+        const resignationStatement = `${title}, ${fullName} has chosen to resign from the company of ${getPronoun(gender, 'possessive')} own accord.`;
+        const resignationLines = doc.splitTextToSize(resignationStatement, 180);
+        doc.text(resignationLines, 15, y);
+        y += resignationLines.length * 6 + 5;
+
+        const wishesStatement = `${companyInfo?.companyName} wishes ${getPronoun(gender, 'object')} all the best in ${getPronoun(gender, 'possessive')} future endeavors.`;
+        const wishesLines = doc.splitTextToSize(wishesStatement, 180);
+        doc.text(wishesLines, 15, y);
+        y += wishesLines.length * 6 + 10;
+      }
+
+      // === SIGNATURE SECTION ===
+      if (y > 260) {
+        doc.addPage();
+        y = 20;
+      }
+
+      y += 5;
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 0, 0);
+      doc.text('With Best Wishes', 15, y);
+
+      y += 10;
+
+      // Add horizontal line before signature
+      doc.setDrawColor(203, 213, 224); // Grey color
+      doc.setLineWidth(0.5);
+      doc.line(15, y, 195, y);
+
+      y += 8;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(54, 54, 240); // Blue color #3636F0
+      doc.text('Abebe Kebede', 15, y);
+
+      y += 6;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(14);
+      doc.setTextColor(104, 117, 136); // Grey color #687588
+      doc.text('People Manager', 15, y);
+
+      // Save PDF
+      const fileName = `${fullName.replace(/\s+/g, '_')}_Work_Experience_Certificate.pdf`;
+      doc.save(fileName);
+
+      message.success('Certificate downloaded successfully!');
+      setIsGenerating(false);
+    } catch (error) {
+      message.error('Failed to generate PDF. Please try again.');
+      setIsGenerating(false);
+    }
   };
 
   return (
     <div>
-      <button onClick={generatePDF}>
-        <MdDownloadForOffline className="text-primary text-2xl" />
+      <button
+        onClick={generatePDF}
+        aria-label="Download Work Experience Certificate"
+        disabled={isGenerating}
+        className="relative"
+      >
+        {isGenerating ? (
+          <Spin size="small" />
+        ) : (
+          <MdDownloadForOffline className="text-primary text-2xl" />
+        )}
       </button>
     </div>
   );

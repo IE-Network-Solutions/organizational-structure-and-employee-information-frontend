@@ -1,6 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import React from 'react';
+import React, { useEffect } from 'react';
 import WhatYouNeed from '../jobs/[id]/_components/candidateSearch/whatYouNeed';
 import CustomButton from '@/components/common/buttons/customButton';
 import { FaPlus } from 'react-icons/fa';
@@ -12,6 +12,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { IoIosShareAlt } from 'react-icons/io';
+import { usePathname } from 'next/navigation';
 
 const AllCandidates: React.FC = () => {
   const {
@@ -19,9 +20,11 @@ const AllCandidates: React.FC = () => {
     setSelectedCandidate,
     setMoveToTalentPoolModal,
     setCreateJobDrawer,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const { isMobile, isTablet } = useIsMobile();
+  const pathname = usePathname();
 
   const showDrawer = () => {
     setCreateJobDrawer(true);
@@ -31,6 +34,11 @@ const AllCandidates: React.FC = () => {
     setMoveToTalentPoolModal(true);
     setSelectedCandidate(selectedCandidate);
   };
+  // Reset selected candidates and row keys on route change
+  useEffect(() => {
+    setSelectedCandidate([]);
+    setSelectedRowKeys([] as any);
+  }, [pathname]);
   const onClose = () => {
     setCreateJobDrawer(false);
   };

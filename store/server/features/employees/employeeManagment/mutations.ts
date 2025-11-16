@@ -121,10 +121,7 @@ export const useAddEmployee = () => {
   return useMutation(createEmployee, {
     onSuccess: () => {
       queryClient.invalidateQueries('employees');
-      NotificationMessage.success({
-        message: 'Successfully Created',
-        description: 'Employee successfully Created',
-      });
+      // Success modal is handled in UserSidebar component
     },
   });
 };

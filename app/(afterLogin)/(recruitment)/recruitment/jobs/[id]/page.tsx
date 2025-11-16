@@ -2,8 +2,9 @@
 
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus, FaDownload } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 import CreateCandidate from './_components/createCandidate';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import CandidateTable from './_components/candidateTable';
@@ -16,6 +17,7 @@ import {
 import { IoIosArrowForward, IoIosShareAlt } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Button, notification } from 'antd';
+import { usePathname } from 'next/navigation';
 
 interface Params {
   id: string;
@@ -25,17 +27,20 @@ interface CandidateProps {
   params: Params;
 }
 const Candidates = ({ params: { id } }: CandidateProps) => {
+  const router = useRouter();
   const {
     selectedCandidate,
     setCreateJobDrawer,
     setMoveToTalentPoolModal,
     setSelectedCandidate,
+    setSelectedRowKeys,
     searchParams,
     isDownloading,
     setIsDownloading,
   } = useCandidateState();
   const { data: jobById } = useGetJobsByID(id);
   const { isMobile, isTablet } = useIsMobile();
+  const pathname = usePathname();
 
   const showDrawer = () => {
     setCreateJobDrawer(true);
@@ -48,6 +53,13 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     setMoveToTalentPoolModal(true);
     setSelectedCandidate(selectedCandidate);
   };
+
+  useEffect(() => {
+    setSelectedCandidate([]);
+    try {
+      setSelectedRowKeys?.([] as any);
+    } catch {}
+  }, [pathname]);
 
   const handleDownloadExcel = () => {
     setIsDownloading(true); // Start loading
@@ -102,9 +114,16 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
       });
   };
 
+  const handleListJobClick = () => {
+    router.push('/recruitment/jobs');
+  };
+
   const customBreadCrumbSubTitle = (
     <div className="flex items-center justify-start space-x-4">
-      <div className="flex items-center justify-center text-sm font-normal text-gray-400">
+      <div
+        className="flex items-center justify-center text-sm font-normal text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
+        onClick={handleListJobClick}
+      >
         List Job
       </div>
       <IoIosArrowForward />
