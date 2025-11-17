@@ -373,22 +373,55 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
 
       // === PREVIOUS POSITIONS SECTION ===
       if (previousPositions.length > 0) {
+        // Check for page overflow before drawing the box
+        if (y > 240) {
+          doc.addPage();
+          y = 20;
+        }
+
+        // Define spacing constants for font size 10
+        const lineSpacing = 7; // Distance between baselines
+        const ascenderHeight = 2.5; // Text extends above baseline (for capital letters, tall letters)
+        const descenderHeight = 1.0; // Text extends below baseline (for letters like g, p, y)
+        const verticalPadding = 4; // Equal padding on top and bottom
+
+        const numberOfLines = previousPositions.length;
+
+        // Calculate box height properly:
+        // Visual height = distance from first line's top to last line's bottom
+        // = (last line baseline + descender) - (first line baseline - ascender)
+        // = (firstLineY + (N-1)*lineSpacing + descender) - (firstLineY - ascender)
+        // = (N-1)*lineSpacing + ascender + descender
+        const visualTextHeight =
+          (numberOfLines - 1) * lineSpacing + ascenderHeight + descenderHeight;
+        const boxHeight = visualTextHeight + verticalPadding * 2;
+
+        // Store the starting Y position for the box
+        const boxStartY = y;
+        const boxCenterY = boxStartY + boxHeight / 2;
+
         // Add light purple background box
         doc.setFillColor(240, 235, 255); // Light purple
-        const boxHeight = Math.min(previousPositions.length * 7 + 8, 50);
-        doc.rect(15, y, 180, boxHeight, 'F');
+        doc.rect(15, boxStartY, 180, boxHeight, 'F');
 
         doc.setTextColor(68, 68, 68);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
 
-        previousPositions.forEach((job: any, index: number) => {
-          if (y > 260) {
-            // Check for page overflow
-            doc.addPage();
-            y = 20;
-          }
+        // Calculate starting Y position for perfect vertical centering
+        // Visual center of text block = (visualTop + visualBottom) / 2
+        // visualTop = firstLineY - ascenderHeight
+        // visualBottom = firstLineY + (N-1)*lineSpacing + descenderHeight
+        // visualCenter = firstLineY + ((N-1)*lineSpacing)/2 + (descenderHeight - ascenderHeight)/2
+        // To center: visualCenter = boxCenterY
+        // Therefore: firstLineY = boxCenterY - ((N-1)*lineSpacing)/2 - (descenderHeight - ascenderHeight)/2
+        const firstLineY =
+          boxCenterY -
+          ((numberOfLines - 1) * lineSpacing) / 2 -
+          (descenderHeight - ascenderHeight) / 2;
 
+        // Draw text centered vertically in the box
+        previousPositions.forEach((job: any, index: number) => {
           const startDate = job.effectiveStartDate
             ? dayjs(job.effectiveStartDate).format('MMM DD,YYYY')
             : '-';
@@ -401,10 +434,12 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
             : dayjs().format('MMM DD,YYYY');
 
           const positionText = `Previous position from ${startDate} to ${endDate} of ${job.position?.name || '-'}`;
-          doc.text(positionText, 20, y + 5 + index * 7);
+          // Position text centered vertically in the box
+          doc.text(positionText, 20, firstLineY + index * lineSpacing);
         });
 
-        y += boxHeight + 5;
+        // Move Y position after the box with consistent spacing
+        y = boxStartY + boxHeight + 5;
       }
 
       // === SALARY SECTION ===
@@ -474,10 +509,11 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
       doc.line(15, y, 195, y);
 
       y += 8;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.setTextColor(54, 54, 240); // Blue color #3636F0
-      doc.text('Abebe Kebede', 15, y);
+      // Signature name removed - left empty for manual entry
+      // doc.setFont('helvetica', 'bold');
+      // doc.setFontSize(14);
+      // doc.setTextColor(54, 54, 240); // Blue color #3636F0
+      // doc.text('', 15, y);
 
       y += 6;
       doc.setFont('helvetica', 'normal');
