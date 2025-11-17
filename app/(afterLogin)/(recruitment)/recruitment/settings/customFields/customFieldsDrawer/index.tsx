@@ -281,7 +281,22 @@ const CustomFieldsDrawer: React.FC<{
         title="Edit Question"
         open={true}
         onCancel={onClose}
-        footer={null}
+        footer={
+          <div className="flex justify-center w-full space-x-5 p-4">
+            <Button
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              onClick={() => form.submit()}
+            >
+              Update
+            </Button>
+          </div>
+        }
       >
         {renderFormContent()}
       </Modal>

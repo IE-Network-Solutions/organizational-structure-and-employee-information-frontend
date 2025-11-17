@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Select, Modal } from 'antd';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
@@ -32,22 +32,112 @@ const OkrSearch: React.FC = () => {
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
-  useEffect(() => {
-    const selectedFiscalYear = fiscalYearId
-      ? getAllFiscalYears?.items?.find((i) => i?.id == fiscalYearId)
-      : getActiveFisicalYear;
+  // Use refs to track previous values and prevent infinite loops
+  const prevFiscalYearIdRef = useRef<string>(fiscalYearId);
+  const prevOkrTabRef = useRef<number | string>(okrTab);
+  const initializedRef = useRef<boolean>(false);
 
-    if (!selectedFiscalYear) {
-      setFiscalYearId(''); // or null, depending on your app
-      setSessionIds([]);
+  // Only sync fiscal year and sessions on mount or when okrTab/fiscalYearId changes
+  // This prevents infinite loops by checking if values actually changed
+  useEffect(() => {
+    // Skip if data isn't loaded yet
+    if (!getAllFiscalYears?.items && !getActiveFisicalYear) {
       return;
     }
 
-    const sessionIds =
-      selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-    setSessionIds(sessionIds);
-    setFiscalYearId(selectedFiscalYear?.id || '');
-  }, [getAllFiscalYears, fiscalYearId, okrTab]);
+    // Check if fiscalYearId was changed externally (by user selection)
+    const fiscalYearChangedExternally =
+      prevFiscalYearIdRef.current !== fiscalYearId;
+    const okrTabChanged = prevOkrTabRef.current !== okrTab;
+
+    // If fiscal year was changed externally, update sessions for that fiscal year
+    if (fiscalYearChangedExternally && fiscalYearId) {
+      const selectedFiscalYear = getAllFiscalYears?.items?.find(
+        (i) => i?.id == fiscalYearId,
+      );
+
+      if (selectedFiscalYear) {
+        if (okrTab == 4) {
+          const allSessionIds =
+            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+          setSessionIds(allSessionIds);
+        } else {
+          const activeSessionId = selectedFiscalYear?.sessions?.find(
+            (s: any) => s?.active,
+          )?.id;
+          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+          const chosen = activeSessionId || fallbackFirstSessionId || '';
+          setSessionIds(chosen ? [chosen] : []);
+        }
+      }
+      // Update refs after handling the change
+      prevFiscalYearIdRef.current = fiscalYearId;
+      prevOkrTabRef.current = okrTab;
+      return;
+    }
+
+    // Only initialize default fiscal year if not already initialized and no fiscal year is set
+    if (!initializedRef.current && !fiscalYearId) {
+      const selectedFiscalYear = getActiveFisicalYear;
+
+      if (!selectedFiscalYear) {
+        initializedRef.current = true;
+        return;
+      }
+
+      const newFiscalYearId = selectedFiscalYear?.id || '';
+
+      if (okrTab == 4) {
+        const allSessionIds =
+          selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+        setSessionIds(allSessionIds);
+      } else {
+        const activeSessionId = selectedFiscalYear?.sessions?.find(
+          (s: any) => s?.active,
+        )?.id;
+        const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+        const chosen = activeSessionId || fallbackFirstSessionId || '';
+        setSessionIds(chosen ? [chosen] : []);
+      }
+
+      setFiscalYearId(newFiscalYearId);
+      prevFiscalYearIdRef.current = newFiscalYearId;
+      prevOkrTabRef.current = okrTab;
+      initializedRef.current = true;
+      return;
+    }
+
+    // If okrTab changed, update sessions for current fiscal year
+    if (okrTabChanged && fiscalYearId) {
+      const selectedFiscalYear = getAllFiscalYears?.items?.find(
+        (i) => i?.id == fiscalYearId,
+      );
+
+      if (selectedFiscalYear) {
+        if (okrTab == 4) {
+          const allSessionIds =
+            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+          setSessionIds(allSessionIds);
+        } else {
+          const activeSessionId = selectedFiscalYear?.sessions?.find(
+            (s: any) => s?.active,
+          )?.id;
+          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+          const chosen = activeSessionId || fallbackFirstSessionId || '';
+          setSessionIds(chosen ? [chosen] : []);
+        }
+      }
+      // Update ref after handling the change
+      prevOkrTabRef.current = okrTab;
+    }
+  }, [
+    getAllFiscalYears?.items,
+    getActiveFisicalYear,
+    okrTab,
+    fiscalYearId,
+    setFiscalYearId,
+    setSessionIds,
+  ]);
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
@@ -66,7 +156,6 @@ const OkrSearch: React.FC = () => {
         <label className="text-sm text-gray-600">Fiscal year</label>
         <Select
           loading={fyLoading}
-          disabled={okrTab != 4}
           value={fiscalYearId}
           id="mobile-fiscal-year-select"
           placeholder="Filter by Fiscal Year"
@@ -94,15 +183,22 @@ const OkrSearch: React.FC = () => {
         <label className="text-sm text-gray-600">Session</label>
         <Select
           loading={fyLoading}
-          value={sessionIds}
-          disabled={okrTab != 4}
+          value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
           id="mobile-session-select"
           placeholder="Filter by Session"
-          mode="multiple"
           className="w-full h-14 overflow-y-auto text-[10px]"
           allowClear
           showSearch
-          onChange={setSessionIds}
+          onChange={(value: any) => {
+            if (okrTab == 4) {
+              setSessionIds(
+                Array.isArray(value) ? value : value ? [value] : [],
+              );
+            } else {
+              setSessionIds(value ? [value] : []);
+            }
+          }}
+          mode={okrTab == 4 ? 'multiple' : undefined}
           filterOption={(input, option) =>
             (option?.children as any)
               .toLowerCase()
@@ -208,7 +304,6 @@ const OkrSearch: React.FC = () => {
           <div className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}>
             <Select
               loading={fyLoading}
-              disabled={okrTab != 4}
               value={fiscalYearId}
               id="desktop-fiscal-year-select"
               placeholder="Filter by Fiscal Year"
@@ -235,15 +330,22 @@ const OkrSearch: React.FC = () => {
           <div className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}>
             <Select
               loading={fyLoading}
-              value={sessionIds}
-              disabled={okrTab != 4}
+              value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
               id="desktop-session-select"
               placeholder="Filter by Session"
-              mode="multiple"
               className="w-full h-14 overflow-y-auto text-[10px]"
               allowClear
               showSearch
-              onChange={setSessionIds}
+              onChange={(value: any) => {
+                if (okrTab == 4) {
+                  setSessionIds(
+                    Array.isArray(value) ? value : value ? [value] : [],
+                  );
+                } else {
+                  setSessionIds(value ? [value] : []);
+                }
+              }}
+              mode={okrTab == 4 ? 'multiple' : undefined}
               filterOption={(input, option) =>
                 (option?.children as any)
                   .toLowerCase()
