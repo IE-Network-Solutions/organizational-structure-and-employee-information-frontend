@@ -12,7 +12,7 @@
     "test": "jest",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --config video=false",
-    "cypress:test": "start-server-and-test start http://localhost:3000 cypress:run"
+    "cypress:test": "start-server-and-test start http://localhost:3030 cypress:run"
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.0",
