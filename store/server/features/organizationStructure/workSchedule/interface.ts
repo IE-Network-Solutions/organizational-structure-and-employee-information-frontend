@@ -36,3 +36,8 @@ export interface ScheduleResponse {
   items: ResponseSchedule[];
   meta: any;
 }
+
+export interface ScheduleUsageResponse {
+  count: number;
+  hasUsers: boolean;
+}
