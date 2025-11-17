@@ -75,7 +75,7 @@ const TalentPoolDrawer: React.FC = () => {
     <CustomDrawerLayout
       data-cy="talent-acquisition-talent-pool-category-drawer"
       modalHeader={
-        <h1 className=" flex justify-start text-xl font-extrabold text-gray-800 py-6">
+        <h1 id="talent-acquisition-talent-pool-category-editmode" data-cy="talent-acquisition-talent-pool-category-editmode" className=" flex justify-start text-xl font-extrabold text-gray-800 py-6">
           {isEditMode
             ? 'Edit Talent Pool Category'
             : 'New Talent Pool Category'}

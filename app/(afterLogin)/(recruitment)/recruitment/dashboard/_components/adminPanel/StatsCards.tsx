@@ -55,10 +55,10 @@ const StatsCards: React.FC = () => {
     <div id="talent-acquisition-stats-cards-div-container" data-cy="talent-acquisition-stats-cards-div-container" className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mx-1">
       {statsData.map((stat, index) => (
         <Card
+          data-cy={`talent-acquisition-stats-cards-card-${index}`}
           bodyStyle={{ padding: 5 }}
           key={index}
           className="h-[102px] hover:shadow-md transition-shadow shadow-lg"
-          data-cy="talent-acquisition-stats-cards-card"
           loading={isLoading}
         >
           <div id={`talent-acquisition-stats-cards-div-card-${index}`} data-cy={`talent-acquisition-stats-cards-div-card-${index}`} className="flex justify-between mt-4 px-2 items-center">

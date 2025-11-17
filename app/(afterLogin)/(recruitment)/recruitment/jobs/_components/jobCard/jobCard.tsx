@@ -83,7 +83,7 @@ const JobCard: React.FC = () => {
   if (isJobListLoading)
     return (
       <div id="talent-acquisition-job-card-div-loading" data-cy="talent-acquisition-job-card-div-loading" className="flex justify-center items-center h-64">
-        <Spin size="large" />
+        <Spin data-cy="talent-acquisition-job-card-spin-loading" size="large" />
       </div>
     );
 
@@ -198,14 +198,14 @@ const JobCard: React.FC = () => {
                       {/* Department/Location and Closing Date - Mobile: Stack vertically, Desktop: Side by side */}
                       <div id={`talent-acquisition-job-card-div-dept-location-${index}`} data-cy={`talent-acquisition-job-card-div-dept-location-${index}`} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                         <div id={`talent-acquisition-job-card-div-dept-${index}`} data-cy={`talent-acquisition-job-card-div-dept-${index}`} className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm text-gray-500">
+                          <p  id={`talent-acquisition-job-departmentId-${index}`} data-cy={`talent-acquisition-job-departmentId-${index}`} className="text-sm text-gray-500">
                             {getDepartmentName(job?.departmentId)}
                           </p>
                           {getDepartmentName(job?.departmentId) &&
                             job?.jobLocation && (
                               <span className="text-gray-300">•</span>
                             )}
-                          <p className="text-sm text-gray-500">
+                          <p id={`talent-acquisition-job-jobLocation-${index}`} data-cy={`talent-acquisition-job-jobLocation-${index}`} className="text-sm text-gray-500">
                             {job?.jobLocation}
                           </p>
                         </div>

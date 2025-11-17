@@ -75,7 +75,10 @@ const CustomFieldsSelector: React.FC = () => {
                                 handleSelectQuestion(question?.id, e)
                               }
                             />
-                            <span className="ml-2">{question?.title ?? '-'}</span>
+                            <span 
+                             id={`talent-acquisition-create-application-form-span-title-${question?.id}`}
+                             data-cy={`talent-acquisition-create-application-form-span-title-${question?.id}`}
+                             className="ml-2">{question?.title ?? '-'}</span>
                           </div>
                         }
                         key={question?.id}
@@ -90,6 +93,7 @@ const CustomFieldsSelector: React.FC = () => {
                                   (formItem: any, index: number) => {
                                     return (
                                       <MultipleChoiceField
+                                      data-cy={`talent-acquisition-create-application-form-multiple-choice-field-${index}`}
                                         key={index}
                                         choices={formItem?.field}
                                         selectedAnswer={[]}
@@ -104,7 +108,8 @@ const CustomFieldsSelector: React.FC = () => {
                         {question?.form?.map(
                           (item: any, index: number) =>
                             item?.fieldType === FieldType.SHORT_TEXT && (
-                              <ShortTextField key={item?.id || index} />
+                              <ShortTextField data-cy={`talent-acquisition-question-form-short-text${index}`}
+                               key={item?.id || index} />
                             ),
                         )}
                         {question?.form?.map(
@@ -114,6 +119,7 @@ const CustomFieldsSelector: React.FC = () => {
                                 {question?.form?.map(
                                   (formItem: any, index: number) => (
                                     <CheckboxField
+                                      data-cy={`talent-acquisition-question-form-checkbox-field-${index}`}
                                       key={index}
                                       options={formItem?.field ?? []}
                                     />
@@ -126,7 +132,7 @@ const CustomFieldsSelector: React.FC = () => {
                         {question?.form?.map(
                           (item: any, index: number) =>
                             item?.fieldType === FieldType.PARAGRAPH && (
-                              <ParagraphField key={item?.id || index} />
+                              <ParagraphField data-cy={`talent-acquisition-question-form-paragraph-field-${index}`} key={item?.id || index} />
                             ),
                         )}
                       </Collapse.Panel>
