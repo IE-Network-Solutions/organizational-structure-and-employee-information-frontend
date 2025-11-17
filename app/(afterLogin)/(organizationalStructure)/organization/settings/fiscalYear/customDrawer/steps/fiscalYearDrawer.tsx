@@ -428,8 +428,8 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                 />
               </Form.Item>
 
-              <Row gutter={[16, 10]}>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+              <Row gutter={[16, 10]} data-cy="org-settings-fiscal-year-start-date-input-row" id="org-settings-fiscal-year-start-date-input-row">
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-settings-fiscal-year-start-date-input-col" id="org-settings-fiscal-year-start-date-input-col">
                   <Form.Item
                     data-cy="org-settings-fiscal-year-start-date-input"
                     id="fiscalYearStartDateId"
@@ -475,7 +475,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     ''
                   )}
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-settings-fiscal-year-end-date-input-col" id="org-settings-fiscal-year-end-date-input-col">
                   <Form.Item
                     data-cy="org-settings-fiscal-year-end-date-input"
                     id="fiscalYearEndDateId"

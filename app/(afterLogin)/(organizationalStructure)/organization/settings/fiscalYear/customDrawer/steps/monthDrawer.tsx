@@ -358,11 +358,13 @@ const MonthDrawer: React.FC<
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={onSubmit}>
+    <Form form={form} layout="vertical" onFinish={onSubmit} data-cy="org-settings-fiscal-year-month-drawer-form" id="org-settings-fiscal-year-month-drawer-form">
       <div
         className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0 items-center w-full h-full`}
+        data-cy="org-settings-fiscal-year-month-drawer-form-content"
+        id="org-settings-fiscal-year-month-drawer-form-content"
       >
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2">
+        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2" data-cy="org-settings-fiscal-year-month-drawer-form-content-title" id="org-settings-fiscal-year-month-drawer-form-content-title">
           Set up Month
         </div>
 
@@ -457,6 +459,8 @@ const MonthDrawer: React.FC<
                       onChange={() => {
                         clearRelatedValidationErrors(monthInfo.monthNumber);
                       }}
+                      data-cy={`org-settings-fiscal-year-month-start-date-input-${monthInfo.monthNumber}`}
+                      id={`org-settings-fiscal-year-month-start-date-input-${monthInfo.monthNumber}`}
                     />
                   </Form.Item>
                 </Col>
@@ -522,6 +526,8 @@ const MonthDrawer: React.FC<
                       onChange={() => {
                         clearRelatedValidationErrors(monthInfo.monthNumber);
                       }}
+                      data-cy={`org-settings-fiscal-year-month-end-date-input-${monthInfo.monthNumber}`}
+                      id={`org-settings-fiscal-year-month-end-date-input-${monthInfo.monthNumber}`}
                     />
                   </Form.Item>
                 </Col>
@@ -545,9 +551,11 @@ const MonthDrawer: React.FC<
           );
         })}
 
-        <Form.Item className="mb-0">
+        <Form.Item className="mb-0" data-cy="org-settings-fiscal-year-month-previous-btn-form-item" id="org-settings-fiscal-year-month-previous-btn-form-item">
           <div
             className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+            data-cy="org-settings-fiscal-year-month-previous-btn-container"
+            id="org-settings-fiscal-year-month-previous-btn-container"
           >
             <Button
               type="default"
@@ -583,7 +591,7 @@ const MonthDrawer: React.FC<
               id="org-settings-fiscal-year-month-next-btn"
             >
               {isCreateLoading || isUpdateLoading ? (
-                <div>
+                <div data-cy="org-settings-fiscal-year-month-next-btn-spinner-div" id="org-settings-fiscal-year-month-next-btn-spinner-div">
                   <Spin data-cy="org-settings-fiscal-year-month-next-btn-spinner" />
                 </div>
               ) : isEditMode ? (

@@ -78,9 +78,9 @@ const FiscalYearListCard: React.FC = () => {
 
   return (
     <div className="p-5 rounded-2xl bg-white h-full" data-cy="org-settings-fiscal-year-container" id="org-settings-fiscal-year-container">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4" data-cy="org-settings-fiscal-year-header" id="org-settings-fiscal-year-header">
         <h2 className="text-xl font-bold" data-cy="org-settings-fiscal-year-title" id="org-settings-fiscal-year-title">Fiscal Year</h2>
-        <AccessGuard permissions={[Permissions.CreateCalendar]}>
+        <AccessGuard permissions={[Permissions.CreateCalendar]} data-cy="org-settings-fiscal-year-create-btn-access-guard" id="org-settings-fiscal-year-create-btn-access-guard">
           <Button
             className="h-10 w-10 sm:w-auto"
             type="primary"
@@ -89,7 +89,7 @@ const FiscalYearListCard: React.FC = () => {
             data-cy="org-settings-fiscal-year-create-btn"
             id="org-settings-fiscal-year-create-btn"
           >
-            <span className="hidden lg:inline">Create Fiscal Year</span>
+            <span className="hidden lg:inline" data-cy="org-settings-fiscal-year-create-btn-text" id="org-settings-fiscal-year-create-btn-text">Create Fiscal Year</span>
           </Button>
         </AccessGuard>
       </div>
@@ -103,10 +103,10 @@ const FiscalYearListCard: React.FC = () => {
               className="my-3"
               bodyStyle={{ padding: 0, margin: 0 }}
               data-cy={`org-settings-fiscal-year-card-${fiscalYearId}`}
-              id={`org-settings-fiscal-year-card-${fiscalYearId}`}
+              id='org-settings-fiscal-year-card'
             >
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col w-full ">
+              <div className="flex items-center justify-between" data-cy="org-settings-fiscal-year-card-content" id="org-settings-fiscal-year-card-content">
+                <div className="flex flex-col w-full " data-cy="org-settings-fiscal-year-card-content-inner" id="org-settings-fiscal-year-card-content-inner">
                   <div
                     className={`flex items-center justify-between gap-x-4 cursor-pointer p-2 rounded-lg ${
                       expandedYears[fYear?.id || ''] ? 'bg-gray-100' : ''
@@ -115,15 +115,15 @@ const FiscalYearListCard: React.FC = () => {
                     data-cy={`org-settings-fiscal-year-header-${fiscalYearId}`}
                     id={`org-settings-fiscal-year-header-${fiscalYearId}`}
                   >
-                    <div className="flex items-center justify-center">
-                      <div className="font-light">
+                    <div className="flex items-center justify-center" data-cy="org-settings-fiscal-year-card-content-inner-header" id="org-settings-fiscal-year-card-content-inner-header">
+                      <div className="font-light" data-cy="org-settings-fiscal-year-card-content-inner-header-icon" id="org-settings-fiscal-year-card-content-inner-header-icon">
                         {expandedYears[fYear?.id || ''] ? (
                           <MdKeyboardArrowUp size={20} />
                         ) : (
                           <IoIosArrowDown />
                         )}
                       </div>
-                      <div className="m-3">
+                      <div className="m-3" data-cy="org-settings-fiscal-year-card-content-inner-header-content" id="org-settings-fiscal-year-card-content-inner-header-content">
                         <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-name-${fiscalYearId}`} id={`org-settings-fiscal-year-name-${fiscalYearId}`}>
                           {fYear.name ?? 'Fiscal Year'}
                         </p>
@@ -135,7 +135,7 @@ const FiscalYearListCard: React.FC = () => {
                     </div>
                     {fYear?.isActive && (
                       <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-active-badge-${fiscalYearId}`} id={`org-settings-fiscal-year-active-badge-${fiscalYearId}`}>
-                        <span className="text-[#0BA259]">Active</span>
+                        <span className="text-[#0BA259]" data-cy="org-settings-fiscal-year-active-badge-text" id="org-settings-fiscal-year-active-badge-text">Active</span>
                       </div>
                     )}
                   </div>
@@ -153,14 +153,14 @@ const FiscalYearListCard: React.FC = () => {
                           data-cy={`org-settings-fiscal-year-session-header-${sessionId}`}
                           id={`org-settings-fiscal-year-session-header-${sessionId}`}
                         >
-                          <div className="font-light">
+                          <div className="font-light" data-cy="org-settings-fiscal-year-session-header-icon" id="org-settings-fiscal-year-session-header-icon">
                             {expandedSessions[session.id] ? (
                               <MdKeyboardArrowUp size={20} />
                             ) : (
                               <IoIosArrowDown />
                             )}
                           </div>
-                          <div>
+                          <div data-cy="org-settings-fiscal-year-session-header-content" id="org-settings-fiscal-year-session-header-content">
                             <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-session-name-${sessionId}`} id={`org-settings-fiscal-year-session-name-${sessionId}`}>
                               {session.name ?? 'Session One'}
                             </p>
@@ -171,7 +171,7 @@ const FiscalYearListCard: React.FC = () => {
                           </div>
                           {session?.active && (
                             <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-session-active-badge-${sessionId}`} id={`org-settings-fiscal-year-session-active-badge-${sessionId}`}>
-                              <span className="text-[#0BA259]">Active</span>
+                              <span className="text-[#0BA259]" data-cy="org-settings-fiscal-year-session-active-badge-text" id="org-settings-fiscal-year-session-active-badge-text">Active</span>
                             </div>
                           )}
                         </div>
@@ -201,7 +201,7 @@ const FiscalYearListCard: React.FC = () => {
                                   </div>
                                   {month?.active && (
                                     <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-month-active-badge-${monthId}`} id={`org-settings-fiscal-year-month-active-badge-${monthId}`}>
-                                      <span className="text-[#0BA259]">Active</span>
+                                      <span className="text-[#0BA259]" data-cy="org-settings-fiscal-year-month-active-badge-text" id="org-settings-fiscal-year-month-active-badge-text">Active</span>
                                     </div>
                                   )}
                                 </div>
@@ -218,6 +218,8 @@ const FiscalYearListCard: React.FC = () => {
                   Permissions.UpdateCalendar,
                   Permissions.DeleteCalendar,
                 ]}
+                data-cy="org-settings-fiscal-year-card-dropdown"
+                id="org-settings-fiscal-year-card-dropdown"
               >
                 <Dropdown
                   menu={{
@@ -250,7 +252,7 @@ const FiscalYearListCard: React.FC = () => {
         })
       ) : (
         <div className="mx-auto p-4 text-center" data-cy="org-settings-fiscal-year-empty" id="org-settings-fiscal-year-empty">
-          <p>No Fiscal Year found.</p>
+          <p data-cy="org-settings-fiscal-year-empty-text" id="org-settings-fiscal-year-empty-text">No Fiscal Year found.</p>
         </div>
       )}
       <Pagination
@@ -267,8 +269,8 @@ const FiscalYearListCard: React.FC = () => {
         }}
         data-cy="org-settings-fiscal-year-pagination"
       />
-      <CustomWorFiscalYearDrawer />
-      <CustomDeleteFiscalYears />
+      <CustomWorFiscalYearDrawer data-cy="org-settings-fiscal-year-drawer" />
+      <CustomDeleteFiscalYears data-cy="org-settings-fiscal-year-delete-modal" />
     </div>
   );
 };

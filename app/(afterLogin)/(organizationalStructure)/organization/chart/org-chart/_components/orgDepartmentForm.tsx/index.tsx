@@ -93,9 +93,9 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
           data-cy="org-chart-department-form-item-branch-id"
           id="org-chart-department-form-item-branch-id"
         >
-          <Select size="large" placeholder="Select a branch">
+          <Select size="large" placeholder="Select a branch" data-cy="org-chart-department-form-item-branch-id-select" id="org-chart-department-form-item-branch-id-select">
             {branches?.items?.map((branch, i) => (
-              <Option key={i} value={branch?.id}>
+              <Option key={i} value={branch?.id} data-cy={`org-chart-department-form-item-branch-id-option-${branch?.id}`} id={`org-chart-department-form-item-branch-id-option-${branch?.id}`}>
                 {branch.name}
               </Option>
             ))}

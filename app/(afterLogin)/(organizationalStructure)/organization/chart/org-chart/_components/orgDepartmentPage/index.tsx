@@ -53,6 +53,8 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
               : 'Not assigned'
           }
           placement="top"
+          data-cy="org-chart-department-node-tooltip"
+          id="org-chart-department-node-tooltip"
         >
           {isLoading ? (
             <Skeleton.Avatar
@@ -172,7 +174,7 @@ const OrgChartComponent: React.FC = () => {
     <Card className="border-none" data-cy="org-chart-container" id="org-chart-container">
       <div className="w-full py-7 overflow-x-auto" data-cy="org-chart-content" id="org-chart-content">
         {orgStructureLoading ? (
-          <OrgChartSkeleton loading={orgStructureLoading} />
+          <OrgChartSkeleton loading={orgStructureLoading} data-cy="org-chart-skeleton" />
         ) : (
           <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef} data-cy="org-chart-tree-container" id="org-chart-tree-container">
             <Tree
@@ -194,6 +196,7 @@ const OrgChartComponent: React.FC = () => {
               lineWidth={'2px'}
               lineColor={'#CBD5E0'}
               lineBorderRadius={'10px'}
+              data-cy="org-chart-tree"
             >
               {renderTreeNodes(orgStructureData?.department || [])}
             </Tree>

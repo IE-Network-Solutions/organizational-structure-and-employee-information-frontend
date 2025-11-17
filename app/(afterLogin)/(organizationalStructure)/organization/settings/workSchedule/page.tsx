@@ -191,9 +191,9 @@ function WorkScheduleTab() {
   return (
     <>
       <div className="p-5 bg-white rounded-2xl h-full" data-cy="org-settings-work-schedule-container" id="org-settings-work-schedule-container">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4" data-cy="org-settings-work-schedule-header" id="org-settings-work-schedule-header">
           <h1 className="text-base text-bold" data-cy="org-settings-work-schedule-title" id="org-settings-work-schedule-title">Work Schedule</h1>
-          <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+          <AccessGuard permissions={[Permissions.CreateWorkingSchedule]} data-cy="org-settings-work-schedule-create-btn" id="org-settings-work-schedule-create-btn">
             <Space>
               <Button
                 type="primary"
@@ -203,7 +203,7 @@ function WorkScheduleTab() {
                 data-cy="org-settings-work-schedule-create-btn"
                 id="org-settings-work-schedule-create-btn"
               >
-                <span className="hidden lg:inline">Create work Schedule</span>
+                <span className="hidden lg:inline" data-cy="org-settings-work-schedule-create-btn-text" id="org-settings-work-schedule-create-btn-text">Create work Schedule</span>
               </Button>
             </Space>
           </AccessGuard>
@@ -223,9 +223,11 @@ function WorkScheduleTab() {
               <Panel
                 key="1"
                 className="mb-0"
+                data-cy="org-settings-work-schedule-collapse-panel"
+                id="org-settings-work-schedule-collapse-panel"
                 header={
-                  <div className="flex justify-between items-center">
-                    <span className="flex justify-start items-center gap-2 sm:gap-4">
+                  <div className="flex justify-between items-center" data-cy="org-settings-work-schedule-collapse-panel-header" id="org-settings-work-schedule-collapse-panel-header">
+                    <span className="flex justify-start items-center gap-2 sm:gap-4" data-cy="org-settings-work-schedule-collapse-panel-header-inner" id="org-settings-work-schedule-collapse-panel-header-inner">
                       <p className="text-xs sm:text-base font-semibold" data-cy={`org-settings-work-schedule-name-${scheduleId}`} id={`org-settings-work-schedule-name-${scheduleId}`}>
                         {scheduleItem.name}
                       </p>
@@ -244,12 +246,13 @@ function WorkScheduleTab() {
                   </span>
                 }
               >
-              <Row gutter={[16, 24]}>
-                <Col lg={16}>
+              <Row gutter={[16, 24]} data-cy="org-settings-work-schedule-collapse-panel-info-line-row" id="org-settings-work-schedule-collapse-panel-info-line-row">
+                <Col lg={16} data-cy="org-settings-work-schedule-collapse-panel-info-line-col" id="org-settings-work-schedule-collapse-panel-info-line-col">
                   <InfoLine
                     title="Standard working hours/day"
+                    data-cy="org-settings-work-schedule-collapse-panel-info-line-title"
                     value={
-                      <div className="text-xs">
+                      <div className="text-xs" data-cy="org-settings-work-schedule-collapse-panel-info-line-value" id="org-settings-work-schedule-collapse-panel-info-line-value">
                         {(() => {
                           const workingDays =
                             scheduleItem.detail?.filter(
@@ -275,8 +278,9 @@ function WorkScheduleTab() {
                   />
                   <InfoLine
                     title="Total working hours/week"
+                    data-cy="org-settings-work-schedule-collapse-panel-info-line-title-2"
                     value={
-                      <div className="text-xs">
+                      <div className="text-xs" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-2" id="org-settings-work-schedule-collapse-panel-info-line-value-2">
                         {(() => {
                           const totalHours = getTotalWorkingHours(
                             scheduleItem?.detail || [],
@@ -290,10 +294,11 @@ function WorkScheduleTab() {
                   />
                   <InfoLine
                     title="Daily working hours"
+                    data-cy="org-settings-work-schedule-collapse-panel-info-line-title-3"
                     value={
-                      <div className="flex gap-6 text-xs">
+                      <div className="flex gap-6 text-xs" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3" id="org-settings-work-schedule-collapse-panel-info-line-value-3">
                         {/* Day Names */}
-                        <div className="flex flex-col space-y-4 text-xs font-bold text-gray-700">
+                        <div className="flex flex-col space-y-4 text-xs font-bold text-gray-700" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner" id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner">
                           {getWorkingHoursForSchedule(
                             scheduleItem?.detail || [],
                           )?.map((item: WorkingHours) => (
@@ -307,13 +312,15 @@ function WorkScheduleTab() {
                         </div>
 
                         {/* Start - End Time */}
-                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800">
+                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2" id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2">
                           {getWorkingHoursForSchedule(
                             scheduleItem?.detail || [],
                           )?.map((item: WorkingHours) => (
                             <div
                               key={`${item?.day}-time`}
                               className="whitespace-nowrap overflow-hidden text-ellipsis"
+                              data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2-item"
+                              id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2-item"
                             >
                               {item?.startTime || '--'} -{' '}
                               {item?.endTime || '--'}
@@ -322,13 +329,15 @@ function WorkScheduleTab() {
                         </div>
 
                         {/* Total Hours */}
-                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800">
+                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3" id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3">
                           {getWorkingHoursForSchedule(
                             scheduleItem?.detail || [],
                           )?.map((item: WorkingHours) => (
                             <div
                               key={`${item?.day}-hours`}
                               className="whitespace-nowrap"
+                              data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3-item"
+                              id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3-item"
                             >
                               {(() => {
                                 const hours = Math.floor(item.hours || 0);
@@ -378,8 +387,8 @@ function WorkScheduleTab() {
           </>
         )}
       </div>
-      <CustomWorkingScheduleDrawer />
-      <CustomDeleteWorkingSchduel />
+      <CustomWorkingScheduleDrawer data-cy="org-settings-work-schedule-drawer" />
+      <CustomDeleteWorkingSchduel data-cy="org-settings-work-schedule-delete-modal" />
     </>
   );
 }
