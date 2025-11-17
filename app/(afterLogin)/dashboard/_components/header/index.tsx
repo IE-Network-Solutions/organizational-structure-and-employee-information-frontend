@@ -50,32 +50,26 @@ const Header = () => {
                   {Number(objectiveDashboard?.userOkr?.toFixed(2))}
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="">
-                  <div className="text-xl font-bold ">
-                    {Number(objectiveDashboard?.userOkr?.toFixed(2))}
-                  </div>
+              <div className="xl:min-w-28">
+                <div className="text-xs text-gray-400 text-end">
+                  <span className="text-[#3636F0]">
+                    {Number(objectiveDashboard?.okrCompleted || 0)}
+                  </span>{' '}
+                  Key Results Achieved
                 </div>
-                <div className="xl:min-w-28">
-                  <div className="text-xs text-gray-400 text-end">
-                    <span className="text-[#3636F0]">
-                      {Number(objectiveDashboard?.okrCompleted || 0)}
-                    </span>{' '}
-                    Key Results Achieved
-                  </div>
-                  <Progress
-                    percent={Number(
-                      (Number(objectiveDashboard?.okrCompleted || 0) /
-                        Number(objectiveDashboard?.keyResultCount || 1)) *
-                        100,
-                    )}
-                    showInfo={false}
-                    strokeColor="#3636F0"
-                    trailColor="#f5f5f5"
-                  />
-                </div>
+                <Progress
+                  percent={Number(
+                    (Number(objectiveDashboard?.okrCompleted || 0) /
+                      Number(objectiveDashboard?.keyResultCount || 1)) *
+                      100,
+                  )}
+                  showInfo={false}
+                  strokeColor="#3636F0"
+                  trailColor="#f5f5f5"
+                />
               </div>
             </div>
+
             <div className="text-gray-500  w-full text-start text-xs">
               Average OKR
             </div>
