@@ -5,6 +5,7 @@ import { FaEdit, FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { MoreOutlined } from '@ant-design/icons';
 import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
+import { ScheduleDetail as StoreScheduleDetail } from '@/store/uistate/features/organizationStructure/workSchedule/interface';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomWorkingScheduleDrawer from '../_components/workSchedule/customDrawer';
@@ -38,15 +39,6 @@ interface ScheduleItem {
   name: string;
   standardHours: number;
   detail: ScheduleDetail[];
-}
-
-interface UpdatedDetails {
-  id: string;
-  dayOfWeek: string;
-  startTime: string;
-  endTime: string;
-  hours: number;
-  status: boolean;
 }
 
 function WorkScheduleTab() {
@@ -89,15 +81,14 @@ function WorkScheduleTab() {
     // Reset standard hours before calculating
     setStandardHours(0);
 
-    let updatedDetails: Partial<ScheduleDetail>;
     data.detail.forEach((dayData: ScheduleDetail) => {
       const duration = dayData.duration ? parseFloat(dayData.duration) : 0;
-      updatedDetails = {
+      const updatedDetails: Partial<StoreScheduleDetail> = {
         id: dayData.id,
         day: dayData.day,
         duration: duration,
-        startTime: dayData.startTime || '',
-        endTime: dayData.endTime || '',
+        startTime: dayData.startTime ?? undefined,
+        endTime: dayData.endTime ?? undefined,
         workDay: dayData.workDay,
       };
       setDetail(dayData.day, updatedDetails);
