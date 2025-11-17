@@ -361,7 +361,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       <div className="px-3 sm:px-0" key={index} data-cy={`org-settings-fiscal-year-session-${index}`} id={`org-settings-fiscal-year-session-${index}`}>
         <Form.Item
           name={['sessionData', index, 'sessionName']}
-          label={<span className="font-medium">Session {index + 1} Name</span>}
+          label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-sessiondrawer-tsx-span-l364">Session {index + 1} Name</span>}
           rules={[
             { required: true, message: 'Please input the session name!' },
           ]}
@@ -416,7 +416,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
 
         <Form.Item
           name={['sessionData', index, 'sessionDescription']}
-          label={<span className="font-medium">Description</span>}
+          label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-sessiondrawer-tsx-span-l419">Description</span>}
           data-cy={`org-settings-fiscal-year-session-description-${index}`}
           id={`org-settings-fiscal-year-session-description-${index}`}
         >
@@ -476,7 +476,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               data-cy="org-settings-fiscal-year-session-next-btn-popover"
               id="org-settings-fiscal-year-session-next-btn-popover"
             >
-              <span>
+              <span data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-sessiondrawer-tsx-span-l479">
                 <Button
                   type="primary"
                   onClick={handleNext}

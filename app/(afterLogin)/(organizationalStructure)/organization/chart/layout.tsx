@@ -100,11 +100,13 @@ export default function ChartLayout({
   };
 
   return (
-    <ChartRefContext.Provider value={chartRef}>
+    <ChartRefContext.Provider value={chartRef} data-cy="org-structure-layout-provider">
       <div className="flex flex-col w-full" data-cy="org-structure-layout" id="org-structure-layout">
         {/* ORG Structure Section */}
-        <div className="w-full overflow-x-auto">
+        <div className="w-full overflow-x-auto" data-cy="org-structure-card-container" id="org-structure-card-container">
           <Card
+            data-cy="org-structure-card"
+            id="org-structure-card"
             className="w-full border-none"
             title={<div className="text-2xl font-bold" data-cy="org-structure-title" id="org-structure-title">ORG Structure</div>}
             extra={
@@ -123,18 +125,18 @@ export default function ChartLayout({
                   > */}
                   <Button
                     title="Download"
-                    icon={<FaDownload size={16} />}
+                    icon={<FaDownload size={16} data-cy="org-structure-download-btn-icon" id="org-structure-download-btn-icon" />}
                     type="default"
                     className="h-10 sm:h-14 w-10 sm:w-auto"
                     data-cy="org-structure-download-btn"
                     id="org-structure-download-btn"
                   >
-                    <span className="hidden sm:inline">Download</span>
+                    <span className="hidden sm:inline" data-cy="org-structure-download-btn-span" id="org-structure-download-btn-span">Download</span>
                   </Button>
                   {/* </AccessGuard> */}
                 </Dropdown>
                 {selectedKey !== 'chart' && (
-                  <AccessGuard permissions={[Permissions.MergeDepartment]}>
+                  <AccessGuard permissions={[Permissions.MergeDepartment]} data-cy="org-structure-actions-guard" id="org-structure-actions-guard">
                     <Dropdown
                       overlay={orgComposeAndMergeMenues}
                       trigger={['click']}
@@ -147,7 +149,7 @@ export default function ChartLayout({
                         data-cy="org-structure-actions-btn"
                         id="org-structure-actions-btn"
                       >
-                        <BsThreeDotsVertical size={24} />
+                        <BsThreeDotsVertical size={24} data-cy="org-structure-actions-btn-icon" id="org-structure-actions-btn-icon" />
                       </Button>
                     </Dropdown>
                   </AccessGuard>
@@ -155,7 +157,7 @@ export default function ChartLayout({
               </div>
             }
           >
-            <div className="flex justify-end">
+            <div className="flex justify-end" data-cy="org-structure-tabs-menu-container" id="org-structure-tabs-menu-container">
               <Menu
                 className="w-full"
                 items={items}
@@ -167,6 +169,7 @@ export default function ChartLayout({
               />
             </div>
             <CustomDrawer
+              data-cy="org-structure-custom-drawer"
               loading={transferDepartment ? isTransferLoading : isLoading}
               visible={drawerVisible}
               onClose={() => {

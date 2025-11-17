@@ -103,13 +103,13 @@ const Branches = () => {
           <AccessGuard permissions={[Permissions.CreateBranch]} data-cy="org-settings-branches-add-btn" id="org-settings-branches-add-btn">
             <Button
               className="h-10 w-10 sm:w-auto"
-              icon={<FaPlus />}
+              icon={<FaPlus  data-cy="auto-organization-settings-branches-page-tsx-faplus-l106"/>}
               type="primary"
               onClick={handleAddNew}
               data-cy="org-settings-branches-add-btn"
               id="org-settings-branches-add-btn"
             >
-              <span className="hidden lg:block">Add Branch</span>
+              <span className="hidden lg:block" data-cy="auto-organization-settings-branches-page-tsx-span-l112">Add Branch</span>
             </Button>
           </AccessGuard>
         </div>

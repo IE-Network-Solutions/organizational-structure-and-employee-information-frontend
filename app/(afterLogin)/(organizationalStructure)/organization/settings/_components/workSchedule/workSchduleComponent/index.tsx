@@ -52,21 +52,21 @@ function WorkScheduleTab() {
 
   const renderMenu = (scheduleItem: any) => (
     <Menu onClick={handleMenuClick} data-cy="org-settings-work-schedule-menu" id="org-settings-work-schedule-menu">
-      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]} data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-accessguard-l55">
         <Menu.Item
           key="edit"
           onClick={() => handleEditSchedule(scheduleItem)}
-          icon={<FaEdit />}
+          icon={<FaEdit  data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-faedit-l59"/>}
           data-cy="org-settings-work-schedule-menu-edit"
           id="org-settings-work-schedule-menu-edit"
         >
           Edit
         </Menu.Item>
       </AccessGuard>
-      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
+      <AccessGuard permissions={[Permissions.CreateWorkingSchedule]} data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-accessguard-l66">
         <Menu.Item
           key="delete"
-          icon={<FaTrashAlt />}
+          icon={<FaTrashAlt  data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-fatrashalt-l69"/>}
           onClick={() => handleDeleteSchedule(scheduleItem)}
           data-cy="org-settings-work-schedule-menu-delete"
           id="org-settings-work-schedule-menu-delete"
@@ -79,14 +79,14 @@ function WorkScheduleTab() {
 
   return (
     <div className="p-6" data-cy="org-settings-work-schedule-container" id="org-settings-work-schedule-container">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4" data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-div-l82">
         <h2 className="text-2xl font-semibold" data-cy="org-settings-work-schedule-title" id="org-settings-work-schedule-title">Work Schedule</h2>
-        <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
-          <Space>
+        <AccessGuard permissions={[Permissions.CreateWorkingSchedule]} data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-accessguard-l84">
+          <Space data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-space-l85">
             <Button
               type="primary"
               className="h-12"
-              icon={<PlusOutlined />}
+              icon={<PlusOutlined  data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-plusoutlined-l89"/>}
               onClick={openDrawer}
               data-cy="org-settings-work-schedule-add-btn"
               id="org-settings-work-schedule-add-btn"
@@ -107,11 +107,11 @@ function WorkScheduleTab() {
           data-cy="org-settings-work-schedule-collapse-panel"
           id="org-settings-work-schedule-collapse-panel"
           header={
-            <div className="flex justify-between items-center ">
-              <span className="flex justify-start items-center gap-4 ">
+            <div className="flex justify-between items-center " data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-div-l110">
+              <span className="flex justify-start items-center gap-4 " data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-span-l111">
                 {' '}
-                <p className="text-xl font-semibold">Full-time Schedule</p>{' '}
-                <span className="px-2 py-1 bg-blue text-white rounded-lg text-sm font-semibold">
+                <p className="text-xl font-semibold" data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-p-l113">Full-time Schedule</p>{' '}
+                <span className="px-2 py-1 bg-blue text-white rounded-lg text-sm font-semibold" data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-span-l114">
                   Working-Hour
                 </span>
               </span>
@@ -119,7 +119,7 @@ function WorkScheduleTab() {
           }
           key="1"
           extra={
-            <span className="text-blue-500 bg-blue-100 py-1 px-2 rounded text-xs font-medium">
+            <span className="text-blue-500 bg-blue-100 py-1 px-2 rounded text-xs font-medium" data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-span-l122">
               Working-hours
             </span>
           }
@@ -145,8 +145,8 @@ function WorkScheduleTab() {
                 </Dropdown>
               }
             >
-              <div className="mt-1 ">
-                <div className="mt-2">
+              <div className="mt-1 " data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-div-l148">
+                <div className="mt-2" data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-div-l149">
                   <div className="grid grid-cols-3 gap-4 mb-2 font-bold text-md border-b pb-2" data-cy={`org-settings-work-schedule-card-day-detail-header-${rootIndex}`} id={`org-settings-work-schedule-card-day-detail-header-${rootIndex}`}>
                     <div className="text-black" data-cy={`org-settings-work-schedule-card-day-detail-header-day-${rootIndex}`} id={`org-settings-work-schedule-card-day-detail-header-day-${rootIndex}`}>Day</div>
                     <div className="text-center" data-cy={`org-settings-work-schedule-card-day-detail-header-time-${rootIndex}`} id={`org-settings-work-schedule-card-day-detail-header-time-${rootIndex}`}>Time</div>
@@ -155,7 +155,7 @@ function WorkScheduleTab() {
 
                   {scheduleItem?.detail?.map((dayDetail, detailIndex) => (
                     <div key={detailIndex} className="text-sm mb-2" data-cy={`org-settings-work-schedule-card-day-detail-${detailIndex}`} id={`org-settings-work-schedule-card-day-detail-${detailIndex}`}>
-                      <div className="grid grid-cols-3 gap-4 items-center">
+                      <div className="grid grid-cols-3 gap-4 items-center" data-cy="auto-organization-settings-components-workschedule-workschdulecomponent-index-tsx-div-l158">
                         <div className="text-black" data-cy={`org-settings-work-schedule-card-day-detail-day-${detailIndex}`} id={`org-settings-work-schedule-card-day-detail-day-${detailIndex}`}>
                           {dayDetail?.day ?? '-'}
                         </div>

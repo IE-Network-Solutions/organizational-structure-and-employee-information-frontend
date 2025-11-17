@@ -210,7 +210,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               </Form.Item>
 
               <Row gutter={[16, 6]} className="mb-4" data-cy={`org-settings-session-drawer-form-item-dates-${index}`} id={`org-settings-session-drawer-form-item-dates-${index}`}>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-components-session-sessiondrawer-index-tsx-col-l213">
                   <Form.Item
                     name={['sessionData', index, 'sessionStartDate']}
                     label={<span className="font-medium" data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`} id={`org-settings-session-drawer-form-item-dates-label-${index}`}>Session {index + 1} Start Date</span>}
@@ -239,7 +239,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                     />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-components-session-sessiondrawer-index-tsx-col-l242">
                   <Form.Item
                     name={['sessionData', index, 'sessionEndDate']}
                     label={<span className="font-medium" data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`} id={`org-settings-session-drawer-form-item-dates-label-${index}`}>Session {index + 1} End Date</span>}
@@ -275,7 +275,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 data-cy={`org-settings-session-drawer-form-item-description-${index}`}
                 id={`sessionDescriptionId_${index}`}
                 name={['sessionData', index, 'sessionDescription']}
-                label={<span className="font-medium">Description</span>}
+                label={<span className="font-medium" data-cy="auto-organization-settings-components-session-sessiondrawer-index-tsx-span-l278">Description</span>}
                 initialValue={item.sessionDescription}
               >
                 <TextArea

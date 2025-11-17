@@ -26,7 +26,7 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       <Menu.Item
         id={`${data.name}EditButton`}
         data-cy={`org-structure-department-edit-${departmentId}`}
-        icon={<EditOutlined />}
+        icon={<EditOutlined  data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-editoutlined-l29" id="org-structure-department-edit-outlined"/>}
         onClick={onEdit}
       >
         Edit
@@ -34,7 +34,7 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       <Menu.Item
         id={`${data.name}DeleteButton`}
         data-cy={`org-structure-department-delete-${departmentId}`}
-        icon={<DeleteOutlined />}
+        icon={<DeleteOutlined  data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-deleteoutlined-l37" id="org-structure-department-delete-outlined"/>}
         onClick={onDelete}
       >
         Delete
@@ -50,12 +50,12 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       id={`org-structure-department-node-${departmentId}`}
     >
       {isRoot && (
-        <div className="flex justify-center items-center z-50">
-          <AccessGuard permissions={[Permissions.CreateDepartment]}>
+        <div className="flex justify-center items-center z-50" data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-div-l53">
+          <AccessGuard permissions={[Permissions.CreateDepartment]} data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-accessguard-l54" id="org-structure-department-access-guard">
             <Button
               id="ceoButton"
               data-cy="org-structure-root-add-department-btn"
-              icon={<PlusOutlined />}
+              icon={<PlusOutlined  data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-plusoutlined-l58" id="org-structure-department-plus-outlined"/>}
               size="small"
               type="primary"
               className="rounded-full absolute bottom-[-10px] hide-on-download z-50"
@@ -71,7 +71,7 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
             Permissions.UpdateDepartment,
             Permissions.DeleteDepartment,
           ]}
-        >
+         data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-accessguard-l69" id="org-structure-department-access-guard">
           <Dropdown
             overlay={menu}
             trigger={['click']}
@@ -79,7 +79,7 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
             data-cy={`org-structure-department-dropdown-${departmentId}`}
           >
             <Button
-              icon={<Pencil size={8} />}
+              icon={<Pencil size={8}  data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-pencil-l82" id="org-structure-department-pencil"/>}
               id={`${data.name}ThreeDotButton`}
               data-cy={`org-structure-department-actions-${departmentId}`}
               size="small"
@@ -89,8 +89,8 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
         </AccessGuard>
       )}
 
-      <div className="flex justify-center items-start">
-        <Tooltip title={data.name} placement="top">
+      <div className="flex justify-center items-start" data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-div-l92" id="org-structure-department-div">
+        <Tooltip title={data.name} placement="top" data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-tooltip-l93">
           <span
             style={{
               fontWeight: 'bold',
@@ -106,12 +106,12 @@ export const DepartmentNode: React.FC<DepartmentNodeProps> = ({
       </div>
 
       {!isRoot && (
-        <div className="flex justify-center items-center z-50">
-          <AccessGuard permissions={[Permissions.CreateDepartment]}>
+        <div className="flex justify-center items-center z-50" data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-div-l109">
+          <AccessGuard permissions={[Permissions.CreateDepartment]} data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-accessguard-l110" id="org-structure-department-access-guard">
             <Button
               id={`${data.name}Button`}
               data-cy={`org-structure-department-add-child-${departmentId}`}
-              icon={<PlusOutlined />}
+              icon={<PlusOutlined  data-cy="auto-organization-chart-org-structure-components-departmentnode-index-tsx-plusoutlined-l114" id="org-structure-department-plus-outlined"/>}
               size="small"
               type="primary"
               className="rounded-full absolute bottom-[-10px] hide-on-download z-50"

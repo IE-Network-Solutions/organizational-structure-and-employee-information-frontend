@@ -25,7 +25,7 @@ export const exportOrgStrucutreMenu = (
   >
     <Menu.Item
       key="pdf"
-      icon={<FaFilePdf size={24} />}
+      icon={<FaFilePdf size={24}  data-cy="auto-organization-chart-org-structure-components-menues-inex-tsx-fafilepdf-l28"/>}
       className="font-semibold text-md px-2"
       style={{ display: 'inline-flex', alignItems: 'center' }}
       data-cy="org-structure-export-pdf-btn"
@@ -35,7 +35,7 @@ export const exportOrgStrucutreMenu = (
     </Menu.Item>
     <Menu.Item
       key="jpeg"
-      icon={<FaFileImage size={24} />}
+      icon={<FaFileImage size={24}  data-cy="auto-organization-chart-org-structure-components-menues-inex-tsx-fafileimage-l38"/>}
       className="font-semibold text-md"
       style={{ display: 'inline-flex', alignItems: 'center' }}
       data-cy="org-structure-export-jpeg-btn"
@@ -66,7 +66,7 @@ export const showDrawer = (
 
 export const orgComposeAndMergeMenues = (
   <Menu data-cy="org-structure-actions-menu" id="org-structure-actions-menu">
-    <AccessGuard permissions={[Permissions.DeleteDepartment]}>
+    <AccessGuard permissions={[Permissions.DeleteDepartment]} data-cy="auto-organization-chart-org-structure-components-menues-inex-tsx-accessguard-l69">
       <Menu.Item
         key="1"
         className="py-2 bg-white hover:bg-gray-200"

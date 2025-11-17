@@ -45,9 +45,9 @@ const renderTreeNodes = (
               setDepartmentTobeDeletedId(item?.id);
             }}
             isRoot={isRoot}
-          />
+           data-cy="auto-organization-chart-org-structure-components-orgstructurepeoples-index-tsx-departmentnode-l39"/>
         }
-      >
+       data-cy="auto-organization-chart-org-structure-components-orgstructurepeoples-index-tsx-treenode-l36">
         {item.department &&
           renderTreeNodes(
             item.department,
@@ -208,7 +208,7 @@ const OrgChartComponent: React.FC = () => {
     <div className="w-full overflow-x-auto" data-cy="org-structure-container" id="org-structure-container">
       <div className="w-full py-7 overflow-x-auto " data-cy="org-structure-content" id="org-structure-content">
         {orgStructureLoading ? (
-          <OrgChartSkeleton loading={orgStructureLoading} />
+          <OrgChartSkeleton loading={orgStructureLoading}  data-cy="auto-organization-chart-org-structure-components-orgstructurepeoples-index-tsx-orgchartskeleton-l211"/>
         ) : (
           <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef} data-cy="org-structure-tree-container" id="org-structure-tree-container">
             <Tree
@@ -232,7 +232,7 @@ const OrgChartComponent: React.FC = () => {
               lineWidth={'1px'}
               lineColor={'#CBD5E0'}
               lineBorderRadius={'10px'}
-            >
+             data-cy="auto-organization-chart-org-structure-components-orgstructurepeoples-index-tsx-tree-l214">
               {renderTreeNodes(
                 orgStructureData?.department || [],
                 handleEdit,

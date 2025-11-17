@@ -188,13 +188,13 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                   generateMonthName(Number(section), index).split(' (')[0] ||
                   'Month';
                 return (
-                  <React.Fragment key={month}>
+                  <React.Fragment key={month} data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-react-fragment-l191">
                     <Form.Item
                       data-cy={`org-settings-month-drawer-form-item-name-${month}`}
                       id={`monthNameId_${month}`}
                       name={`monthName_${month}`}
                       label={
-                        <span className="font-medium">
+                        <span className="font-medium" data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-span-l197">
                           {generateMonthName(Number(section), index)}
                         </span>
                       }
@@ -210,17 +210,17 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                         size="large"
                         className="w-full text-sm"
                         placeholder={`Enter name for ${monthName}`}
-                      />
+                       data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-input-l209"/>
                     </Form.Item>
 
-                    <Row gutter={[16, 10]}>
-                      <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                    <Row gutter={[16, 10]} data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-row-l216">
+                      <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-col-l217">
                         <Form.Item
                           data-cy={`org-settings-month-drawer-form-item-start-date-${month}`}
                           id={`monthStartDateId_${month}`}
                           name={`monthStartDate_${month}`}
                           label={
-                            <span className="font-medium">Start Date</span>
+                            <span className="font-medium" data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-span-l223">Start Date</span>
                           }
                           rules={[
                             {
@@ -230,15 +230,15 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                           ]}
                           initialValue={startDate}
                         >
-                          <DatePicker className="w-full" />
+                          <DatePicker className="w-full"  data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-datepicker-l233"/>
                         </Form.Item>
                       </Col>
-                      <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-col-l236">
                         <Form.Item
                           data-cy={`org-settings-month-drawer-form-item-end-date-${month}`}
                           id={`monthEndDateId_${month}`}
                           name={`monthEndDate_${month}`}
-                          label={<span className="font-medium">End Date</span>}
+                          label={<span className="font-medium" data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-span-l241">End Date</span>}
                           rules={[
                             {
                               required: true,
@@ -256,7 +256,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                       data-cy={`org-settings-month-drawer-form-item-description-${month}`}
                       id={`monthDescriptionId_${month}`}
                       name={`monthDescription_${month}`}
-                      label={<span className="font-medium">Description</span>}
+                      label={<span className="font-medium" data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-span-l259">Description</span>}
                     >
                       <TextArea
                         placeholder={`Enter description for ${monthName}`}
@@ -301,7 +301,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
               id="org-settings-month-drawer-form-item-next-btn"
             >
               {isCreateLoading || isUpdateLoading ? (
-                <div>
+                <div data-cy="auto-organization-settings-components-month-monthdrawer-index-tsx-div-l304">
                   <Spin data-cy="org-settings-month-drawer-form-item-next-btn-spinner" />
                 </div>
               ) : isEditMode ? (

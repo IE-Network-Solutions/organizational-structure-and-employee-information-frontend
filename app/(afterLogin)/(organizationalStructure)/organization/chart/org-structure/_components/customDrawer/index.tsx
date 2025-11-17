@@ -29,11 +29,11 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'transfer':
-        return <TransferForm form={form} />;
+        return <TransferForm form={form}  data-cy="auto-organization-chart-org-structure-components-customdrawer-index-tsx-transferform-l32"/>;
       case 'merge':
-        return <MergeForm form={form} />;
+        return <MergeForm form={form}  data-cy="auto-organization-chart-org-structure-components-customdrawer-index-tsx-mergeform-l34"/>;
       case 'delete':
-        return <DeleteForm form={form} />;
+        return <DeleteForm form={form}  data-cy="auto-organization-chart-org-structure-components-customdrawer-index-tsx-deleteform-l36"/>;
       default:
         return null;
     }
@@ -74,7 +74,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           </Button>
         </div>
       }
-    >
+     data-cy="org-structure-custom-drawer-layout">
       {renderDrawerContent()}
     </CustomDrawerLayout>
   );

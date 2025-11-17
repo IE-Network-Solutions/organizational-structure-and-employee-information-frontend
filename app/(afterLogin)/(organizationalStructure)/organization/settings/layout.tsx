@@ -100,7 +100,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen " data-cy="org-settings-layout" id="org-settings-layout">
-      {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
+      {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }}  data-cy="auto-organization-settings-layout-tsx-skeleton-l103"/>}
       {hasEndedFiscalYear && (
         <div className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none " data-cy="org-settings-fiscal-year-warning" id="org-settings-fiscal-year-warning">
           <span className="text-[#FFDE65] px-2" data-cy="org-settings-fiscal-year-warning-text" id="org-settings-fiscal-year-warning-text">
@@ -111,9 +111,9 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           </span>
         </div>
       )}
-      <div className="min-h-screen bg-[#f5f5f5]">
+      <div className="min-h-screen bg-[#f5f5f5]" data-cy="org-settings-layout-div" id="org-settings-layout-div">
         <PageHeader title="Settings" description="Manage your settings here" data-cy="org-settings-page-header" />
-        <div className="flex  flex-col lg:flex-row gap-6 m-4">
+        <div className="flex  flex-col lg:flex-row gap-6 m-4" data-cy="auto-organization-settings-layout-tsx-div-l116">
           <SidebarMenu menuItems={menuItems} data-cy="org-settings-sidebar-menu" />
           <BlockWrapper
             padding="0px"

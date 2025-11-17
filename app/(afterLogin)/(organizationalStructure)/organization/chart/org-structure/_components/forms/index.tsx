@@ -206,12 +206,12 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
         />
       </Form.Item>
 
-      <Form.Item>
+      <Form.Item data-cy="auto-organization-chart-org-structure-components-forms-index-tsx-form-item-l209">
         <p style={{ display: 'flex', color: '#595959', fontSize: '12px' }} data-cy="org-structure-transfer-info" id="org-structure-transfer-info">
           <span
             style={{ marginRight: '8px', display: 'flex', paddingTop: '2px' }}
-          >
-            <MdInfo size={16} className="text-black" />
+           data-cy="auto-organization-chart-org-structure-components-forms-index-tsx-span-l211">
+            <MdInfo size={16} className="text-black"  data-cy="auto-organization-chart-org-structure-components-forms-index-tsx-mdinfo-l214"/>
           </span>
           This will affect the whole company structure
         </p>
@@ -423,12 +423,12 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
           id="org-structure-merge-team-leader-select"
         />
       </Form.Item>
-      <Form.Item>
+      <Form.Item data-cy="auto-organization-chart-org-structure-components-forms-index-tsx-form-item-l426">
         <p style={{ display: 'flex', color: '#595959', fontSize: '12px' }} data-cy="org-structure-merge-info" id="org-structure-merge-info">
           <span
             style={{ marginRight: '8px', display: 'flex', paddingTop: '2px' }}
-          >
-            <MdInfo size={16} className="text-black" />
+           data-cy="auto-organization-chart-org-structure-components-forms-index-tsx-span-l428">
+            <MdInfo size={16} className="text-black"  data-cy="auto-organization-chart-org-structure-components-forms-index-tsx-mdinfo-l431"/>
           </span>
           This will affect the whole company structure.
         </p>
@@ -559,9 +559,9 @@ export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
         />
       </Form.Item>
 
-      <Form.Item>
+      <Form.Item data-cy="auto-organization-chart-org-structure-components-forms-index-tsx-form-item-l562">
         <p style={{ color: '#595959' }} data-cy="org-structure-delete-info" id="org-structure-delete-info">
-          <span style={{ marginRight: '8px' }}>ⓘ</span>This will affect the
+          <span style={{ marginRight: '8px' }} data-cy="org-structure-delete-info-span" id="org-structure-delete-info-span">ⓘ</span>This will affect the
           whole company structure
         </p>
       </Form.Item>

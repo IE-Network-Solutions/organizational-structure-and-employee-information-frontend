@@ -381,7 +381,7 @@ const MonthDrawer: React.FC<
                 id={`monthNameId_${monthInfo.monthNumber}`}
                 name={`monthName_${monthInfo.monthNumber}`}
                 label={
-                  <span className="font-medium">{monthInfo.monthName}</span>
+                  <span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l384">{monthInfo.monthName}</span>
                 }
                 rules={[
                   {
@@ -399,13 +399,13 @@ const MonthDrawer: React.FC<
                 />
               </Form.Item>
 
-              <Row gutter={[16, 10]}>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+              <Row gutter={[16, 10]} data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-row-l402">
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-col-l403">
                   <Form.Item
                     data-cy={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     id={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     name={`monthStartDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium">Start Date</span>}
+                    label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l408">Start Date</span>}
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -464,12 +464,12 @@ const MonthDrawer: React.FC<
                     />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-col-l467">
                   <Form.Item
                     data-cy={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     id={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     name={`monthEndDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium">End Date</span>}
+                    label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l472">End Date</span>}
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -537,7 +537,7 @@ const MonthDrawer: React.FC<
                 data-cy={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 id={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 name={`monthDescription_${monthInfo.monthNumber}`}
-                label={<span className="font-medium">Description</span>}
+                label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l540">Description</span>}
               >
                 <TextArea
                   placeholder={`Enter description for ${monthName}`}

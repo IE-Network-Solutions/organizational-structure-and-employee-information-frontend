@@ -66,7 +66,7 @@ const FiscalYearListCard: React.FC = () => {
     }
   };
   if (fiscalYearsFetchLoading) {
-    return <Skeleton active paragraph={{ rows: 4 }} />;
+    return <Skeleton active paragraph={{ rows: 4 }}  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-skeleton-l69"/>;
   }
 
   const handelDrawerOpen = () => {
@@ -84,7 +84,7 @@ const FiscalYearListCard: React.FC = () => {
           <Button
             className="h-10 w-10 sm:w-auto"
             type="primary"
-            icon={<FaPlus />}
+            icon={<FaPlus  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-faplus-l87"/>}
             onClick={handelDrawerOpen}
             data-cy="org-settings-fiscal-year-create-btn"
             id="org-settings-fiscal-year-create-btn"
@@ -118,9 +118,9 @@ const FiscalYearListCard: React.FC = () => {
                     <div className="flex items-center justify-center" data-cy="org-settings-fiscal-year-card-content-inner-header" id="org-settings-fiscal-year-card-content-inner-header">
                       <div className="font-light" data-cy="org-settings-fiscal-year-card-content-inner-header-icon" id="org-settings-fiscal-year-card-content-inner-header-icon">
                         {expandedYears[fYear?.id || ''] ? (
-                          <MdKeyboardArrowUp size={20} />
+                          <MdKeyboardArrowUp size={20}  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-mdkeyboardarrowup-l121"/>
                         ) : (
-                          <IoIosArrowDown />
+                          <IoIosArrowDown  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-ioiosarrowdown-l123"/>
                         )}
                       </div>
                       <div className="m-3" data-cy="org-settings-fiscal-year-card-content-inner-header-content" id="org-settings-fiscal-year-card-content-inner-header-content">
@@ -155,9 +155,9 @@ const FiscalYearListCard: React.FC = () => {
                         >
                           <div className="font-light" data-cy="org-settings-fiscal-year-session-header-icon" id="org-settings-fiscal-year-session-header-icon">
                             {expandedSessions[session.id] ? (
-                              <MdKeyboardArrowUp size={20} />
+                              <MdKeyboardArrowUp size={20}  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-mdkeyboardarrowup-l158"/>
                             ) : (
-                              <IoIosArrowDown />
+                              <IoIosArrowDown  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-ioiosarrowdown-l160"/>
                             )}
                           </div>
                           <div data-cy="org-settings-fiscal-year-session-header-content" id="org-settings-fiscal-year-session-header-content">
@@ -187,7 +187,7 @@ const FiscalYearListCard: React.FC = () => {
                                   data-cy={`org-settings-fiscal-year-month-header-${monthId}`}
                                   id={`org-settings-fiscal-year-month-header-${monthId}`}
                                 >
-                                  <div>
+                                  <div data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-div-l190">
                                     <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-month-name-${monthId}`} id={`org-settings-fiscal-year-month-name-${monthId}`}>
                                       {month?.name ?? 'Month'}
                                     </p>
@@ -235,7 +235,7 @@ const FiscalYearListCard: React.FC = () => {
                         : []),
                       {
                         key: 'delete',
-                        label: <span className="text-red-500">Delete</span>,
+                        label: <span className="text-red-500" data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-span-l238">Delete</span>,
                         onClick: () => handleMenuClick('delete', fYear),
                       },
                     ],
