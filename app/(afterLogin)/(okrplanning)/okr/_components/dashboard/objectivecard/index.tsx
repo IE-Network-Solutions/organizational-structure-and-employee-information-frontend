@@ -13,6 +13,7 @@ import {
 import { MoreOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { setObjectiveValue, objectiveValue, keyResultId, objectiveId } =
@@ -22,9 +23,18 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { mutate: deleteObjective } = useDeleteObjective();
   const { isMobile, isTablet } = useIsMobile();
+  const { data: activeFiscalYear } = useGetActiveFiscalYears();
+
+  // Get active session ID
+  const activeSessionId =
+    activeFiscalYear?.sessions?.find((item: any) => item?.active)?.id;
 
   // Only owner can edit/delete
   const isOwner = objective?.userId === userId;
+  
+  // Check if objective is part of the active session
+  const isInActiveSession =
+    !activeSessionId || objective?.sessionId === activeSessionId;
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setObjectiveValue(objective);
@@ -48,8 +58,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
 
-  // Owner-only menu
-  const menu = isOwner ? (
+  // Owner-only menu - only show if objective is in active session
+  const menu = isOwner && isInActiveSession ? (
     <Menu
       items={[
         {
@@ -228,6 +238,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           updatedKeyResults={updatedKeyResults}
           objectiveId={objectiveId}
           objectiveUserId={objective?.userId}
+          isInActiveSession={isInActiveSession}
         />
       ))}
       <EditObjective
