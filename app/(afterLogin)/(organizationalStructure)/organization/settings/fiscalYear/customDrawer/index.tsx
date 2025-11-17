@@ -328,14 +328,14 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     <
       // Form layout="vertical" onFinish={handleSubmit}
     >
-      {current === 0 && <FiscalYearForm form={form1}  data-cy="auto-organization-settings-fiscalyear-customdrawer-index-tsx-fiscalyearform-l331"/>}
+      {current === 0 && <FiscalYearForm form={form1}  data-cy="org-settings-fiscalyear-customdrawer-index-fiscalyearform-1"/>}
       {current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
           isFiscalYear={true}
-         data-cy="auto-organization-settings-fiscalyear-customdrawer-index-tsx-sessiondrawer-l333"/>
+         data-cy="org-settings-fiscalyear-customdrawer-index-sessiondrawer-1"/>
       )}
       {current === 2 && (
         <MonthDrawer
@@ -345,7 +345,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           onSubmit={handleSubmit} // <-- pass the handler
           isFiscalYear={true}
           open={openfiscalYearDrawer} // <-- add this
-         data-cy="auto-organization-settings-fiscalyear-customdrawer-index-tsx-monthdrawer-l341"/>
+         data-cy="org-settings-fiscalyear-customdrawer-index-monthdrawer-1"/>
       )}
     </>
   );

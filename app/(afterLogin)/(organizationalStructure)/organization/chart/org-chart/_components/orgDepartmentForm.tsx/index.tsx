@@ -53,7 +53,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
       open={open}
       footer={
         <div style={{ textAlign: 'right' }} data-cy="org-chart-department-form-footer" id="org-chart-department-form-footer">
-          <Space data-cy="auto-organization-chart-org-chart-components-orgdepartmentform-tsx-index-tsx-space-l56">
+          <Space data-cy="org-org-chart-components-orgdepartmentform-tsx-index-space-1">
             <Button data-cy="org-chart-department-form-cancel-btn" id="org-chart-department-form-cancel-btn" onClick={onClose}>
               Cancel
             </Button>
@@ -84,7 +84,7 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
           data-cy="org-chart-department-form-item-name"
           id="org-chart-department-form-item-name"
         >
-          <Input size="large" placeholder="Enter department/team name"  data-cy="auto-organization-chart-org-chart-components-orgdepartmentform-tsx-index-tsx-input-l87"/>
+          <Input size="large" placeholder="Enter department/team name"  data-cy="org-org-chart-components-orgdepartmentform-tsx-index-input-1" id="org-org-chart-components-orgdepartmentform-tsx-index-input-1"/>
         </Form.Item>
         <Form.Item
           name="branchId"

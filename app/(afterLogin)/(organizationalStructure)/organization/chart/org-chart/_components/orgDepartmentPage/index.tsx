@@ -64,7 +64,7 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
             />
           ) : (
             <Avatar
-              icon={<BiUser  data-cy="auto-organization-chart-org-chart-components-orgdepartmentpage-index-tsx-biuser-l67"/>}
+              icon={<BiUser  data-cy="org-org-chart-components-orgdepartmentpage-index-biuser-1" id="org-org-chart-components-orgdepartmentpage-index-biuser-1"/>}
               size={54}
               src={user?.profileImage}
               className="mb-2"
@@ -129,7 +129,7 @@ const renderTreeNodes = (data: Department[]) =>
     return (
       <TreeNode
         key={item.id ?? nodeId}
-        label={<DepartmentNode data={item}  data-cy="auto-organization-chart-org-chart-components-orgdepartmentpage-index-tsx-departmentnode-l132"/>}
+        label={<DepartmentNode data={item}  data-cy="org-org-chart-components-orgdepartmentpage-index-departmentnode-1"/>}
         data-cy={`org-chart-department-node-tree-node-${nodeId}`}
       >
         {item.department && renderTreeNodes(item.department)}

@@ -66,16 +66,16 @@ const FiscalYearListCard: React.FC = () => {
   };
 
   if (fiscalYearsFetchLoading) {
-    return <p data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-p-l69">Loading...</p>;
+    return <p data-cy="org-components-fiscalyear-fiscalyearcard-index-p-1" id="org-components-fiscalyear-fiscalyearcard-index-p-1">Loading...</p>;
   }
   return (
     <div className="mx-auto p-4  p-none" data-cy="org-settings-fiscal-year-card-container" id="org-settings-fiscal-year-card-container">
       <div className="flex justify-between items-center mb-4" data-cy="org-settings-fiscal-year-card-header" id="org-settings-fiscal-year-card-header">
         <h2 className="text-xl font-semibold" data-cy="org-settings-fiscal-year-card-title" id="org-settings-fiscal-year-card-title">Fiscal Year</h2>
-        <AccessGuard permissions={[Permissions.CreateCalendar]} data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-accessguard-l75">
+        <AccessGuard permissions={[Permissions.CreateCalendar]} data-cy="org-components-fiscalyear-fiscalyearcard-index-accessguard-1" id="org-components-fiscalyear-fiscalyearcard-index-accessguard-1">
           <Button
             type="primary"
-            icon={<PlusOutlined  data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-plusoutlined-l78"/>}
+            icon={<PlusOutlined  data-cy="org-components-fiscalyear-fiscalyearcard-index-plusoutlined-1" id="org-components-fiscalyear-fiscalyearcard-index-plusoutlined-1"/>}
             onClick={() => {
               setIsOpenFiscalYearDrawer(true);
               openDrawer;
@@ -91,8 +91,8 @@ const FiscalYearListCard: React.FC = () => {
       {fiscalYears?.items && fiscalYears.items.length > 0 ? (
         fiscalYears.items.map((fYear: FiscalYear) => (
           <Card key={fYear?.id} className="my-3" data-cy={`org-settings-fiscal-year-card-${fYear?.id}`} id={`org-settings-fiscal-year-card-${fYear?.id}`}>
-            <div className="flex items-center justify-between" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-div-l94">
-              <div className="flex flex-col w-full " data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-div-l95">
+            <div className="flex items-center justify-between" data-cy="org-components-fiscalyear-fiscalyearcard-index-div-1" id="org-components-fiscalyear-fiscalyearcard-index-div-1">
+              <div className="flex flex-col w-full " data-cy="org-components-fiscalyear-fiscalyearcard-index-div-2" id="org-components-fiscalyear-fiscalyearcard-index-div-2">
                 <div
                   className={`flex items-center justify-between gap-x-4 cursor-pointer p-2 rounded-lg ${
                     expandedYears[fYear?.id || ''] ? 'bg-gray-100' : ''
@@ -102,14 +102,14 @@ const FiscalYearListCard: React.FC = () => {
                   onClick={() => toggleExpand(fYear?.id || '', 'year')}
                 >
                   <div className="flex items-center justify-center" data-cy={`org-settings-fiscal-year-card-header-content-${fYear?.id}`} id={`org-settings-fiscal-year-card-header-content-${fYear?.id}`}>
-                    <div className="font-light" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-div-l105">
+                    <div className="font-light" data-cy="org-components-fiscalyear-fiscalyearcard-index-div-3" id="org-components-fiscalyear-fiscalyearcard-index-div-3">
                       {expandedYears[fYear?.id || ''] ? (
-                        <MdKeyboardArrowUp size={20}  data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-mdkeyboardarrowup-l107"/>
+                        <MdKeyboardArrowUp size={20}  data-cy="org-components-fiscalyear-fiscalyearcard-index-mdkeyboardarrowup-1" id="org-components-fiscalyear-fiscalyearcard-index-mdkeyboardarrowup-1"/>
                       ) : (
-                        <IoIosArrowDown  data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-ioiosarrowdown-l109"/>
+                        <IoIosArrowDown  data-cy="org-components-fiscalyear-fiscalyearcard-index-ioiosarrowdown-1" id="org-components-fiscalyear-fiscalyearcard-index-ioiosarrowdown-1"/>
                       )}
                     </div>
-                    <div className="m-3" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-div-l112">
+                    <div className="m-3" data-cy="org-components-fiscalyear-fiscalyearcard-index-div-4" id="org-components-fiscalyear-fiscalyearcard-index-div-4">
                       <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-card-header-content-title-${fYear?.id}`} id={`org-settings-fiscal-year-card-header-content-title-${fYear?.id}`}>
                         {fYear.name ?? 'Fiscal Year'}
                       </p>
@@ -121,7 +121,7 @@ const FiscalYearListCard: React.FC = () => {
                   </div>
                   {fYear?.isActive && (
                     <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-card-header-content-active-${fYear?.id}`} id={`org-settings-fiscal-year-card-header-content-active-${fYear?.id}`}>
-                      <span className="text-[#0BA259]" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-span-l124">Active</span>
+                      <span className="text-[#0BA259]" data-cy="org-components-fiscalyear-fiscalyearcard-index-span-1" id="org-components-fiscalyear-fiscalyearcard-index-span-1">Active</span>
                     </div>
                   )}
                 </div>
@@ -139,13 +139,13 @@ const FiscalYearListCard: React.FC = () => {
                       >
                         <div className="font-light" data-cy={`org-settings-fiscal-year-card-session-header-content-${session?.id}`} id={`org-settings-fiscal-year-card-session-header-content-${session?.id}`}>
                           {expandedSessions[session.id] ? (
-                            <MdKeyboardArrowUp size={20}  data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-mdkeyboardarrowup-l142"/>
+                            <MdKeyboardArrowUp size={20}  data-cy="org-components-fiscalyear-fiscalyearcard-index-mdkeyboardarrowup-2" id="org-components-fiscalyear-fiscalyearcard-index-mdkeyboardarrowup-2"/>
                           ) : (
-                            <IoIosArrowDown  data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-ioiosarrowdown-l144"/>
+                            <IoIosArrowDown  data-cy="org-components-fiscalyear-fiscalyearcard-index-ioiosarrowdown-2" id="org-components-fiscalyear-fiscalyearcard-index-ioiosarrowdown-2"/>
                           )}
                         </div>
                         <div data-cy={`org-settings-fiscal-year-card-session-header-content-title-${session?.id}`} id={`org-settings-fiscal-year-card-session-header-content-title-${session?.id}`}>
-                          <p className="font-semibold uppercase text-slate-500" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-p-l148">
+                          <p className="font-semibold uppercase text-slate-500" data-cy="org-components-fiscalyear-fiscalyearcard-index-p-2" id="org-components-fiscalyear-fiscalyearcard-index-p-2">
                             {session.name ?? 'Session One'}
                           </p>
                           <div className="font-normal text-xs" data-cy={`org-settings-fiscal-year-card-session-header-content-date-${session?.id}`} id={`org-settings-fiscal-year-card-session-header-content-date-${session?.id}`}>
@@ -155,7 +155,7 @@ const FiscalYearListCard: React.FC = () => {
                         </div>
                         {session?.active && (
                           <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-card-session-header-content-active-${session?.id}`} id={`org-settings-fiscal-year-card-session-header-content-active-${session?.id}`}>
-                            <span className="text-[#0BA259]" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-span-l158">Active</span>
+                            <span className="text-[#0BA259]" data-cy="org-components-fiscalyear-fiscalyearcard-index-span-2" id="org-components-fiscalyear-fiscalyearcard-index-span-2">Active</span>
                           </div>
                         )}
                       </div>
@@ -169,7 +169,7 @@ const FiscalYearListCard: React.FC = () => {
                               data-cy={`org-settings-fiscal-year-card-month-header-${month?.id}`}
                               id={`org-settings-fiscal-year-card-month-header-${month?.id}`}
                             >
-                              <div data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-div-l172">
+                              <div data-cy="org-components-fiscalyear-fiscalyearcard-index-div-5" id="org-components-fiscalyear-fiscalyearcard-index-div-5">
                                 <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-card-month-header-content-title-${month?.id}`} id={`org-settings-fiscal-year-card-month-header-content-title-${month?.id}`}>
                                   {month?.name ?? 'Month'}
                                 </p>
@@ -183,7 +183,7 @@ const FiscalYearListCard: React.FC = () => {
                               </div>
                               {month?.active && (
                                 <div className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text" data-cy={`org-settings-fiscal-year-card-month-header-content-active-${month?.id}`} id={`org-settings-fiscal-year-card-month-header-content-active-${month?.id}`}>
-                                  <span className="text-[#0BA259]" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-span-l186">Active</span>
+                                  <span className="text-[#0BA259]" data-cy="org-components-fiscalyear-fiscalyearcard-index-span-3" id="org-components-fiscalyear-fiscalyearcard-index-span-3">Active</span>
                                 </div>
                               )}
                             </div>
@@ -198,7 +198,7 @@ const FiscalYearListCard: React.FC = () => {
                     Permissions.UpdateCalendar,
                     Permissions.DeleteCalendar,
                   ]}
-                 data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-accessguard-l196">
+                 data-cy="org-components-fiscalyear-fiscalyearcard-index-accessguard-2" id="org-components-fiscalyear-fiscalyearcard-index-accessguard-2">
                   <Dropdown
                     menu={{
                       items: [
@@ -209,7 +209,7 @@ const FiscalYearListCard: React.FC = () => {
                         },
                         {
                           key: 'delete',
-                          label: <span className="text-red-500" data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-span-l212">Delete</span>,
+                          label: <span className="text-red-500" data-cy="org-components-fiscalyear-fiscalyearcard-index-span-4" id="org-components-fiscalyear-fiscalyearcard-index-span-4">Delete</span>,
                           onClick: () => handleMenuClick('delete', fYear),
                         },
                       ],
@@ -243,7 +243,7 @@ const FiscalYearListCard: React.FC = () => {
         }}
         data-cy="org-settings-fiscal-year-card-pagination"
       />
-      <CustomWorFiscalYearDrawer  data-cy="auto-organization-settings-components-fiscalyear-fiscalyearcard-index-tsx-customworfiscalyeardrawer-l246"/>
+      <CustomWorFiscalYearDrawer  data-cy="org-components-fiscalyear-fiscalyearcard-index-customworfiscalyeardrawer-1"/>
     </div>
   );
 };

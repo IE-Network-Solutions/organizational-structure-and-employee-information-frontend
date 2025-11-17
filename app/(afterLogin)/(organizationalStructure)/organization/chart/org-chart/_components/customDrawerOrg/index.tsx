@@ -26,7 +26,7 @@ const CustomDrawerOrgLayout: React.FC<CustomDrawerLayoutProps> = ({
           data-cy="org-chart-custom-drawer-layout-close-btn"
           id="closeSidebarButton"
           className="bg-white text-lg text-grey-9 rounded-full mr-8"
-          icon={<FaAngleRight  data-cy="auto-organization-chart-org-chart-components-customdrawerorg-index-tsx-faangleright-l29"/>}
+          icon={<FaAngleRight  data-cy="org-org-chart-components-customdrawerorg-index-faangleright-1" id="org-org-chart-components-customdrawerorg-index-faangleright-1"/>}
           onClick={onClose}
           style={{
             display: window.innerWidth <= 768 ? 'none' : 'flex',

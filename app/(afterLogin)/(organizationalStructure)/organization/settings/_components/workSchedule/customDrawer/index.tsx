@@ -222,8 +222,8 @@ const CustomWorkingScheduleDrawer = () => {
             <div className="flex gap-2 md:gap-4 justify-start items-center" data-cy={`org-settings-work-schedule-working-content-${dayKey}`} id={`org-settings-work-schedule-working-content-${dayKey}`}>
               <Switch
                 checked={record.status}
-                checkedChildren={<CheckOutlined  data-cy="auto-organization-settings-components-workschedule-customdrawer-index-tsx-checkoutlined-l225"/>}
-                unCheckedChildren={<CloseOutlined  data-cy="auto-organization-settings-components-workschedule-customdrawer-index-tsx-closeoutlined-l226"/>}
+                checkedChildren={<CheckOutlined  data-cy="org-components-workschedule-customdrawer-index-checkoutlined-1"/>}
+                unCheckedChildren={<CloseOutlined  data-cy="org-components-workschedule-customdrawer-index-closeoutlined-1"/>}
                 size="small"
                 onChange={(checked) =>
                   handleSwitchChange(record.dayOfWeek, checked)
@@ -339,7 +339,7 @@ const CustomWorkingScheduleDrawer = () => {
       width="45%"
       footer={
         <div className="flex justify-between items-center w-full my-1 pb-3" data-cy="org-settings-work-schedule-drawer-footer" id="org-settings-work-schedule-drawer-footer">
-          <div className="flex justify-start items-center gap-2 mt-4 mx-1" data-cy="auto-organization-settings-components-workschedule-customdrawer-index-tsx-div-l342">
+          <div className="flex justify-start items-center gap-2 mt-4 mx-1" data-cy="org-components-workschedule-customdrawer-index-div-1" id="org-components-workschedule-customdrawer-index-div-1">
             <span className="text-xs font-semibold text-nowrap " data-cy="org-settings-work-schedule-total-hours-label" id="org-settings-work-schedule-total-hours-label">
               Total Working hours:
             </span>
@@ -356,7 +356,7 @@ const CustomWorkingScheduleDrawer = () => {
               </span>
             )}
           </div>
-          <div className="flex gap-2 mt-4 mr-8" data-cy="auto-organization-settings-components-workschedule-customdrawer-index-tsx-div-l359">
+          <div className="flex gap-2 mt-4 mr-8" data-cy="org-components-workschedule-customdrawer-index-div-2" id="org-components-workschedule-customdrawer-index-div-2">
             <Button type="default" className="font-md" onClick={handleCancel} data-cy="org-settings-work-schedule-drawer-cancel-btn" id="org-settings-work-schedule-drawer-cancel-btn">
               Cancel
             </Button>
@@ -373,7 +373,7 @@ const CustomWorkingScheduleDrawer = () => {
           </div>
         </div>
       }
-     data-cy="auto-organization-settings-components-workschedule-customdrawer-index-tsx-customdrawerlayout-l331">
+     data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1">
       <Form
         form={form}
         layout="vertical"
@@ -384,7 +384,7 @@ const CustomWorkingScheduleDrawer = () => {
       >
         <Form.Item
           name="scheduleName"
-          label={<span className="text-sm font-semibold" data-cy="auto-organization-settings-components-workschedule-customdrawer-index-tsx-span-l387">Schedule Name</span>}
+          label={<span className="text-sm font-semibold" data-cy="org-components-workschedule-customdrawer-index-span-1" id="org-components-workschedule-customdrawer-index-span-1">Schedule Name</span>}
           rules={[{ required: true, message: 'Please input schedule name!' }]}
           data-cy="org-settings-work-schedule-name-field"
           id='org-settings-work-schedule-name-field'

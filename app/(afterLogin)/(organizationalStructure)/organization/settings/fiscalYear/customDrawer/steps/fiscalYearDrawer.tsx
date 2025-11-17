@@ -411,7 +411,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                 data-cy="org-settings-fiscal-year-name-input"
                 id="fiscalNameId"
                 name="fiscalYearName"
-                label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-fiscalyeardrawer-tsx-span-l414">Fiscal Year Name</span>}
+                label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-1" id="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-1">Fiscal Year Name</span>}
                 rules={[
                   {
                     required: true,
@@ -434,7 +434,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     data-cy="org-settings-fiscal-year-start-date-input"
                     id="fiscalYearStartDateId"
                     name="fiscalYearStartDate"
-                    label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-fiscalyeardrawer-tsx-span-l437">Start Date</span>}
+                    label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-2" id="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-2">Start Date</span>}
                     rules={[
                       {
                         required: true,
@@ -480,7 +480,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                     data-cy="org-settings-fiscal-year-end-date-input"
                     id="fiscalYearEndDateId"
                     name="fiscalYearEndDate"
-                    label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-fiscalyeardrawer-tsx-span-l483"> End Date</span>}
+                    label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-3" id="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-3"> End Date</span>}
                     rules={[
                       { required: true, message: 'Please select an end date!' },
                       { validator: validateEndDate },
@@ -504,7 +504,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                 id="fiscalYearCalenderId"
                 name="fiscalYearCalenderId"
                 label={
-                  <span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-fiscalyeardrawer-tsx-span-l507">Fiscal Year Calendar</span>
+                  <span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-4" id="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-4">Fiscal Year Calendar</span>
                 }
                 rules={[
                   { required: true, message: 'Please select a calendar type!' },

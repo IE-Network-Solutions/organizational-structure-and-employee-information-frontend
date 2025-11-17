@@ -70,7 +70,7 @@ function SettingsPage() {
   ];
   return (
     <>
-      <div className="flex justify-start  -mt-2 -ml-2" data-cy="auto-organization-settings-settingspage-index-tsx-div-l73">
+      <div className="flex justify-start  -mt-2 -ml-2" data-cy="org-organization-settings-settingspage-index-div-1" id="org-organization-settings-settingspage-index-div-1">
         <Card className="shadow-none" bordered={false} data-cy="org-settings-page-branches-card" id="org-settings-page-branches-card">
           <p className="font-bold text-xl" data-cy="org-settings-page-branches-card-title" id="org-settings-page-branches-card-title">Branches</p>
           <p className="text-gray-400" data-cy="org-settings-page-branches-card-description" id="org-settings-page-branches-card-description">Branch</p>

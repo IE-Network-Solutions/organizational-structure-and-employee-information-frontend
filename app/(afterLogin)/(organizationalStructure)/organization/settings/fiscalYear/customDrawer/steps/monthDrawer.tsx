@@ -381,7 +381,7 @@ const MonthDrawer: React.FC<
                 id={`monthNameId_${monthInfo.monthNumber}`}
                 name={`monthName_${monthInfo.monthNumber}`}
                 label={
-                  <span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l384">{monthInfo.monthName}</span>
+                  <span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-1" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-1">{monthInfo.monthName}</span>
                 }
                 rules={[
                   {
@@ -399,13 +399,13 @@ const MonthDrawer: React.FC<
                 />
               </Form.Item>
 
-              <Row gutter={[16, 10]} data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-row-l402">
-                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-col-l403">
+              <Row gutter={[16, 10]} data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-row-1" id="org-fiscalyear-customdrawer-steps-monthdrawer-row-1">
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-1" id="org-fiscalyear-customdrawer-steps-monthdrawer-col-1">
                   <Form.Item
                     data-cy={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     id={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     name={`monthStartDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l408">Start Date</span>}
+                    label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-2" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-2">Start Date</span>}
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -464,12 +464,12 @@ const MonthDrawer: React.FC<
                     />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-col-l467">
+                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-2" id="org-fiscalyear-customdrawer-steps-monthdrawer-col-2">
                   <Form.Item
                     data-cy={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     id={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     name={`monthEndDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l472">End Date</span>}
+                    label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-3" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-3">End Date</span>}
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -537,7 +537,7 @@ const MonthDrawer: React.FC<
                 data-cy={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 id={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 name={`monthDescription_${monthInfo.monthNumber}`}
-                label={<span className="font-medium" data-cy="auto-organization-settings-fiscalyear-customdrawer-steps-monthdrawer-tsx-span-l540">Description</span>}
+                label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-4" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-4">Description</span>}
               >
                 <TextArea
                   placeholder={`Enter description for ${monthName}`}

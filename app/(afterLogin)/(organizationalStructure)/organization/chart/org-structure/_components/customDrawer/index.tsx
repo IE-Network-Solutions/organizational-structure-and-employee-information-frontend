@@ -29,11 +29,11 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'transfer':
-        return <TransferForm form={form}  data-cy="auto-organization-chart-org-structure-components-customdrawer-index-tsx-transferform-l32"/>;
+        return <TransferForm form={form}  data-cy="org-org-structure-components-customdrawer-index-transferform-1"/>;
       case 'merge':
-        return <MergeForm form={form}  data-cy="auto-organization-chart-org-structure-components-customdrawer-index-tsx-mergeform-l34"/>;
+        return <MergeForm form={form}  data-cy="org-org-structure-components-customdrawer-index-mergeform-1"/>;
       case 'delete':
-        return <DeleteForm form={form}  data-cy="auto-organization-chart-org-structure-components-customdrawer-index-tsx-deleteform-l36"/>;
+        return <DeleteForm form={form}  data-cy="org-org-structure-components-customdrawer-index-deleteform-1"/>;
       default:
         return null;
     }

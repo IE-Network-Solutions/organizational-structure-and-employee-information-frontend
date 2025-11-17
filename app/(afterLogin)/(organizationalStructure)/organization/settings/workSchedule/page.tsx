@@ -130,7 +130,7 @@ function WorkScheduleTab() {
       items.push({
         key: 'edit',
         label: 'Edit',
-        icon: <FaEdit  data-cy="auto-organization-settings-workschedule-page-tsx-faedit-l133"/>,
+        icon: <FaEdit  data-cy="org-organization-settings-workschedule-page-faedit-1" id="org-organization-settings-workschedule-page-faedit-1"/>,
         onClick: () => handleEditSchedule(scheduleItem),
         'data-cy': `org-settings-work-schedule-edit-${scheduleId}`,
         id: `org-settings-work-schedule-edit-${scheduleId}`,
@@ -138,7 +138,7 @@ function WorkScheduleTab() {
       items.push({
         key: 'delete',
         label: 'Delete',
-        icon: <FaTrashAlt  data-cy="auto-organization-settings-workschedule-page-tsx-fatrashalt-l141"/>,
+        icon: <FaTrashAlt  data-cy="org-organization-settings-workschedule-page-fatrashalt-1" id="org-organization-settings-workschedule-page-fatrashalt-1"/>,
         onClick: () => handleDeleteSchedule(scheduleItem),
         'data-cy': `org-settings-work-schedule-delete-${scheduleId}`,
         id: `org-settings-work-schedule-delete-${scheduleId}`,
@@ -194,11 +194,11 @@ function WorkScheduleTab() {
         <div className="flex justify-between items-center mb-4" data-cy="org-settings-work-schedule-header" id="org-settings-work-schedule-header">
           <h1 className="text-base text-bold" data-cy="org-settings-work-schedule-title" id="org-settings-work-schedule-title">Work Schedule</h1>
           <AccessGuard permissions={[Permissions.CreateWorkingSchedule]} data-cy="org-settings-work-schedule-create-btn" id="org-settings-work-schedule-create-btn">
-            <Space data-cy="auto-organization-settings-workschedule-page-tsx-space-l197">
+            <Space data-cy="org-organization-settings-workschedule-page-space-1">
               <Button
                 type="primary"
                 className="h-10 w-10 sm:w-auto"
-                icon={<FaPlus  data-cy="auto-organization-settings-workschedule-page-tsx-faplus-l201"/>}
+                icon={<FaPlus  data-cy="org-organization-settings-workschedule-page-faplus-1" id="org-organization-settings-workschedule-page-faplus-1"/>}
                 onClick={openDrawer}
                 data-cy="org-settings-work-schedule-create-btn"
                 id="org-settings-work-schedule-create-btn"
@@ -305,7 +305,7 @@ function WorkScheduleTab() {
                             <div
                               key={`${item?.day}-label`}
                               className="whitespace-nowrap"
-                             data-cy="auto-organization-settings-workschedule-page-tsx-div-l305">
+                             data-cy="org-organization-settings-workschedule-page-div-1" id="org-organization-settings-workschedule-page-div-1">
                               {item?.day}
                             </div>
                           ))}

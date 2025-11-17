@@ -66,7 +66,7 @@ const FiscalYearListCard: React.FC = () => {
     }
   };
   if (fiscalYearsFetchLoading) {
-    return <Skeleton active paragraph={{ rows: 4 }}  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-skeleton-l69"/>;
+    return <Skeleton active paragraph={{ rows: 4 }}  data-cy="org-settings-fiscalyear-fiscalyearcard-page-skeleton-1"/>;
   }
 
   const handelDrawerOpen = () => {
@@ -84,7 +84,7 @@ const FiscalYearListCard: React.FC = () => {
           <Button
             className="h-10 w-10 sm:w-auto"
             type="primary"
-            icon={<FaPlus  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-faplus-l87"/>}
+            icon={<FaPlus  data-cy="org-settings-fiscalyear-fiscalyearcard-page-faplus-1" id="org-settings-fiscalyear-fiscalyearcard-page-faplus-1"/>}
             onClick={handelDrawerOpen}
             data-cy="org-settings-fiscal-year-create-btn"
             id="org-settings-fiscal-year-create-btn"
@@ -118,9 +118,9 @@ const FiscalYearListCard: React.FC = () => {
                     <div className="flex items-center justify-center" data-cy="org-settings-fiscal-year-card-content-inner-header" id="org-settings-fiscal-year-card-content-inner-header">
                       <div className="font-light" data-cy="org-settings-fiscal-year-card-content-inner-header-icon" id="org-settings-fiscal-year-card-content-inner-header-icon">
                         {expandedYears[fYear?.id || ''] ? (
-                          <MdKeyboardArrowUp size={20}  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-mdkeyboardarrowup-l121"/>
+                          <MdKeyboardArrowUp size={20}  data-cy="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1" id="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1"/>
                         ) : (
-                          <IoIosArrowDown  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-ioiosarrowdown-l123"/>
+                          <IoIosArrowDown  data-cy="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1" id="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1"/>
                         )}
                       </div>
                       <div className="m-3" data-cy="org-settings-fiscal-year-card-content-inner-header-content" id="org-settings-fiscal-year-card-content-inner-header-content">
@@ -155,9 +155,9 @@ const FiscalYearListCard: React.FC = () => {
                         >
                           <div className="font-light" data-cy="org-settings-fiscal-year-session-header-icon" id="org-settings-fiscal-year-session-header-icon">
                             {expandedSessions[session.id] ? (
-                              <MdKeyboardArrowUp size={20}  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-mdkeyboardarrowup-l158"/>
+                              <MdKeyboardArrowUp size={20}  data-cy="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-2" id="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-2"/>
                             ) : (
-                              <IoIosArrowDown  data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-ioiosarrowdown-l160"/>
+                              <IoIosArrowDown  data-cy="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-2" id="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-2"/>
                             )}
                           </div>
                           <div data-cy="org-settings-fiscal-year-session-header-content" id="org-settings-fiscal-year-session-header-content">
@@ -187,7 +187,7 @@ const FiscalYearListCard: React.FC = () => {
                                   data-cy={`org-settings-fiscal-year-month-header-${monthId}`}
                                   id={`org-settings-fiscal-year-month-header-${monthId}`}
                                 >
-                                  <div data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-div-l190">
+                                  <div data-cy="org-settings-fiscalyear-fiscalyearcard-page-div-1" id="org-settings-fiscalyear-fiscalyearcard-page-div-1">
                                     <p className="font-semibold uppercase text-slate-500" data-cy={`org-settings-fiscal-year-month-name-${monthId}`} id={`org-settings-fiscal-year-month-name-${monthId}`}>
                                       {month?.name ?? 'Month'}
                                     </p>
@@ -235,7 +235,7 @@ const FiscalYearListCard: React.FC = () => {
                         : []),
                       {
                         key: 'delete',
-                        label: <span className="text-red-500" data-cy="auto-organization-settings-fiscalyear-fiscalyearcard-page-tsx-span-l238">Delete</span>,
+                        label: <span className="text-red-500" data-cy="org-settings-fiscalyear-fiscalyearcard-page-span-1" id="org-settings-fiscalyear-fiscalyearcard-page-span-1">Delete</span>,
                         onClick: () => handleMenuClick('delete', fYear),
                       },
                     ],

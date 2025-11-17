@@ -25,11 +25,11 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'archive':
-        return <ArchiveForm  data-cy="auto-organization-chart-org-chart-components-customdrawer-index-tsx-archiveform-l28"/>;
+        return <ArchiveForm  data-cy="org-org-chart-components-customdrawer-index-archiveform-1"/>;
       case 'merge':
-        return <MergeForm  data-cy="auto-organization-chart-org-chart-components-customdrawer-index-tsx-mergeform-l30"/>;
+        return <MergeForm  data-cy="org-org-chart-components-customdrawer-index-mergeform-1"/>;
       case 'dissolve':
-        return <DissolveForm  data-cy="auto-organization-chart-org-chart-components-customdrawer-index-tsx-dissolveform-l32"/>;
+        return <DissolveForm  data-cy="org-org-chart-components-customdrawer-index-dissolveform-1"/>;
       default:
         return null;
     }
