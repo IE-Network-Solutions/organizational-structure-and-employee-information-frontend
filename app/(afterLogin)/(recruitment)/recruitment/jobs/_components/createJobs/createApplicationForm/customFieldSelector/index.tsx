@@ -58,7 +58,9 @@ const CustomFieldsSelector: React.FC = () => {
           id="talent-acquisition-create-application-form-panel-custom-question-templates"
           data-cy="talent-acquisition-create-application-form-panel-custom-question-templates"
         >
-          <div className="flex flex-col">
+          <div  id="talent-acquisition-create-application-form-panel-custom-question-div"
+          data-cy="talent-acquisition-create-application-form-panel-custom-question-div"
+           className="flex flex-col">
             {customFields?.items && customFields?.items?.length > 0 ? (
               customFields?.items?.map((question: any, index: number) => (
                 <div  id={`talent-acquisition-create-application-form-collapse-question-${question?.id}`}
@@ -75,7 +77,7 @@ const CustomFieldsSelector: React.FC = () => {
                                 handleSelectQuestion(question?.id, e)
                               }
                             />
-                            <span 
+                            <span
                              id={`talent-acquisition-create-application-form-span-title-${question?.id}`}
                              data-cy={`talent-acquisition-create-application-form-span-title-${question?.id}`}
                              className="ml-2">{question?.title ?? '-'}</span>
