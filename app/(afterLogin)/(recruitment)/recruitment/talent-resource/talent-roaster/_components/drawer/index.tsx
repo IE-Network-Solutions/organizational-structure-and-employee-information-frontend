@@ -117,7 +117,11 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
   }, [isEdit, editData, open, form, setDocumentFileList]);
 
   const talentRoasterDrawerHeader = (
-    <div id="talent-acquisition-talent-roaster-drawer-header" data-cy="talent-acquisition-talent-roaster-drawer-header" className=" text-xl font-extrabold text-gray-800 ">
+    <div
+      id="talent-acquisition-talent-roaster-drawer-header"
+      data-cy="talent-acquisition-talent-roaster-drawer-header"
+      className=" text-xl font-extrabold text-gray-800 "
+    >
       {isEdit ? 'Edit Talent Roaster Applicant' : 'Talent Roaster Applicants'}
     </div>
   );
@@ -140,8 +144,12 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       type: 'primary',
       loading: isEdit ? isUpdateLoading : isCreateLoading,
       onClick: () => form.submit(),
-      id: isEdit ? 'talent-acquisition-talent-roaster-button-update' : 'talent-acquisition-talent-roaster-button-create',
-      'data-cy': isEdit ? 'talent-acquisition-talent-roaster-button-update' : 'talent-acquisition-talent-roaster-button-create',
+      id: isEdit
+        ? 'talent-acquisition-talent-roaster-button-update'
+        : 'talent-acquisition-talent-roaster-button-create',
+      'data-cy': isEdit
+        ? 'talent-acquisition-talent-roaster-button-update'
+        : 'talent-acquisition-talent-roaster-button-create',
     },
   ];
 
@@ -208,7 +216,13 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       customMobileHeight="75vh"
       footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
     >
-      <Form id="talent-acquisition-talent-roaster-form" data-cy="talent-acquisition-talent-roaster-form" form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form
+        id="talent-acquisition-talent-roaster-form"
+        data-cy="talent-acquisition-talent-roaster-form"
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
         <Form.Item
           id="fullNameId"
           name="fullName"
@@ -225,7 +239,12 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             },
           ]}
         >
-          <Input id="talent-acquisition-talent-roaster-input-full-name" data-cy="talent-acquisition-talent-roaster-input-full-name" placeholder="Full Name" className="w-full h-10 text-sm" />
+          <Input
+            id="talent-acquisition-talent-roaster-input-full-name"
+            data-cy="talent-acquisition-talent-roaster-input-full-name"
+            placeholder="Full Name"
+            className="w-full h-10 text-sm"
+          />
         </Form.Item>
 
         <Row gutter={16}>
@@ -245,7 +264,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   message: 'Please enter a valid email address!',
                 },
               ]}
-              >
+            >
               <Input
                 id="talent-acquisition-talent-roaster-input-email"
                 data-cy="talent-acquisition-talent-roaster-input-email"
@@ -295,7 +314,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                 </span>
               }
               rules={[{ required: true, message: 'Please input CGPA' }]}
-              >
+            >
               <InputNumber
                 id="talent-acquisition-talent-roaster-input-cgpa"
                 data-cy="talent-acquisition-talent-roaster-input-cgpa"
@@ -307,7 +326,11 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                 placeholder="CGPA"
               />
             </Form.Item>
-            <div id="talent-acquisition-talent-roaster-drawer-div-cgpa-info" data-cy="talent-acquisition-talent-roaster-drawer-div-cgpa-info" className="flex items-center justify-start gap-1 ml-1">
+            <div
+              id="talent-acquisition-talent-roaster-drawer-div-cgpa-info"
+              data-cy="talent-acquisition-talent-roaster-drawer-div-cgpa-info"
+              className="flex items-center justify-start gap-1 ml-1"
+            >
               <FaInfoCircle />
               <div className="text-xs font-md">Put your point 4.0 scale</div>
             </div>
@@ -329,7 +352,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               message: 'Please enter a valid year!',
             },
           ]}
-          >
+        >
           <Input
             id="talent-acquisition-talent-roaster-input-year-graduation"
             data-cy="talent-acquisition-talent-roaster-input-year-graduation"
@@ -362,7 +385,12 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             }
           >
             {EmployeeDepartment?.map((item: DepartmentData) => (
-              <Option key={item?.id} value={item?.id} id={`talent-acquisition-talent-roaster-option-department-${item?.id}`} data-cy={`talent-acquisition-talent-roaster-option-department-${item?.id}`}>
+              <Option
+                key={item?.id}
+                value={item?.id}
+                id={`talent-acquisition-talent-roaster-option-department-${item?.id}`}
+                data-cy={`talent-acquisition-talent-roaster-option-department-${item?.id}`}
+              >
                 {item?.name}
               </Option>
             ))}

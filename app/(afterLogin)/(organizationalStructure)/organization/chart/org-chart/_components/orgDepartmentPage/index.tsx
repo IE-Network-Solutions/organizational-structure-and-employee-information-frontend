@@ -64,7 +64,12 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
             />
           ) : (
             <Avatar
-              icon={<BiUser  data-cy="org-org-chart-components-orgdepartmentpage-index-biuser-1" id="org-org-chart-components-orgdepartmentpage-index-biuser-1"/>}
+              icon={
+                <BiUser
+                  data-cy="org-org-chart-components-orgdepartmentpage-index-biuser-1"
+                  id="org-org-chart-components-orgdepartmentpage-index-biuser-1"
+                />
+              }
               size={54}
               src={user?.profileImage}
               className="mb-2"
@@ -129,7 +134,12 @@ const renderTreeNodes = (data: Department[]) =>
     return (
       <TreeNode
         key={item.id ?? nodeId}
-        label={<DepartmentNode data={item}  data-cy="org-org-chart-components-orgdepartmentpage-index-departmentnode-1"/>}
+        label={
+          <DepartmentNode
+            data={item}
+            data-cy="org-org-chart-components-orgdepartmentpage-index-departmentnode-1"
+          />
+        }
         data-cy={`org-chart-department-node-tree-node-${nodeId}`}
       >
         {item.department && renderTreeNodes(item.department)}
@@ -171,12 +181,28 @@ const OrgChartComponent: React.FC = () => {
   };
 
   return (
-    <Card className="border-none" data-cy="org-chart-container" id="org-chart-container">
-      <div className="w-full py-7 overflow-x-auto" data-cy="org-chart-content" id="org-chart-content">
+    <Card
+      className="border-none"
+      data-cy="org-chart-container"
+      id="org-chart-container"
+    >
+      <div
+        className="w-full py-7 overflow-x-auto"
+        data-cy="org-chart-content"
+        id="org-chart-content"
+      >
         {orgStructureLoading ? (
-          <OrgChartSkeleton loading={orgStructureLoading} data-cy="org-chart-skeleton" />
+          <OrgChartSkeleton
+            loading={orgStructureLoading}
+            data-cy="org-chart-skeleton"
+          />
         ) : (
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef} data-cy="org-chart-tree-container" id="org-chart-tree-container">
+          <div
+            className="p-4 sm:p-2 md:p-6 lg:p-8"
+            ref={chartRef}
+            data-cy="org-chart-tree-container"
+            id="org-chart-tree-container"
+          >
             <Tree
               label={
                 <DepartmentNode
@@ -219,7 +245,12 @@ const OrgChartComponent: React.FC = () => {
           onCancel={() => setIsDeleteConfirmVisible(false)}
           data-cy="org-chart-delete-modal"
         >
-          <p data-cy="org-chart-delete-confirmation-text" id="org-chart-delete-confirmation-text">Are you sure you want to delete this department?</p>
+          <p
+            data-cy="org-chart-delete-confirmation-text"
+            id="org-chart-delete-confirmation-text"
+          >
+            Are you sure you want to delete this department?
+          </p>
         </Modal>
       </div>
     </Card>

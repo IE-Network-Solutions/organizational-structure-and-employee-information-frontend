@@ -75,7 +75,11 @@ const TalentPoolDrawer: React.FC = () => {
     <CustomDrawerLayout
       data-cy="talent-acquisition-talent-pool-category-drawer"
       modalHeader={
-        <h1 id="talent-acquisition-talent-pool-category-editmode" data-cy="talent-acquisition-talent-pool-category-editmode" className=" flex justify-start text-xl font-extrabold text-gray-800 py-6">
+        <h1
+          id="talent-acquisition-talent-pool-category-editmode"
+          data-cy="talent-acquisition-talent-pool-category-editmode"
+          className=" flex justify-start text-xl font-extrabold text-gray-800 py-6"
+        >
           {isEditMode
             ? 'Edit Talent Pool Category'
             : 'New Talent Pool Category'}
@@ -95,8 +99,16 @@ const TalentPoolDrawer: React.FC = () => {
               type="default"
             />
             <CustomButton
-              id={isEditMode ? "talent-acquisition-talent-pool-category-button-update" : "talent-acquisition-talent-pool-category-button-create"}
-              data-cy={isEditMode ? "talent-acquisition-talent-pool-category-button-update" : "talent-acquisition-talent-pool-category-button-create"}
+              id={
+                isEditMode
+                  ? 'talent-acquisition-talent-pool-category-button-update'
+                  : 'talent-acquisition-talent-pool-category-button-create'
+              }
+              data-cy={
+                isEditMode
+                  ? 'talent-acquisition-talent-pool-category-button-update'
+                  : 'talent-acquisition-talent-pool-category-button-create'
+              }
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
             />
@@ -104,13 +116,23 @@ const TalentPoolDrawer: React.FC = () => {
         </div>
       }
     >
-      <Form id="talent-acquisition-talent-pool-category-form" data-cy="talent-acquisition-talent-pool-category-form" form={form} layout="vertical">
+      <Form
+        id="talent-acquisition-talent-pool-category-form"
+        data-cy="talent-acquisition-talent-pool-category-form"
+        form={form}
+        layout="vertical"
+      >
         <Form.Item
           label="Name"
           name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
-          <Input id="talent-acquisition-talent-pool-category-input-title" data-cy="talent-acquisition-talent-pool-category-input-title" className="h-12" placeholder="Enter the category title" />
+          <Input
+            id="talent-acquisition-talent-pool-category-input-title"
+            data-cy="talent-acquisition-talent-pool-category-input-title"
+            className="h-12"
+            placeholder="Enter the category title"
+          />
         </Form.Item>
 
         <Form.Item

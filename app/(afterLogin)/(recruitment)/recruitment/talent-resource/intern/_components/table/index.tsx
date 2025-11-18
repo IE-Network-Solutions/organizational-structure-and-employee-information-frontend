@@ -205,7 +205,13 @@ const InternTable = ({ onEdit }: InternTableProps) => {
 
         const depName = `${getAllDepartment?.name}` || '-';
         return (
-          <div id="talent-acquisition-intern-table-cell-department" data-cy={`talent-acquisition-intern-table-cell-department-${id}`} className="flex gap-2 items-center">{<div>{depName}</div>}</div>
+          <div
+            id="talent-acquisition-intern-table-cell-department"
+            data-cy={`talent-acquisition-intern-table-cell-department-${id}`}
+            className="flex gap-2 items-center"
+          >
+            {<div>{depName}</div>}
+          </div>
         );
       };
 
@@ -275,8 +281,14 @@ const InternTable = ({ onEdit }: InternTableProps) => {
   };
 
   return (
-    <div id="talent-acquisition-intern-table-container" data-cy="talent-acquisition-intern-table-container">
-      <div id="talent-acquisition-intern-table-filters" data-cy="talent-acquisition-intern-table-filters">
+    <div
+      id="talent-acquisition-intern-table-container"
+      data-cy="talent-acquisition-intern-table-container"
+    >
+      <div
+        id="talent-acquisition-intern-table-filters"
+        data-cy="talent-acquisition-intern-table-filters"
+      >
         <Row
           data-cy="talent-acquisition-intern-table-row-filters"
           gutter={[16, 24]}
@@ -300,7 +312,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                 />
               </Col>
               <Col xs={4} sm={4} className="block sm:hidden">
-                <div id="talent-acquisition-intern-table-div-mobile-filter-button" data-cy="talent-acquisition-intern-table-div-mobile-filter-button" className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
+                <div
+                  id="talent-acquisition-intern-table-div-mobile-filter-button"
+                  data-cy="talent-acquisition-intern-table-div-mobile-filter-button"
+                  className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg"
+                >
                   <VscSettings
                     id="talent-acquisition-intern-table-button-mobile-filter"
                     data-cy="talent-acquisition-intern-table-button-mobile-filter"
@@ -312,11 +328,24 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             </Row>
           </Col>
 
-          <Col data-cy="talent-acquisition-intern-table-col-desktop-filters" lg={14} className="hidden sm:block ">
-            <Row data-cy="talent-acquisition-intern-table-row-desktop-filters" gutter={[8, 16]} align="middle">
-              <Col data-cy="talent-acquisition-intern-table-col-date" lg={14} sm={12} xs={24}>
+          <Col
+            data-cy="talent-acquisition-intern-table-col-desktop-filters"
+            lg={14}
+            className="hidden sm:block "
+          >
+            <Row
+              data-cy="talent-acquisition-intern-table-row-desktop-filters"
+              gutter={[8, 16]}
+              align="middle"
+            >
+              <Col
+                data-cy="talent-acquisition-intern-table-col-date"
+                lg={14}
+                sm={12}
+                xs={24}
+              >
                 <RangePicker
-                   id={`inputDateRange`}
+                  id={`inputDateRange`}
                   data-cy="talent-acquisition-intern-table-date-picker"
                   onChange={(dates) => handleSearchByDateRange(dates)}
                   value={
@@ -333,9 +362,14 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                   }
                 />
               </Col>
-              <Col data-cy="talent-acquisition-intern-table-col-department" lg={10} sm={12} xs={24}>
+              <Col
+                data-cy="talent-acquisition-intern-table-col-department"
+                lg={10}
+                sm={12}
+                xs={24}
+              >
                 <Select
-                 id={`selectDepartment`}
+                  id={`selectDepartment`}
                   data-cy="talent-acquisition-intern-table-select-department"
                   placeholder="Select Department"
                   onChange={(value: string) => handleDepartmentChange(value)}
@@ -344,7 +378,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                   className="w-full h-12"
                 >
                   {EmployeeDepartment?.map((item: Department) => (
-                    <Option key={item?.id} value={item?.id}  data-cy={`talent-acquisition-intern-table-option-department-${item?.id}`}>
+                    <Option
+                      key={item?.id}
+                      value={item?.id}
+                      data-cy={`talent-acquisition-intern-table-option-department-${item?.id}`}
+                    >
                       {item?.name}
                     </Option>
                   ))}
@@ -361,7 +399,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           open={showMobileFilter}
           width="85%"
           footer={
-            <div id="talent-acquisition-intern-table-modal-footer" data-cy="talent-acquisition-intern-table-modal-footer" className="flex justify-center items-center space-x-4">
+            <div
+              id="talent-acquisition-intern-table-modal-footer"
+              data-cy="talent-acquisition-intern-table-modal-footer"
+              className="flex justify-center items-center space-x-4"
+            >
               <Button
                 id="talent-acquisition-intern-table-button-filter-cancel"
                 data-cy="talent-acquisition-intern-table-button-filter-cancel"
@@ -395,7 +437,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           />
 
           <Select
-             id={`selectDepartmentMobile`}
+            id={`selectDepartmentMobile`}
             data-cy="talent-acquisition-intern-table-select-department-mobile"
             placeholder="Select Department"
             onChange={(value: string) => handleDepartmentChange(value)}
@@ -404,7 +446,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             value={searchParams.selectedDepartment || undefined}
           >
             {EmployeeDepartment?.map((item: Department) => (
-              <Option key={item?.id} value={item?.id}  data-cy={`talent-acquisition-intern-table-option-department-mobile-${item?.id}`}>
+              <Option
+                key={item?.id}
+                value={item?.id}
+                data-cy={`talent-acquisition-intern-table-option-department-mobile-${item?.id}`}
+              >
                 {item?.name}
               </Option>
             ))}
@@ -434,7 +480,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         })}
       />
       {isMobile || isTablet ? (
-        <div id="talent-acquisition-intern-table-pagination-mobile" data-cy="talent-acquisition-intern-table-pagination-mobile">
+        <div
+          id="talent-acquisition-intern-table-pagination-mobile"
+          data-cy="talent-acquisition-intern-table-pagination-mobile"
+        >
           <CustomMobilePagination
             totalResults={intern?.meta?.totalItems ?? 1}
             pageSize={pageSize}
@@ -443,7 +492,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           />
         </div>
       ) : (
-        <div id="talent-acquisition-intern-table-pagination-desktop" data-cy="talent-acquisition-intern-table-pagination-desktop">
+        <div
+          id="talent-acquisition-intern-table-pagination-desktop"
+          data-cy="talent-acquisition-intern-table-pagination-desktop"
+        >
           <CustomPagination
             current={currentPage}
             total={intern?.meta?.totalItems ?? 1}
