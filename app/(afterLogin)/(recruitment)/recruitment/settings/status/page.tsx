@@ -79,6 +79,7 @@ const Status: React.FC = () => {
           <Button
             type="primary"
             id="createStatusButton"
+            data-cy="talent-acquisition-status-button-define-new"
             onClick={handleOpen}
             className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
@@ -108,6 +109,8 @@ const Status: React.FC = () => {
               <div className="flex items-center justify-center gap-2">
                 <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
                   <div
+                    id={`talent-acquisition-status-button-edit-${status?.id}`}
+                    data-cy={`talent-acquisition-status-button-edit-${status?.id}`}
                     className={`w-7 h-7 rounded-md flex items-center justify-center ${
                       status?.isFixed === true
                         ? 'bg-gray-400 cursor-not-allowed'
@@ -131,6 +134,8 @@ const Status: React.FC = () => {
                 </AccessGuard>
                 <AccessGuard permissions={[Permissions.DeleteApplicationStage]}>
                   <div
+                    id={`talent-acquisition-status-button-delete-${status?.id}`}
+                    data-cy={`talent-acquisition-status-button-delete-${status?.id}`}
                     className={`w-7 h-7 rounded-md flex items-center justify-center ${
                       status?.isFixed === true
                         ? 'bg-gray-400 cursor-not-allowed'

@@ -52,75 +52,93 @@ const CustomFieldsSelector: React.FC = () => {
         <span className="text-red-500">*</span>
       </div>
       <Collapse defaultActiveKey={['1']}>
-        <Collapse.Panel header="Custom Question Templates" key="0">
-          <div className="flex flex-col">
+        <Collapse.Panel
+          header="Custom Question Templates"
+          key="0"
+          id="talent-acquisition-create-application-form-panel-custom-question-templates"
+          data-cy="talent-acquisition-create-application-form-panel-custom-question-templates"
+        >
+          <div  id="talent-acquisition-create-application-form-panel-custom-question-div"
+          data-cy="talent-acquisition-create-application-form-panel-custom-question-div"
+           className="flex flex-col">
             {customFields?.items && customFields?.items?.length > 0 ? (
               customFields?.items?.map((question: any, index: number) => (
-                <div key={index} className="my-2 mx-4">
-                  <Collapse key={question?.id}>
-                    <Collapse.Panel
-                      header={
-                        <div className="flex items-center">
-                          <Checkbox
-                            checked={selectedQuestions?.includes(question?.id)}
-                            onClick={(e) =>
-                              handleSelectQuestion(question?.id, e)
-                            }
-                          />
-                          <span className="ml-2">{question?.title ?? '-'}</span>
-                        </div>
-                      }
-                      key={question?.id}
-                    >
-                      {question?.form?.map(
-                        (item: any) =>
-                          item?.fieldType === FieldType.MULTIPLE_CHOICE && (
-                            <>
-                              {question?.form?.map(
-                                (formItem: any, index: number) => {
-                                  return (
-                                    <MultipleChoiceField
+                <div  id={`talent-acquisition-create-application-form-collapse-question-${question?.id}`}
+                data-cy={`talent-acquisition-create-application-form-collapse-question-${question?.id}`} key={index} className="my-2 mx-4">
+                    <Collapse key={question?.id}>
+                      <Collapse.Panel
+                        header={
+                          <div className="flex items-center">
+                            <Checkbox
+                              id={`talent-acquisition-create-application-form-checkbox-question-${question?.id}`}
+                              data-cy={`talent-acquisition-create-application-form-checkbox-question-${question?.id}`}
+                              checked={selectedQuestions?.includes(question?.id)}
+                              onClick={(e) =>
+                                handleSelectQuestion(question?.id, e)
+                              }
+                            />
+                            <span
+                             id={`talent-acquisition-create-application-form-span-title-${question?.id}`}
+                             data-cy={`talent-acquisition-create-application-form-span-title-${question?.id}`}
+                             className="ml-2">{question?.title ?? '-'}</span>
+                          </div>
+                        }
+                        key={question?.id}
+                        id={`talent-acquisition-create-application-form-panel-question-${question?.id}`}
+                        data-cy={`talent-acquisition-create-application-form-panel-question-${question?.id}`}
+                      >
+                        {question?.form?.map(
+                          (item: any) =>
+                            item?.fieldType === FieldType.MULTIPLE_CHOICE && (
+                              <>
+                                {question?.form?.map(
+                                  (formItem: any, index: number) => {
+                                    return (
+                                      <MultipleChoiceField
+                                      data-cy={`talent-acquisition-create-application-form-multiple-choice-field-${index}`}
+                                        key={index}
+                                        choices={formItem?.field}
+                                        selectedAnswer={[]}
+                                      />
+                                    );
+                                  },
+                                )}
+                              </>
+                            ),
+                        )}
+
+                        {question?.form?.map(
+                          (item: any, index: number) =>
+                            item?.fieldType === FieldType.SHORT_TEXT && (
+                              <ShortTextField data-cy={`talent-acquisition-question-form-short-text${index}`}
+                               key={item?.id || index} />
+                            ),
+                        )}
+                        {question?.form?.map(
+                          (item: any) =>
+                            item?.fieldType === FieldType.CHECKBOX && (
+                              <>
+                                {question?.form?.map(
+                                  (formItem: any, index: number) => (
+                                    <CheckboxField
+                                      data-cy={`talent-acquisition-question-form-checkbox-field-${index}`}
                                       key={index}
-                                      choices={formItem?.field}
-                                      selectedAnswer={[]}
+                                      options={formItem?.field ?? []}
                                     />
-                                  );
-                                },
-                              )}
-                            </>
-                          ),
-                      )}
+                                  ),
+                                )}
+                              </>
+                            ),
+                        )}
 
-                      {question?.form?.map(
-                        (item: any, index: number) =>
-                          item?.fieldType === FieldType.SHORT_TEXT && (
-                            <ShortTextField key={item?.id || index} />
-                          ),
-                      )}
-                      {question?.form?.map(
-                        (item: any) =>
-                          item?.fieldType === FieldType.CHECKBOX && (
-                            <>
-                              {question?.form?.map(
-                                (formItem: any, index: number) => (
-                                  <CheckboxField
-                                    key={index}
-                                    options={formItem?.field ?? []}
-                                  />
-                                ),
-                              )}
-                            </>
-                          ),
-                      )}
-
-                      {question?.form?.map(
-                        (item: any, index: number) =>
-                          item?.fieldType === FieldType.PARAGRAPH && (
-                            <ParagraphField key={item?.id || index} />
-                          ),
-                      )}
-                    </Collapse.Panel>
-                  </Collapse>
+                        {question?.form?.map(
+                          (item: any, index: number) =>
+                            item?.fieldType === FieldType.PARAGRAPH && (
+                              <ParagraphField data-cy={`talent-acquisition-question-form-paragraph-field-${index}`} key={item?.id || index} />
+                            ),
+                        )}
+                      </Collapse.Panel>
+                    </Collapse>
                 </div>
               ))
             ) : (

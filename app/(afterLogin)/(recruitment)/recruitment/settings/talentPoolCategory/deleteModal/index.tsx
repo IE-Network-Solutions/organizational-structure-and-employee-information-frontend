@@ -16,16 +16,21 @@ function CustomDeleteTalentPool() {
   };
 
   return (
-    <DeleteModal
-      open={isDeleteMode}
-      onCancel={() => {
-        setSelectedTalentPool(null);
-        setDeleteMode(false);
-      }}
-      onConfirm={() =>
-        handleDeleteTalentPoolCategory(selectedTalentPool?.id ?? '')
-      }
-    />
+    <div
+      id="talent-acquisition-talent-pool-category-modal-delete"
+      data-cy="talent-acquisition-talent-pool-category-modal-delete"
+    >
+      <DeleteModal
+        open={isDeleteMode}
+        onCancel={() => {
+          setSelectedTalentPool(null);
+          setDeleteMode(false);
+        }}
+        onConfirm={() =>
+          handleDeleteTalentPoolCategory(selectedTalentPool?.id ?? '')
+        }
+      />
+    </div>
   );
 }
 

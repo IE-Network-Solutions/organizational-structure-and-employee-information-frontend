@@ -139,6 +139,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
   return (
     <CustomDrawerLayout
+      data-cy="talent-acquisition-job-create-candidate-drawer"
       open={createJobDrawer}
       onClose={onClose}
       modalHeader={createJobDrawerHeader}
@@ -148,6 +149,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         <Form.Item>
           <div className="flex justify-center w-full bg-[#fff] gap-6 p-3">
             <Button
+              id="talent-acquisition-job-create-candidate-button-cancel"
+              data-cy="talent-acquisition-job-create-candidate-button-cancel"
               onClick={onClose}
               className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
               disabled={isCreatingCandidate}
@@ -155,6 +158,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               Cancel
             </Button>
             <Button
+              id="talent-acquisition-job-create-candidate-button-submit"
+              data-cy="talent-acquisition-job-create-candidate-button-submit"
               onClick={() => form.submit()}
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
               loading={isCreatingCandidate}
@@ -166,7 +171,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         </Form.Item>
       }
     >
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form
+        id="talent-acquisition-job-create-candidate-form"
+        data-cy="talent-acquisition-job-create-candidate-form"
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
         <Form.Item
           id="fullNameId"
           name="fullName"
@@ -183,7 +194,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             },
           ]}
         >
-          <Input placeholder="Full Name" className="w-full h-10 text-sm" />
+          <Input
+            id="talent-acquisition-job-create-candidate-input-full-name"
+            data-cy="talent-acquisition-job-create-candidate-input-full-name"
+            placeholder="Full Name"
+            className="w-full h-10 text-sm"
+          />
         </Form.Item>
 
         <Row gutter={16}>
@@ -205,6 +221,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               ]}
             >
               <Input
+                id="talent-acquisition-job-create-candidate-input-email"
+                data-cy="talent-acquisition-job-create-candidate-input-email"
                 type="email"
                 className="text-sm w-full h-10"
                 placeholder="Email address"
@@ -230,6 +248,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               ]}
             >
               <Input
+                id="talent-acquisition-job-create-candidate-input-phone"
+                data-cy="talent-acquisition-job-create-candidate-input-phone"
                 type="tel"
                 className="text-sm w-full h-10"
                 placeholder="Phone number"
@@ -253,13 +273,20 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               }
             >
               <Select
+                id="talent-acquisition-job-create-candidate-select-job"
+                data-cy="talent-acquisition-job-create-candidate-select-job"
                 className="text-sm w-full h-10"
                 placeholder="Select a job type"
                 disabled={!!jobId}
               >
                 {jobList &&
                   jobList?.items?.map((job: any) => (
-                    <Option key={job?.id} value={job?.id}>
+                    <Option
+                      key={job?.id}
+                      value={job?.id}
+                      id={`talent-acquisition-job-create-candidate-option-job-${job?.id}`}
+                      data-cy={`talent-acquisition-job-create-candidate-option-job-${job?.id}`}
+                    >
                       {job?.jobTitle}
                     </Option>
                   ))}
@@ -278,6 +305,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               rules={[{ required: true, message: 'Please input CGPA' }]}
             >
               <InputNumber
+                id="talent-acquisition-job-create-candidate-input-cgpa"
+                data-cy="talent-acquisition-job-create-candidate-input-cgpa"
                 min={0}
                 max={4}
                 step={0.01}
@@ -306,6 +335,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             rows={4}
             className="text-sm w-full"
             placeholder="Please enter your cover letter here"
+            id="talent-acquisition-job-create-candidate-textarea-cover-letter"
+            data-cy="talent-acquisition-job-create-candidate-textarea-cover-letter"
           />
         </Form.Item>
 
@@ -320,6 +351,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
           rules={[{ required: true, message: 'Please upload your CV' }]}
         >
           <Dragger
+            id="talent-acquisition-job-create-candidate-upload-cv"
+            data-cy="talent-acquisition-job-create-candidate-upload-cv"
             name="documentName"
             fileList={documentFileList}
             onChange={handleDocumentChange}

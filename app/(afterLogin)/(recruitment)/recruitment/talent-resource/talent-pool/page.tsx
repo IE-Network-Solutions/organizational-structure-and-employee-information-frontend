@@ -4,7 +4,10 @@ const TallentPoolPage = dynamic(() => import('./_components/talentPoolpage'), {
 });
 function TallentPool() {
   return (
-    <div>
+    <div
+      id="talent-acquisition-talent-pool-page-wrapper"
+      data-cy="talent-acquisition-talent-pool-page-wrapper"
+    >
       <TallentPoolPage />
     </div>
   );
