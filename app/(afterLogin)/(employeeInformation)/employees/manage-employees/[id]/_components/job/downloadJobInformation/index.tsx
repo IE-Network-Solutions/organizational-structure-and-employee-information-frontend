@@ -349,7 +349,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
               imageResult.data,
               imageResult.format,
               15,
-              y + 5,
+              y + 6,
               logoWidth,
               logoHeight,
             );
@@ -366,7 +366,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(54, 54, 240); // Blue color #3636F0
-        doc.text(companyInfo.companyName, 15, y + 10);
+        doc.text(companyInfo.companyName, 15, y + 6);
       }
 
       // Date and Reference Number (top right)
@@ -457,15 +457,14 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
 
       y += 10;
 
-      // Add horizontal line separator
-      doc.setDrawColor(203, 213, 224); // Grey color #CBD5E0
-      doc.setLineWidth(0.5);
-      doc.line(15, y, 195, y);
-
-      y += 10;
-
       // === PREVIOUS POSITIONS SECTION ===
       if (previousPositions.length > 0) {
+        // Add horizontal line separator
+        doc.setDrawColor(203, 213, 224); // Grey color #CBD5E0
+        doc.setLineWidth(0.5);
+        doc.line(15, y, 195, y);
+
+        y += 10;
         // Check for page overflow before drawing the box
         if (y > 240) {
           doc.addPage();
@@ -493,9 +492,9 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         const boxStartY = y;
         const boxCenterY = boxStartY + boxHeight / 2;
 
-        // Add light purple background box
+        // Add light purple background box with rounded corners
         doc.setFillColor(240, 235, 255); // Light purple
-        doc.rect(15, boxStartY, 180, boxHeight, 'F');
+        doc.roundedRect(15, boxStartY, 180, boxHeight, 3, 3, 'F');
 
         doc.setTextColor(68, 68, 68);
         doc.setFontSize(10);
