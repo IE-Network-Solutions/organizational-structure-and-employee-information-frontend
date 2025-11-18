@@ -118,7 +118,7 @@ const BillingPage = () => {
 
     invoices.forEach((invoice) => {
       const currencyId = invoice.currencyId || 'USD';
-      
+
       if (!statsByCurrency[currencyId]) {
         statsByCurrency[currencyId] = {
           totalAmount: 0,
@@ -156,11 +156,7 @@ const BillingPage = () => {
   const statsByCurrency = calculateStats();
 
   // Format large numbers with K (thousands) suffix
-  const formatLargeNumber = (
-    amount: number,
-    currencySymbol: string,
-    currencyCode: string,
-  ) => {
+  const formatLargeNumber = (amount: number, currencySymbol: string) => {
     if (amount >= 1000) {
       // Format to 1 decimal place if not a round thousand
       const isRoundThousand = amount % 1000 === 0;
@@ -192,11 +188,7 @@ const BillingPage = () => {
       const currencyInfo = getCurrencyInfo(currencyId);
       const amount = stats[statType];
       return {
-        value: formatLargeNumber(
-          amount,
-          currencyInfo.symbol,
-          currencyInfo.code,
-        ),
+        value: formatLargeNumber(amount, currencyInfo.symbol),
         currencies: [{ currencyId, ...currencyInfo, amount }],
       };
     }
@@ -214,9 +206,7 @@ const BillingPage = () => {
       const currencyInfo = getCurrencyInfo(currencyId);
       const amount = stats[statType];
       if (amount > 0) {
-        formattedValues.push(
-          formatLargeNumber(amount, currencyInfo.symbol, currencyInfo.code),
-        );
+        formattedValues.push(formatLargeNumber(amount, currencyInfo.symbol));
         currencyDetails.push({
           currencyId,
           ...currencyInfo,
