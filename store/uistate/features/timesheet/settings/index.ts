@@ -25,6 +25,13 @@ type TimesheetSettingsState = {
   isTo: boolean;
   isLoading: boolean;
   isFixed: boolean;
+
+  // ZKT Configuration State
+  isZktConfigured: boolean;
+  zktSavedData: {
+    url: string;
+    username: string;
+  } | null;
 };
 
 type TimesheetSettingsStateAction = {
@@ -59,6 +66,13 @@ type TimesheetSettingsStateAction = {
   setIsTo: (isTo: boolean) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsFixed: (isFixed: boolean) => void;
+
+  // ZKT Configuration Actions
+  setIsZktConfigured: (isZktConfigured: boolean) => void;
+  setZktSavedData: (
+    zktSavedData: { url: string; username: string } | null,
+  ) => void;
+  resetZktConfiguration: () => void;
 };
 
 const timesheetSettingsSlice: StateCreator<
@@ -171,6 +185,28 @@ const timesheetSettingsSlice: StateCreator<
   isFixed: false,
   setIsFixed: (isFixed: boolean) => {
     set({ isFixed });
+  },
+
+  // ZKT Configuration State
+  isZktConfigured: false,
+  setIsZktConfigured: (isZktConfigured: boolean) => {
+    set({ isZktConfigured });
+  },
+
+  zktSavedData: null,
+  setZktSavedData: (zktSavedData: { url: string; username: string } | null) => {
+    set({ zktSavedData });
+  },
+
+  resetZktConfiguration: () => {
+    set({
+      isZktConfigured: false,
+      zktSavedData: null,
+    });
+    // Remove token from localStorage
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('zktAuthToken');
+    }
   },
 });
 

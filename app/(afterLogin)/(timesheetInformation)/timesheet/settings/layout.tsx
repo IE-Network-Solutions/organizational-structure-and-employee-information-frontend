@@ -14,6 +14,7 @@ import { IoTimeOutline } from 'react-icons/io5';
 import { GoKey } from 'react-icons/go';
 import { AiOutlineImport } from 'react-icons/ai';
 import { BsFileBreak } from 'react-icons/bs';
+import { TbCode } from 'react-icons/tb';
 import { usePathname } from 'next/navigation';
 
 interface TimesheetSettingsLayoutProps {
@@ -195,6 +196,23 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         className: 'px-1',
       },
       link: '/timesheet/settings/time-zone',
+    },
+    {
+      item: {
+        key: 'zkt-addon',
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/zkt-addon') ? 'lg:ml-4' : ''}`}
+          >
+            <TbCode
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/zkt-addon') ? 'text-[#1677FF]' : ''}`}
+            />
+            <p className="menu-item-label ">ZKT addon</p>
+          </div>
+        ),
+        className: 'px-1',
+      },
+      link: '/timesheet/settings/zkt-addon',
     },
   ]);
 
