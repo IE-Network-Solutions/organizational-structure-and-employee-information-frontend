@@ -41,14 +41,26 @@ const LeaveRequest = () => {
     setLeaveTypeOnLeaveRequest,
   } = TimeAndAttendaceDashboardStore();
 
+  // Convert empty strings to undefined to ensure proper filtering and query key updates
+  const queryParams = useMemo(
+    () => ({
+      userId: userIdOnLeaveRequest || undefined,
+      startDate: startDateOnLeaveRequest || undefined,
+      endDate: endDateOnLeaveRequest || undefined,
+      departmentId: departmentOnLeaveRequest || undefined,
+      leaveTypeId: leaveTypeOnLeaveRequest || undefined,
+    }),
+    [
+      userIdOnLeaveRequest,
+      startDateOnLeaveRequest,
+      endDateOnLeaveRequest,
+      departmentOnLeaveRequest,
+      leaveTypeOnLeaveRequest,
+    ],
+  );
+
   const { data: pendingLeaveRequests, isLoading: loading } =
-    useGetAdminPendingLeaveRequests({
-      userId: userIdOnLeaveRequest,
-      startDate: startDateOnLeaveRequest,
-      endDate: endDateOnLeaveRequest,
-      departmentId: departmentOnLeaveRequest,
-      leaveTypeId: leaveTypeOnLeaveRequest,
-    });
+    useGetAdminPendingLeaveRequests(queryParams);
   const generateRandomColor = () => {
     return randomColor().hexString();
   };
@@ -201,14 +213,26 @@ const LeaveRequest = () => {
               />
               <DatePicker.RangePicker
                 className="w-44 h-12"
+                value={
+                  startDateOnLeaveRequest && endDateOnLeaveRequest
+                    ? [
+                        dayjs(startDateOnLeaveRequest),
+                        dayjs(endDateOnLeaveRequest),
+                      ]
+                    : null
+                }
                 onChange={(value: any) => {
-                  if (value) {
+                  if (value && value[0] && value[1]) {
                     setStartDateOnLeaveRequest(
                       value[0]?.format('YYYY-MM-DD') || '',
                     );
                     setEndDateOnLeaveRequest(
                       value[1]?.format('YYYY-MM-DD') || '',
                     );
+                  } else {
+                    // Reset to default empty strings when cleared
+                    setStartDateOnLeaveRequest('');
+                    setEndDateOnLeaveRequest('');
                   }
                 }}
               />
