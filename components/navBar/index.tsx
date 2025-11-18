@@ -244,7 +244,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
-          title: <span>Settings</span>,
+          title: <span className="font-bold">Settings</span>,
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
@@ -1162,7 +1162,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           <Layout
             style={{
-              marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
+              marginLeft: isMobile ? 2 : 0,
               transition: 'margin-left 0.3s ease',
             }}
           >
@@ -1213,7 +1213,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               className="overflow-y-hidden min-h-screen"
               style={{
                 paddingInline: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+                paddingLeft: isMobile ? 0 : collapsed ? 100 : 280,
                 transition: 'padding-left 0.3s ease',
               }}
             >
