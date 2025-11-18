@@ -37,7 +37,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   const { isMobile } = useIsMobile();
 
   // Only owner can edit/delete key results (check if objective belongs to current user)
-  const canEditDelete = (myOkr || objectiveUserId === userId) && isInActiveSession;
+  const canEditDelete =
+    (myOkr || objectiveUserId === userId) && isInActiveSession;
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
     setKeyResultValue(keyResult);

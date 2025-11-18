@@ -21,7 +21,11 @@ const colorPalette = [
 const MetricsProgressOverview: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
   const { pageSize, currentPage, fiscalYearId, sessionIds } = useOKRStore();
-  const { data: objectivesData, isLoading, isFetching } = useGetUserObjective(
+  const {
+    data: objectivesData,
+    isLoading,
+    isFetching,
+  } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
@@ -29,7 +33,7 @@ const MetricsProgressOverview: React.FC = () => {
     fiscalYearId,
     sessionIds,
   );
-  
+
   const isMetricsLoading = isLoading || isFetching;
 
   // Calculate percent achieved for each metric type dynamically
