@@ -25,31 +25,45 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'archive':
-        return <ArchiveForm  data-cy="org-org-chart-components-customdrawer-index-archiveform-1"/>;
+        return (
+          <ArchiveForm data-cy="org-org-chart-components-customdrawer-index-archiveform-1" />
+        );
       case 'merge':
-        return <MergeForm  data-cy="org-org-chart-components-customdrawer-index-mergeform-1"/>;
+        return (
+          <MergeForm data-cy="org-org-chart-components-customdrawer-index-mergeform-1" />
+        );
       case 'dissolve':
-        return <DissolveForm  data-cy="org-org-chart-components-customdrawer-index-dissolveform-1"/>;
+        return (
+          <DissolveForm data-cy="org-org-chart-components-customdrawer-index-dissolveform-1" />
+        );
       default:
         return null;
     }
   };
   const drawerDataCy = `org-chart-${drawerContent}-drawer`;
   const drawerId = `org-chart-${drawerContent}-drawer`;
-  
+
   return (
     <CustomDrawerOrgLayout
       data-cy="org-chart-custom-drawer"
       open={visible}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4" data-cy={`${drawerDataCy}-header`} id={`${drawerId}-header`}>
+        <div
+          className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+          data-cy={`${drawerDataCy}-header`}
+          id={`${drawerId}-header`}
+        >
           {title}
         </div>
       }
       width={width}
       footer={
-        <div className="w-full flex justify-center items-center gap-4 pt-8" data-cy={`${drawerDataCy}-footer`} id={`${drawerId}-footer`}>
+        <div
+          className="w-full flex justify-center items-center gap-4 pt-8"
+          data-cy={`${drawerDataCy}-footer`}
+          id={`${drawerId}-footer`}
+        >
           <CustomButton
             type="default"
             title="Cancel"

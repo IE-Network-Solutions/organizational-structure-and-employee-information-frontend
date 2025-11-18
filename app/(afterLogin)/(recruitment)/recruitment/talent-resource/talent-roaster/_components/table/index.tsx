@@ -219,7 +219,13 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
 
         const depName = `${getAllDepartment?.name}` || '-';
         return (
-          <div id="talent-acquisition-talent-roaster-table-cell-department" data-cy={`talent-acquisition-talent-roaster-table-cell-department-${id}`} className="flex gap-2 items-center">{<div>{depName}</div>}</div>
+          <div
+            id="talent-acquisition-talent-roaster-table-cell-department"
+            data-cy={`talent-acquisition-talent-roaster-table-cell-department-${id}`}
+            className="flex gap-2 items-center"
+          >
+            {<div>{depName}</div>}
+          </div>
         );
       };
 
@@ -304,9 +310,15 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
   };
 
   return (
-    <div id="talent-acquisition-talent-roaster-table-container" data-cy="talent-acquisition-talent-roaster-table-container">
-      <div id="talent-acquisition-talent-roaster-table-filters" data-cy="talent-acquisition-talent-roaster-table-filters">
-        <Row 
+    <div
+      id="talent-acquisition-talent-roaster-table-container"
+      data-cy="talent-acquisition-talent-roaster-table-container"
+    >
+      <div
+        id="talent-acquisition-talent-roaster-table-filters"
+        data-cy="talent-acquisition-talent-roaster-table-filters"
+      >
+        <Row
           data-cy="talent-acquisition-talent-roaster-table-row-filters"
           gutter={[16, 24]}
           justify="space-between"
@@ -317,7 +329,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             <Row gutter={8} align="middle">
               <Col xs={20} sm={20} flex="auto">
                 <Input
-                 id={`inputTalentRoasterNames`}
+                  id={`inputTalentRoasterNames`}
                   data-cy="talent-acquisition-talent-roaster-table-input-search"
                   placeholder="Search talent roster"
                   value={searchParams.fullName}
@@ -329,7 +341,11 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                 />
               </Col>
               <Col xs={4} sm={4} className="block sm:hidden">
-                <div id="talent-acquisition-talent-roaster-table-div-mobile-filter-button" data-cy="talent-acquisition-talent-roaster-table-div-mobile-filter-button" className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg">
+                <div
+                  id="talent-acquisition-talent-roaster-table-div-mobile-filter-button"
+                  data-cy="talent-acquisition-talent-roaster-table-div-mobile-filter-button"
+                  className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg"
+                >
                   <VscSettings
                     id="talent-acquisition-talent-roaster-table-button-mobile-filter"
                     data-cy="talent-acquisition-talent-roaster-table-button-mobile-filter"
@@ -341,11 +357,23 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             </Row>
           </Col>
 
-          <Col data-cy="talent-acquisition-talent-roaster-table-col-desktop-filters" lg={14} className="hidden sm:block ">
-            <Row data-cy="talent-acquisition-talent-roaster-table-row-desktop-filters" gutter={[8, 16]}>
-              <Col data-cy="talent-acquisition-talent-roaster-table-col-date" lg={14} sm={12} xs={24}>
+          <Col
+            data-cy="talent-acquisition-talent-roaster-table-col-desktop-filters"
+            lg={14}
+            className="hidden sm:block "
+          >
+            <Row
+              data-cy="talent-acquisition-talent-roaster-table-row-desktop-filters"
+              gutter={[8, 16]}
+            >
+              <Col
+                data-cy="talent-acquisition-talent-roaster-table-col-date"
+                lg={14}
+                sm={12}
+                xs={24}
+              >
                 <RangePicker
-                   id={`inputDateRange`}
+                  id={`inputDateRange`}
                   data-cy="talent-acquisition-talent-roaster-table-date-picker"
                   onChange={(dates) => handleSearchByDateRange(dates)}
                   value={
@@ -365,9 +393,14 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                   }
                 />
               </Col>
-              <Col data-cy="talent-acquisition-talent-roaster-table-col-department" lg={10} sm={12} xs={24}>
+              <Col
+                data-cy="talent-acquisition-talent-roaster-table-col-department"
+                lg={10}
+                sm={12}
+                xs={24}
+              >
                 <Select
-                 id={`selectDepartment`}
+                  id={`selectDepartment`}
                   data-cy="talent-acquisition-talent-roaster-table-select-department"
                   placeholder="Select Department"
                   onChange={handleDepartmentChange}
@@ -376,7 +409,11 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                   className="w-full h-12"
                 >
                   {EmployeeDepartment?.map((item: DepartmentData) => (
-                    <Option key={item?.id} value={item?.id}  data-cy={`talent-acquisition-talent-roaster-table-option-department-${item?.id}`}>
+                    <Option
+                      key={item?.id}
+                      value={item?.id}
+                      data-cy={`talent-acquisition-talent-roaster-table-option-department-${item?.id}`}
+                    >
                       {item?.name}
                     </Option>
                   ))}
@@ -392,8 +429,12 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           title="Filter Talent Roster"
           open={showMobileFilter}
           width="85%"
-            footer={
-            <div id="talent-acquisition-talent-roaster-table-modal-footer" data-cy="talent-acquisition-talent-roaster-table-modal-footer" className="flex justify-center items-center space-x-4">
+          footer={
+            <div
+              id="talent-acquisition-talent-roaster-table-modal-footer"
+              data-cy="talent-acquisition-talent-roaster-table-modal-footer"
+              className="flex justify-center items-center space-x-4"
+            >
               <Button
                 id="talent-acquisition-talent-roaster-table-button-filter-cancel"
                 data-cy="talent-acquisition-talent-roaster-table-button-filter-cancel"
@@ -416,7 +457,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           }
         >
           <RangePicker
-           id={`inputDateRangeMobile`}
+            id={`inputDateRangeMobile`}
             data-cy="talent-acquisition-talent-roaster-table-date-picker-mobile"
             onChange={(dates) => handleSearchByDateRange(dates)}
             value={
@@ -437,7 +478,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           />
 
           <Select
-             id={`selectDepartmentMobile`}
+            id={`selectDepartmentMobile`}
             data-cy="talent-acquisition-talent-roaster-table-select-department-mobile"
             placeholder="Select Department"
             onChange={(value: string) => handleDepartmentChange(value)}
@@ -446,7 +487,11 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             className="w-full mb-4"
           >
             {EmployeeDepartment?.map((item: DepartmentData) => (
-              <Option key={item?.id} value={item?.id} data-cy={`talent-acquisition-talent-roaster-table-option-department-mobile-${item?.id}`}>
+              <Option
+                key={item?.id}
+                value={item?.id}
+                data-cy={`talent-acquisition-talent-roaster-table-option-department-mobile-${item?.id}`}
+              >
                 {item?.name}
               </Option>
             ))}
@@ -480,7 +525,10 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         })}
       />
       {isMobile || isTablet ? (
-        <div id="talent-acquisition-talent-roaster-table-pagination-mobile" data-cy="talent-acquisition-talent-roaster-table-pagination-mobile">
+        <div
+          id="talent-acquisition-talent-roaster-table-pagination-mobile"
+          data-cy="talent-acquisition-talent-roaster-table-pagination-mobile"
+        >
           <CustomMobilePagination
             totalResults={talentRoaster?.meta?.totalItems ?? 1}
             pageSize={pageSize}
@@ -489,7 +537,10 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           />
         </div>
       ) : (
-        <div id="talent-acquisition-talent-roaster-table-pagination-desktop" data-cy="talent-acquisition-talent-roaster-table-pagination-desktop">
+        <div
+          id="talent-acquisition-talent-roaster-table-pagination-desktop"
+          data-cy="talent-acquisition-talent-roaster-table-pagination-desktop"
+        >
           <CustomPagination
             current={currentPage}
             total={talentRoaster?.meta?.totalItems ?? 1}

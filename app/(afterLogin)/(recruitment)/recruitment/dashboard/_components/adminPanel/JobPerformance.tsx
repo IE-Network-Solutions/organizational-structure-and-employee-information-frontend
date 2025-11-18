@@ -64,7 +64,10 @@ export default function JobPerformance({
     },
   ];
   return (
-    <div id="talent-acquisition-dashboard-job-performance-div-container" data-cy="talent-acquisition-dashboard-job-performance-div-container">
+    <div
+      id="talent-acquisition-dashboard-job-performance-div-container"
+      data-cy="talent-acquisition-dashboard-job-performance-div-container"
+    >
       <Table
         id="talent-acquisition-dashboard-job-performance-table"
         data-cy="talent-acquisition-dashboard-job-performance-table"

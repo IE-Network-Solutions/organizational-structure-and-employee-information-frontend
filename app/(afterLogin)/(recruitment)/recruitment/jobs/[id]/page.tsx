@@ -119,7 +119,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   };
 
   const customBreadCrumbSubTitle = (
-    <div id="talent-acquisition-job-detail-div-breadcrumb" data-cy="talent-acquisition-job-detail-div-breadcrumb" className="flex items-center justify-start space-x-4">
+    <div
+      id="talent-acquisition-job-detail-div-breadcrumb"
+      data-cy="talent-acquisition-job-detail-div-breadcrumb"
+      className="flex items-center justify-start space-x-4"
+    >
       <div
         id="talent-acquisition-job-detail-link-list-job"
         data-cy="talent-acquisition-job-detail-link-list-job"
@@ -129,25 +133,52 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
         List Job
       </div>
       <IoIosArrowForward />
-      <div id="talent-acquisition-job-detail-div-job-title" data-cy="talent-acquisition-job-detail-div-job-title" className="font-semibold"> {jobById?.jobTitle}</div>
+      <div
+        id="talent-acquisition-job-detail-div-job-title"
+        data-cy="talent-acquisition-job-detail-div-job-title"
+        className="font-semibold"
+      >
+        {' '}
+        {jobById?.jobTitle}
+      </div>
     </div>
   );
 
   return (
-    <div id="talent-acquisition-job-detail-page-div-container" data-cy="talent-acquisition-job-detail-page-div-container" className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
-      <div id="talent-acquisition-job-detail-div-header" data-cy="talent-acquisition-job-detail-div-header" className="flex flex-wrap justify-between items-center">
+    <div
+      id="talent-acquisition-job-detail-page-div-container"
+      data-cy="talent-acquisition-job-detail-page-div-container"
+      className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6"
+    >
+      <div
+        id="talent-acquisition-job-detail-div-header"
+        data-cy="talent-acquisition-job-detail-div-header"
+        className="flex flex-wrap justify-between items-center"
+      >
         <CustomBreadcrumb
           data-cy="talent-acquisition-job-detail-breadcrumb"
           title="Recruitment"
           subtitle={customBreadCrumbSubTitle}
         />
-        <div id="talent-acquisition-job-detail-div-buttons" data-cy="talent-acquisition-job-detail-div-buttons" className="flex items-center my-4 gap-4 md:gap-8">
-          <div id="talent-acquisition-job-detail-div-what-you-need" data-cy="talent-acquisition-job-detail-div-what-you-need" className="hidden sm:block">
+        <div
+          id="talent-acquisition-job-detail-div-buttons"
+          data-cy="talent-acquisition-job-detail-div-buttons"
+          className="flex items-center my-4 gap-4 md:gap-8"
+        >
+          <div
+            id="talent-acquisition-job-detail-div-what-you-need"
+            data-cy="talent-acquisition-job-detail-div-what-you-need"
+            className="hidden sm:block"
+          >
             <WhatYouNeed data-cy="talent-acquisition-job-detail-what-you-need" />
           </div>
 
           {selectedCandidate?.length > 0 && (
-            <div id="talent-acquisition-job-detail-div-move-button" data-cy="talent-acquisition-job-detail-div-move-button" className="mr-4">
+            <div
+              id="talent-acquisition-job-detail-div-move-button"
+              data-cy="talent-acquisition-job-detail-div-move-button"
+              className="mr-4"
+            >
               <CustomButton
                 title={
                   !(isMobile || isTablet) && (
@@ -189,9 +220,19 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
           <CreateCandidate jobId={id} onClose={onClose} />
         </div>
       </div>
-      <div id="talent-acquisition-job-detail-div-table-container" data-cy="talent-acquisition-job-detail-div-table-container" className="w-full h-auto bg-white p-2 px-4 rounded-lg">
-        <SearchOptions data-cy="talent-acquisition-job-detail-search-options" jobId={id} />
-        <CandidateTable data-cy="talent-acquisition-job-detail-candidate-table" jobId={id} />
+      <div
+        id="talent-acquisition-job-detail-div-table-container"
+        data-cy="talent-acquisition-job-detail-div-table-container"
+        className="w-full h-auto bg-white p-2 px-4 rounded-lg"
+      >
+        <SearchOptions
+          data-cy="talent-acquisition-job-detail-search-options"
+          jobId={id}
+        />
+        <CandidateTable
+          data-cy="talent-acquisition-job-detail-candidate-table"
+          jobId={id}
+        />
       </div>
     </div>
   );

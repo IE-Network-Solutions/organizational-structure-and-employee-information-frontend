@@ -157,12 +157,24 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
     </>
   );
   return (
-    <div id="talent-acquisition-candidate-search-options-div-container" data-cy="talent-acquisition-candidate-search-options-div-container" className="my-3">
+    <div
+      id="talent-acquisition-candidate-search-options-div-container"
+      data-cy="talent-acquisition-candidate-search-options-div-container"
+      className="my-3"
+    >
       {isMobile || isTablet ? (
         <>
-          <div id="talent-acquisition-candidate-search-options-div-mobile-header" data-cy="talent-acquisition-candidate-search-options-div-mobile-header" className="flex justify-end m-2 space-x-4">
+          <div
+            id="talent-acquisition-candidate-search-options-div-mobile-header"
+            data-cy="talent-acquisition-candidate-search-options-div-mobile-header"
+            className="flex justify-end m-2 space-x-4"
+          >
             <WhatYouNeed />
-            <div id="talent-acquisition-candidate-search-options-div-filter-button" data-cy="talent-acquisition-candidate-search-options-div-filter-button" className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3">
+            <div
+              id="talent-acquisition-candidate-search-options-div-filter-button"
+              data-cy="talent-acquisition-candidate-search-options-div-filter-button"
+              className="flex items-center justify-center rounded-lg border-[1px] border-gray-200 p-3"
+            >
               <LuSettings2
                 id="talent-acquisition-job-candidate-search-button-mobile-filter"
                 data-cy="talent-acquisition-job-candidate-search-button-mobile-filter"
@@ -179,7 +191,11 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
             bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
             data-cy="talent-acquisition-job-candidate-search-modal-filter"
             footer={
-              <div id="talent-acquisition-candidate-search-options-div-modal-footer" data-cy="talent-acquisition-candidate-search-options-div-modal-footer" className="flex justify-center items-center space-x-4">
+              <div
+                id="talent-acquisition-candidate-search-options-div-modal-footer"
+                data-cy="talent-acquisition-candidate-search-options-div-modal-footer"
+                className="flex justify-center items-center space-x-4"
+              >
                 <Button
                   type="default"
                   className="px-3"

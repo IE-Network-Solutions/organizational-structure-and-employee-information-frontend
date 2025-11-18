@@ -155,11 +155,41 @@ const CustomFieldsDrawer: React.FC<{
             name="fieldType"
             rules={[{ required: true, message: 'Field type is required' }]}
           >
-            <Select id="talent-acquisition-custom-fields-select-field-type" data-cy="talent-acquisition-custom-fields-select-field-type" allowClear placeholder="Select type" className="h-10">
-              <Option value="multiple_choice" id="talent-acquisition-custom-fields-option-multiple-choice" data-cy="talent-acquisition-custom-fields-option-multiple-choice">Multiple Choice</Option>
-              <Option value="checkbox" id="talent-acquisition-custom-fields-option-checkbox" data-cy="talent-acquisition-custom-fields-option-checkbox">Checkbox</Option>
-              <Option value="short_text" id="talent-acquisition-custom-fields-option-short-text" data-cy="talent-acquisition-custom-fields-option-short-text">Short Text</Option>
-              <Option value="paragraph" id="talent-acquisition-custom-fields-option-paragraph" data-cy="talent-acquisition-custom-fields-option-paragraph">Paragraph</Option>
+            <Select
+              id="talent-acquisition-custom-fields-select-field-type"
+              data-cy="talent-acquisition-custom-fields-select-field-type"
+              allowClear
+              placeholder="Select type"
+              className="h-10"
+            >
+              <Option
+                value="multiple_choice"
+                id="talent-acquisition-custom-fields-option-multiple-choice"
+                data-cy="talent-acquisition-custom-fields-option-multiple-choice"
+              >
+                Multiple Choice
+              </Option>
+              <Option
+                value="checkbox"
+                id="talent-acquisition-custom-fields-option-checkbox"
+                data-cy="talent-acquisition-custom-fields-option-checkbox"
+              >
+                Checkbox
+              </Option>
+              <Option
+                value="short_text"
+                id="talent-acquisition-custom-fields-option-short-text"
+                data-cy="talent-acquisition-custom-fields-option-short-text"
+              >
+                Short Text
+              </Option>
+              <Option
+                value="paragraph"
+                id="talent-acquisition-custom-fields-option-paragraph"
+                data-cy="talent-acquisition-custom-fields-option-paragraph"
+              >
+                Paragraph
+              </Option>
             </Select>
           </Form.Item>
         </Col>
@@ -190,7 +220,13 @@ const CustomFieldsDrawer: React.FC<{
         className="mb-2 mt-0 ml-4"
         valuePropName="checked"
       >
-        <Checkbox id="talent-acquisition-custom-fields-checkbox-required" data-cy="talent-acquisition-custom-fields-checkbox-required" defaultChecked={false}>Is Required</Checkbox>
+        <Checkbox
+          id="talent-acquisition-custom-fields-checkbox-required"
+          data-cy="talent-acquisition-custom-fields-checkbox-required"
+          defaultChecked={false}
+        >
+          Is Required
+        </Checkbox>
       </Form.Item>
 
       <Form.List
@@ -237,7 +273,11 @@ const CustomFieldsDrawer: React.FC<{
                         },
                       ]}
                     >
-                      <Input id={`talent-acquisition-custom-fields-input-option-${field.name}`} data-cy={`talent-acquisition-custom-fields-input-option-${field.name}`} placeholder="Option" />
+                      <Input
+                        id={`talent-acquisition-custom-fields-input-option-${field.name}`}
+                        data-cy={`talent-acquisition-custom-fields-input-option-${field.name}`}
+                        placeholder="Option"
+                      />
                     </Form.Item>
                     {fields.length > 0 && (
                       <MinusCircleOutlined
@@ -333,8 +373,16 @@ const CustomFieldsDrawer: React.FC<{
               Cancel
             </Button>
             <Button
-              id={isEdit ? "talent-acquisition-custom-fields-button-update" : "talent-acquisition-custom-fields-button-create"}
-              data-cy={isEdit ? "talent-acquisition-custom-fields-button-update" : "talent-acquisition-custom-fields-button-create"}
+              id={
+                isEdit
+                  ? 'talent-acquisition-custom-fields-button-update'
+                  : 'talent-acquisition-custom-fields-button-create'
+              }
+              data-cy={
+                isEdit
+                  ? 'talent-acquisition-custom-fields-button-update'
+                  : 'talent-acquisition-custom-fields-button-create'
+              }
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
               onClick={() => form.submit()}
             >
