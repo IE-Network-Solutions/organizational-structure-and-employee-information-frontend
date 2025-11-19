@@ -222,7 +222,13 @@ const PercentageForm: React.FC<OKRFormProps> = ({
           </Form.Item>
         </div>
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}>
+        <div
+          className={`${
+            isMobile
+              ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
+              : 'hidden'
+          }`}
+        >
           {/* Row 1: Key Result Name */}
           <Form.Item
             className="mb-0"
@@ -236,12 +242,12 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               value={keyItem.title || ''}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
-              className="h-10 rounded-lg text-base"
+              className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
               aria-label="Key Result Name"
             />
           </Form.Item>
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div className="flex flex-row gap-2">
             <Form.Item
               className="w-48 mb-0"
               rules={[
@@ -250,7 +256,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               id={`metric-type-mobile-${index}`}
             >
               <Select
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 popupClassName="text-base"
                 onChange={(value) => {
                   const selectedMetric = metrics?.items?.find(
@@ -289,7 +295,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               id={`key-result-weight-mobile-${index}`}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 min={0}
                 max={100}
                 suffix="%"
@@ -305,7 +311,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               id={`key-result-deadline-mobile-${index}`}
             >
               <DatePicker
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 popupClassName="text-base"
                 value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                 format="YYYY-MM-DD"
@@ -329,7 +335,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 3: Initial Value and Target Value */}
-          <div className="flex gap-4">
+          <div className="flex flex-col xs:flex-row gap-2 sm:pl-3">
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"
@@ -338,7 +344,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               ]}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 min={0}
                 max={100}
                 placeholder="Initial Value (%)"
@@ -367,7 +373,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               ]}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 min={0}
                 max={100}
                 placeholder="Target Value (%)"

@@ -136,7 +136,13 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
           </Form.Item>
         </div>
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}>
+        <div
+          className={`${
+            isMobile
+              ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
+              : 'hidden'
+          }`}
+        >
           {/* Row 1: Key Result Name */}
           <Form.Item
             className="mb-0"
@@ -149,19 +155,19 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             <Input
               placeholder="Key Result Name"
               aria-label="Key Result Name"
-              className="h-10 rounded-lg text-base"
+              className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
               value={keyItem.title === '' ? undefined : keyItem.title}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
             />
           </Form.Item>
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div className="flex flex-row gap-2">
             <Form.Item
               className="w-48 mb-0"
               id={`select-metric-mobile-${index}`}
             >
               <Select
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 onChange={(value) => {
                   const selectedMetric = metrics?.items?.find(
                     (metric) => metric.id === value,
@@ -190,7 +196,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               id={`weight-input-mobile-${index}`}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 min={0}
                 max={100}
                 suffix="%"
@@ -207,7 +213,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               id={`deadline-picker-mobile-${index}`}
             >
               <DatePicker
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                 format="YYYY-MM-DD"
                 disabledDate={(current) => {
