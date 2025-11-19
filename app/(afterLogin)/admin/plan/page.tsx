@@ -599,48 +599,14 @@ const PlanPage = () => {
       }
 
       const invoiceDetail = await invoiceDetailResponse.json();
-      const filePath = invoiceDetail.path || invoiceDetail.data?.path;
+      const downloadUrl =
+        invoiceDetail.downloadUrl || invoiceDetail.data?.downloadUrl;
 
-      if (!filePath) {
-        throw new Error('PDF path not found in response');
+      if (!downloadUrl) {
+        throw new Error('Download URL not found in response');
       }
 
-      const pdfFileUrl = `${TENANT_BASE_URL}/${filePath}`;
-
-      // Step 2: Download PDF
-      const pdfResponse = await fetch(pdfFileUrl);
-
-      if (!pdfResponse.ok) {
-        throw new Error(
-          `Failed to download PDF: ${pdfResponse.status} ${pdfResponse.statusText}`,
-        );
-      }
-
-      // Get the blob from the response
-      const blob = await pdfResponse.blob();
-
-      // Create a URL for the blob
-      const url = window.URL.createObjectURL(blob);
-
-      // Create a link element
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `invoice-${updatedSubscriptionValue?.invoices[0]?.id}.pdf`;
-
-      // Append the link to the document
-      document.body.appendChild(link);
-
-      // Click the link to download the file
-      link.click();
-
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      notification.success({
-        message: 'Download Started',
-        description: 'Your invoice PDF is being downloaded.',
-      });
+      window.open(downloadUrl, '_blank');
     } catch (error) {
       notification.error({
         message: 'Download Failed',

@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { Invoice, Plan } from '@/types/tenant-management';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
-import { TENANT_BASE_URL } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useInitiatePayment } from '@/store/server/features/tenant-management/payments/queries';
@@ -132,10 +131,10 @@ const InvoiceItem = () => {
   useEffect(() => {
     if (pdfResponse) {
       const response = pdfResponse as any;
-      const filePath = response.path || response.data?.path;
+      const downloadUrl = response.downloadUrl || response.data?.downloadUrl;
 
-      if (filePath) {
-        setPdfUrl(`${TENANT_BASE_URL}/${filePath}`);
+      if (downloadUrl) {
+        setPdfUrl(downloadUrl);
       }
     }
   }, [pdfResponse]);
@@ -153,21 +152,12 @@ const InvoiceItem = () => {
     setIsDownloading(true);
 
     try {
-      // Download file from the known URL
-      const response = await fetch(pdfUrl);
-      const blob = await response.blob();
-
-      // Create download link
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `Invoice-${invoiceData?.invoiceNumber || id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Open PDF in a new tab
+      window.open(pdfUrl, '_blank');
     } catch {
       notification.error({
-        message: 'Download Failed',
-        description: 'Unable to download the PDF. Please try again later.',
+        message: 'Failed to Open PDF',
+        description: 'Unable to open the PDF. Please try again later.',
       });
     } finally {
       setIsDownloading(false);
