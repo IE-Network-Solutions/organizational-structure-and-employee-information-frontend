@@ -23,17 +23,19 @@ const TalentPoolPage = () => {
   //const { setOpen } = useEmployeeManagementStore();
 
   return (
-    <div className="h-auto w-full bg-white">
-      <div className="flex justify-between items-center">
+    <div id="talent-acquisition-talent-pool-page-div-container" data-cy="talent-acquisition-talent-pool-page-div-container" className="h-auto w-full bg-white">
+      <div id="talent-acquisition-talent-pool-page-div-header" data-cy="talent-acquisition-talent-pool-page-div-header" className="flex justify-between items-center">
         <CustomBreadcrumb
+          data-cy="talent-acquisition-talent-pool-page-breadcrumb"
           title="Talent Pool"
           subtitle="This is the talent pool data of the candidates"
         />
-        <div className="flex items-center my-4 gap-4 md:gap-8">
+        <div id="talent-acquisition-talent-pool-page-div-actions" data-cy="talent-acquisition-talent-pool-page-div-actions" className="flex items-center my-4 gap-4 md:gap-8">
           <AccessGuard permissions={[Permissions.TransferCandidate]}>
             <Button
               type="primary"
               id="createUserButton"
+              data-cy="talent-acquisition-talent-pool-page-button-add"
               className="h-10 w-10 sm:w-auto"
               icon={<FaPlus />}
               onClick={handleAdd}

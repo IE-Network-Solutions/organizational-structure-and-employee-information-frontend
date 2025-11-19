@@ -61,6 +61,7 @@ const CreateJobs: React.FC = () => {
       )}
       <div className="flex items-center justify-between">
         <Steps
+          data-cy="talent-acquisition-create-jobs-steps"
           current={currentStep}
           onChange={handleStepChange}
           size="default"
@@ -145,6 +146,7 @@ const CreateJobs: React.FC = () => {
   return (
     addNewDrawer && (
       <CustomDrawerLayout
+        data-cy="talent-acquisition-create-jobs-drawer"
         open={addNewDrawer}
         onClose={handleCloseDrawer}
         modalHeader={addNewDrawerHeader}
@@ -153,6 +155,8 @@ const CreateJobs: React.FC = () => {
         customMobileHeight="90vh"
       >
         <Form
+          id="talent-acquisition-create-jobs-form"
+          data-cy="talent-acquisition-create-jobs-form"
           form={form}
           layout="vertical"
           onValuesChange={() => {

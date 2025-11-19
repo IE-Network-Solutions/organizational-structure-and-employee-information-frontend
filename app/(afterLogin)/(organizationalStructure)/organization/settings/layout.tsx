@@ -40,11 +40,15 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/branches') ? 'lg:ml-4' : ''}`}
+            data-cy="org-settings-branches-icon"
+            id="org-settings-branches-icon"
           >
             <TbNotes
               className={`hidden lg:block ${pathname.includes('/organization/settings/branches') ? 'text-[#1677FF]' : ''}`}
+              data-cy="org-settings-branches-icon-svg"
+              id="org-settings-branches-icon-svg"
             />
-            <p className="menu-item-label">Branches</p>
+            <p className="menu-item-label" data-cy="org-settings-branches-label" id="org-settings-branches-label">Branches</p>
           </div>
         ),
       },
@@ -57,11 +61,15 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/fiscalYear') ? 'lg:ml-4' : ''}`}
+            data-cy="org-settings-fiscal-year-icon"
+            id="org-settings-fiscal-year-icon"
           >
             <TbNotes
               className={`hidden lg:block ${pathname.includes('/organization/settings/fiscalYear') ? 'text-[#1677FF]' : ''}`}
+              data-cy="org-settings-fiscal-year-icon-svg"
+              id="org-settings-fiscal-year-icon-svg"
             />
-            <p className="menu-item-label">Fiscal Year</p>
+            <p className="menu-item-label" data-cy="org-settings-fiscal-year-label" id="org-settings-fiscal-year-label">Fiscal Year</p>
           </div>
         ),
       },
@@ -73,11 +81,15 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/organization/settings/workSchedule') ? 'lg:ml-4' : ''}`}
+            data-cy="org-settings-work-schedule-icon"
+            id="org-settings-work-schedule-icon"
           >
             <TbNotes
               className={`hidden lg:block ${pathname.includes('/organization/settings/workSchedule') ? 'text-[#1677FF]' : ''}`}
+              data-cy="org-settings-work-schedule-icon-svg"
+              id="org-settings-work-schedule-icon-svg"
             />
-            <p className="menu-item-label">Work Schedule</p>
+            <p className="menu-item-label" data-cy="org-settings-work-schedule-label" id="org-settings-work-schedule-label">Work Schedule</p>
           </div>
         ),
       },
@@ -87,25 +99,26 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="min-h-screen ">
-      {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }} />}
+    <div className="min-h-screen " data-cy="org-settings-layout" id="org-settings-layout">
+      {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }}  data-cy="org-organization-settings-layout-skeleton-1"/>}
       {hasEndedFiscalYear && (
-        <div className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none ">
-          <span className="text-[#FFDE65] px-2">
+        <div className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none " data-cy="org-settings-fiscal-year-warning" id="org-settings-fiscal-year-warning">
+          <span className="text-[#FFDE65] px-2" data-cy="org-settings-fiscal-year-warning-text" id="org-settings-fiscal-year-warning-text">
             Your Have Finished Your Fiscal Year
           </span>
-          <span className="text-white">
+          <span className="text-white" data-cy="org-settings-fiscal-year-warning-text-2" id="org-settings-fiscal-year-warning-text-2">
             Please Create Your Next Fiscal Year To Continue
           </span>
         </div>
       )}
-      <div className="min-h-screen bg-[#f5f5f5]">
-        <PageHeader title="Settings" description="Manage your settings here" />
-        <div className="flex  flex-col lg:flex-row gap-6 m-4">
-          <SidebarMenu menuItems={menuItems} />
+      <div className="min-h-screen bg-[#f5f5f5]" data-cy="org-settings-layout-div" id="org-settings-layout-div">
+        <PageHeader title="Settings" description="Manage your settings here" data-cy="org-settings-page-header" />
+        <div className="flex  flex-col lg:flex-row gap-6 m-4" data-cy="org-organization-settings-layout-div-1" id="org-organization-settings-layout-div-1">
+          <SidebarMenu menuItems={menuItems} data-cy="org-settings-sidebar-menu" />
           <BlockWrapper
             padding="0px"
             className="flex-1 h-max overflow-x-auto bg-[#fafafa] "
+            data-cy="org-settings-content-wrapper"
           >
             {children}
           </BlockWrapper>

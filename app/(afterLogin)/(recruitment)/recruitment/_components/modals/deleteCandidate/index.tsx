@@ -13,11 +13,16 @@ const DeleteCandidate: React.FC = () => {
   };
   return (
     deleteCandidateModal && (
-      <DeleteModal
-        open={deleteCandidateModal}
-        onCancel={() => setDeleteCandidateModal(false)}
-        onConfirm={handleCandidateDelete}
-      />
+      <div
+        id="talent-acquisition-candidate-modal-delete-confirmation"
+        data-cy="talent-acquisition-candidate-modal-delete-confirmation"
+      >
+        <DeleteModal
+          open={deleteCandidateModal}
+          onCancel={() => setDeleteCandidateModal(false)}
+          onConfirm={handleCandidateDelete}
+        />
+      </div>
     )
   );
 };

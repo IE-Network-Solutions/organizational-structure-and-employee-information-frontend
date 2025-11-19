@@ -25,7 +25,11 @@ const colorPalette = [
 const OKRDonutChart: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
   const { pageSize, currentPage, fiscalYearId, sessionIds } = useOKRStore();
-  const { data: objectivesData, isLoading, isFetching } = useGetUserObjective(
+  const {
+    data: objectivesData,
+    isLoading,
+    isFetching,
+  } = useGetUserObjective(
     userId,
     pageSize,
     currentPage,
@@ -33,7 +37,7 @@ const OKRDonutChart: React.FC = () => {
     fiscalYearId,
     sessionIds,
   );
-  
+
   const isChartLoading = isLoading || isFetching;
 
   // Dynamically extract metric types and their counts
