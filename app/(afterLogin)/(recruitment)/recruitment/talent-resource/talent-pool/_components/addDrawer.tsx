@@ -49,13 +49,21 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       open={open}
       onClose={onClose}
       modalHeader={
-        <div id="talent-acquisition-talent-pool-drawer-header" data-cy="talent-acquisition-talent-pool-drawer-header" className="flex justify-start  text-xl font-extrabold text-gray-800">
+        <div
+          id="talent-acquisition-talent-pool-drawer-header"
+          data-cy="talent-acquisition-talent-pool-drawer-header"
+          className="flex justify-start  text-xl font-extrabold text-gray-800"
+        >
           Add New Candidate
         </div>
       }
       width="40%"
       footer={
-        <div id="talent-acquisition-talent-pool-drawer-footer" data-cy="talent-acquisition-talent-pool-drawer-footer" className="flex justify-center items-center space-x-5 p-2">
+        <div
+          id="talent-acquisition-talent-pool-drawer-footer"
+          data-cy="talent-acquisition-talent-pool-drawer-footer"
+          className="flex justify-center items-center space-x-5 p-2"
+        >
           <Button
             id="talent-acquisition-talent-pool-button-cancel"
             data-cy="talent-acquisition-talent-pool-button-cancel"
@@ -67,7 +75,13 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
           >
             Cancel
           </Button>
-          <Button id="talent-acquisition-talent-pool-button-submit" data-cy="talent-acquisition-talent-pool-button-submit" className=" p-4 px-10 h-10" type="primary" onClick={onSubmit}>
+          <Button
+            id="talent-acquisition-talent-pool-button-submit"
+            data-cy="talent-acquisition-talent-pool-button-submit"
+            className=" p-4 px-10 h-10"
+            type="primary"
+            onClick={onSubmit}
+          >
             Submit
           </Button>
         </div>
@@ -83,7 +97,11 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       >
         <Form.Item
           label={
-            <span id="talent-acquisition-talent-pool-form-label-candidate" data-cy="talent-acquisition-talent-pool-form-label-candidate" className="text-md my-2 font-semibold text-gray-700">
+            <span
+              id="talent-acquisition-talent-pool-form-label-candidate"
+              data-cy="talent-acquisition-talent-pool-form-label-candidate"
+              className="text-md my-2 font-semibold text-gray-700"
+            >
               Candidate
             </span>
           }
@@ -104,7 +122,12 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
             }
           >
             {candidates?.items?.map((candidate: any) => (
-              <Select.Option key={candidate.id} value={candidate.id} id={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`} data-cy={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}>
+              <Select.Option
+                key={candidate.id}
+                value={candidate.id}
+                id={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
+                data-cy={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
+              >
                 {candidate?.fullName}
               </Select.Option>
             ))}
@@ -112,7 +135,10 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </Form.Item>
         <Form.Item
           label={
-            <span  data-cy="talent-acquisition-talent-pool-form-label-category" className="text-md my-2 font-semibold text-gray-700">
+            <span
+              data-cy="talent-acquisition-talent-pool-form-label-category"
+              className="text-md my-2 font-semibold text-gray-700"
+            >
               Category
             </span>
           }
@@ -133,7 +159,12 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
             }
           >
             {talentPoolCategory?.items?.map((item: any) => (
-              <Select.Option key={item.id} value={item?.id} id={`talent-acquisition-talent-pool-option-category-${item.id}`} data-cy={`talent-acquisition-talent-pool-option-category-${item.id}`}>
+              <Select.Option
+                key={item.id}
+                value={item?.id}
+                id={`talent-acquisition-talent-pool-option-category-${item.id}`}
+                data-cy={`talent-acquisition-talent-pool-option-category-${item.id}`}
+              >
                 {item?.title}
               </Select.Option>
             ))}
@@ -141,14 +172,22 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </Form.Item>
         <Form.Item
           label={
-            <span data-cy="talent-acquisition-talent-pool-form-label-reason" className="text-md my-2 font-semibold text-gray-700">
+            <span
+              data-cy="talent-acquisition-talent-pool-form-label-reason"
+              className="text-md my-2 font-semibold text-gray-700"
+            >
               Reason
             </span>
           }
           name="reason"
           rules={[{ required: true, message: 'Please input the reason!' }]}
         >
-          <TextArea id="talent-acquisition-talent-pool-textarea-reason" data-cy="talent-acquisition-talent-pool-textarea-reason" rows={6} placeholder="Reason for selecting candidate" />
+          <TextArea
+            id="talent-acquisition-talent-pool-textarea-reason"
+            data-cy="talent-acquisition-talent-pool-textarea-reason"
+            rows={6}
+            placeholder="Reason for selecting candidate"
+          />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

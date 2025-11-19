@@ -178,20 +178,40 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       data-cy="org-settings-session-drawer-container"
       id="org-settings-session-drawer-container"
     >
-      <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2" data-cy="org-settings-session-drawer-title" id="org-settings-session-drawer-title">
+      <div
+        className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2"
+        data-cy="org-settings-session-drawer-title"
+        id="org-settings-session-drawer-title"
+      >
         Set up Session
       </div>
-      <Form form={form} layout="vertical" data-cy="org-settings-session-drawer-form" id="org-settings-session-drawer-form">
+      <Form
+        form={form}
+        layout="vertical"
+        data-cy="org-settings-session-drawer-form"
+        id="org-settings-session-drawer-form"
+      >
         {sessionData?.map((item, index) => {
           return (
-            <div className="px-3 sm:px-0" key={index} data-cy={`org-settings-session-drawer-form-item-${index}`} id={`org-settings-session-drawer-form-item-${index}`}>
+            <div
+              className="px-3 sm:px-0"
+              key={index}
+              data-cy={`org-settings-session-drawer-form-item-${index}`}
+              id={`org-settings-session-drawer-form-item-${index}`}
+            >
               <Form.Item
                 data-cy={`org-settings-session-drawer-form-item-name-${index}`}
                 id={`sessionNameId_${index}`}
                 name={['sessionData', index, 'sessionName']}
                 initialValue={item.sessionName}
                 label={
-                  <span className="font-medium" data-cy={`org-settings-session-drawer-form-item-name-label-${index}`} id={`org-settings-session-drawer-form-item-name-label-${index}`}>Session {index + 1} Name</span>
+                  <span
+                    className="font-medium"
+                    data-cy={`org-settings-session-drawer-form-item-name-label-${index}`}
+                    id={`org-settings-session-drawer-form-item-name-label-${index}`}
+                  >
+                    Session {index + 1} Name
+                  </span>
                 }
                 rules={[
                   { required: true, message: 'Please input the session name!' },
@@ -209,11 +229,32 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 />
               </Form.Item>
 
-              <Row gutter={[16, 6]} className="mb-4" data-cy={`org-settings-session-drawer-form-item-dates-${index}`} id={`org-settings-session-drawer-form-item-dates-${index}`}>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-components-session-sessiondrawer-index-col-1" id="org-components-session-sessiondrawer-index-col-1">
+              <Row
+                gutter={[16, 6]}
+                className="mb-4"
+                data-cy={`org-settings-session-drawer-form-item-dates-${index}`}
+                id={`org-settings-session-drawer-form-item-dates-${index}`}
+              >
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-components-session-sessiondrawer-index-col-1"
+                  id="org-components-session-sessiondrawer-index-col-1"
+                >
                   <Form.Item
                     name={['sessionData', index, 'sessionStartDate']}
-                    label={<span className="font-medium" data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`} id={`org-settings-session-drawer-form-item-dates-label-${index}`}>Session {index + 1} Start Date</span>}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                        id={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                      >
+                        Session {index + 1} Start Date
+                      </span>
+                    }
                     rules={[
                       {
                         required: true,
@@ -239,10 +280,26 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                     />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-components-session-sessiondrawer-index-col-2" id="org-components-session-sessiondrawer-index-col-2">
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-components-session-sessiondrawer-index-col-2"
+                  id="org-components-session-sessiondrawer-index-col-2"
+                >
                   <Form.Item
                     name={['sessionData', index, 'sessionEndDate']}
-                    label={<span className="font-medium" data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`} id={`org-settings-session-drawer-form-item-dates-label-${index}`}>Session {index + 1} End Date</span>}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                        id={`org-settings-session-drawer-form-item-dates-label-${index}`}
+                      >
+                        Session {index + 1} End Date
+                      </span>
+                    }
                     rules={[
                       {
                         required: true,
@@ -275,7 +332,15 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 data-cy={`org-settings-session-drawer-form-item-description-${index}`}
                 id={`sessionDescriptionId_${index}`}
                 name={['sessionData', index, 'sessionDescription']}
-                label={<span className="font-medium" data-cy="org-components-session-sessiondrawer-index-span-1" id="org-components-session-sessiondrawer-index-span-1">Description</span>}
+                label={
+                  <span
+                    className="font-medium"
+                    data-cy="org-components-session-sessiondrawer-index-span-1"
+                    id="org-components-session-sessiondrawer-index-span-1"
+                  >
+                    Description
+                  </span>
+                }
                 initialValue={item.sessionDescription}
               >
                 <TextArea
@@ -298,7 +363,11 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           );
         })}
 
-        <Form.Item className="mb-0" data-cy="org-settings-session-drawer-next-btn-form-item" id="org-settings-session-drawer-next-btn-form-item">
+        <Form.Item
+          className="mb-0"
+          data-cy="org-settings-session-drawer-next-btn-form-item"
+          id="org-settings-session-drawer-next-btn-form-item"
+        >
           <div
             className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
             data-cy="org-settings-session-drawer-form-item-next-btn-container"
@@ -323,9 +392,19 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               {isCreateLoading || isUpdateLoading ? (
                 <Spin data-cy="org-settings-session-drawer-form-item-next-btn-spinner" />
               ) : sessionId ? (
-                <span data-cy="org-settings-session-drawer-form-item-next-btn-text" id="org-settings-session-drawer-form-item-next-btn-text">Edit</span>
+                <span
+                  data-cy="org-settings-session-drawer-form-item-next-btn-text"
+                  id="org-settings-session-drawer-form-item-next-btn-text"
+                >
+                  Edit
+                </span>
               ) : (
-                <span data-cy="org-settings-session-drawer-form-item-next-btn-text" id="org-settings-session-drawer-form-item-next-btn-text">Next</span>
+                <span
+                  data-cy="org-settings-session-drawer-form-item-next-btn-text"
+                  id="org-settings-session-drawer-form-item-next-btn-text"
+                >
+                  Next
+                </span>
               )}
             </Button>
           </div>

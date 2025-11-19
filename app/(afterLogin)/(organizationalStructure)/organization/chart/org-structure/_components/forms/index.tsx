@@ -146,7 +146,13 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
   }, [Merge]);
 
   return (
-    <Form className="pr-10" layout="vertical" form={form} data-cy="org-structure-transfer-form" id="org-structure-transfer-form">
+    <Form
+      className="pr-10"
+      layout="vertical"
+      form={form}
+      data-cy="org-structure-transfer-form"
+      id="org-structure-transfer-form"
+    >
       <Form.Item
         label="Select the teams to transfer from"
         className="mb-1"
@@ -157,7 +163,8 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
             message: 'Please select the teams to transfer from',
           },
         ]}
-        data-cy="org-structure-transfer-from-field" id="org-structure-transfer-from-field"
+        data-cy="org-structure-transfer-from-field"
+        id="org-structure-transfer-from-field"
       >
         <Select
           mode="multiple"
@@ -187,7 +194,8 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
         rules={[
           { required: true, message: 'Please select the team to transfer' },
         ]}
-        data-cy="org-structure-transfer-to-field" id="org-structure-transfer-to-field"
+        data-cy="org-structure-transfer-to-field"
+        id="org-structure-transfer-to-field"
       >
         <Select
           showSearch
@@ -206,12 +214,26 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
         />
       </Form.Item>
 
-      <Form.Item data-cy="org-org-structure-components-forms-index-form-item-1" id="org-org-structure-components-forms-index-form-item-1">
-        <p style={{ display: 'flex', color: '#595959', fontSize: '12px' }} data-cy="org-structure-transfer-info" id="org-structure-transfer-info">
+      <Form.Item
+        data-cy="org-org-structure-components-forms-index-form-item-1"
+        id="org-org-structure-components-forms-index-form-item-1"
+      >
+        <p
+          style={{ display: 'flex', color: '#595959', fontSize: '12px' }}
+          data-cy="org-structure-transfer-info"
+          id="org-structure-transfer-info"
+        >
           <span
             style={{ marginRight: '8px', display: 'flex', paddingTop: '2px' }}
-           data-cy="org-org-structure-components-forms-index-span-1" id="org-org-structure-components-forms-index-span-1">
-            <MdInfo size={16} className="text-black"  data-cy="org-org-structure-components-forms-index-mdinfo-1" id="org-org-structure-components-forms-index-mdinfo-1"/>
+            data-cy="org-org-structure-components-forms-index-span-1"
+            id="org-org-structure-components-forms-index-span-1"
+          >
+            <MdInfo
+              size={16}
+              className="text-black"
+              data-cy="org-org-structure-components-forms-index-mdinfo-1"
+              id="org-org-structure-components-forms-index-mdinfo-1"
+            />
           </span>
           This will affect the whole company structure
         </p>
@@ -326,7 +348,13 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
   }, [Merge]);
 
   return (
-    <Form layout="vertical" className="flex flex-col gap-2 pr-10" form={form} data-cy="org-structure-merge-form" id="org-structure-merge-form">
+    <Form
+      layout="vertical"
+      className="flex flex-col gap-2 pr-10"
+      form={form}
+      data-cy="org-structure-merge-form"
+      id="org-structure-merge-form"
+    >
       <Form.Item
         label="New Merged Department Name"
         name="mergedDeptName"
@@ -336,7 +364,8 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
             message: 'Please enter a name for the merged department',
           },
         ]}
-        data-cy="org-structure-merge-name-field" id="org-structure-merge-name-field"
+        data-cy="org-structure-merge-name-field"
+        id="org-structure-merge-name-field"
       >
         <Input
           className="h-10 mt-2"
@@ -353,7 +382,8 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         rules={[
           { required: true, message: 'Please select a team to merge from' },
         ]}
-        data-cy="org-structure-merge-from-field" id="org-structure-merge-from-field"
+        data-cy="org-structure-merge-from-field"
+        id="org-structure-merge-from-field"
       >
         <Select
           className="h-10 mt-2"
@@ -382,7 +412,8 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         rules={[
           { required: true, message: 'Please select the team to merge into' },
         ]}
-        data-cy="org-structure-merge-to-field" id="org-structure-merge-to-field"
+        data-cy="org-structure-merge-to-field"
+        id="org-structure-merge-to-field"
       >
         <Select
           disabled={!childDeptId}
@@ -411,7 +442,8 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
         label="Select Team Leader for Merged Department"
         name="teamLeader"
         rules={[{ required: true, message: 'Please select a team leader' }]}
-        data-cy="org-structure-merge-team-leader-field" id="org-structure-merge-team-leader-field"
+        data-cy="org-structure-merge-team-leader-field"
+        id="org-structure-merge-team-leader-field"
       >
         <Select
           className="h-10 mt-2"
@@ -423,12 +455,26 @@ export const MergeForm: React.FC<DeleteFormProps> = ({ form }) => {
           id="org-structure-merge-team-leader-select"
         />
       </Form.Item>
-      <Form.Item data-cy="org-org-structure-components-forms-index-form-item-2" id="org-org-structure-components-forms-index-form-item-2">
-        <p style={{ display: 'flex', color: '#595959', fontSize: '12px' }} data-cy="org-structure-merge-info" id="org-structure-merge-info">
+      <Form.Item
+        data-cy="org-org-structure-components-forms-index-form-item-2"
+        id="org-org-structure-components-forms-index-form-item-2"
+      >
+        <p
+          style={{ display: 'flex', color: '#595959', fontSize: '12px' }}
+          data-cy="org-structure-merge-info"
+          id="org-structure-merge-info"
+        >
           <span
             style={{ marginRight: '8px', display: 'flex', paddingTop: '2px' }}
-           data-cy="org-org-structure-components-forms-index-span-2" id="org-org-structure-components-forms-index-span-2">
-            <MdInfo size={16} className="text-black"  data-cy="org-org-structure-components-forms-index-mdinfo-2" id="org-org-structure-components-forms-index-mdinfo-2"/>
+            data-cy="org-org-structure-components-forms-index-span-2"
+            id="org-org-structure-components-forms-index-span-2"
+          >
+            <MdInfo
+              size={16}
+              className="text-black"
+              data-cy="org-org-structure-components-forms-index-mdinfo-2"
+              id="org-org-structure-components-forms-index-mdinfo-2"
+            />
           </span>
           This will affect the whole company structure.
         </p>
@@ -515,14 +561,20 @@ export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
   };
 
   return (
-    <Form layout="vertical" form={form} data-cy="org-structure-delete-form" id="org-structure-delete-form">
+    <Form
+      layout="vertical"
+      form={form}
+      data-cy="org-structure-delete-form"
+      id="org-structure-delete-form"
+    >
       <Form.Item
         label="Department to be Deleted"
         name="departmentTobeDeleted"
         rules={[
           { required: true, message: 'Please select the department to delete' },
         ]}
-        data-cy="org-structure-delete-department-field" id="org-structure-delete-department-field"
+        data-cy="org-structure-delete-department-field"
+        id="org-structure-delete-department-field"
       >
         <Select
           showSearch
@@ -546,7 +598,8 @@ export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
             message: 'Please select a department to shift employees to',
           },
         ]}
-        data-cy="org-structure-delete-shift-to-field" id="org-structure-delete-shift-to-field"
+        data-cy="org-structure-delete-shift-to-field"
+        id="org-structure-delete-shift-to-field"
       >
         <Select
           placeholder="Select a department to shift employees to"
@@ -559,10 +612,23 @@ export const DeleteForm: React.FC<DeleteFormProps> = ({ form }) => {
         />
       </Form.Item>
 
-      <Form.Item data-cy="org-org-structure-components-forms-index-form-item-3" id="org-org-structure-components-forms-index-form-item-3">
-        <p style={{ color: '#595959' }} data-cy="org-structure-delete-info" id="org-structure-delete-info">
-          <span style={{ marginRight: '8px' }} data-cy="org-structure-delete-info-span" id="org-structure-delete-info-span">ⓘ</span>This will affect the
-          whole company structure
+      <Form.Item
+        data-cy="org-org-structure-components-forms-index-form-item-3"
+        id="org-org-structure-components-forms-index-form-item-3"
+      >
+        <p
+          style={{ color: '#595959' }}
+          data-cy="org-structure-delete-info"
+          id="org-structure-delete-info"
+        >
+          <span
+            style={{ marginRight: '8px' }}
+            data-cy="org-structure-delete-info-span"
+            id="org-structure-delete-info-span"
+          >
+            ⓘ
+          </span>
+          This will affect the whole company structure
         </p>
       </Form.Item>
     </Form>

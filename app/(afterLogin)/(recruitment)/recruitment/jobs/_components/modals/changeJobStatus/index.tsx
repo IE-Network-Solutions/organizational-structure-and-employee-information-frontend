@@ -73,10 +73,20 @@ const ChangeStatusModal: React.FC = () => {
             ]}
             className="px-5 mb-6 mt-2"
           >
-            <Select id="talent-acquisition-change-job-status-select" data-cy="talent-acquisition-change-job-status-select" placeholder="Select new status" style={{ width: '100%' }}>
+            <Select
+              id="talent-acquisition-change-job-status-select"
+              data-cy="talent-acquisition-change-job-status-select"
+              placeholder="Select new status"
+              style={{ width: '100%' }}
+            >
               {JobStatus &&
                 Object?.values(JobStatus).map((status) => (
-                  <Select.Option key={status} value={status} id={`talent-acquisition-change-job-status-option-${status}`} data-cy={`talent-acquisition-change-job-status-option-${status}`}>
+                  <Select.Option
+                    key={status}
+                    value={status}
+                    id={`talent-acquisition-change-job-status-option-${status}`}
+                    data-cy={`talent-acquisition-change-job-status-option-${status}`}
+                  >
                     {status}
                   </Select.Option>
                 ))}
@@ -85,10 +95,20 @@ const ChangeStatusModal: React.FC = () => {
 
           <Form.Item>
             <div className="flex space-x-3 justify-end">
-              <Button id="talent-acquisition-change-job-status-button-cancel" data-cy="talent-acquisition-change-job-status-button-cancel" key="cancel" onClick={handleChangeStatusModalClose}>
+              <Button
+                id="talent-acquisition-change-job-status-button-cancel"
+                data-cy="talent-acquisition-change-job-status-button-cancel"
+                key="cancel"
+                onClick={handleChangeStatusModalClose}
+              >
                 Cancel
               </Button>
-              <Button id="talent-acquisition-change-job-status-button-submit" data-cy="talent-acquisition-change-job-status-button-submit" htmlType="submit" type="primary">
+              <Button
+                id="talent-acquisition-change-job-status-button-submit"
+                data-cy="talent-acquisition-change-job-status-button-submit"
+                htmlType="submit"
+                type="primary"
+              >
                 Change Status
               </Button>
             </div>
