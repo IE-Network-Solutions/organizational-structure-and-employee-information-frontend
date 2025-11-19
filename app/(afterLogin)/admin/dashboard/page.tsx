@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import React from 'react';
 import CustomButton from '@/components/common/buttons/customButton';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetInvoices } from '@/store/server/features/tenant-management/invoices/queries';
 import { useGetCurrencies } from '@/store/server/features/tenant-management/currencies/queries';
 import {
@@ -26,6 +26,7 @@ import { useGetPlans } from '@/store/server/features/tenant-management/plans/que
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
+import { useQueryClient } from 'react-query';
 
 const AdminDashboard = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -39,8 +40,10 @@ const AdminDashboard = () => {
   const [lastInvoice, setLastInvoice] = useState<Invoice | null>(null);
   const { setTransactionType } = usePaymentStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
-  const { data: invoicesData, isLoading: isInvoicesLoading } = useGetInvoices(
+  const { data: invoicesData, isLoading: isInvoicesLoading, refetch: refetchInvoices } = useGetInvoices(
     {
       filter: {
         tenantId: DEFAULT_TENANT_ID,
@@ -68,7 +71,7 @@ const AdminDashboard = () => {
   const { data: currenciesData, isLoading: currenciesLoading } =
     useGetCurrencies({ filter: {} }, true, true);
 
-  const { data: subscriptionsData, isLoading: subscriptionsLoading } =
+  const { data: subscriptionsData, isLoading: subscriptionsLoading, refetch: refetchSubscriptions } =
     useGetSubscriptions(
       {
         filter: {
@@ -78,6 +81,37 @@ const AdminDashboard = () => {
       true,
       true,
     );
+
+  // Refetch data when returning from payment or when page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        queryClient.invalidateQueries('invoices').then(() => {
+          refetchInvoices();
+        });
+        queryClient.invalidateQueries('subscriptions').then(() => {
+          refetchSubscriptions();
+        });
+      }
+    };
+
+    const paymentSuccess = searchParams.get('payment_success');
+    const paymentReturn = searchParams.get('payment_return');
+    
+    if (paymentSuccess === 'true' || paymentReturn === 'true') {
+      queryClient.invalidateQueries('invoices');
+      queryClient.invalidateQueries('subscriptions');
+      refetchInvoices();
+      refetchSubscriptions();
+      router.replace('/admin/dashboard', { scroll: false });
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [searchParams, router, queryClient, refetchInvoices, refetchSubscriptions]);
 
   useEffect(() => {
     if (invoicesData) {
