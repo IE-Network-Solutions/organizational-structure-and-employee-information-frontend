@@ -80,9 +80,6 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
   if (permissionError || roleError) {
     return <div>Error loading data</div>; // Handle errors gracefully
   }
-
-  console.log('selectedPermissions', selectedPermissions);
-
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
