@@ -50,12 +50,13 @@ const BranchTransferRequest = ({ employeeData }: { employeeData: any }) => {
     });
   };
   return (
-    <div>
-      <Form form={form} onFinish={handleSubmit} layout="vertical">
+    <div id="branch-transfer-request-container" data-cy="branch-transfer-request-container">
+      <Form form={form} onFinish={handleSubmit} layout="vertical" id="branch-transfer-request-form" data-cy="branch-transfer-request-form">
         <Form.Item
           className="w-full font-semibold text-xs"
           name={'requestBranchId'}
           id="requestBranchId"
+          data-cy="branch-transfer-request-branch-form-item"
           label="Branch Office"
           rules={[{ required: true, message: 'Please select a branch office' }]}
         >
@@ -63,16 +64,18 @@ const BranchTransferRequest = ({ employeeData }: { employeeData: any }) => {
             className="w-full"
             placeholder="Select a branch office"
             allowClear
+            id="branch-transfer-request-branch-select"
+            data-cy="branch-transfer-request-branch-select"
           >
             {branchOfficeData?.items?.map((branch, index: number) => (
-              <Option key={index} value={branch?.id}>
+              <Option key={index} value={branch?.id} id={`branch-transfer-request-branch-option-${branch?.id}`} data-cy={`branch-transfer-request-branch-option-${branch?.id}`}>
                 {branch?.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
-        <Form.Item>
-          <Row className="flex justify-end gap-3">
+        <Form.Item id="branch-transfer-request-submit-form-item" data-cy="branch-transfer-request-submit-form-item">
+          <Row className="flex justify-end gap-3" id="branch-transfer-request-submit-row" data-cy="branch-transfer-request-submit-row">
             <Tooltip
               title={
                 approvalEmployeeData?.length < 1 &&
@@ -80,6 +83,8 @@ const BranchTransferRequest = ({ employeeData }: { employeeData: any }) => {
                   ? 'You lack an assigned approver'
                   : ''
               }
+              id="branch-transfer-request-submit-tooltip"
+              data-cy="branch-transfer-request-submit-tooltip"
             >
               <Button
                 type="primary"
@@ -88,6 +93,8 @@ const BranchTransferRequest = ({ employeeData }: { employeeData: any }) => {
                   approvalEmployeeData?.length < 1 &&
                   approvalDepartmentData?.length < 1
                 }
+                id="branch-transfer-request-submit-btn"
+                data-cy="branch-transfer-request-submit-btn"
               >
                 Request
               </Button>

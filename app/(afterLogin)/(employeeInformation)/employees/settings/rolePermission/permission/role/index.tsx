@@ -5,6 +5,12 @@ import { EmptyImage } from '@/components/emptyIndicator';
 import { useGetRoles } from '@/store/server/features/employees/settings/role/queries';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const RoleComponent: React.FC = () => {
   const { roleCurrentPage, pageSize, setRoleCurrentPage, setPageSize } =
     useSettingStore();
@@ -22,22 +28,43 @@ const RoleComponent: React.FC = () => {
     setRoleCurrentPage(page);
     setPageSize(pageSize);
   };
+  const componentSlug = toSlug('permission-role');
+
   return (
-    <Card>
-      <div className="flex justify-center items-center">
+    <Card
+      id={`settings-permission-role-card-${componentSlug}`}
+      data-cy={`settings-permission-role-card-${componentSlug}`}
+    >
+      <div
+        className="flex justify-center items-center"
+        id={`settings-permission-role-loading-${componentSlug}`}
+        data-cy={`settings-permission-role-loading-${componentSlug}`}
+      >
         {rolePermissionsData?.items?.length === 0 && roleLoading && (
-          <Spin size="large" />
+          <Spin
+            size="large"
+            data-cy={`settings-permission-role-spinner-${componentSlug}`}
+          />
         )}
       </div>
       {rolePermissionsData && rolePermissionsData?.items?.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2 lg:gap-4">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2 lg:gap-4"
+            id={`settings-permission-role-grid-${componentSlug}`}
+            data-cy={`settings-permission-role-grid-${componentSlug}`}
+          >
             {rolePermissionsData?.items?.map((item: any, index: number) => (
-              <div key={index}>
+              <div
+                key={index}
+                id={`settings-permission-role-card-wrapper-${item?.id}`}
+                data-cy={`settings-permission-role-card-wrapper-${item?.id}`}
+              >
                 <EditAndDeleteButtonCard
                   item={item}
                   handleButtonClick={handleButtonClick}
                   visibleEditCardId={visibleEditCardId}
+                  data-cy={`settings-permission-role-card-${item?.id}`}
                 />
               </div>
             ))}
@@ -50,12 +77,21 @@ const RoleComponent: React.FC = () => {
             onChange={(page, pageSize) => onPageChange(page, pageSize)}
             showSizeChanger
             onShowSizeChange={(page, pageSize) => onPageChange(page, pageSize)}
+            data-cy={`settings-permission-role-pagination-${componentSlug}`}
           />
         </>
       ) : (
-        <div className="flex justify-center items-center">
+        <div
+          className="flex justify-center items-center"
+          id={`settings-permission-role-empty-${componentSlug}`}
+          data-cy={`settings-permission-role-empty-${componentSlug}`}
+        >
           {' '}
-          <Empty description={'data not found'} image={<EmptyImage />} />
+          <Empty
+            description={'data not found'}
+            image={<EmptyImage data-cy={`settings-permission-role-empty-icon-${componentSlug}`} />}
+            data-cy={`settings-permission-role-empty-image-${componentSlug}`}
+          />
         </div>
       )}
     </Card>

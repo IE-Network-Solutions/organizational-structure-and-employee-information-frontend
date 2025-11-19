@@ -12,6 +12,12 @@ interface ProbationTemplateProps {
   onClose: () => void;
 }
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 // Mock template tasks - replace with actual API call
 const templateTasks: ProbationTask[] = [
   {
@@ -93,6 +99,7 @@ const templateTasks: ProbationTask[] = [
 ];
 
 const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
+  id,
   isVisible,
   onClose,
 }) => {
@@ -139,6 +146,8 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
     }
   };
 
+  const modalSlug = toSlug(id);
+
   return (
     <Modal
       title="Add Tasks from Template"
@@ -148,7 +157,7 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
         typeof window !== 'undefined' && window.innerWidth < 640 ? '95%' : 600
       }
       footer={[
-        <Button key="cancel" onClick={onClose}>
+        <Button key="cancel" onClick={onClose} data-cy="probation-template-cancel-btn">
           Cancel
         </Button>,
         <Button
@@ -156,13 +165,24 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
           type="primary"
           onClick={handleAddSelectedTasks}
           disabled={selectedTasks.length === 0}
+          data-cy="probation-template-add-selected-btn"
         >
           Add Selected Tasks ({selectedTasks.length})
         </Button>,
       ]}
+      data-cy={`probation-template-modal-${modalSlug}`}
     >
-      <div className="mb-4">
-        <Button onClick={handleSelectAll} size="small">
+      <div
+        className="mb-4"
+        id="probation-template-select-all-wrapper"
+        data-cy="probation-template-select-all-wrapper"
+      >
+        <Button
+          onClick={handleSelectAll}
+          size="small"
+          id="probation-template-select-all-btn"
+          data-cy="probation-template-select-all-btn"
+        >
           {selectedTasks.length === templateTasks.length
             ? 'Deselect All'
             : 'Select All'}
@@ -171,27 +191,37 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
 
       <List
         dataSource={templateTasks}
-        renderItem={(task) => (
-          <List.Item>
-            <div className="flex items-start w-full">
-              <Checkbox
-                checked={selectedTasks.includes(task.id)}
-                onChange={(e) => handleTaskSelect(task.id, e.target.checked)}
-                className="mr-3 mt-1"
-              />
-              <div className="flex-1">
-                <div className="font-medium">{task.title}</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  {task.description}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Weight: {task.weight}% | Due: {task.dueDate} | Assigned to:{' '}
-                  {task.approverId}
+        renderItem={(task) => {
+          const taskSlug = toSlug(task.id);
+          return (
+            <List.Item
+              id={`probation-template-task-${taskSlug}`}
+              data-cy={`probation-template-task-${taskSlug}`}
+            >
+              <div className="flex items-start w-full">
+                <Checkbox
+                  checked={selectedTasks.includes(task.id)}
+                  onChange={(e) => handleTaskSelect(task.id, e.target.checked)}
+                  className="mr-3 mt-1"
+                  id={`probation-template-checkbox-${taskSlug}`}
+                  data-cy={`probation-template-checkbox-${taskSlug}`}
+                />
+                <div className="flex-1" id={`probation-template-task-content-${taskSlug}`} data-cy={`probation-template-task-content-${taskSlug}`}>
+                  <div className="font-medium" id={`probation-template-task-title-${taskSlug}`} data-cy={`probation-template-task-title-${taskSlug}`}>
+                    {task.title}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1" id={`probation-template-task-desc-${taskSlug}`} data-cy={`probation-template-task-desc-${taskSlug}`}>
+                    {task.description}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1" id={`probation-template-task-meta-${taskSlug}`} data-cy={`probation-template-task-meta-${taskSlug}`}>
+                    Weight: {task.weight}% | Due: {task.dueDate} | Assigned to:{' '}
+                    {task.approverId}
+                  </div>
                 </div>
               </div>
-            </div>
-          </List.Item>
-        )}
+            </List.Item>
+          );
+        }}
       />
     </Modal>
   );

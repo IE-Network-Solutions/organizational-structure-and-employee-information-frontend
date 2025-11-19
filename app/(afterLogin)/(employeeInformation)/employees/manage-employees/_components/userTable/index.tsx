@@ -148,9 +148,11 @@ const UserTable = () => {
               {shortEmail}
             </>
           }
+          id={`user-table-employee-tooltip-${item?.id}`}
+          data-cy={`user-table-employee-tooltip-${item?.id}`}
         >
-          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2">
-            <div className="relative w-6 h-6 rounded-full overflow-hidden">
+          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2" id={`user-table-employee-name-${item?.id}`} data-cy={`user-table-employee-name-${item?.id}`}>
+            <div className="relative w-6 h-6 rounded-full overflow-hidden" id={`user-table-employee-avatar-wrapper-${item?.id}`} data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}>
               <Image
                 src={
                   item?.profileImage && typeof item?.profileImage === 'string'
@@ -171,11 +173,13 @@ const UserTable = () => {
                 alt="Description of image"
                 layout="fill"
                 className="object-cover"
+                id={`user-table-employee-avatar-${item?.id}`}
+                data-cy={`user-table-employee-avatar-${item?.id}`}
               />
             </div>
-            <div className="flex flex-wrap flex-col justify-center">
-              <p>{displayName}</p>
-              <p className="font-extralight text-[12px]">{displayEmail}</p>
+            <div className="flex flex-wrap flex-col justify-center" id={`user-table-employee-info-${item?.id}`} data-cy={`user-table-employee-info-${item?.id}`}>
+              <p id={`user-table-employee-display-name-${item?.id}`} data-cy={`user-table-employee-display-name-${item?.id}`}>{displayName}</p>
+              <p className="font-extralight text-[12px]" id={`user-table-employee-display-email-${item?.id}`} data-cy={`user-table-employee-display-email-${item?.id}`}>{displayEmail}</p>
             </div>
           </div>
         </Tooltip>
@@ -193,18 +197,19 @@ const UserTable = () => {
         item?.employeeJobInformation[0]?.employementType?.name,
       ),
       account: (
-        <span className="text-sm text-gray-900">
+        <span className="text-sm text-gray-900" id={`user-table-employee-account-${item?.id}`} data-cy={`user-table-employee-account-${item?.id}`}>
           {!item?.deletedAt ? 'Active' : 'InActive'}
         </span>
       ),
       role: item?.role?.name ? item?.role?.name : ' - ',
       action: (
-        <div className="flex gap-4 text-white">
-          <AccessGuard permissions={[Permissions.DeleteEmployee]}>
+        <div className="flex gap-4 text-white" id={`user-table-action-${item?.id}`} data-cy={`user-table-action-${item?.id}`}>
+          <AccessGuard permissions={[Permissions.DeleteEmployee]} id={`user-table-action-access-guard-${item?.id}`} data-cy={`user-table-action-access-guard-${item?.id}`}>
             {item.deletedAt === null ? (
-              <Tooltip title={'Deactive Employee'}>
+              <Tooltip title={'Deactive Employee'} id={`user-table-deactivate-tooltip-${item?.id}`} data-cy={`user-table-deactivate-tooltip-${item?.id}`}>
                 <Button
                   id={`deleteUserButton${item?.id}`}
+                  data-cy={`deleteUserButton${item?.id}`}
                   disabled={item?.deletedAt !== null}
                   className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
                   onClick={(e) => {
@@ -217,12 +222,14 @@ const UserTable = () => {
                 </Button>
               </Tooltip>
             ) : (
-              <Tooltip title={'Activate Employee'}>
+              <Tooltip title={'Activate Employee'} id={`user-table-activate-tooltip-${item?.id}`} data-cy={`user-table-activate-tooltip-${item?.id}`}>
                 <Button
                   type="primary"
                   htmlType="submit"
                   value={'submit'}
                   name="submit"
+                  id={`activateUserButton${item?.id}`}
+                  data-cy={`activateUserButton${item?.id}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handelRehireModal(item);
@@ -277,14 +284,16 @@ const UserTable = () => {
   };
 
   return (
-    <div className="mt-2">
-      <div>
+    <div className="mt-2" id="user-table-container" data-cy="user-table-container">
+      <div id="user-table-wrapper" data-cy="user-table-wrapper">
         <Table
           className="w-full cursor-pointer"
           columns={columns}
           dataSource={data}
           pagination={false}
           scroll={{ x: 1000 }}
+          id="user-table"
+          data-cy="user-table"
           onRow={
             hasAccess
               ? (record) => ({
@@ -301,6 +310,7 @@ const UserTable = () => {
             pageSize={pageSize}
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
+            data-cy="user-table-mobile-pagination"
           />
         ) : (
           <CustomPagination
@@ -312,6 +322,7 @@ const UserTable = () => {
               setPageSize(pageSize);
               setUserCurrentPage(1);
             }}
+            data-cy="user-table-pagination"
           />
         )}
       </div>
@@ -322,6 +333,7 @@ const UserTable = () => {
         open={deleteModal}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteModal(false)}
+        data-cy="user-table-delete-modal"
       />
       <Modal
         open={reHireModal}
@@ -330,6 +342,7 @@ const UserTable = () => {
           setUserToRehire(null);
         }}
         footer={false}
+        data-cy="user-table-rehire-modal"
       >
         <Form
           form={form}
@@ -337,6 +350,8 @@ const UserTable = () => {
           autoComplete="off"
           style={{ maxWidth: '100%' }}
           layout="vertical"
+          id="user-table-rehire-form"
+          data-cy="user-table-rehire-form"
           onFinish={(values) => handleActivateEmployee(values)}
           onFinishFailed={() =>
             NotificationMessage.error({
@@ -348,14 +363,16 @@ const UserTable = () => {
           <JobTimeLineForm />
 
           <WorkScheduleForm />
-          <Form.Item>
-            <Row className="flex justify-end gap-3">
+          <Form.Item id="user-table-rehire-form-actions" data-cy="user-table-rehire-form-actions">
+            <Row className="flex justify-end gap-3" id="user-table-rehire-form-actions-row" data-cy="user-table-rehire-form-actions-row">
               <Button
                 loading={rehireLoading}
                 type="primary"
                 htmlType="submit"
                 value={'submit'}
                 name="submit"
+                id="user-table-rehire-submit-btn"
+                data-cy="user-table-rehire-submit-btn"
               >
                 Submit
               </Button>
@@ -364,6 +381,8 @@ const UserTable = () => {
                 htmlType="button"
                 value={'cancel'}
                 name="cancel"
+                id="user-table-rehire-cancel-btn"
+                data-cy="user-table-rehire-cancel-btn"
                 onClick={() => {
                   setReHireModalVisible(false);
                   form.resetFields();

@@ -17,16 +17,28 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
     setCurrentModal('deleteModal');
   };
   return (
-    <Card className="cursor-pointer relative" key={props?.item?.id}>
-      <div className="flex justify-between">
-        <p className="font-bold overflow-hidden">{props?.item?.name}</p>
-        <div>
+    <Card
+      className="cursor-pointer relative"
+      key={props?.item?.id}
+      id={`settings-role-card-item-${props?.item?.id}`}
+      data-cy={`settings-role-card-item-${props?.item?.id}`}
+    >
+      <div className="flex justify-between" id={`settings-role-card-name-wrapper-${props?.item?.id}`} data-cy={`settings-role-card-name-wrapper-${props?.item?.id}`}>
+        <p
+          className="font-bold overflow-hidden"
+          id={`settings-role-card-name-${props?.item?.id}`}
+          data-cy={`settings-role-card-name-${props?.item?.id}`}
+        >
+          {props?.item?.name}
+        </p>
+        <div id={`settings-role-card-menu-wrapper-${props?.item?.id}`} data-cy={`settings-role-card-menu-wrapper-${props?.item?.id}`}>
           <button
             id={`cardIdComponent${props?.item?.id}`}
             className="rounded px-2 py-0.5 text-xl text-gray-600"
             onClick={() => props?.handleButtonClick(props?.item?.id)}
+            data-cy={`settings-role-card-menu-btn-${props?.item?.id}`}
           >
-            <IoMdMore />
+            <IoMdMore data-cy={`settings-role-card-menu-btn-icon-${props?.item?.id}`} id={`settings-role-card-menu-btn-icon-${props?.item?.id}`} />
           </button>
           {props?.visibleEditCardId === props?.item?.id && (
             <KebabMenu
@@ -34,11 +46,16 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
               handleButtonClick={props?.handleButtonClick}
               editGroupPermissionHandler={handleEdit}
               deleteGroupPermissionHandler={handleDelete}
+              data-cy={`settings-role-card-menu-${props?.item?.id}`}
             />
           )}
         </div>
       </div>
-      <p className="text-gray-400 text-xs mt-8 overflow-hidden">
+      <p
+        className="text-gray-400 text-xs mt-8 overflow-hidden"
+        id={`settings-role-card-description-${props?.item?.id}`}
+        data-cy={`settings-role-card-description-${props?.item?.id}`}
+      >
         {props?.item?.description}
       </p>
     </Card>

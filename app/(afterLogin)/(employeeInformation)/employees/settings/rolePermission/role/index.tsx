@@ -27,21 +27,39 @@ const RoleComponent: React.FC = () => {
     setPageSize(pageSize);
   };
   return (
-    <Card bodyStyle={{ padding: 0 }} className="border-none">
-      <div className="flex justify-center items-center">
+    <Card
+      bodyStyle={{ padding: 0 }}
+      className="border-none"
+      id="settings-role-card"
+      data-cy="settings-role-card"
+    >
+      <div
+        className="flex justify-center items-center"
+        id="settings-role-loading"
+        data-cy="settings-role-loading"
+      >
         {rolePermissionsData?.items?.length === 0 && roleLoading && (
-          <Spin size="large" />
+          <Spin size="large" data-cy="settings-role-spinner" />
         )}
       </div>
       {rolePermissionsData && rolePermissionsData?.items?.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2 lg:gap-4">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2 lg:gap-4"
+            id="settings-role-grid"
+            data-cy="settings-role-grid"
+          >
             {rolePermissionsData?.items?.map((item: any, index: number) => (
-              <div key={index}>
+              <div
+                key={index}
+                id={`settings-role-card-wrapper-${item?.id}`}
+                data-cy={`settings-role-card-wrapper-${item?.id}`}
+              >
                 <EditAndDeleteButtonCard
                   item={item}
                   handleButtonClick={handleButtonClick}
                   visibleEditCardId={visibleEditCardId}
+                  data-cy={`settings-role-card-${item?.id}`}
                 />
               </div>
             ))}
@@ -52,6 +70,7 @@ const RoleComponent: React.FC = () => {
               pageSize={pageSize}
               onChange={onPageChange}
               onShowSizeChange={onPageChange}
+              data-cy="settings-role-pagination-mobile"
             />
           ) : (
             <CustomPagination
@@ -63,13 +82,22 @@ const RoleComponent: React.FC = () => {
                 setPageSize(pageSize);
                 setRoleCurrentPage(1);
               }}
+              data-cy="settings-role-pagination-desktop"
             />
           )}
         </>
       ) : (
-        <div className="flex justify-center items-center">
+        <div
+          className="flex justify-center items-center"
+          id="settings-role-empty"
+          data-cy="settings-role-empty-wrapper"
+        >
           {' '}
-          <Empty description={'data not found'} image={<EmptyImage />} />
+          <Empty 
+            description={'data not found'} 
+            image={<EmptyImage data-cy="settings-role-empty-image" />} 
+            data-cy="settings-role-empty" 
+          />
         </div>
       )}
     </Card>

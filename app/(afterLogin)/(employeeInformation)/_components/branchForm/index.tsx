@@ -7,6 +7,12 @@ import { useBranchStore } from '@/store/uistate/features/organizationStructure/b
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const BranchForm: React.FC<{
   onClose: () => void;
   submitAction: (values: Branch) => void;
@@ -37,6 +43,9 @@ const BranchForm: React.FC<{
       });
   };
 
+  const modalSlug = toSlug(title);
+  const formMode = editingBranch ? 'edit' : 'create';
+
   return (
     <Modal
       title={title}
@@ -49,10 +58,22 @@ const BranchForm: React.FC<{
       }}
       open={formOpen}
       footer={
-        <div style={{ textAlign: 'center' }}>
-          <Space>
+        <div
+          style={{ textAlign: 'center' }}
+          id={`branch-form-footer-${modalSlug}`}
+          data-cy={`branch-form-footer-${modalSlug}`}
+        >
+          <Space
+            id={`branch-form-footer-actions-${modalSlug}`}
+            data-cy={`branch-form-footer-actions-${modalSlug}`}
+          >
             <Button
               id={
+                editingBranch
+                  ? 'cancelUpdateBranchButton'
+                  : 'cancelCreateBranchButton'
+              }
+              data-cy={
                 editingBranch
                   ? 'cancelUpdateBranchButton'
                   : 'cancelCreateBranchButton'
@@ -70,6 +91,9 @@ const BranchForm: React.FC<{
               loading={loading}
               type="primary"
               id={editingBranch ? 'updateBranchButton' : 'createBranchButton'}
+              data-cy={
+                editingBranch ? 'updateBranchButton' : 'createBranchButton'
+              }
               onClick={handleSubmit}
             >
               {editingBranch ? 'Update' : 'Create'}
@@ -77,28 +101,55 @@ const BranchForm: React.FC<{
           </Space>
         </div>
       }
+      data-cy={`branch-form-modal-${modalSlug}`}
     >
-      <Form layout="vertical" form={form}>
+      <Form
+        layout="vertical"
+        form={form}
+        id={`branch-form-${modalSlug}`}
+        data-cy={`branch-form-${modalSlug}`}
+      >
         <Form.Item
           name="name"
           label="Branch Name"
           rules={[{ required: true, message: 'Please enter the branch name' }]}
+          id={`branch-form-name-item-${modalSlug}`}
+          data-cy={`branch-form-name-item-${modalSlug}`}
         >
-          <Input size="large" placeholder="Enter branch name" />
+          <Input
+            size="large"
+            placeholder="Enter branch name"
+            id={`branch-form-name-input-${modalSlug}`}
+            data-cy={`branch-form-name-input-${modalSlug}`}
+          />
         </Form.Item>
-        <Form.Item name="description" label="Branch Description">
+        <Form.Item
+          name="description"
+          label="Branch Description"
+          id={`branch-form-description-item-${modalSlug}`}
+          data-cy={`branch-form-description-item-${modalSlug}`}
+        >
           <Input.TextArea
             size="large"
             rows={4}
             placeholder="Enter a brief description of the branch"
+            id={`branch-form-description-textarea-${modalSlug}`}
+            data-cy={`branch-form-description-textarea-${modalSlug}`}
           />
         </Form.Item>
         <Form.Item
           name="location"
           label="Location"
           rules={[{ required: true, message: 'Please enter the location' }]}
+          id={`branch-form-location-item-${modalSlug}`}
+          data-cy={`branch-form-location-item-${modalSlug}`}
         >
-          <Input size="large" placeholder="Enter location" />
+          <Input
+            size="large"
+            placeholder="Enter location"
+            id={`branch-form-location-input-${modalSlug}`}
+            data-cy={`branch-form-location-input-${modalSlug}`}
+          />
         </Form.Item>
         <Form.Item
           name="contactNumber"
@@ -109,8 +160,17 @@ const BranchForm: React.FC<{
               message: 'Please enter the contact number',
             },
           ]}
+          id={`branch-form-contact-number-item-${modalSlug}`}
+          data-cy={`branch-form-contact-number-item-${modalSlug}`}
         >
-          <PhoneInput defaultCountry="et" inputClassName="ant-input" />
+          <PhoneInput
+            defaultCountry="et"
+            inputClassName="ant-input"
+            inputProps={{
+              id: `branch-form-contact-number-input-${modalSlug}`,
+              'data-cy': `branch-form-contact-number-input-${modalSlug}`,
+            }}
+          />
         </Form.Item>
 
         <Form.Item
@@ -126,8 +186,15 @@ const BranchForm: React.FC<{
               message: 'Please enter a valid email address',
             },
           ]}
+          id={`branch-form-contact-email-item-${modalSlug}`}
+          data-cy={`branch-form-contact-email-item-${modalSlug}`}
         >
-          <Input size="large" placeholder="Enter contact email" />
+          <Input
+            size="large"
+            placeholder="Enter contact email"
+            id={`branch-form-contact-email-input-${modalSlug}`}
+            data-cy={`branch-form-contact-email-input-${modalSlug}`}
+          />
         </Form.Item>
       </Form>
     </Modal>

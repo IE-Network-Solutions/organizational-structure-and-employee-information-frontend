@@ -77,22 +77,33 @@ const BasicInformationForm = ({ form }: any) => {
   };
 
   return (
-    <div className="">
-      <Row justify="center" style={{ width: '100%' }}>
+    <div className="" id="basic-info-form" data-cy="basic-info-form">
+      <Row justify="center" style={{ width: '100%' }} id="basic-info-row-profile" data-cy="basic-info-row-profile">
         <Col span={24}>
           <Form.Item
             className="font-semibold text-xs"
             label={
-              <span className="mb-1 font-semibold text-xs">Upload Profile</span>
+              <span className="mb-1 font-semibold text-xs" id="basic-info-upload-label" data-cy="basic-info-upload-label">
+                Upload Profile
+              </span>
             }
             style={{ textAlign: 'center' }}
             name="profileImage"
             id="profileImageId"
+            data-cy="profileImageId"
           >
             {profileFileList.length > 0 ? (
               // PREVIEW MODE - Wider image to cover more space
-              <div className="flex justify-center items-center py-2 px-3 border-2 border-dashed border-gray-300 rounded-lg">
-                <div className="relative inline-block">
+              <div
+                className="flex justify-center items-center py-2 px-3 border-2 border-dashed border-gray-300 rounded-lg"
+                id="basic-info-upload-preview"
+                data-cy="basic-info-upload-preview"
+              >
+                <div
+                  className="relative inline-block"
+                  id="basic-info-upload-preview-image"
+                  data-cy="basic-info-upload-preview-image"
+                >
                   <Image
                     src={getImageUrl(profileFileList)}
                     alt="Profile Preview"
@@ -115,6 +126,7 @@ const BasicInformationForm = ({ form }: any) => {
                     className="absolute -top-2 -right-2 shadow-md"
                     style={{ zIndex: 10 }}
                     title="Remove image"
+                    data-cy="basic-info-upload-remove-btn"
                   />
                 </div>
               </div>
@@ -129,20 +141,24 @@ const BasicInformationForm = ({ form }: any) => {
                 accept="image/*"
                 maxCount={1}
                 showUploadList={false}
+                id="basic-info-upload-dragger"
+                data-cy="basic-info-upload-dragger"
               >
-                <div className="bg-white p-0">
-                  <p className="ant-upload-drag-icon ">
+                <div className="bg-white p-0" id="basic-info-upload-dragger-content" data-cy="basic-info-upload-dragger-content">
+                  <p className="ant-upload-drag-icon " id='basic-info-upload-dragger-icon' data-cy='basic-info-upload-dragger-icon' >
                     <Image
                       src="/icons/gallery-add.svg"
                       alt="Upload"
                       width={15}
                       height={15}
+                      id="basic-info-upload-dragger-image"
+                      data-cy="basic-info-upload-dragger-image"
                     />
                   </p>
-                  <p className="ant-upload-text font-semibold text-xs">
+                  <p className="ant-upload-text font-semibold text-xs" id="basic-info-upload-dragger-title" data-cy="basic-info-upload-dragger-title">
                     Upload Your Profile
                   </p>
-                  <p className="ant-upload-hint text-xs">
+                  <p className="ant-upload-hint text-xs" id="basic-info-upload-dragger-hint" data-cy="basic-info-upload-dragger-hint">
                     or drag and drop it here.
                   </p>
                 </div>
@@ -151,15 +167,18 @@ const BasicInformationForm = ({ form }: any) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={8}>
+      <Row gutter={16} id="basic-info-row-names" data-cy="basic-info-row-names">
+        <Col xs={24} sm={8} id="basic-info-col-first-name" data-cy="basic-info-col-first-name">
           <Form.Item
             className="font-semibold text-xs"
             name="userFirstName"
             label={
-              <span className="mb-1 font-semibold text-xs">First Name</span>
+              <span className="mb-1 font-semibold text-xs" id="basic-info-first-name-label" data-cy="basic-info-first-name-label">
+                First Name
+              </span>
             }
             id="userFirstNameId"
+            data-cy="userFirstNameId"
             rules={[
               {
                 required: true,
@@ -172,10 +191,10 @@ const BasicInformationForm = ({ form }: any) => {
               },
             ]}
           >
-            <Input />
+            <Input id="basic-info-first-name-input" data-cy="basic-info-first-name-input" />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={8} id="basic-info-col-middle-name" data-cy="basic-info-col-middle-name">
           <Form.Item
             className="font-semibold text-xs"
             name="userMiddleName"
@@ -183,6 +202,7 @@ const BasicInformationForm = ({ form }: any) => {
               <span className="mb-1 font-semibold text-xs">Middle Name</span>
             }
             id="userMiddleNameId"
+            data-cy="userMiddleNameId"
             rules={[
               {
                 required: true,
@@ -195,10 +215,10 @@ const BasicInformationForm = ({ form }: any) => {
               },
             ]}
           >
-            <Input />
+            <Input id="basic-info-middle-name-input" data-cy="basic-info-middle-name-input" />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={8} id="basic-info-col-last-name" data-cy="basic-info-col-last-name">
           <Form.Item
             className="font-semibold text-xs"
             name="userLastName"
@@ -206,6 +226,7 @@ const BasicInformationForm = ({ form }: any) => {
               <span className="mb-1 font-semibold text-xs">Last Name</span>
             }
             id="userLastNameId"
+            data-cy="userLastNameId"
             rules={[
               {
                 required: true,
@@ -218,12 +239,12 @@ const BasicInformationForm = ({ form }: any) => {
               },
             ]}
           >
-            <Input />
+            <Input id="basic-info-last-name-input" data-cy="basic-info-last-name-input" />
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={12}>
+      <Row gutter={16} id="basic-info-row-contact" data-cy="basic-info-row-contact">
+        <Col xs={24} sm={12} id="basic-info-col-email" data-cy="basic-info-col-email">
           <Form.Item
             className="font-semibold text-xs"
             name="userEmail"
@@ -231,6 +252,7 @@ const BasicInformationForm = ({ form }: any) => {
               <span className="mb-1 font-semibold text-xs">Email Address</span>
             }
             id="userEmailId"
+            data-cy="userEmailId"
             rules={[
               {
                 required: true,
@@ -241,26 +263,31 @@ const BasicInformationForm = ({ form }: any) => {
               },
             ]}
           >
-            <Input />
+            <Input id="basic-info-email-input" data-cy="basic-info-email-input" />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12}>
+        <Col xs={24} sm={12} id="basic-info-col-gender" data-cy="basic-info-col-gender">
           <Form.Item
             className="font-semibold text-xs"
             name="employeeGender"
             label={<span className="mb-1 font-semibold text-xs">Gender</span>}
             id="userEmployeeGenderId"
+            data-cy="userEmployeeGenderId"
             rules={[{ required: true }]}
           >
-            <Select placeholder="Select an option" allowClear>
-              <Option value="male">Male</Option>
-              <Option value="female">Female</Option>
+            <Select placeholder="Select an option" allowClear id="basic-info-gender-select" data-cy="basic-info-gender-select">
+              <Option value="male" id="basic-info-gender-option-male" data-cy="basic-info-gender-option-male">
+                Male
+              </Option>
+              <Option value="female" id="basic-info-gender-option-female" data-cy="basic-info-gender-option-female">
+                Female
+              </Option>
             </Select>
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={12}>
+      <Row gutter={16} id="basic-info-row-birth-nationality" data-cy="basic-info-row-birth-nationality">
+        <Col xs={24} sm={12} id="basic-info-col-dob" data-cy="basic-info-col-dob">
           <Form.Item
             className="font-semibold text-xs"
             name="dateOfBirth"
@@ -268,10 +295,13 @@ const BasicInformationForm = ({ form }: any) => {
               <span className="mb-1 font-semibold text-xs">Date of Birth</span>
             }
             id="userDateOfBirthId"
+            data-cy="userDateOfBirthId"
             rules={[{ required: true }]}
           >
             <DatePicker
               className="w-full"
+              id="basic-info-date-picker"
+              data-cy="basic-info-date-picker"
               onChange={(date) => setBirthDate(date)}
               defaultPickerValue={dayjs().subtract(18, 'years')}
               disabledDate={(current) => {
@@ -285,7 +315,7 @@ const BasicInformationForm = ({ form }: any) => {
             />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12}>
+        <Col xs={24} sm={12} id="basic-info-col-nationality" data-cy="basic-info-col-nationality">
           <Form.Item
             className="font-semibold text-xs"
             name="nationalityId"
@@ -293,15 +323,23 @@ const BasicInformationForm = ({ form }: any) => {
               <span className="mb-1 font-semibold text-xs">Nationality</span>
             }
             id="userNationalityId"
+            data-cy="userNationalityId"
             rules={[{ required: true }]}
           >
             <Select
               loading={isLoadingNationality}
               placeholder="Select an option"
               allowClear
+              id="basic-info-nationality-select"
+              data-cy="basic-info-nationality-select"
             >
               {nationalities?.items?.map((nationality: any, index: number) => (
-                <Option key={index} value={nationality?.id}>
+                <Option
+                  key={index}
+                  value={nationality?.id}
+                  id={`basic-info-nationality-option-${index}`}
+                  data-cy={`basic-info-nationality-option-${index}`}
+                >
                   {nationality?.name}
                 </Option>
               ))}
@@ -309,8 +347,8 @@ const BasicInformationForm = ({ form }: any) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row gutter={16} id="basic-info-row-marital" data-cy="basic-info-row-marital">
+        <Col xs={24} sm={24} id="basic-info-col-marital-status" data-cy="basic-info-col-marital-status">
           <Form.Item
             className="font-semibold text-xs"
             name="maritalStatus"
@@ -318,14 +356,21 @@ const BasicInformationForm = ({ form }: any) => {
               <span className="mb-1 font-semibold text-xs">Marital Status</span>
             }
             id="userMaritalStatusId"
+            data-cy="userMaritalStatusId"
             rules={[
               { required: true, message: 'Please select a marital status!' },
             ]}
           >
-            <Select placeholder="Select an option" allowClear>
-              <Option value="SINGLE">Single</Option>
-              <Option value="MARRIED">Married</Option>
-              <Option value="DIVORCED">Divorced</Option>
+            <Select placeholder="Select an option" allowClear id="basic-info-marital-select" data-cy="basic-info-marital-select">
+              <Option value="SINGLE" id="basic-info-marital-option-single" data-cy="basic-info-marital-option-single">
+                Single
+              </Option>
+              <Option value="MARRIED" id="basic-info-marital-option-married" data-cy="basic-info-marital-option-married">
+                Married
+              </Option>
+              <Option value="DIVORCED" id="basic-info-marital-option-divorced" data-cy="basic-info-marital-option-divorced">
+                Divorced
+              </Option>
             </Select>
           </Form.Item>
         </Col>

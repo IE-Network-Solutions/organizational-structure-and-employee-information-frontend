@@ -400,8 +400,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={12}>
+      <Row gutter={16} id="job-timeline-row-status-salary" data-cy="job-timeline-row-status-salary">
+        <Col xs={24} sm={12} id="job-timeline-status-col" data-cy="job-timeline-status-col">
           <Form.Item
             className="w-full font-semibold text-xs"
             name="jobAction"
@@ -418,10 +418,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 value: status?.id,
                 label: `${status?.name ? status?.name : ''} `,
               }))}
+              id="job-timeline-status-select"
+              data-cy="job-timeline-status-select"
             />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12}>
+        <Col xs={24} sm={12} id="job-timeline-salary-col" data-cy="job-timeline-salary-col">
           <Form.Item
             className="w-full font-semibold text-xs"
             name="basicSalary"
@@ -474,20 +476,26 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                   e.preventDefault();
                 }
               }}
+              id="job-timeline-salary-input"
+              data-cy="job-timeline-salary-input"
             />
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
+      <Row gutter={16} id="job-timeline-row-allowance" data-cy="job-timeline-row-allowance">
         <Col xs={24}>
-          <div className="font-semibold text-xs mb-1">Allowance Type</div>
-          <div className="flex items-start gap-2">
+          <div className="font-semibold text-xs mb-1" id="job-timeline-allowance-title" data-cy="job-timeline-allowance-title">
+            Allowance Type
+          </div>
+          <div className="flex items-start gap-2" id="job-timeline-allowance-wrapper" data-cy="job-timeline-allowance-wrapper">
             <Form.Item
               name="allowanceIds"
               rules={[
                 { required: true, message: 'Please select allowance type' },
               ]}
               className="flex-1"
+              id="job-timeline-allowance-ids"
+              data-cy="job-timeline-allowance-ids"
             >
               <Form.Item shouldUpdate noStyle>
                 {({ getFieldValue, setFieldValue }) => {
@@ -586,6 +594,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                         // They should remain available in dropdown even after being removed
                         // They'll only be cleared on form cancel or successful submit
                       }}
+                      id="job-timeline-allowance-select"
+                      data-cy="job-timeline-allowance-select"
                     />
                   );
                 }}
@@ -606,6 +616,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 alignSelf: 'flex-start',
                 marginTop: 0,
               }}
+              id="job-timeline-allowance-add-btn"
+              data-cy="job-timeline-allowance-add-btn"
             />
           </div>
         </Col>
@@ -631,15 +643,18 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           </Col>
         </Row>
       )}
-      <Row gutter={16}>
+      <Row gutter={16} id="job-timeline-row-team-lead" data-cy="job-timeline-row-team-lead">
         <Col xs={16} sm={8}>
-          <div className="font-semibold text-sm">Team Lead</div>
+          <div className="font-semibold text-sm" id="job-timeline-team-lead-label" data-cy="job-timeline-team-lead-label">
+            Team Lead
+          </div>
         </Col>
         <Col xs={8} sm={16}>
           <Form.Item
             name="departmentLeadOrNot"
             valuePropName="checked"
             id="departmentLeadOrNot"
+            data-cy="departmentLeadOrNot"
           >
             {department?.length > 0 ? (
               <Popconfirm
@@ -670,18 +685,20 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 cancelText="No"
                 placement="topRight"
                 overlayClassName="team-lead-confirm-popup"
+                id="job-timeline-team-lead-popconfirm"
+                data-cy="job-timeline-team-lead-popconfirm"
               >
-                <Switch checked={switchValue} onChange={handleTeamLeadChange} />
+                <Switch checked={switchValue} onChange={handleTeamLeadChange} id="job-timeline-team-lead-switch" data-cy="job-timeline-team-lead-switch" />
               </Popconfirm>
             ) : (
-              <Switch checked={switchValue} onChange={handleTeamLeadChange} />
+              <Switch checked={switchValue} onChange={handleTeamLeadChange} id="job-timeline-team-lead-switch" data-cy="job-timeline-team-lead-switch" />
             )}
           </Form.Item>
         </Col>
       </Row>
 
-      <Row gutter={16} className="flex justify-center items-center">
-        <Col xs={24} className="flex justify-center items-center mt-2">
+      <Row gutter={16} className="flex justify-center items-center" id="job-timeline-row-contract-type" data-cy="job-timeline-row-contract-type">
+        <Col xs={24} className="flex justify-center items-center mt-2" id="job-timeline-contract-type-col" data-cy="job-timeline-contract-type-col">
           <Form.Item
             className="font-semibold text-xs"
             // label=" "
@@ -689,14 +706,19 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             name={'employmentContractType'}
             rules={[{ required: true, message: 'Please select a job type' }]}
             initialValue="Permanent"
+            data-cy="employmentContractType"
           >
-            <Radio.Group onChange={handleContractTypeChange}>
-              <Row>
-                <Col xs={12} sm={12}>
-                  <Radio value="Permanent">Permanent</Radio>
+            <Radio.Group onChange={handleContractTypeChange} id="job-timeline-contract-type-group" data-cy="job-timeline-contract-type-group">
+              <Row id="job-timeline-contract-type-group-row" data-cy="job-timeline-contract-type-group-row">
+                <Col xs={12} sm={12} id="job-timeline-contract-type-permanent-col" data-cy="job-timeline-contract-type-permanent-col">
+                  <Radio value="Permanent" id="job-timeline-contract-type-permanent" data-cy="job-timeline-contract-type-permanent">
+                    Permanent
+                  </Radio>
                 </Col>
-                <Col xs={12} sm={12}>
-                  <Radio value="Contractual">Contractual</Radio>
+                <Col xs={12} sm={12} id="job-timeline-contract-type-contractual-col" data-cy="job-timeline-contract-type-contractual-col">
+                  <Radio value="Contractual" id="job-timeline-contract-type-contractual" data-cy="job-timeline-contract-type-contractual">
+                    Contractual
+                  </Radio>
                 </Col>
               </Row>
             </Radio.Group>
@@ -734,6 +756,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             newAllowance,
           ]);
         }}
+        data-cy="job-timeline-allowance-sidebar"
       />
     </div>
   );

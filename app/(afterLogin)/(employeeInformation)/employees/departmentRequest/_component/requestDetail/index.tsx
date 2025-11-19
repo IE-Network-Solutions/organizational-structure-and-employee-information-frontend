@@ -11,6 +11,12 @@ import { useMyBranchApprovalStore } from '@/store/uistate/features/employees/bra
 import { Spin, Steps } from 'antd';
 import React from 'react';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const RequestDetail = () => {
   const {
     isShowBranchRequestDetail,
@@ -74,24 +80,61 @@ const RequestDetail = () => {
         width="400px"
       >
         <Spin spinning={isLoading}>
-          <div className=" p-6 rounded-lg  space-y-4 max-w-sm mx-auto">
-            <div className="text-xl font-semibold ">
-              <span className="">Current Branch:</span>{' '}
-              <span className="font-light">
+          <div
+            className=" p-6 rounded-lg  space-y-4 max-w-sm mx-auto"
+            id="department-request-detail-info"
+            data-cy="department-request-detail-info"
+          >
+            <div
+              className="text-xl font-semibold "
+              id="department-request-detail-current-branch"
+              data-cy="department-request-detail-current-branch"
+            >
+              <span
+                className=""
+                id="department-request-detail-current-label"
+                data-cy="department-request-detail-current-label"
+              >
+                Current Branch:
+              </span>{' '}
+              <span
+                className="font-light"
+                id="department-request-detail-current-value"
+                data-cy="department-request-detail-current-value"
+              >
                 {leaveData?.currentBranch?.name}
               </span>{' '}
             </div>
-            <div className="text-xl font-semibold ">
-              <span className="">Requested Branch:</span>{' '}
-              <span className="font-light">
+            <div
+              className="text-xl font-semibold "
+              id="department-request-detail-requested-branch"
+              data-cy="department-request-detail-requested-branch"
+            >
+              <span
+                className=""
+                id="department-request-detail-requested-label"
+                data-cy="department-request-detail-requested-label"
+              >
+                Requested Branch:
+              </span>{' '}
+              <span
+                className="font-light"
+                id="department-request-detail-requested-value"
+                data-cy="department-request-detail-requested-value"
+              >
                 {leaveData?.requestBranch?.name}
               </span>{' '}
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div
+              className="flex items-center space-x-2"
+              id="department-request-detail-status-wrapper"
+              data-cy="department-request-detail-status-wrapper"
+            >
               {leaveData?.status ? (
                 <StatusBadge
                 //   theme={LeaveRequestStatusBadgeTheme[leaveData?.status]}
+                  data-cy="department-request-detail-status-badge"
                 >
                   {leaveData?.status}
                 </StatusBadge>
@@ -100,20 +143,45 @@ const RequestDetail = () => {
               )}
             </div>
           </div>
-          <div className=" p-6 rounded-lg  space-y-4 max-w-sm mx-auto">
-            <div className="text-xl font-semibold ">Approval History</div>
+          <div
+            className=" p-6 rounded-lg  space-y-4 max-w-sm mx-auto"
+            id="department-request-detail-history"
+            data-cy="department-request-detail-history"
+          >
+            <div
+              className="text-xl font-semibold "
+              id="department-request-detail-history-title"
+              data-cy="department-request-detail-history-title"
+            >
+              Approval History
+            </div>
             <Steps
+              data-cy="department-request-detail-history-steps"
               direction="vertical"
               items={logData?.items?.map((step) => ({
                 title: (
-                  <span className="text-xl font-semibold ">{step.action}</span>
+                  <span
+                    className="text-xl font-semibold "
+                    id={`department-request-detail-step-title-${toSlug(`${step?.id}-${step?.action}`)}`}
+                    data-cy={`department-request-detail-step-title-${toSlug(`${step?.id}-${step?.action}`)}`}
+                  >
+                    {step.action}
+                  </span>
                 ),
                 subTitle: (
-                  <div className="text-lg font-semibold">
+                  <div
+                    className="text-lg font-semibold"
+                    id={`department-request-detail-step-subtitle-${toSlug(`${step?.id}-${step?.action}`)}`}
+                    data-cy={`department-request-detail-step-subtitle-${toSlug(`${step?.id}-${step?.action}`)}`}
+                  >
                     {step?.action == 'Rejected'
                       ? 'Rejected By : '
                       : 'Approve By : '}
-                    <span className="text-xl">
+                    <span
+                      className="text-xl"
+                      id={`department-request-detail-step-user-${toSlug(`${step?.id}-${step?.action}`)}`}
+                      data-cy={`department-request-detail-step-user-${toSlug(`${step?.id}-${step?.action}`)}`}
+                    >
                       {userData(String(step.approvedUserId))?.firstName}{' '}
                       {userData(String(step.approvedUserId))?.middleName}{' '}
                       {userData(String(step.approvedUserId))?.lastName}
@@ -122,7 +190,11 @@ const RequestDetail = () => {
                 ),
                 description:
                   step?.action == 'Rejected' ? (
-                    <span className="text-base">
+                    <span
+                      className="text-base"
+                      id={`department-request-detail-step-reason-${toSlug(`${step?.id}-${step?.action}`)}`}
+                      data-cy={`department-request-detail-step-reason-${toSlug(`${step?.id}-${step?.action}`)}`}
+                    >
                       Reason : {step?.approvalComments?.[0]?.comment}
                     </span>
                   ) : (

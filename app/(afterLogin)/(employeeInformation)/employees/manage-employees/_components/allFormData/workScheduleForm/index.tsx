@@ -76,16 +76,21 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
   });
 
   return (
-    <div>
-      <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+    <div id="work-schedule-form" data-cy="work-schedule-form">
+      <div
+        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+        id="work-schedule-title"
+        data-cy="work-schedule-title"
+      >
         Work Schedule
       </div>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row gutter={16} id="work-schedule-select-row" data-cy="work-schedule-select-row">
+        <Col xs={24} sm={24} id="work-schedule-select-col" data-cy="work-schedule-select-col">
           <Form.Item
             className="font-semibold text-xs"
             name="workScheduleId"
             id="workScheduleId"
+            data-cy="workScheduleId"
             label={
               <span className="mb-1 font-semibold text-xs">
                 Work Schedule Category
@@ -101,9 +106,16 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
               allowClear
               value={workSchedule}
               className="bg-white"
+              id="work-schedule-select"
+              data-cy="work-schedule-select"
             >
               {workSchedules?.items.map((schedule) => (
-                <Option key={schedule?.id} value={schedule?.id}>
+                <Option
+                  key={schedule?.id}
+                  value={schedule?.id}
+                  id={`work-schedule-option-${schedule?.id}`}
+                  data-cy={`work-schedule-option-${schedule?.id}`}
+                >
                   {schedule?.name}
                 </Option>
               ))}
@@ -111,9 +123,15 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
-          <Table columns={columns} dataSource={data} pagination={false} />
+      <Row gutter={16} id="work-schedule-table-row" data-cy="work-schedule-table-row">
+        <Col xs={24} sm={24} id="work-schedule-table-col" data-cy="work-schedule-table-col">
+          <Table
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            id="work-schedule-table"
+            data-cy="work-schedule-table"
+          />
         </Col>
       </Row>
     </div>

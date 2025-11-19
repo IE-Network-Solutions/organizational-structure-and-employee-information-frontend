@@ -21,6 +21,12 @@ import { useFetchAllowanceTypesByTypeAllowance } from '@/store/server/features/c
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { PlusOutlined } from '@ant-design/icons';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 interface RecognitionModalProps {
   visible: boolean;
   onCancel: () => void;
@@ -133,11 +139,14 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
       footer={null}
       centered
       onCancel={handleCancel}
+      data-cy="job-basic-salary-modal"
     >
-      <Form onFinish={handleRecogintionForm} layout="vertical" form={form}>
+      <Form onFinish={handleRecogintionForm} layout="vertical" form={form} id="job-basic-salary-modal-form" data-cy="job-basic-salary-modal-form">
         <Form.Item
           label="Basic Salary"
           name="basicSalary"
+          id="job-basic-salary-modal-salary-form-item"
+          data-cy="job-basic-salary-modal-salary-form-item"
           rules={[
             { required: true, message: 'Basic salary is required' },
             {
@@ -183,16 +192,21 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
                 e.preventDefault();
               }
             }}
+            id="job-basic-salary-modal-salary-input"
+            data-cy="job-basic-salary-modal-salary-input"
           />
         </Form.Item>
         <Form.Item
           label="Job Position"
           name="positionId"
+          id="job-basic-salary-modal-position-form-item"
+          data-cy="job-basic-salary-modal-position-form-item"
           rules={[{ required: true, message: 'Please select a Job position' }]}
         >
           <Select
             disabled
             id={`selectJobPosition`}
+            data-cy="job-basic-salary-modal-position-select"
             placeholder="Select Job Position"
             allowClear
             showSearch
@@ -204,16 +218,16 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
             }
           >
             {positions?.items?.map((item: any) => (
-              <Select.Option key={item?.id} value={item?.id}>
+              <Select.Option key={item?.id} value={item?.id} id={`job-basic-salary-modal-position-option-${item?.id}`} data-cy={`job-basic-salary-modal-position-option-${item?.id}`}>
                 {item?.name}
               </Select.Option>
             ))}
           </Select>
         </Form.Item>
 
-        <Row gutter={16}>
-          <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-            <Form.Item label="Allowance Type" name="allowanceIds">
+        <Row gutter={16} id="job-basic-salary-modal-allowance-row" data-cy="job-basic-salary-modal-allowance-row">
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} id="job-basic-salary-modal-allowance-col" data-cy="job-basic-salary-modal-allowance-col">
+            <Form.Item label="Allowance Type" name="allowanceIds" id="job-basic-salary-modal-allowance-form-item" data-cy="job-basic-salary-modal-allowance-form-item">
               <Form.Item shouldUpdate noStyle>
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
@@ -238,8 +252,8 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
                       ),
                   );
                   return (
-                    <div className="flex items-start gap-2">
-                      <div className="flex-1">
+                    <div className="flex items-start gap-2" id="job-basic-salary-modal-allowance-controls" data-cy="job-basic-salary-modal-allowance-controls">
+                      <div className="flex-1" id="job-basic-salary-modal-allowance-select-wrapper" data-cy="job-basic-salary-modal-allowance-select-wrapper">
                         <Select
                           mode="multiple"
                           showSearch
@@ -248,6 +262,8 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
                           placeholder="Select allowance type"
                           options={dropdownOptions}
                           value={selectedIds}
+                          id="job-basic-salary-modal-allowance-select"
+                          data-cy="job-basic-salary-modal-allowance-select"
                           filterOption={(input, opt) =>
                             String(opt?.label ?? '')
                               .toLowerCase()
@@ -268,12 +284,16 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
                                   borderRadius: 4,
                                   display: 'inline-block',
                                 }}
+                                id={`job-basic-salary-modal-allowance-tag-${toSlug(value)}`}
+                                data-cy={`job-basic-salary-modal-allowance-tag-${toSlug(value)}`}
                               >
                                 {fullOption?.label || label}
                                 {closable && (
                                   <span
                                     onClick={onClose}
                                     style={{ marginLeft: 4, cursor: 'pointer' }}
+                                    id={`job-basic-salary-modal-allowance-tag-close-${toSlug(value)}`}
+                                    data-cy={`job-basic-salary-modal-allowance-tag-close-${toSlug(value)}`}
                                   >
                                     ×
                                   </span>
@@ -314,7 +334,7 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
                       </div>
                       <Button
                         type="primary"
-                        icon={<PlusOutlined />}
+                        icon={<PlusOutlined id="job-basic-salary-modal-allowance-add-icon" data-cy="job-basic-salary-modal-allowance-add-icon" />}
                         onClick={() => {
                           setIsAllowanceOpen(true);
                         }}
@@ -323,23 +343,27 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
                           alignSelf: 'flex-start',
                           marginTop: 0,
                         }}
+                        id="job-basic-salary-modal-allowance-add-btn"
+                        data-cy="job-basic-salary-modal-allowance-add-btn"
                       />
                     </div>
                   );
                 }}
               </Form.Item>
             </Form.Item>
-            <Form.Item name="allowances" hidden>
-              <Input type="hidden" />
+            <Form.Item name="allowances" hidden id="job-basic-salary-modal-allowances-hidden-form-item" data-cy="job-basic-salary-modal-allowances-hidden-form-item">
+              <Input type="hidden" id="job-basic-salary-modal-allowances-hidden-input" data-cy="job-basic-salary-modal-allowances-hidden-input" />
             </Form.Item>
           </Col>
         </Row>
 
-        <div className="flex justify-start gap-4">
+        <div className="flex justify-start gap-4" id="job-basic-salary-modal-submit-wrapper" data-cy="job-basic-salary-modal-submit-wrapper">
           <Button
             loading={isLoading || updateLoading}
             type="primary"
             htmlType="submit"
+            id="job-basic-salary-modal-submit-btn"
+            data-cy="job-basic-salary-modal-submit-btn"
           >
             {basicSalaryData?.isEdit == false ? 'Submit' : 'Update'}
           </Button>

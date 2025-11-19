@@ -22,6 +22,12 @@ interface InlineTaskPanelProps {
   onTaskUpdated?: () => void;
 }
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
   probationTargetId,
   isVisible,
@@ -34,6 +40,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 }) => {
   const [form] = Form.useForm();
   const { isMobile } = useIsMobile();
+  const panelSlug = toSlug(probationTargetId);
   const createTaskBulkMutation = useCreateProbationTaskBulk();
   const updateTaskMutation = useUpdateProbationTask();
   const { userId } = useAuthenticationStore();
@@ -201,160 +208,231 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
   if (!isVisible) return null;
   return (
-    <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 border border-gray-200 shadow-sm">
+    <div
+      className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 border border-gray-200 shadow-sm"
+      id={`probation-inline-panel-${panelSlug}`}
+      data-cy={`probation-inline-panel-${panelSlug}`}
+    >
       {/* Close button */}
-      <div className="flex justify-end mb-3 sm:mb-4">
+      <div
+        className="flex justify-end mb-3 sm:mb-4"
+        id={`probation-inline-panel-close-${panelSlug}`}
+        data-cy={`probation-inline-panel-close-${panelSlug}`}
+      >
         <Button
           type="text"
           icon={<CloseOutlined />}
           onClick={handleClose}
           className="w-8 h-8 p-0 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full"
+          id={`probation-inline-panel-close-btn-${panelSlug}`}
+          data-cy={`probation-inline-panel-close-btn-${panelSlug}`}
         />
       </div>
 
       {/* Task Forms */}
-      <Form form={form} layout="vertical" className="space-y-3 sm:space-y-4">
+      <Form
+        form={form}
+        layout="vertical"
+        className="space-y-3 sm:space-y-4"
+        id={`probation-inline-panel-form-${panelSlug}`}
+        data-cy={`probation-inline-panel-form-${panelSlug}`}
+      >
         <Form.List name="tasks" initialValue={editMode ? [{}] : [{}]}>
           {(fields, { add, remove }) => (
             <>
-              <div className="space-y-3 sm:space-y-4">
-                {fields.map((field, index) => (
-                  <Card
-                    key={field.key}
-                    size="small"
-                    className="bg-white border-gray-200"
-                  >
-                    <div className="flex justify-between items-center mb-2 sm:mb-3">
-                      <h4 className="text-sm font-medium text-gray-700">
-                        Task {index + 1}
-                      </h4>
-                      {!editMode && fields.length > 1 && (
-                        <Button
-                          type="text"
-                          danger
-                          icon={<DeleteOutlined />}
-                          onClick={() => remove(field.name)}
-                          className="w-8 h-8 p-0 flex items-center justify-center"
-                        />
-                      )}
-                    </div>
-
-                    <div className="space-y-2 sm:space-y-3">
-                      {/* Task Name Row */}
-                      <div className="grid grid-cols-12 gap-2 sm:gap-3">
-                        <div className="col-span-12 sm:col-span-6">
-                          <Form.Item
-                            {...field}
-                            name={[field.name, 'taskName']}
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Please enter task name',
-                              },
-                              {
-                                min: 3,
-                                message:
-                                  'Task name must be at least 3 characters',
-                              },
-                            ]}
-                            className="mb-0"
-                          >
-                            <Input
-                              placeholder="Task Name"
-                              className="h-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                            />
-                          </Form.Item>
-                        </div>
-
-                        <div className="col-span-12 sm:col-span-4">
-                          <Form.Item
-                            {...field}
-                            name={[field.name, 'approverId']}
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Please select an approver',
-                              },
-                            ]}
-                            className="mb-0"
-                          >
-                            <Select
-                              placeholder="Select Approver"
-                              options={peopleOptions}
-                              showSearch
-                              filterOption={(input: any, option: any) =>
-                                (option?.label ?? '')
-                                  ?.toLowerCase()
-                                  .includes(input.toLowerCase())
-                              }
-                              className="h-10 w-full"
-                            />
-                          </Form.Item>
-                        </div>
-
-                        <div className="col-span-12 sm:col-span-2">
-                          <Form.Item
-                            {...field}
-                            name={[field.name, 'weight']}
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Please enter weight',
-                              },
-                              {
-                                validator: (notused, value) => {
-                                  if (
-                                    value === undefined ||
-                                    value === null ||
-                                    value === ''
-                                  ) {
-                                    return Promise.reject(
-                                      'Please enter weight',
-                                    );
-                                  }
-                                  const num = Number(value);
-                                  if (isNaN(num) || !Number.isFinite(num)) {
-                                    return Promise.reject(
-                                      'Weight must be a number',
-                                    );
-                                  }
-                                  if (num < 1 || num > 100) {
-                                    return Promise.reject(
-                                      'Weight must be between 1 and 100',
-                                    );
-                                  }
-                                  return Promise.resolve();
-                                },
-                              },
-                            ]}
-                            className="mb-0"
-                          >
-                            <Input
-                              placeholder="Weight"
-                              type="number"
-                              min={1}
-                              max={100}
-                              className="h-10 text-center rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                            />
-                          </Form.Item>
-                        </div>
+              <div
+                className="space-y-3 sm:space-y-4"
+                id={`probation-inline-panel-task-list-${panelSlug}`}
+                data-cy={`probation-inline-panel-task-list-${panelSlug}`}
+              >
+                {fields.map((field, index) => {
+                  const taskSlug = `${panelSlug}-${field.key}`;
+                  return (
+                    <Card
+                      key={field.key}
+                      size="small"
+                      className="bg-white border-gray-200"
+                      id={`probation-inline-panel-task-card-${taskSlug}`}
+                      data-cy={`probation-inline-panel-task-card-${taskSlug}`}
+                    >
+                      <div
+                        className="flex justify-between items-center mb-2 sm:mb-3"
+                        id={`probation-inline-panel-task-header-${taskSlug}`}
+                        data-cy={`probation-inline-panel-task-header-${taskSlug}`}
+                      >
+                        <h4
+                          className="text-sm font-medium text-gray-700"
+                          id={`probation-inline-panel-task-title-${taskSlug}`}
+                          data-cy={`probation-inline-panel-task-title-${taskSlug}`}
+                        >
+                          Task {index + 1}
+                        </h4>
+                        {!editMode && fields.length > 1 && (
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => remove(field.name)}
+                            className="w-8 h-8 p-0 flex items-center justify-center"
+                            id={`probation-inline-panel-task-delete-btn-${taskSlug}`}
+                            data-cy={`probation-inline-panel-task-delete-btn-${taskSlug}`}
+                          />
+                        )}
                       </div>
 
-                      {/* Description Row */}
-                      <Form.Item
-                        {...field}
-                        name={[field.name, 'description']}
-                        className="mb-0"
+                      <div
+                        className="space-y-2 sm:space-y-3"
+                        id={`probation-inline-panel-task-body-${taskSlug}`}
+                        data-cy={`probation-inline-panel-task-body-${taskSlug}`}
                       >
-                        <Input.TextArea
-                          placeholder="Description (optional)"
-                          rows={isMobile ? 3 : 2}
-                          className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                        />
-                      </Form.Item>
-                    </div>
-                  </Card>
-                ))}
+                        {/* Task Name Row */}
+                        <div
+                          className="grid grid-cols-12 gap-2 sm:gap-3"
+                          id={`probation-inline-panel-task-row-${taskSlug}`}
+                          data-cy={`probation-inline-panel-task-row-${taskSlug}`}
+                        >
+                          <div
+                            className="col-span-12 sm:col-span-6"
+                            id={`probation-inline-panel-task-name-col-${taskSlug}`}
+                            data-cy={`probation-inline-panel-task-name-col-${taskSlug}`}
+                          >
+                            <Form.Item
+                              {...field}
+                              name={[field.name, 'taskName']}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: 'Please enter task name',
+                                },
+                                {
+                                  min: 3,
+                                  message:
+                                    'Task name must be at least 3 characters',
+                                },
+                              ]}
+                              className="mb-0"
+                              id={`probation-inline-panel-task-name-item-${taskSlug}`}
+                              data-cy={`probation-inline-panel-task-name-item-${taskSlug}`}
+                            >
+                              <Input
+                                placeholder="Task Name"
+                                className="h-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                id={`probation-inline-panel-task-name-input-${taskSlug}`}
+                                data-cy={`probation-inline-panel-task-name-input-${taskSlug}`}
+                              />
+                            </Form.Item>
+                          </div>
+
+                          <div
+                            className="col-span-12 sm:col-span-4"
+                            id={`probation-inline-panel-task-approver-col-${taskSlug}`}
+                            data-cy={`probation-inline-panel-task-approver-col-${taskSlug}`}
+                          >
+                            <Form.Item
+                              {...field}
+                              name={[field.name, 'approverId']}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: 'Please select an approver',
+                                },
+                              ]}
+                              className="mb-0"
+                              id={`probation-inline-panel-task-approver-item-${taskSlug}`}
+                              data-cy={`probation-inline-panel-task-approver-item-${taskSlug}`}
+                            >
+                              <Select
+                                placeholder="Select Approver"
+                                options={peopleOptions}
+                                showSearch
+                                filterOption={(input: any, option: any) =>
+                                  (option?.label ?? '')
+                                    ?.toLowerCase()
+                                    .includes(input.toLowerCase())
+                                }
+                                className="h-10 w-full"
+                                id={`probation-inline-panel-task-approver-select-${taskSlug}`}
+                                data-cy={`probation-inline-panel-task-approver-select-${taskSlug}`}
+                              />
+                            </Form.Item>
+                          </div>
+
+                          <div
+                            className="col-span-12 sm:col-span-2"
+                            id={`probation-inline-panel-task-weight-col-${taskSlug}`}
+                            data-cy={`probation-inline-panel-task-weight-col-${taskSlug}`}
+                          >
+                            <Form.Item
+                              {...field}
+                              name={[field.name, 'weight']}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: 'Please enter weight',
+                                },
+                                {
+                                  validator: (notused, value) => {
+                                    if (
+                                      value === undefined ||
+                                      value === null ||
+                                      value === ''
+                                    ) {
+                                      return Promise.reject(
+                                        'Please enter weight',
+                                      );
+                                    }
+                                    const num = Number(value);
+                                    if (isNaN(num) || !Number.isFinite(num)) {
+                                      return Promise.reject(
+                                        'Weight must be a number',
+                                      );
+                                    }
+                                    if (num < 1 || num > 100) {
+                                      return Promise.reject(
+                                        'Weight must be between 1 and 100',
+                                      );
+                                    }
+                                    return Promise.resolve();
+                                  },
+                                },
+                              ]}
+                              className="mb-0"
+                              id={`probation-inline-panel-task-weight-item-${taskSlug}`}
+                              data-cy={`probation-inline-panel-task-weight-item-${taskSlug}`}
+                            >
+                              <Input
+                                placeholder="Weight"
+                                type="number"
+                                min={1}
+                                max={100}
+                                className="h-10 text-center rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                id={`probation-inline-panel-task-weight-input-${taskSlug}`}
+                                data-cy={`probation-inline-panel-task-weight-input-${taskSlug}`}
+                              />
+                            </Form.Item>
+                          </div>
+                        </div>
+
+                        {/* Description Row */}
+                        <Form.Item
+                          {...field}
+                          name={[field.name, 'description']}
+                          className="mb-0"
+                          id={`probation-inline-panel-task-description-item-${taskSlug}`}
+                          data-cy={`probation-inline-panel-task-description-item-${taskSlug}`}
+                        >
+                          <Input.TextArea
+                            placeholder="Description (optional)"
+                            rows={isMobile ? 3 : 2}
+                            className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            id={`probation-inline-panel-task-description-input-${taskSlug}`}
+                            data-cy={`probation-inline-panel-task-description-input-${taskSlug}`}
+                          />
+                        </Form.Item>
+                      </div>
+                    </Card>
+                  );
+                })}
               </div>
 
               {/* Add Another Task Button */}
@@ -365,6 +443,8 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                     icon={<PlusOutlined />}
                     onClick={() => add()}
                     className="border-blue-300 text-blue-600 hover:border-blue-500 hover:text-blue-700 w-full"
+                    id={`probation-inline-panel-add-task-btn-${panelSlug}`}
+                    data-cy={`probation-inline-panel-add-task-btn-${panelSlug}`}
                   >
                     Add Another Task
                   </Button>
@@ -377,7 +457,11 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
       {/* Total Weight Display */}
       {!editMode && (
-        <div className="mt-3 sm:mt-4 p-3 bg-gray-100 rounded-lg">
+        <div
+          className="mt-3 sm:mt-4 p-3 bg-gray-100 rounded-lg"
+          id={`probation-inline-panel-total-weight-${panelSlug}`}
+          data-cy={`probation-inline-panel-total-weight-${panelSlug}`}
+        >
           <div className="space-y-2">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <span className="text-sm font-medium text-gray-700">
@@ -391,6 +475,8 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                       ? 'text-red-600'
                       : 'text-orange-600'
                 }`}
+                id={`probation-inline-panel-total-weight-value-${panelSlug}`}
+                data-cy={`probation-inline-panel-total-weight-value-${panelSlug}`}
               >
                 {calculateTotalWeight()}/100
               </span>
@@ -400,14 +486,22 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end items-center mt-3 sm:mt-4">
+      <div
+        className="flex justify-end items-center mt-3 sm:mt-4"
+        id={`probation-inline-panel-actions-${panelSlug}`}
+        data-cy={`probation-inline-panel-actions-${panelSlug}`}
+      >
         <Space
           direction={isMobile ? 'vertical' : 'horizontal'}
           size={isMobile ? 8 : 12}
+          id={`probation-inline-panel-actions-space-${panelSlug}`}
+          data-cy={`probation-inline-panel-actions-space-${panelSlug}`}
         >
           <Button
             onClick={handleClose}
             className="border-gray-300 w-full sm:w-auto"
+            id={`probation-inline-panel-cancel-btn-${panelSlug}`}
+            data-cy={`probation-inline-panel-cancel-btn-${panelSlug}`}
           >
             Cancel
           </Button>
@@ -421,6 +515,8 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
             }
             disabled={!editMode && calculateTotalWeight() > 100}
             className="disabled:bg-gray-400 disabled:cursor-not-allowed w-full sm:w-auto"
+            id={`probation-inline-panel-submit-btn-${panelSlug}`}
+            data-cy={`probation-inline-panel-submit-btn-${panelSlug}`}
           >
             {editMode
               ? 'Update Task'

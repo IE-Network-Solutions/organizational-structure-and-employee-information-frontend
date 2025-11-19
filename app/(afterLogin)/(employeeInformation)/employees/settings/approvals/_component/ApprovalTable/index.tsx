@@ -20,6 +20,12 @@ import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const ApprovalTable = () => {
   const {
     userCurrentPage,
@@ -120,6 +126,7 @@ const ApprovalTable = () => {
   };
 
   const data = allFilterData?.items?.map((item: any, index: number) => {
+    const rowSlug = toSlug(item?.id ?? index);
     return {
       key: index,
       workflow_name: item?.name ? item?.name : '-',
@@ -198,11 +205,24 @@ const ApprovalTable = () => {
                     </div>
                   }
                 >
-                  <div className="flex items-center flex-wrap sm:flex-row gap-2">
-                    <UserAvatar userId={employee?.userId} />
-                    <div className="flex flex-wrap flex-col justify-center">
-                      <p>{displayName || '-'}</p>
-                      <p className="font-extralight text-[12px]">
+                  <div
+                    className="flex items-center flex-wrap sm:flex-row gap-2"
+                    id={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                    data-cy={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                  >
+                    <UserAvatar userId={employee?.userId} data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`} />
+                    <div className="flex flex-wrap flex-col justify-center" data-cy={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}>
+                      <p
+                        id={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                      >
+                        {displayName || '-'}
+                      </p>
+                      <p
+                        className="font-extralight text-[12px]"
+                        id={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                      >
                         {displayEmail || '-'}
                       </p>
                     </div>
@@ -215,9 +235,17 @@ const ApprovalTable = () => {
       ),
       level: item?.approvers ? item?.approvers?.length : '-',
       action: (
-        <div className="flex gap-4 text-white">
-          <AccessGuard permissions={[Permissions.CreateApprover]}>
-            <Tooltip title={'Add Approver'}>
+        <div
+          className="flex gap-4 text-white"
+          id={`settings-approvals-row-actions-${rowSlug}`}
+          data-cy={`settings-approvals-row-actions-${rowSlug}`}
+        >
+          <AccessGuard
+            permissions={[Permissions.CreateApprover]}
+            id={`settings-approvals-row-add-guard-${rowSlug}`}
+            data-cy={`settings-approvals-row-add-guard-${rowSlug}`}
+          >
+            <Tooltip title={'Add Approver'} id={`settings-approvals-row-tooltip=${rowSlug}`} data-cy={`settings-approvals-tooltip=${rowSlug}`}>
               <Button
                 id={`editUserButton${item?.id}`}
                 className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none"
@@ -231,13 +259,21 @@ const ApprovalTable = () => {
                       : '-',
                   );
                 }}
+                data-cy={`settings-approvals-row-add-btn-${rowSlug}`}
               >
-                <FaPlus />
+                <FaPlus
+                  id={`settings-approvals-row-add-icon-${rowSlug}`}
+                  data-cy={`settings-approvals-row-add-icon-${rowSlug}`}
+                />
               </Button>
             </Tooltip>
           </AccessGuard>
-          <AccessGuard permissions={[Permissions.UpdateApprover]}>
-            <Tooltip title={'Edit Approver'}>
+          <AccessGuard
+            permissions={[Permissions.UpdateApprover]}
+            id={`settings-approvals-row-edit-guard-${rowSlug}`}
+            data-cy={`settings-approvals-row-edit-guard-${rowSlug}`}
+          >
+            <Tooltip title={'Edit Approver'} id={`settings-approvals-row-edit-btn-${rowSlug}`} data-cy={`settings-approvals-row-edit-btn-${rowSlug}`}>
               <Button
                 id={`editUserButton${item?.id}`}
                 className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none"
@@ -252,13 +288,21 @@ const ApprovalTable = () => {
                       : '-',
                   );
                 }}
+                data-cy={`settings-approvals-row-edit-btn-${rowSlug}`}
               >
-                <FaPencil />
+                <FaPencil
+                  id={`settings-approvals-row-edit-icon-${rowSlug}`}
+                  data-cy={`settings-approvals-row-edit-icon-${rowSlug}`}
+                />
               </Button>
             </Tooltip>
           </AccessGuard>
-          <AccessGuard permissions={[Permissions.DeleteApprover]}>
-            <Tooltip title={'Delete Employee'}>
+          <AccessGuard
+            permissions={[Permissions.DeleteApprover]}
+            id={`settings-approvals-row-delete-guard-${rowSlug}`}
+            data-cy={`settings-approvals-row-delete-guard-${rowSlug}`}
+          >
+            <Tooltip title={'Delete Employee'} id={`settings-approvals-row-delete-btn-${rowSlug}`} data-cy={`settings-approvals-row-delete-btn-${rowSlug}`}>
               <Button
                 id={`deleteUserButton${item?.id}`}
                 className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none"
@@ -266,8 +310,12 @@ const ApprovalTable = () => {
                   setDeleteModal(true);
                   setDeletedItem(item?.id);
                 }}
+                data-cy={`settings-approvals-row-delete-btn-${rowSlug}`}
               >
-                <RiDeleteBin6Line />
+                <RiDeleteBin6Line
+                  id={`settings-approvals-row-delete-icon-${rowSlug}`}
+                  data-cy={`settings-approvals-row-delete-icon-${rowSlug}`}
+                />
               </Button>
             </Tooltip>
           </AccessGuard>
@@ -277,20 +325,21 @@ const ApprovalTable = () => {
   });
 
   return (
-    <div>
+    <div id="settings-approvals-table-container" data-cy="settings-approvals-table-container">
       <DeleteModal
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
         onCancel={() => setDeleteModal(false)}
       />
-      {editModal && <EditWorkFLow />}
-      {addModal && <AddApprover />}
+      {editModal && <EditWorkFLow data-cy="settings-approvals-edit-workflow" />}
+      {addModal && <AddApprover data-cy="settings-approvals-add-approver" />}
       <ApproverListTable
         data={data}
         isEmployeeLoading={isEmployeeLoading}
         allFilterData={allFilterData}
         onPageChange={onPageChange}
         pageSize={pageSize}
+        data-cy="settings-approvals-table-component"
       />
     </div>
   );

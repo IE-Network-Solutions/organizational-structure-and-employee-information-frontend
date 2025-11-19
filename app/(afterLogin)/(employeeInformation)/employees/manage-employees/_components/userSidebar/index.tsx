@@ -53,7 +53,11 @@ const UserSidebar = (props: any) => {
   }, [isSuccess, setTempAllowances]);
 
   const modalHeader = (
-    <div className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6">
+    <div
+      className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6"
+      id="user-sidebar-header"
+      data-cy="user-sidebar-header"
+    >
       Add New Employee
     </div>
   );
@@ -128,10 +132,11 @@ const UserSidebar = (props: any) => {
             responsive={false}
             // onChange={onChange}
             className="flex justify-center items-center my-0 sm:my-4 max-w-[200px] mx-auto scale-90"
+            data-cy="user-sidebar-steps"
           >
-            <Step icon={customDot(0)} />
-            <Step icon={customDot(1)} />
-            <Step icon={customDot(2)} />
+            <Step icon={customDot(0)} data-cy="user-sidebar-step-1" />
+            <Step icon={customDot(1)} data-cy="user-sidebar-step-2" />
+            <Step icon={customDot(2)} data-cy="user-sidebar-step-3" />
           </Steps>
           <Form
             form={form}
@@ -146,12 +151,16 @@ const UserSidebar = (props: any) => {
                 description: 'please back and check the unfilled fields',
               })
             }
+            id="user-sidebar-form"
+            data-cy="user-sidebar-form"
           >
             {current === 0 && (
               <Card
                 bordered={false}
                 bodyStyle={{ padding: 0 }}
                 className="p-2 sm:p-6 mt-2"
+                id="user-sidebar-card-basic"
+                data-cy="user-sidebar-card-basic"
               >
                 <BasicInformationForm form={form} />
                 <EmployeeAddressForm />
@@ -164,7 +173,12 @@ const UserSidebar = (props: any) => {
               </Card>
             )}
             {current === 1 && (
-              <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
+              <Card
+                bodyStyle={{ padding: 0 }}
+                className="p-2 sm:p-6"
+                id="user-sidebar-card-job"
+                data-cy="user-sidebar-card-job"
+              >
                 <JobTimeLineForm form={form} />
                 <RolePermissionForm form={form} />
                 <WorkScheduleForm />
@@ -175,7 +189,12 @@ const UserSidebar = (props: any) => {
               </Card>
             )}
             {current === 2 && (
-              <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
+              <Card
+                bodyStyle={{ padding: 0 }}
+                className="p-2 sm:p-6"
+                id="user-sidebar-card-additional"
+                data-cy="user-sidebar-card-additional"
+              >
                 <AdditionalInformationForm />
                 <DocumentUploadForm />
                 <ButtonContinue

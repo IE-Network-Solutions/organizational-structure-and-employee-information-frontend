@@ -15,6 +15,12 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const EmploymentType = () => {
   const { setOpen, pageSize, setPageSize, setPage, page } =
     EmployeTypeManagementStore();
@@ -77,20 +83,45 @@ const EmploymentType = () => {
   };
 
   const reformattedData = employeTypeData?.items?.map(
-    (item: EmploymentTypeInfo) => ({
-      ...item, // Keep original data
-      displayName: (
-        <div className="flex space-x-2 font-semibold">
-          <FaUser className="mt-3 text-gray-500" />
-          <p className="flex flex-col">
-            <span>{item.name}</span>
-            <span className="text-gray-500 text-xs">
-              {item.description || 'No description provided'}
-            </span>
-          </p>
-        </div>
-      ),
-    }),
+    (item: EmploymentTypeInfo) => {
+      const rowSlug = toSlug(item.id ?? item.name);
+      return {
+        ...item,
+        __slug: rowSlug,
+        displayName: (
+          <div
+            className="flex space-x-2 font-semibold"
+            id={`employment-type-row-${rowSlug}`}
+            data-cy={`employment-type-row-${rowSlug}`}
+          >
+            <FaUser
+              className="mt-3 text-gray-500"
+              id={`employment-type-row-icon-${rowSlug}`}
+              data-cy={`employment-type-row-icon-${rowSlug}`}
+            />
+            <p
+              className="flex flex-col"
+              id={`employment-type-row-text-${rowSlug}`}
+              data-cy={`employment-type-row-text-${rowSlug}`}
+            >
+              <span
+                id={`employment-type-row-name-${rowSlug}`}
+                data-cy={`employment-type-row-name-${rowSlug}`}
+              >
+                {item.name}
+              </span>
+              <span
+                className="text-gray-500 text-xs"
+                id={`employment-type-row-description-${rowSlug}`}
+                data-cy={`employment-type-row-description-${rowSlug}`}
+              >
+                {item.description || 'No description provided'}
+              </span>
+            </p>
+          </div>
+        ),
+      };
+    },
   );
 
   const columns: any = [
@@ -100,20 +131,51 @@ const EmploymentType = () => {
     },
   ];
 
-  return (
-    <div className="p-5 rounded-2xl bg-white h-full">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-black font-bold text-lg ">Employment Type</h1>
+  const pageSlug = 'employment-type';
 
-        <div className="flex items-center space-x-2">
-          <AccessGuard permissions={[Permissions.CreateEmploymentType]}>
+  return (
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id={`settings-${pageSlug}-container`}
+      data-cy={`settings-${pageSlug}-container`}
+    >
+      <div
+        className="flex justify-between items-center mb-4"
+        id={`settings-${pageSlug}-header`}
+        data-cy={`settings-${pageSlug}-header`}
+      >
+        <h1
+          className="text-black font-bold text-lg "
+          id={`settings-${pageSlug}-title`}
+          data-cy={`settings-${pageSlug}-title`}
+        >
+          Employment Type
+        </h1>
+
+        <div
+          className="flex items-center space-x-2"
+          id={`settings-${pageSlug}-actions`}
+          data-cy={`settings-${pageSlug}-actions`}
+        >
+          <AccessGuard permissions={[Permissions.CreateEmploymentType]} id="settings-employment-type-add-btn-guard" data-cy="settings-employment-type-add-btn-guard">
             {/* Desktop button */}
             <Button
               className="hidden sm:flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
               onClick={showDrawer}
+              id={`settings-${pageSlug}-add-btn-desktop`}
+              data-cy={`settings-${pageSlug}-add-btn-desktop`}
             >
-              <FaPlus className="text-white" />
-              <span>Add New Type</span>
+              <FaPlus
+                className="text-white"
+                id={`settings-${pageSlug}-add-icon-desktop`}
+                data-cy={`settings-${pageSlug}-add-icon-desktop`}
+              />
+              <span
+                id={`settings-${pageSlug}-add-text-desktop`}
+                data-cy={`settings-${pageSlug}-add-text-desktop`}
+              >
+                Add New Type
+              </span>
             </Button>
 
             {/* Mobile button */}
@@ -122,6 +184,8 @@ const EmploymentType = () => {
               onClick={showDrawer}
               type="primary"
               icon={<FaPlus />}
+              id={`settings-${pageSlug}-add-btn-mobile`}
+              data-cy={`settings-${pageSlug}-add-btn-mobile`}
             />
           </AccessGuard>
         </div>
@@ -131,8 +195,8 @@ const EmploymentType = () => {
         onClose={onClose}
         editingEmploymentType={editingEmploymentType}
         isEditMode={isEditMode}
+        data-cy="settings-employment-type-drawer"
       />
-
       <DeleteModal
         open={deleteModalOpen}
         onConfirm={handleConfirmDelete}
@@ -142,47 +206,76 @@ const EmploymentType = () => {
         loading={deleteEmployeeType.isLoading}
       />
 
-      <div className="overflow-x-auto w-full scrollbar-none">
+      <div
+        className="overflow-x-auto w-full scrollbar-none"
+        id={`settings-${pageSlug}-table-wrapper`}
+        data-cy={`settings-${pageSlug}-table-wrapper`}
+      >
         {isLoading ? (
-          <div className="flex justify-center items-center h-20">
-            <Spin size="large" />
+          <div
+            className="flex justify-center items-center h-20"
+            id={`settings-${pageSlug}-loader`}
+            data-cy={`settings-${pageSlug}-loader`}
+          >
+            <Spin
+              size="large"
+              data-cy={`settings-${pageSlug}-loader-spin`}
+            />
           </div>
         ) : (
-          <div>
+          <div
+            id={`settings-${pageSlug}-table-section`}
+            data-cy={`settings-${pageSlug}-table-section`}
+          >
             <Table
               columns={[
                 ...columns,
                 {
                   key: 'actions',
                   render: (record: any) => (
-                    <div className="flex gap-4">
+                    <div
+                      className="flex gap-4"
+                      id={`employment-type-row-actions-${record.__slug}`}
+                      data-cy={`employment-type-row-actions-${record.__slug}`}
+                    >
                       <AccessGuard
                         permissions={[Permissions.UpdateEmploymentType]}
+                        id="settings-employment-type-edit-btn-guard"
+                        data-cy="settings-employment-type-edit-btn-guard"
                       >
                         <button
                           className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#366CF0]"
                           onClick={() => handleEdit(record)}
                           aria-label="Edit"
                           type="button"
+                          id={`employment-type-edit-btn-${record.__slug}`}
+                          data-cy={`employment-type-edit-btn-${record.__slug}`}
                         >
                           <Pencil
                             size={15}
                             className="text-white cursor-pointer"
+                            data-cy="settings-employment-type-edit-btn-icon"
                           />
                         </button>
                       </AccessGuard>
                       <AccessGuard
                         permissions={[Permissions.DeleteEmploymentType]}
+                        id="settings-employment-type-delete-btn-guard"
+                        data-cy="settings-employment-type-delete-btn-guard"
                       >
                         <button
                           className="w-10 h-10  flex items-center justify-center rounded-xl bg-[#E03137]"
                           onClick={() => handleDelete(record)}
                           aria-label="Delete"
                           type="button"
+                          id={`employment-type-delete-btn-${record.__slug}`}
+                          data-cy={`employment-type-delete-btn-${record.__slug}`}
                         >
                           <Trash2
                             size={15}
                             className="text-white cursor-pointer"
+                            data-cy="settings-employment-type-delete-btn-icon"
+                            id="settings-employment-type-delete-btn-icon"
                           />
                         </button>
                       </AccessGuard>
@@ -196,6 +289,8 @@ const EmploymentType = () => {
               bordered={true}
               className="min-w-[320px]"
               pagination={false}
+              id={`settings-${pageSlug}-table`}
+              data-cy={`settings-${pageSlug}-table`}
             />
             {isMobile || isTablet ? (
               <CustomMobilePagination
@@ -203,6 +298,7 @@ const EmploymentType = () => {
                 pageSize={pageSize}
                 onChange={onPageChange}
                 onShowSizeChange={onPageChange}
+                data-cy="settings-employment-type-mobile-pagination"
               />
             ) : (
               <CustomPagination

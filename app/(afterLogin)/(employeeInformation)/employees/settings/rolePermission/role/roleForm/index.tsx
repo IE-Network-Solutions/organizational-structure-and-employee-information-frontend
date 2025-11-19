@@ -192,7 +192,11 @@ const ListOfRoles = () => {
   };
 
   const modalTitle = (
-    <div className="flex w-full justify-center items-center text-md font-extrabold">
+    <div
+      className="flex w-full justify-center items-center text-md font-extrabold"
+      id="settings-role-modal-title"
+      data-cy="settings-role-modal-title"
+    >
       {currentModal === 'editRoleModal' ? 'Edit Role' : 'New Role'}
     </div>
   );
@@ -211,6 +215,7 @@ const ListOfRoles = () => {
           setSelectedRole(null);
           setCurrentModal(null);
         }}
+        data-cy="settings-role-modal"
       >
         <Form
           form={form}
@@ -222,29 +227,33 @@ const ListOfRoles = () => {
               : handleCreateRole
           }
           className="p-4 sm:p-2 md:p-4 lg:p-6"
+          data-cy="settings-role-form"
         >
-          <div className="grid">
+          <div className="grid" id="settings-role-form-wrapper" data-cy="settings-role-form-wrapper">
             {currentModal === 'editRoleModal' && (
-              <Form.Item name="id">
-                <Input type="hidden" />
+              <Form.Item name="id" id="settings-role-id-item" data-cy="settings-role-id-item">
+                <Input type="hidden" data-cy="settings-role-id-input" />
               </Form.Item>
             )}
-            <div className="mb-1">
+            <div className="mb-1" id="settings-role-name-wrapper" data-cy="settings-role-name-wrapper">
               <Form.Item
                 name="name"
                 label={
                   <p className="text-xs font-bold text-gray-600">Role name</p>
                 }
                 rules={[{ required: true, message: 'Enter group name!' }]}
+                id="settings-role-name-item"
+                data-cy="settings-role-name-item"
               >
                 <Input
                   id="roleNameId"
                   className="h-10 text-xs text-gray-600"
                   placeholder="Enter group name"
+                  data-cy="settings-role-name-input"
                 />
               </Form.Item>
             </div>
-            <div className="mb-1">
+            <div className="mb-1" id="settings-role-description-wrapper" data-cy="settings-role-description-wrapper">
               <Form.Item
                 name="description"
                 label={
@@ -253,16 +262,19 @@ const ListOfRoles = () => {
                   </p>
                 }
                 rules={[{ required: true, message: 'Enter role description!' }]}
+                id="settings-role-description-item"
+                data-cy="settings-role-description-item"
               >
                 <Input
                   id="roleDescriptionId"
                   className="h-10 text-xs text-gray-600"
                   placeholder="Enter role description"
+                  data-cy="settings-role-description-input"
                 />
               </Form.Item>
             </div>
-            <div className="mb-1">
-              <p className="text-xs font-bold text-gray-600">
+            <div className="mb-1" id="settings-role-group-permission-wrapper" data-cy="settings-role-group-permission-wrapper">
+              <p className="text-xs font-bold text-gray-600" id="settings-role-group-permission-label" data-cy="settings-role-group-permission-label">
                 Group Permission
               </p>
               <Select
@@ -280,16 +292,17 @@ const ListOfRoles = () => {
                     disabled: item?.isBasic === true, // Disable if isBasic is true
                   }),
                 )}
+                data-cy="settings-role-group-select"
               />
-              <p className="flex gap-2 text-xs text-gray-600 mt-2">
-                <RiErrorWarningFill className="mt-1" />
-                <span>
+              <p className="flex gap-2 text-xs text-gray-600 mt-2" id="settings-role-group-permission-description" data-cy="settings-role-group-permission-description">
+                <RiErrorWarningFill className="mt-1" data-cy="settings-role-group-permission-description-icon" />
+                <span id="settings-role-group-permission-description-text" data-cy="settings-role-group-permission-description-text">
                   Group permission allows you to get a bundle of permissions in
                   one place.
                 </span>
               </p>
             </div>
-            <div className="mb-1">
+            <div className="mb-1" id="settings-role-permission-wrapper" data-cy="settings-role-permission-wrapper">
               <Form.Item
                 name="permission"
                 className="h-auto"
@@ -299,6 +312,8 @@ const ListOfRoles = () => {
                 rules={[
                   { required: true, message: 'Select the Permission List!' },
                 ]}
+                id="settings-role-permission-item"
+                data-cy="settings-role-permission-item"
               >
                 <Select
                   mode="tags"
@@ -310,16 +325,21 @@ const ListOfRoles = () => {
                     value: item?.id,
                     label: item?.name,
                   }))}
+                  data-cy="settings-role-permission-select"
                 />
               </Form.Item>
-              <p className="flex gap-2 text-xs text-gray-600 mt-2">
-                <RiErrorWarningFill className="mt-1" />
-                <span>This is a set of permissions assigned to the roles.</span>
+              <p className="flex gap-2 text-xs text-gray-600 mt-2" id="settings-role-permission-description" data-cy="settings-role-permission-description">
+                <RiErrorWarningFill className="mt-1" data-cy="settings-role-permission-description-icon" id="settings-role-permission-description-icon" />
+                <span id="settings-role-permission-description-text" data-cy="settings-role-permission-description-text">This is a set of permissions assigned to the roles.</span>
               </p>
             </div>
           </div>
-          <Form.Item>
-            <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+          <Form.Item id="settings-role-form-actions-form-item" data-cy="settings-role-form-actions-form-item">
+            <div
+              className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+              id="settings-role-form-actions"
+              data-cy="settings-role-form-actions"
+            >
               <Button
                 id="cancelButtonForRole"
                 className="px-6 py-3 text-xs font-bold"
@@ -329,6 +349,7 @@ const ListOfRoles = () => {
                   setCurrentModal(null);
                   setSelectedPermissionsUnderGroup([]);
                 }}
+                data-cy="settings-role-cancel-btn"
               >
                 Cancel
               </Button>
@@ -337,6 +358,7 @@ const ListOfRoles = () => {
                 className="px-6 py-3 text-xs font-bold"
                 htmlType="submit"
                 type="primary"
+                data-cy="settings-role-submit-btn"
               >
                 {currentModal !== 'editRoleModal' ? 'Create' : 'Update'}
               </Button>
@@ -358,6 +380,7 @@ const ListOfRoles = () => {
               );
               setSelectedGroupPermission(newGroupPermission);
             }}
+            data-cy="settings-role-group-permission-cancel-btn"
           >
             Cancel
           </Button>,
@@ -365,10 +388,12 @@ const ListOfRoles = () => {
             key="confirm"
             type="primary"
             onClick={handleConfirmPermissions}
+            data-cy="settings-role-group-permission-confirm-btn"
           >
             Confirm
           </Button>,
         ]}
+        data-cy="settings-role-group-permission-modal"
       >
         <div
           style={{
@@ -376,8 +401,10 @@ const ListOfRoles = () => {
             alignItems: 'center',
             marginBottom: '10px',
           }}
+          id="settings-role-select-all-wrapper"
+          data-cy="settings-role-select-all-wrapper"
         >
-          <Checkbox checked={selectAll} onChange={handleSelectAll}>
+          <Checkbox checked={selectAll} onChange={handleSelectAll} id="settings-role-select-all-checkbox" data-cy="settings-role-select-all-checkbox">
             Select All
           </Checkbox>
         </div>
@@ -388,6 +415,7 @@ const ListOfRoles = () => {
           }))}
           value={tempSelectedPermissions}
           onChange={handleModalPermissionChange}
+          data-cy="settings-role-group-permission-checkboxes"
         />
       </Modal>
     </div>

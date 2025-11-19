@@ -17,25 +17,61 @@ const Positions: React.FC = () => {
     setOpenPositionDrawer(true);
   };
   return (
-    <div className="w-full h-auto p-0 ">
-      <Card className="border-none">
-        <div className="flex items-center justify-between">
-          <Title level={5}>Employee Positions</Title>
-          <AccessGuard permissions={[Permissions.CreatePosition]}>
+    <div
+      className="w-full h-auto p-0 "
+      id="settings-positions-container"
+      data-cy="settings-positions-container"
+    >
+      <Card
+        className="border-none"
+        id="settings-positions-card"
+        data-cy="settings-positions-card"
+      >
+        <div
+          className="flex items-center justify-between"
+          id="settings-positions-header"
+          data-cy="settings-positions-header"
+        >
+          <Title
+            level={5}
+            id="settings-positions-title"
+            data-cy="settings-positions-title"
+          >
+            Employee Positions
+          </Title>
+          <AccessGuard permissions={[Permissions.CreatePosition]} id="settings-positions-new-btn-guard" data-cy="settings-positions-new-btn-guard">
             <Button
               type="primary"
               className="h-10 w-10 sm:w-auto"
               icon={<FaPlus />}
               onClick={showDrawer}
+              id="settings-positions-new-btn"
+              data-cy="settings-positions-new-btn"
             >
-              <span className="hidden lg:inline">New Position</span>
+              <span
+                className="hidden lg:inline"
+                id="settings-positions-new-btn-text"
+                data-cy="settings-positions-new-btn-text"
+              >
+                New Position
+              </span>
             </Button>
           </AccessGuard>
         </div>
-        <PositionCards />
+        <div
+          id="settings-positions-card-list"
+          data-cy="settings-positions-card-list"
+        >
+          <PositionCards data-cy="settings-positions-card-list" />
+        </div>
       </Card>
 
-      <CreatePosition />
+      <div
+        id="settings-positions-create"
+        data-cy="settings-positions-create"
+      >
+        <CreatePosition data-cy="settings-positions-create-form" />
+      </div>
     </div>
   );
 };

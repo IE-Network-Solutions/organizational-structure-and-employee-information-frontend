@@ -82,8 +82,8 @@ const Permission: React.FC<any> = () => {
   };
 
   return (
-    <div>
-      <div>
+    <div id="settings-permission-container" data-cy="settings-permission-container">
+      <div id="settings-permission-filters" data-cy="settings-permission-filters">
         {isMobile ? (
           <Row gutter={16}>
             <Col xl={14} lg={14} md={14} sm={20} xs={20}>
@@ -92,9 +92,10 @@ const Permission: React.FC<any> = () => {
                 placeholder="Search permission"
                 allowClear
                 onChange={(e) => handleSearchChange(e.target.value, 'name')}
+                data-cy="settings-permission-search-input-mobile"
               />
             </Col>
-            <Col xl={10} lg={10} md={10} sm={4} xs={4}>
+            <Col xl={10} lg={10} md={10} sm={4} xs={4} id="settings-permission-group-select-wrapper-mobile" data-cy="settings-permission-group-select-wrapper-mobile">
               <Select
                 showSearch
                 className=" control m-0 w-[48px] h-10 mx-auto p-0 pl-2"
@@ -116,10 +117,11 @@ const Permission: React.FC<any> = () => {
                     <LuSettings2 size={20} />
                   </div>
                 }
+                data-cy="settings-permission-group-select-mobile"
               >
                 {groupPermissionDatawithOutPagination?.items?.map(
                   (item: GroupPermissionItem) => (
-                    <Option key={item?.id} value={item?.id}>
+                    <Option key={item?.id} value={item?.id} id={`settings-permission-group-option-${item?.id}`} data-cy={`settings-permission-group-option-${item?.id}`}>
                       {item?.name}
                     </Option>
                   ),
@@ -129,16 +131,17 @@ const Permission: React.FC<any> = () => {
             </Col>
           </Row>
         ) : (
-          <Row gutter={16} justify="space-between">
-            <Col xl={14} lg={14} md={14} sm={14} xs={14}>
+          <Row gutter={16} justify="space-between" id="settings-permission-group-select-wrapper-desktop" data-cy="settings-permission-group-select-wrapper-desktop">
+            <Col xl={14} lg={14} md={14} sm={14} xs={14} id="settings-permission-search-input-wrapper-desktop" data-cy="settings-permission-search-input-wrapper-desktop">
               <Input
                 className="w-full h-10"
                 placeholder="Search permission"
                 allowClear
                 onChange={(e) => handleSearchChange(e.target.value, 'name')}
+                data-cy="settings-permission-search-input"
               />
             </Col>
-            <Col xl={10} lg={10} md={10} sm={10} xs={10}>
+            <Col xl={10} lg={10} md={10} sm={10} xs={10} id="settings-permission-group-select-wrapper-desktop" data-cy="settings-permission-group-select-wrapper-desktop">
               <Select
                 showSearch
                 className="w-full h-10"
@@ -148,6 +151,7 @@ const Permission: React.FC<any> = () => {
                 onChange={(value) =>
                   handleSearchChange(value, 'permissionGroupId')
                 }
+                data-cy="settings-permission-group-select"
                 filterOption={(input, option: any) =>
                   option.props.children
                     .toLowerCase()
@@ -156,7 +160,7 @@ const Permission: React.FC<any> = () => {
               >
                 {groupPermissionDatawithOutPagination?.items?.map(
                   (item: GroupPermissionItem) => (
-                    <Option key={item?.id} value={item?.id}>
+                    <Option key={item?.id} value={item?.id} id={`settings-permission-group-option-${item?.id}`} data-cy={`settings-permission-group-option-${item?.id}`}>
                       {item?.name}
                     </Option>
                   ),
@@ -167,8 +171,8 @@ const Permission: React.FC<any> = () => {
           </Row>
         )}
       </div>
-      <div className="mb-4">
-        <span className="">
+      <div className="mb-4" id="settings-permission-selected-count" data-cy="settings-permission-selected-count">
+        <span className="" id="settings-permission-selected-count-text" data-cy="settings-permission-selected-count-text">
           {hasSelected ? `Selected ${selectedRowKeys?.length} items` : ''}
         </span>
       </div>
@@ -177,6 +181,8 @@ const Permission: React.FC<any> = () => {
         dataSource={displayData?.items}
         loading={permissionLoading || isSearching}
         pagination={false}
+        id="settings-permission-table"
+        data-cy="settings-permission-table"
       />
       {isMobile || isTablet ? (
         <CustomMobilePagination
@@ -187,6 +193,7 @@ const Permission: React.FC<any> = () => {
             setPageSize(pageSize);
             setPermissionCurrentPage(1);
           }}
+          data-cy="settings-permission-pagination-mobile"
         />
       ) : (
         <CustomPagination
@@ -198,6 +205,7 @@ const Permission: React.FC<any> = () => {
             setPageSize(pageSize);
             setPermissionCurrentPage(1);
           }}
+          data-cy="settings-permission-pagination-desktop"
         />
       )}
     </div>
