@@ -159,8 +159,16 @@ const TalentRoasterPage = () => {
   const filteredJobs = jobList?.items?.filter(isNotExpired);
 
   return (
-    <div id="talent-acquisition-talent-roaster-page-div-container" data-cy="talent-acquisition-talent-roaster-page-div-container" className="h-auto w-full bg-white">
-      <div id="talent-acquisition-talent-roaster-page-div-header" data-cy="talent-acquisition-talent-roaster-page-div-header" className="flex flex-wrap justify-between items-center bg-white">
+    <div
+      id="talent-acquisition-talent-roaster-page-div-container"
+      data-cy="talent-acquisition-talent-roaster-page-div-container"
+      className="h-auto w-full bg-white"
+    >
+      <div
+        id="talent-acquisition-talent-roaster-page-div-header"
+        data-cy="talent-acquisition-talent-roaster-page-div-header"
+        className="flex flex-wrap justify-between items-center bg-white"
+      >
         <CustomBreadcrumb
           title="Talent Roster"
           data-cy="talent-acquisition-talent-roaster-page-breadcrumb"
@@ -172,9 +180,17 @@ const TalentRoasterPage = () => {
             </>
           }
         />
-        <div id="talent-acquisition-talent-roaster-page-div-buttons" data-cy="talent-acquisition-talent-roaster-page-div-buttons" className="flex justify-between items-center rounded-lg w-fit h-10 px-3 gap-4">
+        <div
+          id="talent-acquisition-talent-roaster-page-div-buttons"
+          data-cy="talent-acquisition-talent-roaster-page-div-buttons"
+          className="flex justify-between items-center rounded-lg w-fit h-10 px-3 gap-4"
+        >
           {selectedTalentRoaster?.length > 0 && (
-            <div id="talent-acquisition-talent-roaster-page-div-button-move-job" data-cy="talent-acquisition-talent-roaster-page-div-button-move-job" className="mr-4">
+            <div
+              id="talent-acquisition-talent-roaster-page-div-button-move-job"
+              data-cy="talent-acquisition-talent-roaster-page-div-button-move-job"
+              className="mr-4"
+            >
               <CustomButton
                 title={
                   !(isMobile || isTablet) && (
@@ -213,8 +229,14 @@ const TalentRoasterPage = () => {
         </div>
       </div>
 
-      <div id="talent-acquisition-talent-roaster-page-div-content" data-cy="talent-acquisition-talent-roaster-page-div-content">
-        <TalentRoasterTable data-cy="talent-acquisition-talent-roaster-table" onEdit={handleEdit} />
+      <div
+        id="talent-acquisition-talent-roaster-page-div-content"
+        data-cy="talent-acquisition-talent-roaster-page-div-content"
+      >
+        <TalentRoasterTable
+          data-cy="talent-acquisition-talent-roaster-table"
+          onEdit={handleEdit}
+        />
         <CreateTalentRoaster
           open={createTalentRoasterDrawer}
           data-cy="talent-acquisition-talent-roaster-create-talent-roaster"

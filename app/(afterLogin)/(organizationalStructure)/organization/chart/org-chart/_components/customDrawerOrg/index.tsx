@@ -20,13 +20,21 @@ const CustomDrawerOrgLayout: React.FC<CustomDrawerLayoutProps> = ({
   footer,
 }) => {
   return (
-    <div data-cy="org-chart-custom-drawer-layout" id="org-chart-custom-drawer-layout">
+    <div
+      data-cy="org-chart-custom-drawer-layout"
+      id="org-chart-custom-drawer-layout"
+    >
       {open && (
         <Button
           data-cy="org-chart-custom-drawer-layout-close-btn"
           id="closeSidebarButton"
           className="bg-white text-lg text-grey-9 rounded-full mr-8"
-          icon={<FaAngleRight  data-cy="org-org-chart-components-customdrawerorg-index-faangleright-1" id="org-org-chart-components-customdrawerorg-index-faangleright-1"/>}
+          icon={
+            <FaAngleRight
+              data-cy="org-org-chart-components-customdrawerorg-index-faangleright-1"
+              id="org-org-chart-components-customdrawerorg-index-faangleright-1"
+            />
+          }
           onClick={onClose}
           style={{
             display: window.innerWidth <= 768 ? 'none' : 'flex',

@@ -60,7 +60,13 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
               data-cy="talent-acquisition-settings-layout-sidebar-menu-item-custom-fields-icon"
               className={`hidden lg:block ${pathname.includes('/recruitment/settings/customFields') ? 'text-[#1677FF]' : ''}`}
             />
-            <p id="talent-acquisition-settings-layout-sidebar-menu-item-custom-fields-label" data-cy="talent-acquisition-settings-layout-sidebar-menu-item-custom-fields-label" className="menu-item-label">Template Question</p>
+            <p
+              id="talent-acquisition-settings-layout-sidebar-menu-item-custom-fields-label"
+              data-cy="talent-acquisition-settings-layout-sidebar-menu-item-custom-fields-label"
+              className="menu-item-label"
+            >
+              Template Question
+            </p>
           </div>
         ),
       },
@@ -95,7 +101,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             id="talent-acquisition-settings-layout-sidebar"
             data-cy="talent-acquisition-settings-layout-sidebar"
           >
-            <SidebarMenu data-cy="talent-acquisition-settings-layout-sidebar-menu" menuItems={menuItems} />
+            <SidebarMenu
+              data-cy="talent-acquisition-settings-layout-sidebar-menu"
+              menuItems={menuItems}
+            />
           </div>
           <div
             id="talent-acquisition-settings-layout-content-wrapper"

@@ -54,9 +54,9 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
   useEffect(() => {
     form.setFieldsValue({
       setOfPermission: selectedPermissions,
-      set: 'ahmedin',
+      roleId: selectedRoleOnOption,
     });
-  }, [selectedPermissions, form]);
+  }, [selectedPermissions, selectedRoleOnOption, form]);
 
   if (permissionError || roleError) {
     return <div>Error loading data</div>; // Handle errors gracefully
