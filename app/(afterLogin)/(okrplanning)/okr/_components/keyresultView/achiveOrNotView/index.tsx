@@ -215,7 +215,13 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
         </div>
 
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
+        <div
+          className={`${
+            isMobile
+              ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
+              : 'hidden'
+          }`}
+        >
           {/* Row 1: Title */}
           <Form.Item
             className="w-full font-bold mb-0"
@@ -236,7 +242,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
               onChange={(e) => {
                 handleChange(e.target.value, 'title');
               }}
-              className="h-10 rounded-lg border-gray-300"
+              className="h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
               placeholder="Enter achieve title"
             />
             {!keyValue.title && (
@@ -247,7 +253,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
           </Form.Item>
 
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div className="flex flex-row gap-2">
             <Form.Item
               className="w-48 font-bold mb-0"
               rules={[
@@ -259,7 +265,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
             >
               {isEdit ? (
                 <Select
-                  className="w-full h-10 rounded-lg text-base"
+                  className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                   placeholder="Please select a metric type"
                   value={keyValue?.metricTypeId}
                   onChange={(value) => {
@@ -308,7 +314,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                 onChange={(value) => {
                   handleChange(value, 'weight');
                 }}
-                className="w-full h-10 rounded-lg border-gray-300"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
                 suffix="%"
                 disabled={isEdit}
               />
@@ -322,7 +328,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                   handleChange(dateString, 'deadline');
                 }}
                 format="YYYY-MM-DD"
-                className="w-full h-10 rounded-lg border-gray-300"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
                 disabledDate={(current) => {
                   const startOfToday = dayjs().startOf('day');
                   const objectiveDeadline = dayjs(objectiveValue?.deadline);

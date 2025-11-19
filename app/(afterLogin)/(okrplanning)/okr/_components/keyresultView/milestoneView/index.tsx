@@ -479,7 +479,11 @@ const MilestoneView: React.FC<OKRProps> = ({
 
         {/* Mobile Layout */}
         <div
-          className={`${isMobile ? 'block' : 'hidden'} flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2`}
+          className={`${
+            isMobile
+              ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
+              : 'hidden'
+          }`}
         >
           {/* Row 1: Key Result Name */}
           <div>

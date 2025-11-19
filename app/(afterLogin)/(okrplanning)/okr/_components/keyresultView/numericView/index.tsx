@@ -211,7 +211,13 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
         </div>
 
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
+        <div
+          className={`${
+            isMobile
+              ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
+              : 'hidden'
+          }`}
+        >
           {/* Row 1: Title */}
           <Form.Item
             className="w-full font-bold mb-0"
@@ -232,7 +238,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
               onChange={(e) => {
                 handleChange(e.target.value, 'title');
               }}
-              className="h-10 rounded-lg border-gray-300"
+              className="h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
               placeholder="Enter numeric title"
             />
             {!keyValue.title && (
@@ -243,7 +249,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
           </Form.Item>
 
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div className="flex flex-row gap-2">
             <Form.Item
               className="w-48 font-bold mb-0"
               rules={[
@@ -255,7 +261,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
             >
               {isEdit ? (
                 <Select
-                  className="w-full h-10 rounded-lg text-base"
+                  className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                   placeholder="Please select a metric type"
                   value={keyValue?.metricTypeId}
                   onChange={(value) => {
@@ -304,7 +310,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                 onChange={(value) => {
                   handleChange(value, 'weight');
                 }}
-                className="w-full h-10 rounded-lg border-gray-300"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
                 suffix="%"
                 disabled={isEdit}
               />
@@ -318,7 +324,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                   handleChange(dateString, 'deadline');
                 }}
                 format="YYYY-MM-DD"
-                className="w-full h-10 rounded-lg border-gray-300"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
                 disabledDate={(current) => {
                   const startOfToday = dayjs().startOf('day');
                   const objectiveDeadline = dayjs(objectiveValue?.deadline);
@@ -371,8 +377,12 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
         </div>
 
         {/* Mobile Layout - Initial and Target Values */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}>
-          <div className="flex gap-4">
+        <div
+          className={`${
+            isMobile ? 'flex flex-col xs:flex-row gap-2 sm:pl-3' : 'hidden'
+          }`}
+        >
+          <div className="flex flex-col xs:flex-row gap-2 w-full">
             <Form.Item className="flex-1 mb-0">
               <InputNumber
                 id={`key-result-initial-mobile-${index}`}
@@ -381,7 +391,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                 onChange={(value) => {
                   handleChange(value, 'initialValue');
                 }}
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 placeholder="Initial Value"
               />
             </Form.Item>
@@ -393,7 +403,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                 onChange={(value) => {
                   handleChange(value, 'targetValue');
                 }}
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 placeholder="Target Value"
               />
             </Form.Item>
