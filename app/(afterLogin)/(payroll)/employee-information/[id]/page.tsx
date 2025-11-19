@@ -20,7 +20,7 @@ import {
   useGetPayrollHistory,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import PayrollDetails from './_components/PayrollDetails';
 import html2canvas from 'html2canvas';
@@ -45,6 +45,8 @@ const EmployeeProfile = () => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { profileFileList } = useEmployeeManagementStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isComingFromMyPayroll = searchParams.get('from') === 'myPayroll';
 
   const openPayPeriods = payPeriodData?.filter(
     (period: any) => period.status === 'OPEN',
@@ -168,7 +170,8 @@ const EmployeeProfile = () => {
     <div style={{ padding: isMobile ? '2px' : '24px' }}>
       <Card
         title={
-          isMobile && (
+          isMobile &&
+          !isComingFromMyPayroll && (
             <span
               onClick={() => router.back()}
               className="flex items-center gap-2 cursor-pointer"
