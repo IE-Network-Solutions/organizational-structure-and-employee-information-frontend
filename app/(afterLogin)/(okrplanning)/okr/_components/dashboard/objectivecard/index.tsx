@@ -26,12 +26,13 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
 
   // Get active session ID
-  const activeSessionId =
-    activeFiscalYear?.sessions?.find((item: any) => item?.active)?.id;
+  const activeSessionId = activeFiscalYear?.sessions?.find(
+    (item: any) => item?.active,
+  )?.id;
 
   // Only owner can edit/delete
   const isOwner = objective?.userId === userId;
-  
+
   // Check if objective is part of the active session
   const isInActiveSession =
     !activeSessionId || objective?.sessionId === activeSessionId;
@@ -59,22 +60,23 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const totalKeyResults = objective?.keyResults?.length || 0;
 
   // Owner-only menu - only show if objective is in active session
-  const menu = isOwner && isInActiveSession ? (
-    <Menu
-      items={[
-        {
-          key: '1',
-          label: 'Edit',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          label: 'Delete',
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  ) : null;
+  const menu =
+    isOwner && isInActiveSession ? (
+      <Menu
+        items={[
+          {
+            key: '1',
+            label: 'Edit',
+            onClick: showDrawer,
+          },
+          {
+            key: '2',
+            label: 'Delete',
+            onClick: showDeleteModal,
+          },
+        ]}
+      />
+    ) : null;
   function handleDeleteObjective(id: string) {
     deleteObjective(id, {
       onSuccess: () => {

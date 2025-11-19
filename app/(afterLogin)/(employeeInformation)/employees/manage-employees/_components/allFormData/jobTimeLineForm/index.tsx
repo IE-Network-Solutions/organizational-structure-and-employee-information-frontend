@@ -482,10 +482,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
         <Col xs={24}>
           <div className="font-semibold text-xs mb-1">Allowance Type</div>
           <div className="flex items-start gap-2">
-            <Form.Item
-              name="allowanceIds"
-              className="flex-1"
-            >
+            <Form.Item name="allowanceIds" className="flex-1">
               <Form.Item shouldUpdate noStyle>
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
