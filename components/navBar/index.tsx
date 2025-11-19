@@ -839,23 +839,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
-  const { data: departments } = useGetDepartments();
-  const { data: employeeData } = useGetEmployee(userId);
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetEmployee(userId);
   const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
     useEmployeeManagementStore();
-  useEffect(() => {
-    if (!departments || !employeeData) return;
 
-    if (departments.length === 0) {
+  const isLoadingData =
+    departmentsLoading || employeeDataLoading || !departments || !employeeData;
+
+  useEffect(() => {
+    if (isLoadingData) return;
+
+    if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
-    } else if (
-      !employeeData.employeeJobInformation ||
-      employeeData.employeeJobInformation.length === 0
-    ) {
+    } else if (employeeData?.employeeJobInformation?.length === 0) {
       setIsAddEmployeeJobInfoModalVisible(true);
       setEmployeeJobInfoModalWidth('100%');
     }
-  }, [departments, employeeData, router]);
+  }, [departments, employeeData, router, isLoadingData]);
 
   // ✅ Check permission on pathname change
   useEffect(() => {
