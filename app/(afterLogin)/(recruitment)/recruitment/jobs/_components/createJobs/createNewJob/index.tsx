@@ -65,7 +65,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
             message: 'Please input the job name!',
           },
         ]}
-        >
+      >
         <Input
           id="jobTitle"
           data-cy="talent-acquisition-create-job-input-job-title"
@@ -99,7 +99,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
             >
               {EmploymentType &&
                 Object.values(EmploymentType).map((type) => (
-                  <Option key={type} value={type} id={`talent-acquisition-create-job-option-employment-type-${type}`} data-cy={`talent-acquisition-create-job-option-employment-type-${type}`}>
+                  <Option
+                    key={type}
+                    value={type}
+                    id={`talent-acquisition-create-job-option-employment-type-${type}`}
+                    data-cy={`talent-acquisition-create-job-option-employment-type-${type}`}
+                  >
                     {type}
                   </Option>
                 ))}
@@ -134,7 +139,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               )}
               {departments &&
                 departments.map((dep: any) => (
-                  <Option key={dep?.id} value={dep?.id} id={`talent-acquisition-create-job-option-department-${dep?.id}`} data-cy={`talent-acquisition-create-job-option-department-${dep?.id}`}>
+                  <Option
+                    key={dep?.id}
+                    value={dep?.id}
+                    id={`talent-acquisition-create-job-option-department-${dep?.id}`}
+                    data-cy={`talent-acquisition-create-job-option-department-${dep?.id}`}
+                  >
                     {dep?.name}
                   </Option>
                 ))}
@@ -163,7 +173,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               className="text-sm w-full h-10"
             >
               {Object.values(LocationType).map((type) => (
-                <Option key={type} value={type} id={`talent-acquisition-create-job-option-location-${type}`} data-cy={`talent-acquisition-create-job-option-location-${type}`}>
+                <Option
+                  key={type}
+                  value={type}
+                  id={`talent-acquisition-create-job-option-location-${type}`}
+                  data-cy={`talent-acquisition-create-job-option-location-${type}`}
+                >
                   {type}
                 </Option>
               ))}
@@ -217,8 +232,20 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               placeholder="Job status"
               className="text-sm w-full h-10"
             >
-              <Option value="Open" id="talent-acquisition-create-job-option-status-open" data-cy="talent-acquisition-create-job-option-status-open">Open</Option>
-              <Option value="Closed" id="talent-acquisition-create-job-option-status-closed" data-cy="talent-acquisition-create-job-option-status-closed">Closed</Option>
+              <Option
+                value="Open"
+                id="talent-acquisition-create-job-option-status-open"
+                data-cy="talent-acquisition-create-job-option-status-open"
+              >
+                Open
+              </Option>
+              <Option
+                value="Closed"
+                id="talent-acquisition-create-job-option-status-closed"
+                data-cy="talent-acquisition-create-job-option-status-closed"
+              >
+                Closed
+              </Option>
             </Select>
           </Form.Item>
         </Col>
@@ -246,7 +273,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               {EmploymentType &&
                 Object.values(EmploymentType).map((type, index) => (
                   <Option
-                  id={`compensationOption-${index}`}
+                    id={`compensationOption-${index}`}
                     data-cy={`talent-acquisition-create-job-option-compensation-${type}`}
                     key={type}
                     value={type}
@@ -310,7 +337,11 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               },
             ]}
           >
-            <DatePicker id="jobDeadline" data-cy="talent-acquisition-create-job-date-picker-deadline" className="text-sm w-full h-10" />
+            <DatePicker
+              id="jobDeadline"
+              data-cy="talent-acquisition-create-job-date-picker-deadline"
+              className="text-sm w-full h-10"
+            />
           </Form.Item>
         </Col>
       </Row>

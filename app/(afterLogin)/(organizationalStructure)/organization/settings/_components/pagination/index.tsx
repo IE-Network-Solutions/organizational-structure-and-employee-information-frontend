@@ -44,7 +44,9 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
                 ? 'bg-gray-100 text-gray-700 '
                 : 'text-gray-600  hover:bg-gray-100'
             }`}
-           data-cy="org-settings-components-pagination-index-button-1" id="org-settings-components-pagination-index-button-1">
+            data-cy="org-settings-components-pagination-index-button-1"
+            id="org-settings-components-pagination-index-button-1"
+          >
             {i}
           </button>,
         );
@@ -66,7 +68,12 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
           </button>,
         );
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2" data-cy="org-settings-components-pagination-index-span-1" id="org-settings-components-pagination-index-span-1">
+          <span
+            key="leftEllipsis"
+            className="px-2"
+            data-cy="org-settings-components-pagination-index-span-1"
+            id="org-settings-components-pagination-index-span-1"
+          >
             ...
           </span>,
         );
@@ -92,7 +99,12 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
 
       if (rightSide < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2" data-cy="org-settings-components-pagination-index-span-2" id="org-settings-components-pagination-index-span-2">
+          <span
+            key="rightEllipsis"
+            className="px-2"
+            data-cy="org-settings-components-pagination-index-span-2"
+            id="org-settings-components-pagination-index-span-2"
+          >
             ...
           </span>,
         );
@@ -114,8 +126,16 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
   };
 
   return (
-    <div className="flex justify-between items-center py-6" data-cy="org-settings-components-pagination-index-div-1" id="org-settings-components-pagination-index-div-1">
-      <div className="flex items-center space-x-2" data-cy="org-settings-components-pagination-index-div-2" id="org-settings-components-pagination-index-div-2">
+    <div
+      className="flex justify-between items-center py-6"
+      data-cy="org-settings-components-pagination-index-div-1"
+      id="org-settings-components-pagination-index-div-1"
+    >
+      <div
+        className="flex items-center space-x-2"
+        data-cy="org-settings-components-pagination-index-div-2"
+        id="org-settings-components-pagination-index-div-2"
+      >
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
@@ -127,7 +147,7 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
           data-cy="org-settings-pagination-previous-btn"
           id="org-settings-pagination-previous-btn"
         >
-          <LeftOutlined  data-cy="org-settings-components-pagination-index-leftoutlined-1"/>
+          <LeftOutlined data-cy="org-settings-components-pagination-index-leftoutlined-1" />
         </button>
         {renderPageNumbers()}
         <button
@@ -141,11 +161,19 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
           data-cy="org-settings-pagination-next-btn"
           id="org-settings-pagination-next-btn"
         >
-          <RightOutlined  data-cy="org-settings-components-pagination-index-rightoutlined-1"/>
+          <RightOutlined data-cy="org-settings-components-pagination-index-rightoutlined-1" />
         </button>
       </div>
-      <div className="flex items-center" data-cy="org-settings-components-pagination-index-div-3" id="org-settings-components-pagination-index-div-3">
-        <span className="mr-2 text-sm text-gray-400" data-cy="org-settings-pagination-showing-text" id="org-settings-pagination-showing-text">
+      <div
+        className="flex items-center"
+        data-cy="org-settings-components-pagination-index-div-3"
+        id="org-settings-components-pagination-index-div-3"
+      >
+        <span
+          className="mr-2 text-sm text-gray-400"
+          data-cy="org-settings-pagination-showing-text"
+          id="org-settings-pagination-showing-text"
+        >
           Showing {Math.min(total, (current - 1) * pageSize + 1)} -{' '}
           {Math.min(total, current * pageSize)} out of {total} entries
         </span>
@@ -156,9 +184,27 @@ const Pagination: React.FC<OrgStructurePaginationProps> = ({
           data-cy="org-settings-pagination-select"
           id="org-settings-pagination-select"
         >
-          <Option value={4} data-cy="org-settings-pagination-select-option-4" id="org-settings-pagination-select-option-4">Show 4</Option>
-          <Option value={10} data-cy="org-settings-pagination-select-option-10" id="org-settings-pagination-select-option-10">Show 10</Option>
-          <Option value={25} data-cy="org-settings-pagination-select-option-25" id="org-settings-pagination-select-option-25">Show 25</Option>
+          <Option
+            value={4}
+            data-cy="org-settings-pagination-select-option-4"
+            id="org-settings-pagination-select-option-4"
+          >
+            Show 4
+          </Option>
+          <Option
+            value={10}
+            data-cy="org-settings-pagination-select-option-10"
+            id="org-settings-pagination-select-option-10"
+          >
+            Show 10
+          </Option>
+          <Option
+            value={25}
+            data-cy="org-settings-pagination-select-option-25"
+            id="org-settings-pagination-select-option-25"
+          >
+            Show 25
+          </Option>
         </Select>
       </div>
     </div>

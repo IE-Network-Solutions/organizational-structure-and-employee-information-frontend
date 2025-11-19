@@ -67,8 +67,16 @@ const InternPage = () => {
   };
 
   return (
-    <div id="talent-acquisition-intern-page-div-container" data-cy="talent-acquisition-intern-page-div-container" className="h-auto w-full bg-white">
-      <div id="talent-acquisition-intern-page-div-header" data-cy="talent-acquisition-intern-page-div-header" className="flex flex-wrap justify-between items-center bg-white">
+    <div
+      id="talent-acquisition-intern-page-div-container"
+      data-cy="talent-acquisition-intern-page-div-container"
+      className="h-auto w-full bg-white"
+    >
+      <div
+        id="talent-acquisition-intern-page-div-header"
+        data-cy="talent-acquisition-intern-page-div-header"
+        className="flex flex-wrap justify-between items-center bg-white"
+      >
         <CustomBreadcrumb
           data-cy="talent-acquisition-intern-page-breadcrumb"
           title="Intern"
@@ -80,7 +88,11 @@ const InternPage = () => {
             </>
           }
         />
-        <div id="talent-acquisition-intern-page-div-actions" data-cy="talent-acquisition-intern-page-div-actions" className="flex justify-between items-center rounded-lg w-fit h-10 px-3 gap-4">
+        <div
+          id="talent-acquisition-intern-page-div-actions"
+          data-cy="talent-acquisition-intern-page-div-actions"
+          className="flex justify-between items-center rounded-lg w-fit h-10 px-3 gap-4"
+        >
           <Button
             type="primary"
             id="createUserButton"
@@ -105,8 +117,14 @@ const InternPage = () => {
         </div>
       </div>
 
-      <div id="talent-acquisition-intern-page-div-content" data-cy="talent-acquisition-intern-page-div-content">
-        <InternTable data-cy="talent-acquisition-intern-table" onEdit={handleEdit} />
+      <div
+        id="talent-acquisition-intern-page-div-content"
+        data-cy="talent-acquisition-intern-page-div-content"
+      >
+        <InternTable
+          data-cy="talent-acquisition-intern-table"
+          onEdit={handleEdit}
+        />
         <CreateIntern
           open={createInternDrawer}
           onClose={onClose}

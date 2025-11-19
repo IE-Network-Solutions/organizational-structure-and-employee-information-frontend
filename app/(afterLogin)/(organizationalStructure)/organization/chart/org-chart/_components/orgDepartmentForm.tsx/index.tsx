@@ -52,9 +52,17 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
       onCancel={onClose}
       open={open}
       footer={
-        <div style={{ textAlign: 'right' }} data-cy="org-chart-department-form-footer" id="org-chart-department-form-footer">
+        <div
+          style={{ textAlign: 'right' }}
+          data-cy="org-chart-department-form-footer"
+          id="org-chart-department-form-footer"
+        >
           <Space data-cy="org-org-chart-components-orgdepartmentform-tsx-index-space-1">
-            <Button data-cy="org-chart-department-form-cancel-btn" id="org-chart-department-form-cancel-btn" onClick={onClose}>
+            <Button
+              data-cy="org-chart-department-form-cancel-btn"
+              id="org-chart-department-form-cancel-btn"
+              onClick={onClose}
+            >
               Cancel
             </Button>
             <Button
@@ -74,7 +82,13 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
         </div>
       }
     >
-      <Form layout="vertical" form={form} initialValues={departmentData || {}} data-cy="org-chart-department-form-container" id="org-chart-department-form-container">
+      <Form
+        layout="vertical"
+        form={form}
+        initialValues={departmentData || {}}
+        data-cy="org-chart-department-form-container"
+        id="org-chart-department-form-container"
+      >
         <Form.Item
           name="name"
           label="Department/Team Name"
@@ -84,7 +98,12 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
           data-cy="org-chart-department-form-item-name"
           id="org-chart-department-form-item-name"
         >
-          <Input size="large" placeholder="Enter department/team name"  data-cy="org-org-chart-components-orgdepartmentform-tsx-index-input-1" id="org-org-chart-components-orgdepartmentform-tsx-index-input-1"/>
+          <Input
+            size="large"
+            placeholder="Enter department/team name"
+            data-cy="org-org-chart-components-orgdepartmentform-tsx-index-input-1"
+            id="org-org-chart-components-orgdepartmentform-tsx-index-input-1"
+          />
         </Form.Item>
         <Form.Item
           name="branchId"
@@ -93,15 +112,30 @@ const DepartmentForm: React.FC<DepartmentFormProps> = ({
           data-cy="org-chart-department-form-item-branch-id"
           id="org-chart-department-form-item-branch-id"
         >
-          <Select size="large" placeholder="Select a branch" data-cy="org-chart-department-form-item-branch-id-select" id="org-chart-department-form-item-branch-id-select">
+          <Select
+            size="large"
+            placeholder="Select a branch"
+            data-cy="org-chart-department-form-item-branch-id-select"
+            id="org-chart-department-form-item-branch-id-select"
+          >
             {branches?.items?.map((branch, i) => (
-              <Option key={i} value={branch?.id} data-cy={`org-chart-department-form-item-branch-id-option-${branch?.id}`} id={`org-chart-department-form-item-branch-id-option-${branch?.id}`}>
+              <Option
+                key={i}
+                value={branch?.id}
+                data-cy={`org-chart-department-form-item-branch-id-option-${branch?.id}`}
+                id={`org-chart-department-form-item-branch-id-option-${branch?.id}`}
+              >
                 {branch.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="description" label="Department Description" data-cy="org-chart-department-form-item-description" id="org-chart-department-form-item-description">
+        <Form.Item
+          name="description"
+          label="Department Description"
+          data-cy="org-chart-department-form-item-description"
+          id="org-chart-department-form-item-description"
+        >
           <Input.TextArea
             size="large"
             rows={4}
