@@ -6,7 +6,12 @@ import { useEffect, useState } from 'react';
 import { Button, InputNumber, Select, Skeleton, notification } from 'antd';
 import { ExclamationCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import Image from 'next/image';
-import { Plan, PeriodType, Subscription } from '@/types/tenant-management';
+import {
+  Plan,
+  PeriodType,
+  Subscription,
+  TransactionType,
+} from '@/types/tenant-management';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetPeriodTypes } from '@/store/server/features/tenant-management/period-types/queries';
@@ -268,13 +273,37 @@ const PlanPage = () => {
         return;
       }
 
+      let calculatedTransactionType: string;
+      if (updateSource === 'quota') {
+        calculatedTransactionType = TransactionType.PURCHASE_SLOTS;
+      } else if (updateSource === 'period') {
+        calculatedTransactionType = TransactionType.PERIOD_UPGRADE;
+      } else {
+        const quotaChanged = activeSubscription
+          ? updatedQuota !== activeSubscription.slotTotal
+          : false;
+        const periodChanged =
+          activeSubscription && updatedPeriod
+            ? updatedPeriod !== (currentPeriodType?.code || '')
+            : true;
+
+        if (quotaChanged) {
+          calculatedTransactionType = TransactionType.PURCHASE_SLOTS;
+        } else if (periodChanged) {
+          calculatedTransactionType = TransactionType.PERIOD_UPGRADE;
+        } else {
+          calculatedTransactionType =
+            transactionType || TransactionType.PURCHASE_SLOTS;
+        }
+      }
+
       // Create DTO for calculation
       const dto: CalculateSubscriptionPriceDto = {
         planId: currentPlan.id,
         planPeriodId: selectedPlanPeriod.id,
         slotTotal: updatedQuota,
         newSlotTotal: updatedQuota - (activeSubscription?.slotTotal ?? 0), // Use updatedQuota directly
-        transactionType: transactionType,
+        transactionType: calculatedTransactionType,
         ...(activeSubscription
           ? { subscriptionId: activeSubscription.id }
           : {}),
@@ -892,9 +921,9 @@ const PlanPage = () => {
                       User Quota
                     </span>
                     <span>
-                      {calculationResult
-                        ? `${currentPlan?.currency?.symbol || '$'}${calculationResult.totalAmount.toFixed(2)}`
-                        : `${currentPlan?.currency?.symbol || '$'}${totalAmount.toFixed(2)}`}
+                      {isCalculating
+                        ? 'Calculating...'
+                        : `${currentPlan?.currency?.symbol || '$'}${calculationResult?.totalAmount.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-4 mt-2">
@@ -921,10 +950,15 @@ const PlanPage = () => {
                 onClick={handleConfirmation}
                 className="text-center flex justify-center items-center"
                 type="primary"
-                loading={isProcessingPayment}
-                disabled={isLoading || isProcessingPayment}
+                loading={isProcessingPayment || isCalculating}
+                disabled={
+                  isLoading ||
+                  isProcessingPayment ||
+                  isCalculating ||
+                  !calculationResult
+                }
               >
-                Confirm and Pay
+                {isCalculating ? 'Calculating...' : 'Confirm and Pay'}
               </Button>
             </div>
           </div>
