@@ -177,8 +177,8 @@ const CheckInRulePage: React.FC = () => {
           <Tag
             color="orange"
             className="font-medium"
-            id={`okr-checkin-rule-table-category-${record.id}`}
-            data-cy={`okr-checkin-rule-table-category-${record.id}`}
+            id={`okr-checkin-rule-table-category-${categoryId}`}
+            data-cy={`okr-checkin-rule-table-category-${categoryId}`}
           >
             {feedbackType?.category || 'Unknown Category'}
           </Tag>
