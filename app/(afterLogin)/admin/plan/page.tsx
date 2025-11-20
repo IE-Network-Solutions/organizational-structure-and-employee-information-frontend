@@ -237,12 +237,26 @@ const PlanPage = () => {
       // Go to the confirmation step
       setCurrentStep(2);
     } else if (isCalculationEnabled && calculationError) {
+      // Extract actual error message from API response
+      let errorMessage = 'Failed to calculate the cost. Please try again.';
+
+      if (calculationError) {
+        // Check if it's an axios error with response data
+        const error = calculationError as any;
+        if (error?.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error?.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        } else if (typeof calculationError === 'string') {
+          errorMessage = calculationError;
+        }
+      }
+
       notification.error({
         message: 'Calculation Error',
-        description:
-          calculationError instanceof Error
-            ? calculationError.message
-            : 'Failed to calculate the cost. Please try again.',
+        description: errorMessage,
       });
       setIsCalculationEnabled(false);
       setIsCalculating(false);
