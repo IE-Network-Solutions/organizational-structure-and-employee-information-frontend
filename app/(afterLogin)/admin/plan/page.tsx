@@ -910,12 +910,15 @@ const PlanPage = () => {
                   </div>
                   <div className="flex items-center justify-between gap-2 mb-4 text-lg font-bold">
                     <span>
-                      Total Amount for{' '}
-                      {activeSubscription
-                        ? (updatedQuota || 0) -
-                          (activeSubscription?.slotTotal || 0)
-                        : updatedQuota || 0}{' '}
-                      User Quota
+                      {(() => {
+                        const quotaDifference = activeSubscription
+                          ? (updatedQuota || 0) -
+                            (activeSubscription?.slotTotal || 0)
+                          : updatedQuota || 0;
+                        return quotaDifference === 0
+                          ? 'Total Amount'
+                          : `Total Amount for ${quotaDifference} User Quota`;
+                      })()}
                     </span>
                     <span>
                       {isCalculating
