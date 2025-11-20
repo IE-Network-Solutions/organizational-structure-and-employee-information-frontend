@@ -6,7 +6,7 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { useGetGrossSalaryById } from '@/store/server/features/employees/employeeManagment/grossSalary/queries';
 import dayjs from 'dayjs';
 import { message, Spin } from 'antd';
 
@@ -118,20 +118,23 @@ const getPronoun = (
   if (genderLower === 'male') {
     return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
   }
+  if (genderLower === 'female') {
+    return type === 'subject' ? 'She' : type === 'object' ? 'her' : 'her';
+  }
   // Default to male pronouns if unknown
   return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
 };
 
 const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   const { data: employeeData } = useGetEmployee(id);
-  console.log('employeeData', employeeData);
+
   const { data: allEmployeesData } = useGetAllUsersData(); // Fetch all employees with full data
-  console.log('allEmployeesData', allEmployeesData);
+
   const { data: companyInfo } = useGetCompanyProfileByTenantId(
     employeeData?.tenantId,
   );
-  console.log('companyInfo', companyInfo);
-  const { data: basicSalaryData } = useGetBasicSalaryById(id);
+
+  const { data: grossSalaryData } = useGetGrossSalaryById(id);
   const [isGenerating, setIsGenerating] = React.useState(false);
 
   const generatePDF = async () => {
@@ -260,24 +263,8 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         (job: any) => !job.isPositionActive,
       );
 
-      // Get salary - try from query first, then from employeeData.basicSalaries
-      let activeSalaryRecord = null;
-
-      // Try from the query (works for active employees)
-      if (Array.isArray(basicSalaryData) && basicSalaryData.length > 0) {
-        activeSalaryRecord = basicSalaryData.find(
-          (salary: any) => salary.status === true,
-        );
-      }
-
-      // Fallback: try from employeeData.basicSalaries (for inactive employees)
-      if (!activeSalaryRecord && employeeData?.basicSalaries?.length > 0) {
-        activeSalaryRecord = employeeData.basicSalaries.find(
-          (salary: any) => salary.status === true,
-        );
-      }
-
-      const currentSalary = activeSalaryRecord?.basicSalary || 0;
+      // Get gross salary from the query
+      const currentSalary = grossSalaryData?.grossSalary || 0;
 
       // Generate reference number
       const refDate = dayjs().format('YYYY');

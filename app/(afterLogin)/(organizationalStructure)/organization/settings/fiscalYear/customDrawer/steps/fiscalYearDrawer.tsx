@@ -548,10 +548,6 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                         data-cy="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-3"
                         id="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-3"
                       >
-<<<<<<< HEAD
-                        {' '}
-=======
->>>>>>> 2e728f2ec95b53907d784403679ce58a1b02a396
                         End Date
                       </span>
                     }
