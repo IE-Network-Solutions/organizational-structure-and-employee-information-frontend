@@ -244,7 +244,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
-          title: <span>Settings</span>,
+          title: <span className="font-bold">Settings</span>,
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
@@ -408,6 +408,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/payroll-menu',
       className: 'font-bold',
+      permissions: ['view_payroll_overview'],
       disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
@@ -838,23 +839,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
-  const { data: departments } = useGetDepartments();
-  const { data: employeeData } = useGetEmployee(userId);
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetEmployee(userId);
   const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
     useEmployeeManagementStore();
-  useEffect(() => {
-    if (!departments || !employeeData) return;
 
-    if (departments.length === 0) {
+  const isLoadingData =
+    departmentsLoading || employeeDataLoading || !departments || !employeeData;
+
+  useEffect(() => {
+    if (isLoadingData) return;
+
+    if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
-    } else if (
-      !employeeData.employeeJobInformation ||
-      employeeData.employeeJobInformation.length === 0
-    ) {
+    } else if (employeeData?.employeeJobInformation?.length === 0) {
       setIsAddEmployeeJobInfoModalVisible(true);
       setEmployeeJobInfoModalWidth('100%');
     }
-  }, [departments, employeeData, router]);
+  }, [departments, employeeData, router, isLoadingData]);
 
   // ✅ Check permission on pathname change
   useEffect(() => {
@@ -1162,7 +1166,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           <Layout
             style={{
-              marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
+              marginLeft: isMobile ? 2 : 0,
               transition: 'margin-left 0.3s ease',
             }}
           >
@@ -1213,7 +1217,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               className="overflow-y-hidden min-h-screen"
               style={{
                 paddingInline: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+                paddingLeft: isMobile ? 0 : collapsed ? 100 : 280,
                 transition: 'padding-left 0.3s ease',
               }}
             >

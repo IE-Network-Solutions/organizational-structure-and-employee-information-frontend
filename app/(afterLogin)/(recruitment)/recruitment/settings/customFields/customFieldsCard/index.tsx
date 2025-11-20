@@ -85,6 +85,8 @@ const CustomFieldsCard: React.FC = () => {
               <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
                 <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
                   <Pencil
+                    id={`talent-acquisition-custom-fields-button-edit-${questions?.id}`}
+                    data-cy={`talent-acquisition-custom-fields-button-edit-${questions?.id}`}
                     size={15}
                     className="text-white cursor-pointer"
                     onClick={() => handleCustomFieldsModalOpen(questions)}
@@ -94,6 +96,8 @@ const CustomFieldsCard: React.FC = () => {
               <AccessGuard permissions={[Permissions.DeleteCustomFields]}>
                 <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
                   <Trash2
+                    id={`talent-acquisition-custom-fields-button-delete-${questions?.id}`}
+                    data-cy={`talent-acquisition-custom-fields-button-delete-${questions?.id}`}
                     size={15}
                     className="text-white cursor-pointer"
                     onClick={() => handleDeleteModalOpen(questions)}

@@ -85,13 +85,21 @@ const JobCard: React.FC = () => {
 
   if (isJobListLoading)
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
+      <div
+        id="talent-acquisition-job-card-div-loading"
+        data-cy="talent-acquisition-job-card-div-loading"
+        className="flex justify-center items-center h-64"
+      >
+        <Spin data-cy="talent-acquisition-job-card-spin-loading" size="large" />
       </div>
     );
 
   const NoData = () => (
-    <div className="w-full h-full flex justify-center items-center my-5">
+    <div
+      id="talent-acquisition-job-card-div-no-data"
+      data-cy="talent-acquisition-job-card-div-no-data"
+      className="w-full h-full flex justify-center items-center my-5"
+    >
       No Job available.
     </div>
   );
@@ -149,10 +157,19 @@ const JobCard: React.FC = () => {
 
           return (
             <Card key={index} className="mb-4 rounded-lg w-full">
-              <div className="relative">
+              <div
+                id={`talent-acquisition-job-card-div-card-${index}`}
+                data-cy={`talent-acquisition-job-card-div-card-${index}`}
+                className="relative"
+              >
                 {/* Dropdown positioned at top-right corner */}
-                <div className="absolute top-0 right-0">
+                <div
+                  id={`talent-acquisition-job-card-div-dropdown-${index}`}
+                  data-cy={`talent-acquisition-job-card-div-dropdown-${index}`}
+                  className="absolute top-0 right-0"
+                >
                   <Dropdown
+                    data-cy={`talent-acquisition-job-card-dropdown-${job?.id}`}
                     menu={{
                       items: filteredItems.map(({ label, key, onClick }) => ({
                         label,
@@ -163,6 +180,8 @@ const JobCard: React.FC = () => {
                     trigger={['click']}
                   >
                     <Button
+                      id={`talent-acquisition-job-card-button-menu-${job?.id}`}
+                      data-cy={`talent-acquisition-job-card-button-menu-${job?.id}`}
                       icon={<BsThreeDotsVertical />}
                       className="border-0"
                       size="small"
@@ -170,19 +189,43 @@ const JobCard: React.FC = () => {
                   </Dropdown>
                 </div>
 
-                <div>
-                  <Link href={`/recruitment/jobs/${job?.id}`} className="block">
-                    <div className="w-full">
+                <div
+                  id={`talent-acquisition-job-card-div-content-${index}`}
+                  data-cy={`talent-acquisition-job-card-div-content-${index}`}
+                >
+                  <Link
+                    id={`talent-acquisition-job-card-link-${job?.id}`}
+                    data-cy={`talent-acquisition-job-card-link-${job?.id}`}
+                    href={`/recruitment/jobs/${job?.id}`}
+                    className="block"
+                  >
+                    <div
+                      id={`talent-acquisition-job-card-div-link-content-${index}`}
+                      data-cy={`talent-acquisition-job-card-div-link-content-${index}`}
+                      className="w-full"
+                    >
                       {/* Title and Status - Mobile: Stack vertically, Desktop: Side by side */}
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-3">
-                        <div className="flex-1 pr-8 sm:pr-0">
+                      <div
+                        id={`talent-acquisition-job-card-div-title-status-${index}`}
+                        data-cy={`talent-acquisition-job-card-div-title-status-${index}`}
+                        className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-3"
+                      >
+                        <div
+                          id={`talent-acquisition-job-card-div-title-${index}`}
+                          data-cy={`talent-acquisition-job-card-div-title-${index}`}
+                          className="flex-1 pr-8 sm:pr-0"
+                        >
                           <Tooltip title={job?.jobTitle}>
                             <span className="font-bold text-lg sm:text-xl text-gray-700 block truncate">
                               {job?.jobTitle}
                             </span>
                           </Tooltip>
                         </div>
-                        <div className="sm:mr-10">
+                        <div
+                          id={`talent-acquisition-job-card-div-status-${index}`}
+                          data-cy={`talent-acquisition-job-card-div-status-${index}`}
+                          className="sm:mr-10"
+                        >
                           {jobStatus == 'Closed' ? (
                             <div className="inline-flex items-center text-xs font-normal rounded-lg px-3 py-1 bg-[#F8F8F8] text-[#A0AEC0] border-gray-200 border">
                               Closed
@@ -196,20 +239,40 @@ const JobCard: React.FC = () => {
                       </div>
 
                       {/* Department/Location and Closing Date - Mobile: Stack vertically, Desktop: Side by side */}
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm text-gray-500">
+                      <div
+                        id={`talent-acquisition-job-card-div-dept-location-${index}`}
+                        data-cy={`talent-acquisition-job-card-div-dept-location-${index}`}
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3"
+                      >
+                        <div
+                          id={`talent-acquisition-job-card-div-dept-${index}`}
+                          data-cy={`talent-acquisition-job-card-div-dept-${index}`}
+                          className="flex items-center gap-2 flex-wrap"
+                        >
+                          <p
+                            id={`talent-acquisition-job-departmentId-${index}`}
+                            data-cy={`talent-acquisition-job-departmentId-${index}`}
+                            className="text-sm text-gray-500"
+                          >
                             {getDepartmentName(job?.departmentId)}
                           </p>
                           {getDepartmentName(job?.departmentId) &&
                             job?.jobLocation && (
                               <span className="text-gray-300">•</span>
                             )}
-                          <p className="text-sm text-gray-500">
+                          <p
+                            id={`talent-acquisition-job-jobLocation-${index}`}
+                            data-cy={`talent-acquisition-job-jobLocation-${index}`}
+                            className="text-sm text-gray-500"
+                          >
                             {job?.jobLocation}
                           </p>
                         </div>
-                        <div className="hidden sm:block">
+                        <div
+                          id={`talent-acquisition-job-card-div-closing-date-desktop-${index}`}
+                          data-cy={`talent-acquisition-job-card-div-closing-date-desktop-${index}`}
+                          className="hidden sm:block"
+                        >
                           <span className="text-gray-700 font-medium">
                             Closing Date:{' '}
                           </span>
@@ -224,7 +287,11 @@ const JobCard: React.FC = () => {
                       </div>
 
                       {/* Mobile Closing Date - Only show on mobile */}
-                      <div className="block sm:hidden mb-3">
+                      <div
+                        id={`talent-acquisition-job-card-div-closing-date-mobile-${index}`}
+                        data-cy={`talent-acquisition-job-card-div-closing-date-mobile-${index}`}
+                        className="block sm:hidden mb-3"
+                      >
                         <div className="text-sm">
                           <span className="text-gray-700 font-medium">
                             Closing Date:{' '}
@@ -240,8 +307,16 @@ const JobCard: React.FC = () => {
                       </div>
 
                       {/* Candidates and Created Date - Mobile: Stack vertically, Desktop: Side by side */}
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                        <div className="flex items-center gap-2">
+                      <div
+                        id={`talent-acquisition-job-card-div-candidates-created-${index}`}
+                        data-cy={`talent-acquisition-job-card-div-candidates-created-${index}`}
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+                      >
+                        <div
+                          id={`talent-acquisition-job-card-div-candidates-${index}`}
+                          data-cy={`talent-acquisition-job-card-div-candidates-${index}`}
+                          className="flex items-center gap-2"
+                        >
                           {job?.jobCandidate?.length > 0 ? (
                             <Avatar.Group
                               maxCount={3}
@@ -289,7 +364,11 @@ const JobCard: React.FC = () => {
                           </p>
                         </div>
 
-                        <div className="hidden sm:block">
+                        <div
+                          id={`talent-acquisition-job-card-div-created-desktop-${index}`}
+                          data-cy={`talent-acquisition-job-card-div-created-desktop-${index}`}
+                          className="hidden sm:block"
+                        >
                           <div className="text-sm text-gray-500">
                             Created{' '}
                             {job?.createdAt
@@ -300,7 +379,11 @@ const JobCard: React.FC = () => {
                       </div>
 
                       {/* Mobile Created Date - Only show on mobile */}
-                      <div className="block sm:hidden mt-3">
+                      <div
+                        id={`talent-acquisition-job-card-div-created-mobile-${index}`}
+                        data-cy={`talent-acquisition-job-card-div-created-mobile-${index}`}
+                        className="block sm:hidden mt-3"
+                      >
                         <div className="text-sm text-gray-500">
                           Created{' '}
                           {job?.createdAt
@@ -318,8 +401,16 @@ const JobCard: React.FC = () => {
           );
         })
       ) : (
-        <div className="bg-white w-full min-h-40 rounded-lg">
-          <div className="flex items-center justify-center">
+        <div
+          id="talent-acquisition-job-card-div-no-jobs"
+          data-cy="talent-acquisition-job-card-div-no-jobs"
+          className="bg-white w-full min-h-40 rounded-lg"
+        >
+          <div
+            id="talent-acquisition-job-card-div-no-jobs-content"
+            data-cy="talent-acquisition-job-card-div-no-jobs-content"
+            className="flex items-center justify-center"
+          >
             <NoData />
           </div>
         </div>

@@ -60,7 +60,7 @@ const CustomWorkingScheduleDrawer = () => {
       'Cannot create work schedule with 0 working hours. Please enable at least one working day with valid time range.';
 
     // Check if there are any working days enabled
-    const hasWorkingDays = detail.some((item) => item.status);
+    const hasWorkingDays = detail.some((item) => item.workDay);
 
     if (!hasWorkingDays) {
       setValidationError(errorMessage);
@@ -83,9 +83,9 @@ const CustomWorkingScheduleDrawer = () => {
         id: item.id,
         startTime: item.startTime,
         endTime: item.endTime,
-        duration: item.hours,
-        workDay: item.status,
-        day: item.dayOfWeek,
+        duration: item.duration,
+        workDay: item.workDay,
+        day: item.day,
       }));
 
     if (isEditMode) {
@@ -123,11 +123,11 @@ const CustomWorkingScheduleDrawer = () => {
       scheduleName,
       ...detail.reduce(
         (acc, item) => {
-          acc[`${item.dayOfWeek}-working`] = item.status;
-          acc[`${item.dayOfWeek}-start`] = item.startTime
+          acc[`${item.day}-working`] = item.workDay;
+          acc[`${item.day}-start`] = item.startTime
             ? dayjs(item.startTime, 'h:mm A')
             : null;
-          acc[`${item.dayOfWeek}-end`] = item.endTime
+          acc[`${item.day}-end`] = item.endTime
             ? dayjs(item.endTime, 'h:mm A')
             : null;
           return acc;
@@ -161,9 +161,9 @@ const CustomWorkingScheduleDrawer = () => {
   const handleValuesChange = (s: any, allValues: any) => {
     let totalHours = 0;
     detail.forEach((item) => {
-      const start = allValues[`${item.dayOfWeek}-start`];
-      const end = allValues[`${item.dayOfWeek}-end`];
-      const isWorkingDay = allValues[`${item.dayOfWeek}-working`];
+      const start = allValues[`${item.day}-start`];
+      const end = allValues[`${item.day}-end`];
+      const isWorkingDay = allValues[`${item.day}-working`];
 
       if (start && end && isWorkingDay) {
         const duration = dayjs(end).diff(dayjs(start), 'hour', true);
@@ -177,15 +177,15 @@ const CustomWorkingScheduleDrawer = () => {
     }
   };
 
-  const handleSwitchChange = (dayOfWeek: string, checked: boolean) => {
-    setDetail(dayOfWeek, { status: checked });
+  const handleSwitchChange = (day: string, checked: boolean) => {
+    setDetail(day, { workDay: checked });
 
-    // Recalculate total hours after status change
+    // Recalculate total hours after workDay change
     setTimeout(() => {
       const updatedDetail = useScheduleStore.getState().detail;
       let totalHours = 0;
       updatedDetail.forEach((item) => {
-        if (item.status && item.startTime && item.endTime) {
+        if (item.workDay && item.startTime && item.endTime) {
           const duration = dayjs(item.endTime, 'h:mm A').diff(
             dayjs(item.startTime, 'h:mm A'),
             'hour',
@@ -206,25 +206,23 @@ const CustomWorkingScheduleDrawer = () => {
   const columns: ColumnsType<ScheduleDetail> = [
     {
       title: 'Working Day',
-      dataIndex: 'dayOfWeek',
-      key: 'dayOfWeek',
+      dataIndex: 'day',
+      key: 'day',
       render: (s, record) => (
         <Form.Item
-          name={`${record.dayOfWeek}-working`}
+          name={`${record.day}-working`}
           valuePropName="checked"
           noStyle
         >
           <div className="flex gap-2 md:gap-4 justify-start items-center">
             <Switch
-              checked={record.status}
+              checked={record.workDay}
               checkedChildren={<CheckOutlined />}
               unCheckedChildren={<CloseOutlined />}
               size="small"
-              onChange={(checked) =>
-                handleSwitchChange(record.dayOfWeek, checked)
-              }
+              onChange={(checked) => handleSwitchChange(record.day, checked)}
             />
-            <p>{record.dayOfWeek}</p>
+            <p>{record.day}</p>
           </div>
         </Form.Item>
       ),
@@ -234,14 +232,14 @@ const CustomWorkingScheduleDrawer = () => {
       dataIndex: 'startTime',
       key: 'startTime',
       render: (s, record) => (
-        <Form.Item name={`${record.dayOfWeek}-start`} noStyle>
+        <Form.Item name={`${record.day}-start`} noStyle>
           <TimePicker
             format="h:mm A"
-            disabled={!record.status}
+            disabled={!record.workDay}
             use12Hours
             className="min-w-[90px] h-7 custom-timepicker"
             onChange={(time) =>
-              setDetail(record.dayOfWeek, {
+              setDetail(record.day, {
                 startTime: time ? dayjs(time).format('h:mm A') : '',
               })
             }
@@ -255,14 +253,14 @@ const CustomWorkingScheduleDrawer = () => {
       dataIndex: 'endTime',
       key: 'endTime',
       render: (s, record) => (
-        <Form.Item name={`${record.dayOfWeek}-end`} noStyle>
+        <Form.Item name={`${record.day}-end`} noStyle>
           <TimePicker
             format="h:mm A"
-            disabled={!record.status}
+            disabled={!record.workDay}
             use12Hours
             className="min-w-[90px] h-7 custom-timepicker"
             onChange={(time) =>
-              setDetail(record.dayOfWeek, {
+              setDetail(record.day, {
                 endTime: time ? dayjs(time).format('h:mm A') : '',
               })
             }
@@ -273,20 +271,20 @@ const CustomWorkingScheduleDrawer = () => {
     },
     {
       title: 'Duration',
-      dataIndex: 'hours',
-      key: 'hours',
+      dataIndex: 'duration',
+      key: 'duration',
       render: (s, record) => (
         <Form.Item shouldUpdate noStyle>
           {({ getFieldValue }) => {
-            const start = getFieldValue(`${record.dayOfWeek}-start`);
-            const end = getFieldValue(`${record.dayOfWeek}-end`);
+            const start = getFieldValue(`${record.day}-start`);
+            const end = getFieldValue(`${record.day}-end`);
             const duration =
               start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
             const hours = Math.floor(duration);
             const minutes = Math.round((duration - hours) * 60);
             return (
               <span className="inline-block py-1 px-4 border rounded-lg bg-white text-[10px] min-w-[70px] text-center text-[#1a202c]">
-                {record.status
+                {record.workDay
                   ? `${hours}h ${minutes.toString().padStart(2, '0')}m`
                   : '0h 00m'}
               </span>
@@ -300,30 +298,64 @@ const CustomWorkingScheduleDrawer = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-base font-semibold">Add New Work Schedule</h1>
+        <h1
+          className="text-base font-semibold"
+          data-cy="org-settings-work-schedule-drawer-header"
+          id="org-settings-work-schedule-drawer-header"
+        >
+          Add New Work Schedule
+        </h1>
       }
       onClose={handleCancel}
       open={isOpen}
       width="45%"
       footer={
-        <div className="flex justify-between items-center w-full my-1 pb-3">
-          <div className="flex justify-start items-center gap-2 mt-4 mx-1">
-            <span className="text-xs font-semibold text-nowrap ">
+        <div
+          className="flex justify-between items-center w-full my-1 pb-3"
+          data-cy="org-settings-work-schedule-drawer-footer"
+          id="org-settings-work-schedule-drawer-footer"
+        >
+          <div
+            className="flex justify-start items-center gap-2 mt-4 mx-1"
+            data-cy="org-components-workschedule-customdrawer-index-div-1"
+            id="org-components-workschedule-customdrawer-index-div-1"
+          >
+            <span
+              className="text-xs font-semibold text-nowrap "
+              data-cy="org-settings-work-schedule-total-hours-label"
+              id="org-settings-work-schedule-total-hours-label"
+            >
               Total Working hours:
             </span>
             <span
               className={`mr-4 text-xs font-semibold text-nowrap ${validationError ? 'text-red-500' : 'text-primary'}`}
+              data-cy="org-settings-work-schedule-total-hours-value"
+              id="org-settings-work-schedule-total-hours-value"
             >
               {standardHours.toFixed(1) ?? '-'} / Week
             </span>
             {validationError && (
-              <span className="text-red-500 text-xs ml-2">
+              <span
+                className="text-red-500 text-xs ml-2"
+                data-cy="org-settings-work-schedule-validation-error"
+                id="org-settings-work-schedule-validation-error"
+              >
                 {validationError}
               </span>
             )}
           </div>
-          <div className="flex gap-2 mt-4 mr-8">
-            <Button type="default" className="font-md" onClick={handleCancel}>
+          <div
+            className="flex gap-2 mt-4 mr-8"
+            data-cy="org-components-workschedule-customdrawer-index-div-2"
+            id="org-components-workschedule-customdrawer-index-div-2"
+          >
+            <Button
+              type="default"
+              className="font-md"
+              onClick={handleCancel}
+              data-cy="org-settings-work-schedule-drawer-cancel-btn"
+              id="org-settings-work-schedule-drawer-cancel-btn"
+            >
               Cancel
             </Button>
             <Button
@@ -331,23 +363,38 @@ const CustomWorkingScheduleDrawer = () => {
               className="font-md"
               onClick={handleSubmit}
               loading={isUpdateLoading || isCreateLoading}
+              data-cy="org-settings-work-schedule-drawer-submit-btn"
+              id="org-settings-work-schedule-drawer-submit-btn"
             >
               {isEditMode ? 'Update' : 'Create'}
             </Button>
           </div>
         </div>
       }
+      data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1"
     >
       <Form
         form={form}
         layout="vertical"
         onValuesChange={handleValuesChange}
         className="w-full"
+        data-cy="org-settings-work-schedule-form"
+        id="org-settings-work-schedule-form"
       >
         <Form.Item
           name="scheduleName"
-          label={<span className="text-sm font-semibold">Schedule Name</span>}
+          label={
+            <span
+              className="text-sm font-semibold"
+              data-cy="org-components-workschedule-customdrawer-index-span-1"
+              id="org-components-workschedule-customdrawer-index-span-1"
+            >
+              Schedule Name
+            </span>
+          }
           rules={[{ required: true, message: 'Please input schedule name!' }]}
+          data-cy="org-settings-work-schedule-name-field"
+          id="org-settings-work-schedule-name-field"
         >
           <Input
             size="large"
@@ -355,14 +402,24 @@ const CustomWorkingScheduleDrawer = () => {
             placeholder="Enter your schedule name"
             value={scheduleName}
             onChange={(e) => setScheduleName(e.target.value)}
+            data-cy="org-settings-work-schedule-name-input"
+            id="org-settings-work-schedule-name-input"
           />
         </Form.Item>
-        <h1 className="text-base m-3">Working hours</h1>
+        <h1
+          className="text-base m-3"
+          data-cy="org-settings-work-schedule-hours-title"
+          id="org-settings-work-schedule-hours-title"
+        >
+          Working hours
+        </h1>
         <Table
           columns={columns}
           dataSource={detail}
           pagination={false}
           scroll={{ x: '100%' }}
+          data-cy="org-settings-work-schedule-table"
+          id="org-settings-work-schedule-table"
         />
       </Form>
     </CustomDrawerLayout>

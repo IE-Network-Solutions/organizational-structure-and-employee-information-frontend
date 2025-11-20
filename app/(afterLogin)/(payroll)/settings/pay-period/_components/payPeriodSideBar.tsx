@@ -4,7 +4,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Form, Select, Spin, DatePicker, Button, Popover } from 'antd';
+import { Form, Select, Spin, DatePicker, Button, Popover, message } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
@@ -13,19 +13,22 @@ import {
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useCreatePayPeriods } from '@/store/server/features/payroll/setting/tax-rule/mutation';
+import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import dayjs from 'dayjs';
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const PayPeriodSideBar = () => {
   const [form] = Form.useForm();
-  const [activePicker, setActivePicker] = useState<{
+  const [, setActivePicker] = useState<{
     index: number | null;
     part: 'start' | 'end' | null;
   }>({ index: null, part: null });
@@ -46,43 +49,35 @@ const PayPeriodSideBar = () => {
     useCreatePayPeriods();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const { data: fiscalYearsData } = useGetAllFiscalYears(pageSize, currentPage);
-
-  const calculateDivisions = (mode: string) => {
-    if (!selectedFiscalYear) return;
-    const { startDate, endDate } = selectedFiscalYear;
-    const start = dayjs(startDate);
-    const end = dayjs(endDate);
-
-    let intervals: any = [];
-    if (mode === 'Weekly') {
-      intervals = calculateEqualIntervals(start, end, 7);
-    } else if (mode === 'Bi-weekly') {
-      intervals = calculateEqualIntervals(start, end, 14);
-    } else if (mode === 'Monthly') {
-      intervals = calculateMonthlyIntervals(start, end);
-    }
-    setDivisions(intervals);
-  };
+  const { data: existingPayPeriods } = useFetchActiveFiscalYearPayPeriods(
+    selectedFiscalYear?.id,
+  );
 
   const calculateEqualIntervals = (
     start: dayjs.Dayjs,
     end: dayjs.Dayjs,
     days: number,
-  ) => {
-    const intervals = [];
+  ): [dayjs.Dayjs, dayjs.Dayjs][] => {
+    const intervals: [dayjs.Dayjs, dayjs.Dayjs][] = [];
     let current = start;
 
     while (current.isBefore(end)) {
       const next = current.add(days, 'day').subtract(1, 'day');
-      intervals.push([current, next.isAfter(end) ? end : next]);
+      intervals.push([current, next.isAfter(end) ? end : next] as [
+        dayjs.Dayjs,
+        dayjs.Dayjs,
+      ]);
       current = next.add(1, 'day');
     }
 
     return intervals;
   };
 
-  const calculateMonthlyIntervals = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
-    const intervals = [];
+  const calculateMonthlyIntervals = (
+    start: dayjs.Dayjs,
+    end: dayjs.Dayjs,
+  ): [dayjs.Dayjs, dayjs.Dayjs][] => {
+    const intervals: [dayjs.Dayjs, dayjs.Dayjs][] = [];
     let current = start;
 
     while (current.isBefore(end)) {
@@ -90,16 +85,36 @@ const PayPeriodSideBar = () => {
       intervals.push([
         current,
         next.isAfter(end) ? end : next.subtract(1, 'day'),
-      ]);
+      ] as [dayjs.Dayjs, dayjs.Dayjs]);
       current = next;
     }
 
     return intervals;
   };
 
-  useMemo(() => {
+  const calculateDivisions = useCallback(
+    (mode: string) => {
+      if (!selectedFiscalYear) return;
+      const { startDate, endDate } = selectedFiscalYear;
+      const start = dayjs(startDate);
+      const end = dayjs(endDate);
+
+      let intervals: [dayjs.Dayjs, dayjs.Dayjs][] = [];
+      if (mode === 'Weekly') {
+        intervals = calculateEqualIntervals(start, end, 7);
+      } else if (mode === 'Bi-weekly') {
+        intervals = calculateEqualIntervals(start, end, 14);
+      } else if (mode === 'Monthly') {
+        intervals = calculateMonthlyIntervals(start, end);
+      }
+      setDivisions(intervals);
+    },
+    [selectedFiscalYear, setDivisions],
+  );
+
+  useEffect(() => {
     if (selectedFiscalYear) calculateDivisions(payPeriodMode);
-  }, [selectedFiscalYear, payPeriodMode]);
+  }, [selectedFiscalYear, payPeriodMode, calculateDivisions]);
 
   const formattedDivisions = divisions.map(
     (range: [dayjs.Dayjs, dayjs.Dayjs]) =>
@@ -114,7 +129,7 @@ const PayPeriodSideBar = () => {
     form.setFieldsValue(fields);
   }, [divisions, form]);
 
-  const allMonths = activeFiscalYear?.sessions?.flatMap(
+  const allMonths = selectedFiscalYear?.sessions?.flatMap(
     (session) => session.months,
   );
   const monthsWithStartEndDates = allMonths?.map((month) => ({
@@ -124,7 +139,75 @@ const PayPeriodSideBar = () => {
     endDate: month?.endDate,
   }));
 
+  const checkDateOverlap = (
+    start1: dayjs.Dayjs,
+    end1: dayjs.Dayjs,
+    start2: dayjs.Dayjs,
+    end2: dayjs.Dayjs,
+  ) => {
+    return start1.isSameOrBefore(end2) && end1.isSameOrAfter(start2);
+  };
+
   const onFormSubmit = () => {
+    const errors: string[] = [];
+
+    divisions.forEach((division, index) => {
+      const start = dayjs(division[0]);
+      const end = dayjs(division[1]);
+      const inclusiveDays = end.diff(start, 'day') + 1;
+
+      if (payPeriodMode === 'Monthly' && inclusiveDays > 31) {
+        errors.push(
+          `Pay period ${index + 1}: Monthly pay period cannot exceed 31 days (${inclusiveDays} days selected).`,
+        );
+      }
+
+      if (Array.isArray(existingPayPeriods)) {
+        existingPayPeriods.forEach(
+          (existing: { startDate: string; endDate: string }) => {
+            const existingStart = dayjs(existing.startDate);
+            const existingEnd = dayjs(existing.endDate);
+            if (checkDateOverlap(start, end, existingStart, existingEnd)) {
+              errors.push(
+                `Pay period ${index + 1}: Overlaps with existing pay period (${existingStart.format('MMM D, YYYY')} - ${existingEnd.format('MMM D, YYYY')}).`,
+              );
+            }
+          },
+        );
+      }
+
+      divisions.forEach((otherDivision, otherIndex) => {
+        if (index !== otherIndex) {
+          const otherStart = dayjs(otherDivision[0]);
+          const otherEnd = dayjs(otherDivision[1]);
+          if (checkDateOverlap(start, end, otherStart, otherEnd)) {
+            errors.push(
+              `Pay period ${index + 1} overlaps with pay period ${otherIndex + 1}.`,
+            );
+          }
+        }
+      });
+    });
+
+    if (errors.length > 0) {
+      errors.forEach((error) => {
+        message.error(error);
+      });
+
+      form.setFields(
+        divisions.map((unused, index) => {
+          const fieldErrors = errors.filter((err) =>
+            err.includes(`Pay period ${index + 1}`),
+          );
+          return {
+            name: `range${index}`,
+            errors: fieldErrors.length > 0 ? [fieldErrors[0]] : [],
+          };
+        }),
+      );
+      return;
+    }
+
     const transformedData = divisions.map((division) => ({
       startDate: dayjs(division[0]).format('YYYY-MM-DD'),
       endDate: dayjs(division[1]).format('YYYY-MM-DD'),
@@ -275,7 +358,7 @@ const PayPeriodSideBar = () => {
                             message: 'Please select a date range',
                           },
                           {
-                            validator: async (notused, value) => {
+                            validator: async (unused, value) => {
                               if (
                                 !value ||
                                 value.length !== 2 ||
@@ -313,6 +396,13 @@ const PayPeriodSideBar = () => {
                                 payPeriodMode === 'Monthly' &&
                                 !(inclusiveDays >= 28 && inclusiveDays <= 31)
                               ) {
+                                if (inclusiveDays > 31) {
+                                  return Promise.reject(
+                                    new Error(
+                                      'Monthly pay period cannot exceed 31 days.',
+                                    ),
+                                  );
+                                }
                                 return Promise.reject(
                                   new Error(
                                     'Monthly range must be between 28 and 31 days.',
@@ -331,7 +421,7 @@ const PayPeriodSideBar = () => {
                               setActivePicker({ index: null, part: null });
                             else setActivePicker({ index, part: 'start' });
                           }}
-                          onCalendarChange={(dates, notused, info) => {
+                          onCalendarChange={(dates, unused, info) => {
                             if (
                               info?.range === 'start' ||
                               info?.range === 'end'
@@ -363,81 +453,192 @@ const PayPeriodSideBar = () => {
                             );
 
                             let end = rawEnd;
-                            if (end.isBefore(minAllowedEnd))
-                              end = minAllowedEnd;
-                            if (end.isAfter(maxAllowedEnd)) end = maxAllowedEnd;
 
                             const fiscalEndDate = activeFiscalYear?.endDate
                               ? dayjs(activeFiscalYear.endDate)
                               : null;
-                            if (fiscalEndDate && end.isAfter(fiscalEndDate)) {
-                              end = fiscalEndDate;
-                            }
-                            if (index + 1 < divisions.length) {
-                              const nextRangeEnd = dayjs(
-                                divisions[index + 1][1],
-                              );
-                              const latestAllowedBeforeNext =
-                                nextRangeEnd.subtract(1, 'day');
-                              if (end.isAfter(latestAllowedBeforeNext)) {
-                                end = latestAllowedBeforeNext;
-                              }
-                            }
-
-                            const newDivisions = [...divisions];
-
-                            newDivisions[index] = [start, end];
-                            form.setFieldsValue({
-                              [`range${index}`]: [start, end],
-                            });
-
-                            if (index + 1 < newDivisions.length) {
-                              const nextStart = dayjs(
-                                newDivisions[index + 1][1],
-                              );
-                              if (dayjs(end).isBefore(nextStart)) {
-                                newDivisions[index + 1][0] = dayjs(end).add(
-                                  1,
-                                  'day',
-                                );
-                              }
-                            }
-
-                            if (index - 1 >= 0) {
-                              const prevEnd = dayjs(newDivisions[index - 1][1]);
-                              if (dayjs(start).isAfter(prevEnd)) {
-                                newDivisions[index - 1][1] = dayjs(
-                                  start,
-                                ).subtract(1, 'day');
-                              }
-                            }
-
-                            setDivisions(newDivisions);
-                          }}
-                          disabledDate={(currentDate) => {
-                            const nextRangeEnd =
+                            const nextRangeLimit =
                               index + 1 < divisions.length
-                                ? dayjs(divisions[index + 1][1])
+                                ? dayjs(divisions[index + 1][1]).subtract(
+                                    1,
+                                    'day',
+                                  )
                                 : null;
-                            const prevRangeEnd =
-                              index - 1 >= 0
-                                ? dayjs(divisions[index - 1][1])
-                                : null;
-                            const startDate = range[0] ? dayjs(range[0]) : null;
-                            const fiscalEndDate = activeFiscalYear?.endDate
-                              ? dayjs(activeFiscalYear.endDate)
-                              : null;
-                            const fiscalStartDate = activeFiscalYear?.startDate
-                              ? dayjs(activeFiscalYear.startDate)
-                              : null;
 
                             if (
-                              nextRangeEnd &&
-                              (currentDate.isSame(nextRangeEnd, 'day') ||
-                                currentDate.isAfter(nextRangeEnd))
+                              payPeriodMode === 'Weekly' ||
+                              payPeriodMode === 'Bi-weekly'
                             ) {
-                              return true;
+                              let effectiveMaxEnd = maxAllowedEnd;
+                              if (
+                                fiscalEndDate &&
+                                fiscalEndDate.isBefore(effectiveMaxEnd)
+                              ) {
+                                effectiveMaxEnd = fiscalEndDate;
+                              }
+                              if (
+                                nextRangeLimit &&
+                                nextRangeLimit.isBefore(effectiveMaxEnd)
+                              ) {
+                                effectiveMaxEnd = nextRangeLimit;
+                              }
+
+                              if (end.isBefore(minAllowedEnd))
+                                end = minAllowedEnd;
+                              if (end.isAfter(effectiveMaxEnd))
+                                end = effectiveMaxEnd;
+
+                              if (end.isAfter(maxAllowedEnd)) {
+                                end = maxAllowedEnd;
+                              }
+
+                              const newDivisions = [...divisions];
+                              newDivisions[index] = [start, end];
+                              form.setFieldsValue({
+                                [`range${index}`]: [start, end],
+                              });
+
+                              if (index + 1 < newDivisions.length) {
+                                const nextStart = dayjs(
+                                  newDivisions[index + 1][1],
+                                );
+                                if (dayjs(end).isBefore(nextStart)) {
+                                  newDivisions[index + 1][0] = dayjs(end).add(
+                                    1,
+                                    'day',
+                                  );
+                                  const nextRules =
+                                    getSpanRulesForMode(payPeriodMode);
+                                  const nextStartDate = dayjs(end).add(
+                                    1,
+                                    'day',
+                                  );
+                                  const nextMaxAllowedEnd = nextStartDate.add(
+                                    nextRules.max - 1,
+                                    'day',
+                                  );
+                                  const nextEndDate = dayjs(
+                                    newDivisions[index + 1][1],
+                                  );
+                                  if (nextEndDate.isAfter(nextMaxAllowedEnd)) {
+                                    newDivisions[index + 1][1] =
+                                      nextMaxAllowedEnd;
+                                  }
+                                }
+                              }
+
+                              if (index - 1 >= 0) {
+                                const prevStart = dayjs(
+                                  newDivisions[index - 1][0],
+                                );
+                                const prevEnd = dayjs(
+                                  newDivisions[index - 1][1],
+                                );
+                                if (dayjs(start).isAfter(prevEnd)) {
+                                  const newPrevEnd = dayjs(start).subtract(
+                                    1,
+                                    'day',
+                                  );
+                                  const prevRules =
+                                    getSpanRulesForMode(payPeriodMode);
+                                  const prevMinAllowedEnd = prevStart.add(
+                                    prevRules.min - 1,
+                                    'day',
+                                  );
+                                  const prevMaxAllowedEnd = prevStart.add(
+                                    prevRules.max - 1,
+                                    'day',
+                                  );
+
+                                  if (newPrevEnd.isBefore(prevMinAllowedEnd)) {
+                                    newDivisions[index][0] = prevEnd.add(
+                                      1,
+                                      'day',
+                                    );
+                                    const newStart = prevEnd.add(1, 'day');
+                                    const newMinAllowedEnd = newStart.add(
+                                      rules.min - 1,
+                                      'day',
+                                    );
+                                    const newMaxAllowedEnd = newStart.add(
+                                      rules.max - 1,
+                                      'day',
+                                    );
+                                    let newEnd = end;
+                                    if (newEnd.isBefore(newMinAllowedEnd)) {
+                                      newEnd = newMinAllowedEnd;
+                                    }
+                                    if (newEnd.isAfter(newMaxAllowedEnd)) {
+                                      newEnd = newMaxAllowedEnd;
+                                    }
+                                    newDivisions[index][1] = newEnd;
+                                    form.setFieldsValue({
+                                      [`range${index}`]: [newStart, newEnd],
+                                    });
+                                  } else {
+                                    const adjustedPrevEnd = newPrevEnd.isAfter(
+                                      prevMaxAllowedEnd,
+                                    )
+                                      ? prevMaxAllowedEnd
+                                      : newPrevEnd;
+                                    newDivisions[index - 1][1] =
+                                      adjustedPrevEnd;
+                                    form.setFieldsValue({
+                                      [`range${index - 1}`]: [
+                                        prevStart,
+                                        adjustedPrevEnd,
+                                      ],
+                                    });
+                                  }
+                                }
+                              }
+
+                              setDivisions(newDivisions);
+                            } else if (payPeriodMode === 'Monthly') {
+                              const fiscalEndDate = selectedFiscalYear?.endDate
+                                ? dayjs(selectedFiscalYear.endDate)
+                                : null;
+                              const fiscalStartDate =
+                                selectedFiscalYear?.startDate
+                                  ? dayjs(selectedFiscalYear.startDate)
+                                  : null;
+
+                              let adjustedStart = start;
+                              let adjustedEnd = end;
+
+                              if (
+                                fiscalEndDate &&
+                                adjustedEnd.isAfter(fiscalEndDate)
+                              ) {
+                                adjustedEnd = fiscalEndDate;
+                              }
+                              if (
+                                fiscalStartDate &&
+                                adjustedStart.isBefore(fiscalStartDate)
+                              ) {
+                                adjustedStart = fiscalStartDate;
+                              }
+
+                              const newDivisions = [...divisions];
+                              newDivisions[index] = [
+                                adjustedStart,
+                                adjustedEnd,
+                              ];
+                              form.setFieldsValue({
+                                [`range${index}`]: [adjustedStart, adjustedEnd],
+                              });
+
+                              setDivisions(newDivisions);
                             }
+                          }}
+                          disabledDate={(currentDate) => {
+                            const fiscalEndDate = selectedFiscalYear?.endDate
+                              ? dayjs(selectedFiscalYear.endDate)
+                              : null;
+                            const fiscalStartDate =
+                              selectedFiscalYear?.startDate
+                                ? dayjs(selectedFiscalYear.startDate)
+                                : null;
 
                             if (
                               fiscalEndDate &&
@@ -451,36 +652,6 @@ const PayPeriodSideBar = () => {
                               currentDate.isBefore(fiscalStartDate)
                             ) {
                               return true;
-                            }
-
-                            if (
-                              prevRangeEnd &&
-                              currentDate.isBefore(prevRangeEnd.add(1, 'day'))
-                            ) {
-                              return true;
-                            }
-
-                            // Only constrain window when selecting the end date for this specific range
-                            if (
-                              activePicker.index === index &&
-                              activePicker.part === 'end' &&
-                              startDate
-                            ) {
-                              const rules = getSpanRulesForMode(payPeriodMode);
-                              const minAllowedEnd = startDate.add(
-                                rules.min - 1,
-                                'day',
-                              );
-                              const maxAllowedEnd = startDate.add(
-                                rules.max - 1,
-                                'day',
-                              );
-                              if (
-                                currentDate.isBefore(minAllowedEnd) ||
-                                currentDate.isAfter(maxAllowedEnd)
-                              ) {
-                                return true;
-                              }
                             }
 
                             return false;

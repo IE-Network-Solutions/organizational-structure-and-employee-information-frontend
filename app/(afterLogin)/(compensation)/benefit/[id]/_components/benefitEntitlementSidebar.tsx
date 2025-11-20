@@ -221,12 +221,36 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         return dayjs(paymentDate).isBetween(start, end, 'day', '[]'); // FIX HERE
       });
 
+      // Calculate rounded amount for each period
+      const roundedAmount = Number(amountPerPeriod.toFixed(2));
+
       return {
         key: i,
-        amount: Number(amountPerPeriod).toFixed(2),
+        amount: roundedAmount,
         payPeriodId: matchedPeriod?.id ?? null,
       };
     });
+
+    // Calculate the sum of all rounded amounts
+    const sumOfAmounts = newData.reduce(
+      (sum, item) => sum + Number(item.amount),
+      0,
+    );
+
+    // Adjust the last element to ensure sum equals total
+    if (newData.length > 0) {
+      const lastIndex = newData.length - 1;
+      const difference = totalAmount - sumOfAmounts;
+
+      if (Math.abs(difference) > 0.001) {
+        // If sum is smaller, add the difference to last element
+        // If sum is greater, subtract the difference from last element (difference will be negative)
+        const lastAmount = Number(newData[lastIndex].amount);
+        newData[lastIndex].amount = Number(
+          (lastAmount + difference).toFixed(2),
+        );
+      }
+    }
 
     setData(newData);
     form.setFieldsValue({ payments: newData });

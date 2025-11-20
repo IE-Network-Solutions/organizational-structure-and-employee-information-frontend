@@ -38,23 +38,36 @@ const TransferTalentPoolToCandidateModal: React.FC<
   };
   return (
     <CustomDrawerLayout
+      data-cy="talent-acquisition-talent-pool-modal-reonboard"
       open={visible}
       onClose={onCancel}
       modalHeader={
-        <div className="flex justify-start  text-xl font-extrabold text-gray-800">
+        <div
+          id="talent-acquisition-talent-pool-modal-header-reonboard"
+          data-cy="talent-acquisition-talent-pool-modal-header-reonboard"
+          className="flex justify-start  text-xl font-extrabold text-gray-800"
+        >
           Re-onboard
         </div>
       }
       width="40%"
       footer={
-        <div className="flex justify-center items-center space-x-5 p-2">
+        <div
+          id="talent-acquisition-talent-pool-modal-footer-reonboard"
+          data-cy="talent-acquisition-talent-pool-modal-footer-reonboard"
+          className="flex justify-center items-center space-x-5 p-2"
+        >
           <Button
+            id="talent-acquisition-talent-pool-button-reonboard-cancel"
+            data-cy="talent-acquisition-talent-pool-button-reonboard-cancel"
             onClick={onCancel}
             className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300 "
           >
             Cancel
           </Button>
           <Button
+            id="talent-acquisition-talent-pool-button-reonboard-submit"
+            data-cy="talent-acquisition-talent-pool-button-reonboard-submit"
             className=" p-4 px-10 h-10"
             type="primary"
             onClick={handleFinish}
@@ -65,6 +78,8 @@ const TransferTalentPoolToCandidateModal: React.FC<
       }
     >
       <Form
+        id="talent-acquisition-talent-pool-form-reonboard"
+        data-cy="talent-acquisition-talent-pool-form-reonboard"
         form={form}
         layout="vertical"
         onFinish={handleFinish}
@@ -73,7 +88,10 @@ const TransferTalentPoolToCandidateModal: React.FC<
         <Form.Item
           name="departmentId"
           label={
-            <span className="text-md my-2 font-semibold text-gray-700">
+            <span
+              data-cy="talent-acquisition-talent-pool-form-label-department"
+              className="text-md my-2 font-semibold text-gray-700"
+            >
               Select Department
             </span>
           }
@@ -86,13 +104,19 @@ const TransferTalentPoolToCandidateModal: React.FC<
         >
           <Select
             id="selectDepartment"
+            data-cy="talent-acquisition-talent-pool-select-department-reonboard"
             placeholder="Select Department"
             allowClear
             className="w-full h-10"
           >
             {EmployeeDepartment &&
               EmployeeDepartment?.map((item: any) => (
-                <Select.Option key={item?.id} value={item?.id}>
+                <Select.Option
+                  key={item?.id}
+                  value={item?.id}
+                  id={`talent-acquisition-talent-pool-option-department-reonboard-${item?.id}`}
+                  data-cy={`talent-acquisition-talent-pool-option-department-reonboard-${item?.id}`}
+                >
                   {item?.name}
                 </Select.Option>
               ))}
@@ -101,7 +125,10 @@ const TransferTalentPoolToCandidateModal: React.FC<
         <Form.Item
           name="jobInformations"
           label={
-            <span className="text-md my-2 font-semibold text-gray-700">
+            <span
+              data-cy="talent-acquisition-talent-pool-form-label-job-information"
+              className="text-md my-2 font-semibold text-gray-700"
+            >
               Job Information
             </span>
           }
@@ -113,12 +140,19 @@ const TransferTalentPoolToCandidateModal: React.FC<
           ]}
         >
           <Select
+            id="talent-acquisition-talent-pool-select-job-information"
+            data-cy="talent-acquisition-talent-pool-select-job-information"
             mode="multiple"
             placeholder="Select Job Information"
             className="h-10"
           >
             {jobInformations?.items?.map((jobInformation: any) => (
-              <Select.Option key={jobInformation.id} value={jobInformation.id}>
+              <Select.Option
+                key={jobInformation.id}
+                value={jobInformation.id}
+                id={`talent-acquisition-talent-pool-option-job-${jobInformation.id}`}
+                data-cy={`talent-acquisition-talent-pool-option-job-${jobInformation.id}`}
+              >
                 {jobInformation.jobTitle}
               </Select.Option>
             ))}

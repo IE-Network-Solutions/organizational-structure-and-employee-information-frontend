@@ -7,6 +7,7 @@ import { useCreateAllowanceEntitlement } from '@/store/server/features/compensat
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
 
 const AllowanceEntitlementSideBar = () => {
   const {
@@ -23,6 +24,7 @@ const AllowanceEntitlementSideBar = () => {
   // const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
+  const { data: allowanceData } = useFetchAllowance(id);
 
   const onClose = () => {
     form.resetFields();
@@ -34,6 +36,7 @@ const AllowanceEntitlementSideBar = () => {
     createAllowanceEntitlement({
       compensationItemId: id,
       employeeIds: formValues.employees,
+      totalAmount: Number(allowanceData?.defaultAmount || 0),
       active: true,
     });
     onClose();
