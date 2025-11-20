@@ -1,22 +1,15 @@
-import { Card, Select, Skeleton, Spin, Tag, Tooltip } from 'antd';
+import { Card, Skeleton, Spin, Tag, Tooltip } from 'antd';
 import React from 'react';
 import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import dayjs from 'dayjs';
-import { useGetLeaveBalanceExpiring } from '@/store/server/features/timesheet/leaveExpiry/queries';
+
 const MyleaveBalance: React.FC = () => {
   const { userId } = useAuthenticationStore();
-
-  const {
-    leaveTypeId,
-    startDate,
-    endDate,
-    setLeaveTypeId,
-    monthsAheadOnLeaveBalanceExpiring,
-    setMonthsAheadOnLeaveBalanceExpiring,
-  } = TimeAndAttendaceDashboardStore();
+  const { leaveTypeId, startDate, endDate, setLeaveTypeId } =
+    TimeAndAttendaceDashboardStore();
   const { data: userLeaveBalance, isLoading: userLeaveBalanceLoading } =
     useGetUserLeaveBalance(
       userId as string,
@@ -26,12 +19,6 @@ const MyleaveBalance: React.FC = () => {
     );
   const { data: leaveBalance, isLoading: leaveBalanceLoading } =
     useGetLeaveBalance(userId as string, '');
-  const { data: leaveBalanceExpiring, isLoading: leaveBalanceExpiringLoading } =
-    useGetLeaveBalanceExpiring(
-      userId as string,
-      leaveTypeId || '',
-      monthsAheadOnLeaveBalanceExpiring,
-    );
   const statusColors: { [key: string]: string } = {
     approved: 'text-[#3636F0] bg-[#B2B2FF]',
     pending: 'text-[#FFD023] bg-[#FFDE6533]',
@@ -41,7 +28,7 @@ const MyleaveBalance: React.FC = () => {
   return (
     <div>
       <h2 className="text-[24px] font-bold mb-4">My Leave Balance</h2>
-      <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2">
+      <div className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-none pb-2">
         {leaveBalanceLoading && <Skeleton active />}
         {leaveBalance?.items?.items?.map((item: any, index: number) => (
           <Card
@@ -82,59 +69,46 @@ const MyleaveBalance: React.FC = () => {
           </Card>
         ))}
       </div>
-
       {/* Entitlement and Utilization */}
       <div className="grid grid-cols-12 gap-4 mt-4">
         <Card
           bodyStyle={{ padding: '0px' }}
-          className="shadow-sm rounded-lg col-span-3 h-fit"
+          className="shadow-sm rounded-lg md:col-span-3 col-span-12 h-fit"
           loading={userLeaveBalanceLoading}
         >
-          <div className="flex flex-col">
-            <div className="py-4 border-b border[3px] border-gray-200">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
+          <div className="flex md:flex-col flex-row">
+            <div className="py-4  md:border-b border-r border[3px] border-gray-200">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                   Entitled
                 </span>
-                <span className="text-[16px] font-bold text-black w-20">
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
                   {Number(
                     userLeaveBalance?.data?.totals?.totalEntitledDays,
                   )?.toLocaleString() || 0}
                 </span>
               </div>
             </div>
-            <div className="py-4 border-b border[3px] border-gray-200">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
+            <div className="py-4  md:border-b border-r border[3px] border-gray-200">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                   Accured
                 </span>
-                <span className="text-[16px] font-bold text-black w-20">
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
                   {Number(
                     userLeaveBalance?.data?.totals?.totalAccrued,
                   )?.toLocaleString() || 0}
                 </span>
               </div>
             </div>
-            <div className="py-4 border-b border[3px] border-gray-200">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
+            <div className="py-4  md:border-b border-r border[3px] border-gray-200">
+              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
+                <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
                   Carried over
                 </span>
-                <span className="text-[16px] font-bold text-black w-20">
+                <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
                   {Number(
                     userLeaveBalance?.data?.totals?.totalCarriedOver,
-                  )?.toLocaleString() || 0}
-                </span>
-              </div>
-            </div>
-            <div className="py-4 md:border-b border-r border[3px] border-gray-200">
-              <div className="flex items-center justify-center gap-4 px-4">
-                <span className="text-[16px] text-black font-medium text-right w-32">
-                  Total Utilized
-                </span>
-                <span className="text-[16px] font-bold text-black w-20">
-                  {Number(
-                    userLeaveBalance?.data?.totals?.totalUtilizedLeaves,
                   )?.toLocaleString() || 0}
                 </span>
               </div>
@@ -142,56 +116,30 @@ const MyleaveBalance: React.FC = () => {
             <div className="py-4">
               <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2  ">
                 <span className="md:text-[16px] text-[10px] text-black font-medium text-right md:w-32">
-                  About to expire
+                  Total Utilized
                 </span>
                 <span className="md:text-[16px] text-[14px] font-bold text-black md:w-20">
-                  {Number.isNaN(
-                    Number(leaveBalanceExpiring?.totalExpiringAmount),
-                  )
-                    ? '-'
-                    : Number(
-                        leaveBalanceExpiring?.totalExpiringAmount,
-                      )?.toLocaleString() || 0}
+                  {Number(
+                    userLeaveBalance?.data?.totals?.totalUtilizedLeaves,
+                  )?.toLocaleString() || 0}
                 </span>
-              </div>
-              <div className="flex items-center justify-center md:gap-4 gap-2 md:px-4 px-2">
-                <Select
-                  loading={leaveBalanceExpiringLoading}
-                  value={Number(monthsAheadOnLeaveBalanceExpiring)}
-                  size="small"
-                  className="w-30"
-                  onSelect={(value: number) => {
-                    setMonthsAheadOnLeaveBalanceExpiring(String(value));
-                  }}
-                >
-                  {/*  eslint-disable-next-line @typescript-eslint/naming-convention */}
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                    /*  eslint-enable-next-line @typescript-eslint/naming-convention */
-                    <Select.Option
-                      key={month}
-                      value={month}
-                      label={`${month} ${month === 1 ? 'Month' : 'Months'}`}
-                    >
-                      In {month} {month === 1 ? 'Month' : 'Months'}
-                    </Select.Option>
-                  ))}
-                </Select>
               </div>
             </div>
           </div>
         </Card>
 
+        {/* Utilization Card */}
         <Card
-          bodyStyle={{ padding: '16px 24px' }}
-          className="shadow-sm col-span-9 mb-5"
+          bodyStyle={{ padding: '16px 20px' }}
+          className="shadow-sm md:col-span-9 col-span-12 mb-5"
           title={
-            <span className="text-[12px] font-bold text-black">
+            <span className="text-xs sm:text-sm font-bold text-black">
               Utilization
             </span>
           }
         >
           <Spin spinning={userLeaveBalanceLoading}>
-            <div className="flex flex-col space-y-2 h-36 overflow-y-auto scrollbar-none pr-2">
+            <div className="flex flex-col space-y-3 h-36 overflow-y-auto scrollbar-none pr-2">
               {userLeaveBalanceLoading && <Skeleton active />}
               {userLeaveBalance?.data?.utilizedLeaves.length > 0 ? (
                 userLeaveBalance?.data?.utilizedLeaves.map((leave: any) => (
@@ -202,18 +150,18 @@ const MyleaveBalance: React.FC = () => {
                     <div className="flex items-start justify-between px-4 py-2">
                       <div className="space-y-1">
                         <div className="flex items-center">
-                          <span className="text-[16px] font-bold text-black">
+                          <span className="md:text-[16px] font-bold text-black">
                             {leave.totalDays}{' '}
                             {leave.totalDays > 1 ? 'Days' : 'Day'}
                           </span>
                         </div>
-                        <p className="text-[14px] text-[#111827] font-regular">
+                        <p className="md:text-[14px] text-[12px] text-[#111827] font-regular">
                           {dayjs(leave.startDate).format('DD MMM YYYY')} -{' '}
                           {dayjs(leave.endDate).format('DD MMM YYYY')}
                         </p>
                       </div>
                       <div className="text-right space-y-1">
-                        <p className="text-[14px] text-[#111827] font-regular">
+                        <p className="md:text-[14px] text-[12px] text-[#111827] font-regular">
                           Requested:{' '}
                           {dayjs(leave.createdAt).format('DD MMM YYYY')}
                         </p>
