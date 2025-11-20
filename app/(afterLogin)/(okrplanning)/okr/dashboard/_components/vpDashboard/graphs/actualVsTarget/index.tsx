@@ -63,19 +63,69 @@ const ActualVsTargetChart: React.FC<CriteriaContributionProps> = ({
   };
 
   return (
-    <div className="">
-      <div className="flex items-center justify-between mb-4">
-        <Title level={5}>Actual Vs Target</Title>
+    <div
+      id="okr-actualvstarget-container-display-div"
+      data-cy="okr-actualvstarget-container-display-div"
+    >
+      <div
+        className="flex items-center justify-between mb-4"
+        id="okr-actualvstarget-header-display-div"
+        data-cy="okr-actualvstarget-header-display-div"
+      >
+        <Title
+          level={5}
+          id="okr-actualvstarget-title-display-title"
+          data-cy="okr-actualvstarget-title-display-title"
+        >
+          Actual Vs Target
+        </Title>
       </div>
-      <Bar data={data} options={options} />
-      <div className="flex items-center justify-start mt-4 ml-6 gap-4 ">
-        <div className="flex justify-center items-center gap-1">
-          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-full bg-[#3636F0] text-[#3636F0]" />
-          <span className="text-gray-500">Target Value</span>
+      <Bar
+        data={data}
+        options={options}
+        id="okr-actualvstarget-bar-chart-display-chart"
+        data-cy="okr-actualvstarget-bar-chart-display-chart"
+      />
+      <div
+        className="flex items-center justify-start mt-4 ml-6 gap-4 "
+        id="okr-actualvstarget-legend-display-div"
+        data-cy="okr-actualvstarget-legend-display-div"
+      >
+        <div
+          className="flex justify-center items-center gap-1"
+          id="okr-actualvstarget-legend-target-display-div"
+          data-cy="okr-actualvstarget-legend-target-display-div"
+        >
+          <MdCheckBoxOutlineBlank
+            className="w-4 h-4 rounded-full bg-[#3636F0] text-[#3636F0]"
+            id="okr-actualvstarget-legend-target-color-display-icon"
+            data-cy="okr-actualvstarget-legend-target-color-display-icon"
+          />
+          <span
+            className="text-gray-500"
+            id="okr-actualvstarget-legend-target-label-display-span"
+            data-cy="okr-actualvstarget-legend-target-label-display-span"
+          >
+            Target Value
+          </span>
         </div>
-        <div className="flex justify-center items-center gap-1">
-          <MdCheckBoxOutlineBlank className="w-4 h-4 rounded-full bg-[#B2B2FF] text-[#B2B2FF]" />
-          <span className="text-gray-500">Actual Value</span>
+        <div
+          className="flex justify-center items-center gap-1"
+          id="okr-actualvstarget-legend-actual-display-div"
+          data-cy="okr-actualvstarget-legend-actual-display-div"
+        >
+          <MdCheckBoxOutlineBlank
+            className="w-4 h-4 rounded-full bg-[#B2B2FF] text-[#B2B2FF]"
+            id="okr-actualvstarget-legend-actual-color-display-icon"
+            data-cy="okr-actualvstarget-legend-actual-color-display-icon"
+          />
+          <span
+            className="text-gray-500"
+            id="okr-actualvstarget-legend-actual-label-display-span"
+            data-cy="okr-actualvstarget-legend-actual-label-display-span"
+          >
+            Actual Value
+          </span>
         </div>
       </div>
     </div>
