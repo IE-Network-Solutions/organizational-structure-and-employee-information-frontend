@@ -49,6 +49,7 @@ interface CollapseComponentProps {
     id: string,
     keyResultId?: string,
     milestoneId?: string | null,
+    parentTaskId?: string | null,
   ) => void;
   handleAddName: (arg1: Record<string, string>, arg2: string) => void;
   handleRemoveBoard: (arg1: number, arg2: string) => void;
@@ -158,6 +159,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                     compositeKey,
                                     String(keyResult?.id || ''),
                                     milestone?.id ? String(milestone.id) : null,
+                                    task?.id ? String(task.id) : null,
                                   );
                                 }}
                                 type="link"
@@ -299,6 +301,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                     compositeKey,
                                     String(keyResult?.id || ''),
                                     null,
+                                    task?.id ? String(task.id) : null,
                                   )
                                 }
                                 type="link"

@@ -42,6 +42,7 @@ interface CollapseComponentProps {
     id: string,
     keyResultId?: string,
     milestoneId?: string | null,
+    parentTaskId?: string | null,
   ) => void;
   handleAddName: (arg1: Record<string, string>, arg2: string) => void;
   handleRemoveBoard: (arg1: number, arg2: string) => void;

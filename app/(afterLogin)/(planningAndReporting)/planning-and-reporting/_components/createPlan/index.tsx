@@ -99,6 +99,9 @@ function CreatePlan() {
         targetValue: task.planTask?.targetValue || null,
         milestoneId: task.planTask?.milestone?.id || null,
         keyResultId: keyResultId,
+        planTaskId: task.planTask?.id || null, // Include planTaskId to identify the specific task
+        parentTaskId:
+          task.planTask?.parentTaskId || task.planTask?.parentTask?.id || null, // Include parentTaskId to match to parent tasks
       });
     });
 
@@ -170,25 +173,39 @@ function CreatePlan() {
                   ) =>
                     `${String(krId ?? '')}${String(msId ?? '')}${String(tId ?? '')}`;
 
-                  const compositeKey = buildKey(
-                    task?.keyResult?.id,
-                    task?.milestone?.id,
-                    task?.id,
+                  const taskId = String(task?.id || '');
+                  const matchingFailedTasks = failedTasks.filter(
+                    (failedTask: any) => {
+                      if (failedTask.parentTaskId) {
+                        return String(failedTask.parentTaskId) === taskId;
+                      }
+                      if (failedTask.planTaskId) {
+                        return String(failedTask.planTaskId) === taskId;
+                      }
+                      return failedTask.task === task.task;
+                    },
                   );
 
-                  const boardsKey = `board-${compositeKey}`;
-                  const existingBoard = form.getFieldValue(boardsKey) || [];
-
-                  // Only add if not already populated
-                  if (existingBoard.length === 0) {
-                    formUpdates[boardsKey] = failedTasks.map(
-                      (failedTask: any) => ({
-                        task: failedTask.task,
-                        priority: failedTask.priority,
-                        weight: failedTask.weight,
-                        targetValue: failedTask.targetValue,
-                      }),
+                  if (matchingFailedTasks.length > 0) {
+                    const compositeKey = buildKey(
+                      task?.keyResult?.id,
+                      task?.milestone?.id,
+                      task?.id,
                     );
+
+                    const boardsKey = `board-${compositeKey}`;
+                    const existingBoard = form.getFieldValue(boardsKey) || [];
+
+                    if (existingBoard.length === 0) {
+                      formUpdates[boardsKey] = matchingFailedTasks.map(
+                        (failedTask: any) => ({
+                          task: failedTask.task,
+                          priority: failedTask.priority,
+                          weight: failedTask.weight,
+                          targetValue: failedTask.targetValue,
+                        }),
+                      );
+                    }
                   }
                 }
               }
@@ -207,20 +224,44 @@ function CreatePlan() {
                   kr.milestones.forEach((ml: any) => {
                     const mlId = String(ml?.id || '');
                     if (mlId === milestoneKey) {
-                      const compositeKey = krId + mlId;
-                      const boardsKey = `board-${compositeKey}`;
-                      const existingBoard = form.getFieldValue(boardsKey) || [];
-
-                      if (existingBoard.length === 0) {
-                        formUpdates[boardsKey] = failedTasks.map(
-                          (failedTask: any) => ({
-                            task: failedTask.task,
-                            priority: failedTask.priority,
-                            weight: failedTask.weight,
-                            targetValue: failedTask.targetValue,
-                          }),
+                      const buildKey = (
+                        krId?: string | number,
+                        msId?: string | number | null,
+                        tId?: string | number | null,
+                      ) =>
+                        `${String(krId ?? '')}${String(msId ?? '')}${String(tId ?? '')}`;
+                      ml.tasks?.forEach((task: any) => {
+                        const taskId = String(task?.id || '');
+                        const matchingFailedTasks = failedTasks.filter(
+                          (failedTask: any) => {
+                            if (failedTask.parentTaskId) {
+                              return String(failedTask.parentTaskId) === taskId;
+                            }
+                            if (failedTask.planTaskId) {
+                              return String(failedTask.planTaskId) === taskId;
+                            }
+                            return failedTask.task === task.task;
+                          },
                         );
-                      }
+
+                        if (matchingFailedTasks.length > 0) {
+                          const compositeKey = buildKey(krId, mlId, taskId);
+                          const boardsKey = `board-${compositeKey}`;
+                          const existingBoard =
+                            form.getFieldValue(boardsKey) || [];
+
+                          if (existingBoard.length === 0) {
+                            formUpdates[boardsKey] = matchingFailedTasks.map(
+                              (failedTask: any) => ({
+                                task: failedTask.task,
+                                priority: failedTask.priority,
+                                weight: failedTask.weight,
+                                targetValue: failedTask.targetValue,
+                              }),
+                            );
+                          }
+                        }
+                      });
                     }
                   });
                 } else if (milestoneKey === 'noMilestone' && !kr?.milestones) {
@@ -293,11 +334,12 @@ function CreatePlan() {
     kId: string,
     keyResultId?: string,
     milestoneId?: string | null,
+    parentTaskId?: string | null,
   ) => {
     const boardsKey = `board-${kId}`;
     const board = form.getFieldValue(boardsKey) || [];
 
-    // Check if there are failed tasks for this key result and milestone
+    // Check if there are failed tasks for this key result, milestone, and parent task
     let failedTaskToFill = null;
     if (keyResultId) {
       const keyResultFailedTasks = failedTasksByKeyResult[keyResultId];
@@ -305,17 +347,34 @@ function CreatePlan() {
         const milestoneKey = milestoneId ? String(milestoneId) : 'noMilestone';
         const failedTasks = keyResultFailedTasks[milestoneKey];
         if (failedTasks && failedTasks.length > 0) {
-          // Use the first failed task
-          failedTaskToFill = failedTasks[0];
+          if (parentTaskId) {
+            const parentIdStr = String(parentTaskId);
+            failedTaskToFill =
+              failedTasks.find((failedTask: any) => {
+                if (failedTask.parentTaskId) {
+                  return String(failedTask.parentTaskId) === parentIdStr;
+                }
+                if (failedTask.planTaskId) {
+                  return String(failedTask.planTaskId) === parentIdStr;
+                }
+                return false;
+              }) || null;
+          }
+
+          // Only fall back to the first failed task if no specific parent task was provided
+          if (!failedTaskToFill && !parentTaskId) {
+            failedTaskToFill = failedTasks[0];
+          }
         }
       }
     }
 
-    // If there's a failed task, populate the board with it
-    if (failedTaskToFill) {
+    // If there's a failed task and the board is empty, populate the board with it
+    // Otherwise, add an empty task
+    if (failedTaskToFill && board.length === 0) {
+      // Only add failed task if board is empty (first time adding)
       form.setFieldsValue({
         [boardsKey]: [
-          ...board,
           {
             task: failedTaskToFill.task,
             priority: failedTaskToFill.priority,
@@ -325,6 +384,7 @@ function CreatePlan() {
         ],
       });
     } else {
+      // Add empty task (either no failed task, or board already has tasks)
       form.setFieldsValue({ [boardsKey]: [...board, {}] });
     }
   };
