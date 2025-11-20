@@ -1,3 +1,4 @@
+import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -16,6 +17,8 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
     useGetPermissionsWithOutPagination();
   const { data: rolesWithPermission, error: roleError } =
     useGetRolesWithPermission();
+  const { data: groupPermissionData } =
+    useGetPermissionGroupsWithOutPagination();
   const {
     setSelectedRoleOnOption,
     setSelectedRoleOnList,
@@ -23,6 +26,13 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
   } = useSettingStore();
   const { selectedPermissions, setSelectedPermissions } =
     useEmployeeManagementStore();
+
+  // Calculate basic group permissions
+  const basicGroupPermissionId =
+    groupPermissionData?.items?.filter((item) => item.isBasic) ?? [];
+  const basicGroupPermissions = basicGroupPermissionId.flatMap(
+    (item) => item.permissions ?? [],
+  );
 
   const onRoleChangeHandler = useCallback(
     (value: string) => {
@@ -32,8 +42,16 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
       setSelectedRoleOnList(selectedRole);
       setSelectedRoleOnOption(value);
 
-      const newPermissions =
+      const rolePermissions =
         selectedRole?.permissions?.map((item: any) => item.id) || [];
+
+      // Include basic group permissions along with role permissions
+      const newPermissions = Array.from(
+        new Set([
+          ...rolePermissions,
+          ...(basicGroupPermissions?.map((perm) => perm.id) ?? []),
+        ]),
+      );
       setSelectedPermissions(newPermissions);
     },
     [
@@ -41,6 +59,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
       setSelectedRoleOnList,
       setSelectedRoleOnOption,
       setSelectedPermissions,
+      basicGroupPermissions,
     ],
   );
 
@@ -54,14 +73,13 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
   useEffect(() => {
     form.setFieldsValue({
       setOfPermission: selectedPermissions,
-      set: 'ahmedin',
+      roleId: selectedRoleOnOption,
     });
-  }, [selectedPermissions, form]);
+  }, [selectedPermissions, selectedRoleOnOption, form]);
 
   if (permissionError || roleError) {
     return <div>Error loading data</div>; // Handle errors gracefully
   }
-
   return (
     <div>
       <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">

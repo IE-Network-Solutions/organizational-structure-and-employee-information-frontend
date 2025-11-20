@@ -15,6 +15,10 @@ import {
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { FormInstance } from 'antd/lib';
@@ -53,10 +57,8 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
         return false;
       const fyStart = dayjs(fy.startDate);
       const fyEnd = dayjs(fy.endDate);
-      // Overlap if start is before their end and end is after their start
       return (
-        start.isBefore(fyEnd.add(1, 'day')) &&
-        end.isAfter(fyStart.subtract(1, 'day'))
+        start.isSameOrBefore(fyEnd, 'day') && end.isSameOrAfter(fyStart, 'day')
       );
     });
   };
@@ -406,7 +408,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
             message.error('Failed to update form values. Please try again.');
           }
         }}
-        className="flex flex-col flex-grow h-full"
+        className="flex flex-col flex-grow h-full px-4"
       >
         <div
           className="flex flex-col justify-between h-full "
@@ -546,7 +548,10 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                         data-cy="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-3"
                         id="org-fiscalyear-customdrawer-steps-fiscalyeardrawer-span-3"
                       >
+<<<<<<< HEAD
                         {' '}
+=======
+>>>>>>> 2e728f2ec95b53907d784403679ce58a1b02a396
                         End Date
                       </span>
                     }

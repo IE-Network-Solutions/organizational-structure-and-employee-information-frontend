@@ -364,6 +364,10 @@ const MonthDrawer: React.FC<
       onFinish={onSubmit}
       data-cy="org-settings-fiscal-year-month-drawer-form"
       id="org-settings-fiscal-year-month-drawer-form"
+<<<<<<< HEAD
+=======
+      className="px-4"
+>>>>>>> 2e728f2ec95b53907d784403679ce58a1b02a396
     >
       <div
         className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0 items-center w-full h-full`}

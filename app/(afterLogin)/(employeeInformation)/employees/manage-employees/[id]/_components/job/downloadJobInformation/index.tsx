@@ -124,10 +124,13 @@ const getPronoun = (
 
 const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   const { data: employeeData } = useGetEmployee(id);
+  console.log('employeeData', employeeData);
   const { data: allEmployeesData } = useGetAllUsersData(); // Fetch all employees with full data
+  console.log('allEmployeesData', allEmployeesData);
   const { data: companyInfo } = useGetCompanyProfileByTenantId(
     employeeData?.tenantId,
   );
+  console.log('companyInfo', companyInfo);
   const { data: basicSalaryData } = useGetBasicSalaryById(id);
   const [isGenerating, setIsGenerating] = React.useState(false);
 

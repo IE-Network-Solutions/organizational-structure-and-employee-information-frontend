@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 if (!self.define) {
   let e,
     t = {};
@@ -2503,3 +2504,4 @@ define(['./workbox-00a24876'], function (e) {
       'GET',
     ));
 });
+
