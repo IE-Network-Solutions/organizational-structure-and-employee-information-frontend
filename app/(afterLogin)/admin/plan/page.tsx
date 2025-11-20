@@ -403,23 +403,6 @@ const PlanPage = () => {
     return dayjs(dateString).format('MMMM D, YYYY');
   };
 
-  // Calculate total amount based on selected options - simplified version
-  const calculateTotalAmount = () => {
-    if (!currentPlan || !updatedQuota || !selectedPeriodType) return 0;
-
-    // Get current plan period
-    const planPeriod = currentPlan.periods?.find(
-      (pp) => pp.periodTypeId === selectedPeriodType.id,
-    );
-
-    // Get slot price (either period-specific or from the plan)
-    const slotPrice = planPeriod?.periodSlotPrice || currentPlan.slotPrice;
-
-    // Simple calculation: quota * price
-    return updatedQuota * slotPrice;
-  };
-
-  const totalAmount = calculateTotalAmount();
   const isLoading =
     isSubscriptionsLoading || isPlansLoading || isPeriodTypesLoading;
 
