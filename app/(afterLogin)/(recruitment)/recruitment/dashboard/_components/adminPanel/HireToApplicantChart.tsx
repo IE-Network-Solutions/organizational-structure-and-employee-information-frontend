@@ -58,17 +58,22 @@ export default function HireToApplicantChart() {
   };
 
   return (
-    <Card className="shadow-lg mx-1 ">
-      <h3 className="font-semibold mb-4 text-[16px]">
+    <Card data-cy="talent-acquisition-hire-applicant-chart-card" className="shadow-lg mx-1 ">
+      <h3 data-cy="talent-acquisition-hire-applicant-chart-h3" className="font-semibold mb-4 text-[16px]">
         Hire to applicant Trend
       </h3>
       {isLoading ? (
-        <div className="flex justify-center items-center ">
+        <div id="talent-acquisition-hire-applicant-chart-div-loading" data-cy="talent-acquisition-hire-applicant-chart-div-loading" className="flex justify-center items-center ">
           <Spin size="large" />
         </div>
       ) : (
-        <div className="flex justify-center items-center md:h-[300px] h-[200px]">
-          <Bar options={options} data={chartData} />
+        <div
+          id="talent-acquisition-hire-applicant-chart-div-chart"
+          data-cy="talent-acquisition-hire-applicant-chart-div-chart"
+          className="flex justify-center items-center"
+          style={{ height: '300px' }}
+        >
+          <Bar  data-cy="talent-acquisition-hire-applicant-chart-bar" options={options} data={chartData} />
         </div>
       )}
     </Card>

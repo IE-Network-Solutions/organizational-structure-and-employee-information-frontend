@@ -63,6 +63,7 @@ function TalentPoolCategoryTab() {
           <Button
             type="primary"
             id="createTalentPoolButton"
+            data-cy="talent-acquisition-talent-pool-category-button-new"
             onClick={openDrawer}
             className="h-10 w-10 sm:w-auto"
             icon={<FaPlus />}
@@ -95,6 +96,8 @@ function TalentPoolCategoryTab() {
                 >
                   <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
                     <Pencil
+                      id={`talent-acquisition-talent-pool-category-button-edit-${talentPool?.id}`}
+                      data-cy={`talent-acquisition-talent-pool-category-button-edit-${talentPool?.id}`}
                       size={15}
                       className="text-white cursor-pointer"
                       onClick={() => handleEditTalentPoolCategory(talentPool)}
@@ -106,6 +109,8 @@ function TalentPoolCategoryTab() {
                 >
                   <div className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center">
                     <Trash2
+                      id={`talent-acquisition-talent-pool-category-button-delete-${talentPool?.id}`}
+                      data-cy={`talent-acquisition-talent-pool-category-button-delete-${talentPool?.id}`}
                       size={15}
                       className="text-white cursor-pointer"
                       onClick={() => handleDeleteTalentPoolCategory(talentPool)}

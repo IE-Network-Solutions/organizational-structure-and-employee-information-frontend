@@ -70,15 +70,48 @@ const JobPostPerformance = () => {
     startDate: jobPostStartDate,
     endDate: jobPostEndDate,
   });
+  return (
+    <Card
+      bodyStyle={{ padding: '0px' }}
+      className="bg-white p-6 rounded-xl shadow-lg mx-1"
+      data-cy="talent-acquisition-job-post-performance-card"
+    >
+      <div id="talent-acquisition-job-post-performance-div-header" data-cy="talent-acquisition-job-post-performance-div-header" className="flex justify-between items-center mb-6">
+        <h2 id="talent-acquisition-job-post-performance-h2" data-cy="talent-acquisition-job-post-performance-h2" className="text-[16px] font-bold">Job Post Performance</h2>
+        <Button
+          id="talent-acquisition-job-post-performance-button-export"
+          data-cy="talent-acquisition-job-post-performance-button-export"
+          icon={<LuFileDown />}
+          type="default"
+          onClick={handleExport}
+          loading={isExporting}
+          className="h-12 w-28"
+        >
+          Export
+        </Button>
+      </div>
 
-  const MobileFilterContent = () => (
-    <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
-
-      {/* Department */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Department</label>
+      <div id="talent-acquisition-job-post-performance-div-filters" data-cy="talent-acquisition-job-post-performance-div-filters" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <Select
+          id="talent-acquisition-job-post-performance-select-job"
+          data-cy="talent-acquisition-job-post-performance-select-job"
+          placeholder="Job"
+          allowClear
+          showSearch
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          loading={jobsLoading}
+          options={jobOptions}
+          onChange={(value) => setJobPostJobId(value)}
+          className="h-14"
+        />
+        <Select
+          id="talent-acquisition-job-post-performance-select-department"
+          data-cy="talent-acquisition-job-post-performance-select-department"
           placeholder="Department"
           allowClear
           showSearch
@@ -100,6 +133,8 @@ const JobPostPerformance = () => {
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Date Range</label>
         <RangePicker
+          id="talent-acquisition-job-post-performance-date-picker"
+          data-cy="talent-acquisition-job-post-performance-date-picker"
           placeholder={['Start Date', 'End Date']}
           allowClear
           className="w-full h-12"

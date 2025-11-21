@@ -55,9 +55,11 @@ export default function CandidateTable({
   ];
 
   return (
-    <div>
-      <Spin spinning={isLoading}>
+    <div id="talent-acquisition-dashboard-candidate-table-div-container" data-cy="talent-acquisition-dashboard-candidate-table-div-container">
+      <Spin  data-cy="talent-acquisition-dashboard-candidate-table-spin" spinning={isLoading}>
         <Table
+          id="talent-acquisition-dashboard-candidate-table"
+          data-cy="talent-acquisition-dashboard-candidate-table"
           columns={columns}
           dataSource={data?.results}
           pagination={false}
@@ -66,6 +68,7 @@ export default function CandidateTable({
         />
 
         <CustomPagination
+          data-cy="talent-acquisition-dashboard-candidate-pagination"
           total={data?.total}
           pageSize={limit}
           current={page}

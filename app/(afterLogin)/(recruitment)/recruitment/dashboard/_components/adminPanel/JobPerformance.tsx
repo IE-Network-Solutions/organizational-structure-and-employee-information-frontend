@@ -65,8 +65,10 @@ export default function JobPerformance({
     },
   ];
   return (
-    <div>
+    <div id="talent-acquisition-dashboard-job-performance-div-container" data-cy="talent-acquisition-dashboard-job-performance-div-container">
       <Table
+        id="talent-acquisition-dashboard-job-performance-table"
+        data-cy="talent-acquisition-dashboard-job-performance-table"
         columns={columns}
         dataSource={data?.results}
         loading={isLoading}
@@ -76,6 +78,7 @@ export default function JobPerformance({
       />
 
       <CustomPagination
+        data-cy="talent-acquisition-dashboard-job-performance-pagination"
         total={data?.total}
         pageSize={jobPostLimit}
         current={jobPostPage}
