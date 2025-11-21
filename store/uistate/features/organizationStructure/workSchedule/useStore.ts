@@ -66,7 +66,9 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
                       data.startTime !== undefined
                         ? data.startTime
                         : dayItem.startTime,
-                      data.endTime !== undefined ? data.endTime : dayItem.endTime,
+                      data.endTime !== undefined
+                        ? data.endTime
+                        : dayItem.endTime,
                     )
                   : data.workDay !== undefined && !data.workDay
                     ? 0 // Set duration to 0 when workDay is disabled

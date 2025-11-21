@@ -14,7 +14,6 @@ import {
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
 import { FiTrash2 } from 'react-icons/fi';
-import Link from 'next/link';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import BranchTransferRequest from '../branchTransferRequest';
 import { Upload } from 'antd';
@@ -347,34 +346,30 @@ function BasicInfo({ id }: { id: string }) {
         </List.Item>
         {employeeData?.delegatedTo?.id || employeeData?.reportingTo?.id ? (
           hasAccess ? (
-            <Link
-              href={`/employees/manage-employees/${employeeData?.delegatedTo?.id ?? employeeData?.reportingTo?.id}`}
+            <List.Item
+              key="Manager"
+              actions={[<MdKeyboardArrowRight key="arrow" />]}
             >
-              <List.Item
-                key="Manager"
-                actions={[<MdKeyboardArrowRight key="arrow" />]}
-              >
-                <List.Item.Meta
-                  title={<p className="text-xs font-light">Manager</p>}
-                  description={
-                    <p className="font-bold text-black text-sm">
-                      <span className="mr-2">
-                        <Avatar
-                          src={
-                            employeeData?.delegatedTo
-                              ? employeeData?.delegatedTo?.profileImage
-                              : employeeData?.reportingTo?.profileImage
-                          }
-                        />
-                      </span>
-                      {employeeData?.delegatedTo
-                        ? employeeData?.delegatedTo?.firstName
-                        : employeeData?.reportingTo?.firstName}{' '}
-                    </p>
-                  }
-                />
-              </List.Item>
-            </Link>
+              <List.Item.Meta
+                title={<p className="text-xs font-light">Manager</p>}
+                description={
+                  <p className="font-bold text-black text-sm">
+                    <span className="mr-2">
+                      <Avatar
+                        src={
+                          employeeData?.delegatedTo
+                            ? employeeData?.delegatedTo?.profileImage
+                            : employeeData?.reportingTo?.profileImage
+                        }
+                      />
+                    </span>
+                    {employeeData?.delegatedTo
+                      ? employeeData?.delegatedTo?.firstName
+                      : employeeData?.reportingTo?.firstName}{' '}
+                  </p>
+                }
+              />
+            </List.Item>
           ) : (
             <List.Item key="Manager">
               <List.Item.Meta

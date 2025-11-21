@@ -198,7 +198,11 @@ const AllCandidateTable: React.FC = () => {
         ? dayjs(item.graduateYear).format('DD MMMM YYYY')
         : '--',
       LinkedInURL: (
-        <div id="talent-acquisition-candidate-table-div-email" data-cy="talent-acquisition-candidate-table-div-email" className="flex justify-center">
+        <div
+          id="talent-acquisition-candidate-table-div-email"
+          data-cy="talent-acquisition-candidate-table-div-email"
+          className="flex justify-center"
+        >
           <a
             id={`talent-acquisition-candidate-table-link-email-${item?.id}`}
             data-cy={`talent-acquisition-candidate-table-link-email-${item?.id}`}
@@ -211,7 +215,10 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       stages: (
-        <div id="talent-acquisition-candidate-table-div-stages" data-cy="talent-acquisition-candidate-table-div-stages">
+        <div
+          id="talent-acquisition-candidate-table-div-stages"
+          data-cy="talent-acquisition-candidate-table-div-stages"
+        >
           <Select
             id={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
             data-cy={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
@@ -228,7 +235,12 @@ const AllCandidateTable: React.FC = () => {
             }
           >
             {statusStage?.items?.map((stage: any) => (
-              <Select.Option key={stage.id} value={stage.id} id={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`} data-cy={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}>
+              <Select.Option
+                key={stage.id}
+                value={stage.id}
+                id={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
+                data-cy={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
+              >
                 {stage.title}
               </Select.Option>
             ))}
@@ -236,7 +248,11 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       action: (
-        <div id="talent-acquisition-candidate-table-div-action" data-cy="talent-acquisition-candidate-table-div-action" className="flex items-center justify-between gap-4 text-white">
+        <div
+          id="talent-acquisition-candidate-table-div-action"
+          data-cy="talent-acquisition-candidate-table-div-action"
+          className="flex items-center justify-between gap-4 text-white"
+        >
           <Button
             id={`editUserButton${item?.id}`}
             data-cy={`talent-acquisition-candidate-table-button-view-${item?.id}`}
@@ -282,7 +298,10 @@ const AllCandidateTable: React.FC = () => {
     setCurrentPage(1);
   };
   return (
-    <div id="talent-acquisition-candidate-table-div-container" data-cy="talent-acquisition-candidate-table-div-container">
+    <div
+      id="talent-acquisition-candidate-table-div-container"
+      data-cy="talent-acquisition-candidate-table-div-container"
+    >
       <Table
         id="talent-acquisition-candidate-table-table"
         data-cy="talent-acquisition-candidate-table-table"

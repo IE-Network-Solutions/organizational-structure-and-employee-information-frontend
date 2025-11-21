@@ -55,8 +55,14 @@ export default function CandidateTable({
   ];
 
   return (
-    <div id="talent-acquisition-dashboard-candidate-table-div-container" data-cy="talent-acquisition-dashboard-candidate-table-div-container">
-      <Spin  data-cy="talent-acquisition-dashboard-candidate-table-spin" spinning={isLoading}>
+    <div
+      id="talent-acquisition-dashboard-candidate-table-div-container"
+      data-cy="talent-acquisition-dashboard-candidate-table-div-container"
+    >
+      <Spin
+        data-cy="talent-acquisition-dashboard-candidate-table-spin"
+        spinning={isLoading}
+      >
         <Table
           id="talent-acquisition-dashboard-candidate-table"
           data-cy="talent-acquisition-dashboard-candidate-table"

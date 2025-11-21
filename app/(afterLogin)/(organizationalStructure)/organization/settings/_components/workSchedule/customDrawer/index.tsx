@@ -220,9 +220,7 @@ const CustomWorkingScheduleDrawer = () => {
               checkedChildren={<CheckOutlined />}
               unCheckedChildren={<CloseOutlined />}
               size="small"
-              onChange={(checked) =>
-                handleSwitchChange(record.day, checked)
-              }
+              onChange={(checked) => handleSwitchChange(record.day, checked)}
             />
             <p>{record.day}</p>
           </div>
@@ -300,7 +298,11 @@ const CustomWorkingScheduleDrawer = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-base font-semibold" data-cy="org-settings-work-schedule-drawer-header" id="org-settings-work-schedule-drawer-header">
+        <h1
+          className="text-base font-semibold"
+          data-cy="org-settings-work-schedule-drawer-header"
+          id="org-settings-work-schedule-drawer-header"
+        >
           Add New Work Schedule
         </h1>
       }
@@ -308,9 +310,21 @@ const CustomWorkingScheduleDrawer = () => {
       open={isOpen}
       width="45%"
       footer={
-        <div className="flex justify-between items-center w-full my-1 pb-3" data-cy="org-settings-work-schedule-drawer-footer" id="org-settings-work-schedule-drawer-footer">
-          <div className="flex justify-start items-center gap-2 mt-4 mx-1" data-cy="org-components-workschedule-customdrawer-index-div-1" id="org-components-workschedule-customdrawer-index-div-1">
-            <span className="text-xs font-semibold text-nowrap " data-cy="org-settings-work-schedule-total-hours-label" id="org-settings-work-schedule-total-hours-label">
+        <div
+          className="flex justify-between items-center w-full my-1 pb-3"
+          data-cy="org-settings-work-schedule-drawer-footer"
+          id="org-settings-work-schedule-drawer-footer"
+        >
+          <div
+            className="flex justify-start items-center gap-2 mt-4 mx-1"
+            data-cy="org-components-workschedule-customdrawer-index-div-1"
+            id="org-components-workschedule-customdrawer-index-div-1"
+          >
+            <span
+              className="text-xs font-semibold text-nowrap "
+              data-cy="org-settings-work-schedule-total-hours-label"
+              id="org-settings-work-schedule-total-hours-label"
+            >
               Total Working hours:
             </span>
             <span
@@ -321,13 +335,27 @@ const CustomWorkingScheduleDrawer = () => {
               {standardHours.toFixed(1) ?? '-'} / Week
             </span>
             {validationError && (
-              <span className="text-red-500 text-xs ml-2" data-cy="org-settings-work-schedule-validation-error" id="org-settings-work-schedule-validation-error">
+              <span
+                className="text-red-500 text-xs ml-2"
+                data-cy="org-settings-work-schedule-validation-error"
+                id="org-settings-work-schedule-validation-error"
+              >
                 {validationError}
               </span>
             )}
           </div>
-          <div className="flex gap-2 mt-4 mr-8" data-cy="org-components-workschedule-customdrawer-index-div-2" id="org-components-workschedule-customdrawer-index-div-2">
-            <Button type="default" className="font-md" onClick={handleCancel} data-cy="org-settings-work-schedule-drawer-cancel-btn" id="org-settings-work-schedule-drawer-cancel-btn">
+          <div
+            className="flex gap-2 mt-4 mr-8"
+            data-cy="org-components-workschedule-customdrawer-index-div-2"
+            id="org-components-workschedule-customdrawer-index-div-2"
+          >
+            <Button
+              type="default"
+              className="font-md"
+              onClick={handleCancel}
+              data-cy="org-settings-work-schedule-drawer-cancel-btn"
+              id="org-settings-work-schedule-drawer-cancel-btn"
+            >
               Cancel
             </Button>
             <Button
@@ -343,7 +371,8 @@ const CustomWorkingScheduleDrawer = () => {
           </div>
         </div>
       }
-     data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1">
+      data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1"
+    >
       <Form
         form={form}
         layout="vertical"
@@ -354,10 +383,18 @@ const CustomWorkingScheduleDrawer = () => {
       >
         <Form.Item
           name="scheduleName"
-          label={<span className="text-sm font-semibold" data-cy="org-components-workschedule-customdrawer-index-span-1" id="org-components-workschedule-customdrawer-index-span-1">Schedule Name</span>}
+          label={
+            <span
+              className="text-sm font-semibold"
+              data-cy="org-components-workschedule-customdrawer-index-span-1"
+              id="org-components-workschedule-customdrawer-index-span-1"
+            >
+              Schedule Name
+            </span>
+          }
           rules={[{ required: true, message: 'Please input schedule name!' }]}
           data-cy="org-settings-work-schedule-name-field"
-          id='org-settings-work-schedule-name-field'
+          id="org-settings-work-schedule-name-field"
         >
           <Input
             size="large"
@@ -369,7 +406,13 @@ const CustomWorkingScheduleDrawer = () => {
             id="org-settings-work-schedule-name-input"
           />
         </Form.Item>
-        <h1 className="text-base m-3" data-cy="org-settings-work-schedule-hours-title" id="org-settings-work-schedule-hours-title">Working hours</h1>
+        <h1
+          className="text-base m-3"
+          data-cy="org-settings-work-schedule-hours-title"
+          id="org-settings-work-schedule-hours-title"
+        >
+          Working hours
+        </h1>
         <Table
           columns={columns}
           dataSource={detail}
