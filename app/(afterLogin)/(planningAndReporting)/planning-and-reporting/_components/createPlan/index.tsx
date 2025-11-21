@@ -330,12 +330,7 @@ function CreatePlan() {
     }, 0);
     setWeight(namesKey, totalWeight);
   };
-  const handleAddBoard = (
-    kId: string,
-    keyResultId?: string,
-    milestoneId?: string | null,
-    parentTaskId?: string | null,
-  ) => {
+  const handleAddBoard = (kId: string) => {
     const boardsKey = `board-${kId}`;
     const currentBoard = form.getFieldValue(boardsKey) || [];
 
