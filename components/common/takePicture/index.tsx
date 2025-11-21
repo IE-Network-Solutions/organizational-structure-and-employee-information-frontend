@@ -73,7 +73,12 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
         {imgSrc && (
           <div className="flex items-center justify-between mt-6">
             <div className="w-[192px] h-[108px]">
-              <Image src={imgSrc} width={192} height={108} />
+              <Image
+                src={imgSrc}
+                width={192}
+                height={108}
+                alt="Captured image"
+              />
             </div>
 
             <Button

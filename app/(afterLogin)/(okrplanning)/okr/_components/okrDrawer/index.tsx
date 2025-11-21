@@ -71,7 +71,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     // Also check if the title would actually change to prevent infinite loops
     const currentTitle = objectiveValue?.title?.trim() || '';
     const newTitle = objectiveTitle?.trim() || '';
-
     if (!currentTitle && newTitle) {
       setObjectiveValue({
         ...objectiveValue,

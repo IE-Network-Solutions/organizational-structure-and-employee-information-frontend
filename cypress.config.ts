@@ -5,6 +5,6 @@ export default defineConfig({
     setupNodeEvents() {
       // on, config
     },
-    baseUrl: 'http://172.16.33.163:3000',
+    baseUrl: 'http://172.16.33.163:3030',
   },
 });

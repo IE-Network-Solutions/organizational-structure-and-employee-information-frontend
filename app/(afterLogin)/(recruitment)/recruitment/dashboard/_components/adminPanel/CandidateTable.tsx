@@ -53,6 +53,7 @@ export default function CandidateTable({
       key: 'daysToHire',
     },
   ];
+
   return (
     <div id="talent-acquisition-dashboard-candidate-table-div-container" data-cy="talent-acquisition-dashboard-candidate-table-div-container">
       <Spin  data-cy="talent-acquisition-dashboard-candidate-table-spin" spinning={isLoading}>
@@ -63,8 +64,9 @@ export default function CandidateTable({
           dataSource={data?.results}
           pagination={false}
           bordered={false}
-          className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0"
+          className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0 md:w-full w-full overflow-x-auto scrollbar-hide"
         />
+
         <CustomPagination
           data-cy="talent-acquisition-dashboard-candidate-pagination"
           total={data?.total}
