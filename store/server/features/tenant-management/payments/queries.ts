@@ -65,13 +65,10 @@ export const useInitiatePayment = () => {
     ApiResponse<InitiatePaymentResponse>,
     Error,
     { invoiceId: string; data: InitiatePaymentRequest }
-  >(
-    ({ invoiceId, data }) => initiatePayment(invoiceId, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('invoices');
-        queryClient.invalidateQueries('subscriptions');
-      },
-    }
-  );
+  >(({ invoiceId, data }) => initiatePayment(invoiceId, data), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('invoices');
+      queryClient.invalidateQueries('subscriptions');
+    },
+  });
 };
