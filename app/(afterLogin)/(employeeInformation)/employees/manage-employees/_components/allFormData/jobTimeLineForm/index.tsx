@@ -485,9 +485,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           <div className="flex items-start gap-2">
             <Form.Item
               name="allowanceIds"
-              rules={[
-                { required: true, message: 'Please select allowance type' },
-              ]}
               className="flex-1"
             >
               <Form.Item shouldUpdate noStyle>
