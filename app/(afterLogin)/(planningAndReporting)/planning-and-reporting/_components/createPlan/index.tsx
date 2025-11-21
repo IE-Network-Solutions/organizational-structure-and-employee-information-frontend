@@ -7,11 +7,18 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import {
   AllPlanningPeriods,
   useGetPlanningPeriodsHierarchy,
+  useGetReporting,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import PlanningHierarchyComponent from '../planning/createPlanHierarchy';
 import PlanningObjectiveComponent from '../planning/createPlanObjective';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
+import { useMemo, useEffect, useRef } from 'react';
+
+type FailedTasksByKeyResult = Record<
+  string,
+  Record<string | 'noMilestone', any[]>
+>;
 
 function CreatePlan() {
   const {
@@ -29,18 +36,18 @@ function CreatePlan() {
   const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
   const { resetToInitial } = useClickStatus();
+  const hasAutoPopulated = useRef(false);
 
   const onClose = () => {
     setOpen(false);
     resetToInitial();
     form.resetFields();
     resetWeights();
+    hasAutoPopulated.current = false;
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
   const { data: planningPeriods } = AllPlanningPeriods();
-  // const planningPeriodId =
-  //   planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
   const planningPeriodId = activePlanPeriodId;
 
   const {
@@ -50,6 +57,56 @@ function CreatePlan() {
     userId,
     planningPeriodId || '', // Provide a default string value if undefined
   );
+
+  // Fetch the last report to get failed tasks
+  const { data: lastReportData } = useGetReporting({
+    userId: [userId],
+    planPeriodId: planningPeriodId || '',
+    pageReporting: 1,
+    pageSizeReporting: 1, // Get only the first (most recent) report
+    sessionId: [],
+  });
+
+  // Extract and group failed tasks from the last report
+  const failedTasksByKeyResult: FailedTasksByKeyResult = useMemo(() => {
+    if (!lastReportData?.items?.[0]?.reportTask) return {};
+
+    const lastReport = lastReportData.items[0];
+    const failedTasks = lastReport.reportTask.filter(
+      (task: any) => task.isAchieved === false,
+    );
+
+    // Group failed tasks by keyResultId and milestoneId
+    const grouped: Record<string, Record<string | 'noMilestone', any[]>> = {};
+
+    failedTasks.forEach((task: any) => {
+      const keyResultId = String(task?.planTask?.keyResultId || '');
+      const milestoneId = task?.planTask?.milestone?.id
+        ? String(task.planTask.milestone.id)
+        : 'noMilestone';
+
+      if (!grouped[keyResultId]) {
+        grouped[keyResultId] = {};
+      }
+      if (!grouped[keyResultId][milestoneId]) {
+        grouped[keyResultId][milestoneId] = [];
+      }
+
+      grouped[keyResultId][milestoneId].push({
+        task: task.planTask?.task || '',
+        priority: task.planTask?.priority || 'medium',
+        weight: task.planTask?.weight || 0,
+        targetValue: task.planTask?.targetValue || null,
+        milestoneId: task.planTask?.milestone?.id || null,
+        keyResultId: keyResultId,
+        planTaskId: task.planTask?.id || null, // Include planTaskId to identify the specific task
+        parentTaskId:
+          task.planTask?.parentTaskId || task.planTask?.parentTask?.id || null, // Include parentTaskId to match to parent tasks
+      });
+    });
+
+    return grouped;
+  }, [lastReportData]);
 
   // Ensure planningPeriods is always an array before using find
   const safePlanningPeriods = Array.isArray(planningPeriods)
@@ -61,12 +118,205 @@ function CreatePlan() {
     (item: any) => item.planningPeriod?.id == planningPeriodId,
   )?.id;
 
-  // const modalHeader = (
-  //   <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-  //     Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
-  //     Plan
-  //   </div>
-  // );
+  // Auto-populate failed tasks when drawer opens
+  useEffect(() => {
+    if (
+      !open ||
+      !planningPeriodHierarchy ||
+      loadingPlanningPeriodHierarchy ||
+      Object.keys(failedTasksByKeyResult).length === 0 ||
+      hasAutoPopulated.current
+    ) {
+      return;
+    }
+
+    // Auto-populate failed tasks
+    const populateFailedTasks = () => {
+      const formUpdates: Record<string, any[]> = {};
+
+      Object.keys(failedTasksByKeyResult).forEach((keyResultId) => {
+        const keyResultFailedTasks = failedTasksByKeyResult[keyResultId];
+        if (!keyResultFailedTasks) return;
+
+        // Handle tasks with milestones and without milestones
+        Object.keys(keyResultFailedTasks).forEach((milestoneKey) => {
+          const failedTasks = keyResultFailedTasks[milestoneKey];
+          if (!failedTasks || failedTasks.length === 0) return;
+
+          // For hierarchy component (daily plans)
+          if (planningPeriodHierarchy?.parentPlan) {
+            const tasks =
+              planningPeriodHierarchy?.parentPlan?.plans?.find(
+                (i: any) => i.isReported === false,
+              )?.tasks || [];
+
+            // Find matching tasks in the current plan structure
+            tasks.forEach((task: any) => {
+              const taskKeyResultId = String(task?.keyResult?.id || '');
+              const taskMilestoneId = task?.milestone?.id
+                ? String(task.milestone.id)
+                : null;
+
+              // Check if this task matches the key result and milestone
+              if (taskKeyResultId === keyResultId) {
+                const milestoneMatch =
+                  (milestoneKey === 'noMilestone' && !taskMilestoneId) ||
+                  (milestoneKey !== 'noMilestone' &&
+                    taskMilestoneId === milestoneKey);
+
+                if (milestoneMatch) {
+                  // Build composite key
+                  const buildKey = (
+                    krId?: string | number,
+                    msId?: string | number | null,
+                    tId?: string | number | null,
+                  ) =>
+                    `${String(krId ?? '')}${String(msId ?? '')}${String(tId ?? '')}`;
+
+                  const taskId = String(task?.id || '');
+                  const matchingFailedTasks = failedTasks.filter(
+                    (failedTask: any) => {
+                      if (failedTask.parentTaskId) {
+                        return String(failedTask.parentTaskId) === taskId;
+                      }
+                      if (failedTask.planTaskId) {
+                        return String(failedTask.planTaskId) === taskId;
+                      }
+                      return failedTask.task === task.task;
+                    },
+                  );
+
+                  if (matchingFailedTasks.length > 0) {
+                    const compositeKey = buildKey(
+                      task?.keyResult?.id,
+                      task?.milestone?.id,
+                      task?.id,
+                    );
+
+                    const boardsKey = `board-${compositeKey}`;
+                    const existingBoard = form.getFieldValue(boardsKey) || [];
+
+                    if (existingBoard.length === 0) {
+                      formUpdates[boardsKey] = matchingFailedTasks.map(
+                        (failedTask: any) => ({
+                          task: failedTask.task,
+                          priority: failedTask.priority,
+                          weight: failedTask.weight,
+                          targetValue: failedTask.targetValue,
+                        }),
+                      );
+                    }
+                  }
+                }
+              }
+            });
+          } else {
+            // For objective component (weekly plans)
+            if (!objective?.items) return;
+
+            objective.items.forEach((obj: any) => {
+              obj.keyResults?.forEach((kr: any) => {
+                const krId = String(kr?.id || '');
+                if (krId !== keyResultId) return;
+
+                // Handle milestones
+                if (milestoneKey !== 'noMilestone' && kr?.milestones) {
+                  kr.milestones.forEach((ml: any) => {
+                    const mlId = String(ml?.id || '');
+                    if (mlId === milestoneKey) {
+                      const buildKey = (
+                        krId?: string | number,
+                        msId?: string | number | null,
+                        tId?: string | number | null,
+                      ) =>
+                        `${String(krId ?? '')}${String(msId ?? '')}${String(tId ?? '')}`;
+                      ml.tasks?.forEach((task: any) => {
+                        const taskId = String(task?.id || '');
+                        const matchingFailedTasks = failedTasks.filter(
+                          (failedTask: any) => {
+                            if (failedTask.parentTaskId) {
+                              return String(failedTask.parentTaskId) === taskId;
+                            }
+                            if (failedTask.planTaskId) {
+                              return String(failedTask.planTaskId) === taskId;
+                            }
+                            return failedTask.task === task.task;
+                          },
+                        );
+
+                        if (matchingFailedTasks.length > 0) {
+                          const compositeKey = buildKey(krId, mlId, taskId);
+                          const boardsKey = `board-${compositeKey}`;
+                          const existingBoard =
+                            form.getFieldValue(boardsKey) || [];
+
+                          if (existingBoard.length === 0) {
+                            formUpdates[boardsKey] = matchingFailedTasks.map(
+                              (failedTask: any) => ({
+                                task: failedTask.task,
+                                priority: failedTask.priority,
+                                weight: failedTask.weight,
+                                targetValue: failedTask.targetValue,
+                              }),
+                            );
+                          }
+                        }
+                      });
+                    }
+                  });
+                } else if (milestoneKey === 'noMilestone' && !kr?.milestones) {
+                  // Handle key results without milestones
+                  const boardsKey = `board-${krId}`;
+                  const existingBoard = form.getFieldValue(boardsKey) || [];
+
+                  if (existingBoard.length === 0) {
+                    formUpdates[boardsKey] = failedTasks.map(
+                      (failedTask: any) => ({
+                        task: failedTask.task,
+                        priority: failedTask.priority,
+                        weight: failedTask.weight,
+                        targetValue: failedTask.targetValue,
+                      }),
+                    );
+                  }
+                }
+              });
+            });
+          }
+        });
+      });
+
+      // Apply all form updates at once
+      if (Object.keys(formUpdates).length > 0) {
+        form.setFieldsValue(formUpdates);
+      }
+
+      hasAutoPopulated.current = true;
+    };
+
+    // Small delay to ensure form is ready
+    const timer = setTimeout(() => {
+      populateFailedTasks();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [
+    open,
+    planningPeriodHierarchy,
+    loadingPlanningPeriodHierarchy,
+    failedTasksByKeyResult,
+    objective,
+    form,
+  ]);
+
+  // Reset auto-populate flag and clear form when drawer closes
+  useEffect(() => {
+    if (!open) {
+      hasAutoPopulated.current = false;
+      form.resetFields();
+      resetWeights();
+    }
+  }, [open, form, resetWeights]);
   const handleAddName = (
     currentBoardValues: Record<string, string>,
     kId: string,
@@ -76,14 +326,27 @@ function CreatePlan() {
     form.setFieldsValue({ [namesKey]: [...names, currentBoardValues] });
     const fieldValue = form.getFieldValue(namesKey);
     const totalWeight = fieldValue.reduce((sum: number, field: any) => {
-      return sum + (field.weight || 0);
+      return Number(sum) + Number(field?.weight || 0);
     }, 0);
     setWeight(namesKey, totalWeight);
   };
   const handleAddBoard = (kId: string) => {
     const boardsKey = `board-${kId}`;
-    const board = form.getFieldValue(boardsKey) || [];
-    form.setFieldsValue({ [boardsKey]: [...board, {}] });
+    const currentBoard = form.getFieldValue(boardsKey) || [];
+
+    // Always add an empty task when clicking "Add Plan Task"
+    // Failed tasks are only auto-populated when the drawer first opens
+    // Create a fresh empty object with explicit undefined values to ensure clean form
+    const emptyTask = {
+      task: '',
+      priority: undefined,
+      weight: undefined,
+      targetValue: undefined,
+    };
+
+    setTimeout(() => {
+      form.setFieldsValue({ [boardsKey]: [...currentBoard, emptyTask] });
+    }, 0);
   };
   const handleRemoveBoard = (index: number, kId: string) => {
     const boardsKey = `board-${kId}`;
@@ -171,14 +434,14 @@ function CreatePlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
-
-    // return;
     createTask(
       { tasks: finalValues },
       {
         onSuccess: () => {
           resetToInitial();
           form.resetFields();
+          resetWeights();
+          hasAutoPopulated.current = false;
           onClose();
         },
       },
@@ -217,6 +480,7 @@ function CreatePlan() {
                 handleAddName={handleAddName}
                 handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
+                failedTasksByKeyResult={failedTasksByKeyResult}
               />
             ) : (
               <PlanningHierarchyComponent
@@ -231,11 +495,14 @@ function CreatePlan() {
                 handleAddName={handleAddName}
                 handleRemoveBoard={handleRemoveBoard}
                 weights={weights}
+                failedTasksByKeyResult={failedTasksByKeyResult}
               />
             )}
 
             <Form.Item className="mt-10">
-              <div className="my-2">Total Weights:{totalWeight} / 100</div>
+              <div className="my-2">
+                Total Weights: {Math.round(Number(totalWeight) || 0)} / 100
+              </div>
 
               <Tooltip
                 title={
