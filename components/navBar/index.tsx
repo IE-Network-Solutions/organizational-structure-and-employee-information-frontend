@@ -270,7 +270,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_recruitment_talent_pool'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span className="font-bold">Settings</span>,
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],

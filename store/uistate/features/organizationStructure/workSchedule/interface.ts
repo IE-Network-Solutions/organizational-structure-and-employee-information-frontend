@@ -1,10 +1,10 @@
 export interface ScheduleDetail {
   id: string;
-  dayOfWeek: string;
+  day: string;
   startTime: string;
   endTime: string;
-  hours: number;
-  status: boolean;
+  duration: number;
+  workDay: boolean;
 }
 
 export interface ScheduleState {
@@ -21,7 +21,7 @@ export interface ScheduleState {
   setCurrentPage: (page: number) => void;
   setPageSize: (size: number) => void;
   setId: (id: string) => void;
-  setDetail: (dayOfWeek: string, data: Partial<ScheduleDetail>) => void;
+  setDetail: (day: string, data: Partial<ScheduleDetail>) => void;
   createWorkSchedule: () => any;
   getSchedule: () => any;
   clearState: () => void;
