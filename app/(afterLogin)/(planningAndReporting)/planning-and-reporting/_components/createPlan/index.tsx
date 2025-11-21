@@ -337,56 +337,23 @@ function CreatePlan() {
     parentTaskId?: string | null,
   ) => {
     const boardsKey = `board-${kId}`;
-    const board = form.getFieldValue(boardsKey) || [];
+    const currentBoard = form.getFieldValue(boardsKey) || [];
 
-    // Check if there are failed tasks for this key result, milestone, and parent task
-    let failedTaskToFill = null;
-    if (keyResultId) {
-      const keyResultFailedTasks = failedTasksByKeyResult[keyResultId];
-      if (keyResultFailedTasks) {
-        const milestoneKey = milestoneId ? String(milestoneId) : 'noMilestone';
-        const failedTasks = keyResultFailedTasks[milestoneKey];
-        if (failedTasks && failedTasks.length > 0) {
-          if (parentTaskId) {
-            const parentIdStr = String(parentTaskId);
-            failedTaskToFill =
-              failedTasks.find((failedTask: any) => {
-                if (failedTask.parentTaskId) {
-                  return String(failedTask.parentTaskId) === parentIdStr;
-                }
-                if (failedTask.planTaskId) {
-                  return String(failedTask.planTaskId) === parentIdStr;
-                }
-                return false;
-              }) || null;
-          }
+    // Always add an empty task when clicking "Add Plan Task"
+    // Failed tasks are only auto-populated when the drawer first opens
+    // Create a fresh empty object with explicit undefined values to ensure clean form
+    const emptyTask = {
+      task: '',
+      priority: undefined,
+      weight: undefined,
+      targetValue: undefined,
+    };
 
-          // Only fall back to the first failed task if no specific parent task was provided
-          if (!failedTaskToFill && !parentTaskId) {
-            failedTaskToFill = failedTasks[0];
-          }
-        }
-      }
-    }
-
-    // If there's a failed task and the board is empty, populate the board with it
-    // Otherwise, add an empty task
-    if (failedTaskToFill && board.length === 0) {
-      // Only add failed task if board is empty (first time adding)
-      form.setFieldsValue({
-        [boardsKey]: [
-          {
-            task: failedTaskToFill.task,
-            priority: failedTaskToFill.priority,
-            weight: failedTaskToFill.weight,
-            targetValue: failedTaskToFill.targetValue,
-          },
-        ],
-      });
-    } else {
-      // Add empty task (either no failed task, or board already has tasks)
-      form.setFieldsValue({ [boardsKey]: [...board, {}] });
-    }
+    // Add the empty task to the board array
+    // Use a small delay to ensure Form.List properly updates
+    setTimeout(() => {
+      form.setFieldsValue({ [boardsKey]: [...currentBoard, emptyTask] });
+    }, 0);
   };
   const handleRemoveBoard = (index: number, kId: string) => {
     const boardsKey = `board-${kId}`;
