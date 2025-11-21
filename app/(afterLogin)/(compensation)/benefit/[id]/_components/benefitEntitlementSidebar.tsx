@@ -223,7 +223,7 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
 
       // Calculate rounded amount for each period
       const roundedAmount = Number(amountPerPeriod.toFixed(2));
-      
+
       return {
         key: i,
         amount: roundedAmount,
@@ -241,12 +241,14 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     if (newData.length > 0) {
       const lastIndex = newData.length - 1;
       const difference = totalAmount - sumOfAmounts;
-      
+
       if (Math.abs(difference) > 0.001) {
         // If sum is smaller, add the difference to last element
         // If sum is greater, subtract the difference from last element (difference will be negative)
         const lastAmount = Number(newData[lastIndex].amount);
-        newData[lastIndex].amount = Number((lastAmount + difference).toFixed(2));
+        newData[lastIndex].amount = Number(
+          (lastAmount + difference).toFixed(2),
+        );
       }
     }
 

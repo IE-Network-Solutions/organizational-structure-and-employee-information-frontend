@@ -735,10 +735,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
-    } else if (
-      !employeeData.employeeJobInformation ||
-      employeeData.employeeJobInformation.length === 0
-    ) {
+    } else if (employeeData?.employeeJobInformation?.length === 0) {
       setIsAddEmployeeJobInfoModalVisible(true);
       setEmployeeJobInfoModalWidth('100%');
     }
