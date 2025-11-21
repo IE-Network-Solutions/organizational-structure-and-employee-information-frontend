@@ -151,7 +151,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
         /* eslint-ensable-next-line @typescript-eslint/naming-convention */
 
         const newTotal = Object.values(remainingWeights).reduce(
-          (acc, val) => acc + val,
+          (acc, val) => Number(acc) + Number(val || 0),
           0,
         );
         return { weights: remainingWeights, totalWeight: newTotal };

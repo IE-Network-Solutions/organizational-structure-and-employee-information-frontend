@@ -349,8 +349,6 @@ function CreatePlan() {
       targetValue: undefined,
     };
 
-    // Add the empty task to the board array
-    // Use a small delay to ensure Form.List properly updates
     setTimeout(() => {
       form.setFieldsValue({ [boardsKey]: [...currentBoard, emptyTask] });
     }, 0);
