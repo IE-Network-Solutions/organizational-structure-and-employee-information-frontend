@@ -58,7 +58,7 @@ const StatsCards: React.FC = () => {
           data-cy={`talent-acquisition-stats-cards-card-${index}`}
           bodyStyle={{ padding: 5 }}
           key={index}
-          className="h-[102px] hover:shadow-md transition-shadow shadow-lg"
+          className="h-[102px] hover:shadow-md transition-shadow shadow-lg w-[248px] md:w-full"
           loading={isLoading}
         >
           <div id={`talent-acquisition-stats-cards-div-card-${index}`} data-cy={`talent-acquisition-stats-cards-div-card-${index}`} className="flex justify-between mt-4 px-2 items-center">

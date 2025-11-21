@@ -9,8 +9,9 @@ import {
   WeeklyTaskSuggestion,
 } from './interface';
 
-// Use local API routes to avoid CORS issues
-const BASE_URL = '/api/ai';
+// Call AI backend directly now that CORS is fixed
+const BASE_URL =
+  process.env.NEXT_PUBLIC_AI_BASE_URL || 'https://selamnew-ai.ienetworks.co';
 
 const postWeeklyPlan = async (keyResult: string) => {
   const { data } = await axios.post<WeeklyPlanResponse>(
