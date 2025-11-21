@@ -208,7 +208,7 @@ function DefaultCardForm({
                           const fieldValue = form.getFieldValue(name) || [];
                           const totalWeight = fieldValue.reduce(
                             (sum: number, field: any) =>
-                              sum + (field.weight || 0),
+                              Number(sum) + Number(field?.weight || 0),
                             0,
                           );
                           setWeight(name, totalWeight);
@@ -227,7 +227,7 @@ function DefaultCardForm({
                         const fieldValue = form.getFieldValue(name) || [];
                         const totalWeight = fieldValue.reduce(
                           (sum: number, field: any) =>
-                            sum + (field.weight || 0),
+                            Number(sum) + Number(field?.weight || 0),
                           0,
                         );
                         setWeight(name, totalWeight);
@@ -237,8 +237,8 @@ function DefaultCardForm({
                 </Col>
               </Row>
               {keyResult?.metricType?.name !== NAME.ACHIEVE &&
-                keyResult?.metricType?.name !== NAME.MILESTONE && (
-                  // !parentPlanId &&
+                keyResult?.metricType?.name !== NAME.MILESTONE &&
+                !parentPlanId && (
                   <Form.Item
                     className="mb-4"
                     label={<div className="text-xs">Target</div>}
@@ -338,3 +338,4 @@ function DefaultCardForm({
 }
 
 export default DefaultCardForm;
+
