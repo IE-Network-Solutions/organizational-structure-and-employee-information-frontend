@@ -300,30 +300,34 @@ const CustomWorkingScheduleDrawer = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-base font-semibold">Add New Work Schedule</h1>
+        <h1 className="text-base font-semibold" data-cy="org-settings-work-schedule-drawer-header" id="org-settings-work-schedule-drawer-header">
+          Add New Work Schedule
+        </h1>
       }
       onClose={handleCancel}
       open={isOpen}
       width="45%"
       footer={
-        <div className="flex justify-between items-center w-full my-1 pb-3">
-          <div className="flex justify-start items-center gap-2 mt-4 mx-1">
-            <span className="text-xs font-semibold text-nowrap ">
+        <div className="flex justify-between items-center w-full my-1 pb-3" data-cy="org-settings-work-schedule-drawer-footer" id="org-settings-work-schedule-drawer-footer">
+          <div className="flex justify-start items-center gap-2 mt-4 mx-1" data-cy="org-components-workschedule-customdrawer-index-div-1" id="org-components-workschedule-customdrawer-index-div-1">
+            <span className="text-xs font-semibold text-nowrap " data-cy="org-settings-work-schedule-total-hours-label" id="org-settings-work-schedule-total-hours-label">
               Total Working hours:
             </span>
             <span
               className={`mr-4 text-xs font-semibold text-nowrap ${validationError ? 'text-red-500' : 'text-primary'}`}
+              data-cy="org-settings-work-schedule-total-hours-value"
+              id="org-settings-work-schedule-total-hours-value"
             >
               {standardHours.toFixed(1) ?? '-'} / Week
             </span>
             {validationError && (
-              <span className="text-red-500 text-xs ml-2">
+              <span className="text-red-500 text-xs ml-2" data-cy="org-settings-work-schedule-validation-error" id="org-settings-work-schedule-validation-error">
                 {validationError}
               </span>
             )}
           </div>
-          <div className="flex gap-2 mt-4 mr-8">
-            <Button type="default" className="font-md" onClick={handleCancel}>
+          <div className="flex gap-2 mt-4 mr-8" data-cy="org-components-workschedule-customdrawer-index-div-2" id="org-components-workschedule-customdrawer-index-div-2">
+            <Button type="default" className="font-md" onClick={handleCancel} data-cy="org-settings-work-schedule-drawer-cancel-btn" id="org-settings-work-schedule-drawer-cancel-btn">
               Cancel
             </Button>
             <Button
@@ -331,23 +335,29 @@ const CustomWorkingScheduleDrawer = () => {
               className="font-md"
               onClick={handleSubmit}
               loading={isUpdateLoading || isCreateLoading}
+              data-cy="org-settings-work-schedule-drawer-submit-btn"
+              id="org-settings-work-schedule-drawer-submit-btn"
             >
               {isEditMode ? 'Update' : 'Create'}
             </Button>
           </div>
         </div>
       }
-    >
+     data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1">
       <Form
         form={form}
         layout="vertical"
         onValuesChange={handleValuesChange}
         className="w-full"
+        data-cy="org-settings-work-schedule-form"
+        id="org-settings-work-schedule-form"
       >
         <Form.Item
           name="scheduleName"
-          label={<span className="text-sm font-semibold">Schedule Name</span>}
+          label={<span className="text-sm font-semibold" data-cy="org-components-workschedule-customdrawer-index-span-1" id="org-components-workschedule-customdrawer-index-span-1">Schedule Name</span>}
           rules={[{ required: true, message: 'Please input schedule name!' }]}
+          data-cy="org-settings-work-schedule-name-field"
+          id='org-settings-work-schedule-name-field'
         >
           <Input
             size="large"
@@ -355,14 +365,18 @@ const CustomWorkingScheduleDrawer = () => {
             placeholder="Enter your schedule name"
             value={scheduleName}
             onChange={(e) => setScheduleName(e.target.value)}
+            data-cy="org-settings-work-schedule-name-input"
+            id="org-settings-work-schedule-name-input"
           />
         </Form.Item>
-        <h1 className="text-base m-3">Working hours</h1>
+        <h1 className="text-base m-3" data-cy="org-settings-work-schedule-hours-title" id="org-settings-work-schedule-hours-title">Working hours</h1>
         <Table
           columns={columns}
           dataSource={detail}
           pagination={false}
           scroll={{ x: '100%' }}
+          data-cy="org-settings-work-schedule-table"
+          id="org-settings-work-schedule-table"
         />
       </Form>
     </CustomDrawerLayout>

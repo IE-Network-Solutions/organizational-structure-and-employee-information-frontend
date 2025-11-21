@@ -16,6 +16,11 @@ interface DepartmentNodeProps {
 }
 
 const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
+  const departmentId =
+    data?.id ||
+    data?.employeeJobInformation?.[0]?.userId ||
+    data?.name?.replace(/\s+/g, '-').toLowerCase() ||
+    'department';
   const { data: getUsersData, isLoading } = useGetAllUsers();
 
   const getUserData = (userId: string) => {
@@ -33,8 +38,14 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
     <Card
       bodyStyle={{ padding: 0, background: 'transparent' }}
       className="p-1.5  inline-block rounded-2xl border-[#CBD5E0] border-2 sm:w-auto min-w-[132px] max-w-36"
+      data-cy={`org-chart-department-node-${departmentId}`}
+      id={`org-chart-department-node-${departmentId}`}
     >
-      <div className="flex flex-col items-center">
+      <div
+        className="flex flex-col items-center"
+        data-cy={`org-chart-department-node-content-${departmentId}`}
+        id={`org-chart-department-node-content-${departmentId}`}
+      >
         <Tooltip
           title={
             user?.firstName || user?.lastName
@@ -42,28 +53,44 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
               : 'Not assigned'
           }
           placement="top"
+          data-cy="org-chart-department-node-tooltip"
+          id="org-chart-department-node-tooltip"
         >
           {isLoading ? (
-            <Skeleton.Avatar active size={54} />
+            <Skeleton.Avatar
+              active
+              size={54}
+              data-cy={`org-chart-department-node-avatar-skeleton-${departmentId}`}
+            />
           ) : (
             <Avatar
-              icon={<BiUser />}
+              icon={<BiUser  data-cy="org-org-chart-components-orgdepartmentpage-index-biuser-1" id="org-org-chart-components-orgdepartmentpage-index-biuser-1"/>}
               size={54}
               src={user?.profileImage}
               className="mb-2"
+              data-cy={`org-chart-department-node-avatar-${departmentId}`}
             />
           )}
         </Tooltip>
 
-        <div className="flex flex-col items-center">
+        <div
+          className="flex flex-col items-center"
+          data-cy={`org-chart-department-node-details-${departmentId}`}
+          id={`org-chart-department-node-details-${departmentId}`}
+        >
           {isLoading ? (
             <Skeleton.Input
               active
               size="small"
               className="mt-2 w-auto text-center"
+              data-cy={`org-chart-department-node-name-skeleton-${departmentId}`}
             />
           ) : (
-            <span className="text-xs font-bold text-center">
+            <span
+              className="text-xs font-bold text-center"
+              data-cy={`org-chart-department-node-name-${departmentId}`}
+              id={`org-chart-department-node-name-${departmentId}`}
+            >
               {user?.firstName || user?.middleName || user?.lastName
                 ? `${user?.firstName ?? ''}  ${user?.middleName ?? ''}  ${user?.lastName ?? ''}`.trim()
                 : 'Not assigned'}
@@ -74,9 +101,14 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
               active
               size="small"
               className="w-auto text-center"
+              data-cy={`org-chart-department-node-role-skeleton-${departmentId}`}
             />
           ) : (
-            <span className="text-[10px] text-center">
+            <span
+              className="text-[10px] text-center"
+              data-cy={`org-chart-department-node-role-${departmentId}`}
+              id={`org-chart-department-node-role-${departmentId}`}
+            >
               {user?.employeeJobInformation
                 ? user?.employeeJobInformation[0]?.position?.name?.trim()
                 : 'Role not assigned'}
@@ -89,9 +121,17 @@ const DepartmentNode: React.FC<DepartmentNodeProps> = ({ data }) => {
 };
 
 const renderTreeNodes = (data: Department[]) =>
-  data.map((item) => {
+  data.map((item, index) => {
+    const nodeId =
+      item.id ||
+      item.name?.replace(/\s+/g, '-').toLowerCase() ||
+      `department-${index}`;
     return (
-      <TreeNode key={item.id} label={<DepartmentNode data={item} />}>
+      <TreeNode
+        key={item.id ?? nodeId}
+        label={<DepartmentNode data={item}  data-cy="org-org-chart-components-orgdepartmentpage-index-departmentnode-1"/>}
+        data-cy={`org-chart-department-node-tree-node-${nodeId}`}
+      >
         {item.department && renderTreeNodes(item.department)}
       </TreeNode>
     );
@@ -131,12 +171,12 @@ const OrgChartComponent: React.FC = () => {
   };
 
   return (
-    <Card className="border-none">
-      <div className="w-full py-7 overflow-x-auto">
+    <Card className="border-none" data-cy="org-chart-container" id="org-chart-container">
+      <div className="w-full py-7 overflow-x-auto" data-cy="org-chart-content" id="org-chart-content">
         {orgStructureLoading ? (
-          <OrgChartSkeleton loading={orgStructureLoading} />
+          <OrgChartSkeleton loading={orgStructureLoading} data-cy="org-chart-skeleton" />
         ) : (
-          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef}>
+          <div className="p-4 sm:p-2 md:p-6 lg:p-8" ref={chartRef} data-cy="org-chart-tree-container" id="org-chart-tree-container">
             <Tree
               label={
                 <DepartmentNode
@@ -150,11 +190,13 @@ const OrgChartComponent: React.FC = () => {
                     employeeJobInformation:
                       orgStructureData?.employeeJobInformation ?? [],
                   }}
+                  data-cy="org-chart-department-node-tree-node-label"
                 />
               }
               lineWidth={'2px'}
               lineColor={'#CBD5E0'}
               lineBorderRadius={'10px'}
+              data-cy="org-chart-tree"
             >
               {renderTreeNodes(orgStructureData?.department || [])}
             </Tree>
@@ -167,6 +209,7 @@ const OrgChartComponent: React.FC = () => {
           submitAction={handleFormSubmit}
           departmentData={selectedDepartment ?? undefined}
           title={selectedDepartment ? 'Edit Department' : 'Add Department'}
+          data-cy="org-chart-department-form"
         />
 
         <Modal
@@ -174,8 +217,9 @@ const OrgChartComponent: React.FC = () => {
           open={isDeleteConfirmVisible}
           onOk={handleDeleteConfirm}
           onCancel={() => setIsDeleteConfirmVisible(false)}
+          data-cy="org-chart-delete-modal"
         >
-          <p>Are you sure you want to delete this department?</p>
+          <p data-cy="org-chart-delete-confirmation-text" id="org-chart-delete-confirmation-text">Are you sure you want to delete this department?</p>
         </Modal>
       </div>
     </Card>

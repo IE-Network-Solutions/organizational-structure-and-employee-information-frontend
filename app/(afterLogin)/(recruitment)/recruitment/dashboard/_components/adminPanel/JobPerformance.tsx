@@ -24,6 +24,7 @@ export default function JobPerformance({
     if (departmentsLoading) return <LoadingOutlined />;
     return department?.name;
   };
+
   const columns = [
     {
       title: 'Job',
@@ -64,16 +65,20 @@ export default function JobPerformance({
     },
   ];
   return (
-    <div>
+    <div id="talent-acquisition-dashboard-job-performance-div-container" data-cy="talent-acquisition-dashboard-job-performance-div-container">
       <Table
+        id="talent-acquisition-dashboard-job-performance-table"
+        data-cy="talent-acquisition-dashboard-job-performance-table"
         columns={columns}
         dataSource={data?.results}
         loading={isLoading}
         pagination={false}
         bordered={false}
-        className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0"
+        className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0 md:w-full w-full overflow-x-auto scrollbar-hide"
       />
+
       <CustomPagination
+        data-cy="talent-acquisition-dashboard-job-performance-pagination"
         total={data?.total}
         pageSize={jobPostLimit}
         current={jobPostPage}

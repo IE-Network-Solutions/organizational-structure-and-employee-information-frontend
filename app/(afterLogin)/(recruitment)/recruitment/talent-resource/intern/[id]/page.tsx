@@ -65,6 +65,8 @@ const InternDetails = () => {
       {/* Back Button */}
       <div className="mb-4">
         <Button
+          id="talent-acquisition-intern-detail-button-back"
+          data-cy="talent-acquisition-intern-detail-button-back"
           type="text"
           icon={<ArrowLeftOutlined />}
           onClick={() => router.back()}
@@ -94,6 +96,8 @@ const InternDetails = () => {
                   <Space>
                     <FileTextOutlined />
                     <a
+                      id="talent-acquisition-intern-detail-link-cv"
+                      data-cy="talent-acquisition-intern-detail-link-cv"
                       href={internData.resumeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -102,6 +106,8 @@ const InternDetails = () => {
                       {internData?.documentName || 'CV.pdf'}
                     </a>
                     <Button
+                      id="talent-acquisition-intern-detail-button-download-cv"
+                      data-cy="talent-acquisition-intern-detail-button-download-cv"
                       type="link"
                       size="small"
                       icon={<DownloadOutlined />}

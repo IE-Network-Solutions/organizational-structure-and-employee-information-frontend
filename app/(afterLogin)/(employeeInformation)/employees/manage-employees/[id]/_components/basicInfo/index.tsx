@@ -282,6 +282,8 @@ function BasicInfo({ id }: { id: string }) {
             <img
               src={getImageUrl(profileFileList) || '/placeholder.svg'}
               alt="Uploaded Preview"
+              width={400}
+              height={256}
               className="w-full h-auto max-h-64 object-cover rounded-xl"
             />
           ) : (

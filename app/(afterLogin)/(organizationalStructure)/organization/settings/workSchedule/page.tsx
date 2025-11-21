@@ -110,6 +110,7 @@ function WorkScheduleTab() {
   };
 
   const renderMenu = (scheduleItem: ScheduleItem) => {
+    const scheduleId = scheduleItem.id || 'schedule-item';
     const items = [];
 
     if (
@@ -120,14 +121,18 @@ function WorkScheduleTab() {
       items.push({
         key: 'edit',
         label: 'Edit',
-        icon: <FaEdit />,
+        icon: <FaEdit  data-cy="org-organization-settings-workschedule-page-faedit-1" id="org-organization-settings-workschedule-page-faedit-1"/>,
         onClick: () => handleEditSchedule(scheduleItem),
+        'data-cy': `org-settings-work-schedule-edit-${scheduleId}`,
+        id: `org-settings-work-schedule-edit-${scheduleId}`,
       });
       items.push({
         key: 'delete',
         label: 'Delete',
-        icon: <FaTrashAlt />,
+        icon: <FaTrashAlt  data-cy="org-organization-settings-workschedule-page-fatrashalt-1" id="org-organization-settings-workschedule-page-fatrashalt-1"/>,
         onClick: () => handleDeleteSchedule(scheduleItem),
+        'data-cy': `org-settings-work-schedule-delete-${scheduleId}`,
+        id: `org-settings-work-schedule-delete-${scheduleId}`,
       });
     }
 
@@ -176,61 +181,69 @@ function WorkScheduleTab() {
 
   return (
     <>
-      <div className="p-5 bg-white rounded-2xl h-full">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-base text-bold">Work Schedule</h1>
-          <AccessGuard permissions={[Permissions.CreateWorkingSchedule]}>
-            <Space>
+      <div className="p-5 bg-white rounded-2xl h-full" data-cy="org-settings-work-schedule-container" id="org-settings-work-schedule-container">
+        <div className="flex justify-between items-center mb-4" data-cy="org-settings-work-schedule-header" id="org-settings-work-schedule-header">
+          <h1 className="text-base text-bold" data-cy="org-settings-work-schedule-title" id="org-settings-work-schedule-title">Work Schedule</h1>
+          <AccessGuard permissions={[Permissions.CreateWorkingSchedule]} data-cy="org-settings-work-schedule-create-btn" id="org-settings-work-schedule-create-btn">
+            <Space data-cy="org-organization-settings-workschedule-page-space-1">
               <Button
                 type="primary"
                 className="h-10 w-10 sm:w-auto"
-                icon={<FaPlus />}
+                icon={<FaPlus  data-cy="org-organization-settings-workschedule-page-faplus-1" id="org-organization-settings-workschedule-page-faplus-1"/>}
                 onClick={openDrawer}
+                data-cy="org-settings-work-schedule-create-btn"
+                id="org-settings-work-schedule-create-btn"
               >
-                <span className="hidden lg:inline">Create work Schedule</span>
+                <span className="hidden lg:inline" data-cy="org-settings-work-schedule-create-btn-text" id="org-settings-work-schedule-create-btn-text">Create work Schedule</span>
               </Button>
             </Space>
           </AccessGuard>
         </div>
 
-        {workScheudleData?.items?.map((scheduleItem, index) => (
-          <Collapse
-            key={index}
-            accordion
-            defaultActiveKey={['1']}
-            className="bg-white rounded-lg mb-4 w-full"
-            expandIconPosition="end"
-          >
-            <Panel
-              key="1"
-              className="mb-0"
-              header={
-                <div className="flex justify-between items-center">
-                  <span className="flex justify-start items-center gap-2 sm:gap-4">
-                    <p className="text-xs sm:text-base font-semibold">
-                      {scheduleItem.name}
-                    </p>
-                    <span className="px-2 py-1 bg-[#3636f0] text-white rounded-lg font-bold text-[8px] sm:text-xs">
-                      Working-Hour
-                    </span>
-                  </span>
-                  <Dropdown menu={renderMenu(scheduleItem)} trigger={['click']}>
-                    <MoreOutlined className="text-lg cursor-pointer" />
-                  </Dropdown>
-                </div>
-              }
-              extra={
-                <span className="hidden sm:inline text-blue-500 bg-blue-100 py-1 px-2 rounded text-xs font-medium">
-                  Working-hours
-                </span>
-              }
+        {workScheudleData?.items?.map((scheduleItem, index) => {
+          const scheduleId = `schedule-item-${index}`;
+          return (
+            <Collapse
+              key={index}
+              accordion
+              defaultActiveKey={['1']}
+              className="bg-white rounded-lg mb-4 w-full"
+              expandIconPosition="end"
+              data-cy={`org-settings-work-schedule-collapse-${scheduleId}`}
             >
-              <Row gutter={[16, 24]}>
-                <Col lg={16}>
+              <Panel
+                key="1"
+                className="mb-0"
+                data-cy="org-settings-work-schedule-collapse-panel"
+                id="org-settings-work-schedule-collapse-panel"
+                header={
+                  <div className="flex justify-between items-center" data-cy="org-settings-work-schedule-collapse-panel-header" id="org-settings-work-schedule-collapse-panel-header">
+                    <span className="flex justify-start items-center gap-2 sm:gap-4" data-cy="org-settings-work-schedule-collapse-panel-header-inner" id="org-settings-work-schedule-collapse-panel-header-inner">
+                      <p className="text-xs sm:text-base font-semibold" data-cy={`org-settings-work-schedule-name-${scheduleId}`} id={`org-settings-work-schedule-name-${scheduleId}`}>
+                        {scheduleItem.name}
+                      </p>
+                      <span className="px-2 py-1 bg-[#3636f0] text-white rounded-lg font-bold text-[8px] sm:text-xs" data-cy={`org-settings-work-schedule-badge-${scheduleId}`} id={`org-settings-work-schedule-badge-${scheduleId}`}>
+                        Working-Hour
+                      </span>
+                    </span>
+                    <Dropdown menu={renderMenu(scheduleItem)} trigger={['click']} data-cy={`org-settings-work-schedule-dropdown-${scheduleId}`}>
+                      <MoreOutlined className="text-lg cursor-pointer" data-cy={`org-settings-work-schedule-actions-${scheduleId}`} id={`org-settings-work-schedule-actions-${scheduleId}`} />
+                    </Dropdown>
+                  </div>
+                }
+                extra={
+                  <span className="hidden sm:inline text-blue-500 bg-blue-100 py-1 px-2 rounded text-xs font-medium" data-cy={`org-settings-work-schedule-extra-${scheduleId}`} id={`org-settings-work-schedule-extra-${scheduleId}`}>
+                    Working-hours
+                  </span>
+                }
+              >
+              <Row gutter={[16, 24]} data-cy="org-settings-work-schedule-collapse-panel-info-line-row" id="org-settings-work-schedule-collapse-panel-info-line-row">
+                <Col lg={16} data-cy="org-settings-work-schedule-collapse-panel-info-line-col" id="org-settings-work-schedule-collapse-panel-info-line-col">
                   <InfoLine
                     title="Standard working hours/day"
+                    data-cy="org-settings-work-schedule-collapse-panel-info-line-title"
                     value={
-                      <div className="text-xs">
+                      <div className="text-xs" data-cy="org-settings-work-schedule-collapse-panel-info-line-value" id="org-settings-work-schedule-collapse-panel-info-line-value">
                         {(() => {
                           const workingDays =
                             scheduleItem.detail?.filter(
@@ -256,8 +269,9 @@ function WorkScheduleTab() {
                   />
                   <InfoLine
                     title="Total working hours/week"
+                    data-cy="org-settings-work-schedule-collapse-panel-info-line-title-2"
                     value={
-                      <div className="text-xs">
+                      <div className="text-xs" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-2" id="org-settings-work-schedule-collapse-panel-info-line-value-2">
                         {(() => {
                           const totalHours = getTotalWorkingHours(
                             scheduleItem?.detail || [],
@@ -271,30 +285,33 @@ function WorkScheduleTab() {
                   />
                   <InfoLine
                     title="Daily working hours"
+                    data-cy="org-settings-work-schedule-collapse-panel-info-line-title-3"
                     value={
-                      <div className="flex gap-6 text-xs">
+                      <div className="flex gap-6 text-xs" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3" id="org-settings-work-schedule-collapse-panel-info-line-value-3">
                         {/* Day Names */}
-                        <div className="flex flex-col space-y-4 text-xs font-bold text-gray-700">
+                        <div className="flex flex-col space-y-4 text-xs font-bold text-gray-700" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner" id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner">
                           {getWorkingHoursForSchedule(
                             scheduleItem?.detail || [],
                           )?.map((item: WorkingHours) => (
                             <div
                               key={`${item?.day}-label`}
                               className="whitespace-nowrap"
-                            >
+                             data-cy="org-organization-settings-workschedule-page-div-1" id="org-organization-settings-workschedule-page-div-1">
                               {item?.day}
                             </div>
                           ))}
                         </div>
 
                         {/* Start - End Time */}
-                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800">
+                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2" id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2">
                           {getWorkingHoursForSchedule(
                             scheduleItem?.detail || [],
                           )?.map((item: WorkingHours) => (
                             <div
                               key={`${item?.day}-time`}
                               className="whitespace-nowrap overflow-hidden text-ellipsis"
+                              data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2-item"
+                              id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-2-item"
                             >
                               {item?.startTime || '--'} -{' '}
                               {item?.endTime || '--'}
@@ -303,13 +320,15 @@ function WorkScheduleTab() {
                         </div>
 
                         {/* Total Hours */}
-                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800">
+                        <div className="flex flex-col space-y-4 text-xs font-light text-gray-800" data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3" id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3">
                           {getWorkingHoursForSchedule(
                             scheduleItem?.detail || [],
                           )?.map((item: WorkingHours) => (
                             <div
                               key={`${item?.day}-hours`}
                               className="whitespace-nowrap"
+                              data-cy="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3-item"
+                              id="org-settings-work-schedule-collapse-panel-info-line-value-3-inner-3-item"
                             >
                               {(() => {
                                 const hours = Math.floor(item.hours || 0);
@@ -328,7 +347,8 @@ function WorkScheduleTab() {
               </Row>
             </Panel>
           </Collapse>
-        ))}
+          );
+        })}
 
         {/* Pagination */}
         {workScheudleData?.meta && (
@@ -340,6 +360,7 @@ function WorkScheduleTab() {
                 currentPage={currentPage}
                 onChange={onPageChange}
                 onShowSizeChange={onPageChange}
+                data-cy="org-settings-work-schedule-pagination-mobile"
               />
             ) : (
               <CustomPagination
@@ -351,13 +372,14 @@ function WorkScheduleTab() {
                   setPageSize(pageSize);
                   setCurrentPage(1);
                 }}
+                data-cy="org-settings-work-schedule-pagination"
               />
             )}
           </>
         )}
       </div>
-      <CustomWorkingScheduleDrawer />
-      <CustomDeleteWorkingSchduel />
+      <CustomWorkingScheduleDrawer data-cy="org-settings-work-schedule-drawer" />
+      <CustomDeleteWorkingSchduel data-cy="org-settings-work-schedule-delete-modal" />
     </>
   );
 }
