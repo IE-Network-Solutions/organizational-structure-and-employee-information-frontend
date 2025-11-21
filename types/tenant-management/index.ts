@@ -277,6 +277,7 @@ export interface Invoice extends TenantRelatedEntity {
   notes: string | null;
   paymentMetadata: Record<string, any> | null;
   payments: Payment[];
+  paymentAt: string;
 }
 
 /**

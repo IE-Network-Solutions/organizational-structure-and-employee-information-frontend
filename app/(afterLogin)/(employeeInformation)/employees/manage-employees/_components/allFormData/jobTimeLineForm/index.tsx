@@ -196,6 +196,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               disabledDate={(current) => {
                 // Get the last position's effective start date
                 const jobInformation = employeeData?.employeeJobInformation;
+
                 if (!jobInformation || jobInformation.length === 0)
                   return false;
 
@@ -484,9 +485,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           <div className="flex items-start gap-2">
             <Form.Item
               name="allowanceIds"
-              rules={[
-                { required: true, message: 'Please select allowance type' },
-              ]}
               className="flex-1"
             >
               <Form.Item shouldUpdate noStyle>

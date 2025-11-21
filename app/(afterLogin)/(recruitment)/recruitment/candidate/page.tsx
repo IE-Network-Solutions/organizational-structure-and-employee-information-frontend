@@ -43,16 +43,16 @@ const AllCandidates: React.FC = () => {
     setCreateJobDrawer(false);
   };
   return (
-    <div className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
-      <div className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb title="Candidates" subtitle="All who applied" />
-        <div className="flex items-center justify-between my-4 ">
-          <div className="hidden sm:block mr-4">
-            <WhatYouNeed />
+    <div id="talent-acquisition-candidate-page-div-container" data-cy="talent-acquisition-candidate-page-div-container" className="h-auto w-full p-4 bg-[#f5f5f5] sm:p-6">
+      <div id="talent-acquisition-candidate-page-div-header" data-cy="talent-acquisition-candidate-page-div-header" className="flex flex-wrap justify-between items-center">
+        <CustomBreadcrumb data-cy="talent-acquisition-candidate-page-breadcrumb" title="Candidates" subtitle="All who applied" />
+        <div id="talent-acquisition-candidate-page-div-buttons" data-cy="talent-acquisition-candidate-page-div-buttons" className="flex items-center justify-between my-4 ">
+          <div id="talent-acquisition-candidate-page-div-what-you-need" data-cy="talent-acquisition-candidate-page-div-what-you-need" className="hidden sm:block mr-4">
+            <WhatYouNeed data-cy="talent-acquisition-candidate-page-what-you-need" />
           </div>
 
           {selectedCandidate?.length > 0 && (
-            <div className="mr-4">
+            <div id="talent-acquisition-candidate-page-div-move-button" data-cy="talent-acquisition-candidate-page-div-move-button" className="mr-4">
               <CustomButton
                 title={
                   !(isMobile || isTablet) && (
@@ -62,6 +62,7 @@ const AllCandidates: React.FC = () => {
                   )
                 }
                 id="createUserButton"
+                data-cy="talent-acquisition-candidate-button-move-talent-pool"
                 icon={<IoIosShareAlt className="md:mr-0 ml-2" size={20} />}
                 onClick={handleMoveToTalentsPool}
                 className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
@@ -76,17 +77,18 @@ const AllCandidates: React.FC = () => {
                 )
               }
               id="createUserButton"
+              data-cy="talent-acquisition-candidate-button-add"
               icon={<FaPlus className="md:mr-0 ml-2" />}
               onClick={showDrawer}
               className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
             />
-            <CreateCandidate onClose={onClose} />
+            <CreateCandidate data-cy="talent-acquisition-candidate-page-create-candidate" onClose={onClose} />
           </AccessGuard>
         </div>
       </div>
-      <div className="w-full h-auto bg-white p-2 px-4 rounded-lg">
-        <SearchOptions />
-        <AllCandidateTable />
+      <div id="talent-acquisition-candidate-page-div-table" data-cy="talent-acquisition-candidate-page-div-table" className="w-full h-auto bg-white p-2 px-4 rounded-lg">
+        <SearchOptions data-cy="talent-acquisition-candidate-page-search-options" />
+        <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
       </div>
     </div>
   );

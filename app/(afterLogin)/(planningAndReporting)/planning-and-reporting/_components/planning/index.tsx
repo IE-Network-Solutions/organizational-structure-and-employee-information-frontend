@@ -119,7 +119,7 @@ function Planning() {
   });
   const { data: allUserPlanning } = useGetUserPlanning(
     planningPeriodId ?? '',
-    activeTab.toString(),
+    activePlanPeriod.toString(),
   );
 
   useEffect(() => {
@@ -350,9 +350,9 @@ function Planning() {
                 </Row>
                 <Row gutter={16} className="items-center">
                   <Col xs={4} sm={2} md={1}>
-                    {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                    {getEmployeeData(dataItem?.userId)?.profileImage ? (
                       <Avatar
-                        src={getEmployeeData(dataItem?.createdBy)?.profileImage}
+                        src={getEmployeeData(dataItem?.userId)?.profileImage}
                         style={{ verticalAlign: 'middle' }}
                         size="default"
                       />
@@ -368,17 +368,17 @@ function Planning() {
                     <Row className="flex justify-between items-center">
                       <Row gutter={16} justify={'start'} align={'middle'}>
                         <div className="flex flex-col text-xs ml-2 font-bold">
-                          {getEmployeeData(dataItem?.createdBy)?.firstName +
+                          {getEmployeeData(dataItem?.userId)?.firstName +
                             ' ' +
-                            (getEmployeeData(dataItem?.createdBy)?.middleName
-                              ? getEmployeeData(dataItem?.createdBy)
+                            (getEmployeeData(dataItem?.userId)?.middleName
+                              ? getEmployeeData(dataItem?.userId)
                                   .middleName.charAt(0)
                                   .toUpperCase()
                               : '')}
                           .
                           <span className="text-xs font-light text-gray-500">
-                            {dataItem?.createdBy
-                              ? getEmployeeData(dataItem?.createdBy)
+                            {dataItem?.userId
+                              ? getEmployeeData(dataItem?.userId)
                                   ?.employeeJobInformation?.[0]?.department
                                   ?.name || ''
                               : ''}
@@ -411,9 +411,9 @@ function Planning() {
                         {/* {!dataItem?.isValidated && ( */}
                         <>
                           {userId ===
-                            (getEmployeeData(dataItem?.createdBy)?.delegatedTo
+                            (getEmployeeData(dataItem?.userId)?.delegatedTo
                               ?.id ||
-                              getEmployeeData(dataItem?.createdBy)?.reportingTo
+                              getEmployeeData(dataItem?.userId)?.reportingTo
                                 ?.id) && (
                             <Dropdown
                               overlay={actionsMenu(
@@ -431,7 +431,7 @@ function Planning() {
                               />
                             </Dropdown>
                           )}
-                          {userId === dataItem?.createdBy &&
+                          {userId === dataItem?.userId &&
                             dataItem?.isValidated == false &&
                             dataItem?.isReported == false &&
                             isDataFromActiveSession(dataItem?.createdAt) && (

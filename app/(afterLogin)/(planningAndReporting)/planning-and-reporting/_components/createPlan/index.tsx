@@ -434,7 +434,6 @@ function CreatePlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
-
     createTask(
       { tasks: finalValues },
       {
