@@ -208,7 +208,7 @@ function DefaultCardForm({
                           const fieldValue = form.getFieldValue(name) || [];
                           const totalWeight = fieldValue.reduce(
                             (sum: number, field: any) =>
-                              sum + (field.weight || 0),
+                              Number(sum) + Number(field?.weight || 0),
                             0,
                           );
                           setWeight(name, totalWeight);
@@ -227,7 +227,7 @@ function DefaultCardForm({
                         const fieldValue = form.getFieldValue(name) || [];
                         const totalWeight = fieldValue.reduce(
                           (sum: number, field: any) =>
-                            sum + (field.weight || 0),
+                            Number(sum) + Number(field?.weight || 0),
                           0,
                         );
                         setWeight(name, totalWeight);
@@ -338,3 +338,4 @@ function DefaultCardForm({
 }
 
 export default DefaultCardForm;
+
