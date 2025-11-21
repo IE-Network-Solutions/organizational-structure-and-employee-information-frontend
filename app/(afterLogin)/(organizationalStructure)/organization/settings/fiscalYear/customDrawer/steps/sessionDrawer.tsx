@@ -509,6 +509,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         onFieldsChange={updateErrorState}
         data-cy="org-settings-fiscal-year-session-drawer-form"
         id="org-settings-fiscal-year-session-drawer-form"
+        className="px-4"
       >
         {sessionData.map((session, index) => renderSessionForm(session, index))}
 
