@@ -5,6 +5,7 @@ import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/q
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { GoPlus } from 'react-icons/go';
 
 const MilestoneForm: React.FC<OKRFormProps> = ({
   keyItem,
@@ -64,12 +65,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const { isMobile } = useIsMobile();
 
   return (
-    <div className="py-3 rounded-lg p-4 relative pb-6 bg-gray-50">
+    <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">
       <button
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
-        className="absolute top-2 right-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shadow transition-colors"
+        className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
         style={{ zIndex: 10 }}
         id={`cancel-key-result-${index}`}
       >
@@ -261,15 +262,17 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       />
                     </svg>
                   </button>
-                  <Button
-                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 sm:h-11 px-3 sm:px-4 flex items-center justify-center flex-shrink-0"
+                  <button
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-md w-6 h-6 flex items-center justify-center p-3"
                     aria-label="Add Milestone"
                     onClick={handleAddMilestone}
-                    type="primary"
+                    type="button"
                   >
-                    <span className="hidden xs:inline">Add</span>
-                    <span className="xs:hidden">+</span>
-                  </Button>
+                    <span className="sr-only">Add Milestone</span>
+                    <span aria-hidden="true">
+                      <GoPlus size={16} />
+                    </span>
+                  </button>
                 </div>
               </div>
               {/* Additional milestones */}
@@ -312,7 +315,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       onClick={() => handleRemoveMilestone(mIndex + 1)}
                       title="Remove Milestone"
                       aria-label="Remove Milestone"
-                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shadow transition-colors flex-shrink-0"
+                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-10 h-10 sm:w-11 sm:h-11 mt-2 flex items-center justify-center shadow transition-colors flex-shrink-0bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
                       style={{ zIndex: 10 }}
                     >
                       <svg

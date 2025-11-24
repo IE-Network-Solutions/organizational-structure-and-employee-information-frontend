@@ -33,7 +33,7 @@ const ApprovalBranchFilter = () => {
     onSelectChange(value, 'entityType');
   };
   return (
-    <div className="flex sm:block">
+    <div className="flex items-start gap-3 sm:block">
       <ApprovalFilterComponent
         searchParams={searchParams}
         handleSearchInput={handleSearchInput}
