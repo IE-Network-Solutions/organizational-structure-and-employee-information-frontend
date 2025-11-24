@@ -341,7 +341,11 @@ const RecruitmentPipeline = () => {
           </div>
         </div>
 
-        <CandidateTable data={pipelineData} isLoading={isLoading} />
+        <CandidateTable
+          data-cy="talent-acquisition-recruitment-pipeline-table"
+          data={pipelineData}
+          isLoading={isLoading}
+        />
       </Card>
 
       {/* Mobile Filter Modal */}
