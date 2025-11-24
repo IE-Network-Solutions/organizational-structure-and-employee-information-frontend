@@ -1,11 +1,10 @@
 import { EntityTypeList } from '@/store/server/features/approver/interface';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
 import { Button, Col, Input, Modal, Row, Select } from 'antd';
-import React, { useState } from 'react';
 import { LuSettings2 } from 'react-icons/lu';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-
+import { useApprovalStore } from '@/store/uistate/features/approval';
 interface User {
   id: string;
   firstName?: string;
@@ -31,8 +30,7 @@ const ApprovalFilterComponent = ({
     options?: { entityType?: string; entityId?: string },
   ) => void;
 }) => {
-  const [selectedEntityType, setSelectedEntityType] = useState<string>('');
-
+  const { selectedEntityType, setSelectedEntityType } = useApprovalStore();
   const EntityType: EntityTypeList[] = [
     {
       name: 'Department',

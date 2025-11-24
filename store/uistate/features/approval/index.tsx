@@ -82,6 +82,9 @@ interface UserState {
 
   addDepartmentApproval: boolean;
   setAddDepartmentApproval: (addDepartmentApproval: boolean) => void;
+
+  selectedEntityType: string;
+  setSelectedEntityType: (selectedEntityType: string) => void;
 }
 
 export const useApprovalStore = create<UserState>()(
@@ -151,6 +154,10 @@ export const useApprovalStore = create<UserState>()(
 
         selections: { SectionItemType: Array(1).fill({ user: null }) },
         setSelections: (selections: SectionProps) => set({ selections }),
+
+        selectedEntityType: '',
+        setSelectedEntityType: (selectedEntityType: string) =>
+          set({ selectedEntityType }),
 
         rejectComment: '',
         setRejectComment: (value: string) => set({ rejectComment: value }),
