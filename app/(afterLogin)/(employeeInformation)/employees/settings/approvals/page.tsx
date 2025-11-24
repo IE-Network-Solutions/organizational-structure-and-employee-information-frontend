@@ -86,9 +86,10 @@ const Approvals = () => {
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setDepartmentApproval(false)}
+                aria-label="Go back"
               >
                 <IoArrowBack className="text-white" />
-                <span> Back</span>
+                <span className="hidden sm:inline"> Back</span>
               </Button>
               <div className="text-2xl font-bold "></div>
             </div>
@@ -105,9 +106,10 @@ const Approvals = () => {
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setAddDepartmentApproval(false)}
+                aria-label="Go back"
               >
                 <IoArrowBack className="text-white" />
-                <span> Back</span>
+                <span className="hidden sm:inline"> Back</span>
               </Button>
               <div className="text-2xl font-bold "></div>
             </div>
