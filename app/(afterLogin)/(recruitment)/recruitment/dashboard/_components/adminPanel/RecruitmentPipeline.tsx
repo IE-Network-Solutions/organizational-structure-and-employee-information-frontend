@@ -160,73 +160,13 @@ const RecruitmentPipeline = () => {
 
   const averageDaysToHire = calculateAverageDaysToHire();
 
-  return (
-    <Card
-      bodyStyle={{ padding: '0px' }}
-      className="bg-white p-6 rounded-xl shadow-lg mx-1"
-      data-cy="talent-acquisition-recruitment-pipeline-card"
-    >
-      <div
-        id="talent-acquisition-recruitment-pipeline-div-header"
-        data-cy="talent-acquisition-recruitment-pipeline-div-header"
-        className="flex justify-between items-center mb-6"
-      >
-        <h2
-          id="talent-acquisition-recruitment-pipeline-h2"
-          data-cy="talent-acquisition-recruitment-pipeline-h2"
-          className="text-[16px] font-bold"
-        >
-          Recruitment Pipeline
-        </h2>
-        <div
-          id="talent-acquisition-recruitment-pipeline-div-buttons"
-          data-cy="talent-acquisition-recruitment-pipeline-div-buttons"
-          className="flex items-center gap-4"
-        >
-          {jobId && (
-            <div
-              id="talent-acquisition-recruitment-pipeline-div-days-to-hire"
-              data-cy="talent-acquisition-recruitment-pipeline-div-days-to-hire"
-              className="text-[18px] text-[#4E4EF1] font-bold"
-            >
-              <span
-                id="talent-acquisition-recruitment-pipeline-span-days-to-hire"
-                data-cy="talent-acquisition-recruitment-pipeline-span-days-to-hire"
-                className=""
-              >
-                Days to Hire:
-              </span>{' '}
-              {averageDaysToHire}
-            </div>
-          )}
+  const MobileFilterContent = () => (
+    <div className="flex flex-col gap-4">
+      <h3 className="text-lg font-medium mb-2">Filter</h3>
 
-          <Button
-            id="talent-acquisition-recruitment-pipeline-button-export"
-            data-cy="talent-acquisition-recruitment-pipeline-button-export"
-            icon={<LuFileDown />}
-            type="default"
-            onClick={handleExport}
-            loading={isExporting}
-            className="h-12 w-28"
-          >
-            Export
-          </Button>
-        </div>
-      </div>
-
-      <div
-        id="talent-acquisition-recruitment-pipeline-div-filters"
-        data-cy="talent-acquisition-recruitment-pipeline-div-filters"
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6"
-      >
-        <Input
-          id="talent-acquisition-recruitment-pipeline-input-search"
-          data-cy="talent-acquisition-recruitment-pipeline-input-search"
-          placeholder="Search candidate"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="h-14"
-        />
+      {/* Department */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Department</label>
         <Select
           id="talent-acquisition-recruitment-pipeline-select-department"
           data-cy="talent-acquisition-recruitment-pipeline-select-department"
@@ -322,12 +262,6 @@ const RecruitmentPipeline = () => {
           </div>
         </div>
 
-      <CandidateTable
-        data-cy="talent-acquisition-recruitment-pipeline-table"
-        data={pipelineData}
-        isLoading={isLoading}
-      />
-    </Card>
         {/* Desktop Filters */}
         <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Input
@@ -407,7 +341,11 @@ const RecruitmentPipeline = () => {
           </div>
         </div>
 
-        <CandidateTable data={pipelineData} isLoading={isLoading} />
+        <CandidateTable
+          data-cy="talent-acquisition-recruitment-pipeline-table"
+          data={pipelineData}
+          isLoading={isLoading}
+        />
       </Card>
 
       {/* Mobile Filter Modal */}
