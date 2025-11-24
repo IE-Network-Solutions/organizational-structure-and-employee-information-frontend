@@ -180,10 +180,14 @@ const DownloadExcelButton: React.FC = () => {
 
   return childRecognitionData?.length > 0 ? (
     <Popover
+      id="download-excel-button-popover"
+      data-cy="download-excel-button-popover"
       content={
-        <div>
+        <div id="download-excel-button-popover-content" data-cy="download-excel-button-popover-content">
           {childRecognitionData?.map((item: any) => (
             <div
+              id={`download-excel-button-popover-item-${item?.id}`}
+              data-cy={`download-excel-button-popover-item-${item?.id}`}
               key={item?.id}
               onClick={() => {
                 // Only prevent click if this specific item is loading
@@ -197,11 +201,11 @@ const DownloadExcelButton: React.FC = () => {
                   : ''
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="flex-1">{item?.name}</span>
+              <div id={`download-excel-button-popover-item-content-${item?.id}`} data-cy={`download-excel-button-popover-item-content-${item?.id}`} className="flex items-center justify-between">
+                <span id={`download-excel-button-popover-item-name-${item?.id}`} data-cy={`download-excel-button-popover-item-name-${item?.id}`} className="flex-1">{item?.name}</span>
                 {loadingItems[item?.id] && (
-                  <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center ml-2">
-                    <div className="w-6 h-6 border-4 border-blue-800 border-t-transparent rounded-full animate-spin shadow-sm"></div>
+                  <div id={`download-excel-button-popover-item-spinner-${item?.id}`} data-cy={`download-excel-button-popover-item-spinner-${item?.id}`} className="flex-shrink-0 w-6 h-6 flex items-center justify-center ml-2">
+                    <div id={`download-excel-button-popover-item-spinner-inner-${item?.id}`} data-cy={`download-excel-button-popover-item-spinner-inner-${item?.id}`} className="w-6 h-6 border-4 border-blue-800 border-t-transparent rounded-full animate-spin shadow-sm"></div>
                   </div>
                 )}
               </div>
@@ -214,6 +218,8 @@ const DownloadExcelButton: React.FC = () => {
       onOpenChange={setPopoverVisible}
     >
       <Button
+        id="download-excel-button-popover-trigger"
+        data-cy="download-excel-button-popover-trigger"
         loading={templateResponseLoading || responseLoading}
         style={{
           padding: '10px 20px',
@@ -231,6 +237,8 @@ const DownloadExcelButton: React.FC = () => {
     </Popover>
   ) : (
     <Button
+      id="download-excel-button"
+      data-cy="download-excel-button"
       loading={templateResponseLoading || responseLoading}
       style={{
         padding: '10px 20px',
