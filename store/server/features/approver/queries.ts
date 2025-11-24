@@ -8,6 +8,7 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 export const approvalFilter = async (
   pageSize: number,
   currentPage: number,
+  entityId: string,
   entityType: string,
   name: string,
   branch: string,
@@ -16,7 +17,7 @@ export const approvalFilter = async (
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const response = await crudRequest({
-    url: `${APPROVER_URL}/approver/approvalworkflows?entityType=${entityType}&name=${name}&page=${currentPage}&limit=${pageSize}&approvalType=${branch}`,
+    url: `${APPROVER_URL}/approver/approvalworkflows?entityId=${entityId}&entityType=${entityType}&name=${name}&page=${currentPage}&limit=${pageSize}&approvalType=${branch}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -103,13 +104,15 @@ export const currentApproval = async (
 export const useApprovalFilter = (
   pageSize: number,
   currentPage: number,
-  name: string,
   entityType: string,
+  entityId: string,
+  name: string,
   branch: string,
 ) => {
   return useQuery<any>(
-    ['approvals', pageSize, currentPage, name, entityType],
-    () => approvalFilter(pageSize, currentPage, name, entityType, branch),
+    ['approvals', pageSize, currentPage, entityId, name],
+    () =>
+      approvalFilter(pageSize, currentPage, entityId, entityType, name, branch),
     {
       keepPreviousData: true,
     },
