@@ -65,7 +65,7 @@ const Pension = () => {
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
-            data-cy={`payroll-pension-name-input-${record.key}`}
+            data-cy={`payroll-pension-name-input-${record.id}`}
             value={editedData.name}
             onChange={(e) => handleInputChange('name', e.target.value)}
           />
@@ -82,7 +82,7 @@ const Pension = () => {
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
-            data-cy={`payroll-pension-employee-input-${record.key}`}
+            data-cy={`payroll-pension-employee-input-${record.id}`}
             type="number"
             max={100}
             min={0}
@@ -103,7 +103,7 @@ const Pension = () => {
       render: (notused: any, record: PensionRule) => {
         return isEditing(record) ? (
           <Input
-            data-cy={`payroll-pension-employer-input-${record.key}`}
+            data-cy={`payroll-pension-employer-input-${record.id}`}
             type="number"
             max={100}
             min={0}
