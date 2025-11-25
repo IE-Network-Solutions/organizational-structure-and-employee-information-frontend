@@ -206,14 +206,14 @@ const CustomWorkingScheduleDrawer = () => {
   const columns: ColumnsType<ScheduleDetail> = [
     {
       title: 'Working Day',
-      dataIndex: 'dayOfWeek',
-      key: 'dayOfWeek',
+      dataIndex: 'day',
+      key: 'day',
       render: (s, record) => {
         const dayKey =
-          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
-            name={`${record.dayOfWeek}-working`}
+            name={`${record.day}-working`}
             valuePropName="checked"
             noStyle
             data-cy={`org-settings-work-schedule-working-form-item-${dayKey}`}
@@ -225,7 +225,7 @@ const CustomWorkingScheduleDrawer = () => {
               id={`org-settings-work-schedule-working-content-${dayKey}`}
             >
               <Switch
-                checked={record.status}
+                checked={record.workDay}
                 checkedChildren={
                   <CheckOutlined data-cy="org-components-workschedule-customdrawer-index-checkoutlined-1" />
                 }
@@ -234,7 +234,7 @@ const CustomWorkingScheduleDrawer = () => {
                 }
                 size="small"
                 onChange={(checked) =>
-                  handleSwitchChange(record.dayOfWeek, checked)
+                  handleSwitchChange(record.day, checked)
                 }
                 data-cy={`org-settings-work-schedule-working-switch-${dayKey}`}
                 id={`org-settings-work-schedule-working-switch-${dayKey}`}
@@ -243,7 +243,7 @@ const CustomWorkingScheduleDrawer = () => {
                 data-cy={`org-settings-work-schedule-working-label-${dayKey}`}
                 id={`org-settings-work-schedule-working-label-${dayKey}`}
               >
-                {record.dayOfWeek}
+                {record.day}
               </p>
             </div>
           </Form.Item>
@@ -256,21 +256,21 @@ const CustomWorkingScheduleDrawer = () => {
       key: 'startTime',
       render: (s, record) => {
         const dayKey =
-          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
-            name={`${record.dayOfWeek}-start`}
+            name={`${record.day}-start`}
             noStyle
             data-cy={`org-settings-work-schedule-start-time-form-item-${dayKey}`}
             id={`org-settings-work-schedule-start-time-form-item-${dayKey}`}
           >
             <TimePicker
               format="h:mm A"
-              disabled={!record.status}
+              disabled={!record.workDay}
               use12Hours
               className="min-w-[90px] h-7 custom-timepicker"
               onChange={(time) =>
-                setDetail(record.dayOfWeek, {
+                setDetail(record.day, {
                   startTime: time ? dayjs(time).format('h:mm A') : '',
                 })
               }
@@ -288,21 +288,21 @@ const CustomWorkingScheduleDrawer = () => {
       key: 'endTime',
       render: (s, record) => {
         const dayKey =
-          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
-            name={`${record.dayOfWeek}-end`}
+            name={`${record.day}-end`}
             noStyle
             data-cy={`org-settings-work-schedule-end-time-form-item-${dayKey}`}
             id={`org-settings-work-schedule-end-time-form-item-${dayKey}`}
           >
             <TimePicker
               format="h:mm A"
-              disabled={!record.status}
+              disabled={!record.workDay}
               use12Hours
               className="min-w-[90px] h-7 custom-timepicker"
               onChange={(time) =>
-                setDetail(record.dayOfWeek, {
+                setDetail(record.day, {
                   endTime: time ? dayjs(time).format('h:mm A') : '',
                 })
               }
@@ -320,7 +320,7 @@ const CustomWorkingScheduleDrawer = () => {
       key: 'hours',
       render: (s, record) => {
         const dayKey =
-          record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
             shouldUpdate
@@ -329,8 +329,8 @@ const CustomWorkingScheduleDrawer = () => {
             id={`org-settings-work-schedule-duration-form-item-${dayKey}`}
           >
             {({ getFieldValue }) => {
-              const start = getFieldValue(`${record.dayOfWeek}-start`);
-              const end = getFieldValue(`${record.dayOfWeek}-end`);
+              const start = getFieldValue(`${record.day}-start`);
+              const end = getFieldValue(`${record.day}-end`);
               const duration =
                 start && end ? dayjs(end).diff(dayjs(start), 'hour', true) : 0;
               const hours = Math.floor(duration);
@@ -341,7 +341,7 @@ const CustomWorkingScheduleDrawer = () => {
                   data-cy={`org-settings-work-schedule-duration-${dayKey}`}
                   id={`org-settings-work-schedule-duration-${dayKey}`}
                 >
-                  {record.status
+                  {record.workDay
                     ? `${hours}h ${minutes.toString().padStart(2, '0')}m`
                     : '0h 00m'}
                 </span>
