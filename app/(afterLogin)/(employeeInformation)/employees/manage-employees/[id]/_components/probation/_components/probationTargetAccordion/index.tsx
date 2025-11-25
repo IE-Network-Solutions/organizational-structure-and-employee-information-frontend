@@ -647,6 +647,8 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
 
           return (
             <Panel
+              id={`probation-target-panel-${targetSlug}`}
+              data-cy={`probation-target-panel-${targetSlug}`}
               key={target.id}
               header={
                 <div
@@ -824,8 +826,15 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                             id={`probation-target-actions-dropdown-btn-${targetSlug}`}
                             data-cy={`probation-target-actions-dropdown-btn-${targetSlug}`}
                           >
-                            <MdEdit className="mr-1" />
-                            <DownOutlined />
+                            <MdEdit
+                              className="mr-1"
+                              id={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
+                              data-cy={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
+                            />
+                            <DownOutlined
+                              id={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
+                              data-cy={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
+                            />
                           </Button>
                         </Dropdown>
                       );
@@ -834,6 +843,8 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                     <Tooltip title="Delete Probation Target">
                       <AccessGuard
                         permissions={[Permissions.DeleteProbationTarget]}
+                        id={`probation-target-delete-btn-guard-${targetSlug}`}
+                        data-cy={`probation-target-delete-btn-guard-${targetSlug}`}
                       >
                         <Button
                           type="default"
@@ -894,7 +905,9 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                   >
                     <Empty
                       description="No tasks found for this probation target"
-                      image={<EmptyImage />}
+                      image={
+                        <EmptyImage data-cy="probation-target-empty-tasks-image" />
+                      }
                       data-cy={`probation-target-empty-tasks-${targetSlug}`}
                     />
                   </div>
@@ -922,7 +935,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
       <Modal
         title={
           <div className="flex items-center">
-            <ExclamationCircleOutlined className="text-red-500 mr-2" />
+            <ExclamationCircleOutlined
+              className="text-red-500 mr-2"
+              id="probation-task-delete-modal-title-icon"
+              data-cy="probation-task-delete-modal-title-icon"
+            />
             Delete Task
           </div>
         }
@@ -954,13 +971,24 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                 id="probation-task-delete-modal-task"
                 data-cy="probation-task-delete-modal-task"
               >
-                <strong>Task:</strong> {taskToDelete.taskName}
+                <strong
+                  id="probation-task-delete-modal-task-strong"
+                  data-cy="probation-task-delete-modal-task-strong"
+                >
+                  Task:
+                </strong>{' '}
+                {taskToDelete.taskName}
               </p>
               <p
                 id="probation-task-delete-modal-assigned"
                 data-cy="probation-task-delete-modal-assigned"
               >
-                <strong>Assigned To:</strong>{' '}
+                <strong
+                  id="probation-task-delete-modal-assigned-strong"
+                  data-cy="probation-task-delete-modal-assigned-strong"
+                >
+                  Assigned To:
+                </strong>{' '}
                 {`${taskToDelete.evaluatorUser?.firstName || ''} ${taskToDelete.evaluatorUser?.lastName || ''}`.trim() ||
                   'Unassigned'}
               </p>
@@ -1393,7 +1421,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
               id="probation-edit-target-name-form-item"
               data-cy="probation-edit-target-name-form-item"
             >
-              <Input placeholder="Enter probation target name" />
+              <Input
+                placeholder="Enter probation target name"
+                id="probation-edit-target-name-input"
+                data-cy="probation-edit-target-name-input"
+              />
             </Form.Item>
             <div
               className="flex justify-end space-x-2 mt-6"
@@ -1424,8 +1456,16 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
       {/* Delete Probation Target Confirmation Modal */}
       <Modal
         title={
-          <div className="flex items-center">
-            <ExclamationCircleOutlined className="text-red-500 mr-2" />
+          <div
+            className="flex items-center"
+            id="probation-delete-target-modal-title"
+            data-cy="probation-delete-target-modal-title"
+          >
+            <ExclamationCircleOutlined
+              className="text-red-500 mr-2"
+              id="probation-delete-target-modal-title-icon"
+              data-cy="probation-delete-target-modal-title-icon"
+            />
             Delete Probation Target
           </div>
         }
@@ -1457,20 +1497,37 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                 id="probation-delete-target-modal-name"
                 data-cy="probation-delete-target-modal-name"
               >
-                <strong>Target Name:</strong> {targetToDelete.name}
+                <strong
+                  id="probation-delete-target-modal-name-strong"
+                  data-cy="probation-delete-target-modal-name-strong"
+                >
+                  Target Name:
+                </strong>{' '}
+                {targetToDelete.name}
               </p>
               <p
                 id="probation-delete-target-modal-employee"
                 data-cy="probation-delete-target-modal-employee"
               >
-                <strong>Employee:</strong>{' '}
+                <strong
+                  id="probation-delete-target-modal-employee-strong"
+                  data-cy="probation-delete-target-modal-employee-strong"
+                >
+                  Employee:
+                </strong>{' '}
                 {`${targetToDelete.user.firstName} ${targetToDelete.user.lastName}`.trim()}
               </p>
               <p
                 id="probation-delete-target-modal-tasks"
                 data-cy="probation-delete-target-modal-tasks"
               >
-                <strong>Tasks:</strong> {targetToDelete.probationTasks.length}
+                <strong
+                  id="probation-delete-target-modal-tasks-strong"
+                  data-cy="probation-delete-target-modal-tasks-strong"
+                >
+                  Tasks:
+                </strong>{' '}
+                {targetToDelete.probationTasks.length}
               </p>
             </div>
             <p

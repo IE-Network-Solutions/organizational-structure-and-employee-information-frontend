@@ -84,8 +84,12 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       key: '6',
       label: 'Probation',
       children: (
-        <AccessGuard permissions={[Permissions.ViewProbationTarget]}>
-          <ProbationTask id={id} />
+        <AccessGuard
+          permissions={[Permissions.ViewProbationTarget]}
+          id="employee-detail-probation-guard"
+          data-cy="employee-detail-probation-guard"
+        >
+          <ProbationTask id={id} data-cy="employee-detail-probation-task" />
         </AccessGuard>
       ),
     },

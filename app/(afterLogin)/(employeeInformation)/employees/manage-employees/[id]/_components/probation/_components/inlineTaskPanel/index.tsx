@@ -237,7 +237,11 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
         id={`probation-inline-panel-form-${panelSlug}`}
         data-cy={`probation-inline-panel-form-${panelSlug}`}
       >
-        <Form.List name="tasks" initialValue={editMode ? [{}] : [{}]}>
+        <Form.List
+          name="tasks"
+          initialValue={editMode ? [{}] : [{}]}
+          data-cy={`probation-inline-panel-form-list-${panelSlug}`}
+        >
           {(fields, { add, remove }) => (
             <>
               <div
@@ -462,9 +466,21 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
           id={`probation-inline-panel-total-weight-${panelSlug}`}
           data-cy={`probation-inline-panel-total-weight-${panelSlug}`}
         >
-          <div className="space-y-2">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">
+          <div
+            className="space-y-2"
+            id={`probation-inline-panel-total-weight-${panelSlug}`}
+            data-cy={`probation-inline-panel-total-weight-${panelSlug}`}
+          >
+            <div
+              className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2"
+              id={`probation-inline-panel-total-weight-row-${panelSlug}`}
+              data-cy={`probation-inline-panel-total-weight-row-${panelSlug}`}
+            >
+              <span
+                className="text-sm font-medium text-gray-700"
+                id={`probation-inline-panel-total-weight-value-${panelSlug}`}
+                data-cy={`probation-inline-panel-total-weight-value-${panelSlug}`}
+              >
                 Probation Target Weight:
               </span>
               <span

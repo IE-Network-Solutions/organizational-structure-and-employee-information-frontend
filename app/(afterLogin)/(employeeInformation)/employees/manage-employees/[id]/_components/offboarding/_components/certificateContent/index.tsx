@@ -103,7 +103,10 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                   id={`certificate-task-${taskSlug}`}
                   data-cy={`certificate-task-${taskSlug}`}
                 >
-                  <div id={`certificate-task-inner-${taskSlug}`}>
+                  <div
+                    id={`certificate-task-inner-${taskSlug}`}
+                    data-cy={`certificate-task-inner-${taskSlug}`}
+                  >
                     <p
                       className="font-medium text-gray-800 text-xs mb-2"
                       id={`certificate-task-title-${taskSlug}`}

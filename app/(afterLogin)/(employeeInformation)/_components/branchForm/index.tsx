@@ -165,7 +165,6 @@ const BranchForm: React.FC<{
           <PhoneInput
             defaultCountry="et"
             inputClassName="ant-input"
-            id={`branch-form-contact-number-input-${modalSlug}`}
             data-cy={`branch-form-contact-number-input-${modalSlug}`}
           />
         </Form.Item>

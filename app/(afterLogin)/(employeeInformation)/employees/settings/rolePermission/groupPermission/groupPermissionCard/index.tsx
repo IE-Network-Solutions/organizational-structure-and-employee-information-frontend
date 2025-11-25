@@ -67,7 +67,10 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
               onClick={() => props?.handleButtonClick(props?.item?.id)}
               data-cy={`settings-group-permission-card-menu-btn-${props?.item?.id}`}
             >
-              <IoMdMore />
+              <IoMdMore
+                data-cy={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
+                id={`settings-group-permission-card-menu-btn-icon-${props?.item?.id}`}
+              />
             </button>
 
             {props?.visibleEditCardId === props?.item?.id && (

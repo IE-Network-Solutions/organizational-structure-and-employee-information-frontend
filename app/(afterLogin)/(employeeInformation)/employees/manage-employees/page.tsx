@@ -245,7 +245,13 @@ const ManageEmployees: React.FC<any> = () => {
                   className="h-10 w-10 sm:w-auto"
                   icon={<BsFileEarmarkArrowDownFill />}
                 >
-                  <span className="hidden sm:inline">Download</span>
+                  <span
+                    className="hidden sm:inline"
+                    id="manage-employees-download-btn-text"
+                    data-cy="manage-employees-download-btn-text"
+                  >
+                    Download
+                  </span>
                 </Button>
               </Popover>
             </AccessGuard>
@@ -329,7 +335,11 @@ const ManageEmployees: React.FC<any> = () => {
                   id={`manage-employees-filter-tag-${filter.key}`}
                   data-cy={`manage-employees-filter-tag-${filter.key}`}
                   closeIcon={
-                    <span className="text-blue hover:!text-[#FF8787] ml-2 text-base">
+                    <span
+                      className="text-blue hover:!text-[#FF8787] ml-2 text-base"
+                      id={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                      data-cy={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                    >
                       ×
                     </span>
                   }
@@ -347,7 +357,10 @@ const ManageEmployees: React.FC<any> = () => {
               id="manage-employees-filter-toggle-btn"
               data-cy="manage-employees-filter-toggle-btn"
             >
-              <IoMdSwitch />
+              <IoMdSwitch
+                id="manage-employees-filter-toggle-icon"
+                data-cy="manage-employees-filter-toggle-icon"
+              />
               Filter
             </Button>
           </div>

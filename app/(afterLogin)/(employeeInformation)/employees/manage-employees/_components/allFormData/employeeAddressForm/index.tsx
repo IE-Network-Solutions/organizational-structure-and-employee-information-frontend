@@ -28,6 +28,7 @@ const EmployeeAddressForm = () => {
             name={['address', 'country']}
             label={<span className="mb-1 font-semibold text-xs">Country</span>}
             id="addressCountryId"
+            data-cy="addressCountryId"
             rules={[
               {
                 required: true,

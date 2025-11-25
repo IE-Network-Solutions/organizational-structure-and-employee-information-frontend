@@ -208,6 +208,7 @@ const BankInformationComponent = ({
                     .join(' ')
                 }
                 value={val?.toString() || '-'}
+                data-cy={`bank-information-display-${key}-info-line`}
               />
             ))}
           </Col>

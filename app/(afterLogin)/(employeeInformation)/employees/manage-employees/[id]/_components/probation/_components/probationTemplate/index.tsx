@@ -195,6 +195,8 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
 
       <List
         dataSource={templateTasks}
+        id="probation-template-list"
+        data-cy="probation-template-list"
         renderItem={(task) => {
           const taskSlug = toSlug(task.id);
           return (
@@ -202,7 +204,11 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
               id={`probation-template-task-${taskSlug}`}
               data-cy={`probation-template-task-${taskSlug}`}
             >
-              <div className="flex items-start w-full">
+              <div
+                className="flex items-start w-full"
+                id={`probation-template-task-item-${taskSlug}`}
+                data-cy={`probation-template-task-item-${taskSlug}`}
+              >
                 <Checkbox
                   checked={selectedTasks.includes(task.id)}
                   onChange={(e) => handleTaskSelect(task.id, e.target.checked)}

@@ -196,6 +196,7 @@ const AddressComponent = ({
                     .join(' ')
                 ).replace('address', '')}
                 value={val?.toString() || '-'}
+                data-cy={`address-display-${key}-info-line`}
               />
             ))}
           </Col>

@@ -130,7 +130,13 @@ const BankInformationForm = () => {
             id="bankInformationAccountNumber"
             data-cy="bankInformationAccountNumber"
             label={
-              <span className="mb-1 font-semibold text-xs">Account Number</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                id="bank-info-account-number-label"
+                data-cy="bank-info-account-number-label"
+              >
+                Account Number
+              </span>
             }
             rules={[
               {

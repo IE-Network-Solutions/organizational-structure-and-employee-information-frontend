@@ -407,9 +407,9 @@ const UserTable = () => {
             })
           }
         >
-          <JobTimeLineForm />
+          <JobTimeLineForm data-cy="user-table-rehire-job-time-line-form" />
 
-          <WorkScheduleForm />
+          <WorkScheduleForm data-cy="user-table-rehire-work-schedule-form" />
           <Form.Item
             id="user-table-rehire-form-actions"
             data-cy="user-table-rehire-form-actions"

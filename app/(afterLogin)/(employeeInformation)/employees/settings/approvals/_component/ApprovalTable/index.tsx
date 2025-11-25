@@ -80,11 +80,34 @@ const ApprovalTable = () => {
   };
 
   const UserInfoSkeleton = () => (
-    <div className="flex items-center gap-2">
-      <Skeleton.Avatar active size="small" shape="circle" />
-      <div className="flex flex-col gap-1">
-        <Skeleton.Input active size="small" style={{ width: 80, height: 14 }} />
-        <Skeleton.Input active size="small" style={{ width: 60, height: 12 }} />
+    <div
+      className="flex items-center gap-2"
+      id="settings-approvals-row-assignee-skeleton"
+      data-cy="settings-approvals-row-assignee-skeleton"
+    >
+      <Skeleton.Avatar
+        active
+        size="small"
+        shape="circle"
+        data-cy="settings-approvals-row-assignee-skeleton-avatar"
+      />
+      <div
+        className="flex flex-col gap-1"
+        id="settings-approvals-row-assignee-skeleton-info"
+        data-cy="settings-approvals-row-assignee-skeleton-info"
+      >
+        <Skeleton.Input
+          active
+          size="small"
+          style={{ width: 80, height: 14 }}
+          data-cy="settings-approvals-row-assignee-skeleton-name"
+        />
+        <Skeleton.Input
+          active
+          size="small"
+          style={{ width: 60, height: 12 }}
+          data-cy="settings-approvals-row-assignee-skeleton-email"
+        />
       </div>
     </div>
   );
@@ -114,13 +137,19 @@ const ApprovalTable = () => {
     };
 
     return (
-      <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
+      <div
+        className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200"
+        id="settings-approvals-row-assignee-avatar"
+        data-cy="settings-approvals-row-assignee-avatar"
+      >
         <Image
           src={getImageSrc() || '/placeholder.svg'}
           alt="User avatar"
           layout="fill"
           className="object-cover"
           onError={() => setImageError(true)}
+          id={`settings-approvals-row-assignee-avatar-image-${userId}`}
+          data-cy={`settings-approvals-row-assignee-avatar-image-${userId}`}
         />
       </div>
     );
@@ -152,12 +181,14 @@ const ApprovalTable = () => {
             overflow: 'hidden',
             overflowY: 'scroll',
           }}
+          id={`settings-approvals-row-assignee-${rowSlug}`}
+          data-cy={`settings-approvals-row-assignee-${rowSlug}`}
         >
           {isUserDataLoading ? (
             // Show skeleton loaders while user data is loading
             <>
-              <UserInfoSkeleton />
-              <UserInfoSkeleton />
+              <UserInfoSkeleton data-cy="settings-approvals-row-assignee-skeleton" />
+              <UserInfoSkeleton data-cy="settings-approvals-row-assignee-skeleton" />
             </>
           ) : (
             item?.approvers?.map((employee: any, empIndex: number) => {
@@ -165,18 +196,43 @@ const ApprovalTable = () => {
 
               if (!userInfo) {
                 return (
-                  <div key={empIndex} className="flex items-center gap-2">
-                    <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
+                  <div
+                    key={empIndex}
+                    className="flex items-center gap-2"
+                    id={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                    data-cy={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
+                  >
+                    <div
+                      className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200"
+                      id={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
+                      data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
+                    >
                       <Image
                         src={Avatar || '/placeholder.svg'}
                         alt="Default avatar"
                         layout="fill"
                         className="object-cover"
+                        id={`settings-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-approvals-row-assignee-avatar-image-${rowSlug}-${empIndex}`}
                       />
                     </div>
-                    <div className="flex flex-col justify-center">
-                      <p className="text-gray-400">User not found</p>
-                      <p className="font-extralight text-[12px] text-gray-400">
+                    <div
+                      className="flex flex-col justify-center"
+                      id={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
+                      data-cy={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
+                    >
+                      <p
+                        className="text-gray-400"
+                        id={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
+                      >
+                        User not found
+                      </p>
+                      <p
+                        className="font-extralight text-[12px] text-gray-400"
+                        id={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                        data-cy={`settings-approvals-row-assignee-email-${rowSlug}-${empIndex}`}
+                      >
                         -
                       </p>
                     </div>
@@ -205,6 +261,8 @@ const ApprovalTable = () => {
                       {userInfo.email}
                     </div>
                   }
+                  id={`settings-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
+                  data-cy={`settings-approvals-row-assignee-tooltip-${rowSlug}-${empIndex}`}
                 >
                   <div
                     className="flex items-center flex-wrap sm:flex-row gap-2"
@@ -217,6 +275,7 @@ const ApprovalTable = () => {
                     />
                     <div
                       className="flex flex-wrap flex-col justify-center"
+                      id={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
                       data-cy={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
                     >
                       <p
@@ -352,6 +411,7 @@ const ApprovalTable = () => {
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
         onCancel={() => setDeleteModal(false)}
+        data-cy="settings-approvals-delete-modal"
       />
       {editModal && <EditWorkFLow data-cy="settings-approvals-edit-workflow" />}
       {addModal && <AddApprover data-cy="settings-approvals-add-approver" />}

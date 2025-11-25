@@ -85,7 +85,10 @@ const data: any = [
         id="settings-table-action-gim-green"
         data-cy="settings-table-action-gim-green"
       >
-        <MdOutlineModeEditOutline />
+        <MdOutlineModeEditOutline
+          id="settings-table-action-gim-green-icon"
+          data-cy="settings-table-action-gim-green-icon"
+        />
       </Button>
     ),
   },
@@ -100,6 +103,7 @@ const data: any = [
         <FaUser
           className="w-5 h-5 p-1 border-black border-2 rounded-full"
           data-cy="settings-table-levels-icon-joy-black"
+          id="settings-table-levels-icon-joy-black"
         />
         <span
           id="settings-table-levels-name-joy-black"
@@ -125,7 +129,10 @@ const data: any = [
         id="settings-table-action-joy-black"
         data-cy="settings-table-action-joy-black"
       >
-        <MdOutlineModeEditOutline data-cy="settings-table-action-joy-black-icon" />
+        <MdOutlineModeEditOutline
+          id="settings-table-action-joy-black-icon"
+          data-cy="settings-table-action-joy-black-icon"
+        />
       </Button>
     ),
   },

@@ -144,7 +144,10 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
             id="certificate-template-header"
             data-cy="certificate-template-header"
           >
-            <TitleCard title="SelamNew Workspace" />
+            <TitleCard
+              title="SelamNew Workspace"
+              data-cy="certificate-template-title-card"
+            />
           </div>
 
           {/* Main Title */}
@@ -216,6 +219,8 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
+                            id={`certificate-template-task-approver-image-${taskSlug}`}
+                            data-cy={`certificate-template-task-approver-image-${taskSlug}`}
                           />
                         ) : (
                           <div
@@ -264,7 +269,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                 data-cy="certificate-template-completion-text"
               >
                 Successfully Completed these{' '}
-                <span className=" text-blue px-2 py-1 rounded">
+                <span
+                  className=" text-blue px-2 py-1 rounded"
+                  id="certificate-template-completion-span"
+                  data-cy="certificate-template-completion-span"
+                >
                   Off Boarding Process&apos;s on
                 </span>
               </p>
@@ -289,7 +298,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
               id="certificate-template-signature-row"
               data-cy="certificate-template-signature-row"
             >
-              <div className="flex-1 text-center">
+              <div
+                className="flex-1 text-center"
+                id="certificate-template-signature-block-wrapper"
+                data-cy="certificate-template-signature-block-wrapper"
+              >
                 <div
                   className="border-b-2 border-gray-400 w-32 mx-auto mb-2"
                   id="certificate-template-signature-block-divider"

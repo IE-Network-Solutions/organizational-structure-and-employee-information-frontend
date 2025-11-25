@@ -256,7 +256,12 @@ const BasicSalaryModal: FC<RecognitionModalProps> = ({
               id="job-basic-salary-modal-allowance-form-item"
               data-cy="job-basic-salary-modal-allowance-form-item"
             >
-              <Form.Item shouldUpdate noStyle>
+              <Form.Item
+                shouldUpdate
+                noStyle
+                id="job-basic-salary-modal-allowance-inner-form-item"
+                data-cy="job-basic-salary-modal-allowance-inner-form-item"
+              >
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
 

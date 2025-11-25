@@ -84,7 +84,11 @@ const BasicInformationForm = ({ form }: any) => {
         id="basic-info-row-profile"
         data-cy="basic-info-row-profile"
       >
-        <Col span={24}>
+        <Col
+          span={24}
+          id="basic-info-col-profile"
+          data-cy="basic-info-col-profile"
+        >
           <Form.Item
             className="font-semibold text-xs"
             label={
@@ -125,6 +129,8 @@ const BasicInformationForm = ({ form }: any) => {
                       minHeight: '200px',
                       maxWidth: '100%',
                     }}
+                    id="basic-info-upload-preview-image"
+                    data-cy="basic-info-upload-preview-image"
                   />
                   <Button
                     type="primary"
@@ -136,6 +142,7 @@ const BasicInformationForm = ({ form }: any) => {
                     style={{ zIndex: 10 }}
                     title="Remove image"
                     data-cy="basic-info-upload-remove-btn"
+                    id="basic-info-upload-remove-btn"
                   />
                 </div>
               </div>

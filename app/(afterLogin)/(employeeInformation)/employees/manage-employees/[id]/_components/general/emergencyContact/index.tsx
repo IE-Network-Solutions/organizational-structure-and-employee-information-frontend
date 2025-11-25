@@ -260,7 +260,14 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                   .split('_')
                   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                   .join(' ');
-              return <InfoLine key={key} title={title} value={displayValue} />;
+              return (
+                <InfoLine
+                  key={key}
+                  title={title}
+                  value={displayValue}
+                  data-cy={`emergency-contact-display-${key}-info-line`}
+                />
+              );
             })}
           </Col>
         </Row>

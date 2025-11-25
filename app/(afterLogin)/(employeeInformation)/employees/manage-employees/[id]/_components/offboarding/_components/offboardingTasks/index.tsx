@@ -216,7 +216,13 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 id="offboarding-download-certificate-btn"
                 data-cy="offboarding-download-certificate-btn"
               >
-                <span className="hidden sm:inline">Download Certificate</span>
+                <span
+                  className="hidden sm:inline"
+                  id="offboarding-download-certificate-btn-text"
+                  data-cy="offboarding-download-certificate-btn-text"
+                >
+                  Download Certificate
+                </span>
               </Button>
             )}
             <div
@@ -361,12 +367,26 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             }}
             customMessage={
               <>
-                <div>
-                  <p>
+                <div
+                  id="offboarding-delete-modal-body"
+                  data-cy="offboarding-delete-modal-body"
+                >
+                  <p
+                    id="offboarding-delete-modal-title-p"
+                    data-cy="offboarding-delete-modal-title-p"
+                  >
                     <strong>Title: </strong> {taskToDelete.title}
                   </p>
-                  <p>
-                    <strong>Assigned To: </strong>
+                  <p
+                    id="offboarding-delete-modal-assigned-to-p"
+                    data-cy="offboarding-delete-modal-assigned-to-p"
+                  >
+                    <strong
+                      id="offboarding-delete-modal-assigned-to-strong"
+                      data-cy="offboarding-delete-modal-assigned-to-strong"
+                    >
+                      Assigned To:{' '}
+                    </strong>
                     {`${taskToDelete?.approver?.firstName || ''} ${taskToDelete?.approver?.middleName || ''} ${taskToDelete?.approver?.lastName || ''}`.trim()}
                   </p>
                 </div>
@@ -375,7 +395,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           />
         )}
 
-        <AddTaskModal id={id} />
+        <AddTaskModal id={id} data-cy="offboarding-add-task-modal" />
       </Card>
       <OffboardingTemplate id={id} data-cy="offboarding-template" />
 

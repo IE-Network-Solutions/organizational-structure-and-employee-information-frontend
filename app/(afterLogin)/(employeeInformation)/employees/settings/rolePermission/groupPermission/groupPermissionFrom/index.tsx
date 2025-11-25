@@ -109,18 +109,32 @@ const GroupPermission = () => {
           data-cy="settings-group-permission-form-div"
         >
           {currentModal === 'editModal' && (
-            <Form.Item name="id" id="settings-group-permission-id-item">
+            <Form.Item
+              name="id"
+              id="settings-group-permission-id-item"
+              data-cy="settings-group-permission-id-item"
+            >
               <Input
                 type="hidden"
                 data-cy="settings-group-permission-id-input"
+                id="settings-group-permission-id-input"
               />
             </Form.Item>
           )}
-          <div>
+          <div
+            id="settings-group-permission-name-wrapper"
+            data-cy="settings-group-permission-name-wrapper"
+          >
             <Form.Item
               name="name"
               label={
-                <p className="text-xs font-bold text-gray-600">Group name</p>
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  id="settings-group-permission-name-label"
+                  data-cy="settings-group-permission-name-label"
+                >
+                  Group name
+                </p>
               }
               rules={[{ required: true, message: 'Enter group name!' }]}
               id="settings-group-permission-name-item"
@@ -134,11 +148,18 @@ const GroupPermission = () => {
               />
             </Form.Item>
           </div>
-          <div>
+          <div
+            id="settings-group-permission-description-wrapper"
+            data-cy="settings-group-permission-description-wrapper"
+          >
             <Form.Item
               name="description"
               label={
-                <p className="text-xs font-bold text-gray-600">
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  id="settings-group-permission-description-label"
+                  data-cy="settings-group-permission-description-label"
+                >
                   Group Description
                 </p>
               }

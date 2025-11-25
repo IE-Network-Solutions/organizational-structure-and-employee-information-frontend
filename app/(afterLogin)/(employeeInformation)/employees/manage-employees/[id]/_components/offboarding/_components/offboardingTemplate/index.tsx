@@ -143,7 +143,10 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
                 id={`offboarding-template-item-${taskSlug}`}
                 data-cy={`offboarding-template-item-${taskSlug}`}
               >
-                <div>
+                <div
+                  id="offboarding-template-checkbox-wrapper"
+                  data-cy="offboarding-template-checkbox-wrapper"
+                >
                   <Checkbox
                     onClick={() => handelSelectedTemplateTasks(item)}
                     key={index}
@@ -250,7 +253,7 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
             Cancel
           </Button>
         </div>
-        <AddTaskModal id={id} />
+        <AddTaskModal id={id} data-cy="offboarding-template-add-task-modal" />
       </Modal>
     </>
   );

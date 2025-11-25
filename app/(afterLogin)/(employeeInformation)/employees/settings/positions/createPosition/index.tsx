@@ -118,7 +118,11 @@ const CreatePosition: React.FC = () => {
             id="positionDescription"
             name="description"
             label={
-              <span className="text-lg my-2 font-semibold text-gray-700">
+              <span
+                className="text-lg my-2 font-semibold text-gray-700"
+                id="settings-position-create-description-label"
+                data-cy="settings-position-create-description-label"
+              >
                 Position Description
               </span>
             }

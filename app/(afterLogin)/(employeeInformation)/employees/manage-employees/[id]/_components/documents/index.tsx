@@ -310,6 +310,8 @@ const Documents = ({ id }: { id: string }) => {
         <EmployeeDocumentTable
           employeeDocument={employeeData?.employeeDocument}
           onDelete={handleDelete}
+          id={id}
+          data-cy={`documents-table-${id}`}
         />
       </Row>
     </div>

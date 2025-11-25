@@ -103,7 +103,13 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         );
       case 'datePicker':
         return (
-          <Form.Item key={field.fieldName} {...commonProps} className="w-full">
+          <Form.Item
+            key={field.fieldName}
+            {...commonProps}
+            className="w-full"
+            id={`${formTitle}-${field.fieldName}-datepicker-form-item`}
+            data-cy={`${formTitle}-${field.fieldName}-datepicker-form-item`}
+          >
             <DatePicker
               id={`${formTitle}-${field.fieldName}-datepicker`}
               data-cy={`${formTitle}-${field.fieldName}-datepicker`}
@@ -112,7 +118,12 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
         );
       case 'checkbox':
         return (
-          <Form.Item key={field.fieldName} {...commonProps}>
+          <Form.Item
+            key={field.fieldName}
+            {...commonProps}
+            id={`${formTitle}-${field.fieldName}-checkbox-group-form-item`}
+            data-cy={`${formTitle}-${field.fieldName}-checkbox-group-form-item`}
+          >
             <Checkbox.Group
               data-cy={`${formTitle}-${field.fieldName}-checkbox-group`}
             >
@@ -135,6 +146,8 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
             key={field.fieldName}
             {...commonProps}
             valuePropName="checked"
+            id={`${formTitle}-${field.fieldName}-switch-form-item`}
+            data-cy={`${formTitle}-${field.fieldName}-switch-form-item`}
           >
             <Switch
               id={`${formTitle}-${field.fieldName}-switch`}

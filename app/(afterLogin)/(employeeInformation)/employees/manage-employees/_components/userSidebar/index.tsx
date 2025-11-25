@@ -125,6 +125,7 @@ const UserSidebar = (props: any) => {
           onClose={handleCancel}
           modalHeader={modalHeader}
           width="40%"
+          data-cy="user-sidebar-drawer"
         >
           <Steps
             current={current}
@@ -162,13 +163,17 @@ const UserSidebar = (props: any) => {
                 id="user-sidebar-card-basic"
                 data-cy="user-sidebar-card-basic"
               >
-                <BasicInformationForm form={form} />
-                <EmployeeAddressForm />
-                <EmergencyContactForm />
-                <BankInformationForm />
+                <BasicInformationForm
+                  form={form}
+                  data-cy="user-sidebar-basic-information-form"
+                />
+                <EmployeeAddressForm data-cy="user-sidebar-employee-address-form" />
+                <EmergencyContactForm data-cy="user-sidebar-emergency-contact-form" />
+                <BankInformationForm data-cy="user-sidebar-bank-information-form" />
                 <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
+                  data-cy="user-sidebar-button-continue"
                 />
               </Card>
             )}
@@ -179,12 +184,19 @@ const UserSidebar = (props: any) => {
                 id="user-sidebar-card-job"
                 data-cy="user-sidebar-card-job"
               >
-                <JobTimeLineForm form={form} />
-                <RolePermissionForm form={form} />
-                <WorkScheduleForm />
+                <JobTimeLineForm
+                  form={form}
+                  data-cy="user-sidebar-job-time-line-form"
+                />
+                <RolePermissionForm
+                  form={form}
+                  data-cy="user-sidebar-role-permission-form"
+                />
+                <WorkScheduleForm data-cy="user-sidebar-work-schedule-form" />
                 <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
+                  data-cy="user-sidebar-button-continue"
                 />
               </Card>
             )}
@@ -195,12 +207,13 @@ const UserSidebar = (props: any) => {
                 id="user-sidebar-card-additional"
                 data-cy="user-sidebar-card-additional"
               >
-                <AdditionalInformationForm />
-                <DocumentUploadForm />
+                <AdditionalInformationForm data-cy="user-sidebar-additional-information-form" />
+                <DocumentUploadForm data-cy="user-sidebar-document-upload-form" />
                 <ButtonContinue
                   handleBackClick={handleBackClick}
                   handleContinueClick={handleContinueClick}
                   isLoading={isLoading}
+                  data-cy="user-sidebar-button-continue"
                 />
               </Card>
             )}
@@ -214,6 +227,7 @@ const UserSidebar = (props: any) => {
         }}
         text="You have successfully added new employee"
         route=""
+        data-cy="user-sidebar-success-modal"
       />
     </>
   );

@@ -91,8 +91,20 @@ const Permission: React.FC<any> = () => {
         data-cy="settings-permission-filters"
       >
         {isMobile ? (
-          <Row gutter={16}>
-            <Col xl={14} lg={14} md={14} sm={20} xs={20}>
+          <Row
+            gutter={16}
+            id="settings-permission-filters-mobile"
+            data-cy="settings-permission-filters-mobile"
+          >
+            <Col
+              xl={14}
+              lg={14}
+              md={14}
+              sm={20}
+              xs={20}
+              id="settings-permission-search-input-wrapper-mobile"
+              data-cy="settings-permission-search-input-wrapper-mobile"
+            >
               <Input
                 className="w-full h-10"
                 placeholder="Search permission"

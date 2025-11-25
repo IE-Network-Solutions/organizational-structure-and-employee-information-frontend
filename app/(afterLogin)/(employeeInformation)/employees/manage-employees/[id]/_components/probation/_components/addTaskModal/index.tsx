@@ -184,13 +184,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
         <Form.Item
           name="description"
           label="Description"
-          id={`probation-add-task-description-form-item-${modalSlug}`}
+          id={`probation-add-task-description-input-form-item-${modalSlug}`}
           data-cy={`probation-add-task-description-form-item-${modalSlug}`}
         >
           <Input.TextArea
             placeholder="Description"
             rows={4}
-            id={`probation-add-task-description-${modalSlug}`}
+            id={`probation-add-task-description-input-${modalSlug}`}
             data-cy={`probation-add-task-description-${modalSlug}`}
           />
         </Form.Item>

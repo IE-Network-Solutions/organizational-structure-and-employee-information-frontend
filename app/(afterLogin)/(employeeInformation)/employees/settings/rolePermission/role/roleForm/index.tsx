@@ -251,7 +251,13 @@ const ListOfRoles = () => {
               <Form.Item
                 name="name"
                 label={
-                  <p className="text-xs font-bold text-gray-600">Role name</p>
+                  <p
+                    className="text-xs font-bold text-gray-600"
+                    id="settings-role-name-label"
+                    data-cy="settings-role-name-label"
+                  >
+                    Role name
+                  </p>
                 }
                 rules={[{ required: true, message: 'Enter group name!' }]}
                 id="settings-role-name-item"
@@ -273,7 +279,11 @@ const ListOfRoles = () => {
               <Form.Item
                 name="description"
                 label={
-                  <p className="text-xs font-bold text-gray-600">
+                  <p
+                    className="text-xs font-bold text-gray-600"
+                    id="settings-role-description-label"
+                    data-cy="settings-role-description-label"
+                  >
                     Role Description
                   </p>
                 }

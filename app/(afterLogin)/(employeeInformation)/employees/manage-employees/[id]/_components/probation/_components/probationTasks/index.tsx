@@ -427,7 +427,13 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
                     id="probation-task-delete-modal-title"
                     data-cy="probation-task-delete-modal-title"
                   >
-                    <strong>Title: </strong> {taskToDelete.title}
+                    <strong
+                      id="probation-task-delete-modal-title-strong"
+                      data-cy="probation-task-delete-modal-title-strong"
+                    >
+                      Title:{' '}
+                    </strong>{' '}
+                    {taskToDelete.title}
                   </p>
                   <p
                     id="probation-task-delete-modal-assigned"

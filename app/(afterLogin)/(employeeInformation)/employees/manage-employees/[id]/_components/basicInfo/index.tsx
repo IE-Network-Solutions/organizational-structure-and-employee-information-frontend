@@ -228,7 +228,11 @@ function BasicInfo({ id }: { id: string }) {
                   id="basic-info-delete-image-btn"
                   data-cy="basic-info-delete-image-btn"
                 >
-                  <FiTrash2 size={16} />
+                  <FiTrash2
+                    size={16}
+                    id="basic-info-delete-image-btn-icon"
+                    data-cy="basic-info-delete-image-btn-icon"
+                  />
                 </button>
               )}
               <div
@@ -384,6 +388,7 @@ function BasicInfo({ id }: { id: string }) {
           data-cy="basic-info-team-item"
         >
           <List.Item.Meta
+            data-cy="basic-info-list-item-meta"
             title={
               <p
                 className="text-xs font-light"
@@ -472,6 +477,7 @@ function BasicInfo({ id }: { id: string }) {
                 data-cy="basic-info-manager-item"
               >
                 <List.Item.Meta
+                  data-cy="basic-info-list-item-meta"
                   title={
                     <p
                       className="text-xs font-light"
@@ -516,6 +522,7 @@ function BasicInfo({ id }: { id: string }) {
               data-cy="basic-info-manager-item-no-access"
             >
               <List.Item.Meta
+                data-cy="basic-info-list-item-meta"
                 title={
                   <p
                     className="text-xs font-light"
@@ -561,6 +568,7 @@ function BasicInfo({ id }: { id: string }) {
             data-cy="basic-info-manager-item-not-assigned"
           >
             <List.Item.Meta
+              data-cy="basic-info-list-item-meta"
               title={
                 <p
                   className="text-xs font-light"

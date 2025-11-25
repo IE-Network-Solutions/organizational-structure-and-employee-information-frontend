@@ -35,6 +35,8 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           >
             <FaUser
               className={`hidden lg:block ${pathname.includes('/employees/settings/employementType') ? 'text-[#1677FF]' : ''}`}
+              data-cy="settings-menu-employment-type-icon"
+              id="settings-menu-employment-type-icon"
             />
             <p
               id="settings-menu-employment-type-label"
@@ -59,6 +61,8 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           >
             <IoMdSettings
               className={`hidden lg:block ${pathname.includes('/employees/settings/rolePermission') ? 'text-[#1677FF]' : ''}`}
+              data-cy="settings-menu-role-permission-icon"
+              id="settings-menu-role-permission-icon"
             />
             <p
               id="settings-menu-role-permission-label"
@@ -82,6 +86,8 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           >
             <IoMdSettings
               className={`hidden lg:block ${pathname.includes('/employees/settings/positions') ? 'text-[#1677FF]' : ''}`}
+              data-cy="settings-menu-positions-icon"
+              id="settings-menu-positions-icon"
             />
             <p
               id="settings-menu-positions-label"
@@ -105,6 +111,8 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           >
             <IoMdSettings
               className={`hidden lg:block ${pathname.includes('/employees/settings/approvals') ? 'text-[#1677FF]' : ''}`}
+              data-cy="settings-menu-approvals-icon"
+              id="settings-menu-approvals-icon"
             />
             <p
               id="settings-menu-approvals-label"

@@ -75,11 +75,21 @@ const RequestDetail = () => {
       <CustomDrawerLayout
         open={isShowBranchRequestDetail}
         onClose={onClose}
-        modalHeader={<CustomDrawerHeader>Request Details</CustomDrawerHeader>}
-        footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
+        modalHeader={
+          <CustomDrawerHeader data-cy="department-request-detail-header">
+            Request Details
+          </CustomDrawerHeader>
+        }
+        footer={
+          <CustomDrawerFooterButton
+            buttons={footerModalItems}
+            data-cy="department-request-detail-footer"
+          />
+        }
         width="400px"
+        data-cy="department-request-detail-drawer"
       >
-        <Spin spinning={isLoading}>
+        <Spin spinning={isLoading} data-cy="department-request-detail-spinner">
           <div
             className=" p-6 rounded-lg  space-y-4 max-w-sm mx-auto"
             id="department-request-detail-info"

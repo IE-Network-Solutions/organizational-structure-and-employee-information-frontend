@@ -180,7 +180,12 @@ const ApprovalTable = () => {
       title: 'Employee Name',
       dataIndex: 'userId',
       key: 'createdBy',
-      render: (text: string) => <EmpRender userId={text} />,
+      render: (text: string) => (
+        <EmpRender
+          userId={text}
+          data-cy="department-request-approval-emp-name"
+        />
+      ),
     },
     {
       title: 'Current Branch',

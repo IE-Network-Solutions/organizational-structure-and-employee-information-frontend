@@ -108,7 +108,11 @@ const EmployeeSearch: React.FC = () => {
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeBranches?.items?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-branch-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -130,7 +134,11 @@ const EmployeeSearch: React.FC = () => {
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeDepartment?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-department-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -145,9 +153,24 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           className="w-full h-12 rounded-lg border-gray-200"
         >
-          <Option value="male">Male</Option>
-          <Option value="female">Female</Option>
-          <Option value="other">Other</Option>
+          <Option
+            value="male"
+            data-cy="employee-search-select-gender-option-male"
+          >
+            Male
+          </Option>
+          <Option
+            value="female"
+            data-cy="employee-search-select-gender-option-female"
+          >
+            Female
+          </Option>
+          <Option
+            value="other"
+            data-cy="employee-search-select-gender-option-other"
+          >
+            Other
+          </Option>
         </Select>
 
         <Select
@@ -166,7 +189,11 @@ const EmployeeSearch: React.FC = () => {
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmploymentTypes?.items?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-employment-type-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -181,8 +208,18 @@ const EmployeeSearch: React.FC = () => {
           allowClear
           className="w-full h-12 rounded-lg border-gray-200"
         >
-          <Option value={activeStatusValue}>Active</Option>
-          <Option value={inactiveStatusValue}>Inactive</Option>
+          <Option
+            value={activeStatusValue}
+            data-cy={`employee-search-select-status-option-active`}
+          >
+            Active
+          </Option>
+          <Option
+            value={inactiveStatusValue}
+            data-cy={`employee-search-select-status-option-inactive`}
+          >
+            Inactive
+          </Option>
         </Select>
 
         <DatePicker

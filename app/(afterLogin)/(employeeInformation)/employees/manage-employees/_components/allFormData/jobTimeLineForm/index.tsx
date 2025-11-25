@@ -173,26 +173,45 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
   }, [employeeData, actualForm, allowanceTypes]);
 
   return (
-    <div>
-      <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+    <div id="job-timeline-form" data-cy="job-timeline-form">
+      <div
+        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+        id="job-timeline-title"
+        data-cy="job-timeline-title"
+      >
         Job Timeline
       </div>
-      <Row gutter={16}>
-        <Col xs={24}>
+      <Row
+        gutter={16}
+        id="job-timeline-effective-start-date-row"
+        data-cy="job-timeline-effective-start-date-row"
+      >
+        <Col
+          xs={24}
+          id="job-timeline-effective-start-date-col"
+          data-cy="job-timeline-effective-start-date-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={'effectiveStartDate'}
             label={
-              <span className="mb-1 font-semibold text-xs">
+              <span
+                className="mb-1 font-semibold text-xs"
+                id="job-timeline-effective-start-date-label"
+                data-cy="job-timeline-effective-start-date-label"
+              >
                 Effective Start Date
               </span>
             }
             id="joinedDate"
+            data-cy="joinedDate"
             rules={[
               { required: true, message: 'Please select the joined date' },
             ]}
           >
             <DatePicker
+              id="job-timeline-effective-start-date-datepicker"
+              data-cy="job-timeline-effective-start-date-datepicker"
               disabledDate={(current) => {
                 // Get the last position's effective start date
                 const jobInformation = employeeData?.employeeJobInformation;
@@ -216,11 +235,26 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               className="w-full"
             />
           </Form.Item>
-          <div className="flex items-center justify-start space-x-1 mb-5 mt-0">
-            <div>
-              <IoInformationCircleOutline size={14} />
+          <div
+            className="flex items-center justify-start space-x-1 mb-5 mt-0"
+            id="job-timeline-effective-start-date-info"
+            data-cy="job-timeline-effective-start-date-info"
+          >
+            <div
+              id="job-timeline-effective-start-date-info-icon-wrapper"
+              data-cy="job-timeline-effective-start-date-info-icon-wrapper"
+            >
+              <IoInformationCircleOutline
+                size={14}
+                id="job-timeline-effective-start-date-info-icon"
+                data-cy="job-timeline-effective-start-date-info-icon"
+              />
             </div>
-            <div className="text-xs text-gray-500">
+            <div
+              className="text-xs text-gray-500"
+              id="job-timeline-effective-start-date-info-text"
+              data-cy="job-timeline-effective-start-date-info-text"
+            >
               The effective start date cannot be before the employee&apos;s last
               position start date.
             </div>
@@ -228,19 +262,46 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
         </Col>
       </Row>
 
-      <Row gutter={16}>
-        <Col xs={12} sm={12}>
+      <Row
+        gutter={16}
+        id="job-timeline-position-row"
+        data-cy="job-timeline-position-row"
+      >
+        <Col
+          xs={12}
+          sm={12}
+          id="job-timeline-position-col"
+          data-cy="job-timeline-position-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={'positionId'}
             id="jobTitle"
+            data-cy="jobTitle"
             label={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="mb-1 font-semibold text-xs">Position</span>
+              <div
+                style={{ display: 'flex', alignItems: 'center' }}
+                id="job-timeline-position-label"
+                data-cy="job-timeline-position-label"
+              >
+                <span
+                  className="mb-1 font-semibold text-xs"
+                  id="job-timeline-position-label-text"
+                  data-cy="job-timeline-position-label-text"
+                >
+                  Position
+                </span>
                 <Button
                   type="text"
                   size="small"
-                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  icon={
+                    <AiOutlineReload
+                      size={14}
+                      className="text-gray-600"
+                      id="job-timeline-position-reload-btn"
+                      data-cy="job-timeline-position-reload-btn"
+                    />
+                  }
                   onClick={() => {
                     positionRefetch();
                   }}
@@ -252,6 +313,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             ]}
           >
             <Select
+              id="job-timeline-position-select"
+              data-cy="job-timeline-position-select"
               showSearch
               optionFilterProp="label"
               placeholder="Select position type"
@@ -263,24 +326,46 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               dropdownRender={(menu) => (
                 <>
                   {menu}
-                  <Divider style={{ margin: '8px 0' }} />
+                  <Divider
+                    style={{ margin: '8px 0' }}
+                    data-cy="job-timeline-position-divider"
+                  />
                   <Form
+                    id="job-timeline-position-form"
+                    data-cy="job-timeline-position-form"
                     form={form}
                     onFinish={(e) => {
                       handleCreatePosition(e);
                       form.resetFields();
                     }}
                   >
-                    <Space>
-                      <Form.Item name="name" rules={[{ required: true }]}>
-                        <Input placeholder="Position" />
+                    <Space
+                      id="job-timeline-position-space"
+                      data-cy="job-timeline-position-space"
+                    >
+                      <Form.Item
+                        name="name"
+                        rules={[{ required: true }]}
+                        id="job-timeline-position-form-item"
+                        data-cy="job-timeline-position-form-item"
+                      >
+                        <Input
+                          placeholder="Position"
+                          id="job-timeline-position-input"
+                          data-cy="job-timeline-position-input"
+                        />
                       </Form.Item>
-                      <Form.Item>
+                      <Form.Item
+                        id="job-timeline-position-form-item-button"
+                        data-cy="job-timeline-position-form-item-button"
+                      >
                         <Button
                           loading={isLoading}
                           htmlType="submit"
                           type="link"
                           icon={<PlusOutlined />}
+                          id="job-timeline-position-form-item-button-add"
+                          data-cy="job-timeline-position-form-item-button-add"
                         >
                           Add
                         </Button>
@@ -292,20 +377,43 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             />
           </Form.Item>
         </Col>
-        <Col xs={12} sm={12}>
+        <Col
+          xs={12}
+          sm={12}
+          id="job-timeline-employement-type-col"
+          data-cy="job-timeline-employement-type-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={'employementTypeId'}
             id="employementTypeId"
+            data-cy="employementTypeId"
             label={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="mb-1 font-semibold text-xs">
+              <div
+                style={{ display: 'flex', alignItems: 'center' }}
+                id="job-timeline-employement-type-label"
+                data-cy="job-timeline-employement-type-label"
+              >
+                <span
+                  className="mb-1 font-semibold text-xs"
+                  id="job-timeline-employement-type-label-text"
+                  data-cy="job-timeline-employement-type-label-text"
+                >
                   Employment Type
                 </span>
                 <Button
                   type="text"
                   size="small"
-                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  id="job-timeline-employement-type-reload-btn"
+                  data-cy="job-timeline-employement-type-reload-btn"
+                  icon={
+                    <AiOutlineReload
+                      size={14}
+                      className="text-gray-600"
+                      id="job-timeline-employement-type-reload-btn"
+                      data-cy="job-timeline-employement-type-reload-btn"
+                    />
+                  }
                   onClick={() => {
                     employmentTypeRefetch();
                   }}
@@ -325,23 +433,52 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 value: employementType?.id,
                 label: `${employementType?.name ? employementType?.name : ''} `,
               }))}
+              id="job-timeline-employement-type-select"
+              data-cy="job-timeline-employement-type-select"
             />
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={12}>
+      <Row
+        gutter={16}
+        id="job-timeline-department-row"
+        data-cy="job-timeline-department-row"
+      >
+        <Col
+          xs={24}
+          sm={12}
+          id="job-timeline-department-col"
+          data-cy="job-timeline-department-col"
+        >
           <Form.Item
             className="w-full font-semibold text-xs"
             name={'departmentId'}
             id="departmentId"
+            data-cy="departmentId"
             label={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="mb-1 font-semibold text-xs">Team</span>
+              <div
+                style={{ display: 'flex', alignItems: 'center' }}
+                id="job-timeline-department-label"
+                data-cy="job-timeline-department-label"
+              >
+                <span
+                  className="mb-1 font-semibold text-xs"
+                  id="job-timeline-department-label-text"
+                  data-cy="job-timeline-department-label-text"
+                >
+                  Team
+                </span>
                 <Button
                   type="text"
                   size="small"
-                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  icon={
+                    <AiOutlineReload
+                      size={14}
+                      className="text-gray-600"
+                      id="job-timeline-department-reload-btn"
+                      data-cy="job-timeline-department-reload-btn"
+                    />
+                  }
                   onClick={() => {
                     departmentsRefetch();
                   }}
@@ -360,23 +497,46 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 value: department?.id,
                 label: `${department?.name ? department?.name : ''} `,
               }))}
+              id="job-timeline-department-select"
+              data-cy="job-timeline-department-select"
             />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12}>
+        <Col
+          xs={24}
+          sm={12}
+          id="job-timeline-branch-col"
+          data-cy="job-timeline-branch-col"
+        >
           <Form.Item
             className="w-full font-semibold text-xs"
             name={'branchId'}
             id="branchId"
+            data-cy="branchId"
             label={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="mb-1 font-semibold text-xs">
+              <div
+                style={{ display: 'flex', alignItems: 'center' }}
+                id="job-timeline-branch-label"
+                data-cy="job-timeline-branch-label"
+              >
+                <span
+                  className="mb-1 font-semibold text-xs"
+                  id="job-timeline-branch-label-text"
+                  data-cy="job-timeline-branch-label-text"
+                >
                   Branch Office
                 </span>
                 <Button
                   type="text"
                   size="small"
-                  icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                  icon={
+                    <AiOutlineReload
+                      size={14}
+                      className="text-gray-600"
+                      id="job-timeline-branch-reload-btn"
+                      data-cy="job-timeline-branch-reload-btn"
+                    />
+                  }
                   onClick={() => {
                     branchOfficeRefetch();
                   }}
@@ -396,6 +556,8 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 value: branch?.id,
                 label: `${branch?.name ? branch?.name : ''} `,
               }))}
+              id="job-timeline-branch-select"
+              data-cy="job-timeline-branch-select"
             />
           </Form.Item>
         </Col>
@@ -442,8 +604,15 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             className="w-full font-semibold text-xs"
             name="basicSalary"
             id="basicSalary"
+            data-cy="basicSalary"
             label={
-              <span className="mb-1 font-semibold text-xs">Basic Salary</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                id="job-timeline-salary-label"
+                data-cy="job-timeline-salary-label"
+              >
+                Basic Salary
+              </span>
             }
             rules={[
               { required: true, message: 'Please enter basic salary' },
@@ -523,7 +692,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               id="job-timeline-allowance-ids"
               data-cy="job-timeline-allowance-ids"
             >
-              <Form.Item shouldUpdate noStyle>
+              <Form.Item
+                shouldUpdate
+                noStyle
+                id="job-timeline-allowance-ids-form-item"
+                data-cy="job-timeline-allowance-ids-form-item"
+              >
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
 
@@ -575,12 +749,16 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                               borderRadius: 4,
                               display: 'inline-block',
                             }}
+                            id="job-timeline-allowance-select-tag"
+                            data-cy="job-timeline-allowance-select-tag"
                           >
                             {fullOption?.label || label}
                             {closable && (
                               <span
                                 onClick={onClose}
                                 style={{ marginLeft: 4, cursor: 'pointer' }}
+                                id="job-timeline-allowance-select-tag-close"
+                                data-cy="job-timeline-allowance-select-tag-close"
                               >
                                 ×
                               </span>
@@ -627,13 +805,27 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 }}
               </Form.Item>
             </Form.Item>
-            <Form.Item name="allowances" hidden>
-              <Input type="hidden" />
+            <Form.Item
+              name="allowances"
+              hidden
+              id="job-timeline-allowances-hidden-form-item"
+              data-cy="job-timeline-allowances-hidden-form-item"
+            >
+              <Input
+                type="hidden"
+                id="job-timeline-allowances-hidden-input"
+                data-cy="job-timeline-allowances-hidden-input"
+              />
             </Form.Item>
 
             <Button
               type="primary"
-              icon={<PlusOutlined />}
+              icon={
+                <PlusOutlined
+                  id="job-timeline-allowance-add-btn-icon"
+                  data-cy="job-timeline-allowance-add-btn-icon"
+                />
+              }
               onClick={() => {
                 setIsAllowanceOpen(true);
               }}
@@ -650,12 +842,21 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
       </Row>
 
       {contractType === 'Contractual' && (
-        <Row gutter={16}>
-          <Col xs={24}>
+        <Row
+          gutter={16}
+          id="job-timeline-effective-end-date-row"
+          data-cy="job-timeline-effective-end-date-row"
+        >
+          <Col
+            xs={24}
+            id="job-timeline-effective-end-date-col"
+            data-cy="job-timeline-effective-end-date-col"
+          >
             <Form.Item
               className="font-semibold text-xs"
               name={'effectiveEndDate'}
               id="effectiveEndDate"
+              data-cy="effectiveEndDate"
               label="Effective End Date"
               rules={[
                 {
@@ -664,7 +865,11 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 },
               ]}
             >
-              <DatePicker className="w-full" />
+              <DatePicker
+                className="w-full"
+                id="job-timeline-effective-end-date-datepicker"
+                data-cy="job-timeline-effective-end-date-datepicker"
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -674,7 +879,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
         id="job-timeline-row-team-lead"
         data-cy="job-timeline-row-team-lead"
       >
-        <Col xs={16} sm={8}>
+        <Col
+          xs={16}
+          sm={8}
+          id="job-timeline-team-lead-col"
+          data-cy="job-timeline-team-lead-col"
+        >
           <div
             className="font-semibold text-sm"
             id="job-timeline-team-lead-label"
@@ -683,7 +893,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             Team Lead
           </div>
         </Col>
-        <Col xs={8} sm={16}>
+        <Col
+          xs={8}
+          sm={16}
+          id="job-timeline-team-lead-switch-col"
+          data-cy="job-timeline-team-lead-switch-col"
+        >
           <Form.Item
             name="departmentLeadOrNot"
             valuePropName="checked"
