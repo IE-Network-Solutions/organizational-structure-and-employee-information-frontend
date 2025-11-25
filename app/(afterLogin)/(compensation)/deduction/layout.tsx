@@ -49,21 +49,40 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="h-auto w-auto bg-[#f5f5f5]">
-        <PageHeader
-          title="Deduction"
-          description="Deduction"
-          className="hidden sm:block"
-          horizontalPadding="0px"
-        />
+    <div
+      className="min-h-screen bg-[#f5f5f5]"
+      id="compensation-deduction-layout-wrapper"
+      data-cy="compensation-deduction-layout-wrapper"
+    >
+      <div
+        className="h-auto w-auto bg-[#f5f5f5]"
+        id="compensation-deduction-layout-body"
+        data-cy="compensation-deduction-layout-body"
+      >
+          <PageHeader
+            title="Deduction"
+            description="Deduction"
+            className="hidden sm:block"
+            horizontalPadding="0px"
+            data-cy="compensation-deduction-layout-header-title"
+          />
 
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
-          <SidebarMenu menuItems={sidebarMenuItems} />
+        <div
+          className="flex flex-col lg:flex-row gap-3 sm:gap-6"
+          id="compensation-deduction-layout-content"
+          data-cy="compensation-deduction-layout-content"
+        >
+            <SidebarMenu
+              menuItems={sidebarMenuItems}
+              data-cy="compensation-deduction-layout-sidebar-menu"
+            />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto sm:mr-4">
-            {children}
-          </BlockWrapper>
+            <BlockWrapper
+              className="flex-1 h-max overflow-x-auto sm:mr-4"
+              data-cy="compensation-deduction-layout-block-wrapper-content"
+            >
+              {children}
+            </BlockWrapper>
         </div>
       </div>
     </div>
