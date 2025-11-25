@@ -165,10 +165,8 @@ const BranchForm: React.FC<{
           <PhoneInput
             defaultCountry="et"
             inputClassName="ant-input"
-            inputProps={{
-              id: `branch-form-contact-number-input-${modalSlug}`,
-              'data-cy': `branch-form-contact-number-input-${modalSlug}`,
-            }}
+            id={`branch-form-contact-number-input-${modalSlug}`}
+            data-cy={`branch-form-contact-number-input-${modalSlug}`}
           />
         </Form.Item>
 
