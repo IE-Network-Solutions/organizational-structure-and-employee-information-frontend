@@ -70,7 +70,7 @@ const IncentiveSettingsTable: React.FC = () => {
       formulaById?.expression !== null ? (
         recognitionData?.recognitionCriteria?.map(
           (criterion: RecognitionCriteria, index: string) => (
-            <Skeleton ata-cy={`incentive-settings-table-criterion-skeleton-${index}`} active loading={responseLoading} key={index}>
+            <Skeleton data-cy={`incentive-settings-table-criterion-skeleton-${index}`} active loading={responseLoading} key={index}>
               <div id={`incentive-settings-table-criterion-wrapper-${index}`} data-cy={`incentive-settings-table-criterion-wrapper-${index}`} className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
                 <span
                   id={`incentive-settings-table-criterion-${index}`}

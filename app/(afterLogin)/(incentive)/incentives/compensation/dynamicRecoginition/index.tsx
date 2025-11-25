@@ -16,7 +16,7 @@ const DynamicIncentive: React.FC<DynamicIncentiveProps> = ({
       <DynamicIncentiveCards data-cy="dynamic-incentive-cards" parentRecognitionId={parentRecognitionId} />
       <DynamicIncentiveFilter data-cy="dynamic-incentive-filter" />
       <IncentiveTableAfterGenerate data-cy="dynamic-incentive-table" id={parentRecognitionId} />
-      <ImportData ata-cy="dynamic-incentive-import-data" parentRecognitionId={parentRecognitionId} />
+      <ImportData data-cy="dynamic-incentive-import-data" parentRecognitionId={parentRecognitionId} />
     </div>
   );
 };

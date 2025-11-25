@@ -133,7 +133,7 @@ const Page = () => {
                 )
               }
               id="createUserButton"
-              icon={<FileDown className="md:mr-0 ml-2" size={18} d="incentives-page-generate-icon" data-cy="incentives-page-generate-icon" />}
+              icon={<FileDown className="md:mr-0 ml-2" size={18} id="incentives-page-generate-icon" data-cy="incentives-page-generate-icon" />}
               onClick={() => setShowGenerateModal(!showGenerateModal)}
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -147,7 +147,7 @@ const Page = () => {
                 )
               }
               id="createUserButton"
-              icon={<FileDown className="md:mr-0 ml-2" size={18} d="incentives-page-export-icon" data-cy="incentives-page-export-icon" />}
+              icon={<FileDown className="md:mr-0 ml-2" size={18} id="incentives-page-export-icon" data-cy="incentives-page-export-icon" />}
               onClick={() => handleExport(searchParams, true)}
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
