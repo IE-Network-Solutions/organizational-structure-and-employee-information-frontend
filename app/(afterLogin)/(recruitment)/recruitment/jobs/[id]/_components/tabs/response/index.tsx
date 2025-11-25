@@ -27,22 +27,43 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
   };
 
   return (
-    <div className="h-full w-full bg-white">
+    <div
+      className="h-full w-full bg-white"
+      id="talent-acquisition-candidate-tab-response-container"
+      data-cy="talent-acquisition-candidate-tab-response-container"
+    >
       {isResponseLoading ? (
-        <div className="border rounded shadow-sm">
+        <div
+          className="border rounded shadow-sm"
+          id="talent-acquisition-candidate-tab-response-loading"
+          data-cy="talent-acquisition-candidate-tab-response-loading"
+        >
           <Skeleton active />
         </div>
       ) : (
         <>
-          <div className="text-md font-bold text-gray-800">Job Response</div>
+          <div
+            className="text-md font-bold text-gray-800"
+            id="talent-acquisition-candidate-tab-response-title"
+            data-cy="talent-acquisition-candidate-tab-response-title"
+          >
+            Job Response
+          </div>
           <List
             size="large"
             dataSource={candidates}
-            renderItem={(jobInfo: any) => (
+            id="talent-acquisition-candidate-tab-response-list"
+            data-cy="talent-acquisition-candidate-tab-response-list"
+            renderItem={(jobInfo: any, index: number) => (
               <>
-                <List.Item>
+                <List.Item
+                  data-cy={`talent-acquisition-candidate-tab-response-personal-${jobInfo?.id ?? index}`}
+                >
                   <div>
-                    <div className="flex justify-between gap-5">
+                    <div
+                      className="flex justify-between gap-5"
+                      data-cy="talent-acquisition-candidate-tab-response-row-full-name"
+                    >
                       <span className="text-md font-normal text-gray-500">
                         Full Name: {''}
                       </span>
@@ -85,12 +106,18 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                     </div>
                   </div>
                 </List.Item>
-                <List.Item>
+                <List.Item
+                  data-cy={`talent-acquisition-candidate-tab-response-questions-${jobInfo?.id ?? index}`}
+                >
                   <div className="flex flex-col gap-4">
                     {Array.isArray(jobInfo?.additionalInformation) &&
                       jobInfo.additionalInformation.map(
                         (addInfo: any, index: number) => (
-                          <div key={index} className="flex flex-col mt-2 ">
+                          <div
+                            key={index}
+                            className="flex flex-col mt-2 "
+                            data-cy={`talent-acquisition-candidate-tab-response-question-${jobInfo?.id ?? index}-${addInfo?.question ?? index}`}
+                          >
                             <div className="flex justify-between gap-5">
                               <span className="text-md font-normal text-gray-500">
                                 Question No {index + 1}:
@@ -101,7 +128,10 @@ const JobResponse: React.FC<JobResponseParams> = ({ selectedCandidate }) => {
                               </span>
                             </div>
 
-                            <div className="flex justify-between gap-5">
+                            <div
+                              className="flex justify-between gap-5"
+                              data-cy={`talent-acquisition-candidate-tab-response-answer-${jobInfo?.id ?? index}-${addInfo?.question ?? index}`}
+                            >
                               <span className="text-md font-normal text-gray-500">
                                 Response:
                               </span>

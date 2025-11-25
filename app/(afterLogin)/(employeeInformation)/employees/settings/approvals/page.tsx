@@ -207,7 +207,7 @@ const Approvals = () => {
             />
           </div>
           <div
-            className="flex  overflow-x-auto scrollbar-none  w-full"
+            className="overflow-x-auto scrollbar-none  w-full"
             id={`settings-${pageSlug}-table-wrapper`}
             data-cy={`settings-${pageSlug}-table-wrapper`}
           >

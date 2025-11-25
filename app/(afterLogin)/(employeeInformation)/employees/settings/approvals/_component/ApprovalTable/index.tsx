@@ -64,6 +64,7 @@ const ApprovalTable = () => {
       pageSize,
       userCurrentPage,
       searchParams?.entityType ? searchParams.entityType : '',
+      searchParams?.entityId ? searchParams.entityId : '',
       searchParams?.name || '',
       APPROVALTYPES.BRANCHREQUEST,
     );

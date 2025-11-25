@@ -30,8 +30,19 @@ const ApprovalFilter = () => {
     const trimmedValue = value.trim();
     onSearchChange(trimmedValue, keyValue);
   };
-  const handleDepartmentChange = (value: string) => {
-    onSelectChange(value, 'entityType');
+  const handleDepartmentChange = (
+    value: string,
+    key: 'entityType' | 'entityId' = 'entityType',
+    options?: { entityType?: string; entityId?: string },
+  ) => {
+    // If both entityType and entityId are provided in options, update both
+    if (options?.entityType !== undefined && options?.entityId !== undefined) {
+      onSelectChange(options.entityType, 'entityType');
+      onSelectChange(options.entityId, 'entityId');
+    } else {
+      // Otherwise, use the original behavior for backward compatibility
+      onSelectChange(value, key);
+    }
   };
   const handleNavigation = () => {
     router.push('/tna/settings/approvals/workFlow');

@@ -179,6 +179,8 @@ const AllCandidateTable: React.FC = () => {
 
       cv: (
         <a
+          id={`talent-acquisition-candidate-table-link-cv-${item?.id}`}
+          data-cy={`talent-acquisition-candidate-table-link-cv-${item?.id}`}
           href={item?.resumeUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -196,8 +198,14 @@ const AllCandidateTable: React.FC = () => {
         ? dayjs(item.graduateYear).format('DD MMMM YYYY')
         : '--',
       LinkedInURL: (
-        <div className="flex justify-center">
+        <div
+          id="talent-acquisition-candidate-table-div-email"
+          data-cy="talent-acquisition-candidate-table-div-email"
+          className="flex justify-center"
+        >
           <a
+            id={`talent-acquisition-candidate-table-link-email-${item?.id}`}
+            data-cy={`talent-acquisition-candidate-table-link-email-${item?.id}`}
             href={`mailto:${item?.email}`}
             title="Send Email"
             className="text-blue-600 hover:text-blue-800 transition-colors"
@@ -207,8 +215,13 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       stages: (
-        <div>
+        <div
+          id="talent-acquisition-candidate-table-div-stages"
+          data-cy="talent-acquisition-candidate-table-div-stages"
+        >
           <Select
+            id={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
+            data-cy={`talent-acquisition-candidate-table-select-stage-${item?.id}`}
             defaultValue={item?.jobCandidate?.map(
               (e: any) => e?.applicantStatusStage?.title ?? '--',
             )}
@@ -222,7 +235,12 @@ const AllCandidateTable: React.FC = () => {
             }
           >
             {statusStage?.items?.map((stage: any) => (
-              <Select.Option key={stage.id} value={stage.id}>
+              <Select.Option
+                key={stage.id}
+                value={stage.id}
+                id={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
+                data-cy={`talent-acquisition-candidate-table-option-stage-${stage.id}-${item?.id}`}
+              >
                 {stage.title}
               </Select.Option>
             ))}
@@ -230,9 +248,14 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       action: (
-        <div className="flex items-center justify-between gap-4 text-white">
+        <div
+          id="talent-acquisition-candidate-table-div-action"
+          data-cy="talent-acquisition-candidate-table-div-action"
+          className="flex items-center justify-between gap-4 text-white"
+        >
           <Button
             id={`editUserButton${item?.id}`}
+            data-cy={`talent-acquisition-candidate-table-button-view-${item?.id}`}
             disabled={item?.deletedAt !== null}
             className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
             onClick={() => handleCandidateDetail(item)}
@@ -240,6 +263,7 @@ const AllCandidateTable: React.FC = () => {
             <FaEye />
           </Button>
           <Dropdown
+            data-cy={`talent-acquisition-candidate-table-dropdown-${item?.id}`}
             menu={{
               items: filteredItems.map(({ label, key, onClick }) => ({
                 label,
@@ -274,8 +298,13 @@ const AllCandidateTable: React.FC = () => {
     setCurrentPage(1);
   };
   return (
-    <div>
+    <div
+      id="talent-acquisition-candidate-table-div-container"
+      data-cy="talent-acquisition-candidate-table-div-container"
+    >
       <Table
+        id="talent-acquisition-candidate-table-table"
+        data-cy="talent-acquisition-candidate-table-table"
         className="w-full"
         columns={columns}
         dataSource={data}
@@ -287,6 +316,7 @@ const AllCandidateTable: React.FC = () => {
 
       {isMobile || isTablet ? (
         <CustomMobilePagination
+          data-cy="talent-acquisition-candidate-table-pagination-mobile"
           totalResults={candidateList?.meta?.totalItems ?? 1}
           pageSize={pageSize}
           onChange={onPageChange}
@@ -294,6 +324,7 @@ const AllCandidateTable: React.FC = () => {
         />
       ) : (
         <CustomPagination
+          data-cy="talent-acquisition-candidate-table-pagination-desktop"
           current={currentPage}
           total={candidateList?.meta?.totalItems ?? 1}
           pageSize={pageSize}
@@ -301,10 +332,10 @@ const AllCandidateTable: React.FC = () => {
           onShowSizeChange={onSizeChange}
         />
       )}
-      <CandidateDetail />
-      <DeleteCandidate />
-      <EditCandidate />
-      <MoveToTalentPool />
+      <CandidateDetail data-cy="talent-acquisition-candidate-table-candidate-detail" />
+      <DeleteCandidate data-cy="talent-acquisition-candidate-table-delete-candidate" />
+      <EditCandidate data-cy="talent-acquisition-candidate-table-edit-candidate" />
+      <MoveToTalentPool data-cy="talent-acquisition-candidate-table-move-to-talent-pool" />
     </div>
   );
 };

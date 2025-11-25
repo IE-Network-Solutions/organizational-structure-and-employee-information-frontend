@@ -6,7 +6,7 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { useGetGrossSalaryById } from '@/store/server/features/employees/employeeManagment/grossSalary/queries';
 import dayjs from 'dayjs';
 import { message, Spin } from 'antd';
 
@@ -118,17 +118,23 @@ const getPronoun = (
   if (genderLower === 'male') {
     return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
   }
+  if (genderLower === 'female') {
+    return type === 'subject' ? 'She' : type === 'object' ? 'her' : 'her';
+  }
   // Default to male pronouns if unknown
   return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
 };
 
 const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   const { data: employeeData } = useGetEmployee(id);
+
   const { data: allEmployeesData } = useGetAllUsersData(); // Fetch all employees with full data
+
   const { data: companyInfo } = useGetCompanyProfileByTenantId(
     employeeData?.tenantId,
   );
-  const { data: basicSalaryData } = useGetBasicSalaryById(id);
+
+  const { data: grossSalaryData } = useGetGrossSalaryById(id);
   const [isGenerating, setIsGenerating] = React.useState(false);
 
   const generatePDF = async () => {
@@ -187,6 +193,19 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
       // If deletedAt is null = Active, if deletedAt has value = Inactive
       const isActive = !employeeData?.deletedAt;
 
+      // Get manager information for signature section
+      let managerName = '';
+      let managerTitle = 'People Manager';
+
+      if (isActive && employeeData?.reportingTo) {
+        const manager = employeeData.reportingTo;
+        managerName =
+          `${manager.firstName ?? ''} ${manager.middleName ?? ''} ${manager.lastName ?? ''}`.trim();
+        if (managerName) {
+          managerTitle = 'Manager';
+        }
+      }
+
       // Get dates - for inactive users, employeeInformation might be null
       // So we need to get joinedDate from employeeJobInformation instead
       let joinedDate = employeeData?.employeeInformation?.joinedDate;
@@ -244,36 +263,100 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         (job: any) => !job.isPositionActive,
       );
 
-      // Get salary - try from query first, then from employeeData.basicSalaries
-      let activeSalaryRecord = null;
-
-      // Try from the query (works for active employees)
-      if (Array.isArray(basicSalaryData) && basicSalaryData.length > 0) {
-        activeSalaryRecord = basicSalaryData.find(
-          (salary: any) => salary.status === true,
-        );
-      }
-
-      // Fallback: try from employeeData.basicSalaries (for inactive employees)
-      if (!activeSalaryRecord && employeeData?.basicSalaries?.length > 0) {
-        activeSalaryRecord = employeeData.basicSalaries.find(
-          (salary: any) => salary.status === true,
-        );
-      }
-
-      const currentSalary = activeSalaryRecord?.basicSalary || 0;
+      // Get gross salary from the query
+      const currentSalary = grossSalaryData?.grossSalary || 0;
 
       // Generate reference number
       const refDate = dayjs().format('YYYY');
       const refNumber = `HR/EXP/${refDate}/${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
 
       // === HEADER SECTION ===
-      // Company Name as text (logo placeholder)
-      if (companyInfo?.companyName) {
+      // Helper function to convert image URL to base64
+      const getImageAsBase64 = async (
+        url: string,
+      ): Promise<{ data: string; format: string } | null> => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) return null;
+          const blob = await response.blob();
+
+          // Detect image format from blob type or URL extension
+          let format = 'PNG'; // default
+          if (blob.type) {
+            if (blob.type.includes('jpeg') || blob.type.includes('jpg')) {
+              format = 'JPEG';
+            } else if (blob.type.includes('png')) {
+              format = 'PNG';
+            } else if (blob.type.includes('webp')) {
+              format = 'WEBP';
+            }
+          } else if (
+            url.toLowerCase().endsWith('.jpg') ||
+            url.toLowerCase().endsWith('.jpeg')
+          ) {
+            format = 'JPEG';
+          } else if (url.toLowerCase().endsWith('.png')) {
+            format = 'PNG';
+          }
+
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve({ data: reader.result as string, format });
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        } catch (error) {
+          return null;
+        }
+      };
+
+      // Try to get logo URL from companyInfo
+      const logoUrl = companyInfo?.description;
+
+      // Try to load and display logo, fallback to company name if it fails
+      let logoLoaded = false;
+      if (logoUrl) {
+        try {
+          const imageResult = await getImageAsBase64(logoUrl);
+          if (imageResult) {
+            // Get image dimensions to maintain aspect ratio
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = reject;
+              img.src = imageResult.data;
+            });
+
+            // Calculate dimensions (max width 40mm, maintain aspect ratio)
+            const maxWidth = 40;
+            const aspectRatio = img.width / img.height;
+            const logoWidth = maxWidth;
+            const logoHeight = logoWidth / aspectRatio;
+
+            // Add logo to PDF with detected format
+            doc.addImage(
+              imageResult.data,
+              imageResult.format,
+              15,
+              y + 6,
+              logoWidth,
+              logoHeight,
+            );
+            logoLoaded = true;
+          }
+        } catch (error) {
+          // Logo loading failed, will fallback to company name
+          logoLoaded = false;
+        }
+      }
+
+      // Fallback to company name if logo failed or not available
+      if (!logoLoaded && companyInfo?.companyName) {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(54, 54, 240); // Blue color #3636F0
-        doc.text(companyInfo.companyName, 15, y + 10);
+        doc.text(companyInfo.companyName, 15, y + 6);
       }
 
       // Date and Reference Number (top right)
@@ -364,31 +447,63 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
 
       y += 10;
 
-      // Add horizontal line separator
-      doc.setDrawColor(203, 213, 224); // Grey color #CBD5E0
-      doc.setLineWidth(0.5);
-      doc.line(15, y, 195, y);
-
-      y += 10;
-
       // === PREVIOUS POSITIONS SECTION ===
       if (previousPositions.length > 0) {
-        // Add light purple background box
+        // Add horizontal line separator
+        doc.setDrawColor(203, 213, 224); // Grey color #CBD5E0
+        doc.setLineWidth(0.5);
+        doc.line(15, y, 195, y);
+
+        y += 10;
+        // Check for page overflow before drawing the box
+        if (y > 240) {
+          doc.addPage();
+          y = 20;
+        }
+
+        // Define spacing constants for font size 10
+        const lineSpacing = 7; // Distance between baselines
+        const ascenderHeight = 2.5; // Text extends above baseline (for capital letters, tall letters)
+        const descenderHeight = 1.0; // Text extends below baseline (for letters like g, p, y)
+        const verticalPadding = 4; // Equal padding on top and bottom
+
+        const numberOfLines = previousPositions.length;
+
+        // Calculate box height properly:
+        // Visual height = distance from first line's top to last line's bottom
+        // = (last line baseline + descender) - (first line baseline - ascender)
+        // = (firstLineY + (N-1)*lineSpacing + descender) - (firstLineY - ascender)
+        // = (N-1)*lineSpacing + ascender + descender
+        const visualTextHeight =
+          (numberOfLines - 1) * lineSpacing + ascenderHeight + descenderHeight;
+        const boxHeight = visualTextHeight + verticalPadding * 2;
+
+        // Store the starting Y position for the box
+        const boxStartY = y;
+        const boxCenterY = boxStartY + boxHeight / 2;
+
+        // Add light purple background box with rounded corners
         doc.setFillColor(240, 235, 255); // Light purple
-        const boxHeight = Math.min(previousPositions.length * 7 + 8, 50);
-        doc.rect(15, y, 180, boxHeight, 'F');
+        doc.roundedRect(15, boxStartY, 180, boxHeight, 3, 3, 'F');
 
         doc.setTextColor(68, 68, 68);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
 
-        previousPositions.forEach((job: any, index: number) => {
-          if (y > 260) {
-            // Check for page overflow
-            doc.addPage();
-            y = 20;
-          }
+        // Calculate starting Y position for perfect vertical centering
+        // Visual center of text block = (visualTop + visualBottom) / 2
+        // visualTop = firstLineY - ascenderHeight
+        // visualBottom = firstLineY + (N-1)*lineSpacing + descenderHeight
+        // visualCenter = firstLineY + ((N-1)*lineSpacing)/2 + (descenderHeight - ascenderHeight)/2
+        // To center: visualCenter = boxCenterY
+        // Therefore: firstLineY = boxCenterY - ((N-1)*lineSpacing)/2 - (descenderHeight - ascenderHeight)/2
+        const firstLineY =
+          boxCenterY -
+          ((numberOfLines - 1) * lineSpacing) / 2 -
+          (descenderHeight - ascenderHeight) / 2;
 
+        // Draw text centered vertically in the box
+        previousPositions.forEach((job: any, index: number) => {
           const startDate = job.effectiveStartDate
             ? dayjs(job.effectiveStartDate).format('MMM DD,YYYY')
             : '-';
@@ -401,10 +516,12 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
             : dayjs().format('MMM DD,YYYY');
 
           const positionText = `Previous position from ${startDate} to ${endDate} of ${job.position?.name || '-'}`;
-          doc.text(positionText, 20, y + 5 + index * 7);
+          // Position text centered vertically in the box
+          doc.text(positionText, 20, firstLineY + index * lineSpacing);
         });
 
-        y += boxHeight + 5;
+        // Move Y position after the box with consistent spacing
+        y = boxStartY + boxHeight + 5;
       }
 
       // === SALARY SECTION ===
@@ -474,16 +591,27 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
       doc.line(15, y, 195, y);
 
       y += 8;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.setTextColor(54, 54, 240); // Blue color #3636F0
-      doc.text('Abebe Kebede', 15, y);
 
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(14);
-      doc.setTextColor(104, 117, 136); // Grey color #687588
-      doc.text('People Manager', 15, y);
+      // Display signature based on employee status
+      if (managerName) {
+        // Active employee with manager - display manager name and "Manager" title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(54, 54, 240); // Blue color #3636F0
+        doc.text(managerName, 15, y);
+
+        y += 6;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(14);
+        doc.setTextColor(104, 117, 136); // Grey color #687588
+        doc.text(managerTitle, 15, y);
+      } else {
+        // Inactive employee or no manager - display only "People Manager"
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(14);
+        doc.setTextColor(104, 117, 136); // Grey color #687588
+        doc.text(managerTitle, 15, y);
+      }
 
       // Save PDF
       const fileName = `${fullName.replace(/\s+/g, '_')}_Work_Experience_Certificate.pdf`;

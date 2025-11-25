@@ -18,6 +18,7 @@ const AddFormResult: React.FC = () => {
   return (
     addJobModalResult && (
       <Modal
+        data-cy="talent-acquisition-job-result-modal"
         centered
         open={addJobModalResult}
         onCancel={handleClose}
@@ -42,6 +43,8 @@ const AddFormResult: React.FC = () => {
           }
           extra={[
             <Button
+              id="talent-acquisition-job-result-button-check-now"
+              data-cy="talent-acquisition-job-result-button-check-now"
               type="primary"
               key="CheckNow"
               className="w-full p-5"

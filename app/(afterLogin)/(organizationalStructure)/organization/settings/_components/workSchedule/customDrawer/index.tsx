@@ -60,7 +60,7 @@ const CustomWorkingScheduleDrawer = () => {
       'Cannot create work schedule with 0 working hours. Please enable at least one working day with valid time range.';
 
     // Check if there are any working days enabled
-    const hasWorkingDays = detail.some((item) => item.status);
+    const hasWorkingDays = detail.some((item) => item.workDay);
 
     if (!hasWorkingDays) {
       setValidationError(errorMessage);
@@ -83,9 +83,9 @@ const CustomWorkingScheduleDrawer = () => {
         id: item.id,
         startTime: item.startTime,
         endTime: item.endTime,
-        duration: item.hours,
-        workDay: item.status,
-        day: item.dayOfWeek,
+        duration: item.duration,
+        workDay: item.workDay,
+        day: item.day,
       }));
 
     if (isEditMode) {
@@ -123,11 +123,11 @@ const CustomWorkingScheduleDrawer = () => {
       scheduleName,
       ...detail.reduce(
         (acc, item) => {
-          acc[`${item.dayOfWeek}-working`] = item.status;
-          acc[`${item.dayOfWeek}-start`] = item.startTime
+          acc[`${item.day}-working`] = item.workDay;
+          acc[`${item.day}-start`] = item.startTime
             ? dayjs(item.startTime, 'h:mm A')
             : null;
-          acc[`${item.dayOfWeek}-end`] = item.endTime
+          acc[`${item.day}-end`] = item.endTime
             ? dayjs(item.endTime, 'h:mm A')
             : null;
           return acc;
@@ -161,9 +161,9 @@ const CustomWorkingScheduleDrawer = () => {
   const handleValuesChange = (s: any, allValues: any) => {
     let totalHours = 0;
     detail.forEach((item) => {
-      const start = allValues[`${item.dayOfWeek}-start`];
-      const end = allValues[`${item.dayOfWeek}-end`];
-      const isWorkingDay = allValues[`${item.dayOfWeek}-working`];
+      const start = allValues[`${item.day}-start`];
+      const end = allValues[`${item.day}-end`];
+      const isWorkingDay = allValues[`${item.day}-working`];
 
       if (start && end && isWorkingDay) {
         const duration = dayjs(end).diff(dayjs(start), 'hour', true);
@@ -177,15 +177,15 @@ const CustomWorkingScheduleDrawer = () => {
     }
   };
 
-  const handleSwitchChange = (dayOfWeek: string, checked: boolean) => {
-    setDetail(dayOfWeek, { status: checked });
+  const handleSwitchChange = (day: string, checked: boolean) => {
+    setDetail(day, { workDay: checked });
 
-    // Recalculate total hours after status change
+    // Recalculate total hours after workDay change
     setTimeout(() => {
       const updatedDetail = useScheduleStore.getState().detail;
       let totalHours = 0;
       updatedDetail.forEach((item) => {
-        if (item.status && item.startTime && item.endTime) {
+        if (item.workDay && item.startTime && item.endTime) {
           const duration = dayjs(item.endTime, 'h:mm A').diff(
             dayjs(item.startTime, 'h:mm A'),
             'hour',

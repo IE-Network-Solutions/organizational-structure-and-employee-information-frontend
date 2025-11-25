@@ -14,7 +14,6 @@ import {
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { HiOutlineMail } from 'react-icons/hi';
 import { FiTrash2 } from 'react-icons/fi';
-import Link from 'next/link';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import BranchTransferRequest from '../branchTransferRequest';
 import { Upload } from 'antd';
