@@ -90,7 +90,11 @@ const AddressComponent = ({
           id="address-form"
           data-cy="address-form"
         >
-          <Row gutter={[16, 24]} id="address-form-row" data-cy="address-form-row">
+          <Row
+            gutter={[16, 24]}
+            id="address-form-row"
+            data-cy="address-form-row"
+          >
             <Col lg={16} id="address-form-col" data-cy="address-form-col">
               {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
@@ -157,15 +161,29 @@ const AddressComponent = ({
             </Col>
           </Row>
           <Row id="address-submit-row" data-cy="address-submit-row">
-            <Col span={24} style={{ textAlign: 'right' }} id="address-submit-col" data-cy="address-submit-col">
-              <Button type="primary" htmlType="submit" id="address-submit-btn" data-cy="address-submit-btn">
+            <Col
+              span={24}
+              style={{ textAlign: 'right' }}
+              id="address-submit-col"
+              data-cy="address-submit-col"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="address-submit-btn"
+                data-cy="address-submit-btn"
+              >
                 Save Changes
               </Button>
             </Col>
           </Row>
         </Form>
       ) : (
-        <Row gutter={[16, 24]} id="address-display-row" data-cy="address-display-row">
+        <Row
+          gutter={[16, 24]}
+          id="address-display-row"
+          data-cy="address-display-row"
+        >
           <Col lg={16} id="address-display-col" data-cy="address-display-col">
             {Object.entries(allFields).map(([key, val]) => (
               <InfoLine

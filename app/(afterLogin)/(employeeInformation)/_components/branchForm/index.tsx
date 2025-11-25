@@ -44,7 +44,6 @@ const BranchForm: React.FC<{
   };
 
   const modalSlug = toSlug(title);
-  const formMode = editingBranch ? 'edit' : 'create';
 
   return (
     <Modal

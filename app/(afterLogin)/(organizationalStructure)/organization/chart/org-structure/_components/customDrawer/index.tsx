@@ -29,30 +29,53 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   const renderDrawerContent = () => {
     switch (drawerContent) {
       case 'transfer':
-        return <TransferForm form={form}  data-cy="org-org-structure-components-customdrawer-index-transferform-1"/>;
+        return (
+          <TransferForm
+            form={form}
+            data-cy="org-org-structure-components-customdrawer-index-transferform-1"
+          />
+        );
       case 'merge':
-        return <MergeForm form={form}  data-cy="org-org-structure-components-customdrawer-index-mergeform-1"/>;
+        return (
+          <MergeForm
+            form={form}
+            data-cy="org-org-structure-components-customdrawer-index-mergeform-1"
+          />
+        );
       case 'delete':
-        return <DeleteForm form={form}  data-cy="org-org-structure-components-customdrawer-index-deleteform-1"/>;
+        return (
+          <DeleteForm
+            form={form}
+            data-cy="org-org-structure-components-customdrawer-index-deleteform-1"
+          />
+        );
       default:
         return null;
     }
   };
   const drawerDataCy = `org-structure-${drawerContent}-drawer`;
   const drawerId = `org-structure-${drawerContent}-drawer`;
-  
+
   return (
     <CustomDrawerLayout
       open={visible}
       onClose={onClose}
       modalHeader={
-        <div className="flex justify-start text-xl font-extrabold text-gray-800 " data-cy={`${drawerDataCy}-header`} id={`${drawerId}-header`}>
+        <div
+          className="flex justify-start text-xl font-extrabold text-gray-800 "
+          data-cy={`${drawerDataCy}-header`}
+          id={`${drawerId}-header`}
+        >
           {title}
         </div>
       }
       width={width}
       footer={
-        <div className="w-full flex justify-center space-x-5 p-4 " data-cy={`${drawerDataCy}-footer`} id={`${drawerId}-footer`}>
+        <div
+          className="w-full flex justify-center space-x-5 p-4 "
+          data-cy={`${drawerDataCy}-footer`}
+          id={`${drawerId}-footer`}
+        >
           <Button
             className="h-[40px] text-base px-10"
             type="default"
@@ -74,7 +97,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           </Button>
         </div>
       }
-     data-cy="org-structure-custom-drawer-layout">
+      data-cy="org-structure-custom-drawer-layout"
+    >
       {renderDrawerContent()}
     </CustomDrawerLayout>
   );

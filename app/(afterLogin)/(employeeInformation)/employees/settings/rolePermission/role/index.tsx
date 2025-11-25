@@ -93,10 +93,10 @@ const RoleComponent: React.FC = () => {
           data-cy="settings-role-empty-wrapper"
         >
           {' '}
-          <Empty 
-            description={'data not found'} 
-            image={<EmptyImage data-cy="settings-role-empty-image" />} 
-            data-cy="settings-role-empty" 
+          <Empty
+            description={'data not found'}
+            image={<EmptyImage data-cy="settings-role-empty-image" />}
+            data-cy="settings-role-empty"
           />
         </div>
       )}

@@ -42,7 +42,7 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
       id={`settings-group-permission-card-${props?.item?.id}`}
       data-cy={`settings-group-permission-card-${props?.item?.id}`}
     >
-      <div 
+      <div
         className="flex flex-row md:flex-row justify-between"
         id={`settings-group-permission-wrapper`}
         data-cy={`settings-group-permission-wrapper`}
@@ -56,7 +56,11 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
         </p>
 
         {props?.item?.tenantId && (
-          <div className="mt-2 md:mt-0" id={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`} data-cy={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}>
+          <div
+            className="mt-2 md:mt-0"
+            id={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}
+            data-cy={`settings-group-permission-card-menu-wrapper-${props?.item?.id}`}
+          >
             <button
               id={props?.item?.id}
               className="rounded px-2 py-0.5 text-xl text-gray-600"

@@ -99,8 +99,16 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           id="emergency-contact-form"
           data-cy="emergency-contact-form"
         >
-          <Row gutter={[16, 24]} id="emergency-contact-form-row" data-cy="emergency-contact-form-row">
-            <Col lg={16} id="emergency-contact-form-col" data-cy="emergency-contact-form-col">
+          <Row
+            gutter={[16, 24]}
+            id="emergency-contact-form-row"
+            data-cy="emergency-contact-form-row"
+          >
+            <Col
+              lg={16}
+              id="emergency-contact-form-col"
+              data-cy="emergency-contact-form-col"
+            >
               {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
@@ -160,8 +168,20 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                       id={`emergency-contact-${key}-select`}
                       data-cy={`emergency-contact-${key}-select`}
                     >
-                      <Option value="male" id={`emergency-contact-${key}-option-male`} data-cy={`emergency-contact-${key}-option-male`}>Male</Option>
-                      <Option value="female" id={`emergency-contact-${key}-option-female`} data-cy={`emergency-contact-${key}-option-female`}>Female</Option>
+                      <Option
+                        value="male"
+                        id={`emergency-contact-${key}-option-male`}
+                        data-cy={`emergency-contact-${key}-option-male`}
+                      >
+                        Male
+                      </Option>
+                      <Option
+                        value="female"
+                        id={`emergency-contact-${key}-option-female`}
+                        data-cy={`emergency-contact-${key}-option-female`}
+                      >
+                        Female
+                      </Option>
                     </Select>
                   ) : key === 'nationality' ? (
                     <Select
@@ -173,7 +193,12 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
                     >
                       {nationalities?.items?.map(
                         (nationality: any, index: number) => (
-                          <Option key={index} value={nationality?.id} id={`emergency-contact-${key}-option-${nationality?.id}`} data-cy={`emergency-contact-${key}-option-${nationality?.id}`}>
+                          <Option
+                            key={index}
+                            value={nationality?.id}
+                            id={`emergency-contact-${key}-option-${nationality?.id}`}
+                            data-cy={`emergency-contact-${key}-option-${nationality?.id}`}
+                          >
                             {nationality?.name}
                           </Option>
                         ),
@@ -191,17 +216,38 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
               ))}
             </Col>
           </Row>
-          <Row id="emergency-contact-submit-row" data-cy="emergency-contact-submit-row">
-            <Col span={24} style={{ textAlign: 'right' }} id="emergency-contact-submit-col" data-cy="emergency-contact-submit-col">
-              <Button type="primary" htmlType="submit" id="emergency-contact-submit-btn" data-cy="emergency-contact-submit-btn">
+          <Row
+            id="emergency-contact-submit-row"
+            data-cy="emergency-contact-submit-row"
+          >
+            <Col
+              span={24}
+              style={{ textAlign: 'right' }}
+              id="emergency-contact-submit-col"
+              data-cy="emergency-contact-submit-col"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="emergency-contact-submit-btn"
+                data-cy="emergency-contact-submit-btn"
+              >
                 Save Changes
               </Button>
             </Col>
           </Row>
         </Form>
       ) : (
-        <Row gutter={[16, 24]} id="emergency-contact-display-row" data-cy="emergency-contact-display-row">
-          <Col lg={16} id="emergency-contact-display-col" data-cy="emergency-contact-display-col">
+        <Row
+          gutter={[16, 24]}
+          id="emergency-contact-display-row"
+          data-cy="emergency-contact-display-row"
+        >
+          <Col
+            lg={16}
+            id="emergency-contact-display-col"
+            data-cy="emergency-contact-display-col"
+          >
             {Object.entries(allFields).map(([key, val]) => {
               const displayValue =
                 key === 'nationality'

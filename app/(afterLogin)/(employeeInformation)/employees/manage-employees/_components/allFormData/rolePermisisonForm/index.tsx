@@ -71,8 +71,17 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
       >
         Role Permission
       </div>
-      <Row gutter={16} id="role-permission-role-row" data-cy="role-permission-role-row">
-        <Col xs={24} sm={24} id="role-permission-role-col" data-cy="role-permission-role-col">
+      <Row
+        gutter={16}
+        id="role-permission-role-row"
+        data-cy="role-permission-role-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="role-permission-role-col"
+          data-cy="role-permission-role-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="roleId"
@@ -103,8 +112,17 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16} id="role-permission-permissions-row" data-cy="role-permission-permissions-row">
-        <Col xs={24} sm={24} id="role-permission-permissions-col" data-cy="role-permission-permissions-col">
+      <Row
+        gutter={16}
+        id="role-permission-permissions-row"
+        data-cy="role-permission-permissions-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="role-permission-permissions-col"
+          data-cy="role-permission-permissions-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="setOfPermission"

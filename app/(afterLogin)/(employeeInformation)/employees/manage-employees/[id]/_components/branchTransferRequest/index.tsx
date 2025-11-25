@@ -50,8 +50,17 @@ const BranchTransferRequest = ({ employeeData }: { employeeData: any }) => {
     });
   };
   return (
-    <div id="branch-transfer-request-container" data-cy="branch-transfer-request-container">
-      <Form form={form} onFinish={handleSubmit} layout="vertical" id="branch-transfer-request-form" data-cy="branch-transfer-request-form">
+    <div
+      id="branch-transfer-request-container"
+      data-cy="branch-transfer-request-container"
+    >
+      <Form
+        form={form}
+        onFinish={handleSubmit}
+        layout="vertical"
+        id="branch-transfer-request-form"
+        data-cy="branch-transfer-request-form"
+      >
         <Form.Item
           className="w-full font-semibold text-xs"
           name={'requestBranchId'}
@@ -68,14 +77,26 @@ const BranchTransferRequest = ({ employeeData }: { employeeData: any }) => {
             data-cy="branch-transfer-request-branch-select"
           >
             {branchOfficeData?.items?.map((branch, index: number) => (
-              <Option key={index} value={branch?.id} id={`branch-transfer-request-branch-option-${branch?.id}`} data-cy={`branch-transfer-request-branch-option-${branch?.id}`}>
+              <Option
+                key={index}
+                value={branch?.id}
+                id={`branch-transfer-request-branch-option-${branch?.id}`}
+                data-cy={`branch-transfer-request-branch-option-${branch?.id}`}
+              >
                 {branch?.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
-        <Form.Item id="branch-transfer-request-submit-form-item" data-cy="branch-transfer-request-submit-form-item">
-          <Row className="flex justify-end gap-3" id="branch-transfer-request-submit-row" data-cy="branch-transfer-request-submit-row">
+        <Form.Item
+          id="branch-transfer-request-submit-form-item"
+          data-cy="branch-transfer-request-submit-form-item"
+        >
+          <Row
+            className="flex justify-end gap-3"
+            id="branch-transfer-request-submit-row"
+            data-cy="branch-transfer-request-submit-row"
+          >
             <Tooltip
               title={
                 approvalEmployeeData?.length < 1 &&

@@ -219,11 +219,19 @@ const CustomWorkingScheduleDrawer = () => {
             data-cy={`org-settings-work-schedule-working-form-item-${dayKey}`}
             id={`org-settings-work-schedule-working-form-item-${dayKey}`}
           >
-            <div className="flex gap-2 md:gap-4 justify-start items-center" data-cy={`org-settings-work-schedule-working-content-${dayKey}`} id={`org-settings-work-schedule-working-content-${dayKey}`}>
+            <div
+              className="flex gap-2 md:gap-4 justify-start items-center"
+              data-cy={`org-settings-work-schedule-working-content-${dayKey}`}
+              id={`org-settings-work-schedule-working-content-${dayKey}`}
+            >
               <Switch
                 checked={record.status}
-                checkedChildren={<CheckOutlined  data-cy="org-components-workschedule-customdrawer-index-checkoutlined-1"/>}
-                unCheckedChildren={<CloseOutlined  data-cy="org-components-workschedule-customdrawer-index-closeoutlined-1"/>}
+                checkedChildren={
+                  <CheckOutlined data-cy="org-components-workschedule-customdrawer-index-checkoutlined-1" />
+                }
+                unCheckedChildren={
+                  <CloseOutlined data-cy="org-components-workschedule-customdrawer-index-closeoutlined-1" />
+                }
                 size="small"
                 onChange={(checked) =>
                   handleSwitchChange(record.dayOfWeek, checked)
@@ -231,7 +239,10 @@ const CustomWorkingScheduleDrawer = () => {
                 data-cy={`org-settings-work-schedule-working-switch-${dayKey}`}
                 id={`org-settings-work-schedule-working-switch-${dayKey}`}
               />
-              <p data-cy={`org-settings-work-schedule-working-label-${dayKey}`} id={`org-settings-work-schedule-working-label-${dayKey}`}>
+              <p
+                data-cy={`org-settings-work-schedule-working-label-${dayKey}`}
+                id={`org-settings-work-schedule-working-label-${dayKey}`}
+              >
                 {record.dayOfWeek}
               </p>
             </div>
@@ -247,7 +258,12 @@ const CustomWorkingScheduleDrawer = () => {
         const dayKey =
           record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
-          <Form.Item name={`${record.dayOfWeek}-start`} noStyle data-cy={`org-settings-work-schedule-start-time-form-item-${dayKey}`} id={`org-settings-work-schedule-start-time-form-item-${dayKey}`}>
+          <Form.Item
+            name={`${record.dayOfWeek}-start`}
+            noStyle
+            data-cy={`org-settings-work-schedule-start-time-form-item-${dayKey}`}
+            id={`org-settings-work-schedule-start-time-form-item-${dayKey}`}
+          >
             <TimePicker
               format="h:mm A"
               disabled={!record.status}
@@ -274,7 +290,12 @@ const CustomWorkingScheduleDrawer = () => {
         const dayKey =
           record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
-          <Form.Item name={`${record.dayOfWeek}-end`} noStyle data-cy={`org-settings-work-schedule-end-time-form-item-${dayKey}`} id={`org-settings-work-schedule-end-time-form-item-${dayKey}`}>
+          <Form.Item
+            name={`${record.dayOfWeek}-end`}
+            noStyle
+            data-cy={`org-settings-work-schedule-end-time-form-item-${dayKey}`}
+            id={`org-settings-work-schedule-end-time-form-item-${dayKey}`}
+          >
             <TimePicker
               format="h:mm A"
               disabled={!record.status}
@@ -301,7 +322,12 @@ const CustomWorkingScheduleDrawer = () => {
         const dayKey =
           record.dayOfWeek?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
-          <Form.Item shouldUpdate noStyle data-cy={`org-settings-work-schedule-duration-form-item-${dayKey}`} id={`org-settings-work-schedule-duration-form-item-${dayKey}`}>
+          <Form.Item
+            shouldUpdate
+            noStyle
+            data-cy={`org-settings-work-schedule-duration-form-item-${dayKey}`}
+            id={`org-settings-work-schedule-duration-form-item-${dayKey}`}
+          >
             {({ getFieldValue }) => {
               const start = getFieldValue(`${record.dayOfWeek}-start`);
               const end = getFieldValue(`${record.dayOfWeek}-end`);
@@ -330,7 +356,11 @@ const CustomWorkingScheduleDrawer = () => {
   return (
     <CustomDrawerLayout
       modalHeader={
-        <h1 className="text-base font-semibold" data-cy="org-settings-work-schedule-drawer-header" id="org-settings-work-schedule-drawer-header">
+        <h1
+          className="text-base font-semibold"
+          data-cy="org-settings-work-schedule-drawer-header"
+          id="org-settings-work-schedule-drawer-header"
+        >
           Add New Work Schedule
         </h1>
       }
@@ -338,9 +368,21 @@ const CustomWorkingScheduleDrawer = () => {
       open={isOpen}
       width="45%"
       footer={
-        <div className="flex justify-between items-center w-full my-1 pb-3" data-cy="org-settings-work-schedule-drawer-footer" id="org-settings-work-schedule-drawer-footer">
-          <div className="flex justify-start items-center gap-2 mt-4 mx-1" data-cy="org-components-workschedule-customdrawer-index-div-1" id="org-components-workschedule-customdrawer-index-div-1">
-            <span className="text-xs font-semibold text-nowrap " data-cy="org-settings-work-schedule-total-hours-label" id="org-settings-work-schedule-total-hours-label">
+        <div
+          className="flex justify-between items-center w-full my-1 pb-3"
+          data-cy="org-settings-work-schedule-drawer-footer"
+          id="org-settings-work-schedule-drawer-footer"
+        >
+          <div
+            className="flex justify-start items-center gap-2 mt-4 mx-1"
+            data-cy="org-components-workschedule-customdrawer-index-div-1"
+            id="org-components-workschedule-customdrawer-index-div-1"
+          >
+            <span
+              className="text-xs font-semibold text-nowrap "
+              data-cy="org-settings-work-schedule-total-hours-label"
+              id="org-settings-work-schedule-total-hours-label"
+            >
               Total Working hours:
             </span>
             <span
@@ -351,13 +393,27 @@ const CustomWorkingScheduleDrawer = () => {
               {standardHours.toFixed(1) ?? '-'} / Week
             </span>
             {validationError && (
-              <span className="text-red-500 text-xs ml-2" data-cy="org-settings-work-schedule-validation-error" id="org-settings-work-schedule-validation-error">
+              <span
+                className="text-red-500 text-xs ml-2"
+                data-cy="org-settings-work-schedule-validation-error"
+                id="org-settings-work-schedule-validation-error"
+              >
                 {validationError}
               </span>
             )}
           </div>
-          <div className="flex gap-2 mt-4 mr-8" data-cy="org-components-workschedule-customdrawer-index-div-2" id="org-components-workschedule-customdrawer-index-div-2">
-            <Button type="default" className="font-md" onClick={handleCancel} data-cy="org-settings-work-schedule-drawer-cancel-btn" id="org-settings-work-schedule-drawer-cancel-btn">
+          <div
+            className="flex gap-2 mt-4 mr-8"
+            data-cy="org-components-workschedule-customdrawer-index-div-2"
+            id="org-components-workschedule-customdrawer-index-div-2"
+          >
+            <Button
+              type="default"
+              className="font-md"
+              onClick={handleCancel}
+              data-cy="org-settings-work-schedule-drawer-cancel-btn"
+              id="org-settings-work-schedule-drawer-cancel-btn"
+            >
               Cancel
             </Button>
             <Button
@@ -373,7 +429,8 @@ const CustomWorkingScheduleDrawer = () => {
           </div>
         </div>
       }
-     data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1">
+      data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1"
+    >
       <Form
         form={form}
         layout="vertical"
@@ -384,10 +441,18 @@ const CustomWorkingScheduleDrawer = () => {
       >
         <Form.Item
           name="scheduleName"
-          label={<span className="text-sm font-semibold" data-cy="org-components-workschedule-customdrawer-index-span-1" id="org-components-workschedule-customdrawer-index-span-1">Schedule Name</span>}
+          label={
+            <span
+              className="text-sm font-semibold"
+              data-cy="org-components-workschedule-customdrawer-index-span-1"
+              id="org-components-workschedule-customdrawer-index-span-1"
+            >
+              Schedule Name
+            </span>
+          }
           rules={[{ required: true, message: 'Please input schedule name!' }]}
           data-cy="org-settings-work-schedule-name-field"
-          id='org-settings-work-schedule-name-field'
+          id="org-settings-work-schedule-name-field"
         >
           <Input
             size="large"
@@ -399,7 +464,13 @@ const CustomWorkingScheduleDrawer = () => {
             id="org-settings-work-schedule-name-input"
           />
         </Form.Item>
-        <h1 className="text-base m-3" data-cy="org-settings-work-schedule-hours-title" id="org-settings-work-schedule-hours-title">Working hours</h1>
+        <h1
+          className="text-base m-3"
+          data-cy="org-settings-work-schedule-hours-title"
+          id="org-settings-work-schedule-hours-title"
+        >
+          Working hours
+        </h1>
         <Table
           columns={columns}
           dataSource={detail}

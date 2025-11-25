@@ -101,10 +101,12 @@ const GroupPermissionComponent = () => {
           id="settings-role-permission-group-empty-wrapper"
           data-cy="settings-role-permission-group-empty-wrapper"
         >
-          <Empty 
-            description={'data not found'} 
-            image={<EmptyImage data-cy='settings-role-permission-group-empty-icon' />} 
-            data-cy='settings-role-permission-group-empty'
+          <Empty
+            description={'data not found'}
+            image={
+              <EmptyImage data-cy="settings-role-permission-group-empty-icon" />
+            }
+            data-cy="settings-role-permission-group-empty"
           />
         </div>
       )}

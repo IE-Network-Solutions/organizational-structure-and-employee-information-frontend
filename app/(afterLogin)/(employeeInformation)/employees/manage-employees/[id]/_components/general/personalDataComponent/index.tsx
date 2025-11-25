@@ -61,11 +61,21 @@ function PersonalDataComponent({
         id="personal-data-card"
         data-cy="personal-data-card"
       >
-        <Row gutter={16} id="personal-data-content-row" data-cy="personal-data-content-row">
+        <Row
+          gutter={16}
+          id="personal-data-content-row"
+          data-cy="personal-data-content-row"
+        >
           {edit.general ? (
             <>
-              <Row id="personal-data-update-user-info-row" data-cy="personal-data-update-user-info-row">
-                <UpdateUserInfo employeeData={employeeData} data-cy="personal-data-update-user-info" />
+              <Row
+                id="personal-data-update-user-info-row"
+                data-cy="personal-data-update-user-info-row"
+              >
+                <UpdateUserInfo
+                  employeeData={employeeData}
+                  data-cy="personal-data-update-user-info"
+                />
               </Row>
               <Form
                 form={form}
@@ -87,8 +97,16 @@ function PersonalDataComponent({
                 id="personal-data-form"
                 data-cy="personal-data-form"
               >
-                <Row gutter={[16, 24]} id="personal-data-form-row" data-cy="personal-data-form-row">
-                  <Col lg={12} id="personal-data-form-col-1" data-cy="personal-data-form-col-1">
+                <Row
+                  gutter={[16, 24]}
+                  id="personal-data-form-row"
+                  data-cy="personal-data-form-row"
+                >
+                  <Col
+                    lg={12}
+                    id="personal-data-form-col-1"
+                    data-cy="personal-data-form-col-1"
+                  >
                     <Form.Item
                       name="dateOfBirth"
                       label="Date of Birth"
@@ -163,14 +181,40 @@ function PersonalDataComponent({
                         },
                       ]}
                     >
-                      <Select placeholder="Select Marital Status" id="personal-data-marital-status-select" data-cy="personal-data-marital-status-select">
-                        <Select.Option value="MARRIED" id="personal-data-marital-status-option-married" data-cy="personal-data-marital-status-option-married">Married</Select.Option>
-                        <Select.Option value="SINGLE" id="personal-data-marital-status-option-single" data-cy="personal-data-marital-status-option-single">Single</Select.Option>
-                        <Select.Option value="DIVORCED" id="personal-data-marital-status-option-divorced" data-cy="personal-data-marital-status-option-divorced">Divorced</Select.Option>
+                      <Select
+                        placeholder="Select Marital Status"
+                        id="personal-data-marital-status-select"
+                        data-cy="personal-data-marital-status-select"
+                      >
+                        <Select.Option
+                          value="MARRIED"
+                          id="personal-data-marital-status-option-married"
+                          data-cy="personal-data-marital-status-option-married"
+                        >
+                          Married
+                        </Select.Option>
+                        <Select.Option
+                          value="SINGLE"
+                          id="personal-data-marital-status-option-single"
+                          data-cy="personal-data-marital-status-option-single"
+                        >
+                          Single
+                        </Select.Option>
+                        <Select.Option
+                          value="DIVORCED"
+                          id="personal-data-marital-status-option-divorced"
+                          data-cy="personal-data-marital-status-option-divorced"
+                        >
+                          Divorced
+                        </Select.Option>
                       </Select>
                     </Form.Item>
                   </Col>
-                  <Col lg={10} id="personal-data-form-col-2" data-cy="personal-data-form-col-2">
+                  <Col
+                    lg={10}
+                    id="personal-data-form-col-2"
+                    data-cy="personal-data-form-col-2"
+                  >
                     <Form.Item
                       name="gender"
                       label="Gender"
@@ -181,9 +225,25 @@ function PersonalDataComponent({
                         { required: true, message: 'Please enter the gender' },
                       ]}
                     >
-                      <Select placeholder="Select Gender" id="personal-data-gender-select" data-cy="personal-data-gender-select">
-                        <Select.Option value="female" id="personal-data-gender-option-female" data-cy="personal-data-gender-option-female">Female</Select.Option>
-                        <Select.Option value="male" id="personal-data-gender-option-male" data-cy="personal-data-gender-option-male">Male</Select.Option>
+                      <Select
+                        placeholder="Select Gender"
+                        id="personal-data-gender-select"
+                        data-cy="personal-data-gender-select"
+                      >
+                        <Select.Option
+                          value="female"
+                          id="personal-data-gender-option-female"
+                          data-cy="personal-data-gender-option-female"
+                        >
+                          Female
+                        </Select.Option>
+                        <Select.Option
+                          value="male"
+                          id="personal-data-gender-option-male"
+                          data-cy="personal-data-gender-option-male"
+                        >
+                          Male
+                        </Select.Option>
                       </Select>
                     </Form.Item>
 
@@ -215,8 +275,18 @@ function PersonalDataComponent({
                       />
                     </Form.Item>
                   </Col>
-                  <Col span={24} style={{ textAlign: 'right' }} id="personal-data-submit-col" data-cy="personal-data-submit-col">
-                    <Button type="primary" htmlType="submit" id="personal-data-submit-btn" data-cy="personal-data-submit-btn">
+                  <Col
+                    span={24}
+                    style={{ textAlign: 'right' }}
+                    id="personal-data-submit-col"
+                    data-cy="personal-data-submit-col"
+                  >
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      id="personal-data-submit-btn"
+                      data-cy="personal-data-submit-btn"
+                    >
                       Save Changes
                     </Button>
                   </Col>
@@ -225,7 +295,11 @@ function PersonalDataComponent({
             </>
           ) : (
             <>
-              <Col lg={12} id="personal-data-display-col-1" data-cy="personal-data-display-col-1">
+              <Col
+                lg={12}
+                id="personal-data-display-col-1"
+                data-cy="personal-data-display-col-1"
+              >
                 <InfoLine
                   title="Full Name"
                   value={`${employeeData?.firstName} ${employeeData?.middleName} ${employeeData?.lastName}`}
@@ -248,14 +322,24 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-nationality"
                 />
                 {userId === id ? (
-                  <Button type="primary" htmlType="submit" onClick={openModal} id="personal-data-change-password-btn" data-cy="personal-data-change-password-btn">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={openModal}
+                    id="personal-data-change-password-btn"
+                    data-cy="personal-data-change-password-btn"
+                  >
                     Change Password?
                   </Button>
                 ) : (
                   ''
                 )}
               </Col>
-              <Col lg={10} id="personal-data-display-col-2" data-cy="personal-data-display-col-2">
+              <Col
+                lg={10}
+                id="personal-data-display-col-2"
+                data-cy="personal-data-display-col-2"
+              >
                 <InfoLine
                   title="Gender"
                   value={employeeData?.employeeInformation?.gender || '-'}

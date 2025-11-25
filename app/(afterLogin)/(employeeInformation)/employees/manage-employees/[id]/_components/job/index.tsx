@@ -247,12 +247,23 @@ function Job({ id }: { id: string }) {
       <Card
         loading={isLoading}
         title="Employment Information"
-        extra={<Button icon={<LuPencil />} onClick={handleEditClick} id="job-employment-edit-btn" data-cy="job-employment-edit-btn" />}
+        extra={
+          <Button
+            icon={<LuPencil />}
+            onClick={handleEditClick}
+            id="job-employment-edit-btn"
+            data-cy="job-employment-edit-btn"
+          />
+        }
         className="my-6 mt-0"
         id="job-employment-card"
         data-cy="job-employment-card"
       >
-        <Row gutter={[16, 24]} id="job-employment-row" data-cy="job-employment-row">
+        <Row
+          gutter={[16, 24]}
+          id="job-employment-row"
+          data-cy="job-employment-row"
+        >
           <Col lg={16} id="job-employment-col" data-cy="job-employment-col">
             <InfoLine
               data-cy="job-employment-service-year"
@@ -282,7 +293,13 @@ function Job({ id }: { id: string }) {
               title="Joined Date"
               value={
                 isEditing ? (
-                  <Form onFinish={editJoinedDate} form={form} layout="inline" id="job-joined-date-form" data-cy="job-joined-date-form">
+                  <Form
+                    onFinish={editJoinedDate}
+                    form={form}
+                    layout="inline"
+                    id="job-joined-date-form"
+                    data-cy="job-joined-date-form"
+                  >
                     <Form.Item
                       name="joinedDate"
                       id="job-joined-date-form-item"
@@ -291,10 +308,22 @@ function Job({ id }: { id: string }) {
                         { required: true, message: 'Please select a date!' },
                       ]}
                     >
-                      <DatePicker format="YYYY-MM-DD" id="job-joined-date-datepicker" data-cy="job-joined-date-datepicker" />
+                      <DatePicker
+                        format="YYYY-MM-DD"
+                        id="job-joined-date-datepicker"
+                        data-cy="job-joined-date-datepicker"
+                      />
                     </Form.Item>
-                    <Form.Item id="job-joined-date-submit-form-item" data-cy="job-joined-date-submit-form-item">
-                      <Button type="primary" htmlType="submit" id="job-joined-date-submit-btn" data-cy="job-joined-date-submit-btn">
+                    <Form.Item
+                      id="job-joined-date-submit-form-item"
+                      data-cy="job-joined-date-submit-form-item"
+                    >
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        id="job-joined-date-submit-btn"
+                        data-cy="job-joined-date-submit-btn"
+                      >
                         Save
                       </Button>
                     </Form.Item>
@@ -313,16 +342,31 @@ function Job({ id }: { id: string }) {
         className="my-6 mt-0"
         title={'Job Information'}
         extra={
-          <div className=" flex justify-center items-center gap-3" id="job-information-extra" data-cy="job-information-extra">
+          <div
+            className=" flex justify-center items-center gap-3"
+            id="job-information-extra"
+            data-cy="job-information-extra"
+          >
             <AccessGuard
               permissions={[Permissions.UpdateEmployeeJobInformation]}
               id="job-information-add-guard"
               data-cy="job-information-add-guard"
             >
-              <FaPlus onClick={handleAddEmployeeJobInformation} id="job-information-add-btn" data-cy="job-information-add-btn" />
+              <FaPlus
+                onClick={handleAddEmployeeJobInformation}
+                id="job-information-add-btn"
+                data-cy="job-information-add-btn"
+              />
             </AccessGuard>
-            <div className="pt-2" id="job-information-download-wrapper" data-cy="job-information-download-wrapper">
-              <DownloadJobInformation id={id} data-cy="job-information-download" />
+            <div
+              className="pt-2"
+              id="job-information-download-wrapper"
+              data-cy="job-information-download-wrapper"
+            >
+              <DownloadJobInformation
+                id={id}
+                data-cy="job-information-download"
+              />
             </div>
           </div>
         }
@@ -348,31 +392,53 @@ function Job({ id }: { id: string }) {
       <BasicSalary id={userId} data-cy="job-basic-salary" />
 
       {/* Edit Job Information Modal */}
-        <Modal
-          title="Edit Employee Job Information"
-          centered
-          open={isEditModalVisible}
-          onCancel={handleEditModalClose}
-          footer={false}
-          destroyOnClose
-          data-cy="job-edit-modal"
+      <Modal
+        title="Edit Employee Job Information"
+        centered
+        open={isEditModalVisible}
+        onCancel={handleEditModalClose}
+        footer={false}
+        destroyOnClose
+        data-cy="job-edit-modal"
+      >
+        <Form
+          form={editForm}
+          onFinish={editJobInformation}
+          layout="vertical"
+          id="job-edit-form"
+          data-cy="job-edit-form"
         >
-        <Form form={editForm} onFinish={editJobInformation} layout="vertical" id="job-edit-form" data-cy="job-edit-form">
           {/* Job Timeline Section */}
-          <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2" id="job-edit-timeline-header" data-cy="job-edit-timeline-header">
+          <div
+            className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+            id="job-edit-timeline-header"
+            data-cy="job-edit-timeline-header"
+          >
             Job Timeline
           </div>
 
           {/* Effective Start Date */}
-          <Row gutter={16} id="job-edit-effective-date-row" data-cy="job-edit-effective-date-row">
-            <Col xs={24} id="job-edit-effective-date-col" data-cy="job-edit-effective-date-col">
+          <Row
+            gutter={16}
+            id="job-edit-effective-date-row"
+            data-cy="job-edit-effective-date-row"
+          >
+            <Col
+              xs={24}
+              id="job-edit-effective-date-col"
+              data-cy="job-edit-effective-date-col"
+            >
               <Form.Item
                 className="font-semibold text-xs"
                 name={'effectiveStartDate'}
                 id="job-edit-effective-date-form-item"
                 data-cy="job-edit-effective-date-form-item"
                 label={
-                  <span className="mb-1 font-semibold text-xs" id="job-edit-effective-date-label" data-cy="job-edit-effective-date-label">
+                  <span
+                    className="mb-1 font-semibold text-xs"
+                    id="job-edit-effective-date-label"
+                    data-cy="job-edit-effective-date-label"
+                  >
                     Effective Start Date *
                   </span>
                 }
@@ -392,8 +458,16 @@ function Job({ id }: { id: string }) {
           </Row>
 
           {/* Position and Employment Type */}
-          <Row gutter={16} id="job-edit-position-employment-row" data-cy="job-edit-position-employment-row">
-            <Col xs={12} id="job-edit-position-col" data-cy="job-edit-position-col">
+          <Row
+            gutter={16}
+            id="job-edit-position-employment-row"
+            data-cy="job-edit-position-employment-row"
+          >
+            <Col
+              xs={12}
+              id="job-edit-position-col"
+              data-cy="job-edit-position-col"
+            >
               <Form.Item
                 className="font-semibold text-xs"
                 name={'positionId'}
@@ -420,7 +494,11 @@ function Job({ id }: { id: string }) {
                 />
               </Form.Item>
             </Col>
-            <Col xs={12} id="job-edit-employment-type-col" data-cy="job-edit-employment-type-col">
+            <Col
+              xs={12}
+              id="job-edit-employment-type-col"
+              data-cy="job-edit-employment-type-col"
+            >
               <Form.Item
                 className="font-semibold text-xs"
                 name={'employementTypeId'}
@@ -455,8 +533,16 @@ function Job({ id }: { id: string }) {
           </Row>
 
           {/* Department and Branch Office in single column */}
-          <Row gutter={16} id="job-edit-department-row" data-cy="job-edit-department-row">
-            <Col xs={24} id="job-edit-department-col" data-cy="job-edit-department-col">
+          <Row
+            gutter={16}
+            id="job-edit-department-row"
+            data-cy="job-edit-department-row"
+          >
+            <Col
+              xs={24}
+              id="job-edit-department-col"
+              data-cy="job-edit-department-col"
+            >
               <Form.Item
                 className="w-full font-semibold text-xs"
                 name={'departmentId'}
@@ -487,7 +573,11 @@ function Job({ id }: { id: string }) {
             </Col>
           </Row>
 
-          <Row gutter={16} id="job-edit-branch-row" data-cy="job-edit-branch-row">
+          <Row
+            gutter={16}
+            id="job-edit-branch-row"
+            data-cy="job-edit-branch-row"
+          >
             <Col xs={24} id="job-edit-branch-col" data-cy="job-edit-branch-col">
               <Form.Item
                 className="w-full font-semibold text-xs"
@@ -520,24 +610,65 @@ function Job({ id }: { id: string }) {
           </Row>
 
           {/* Team Lead */}
-          <Row gutter={16} id="job-edit-team-lead-row" data-cy="job-edit-team-lead-row">
-            <Col xs={16} sm={8} id="job-edit-team-lead-label-col" data-cy="job-edit-team-lead-label-col">
-              <div className="font-semibold text-sm" id="job-edit-team-lead-label" data-cy="job-edit-team-lead-label">Team Lead</div>
+          <Row
+            gutter={16}
+            id="job-edit-team-lead-row"
+            data-cy="job-edit-team-lead-row"
+          >
+            <Col
+              xs={16}
+              sm={8}
+              id="job-edit-team-lead-label-col"
+              data-cy="job-edit-team-lead-label-col"
+            >
+              <div
+                className="font-semibold text-sm"
+                id="job-edit-team-lead-label"
+                data-cy="job-edit-team-lead-label"
+              >
+                Team Lead
+              </div>
             </Col>
-            <Col xs={8} sm={16} id="job-edit-team-lead-switch-col" data-cy="job-edit-team-lead-switch-col">
-              <Form.Item name="departmentLeadOrNot" valuePropName="checked" id="job-edit-team-lead-form-item" data-cy="job-edit-team-lead-form-item">
-                <Switch id="job-edit-team-lead-switch" data-cy="job-edit-team-lead-switch" />
+            <Col
+              xs={8}
+              sm={16}
+              id="job-edit-team-lead-switch-col"
+              data-cy="job-edit-team-lead-switch-col"
+            >
+              <Form.Item
+                name="departmentLeadOrNot"
+                valuePropName="checked"
+                id="job-edit-team-lead-form-item"
+                data-cy="job-edit-team-lead-form-item"
+              >
+                <Switch
+                  id="job-edit-team-lead-switch"
+                  data-cy="job-edit-team-lead-switch"
+                />
               </Form.Item>
             </Col>
           </Row>
 
           {/* Work Schedule Section */}
-          <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2" id="job-edit-work-schedule-header" data-cy="job-edit-work-schedule-header">
+          <div
+            className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+            id="job-edit-work-schedule-header"
+            data-cy="job-edit-work-schedule-header"
+          >
             Work Schedule
           </div>
 
-          <Row gutter={16} id="job-edit-work-schedule-row" data-cy="job-edit-work-schedule-row">
-            <Col xs={24} sm={24} id="job-edit-work-schedule-col" data-cy="job-edit-work-schedule-col">
+          <Row
+            gutter={16}
+            id="job-edit-work-schedule-row"
+            data-cy="job-edit-work-schedule-row"
+          >
+            <Col
+              xs={24}
+              sm={24}
+              id="job-edit-work-schedule-col"
+              data-cy="job-edit-work-schedule-col"
+            >
               <Form.Item
                 className="font-semibold text-xs"
                 name="workScheduleId"
@@ -569,8 +700,17 @@ function Job({ id }: { id: string }) {
           </Row>
 
           {selectedWorkSchedule && (
-            <Row gutter={16} id="job-edit-work-schedule-table-row" data-cy="job-edit-work-schedule-table-row">
-              <Col xs={24} sm={24} id="job-edit-work-schedule-table-col" data-cy="job-edit-work-schedule-table-col">
+            <Row
+              gutter={16}
+              id="job-edit-work-schedule-table-row"
+              data-cy="job-edit-work-schedule-table-row"
+            >
+              <Col
+                xs={24}
+                sm={24}
+                id="job-edit-work-schedule-table-col"
+                data-cy="job-edit-work-schedule-table-col"
+              >
                 <Table
                   columns={[
                     {
@@ -588,14 +728,23 @@ function Job({ id }: { id: string }) {
                     (schedule: any, index: number) => ({
                       key: index.toString(),
                       workingDay: (
-                        <div className="flex space-x-2 justify-start" id={`job-edit-work-schedule-day-${index}`} data-cy={`job-edit-work-schedule-day-${index}`}>
+                        <div
+                          className="flex space-x-2 justify-start"
+                          id={`job-edit-work-schedule-day-${index}`}
+                          data-cy={`job-edit-work-schedule-day-${index}`}
+                        >
                           <Switch
                             checked={schedule?.status || schedule?.workday}
                             disabled
                             id={`job-edit-work-schedule-switch-${index}`}
                             data-cy={`job-edit-work-schedule-switch-${index}`}
                           />
-                          <span id={`job-edit-work-schedule-day-name-${index}`} data-cy={`job-edit-work-schedule-day-name-${index}`}>{schedule?.dayOfWeek || schedule?.day}</span>
+                          <span
+                            id={`job-edit-work-schedule-day-name-${index}`}
+                            data-cy={`job-edit-work-schedule-day-name-${index}`}
+                          >
+                            {schedule?.dayOfWeek || schedule?.day}
+                          </span>
                         </div>
                       ),
                       time: (
@@ -625,8 +774,15 @@ function Job({ id }: { id: string }) {
             </Row>
           )}
 
-          <Form.Item id="job-edit-submit-form-item" data-cy="job-edit-submit-form-item">
-            <Row className="flex justify-end gap-3" id="job-edit-submit-row" data-cy="job-edit-submit-row">
+          <Form.Item
+            id="job-edit-submit-form-item"
+            data-cy="job-edit-submit-form-item"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="job-edit-submit-row"
+              data-cy="job-edit-submit-row"
+            >
               <Button
                 type="primary"
                 htmlType="submit"

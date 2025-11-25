@@ -21,8 +21,17 @@ const EmergencyContactForm = () => {
       >
         Emergency Contact
       </div>
-      <Row gutter={16} id="emergency-contact-row-names" data-cy="emergency-contact-row-names">
-        <Col xs={24} sm={8} id="emergency-contact-first-name-col" data-cy="emergency-contact-first-name-col">
+      <Row
+        gutter={16}
+        id="emergency-contact-row-names"
+        data-cy="emergency-contact-row-names"
+      >
+        <Col
+          xs={24}
+          sm={8}
+          id="emergency-contact-first-name-col"
+          data-cy="emergency-contact-first-name-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'firstName']}
@@ -43,10 +52,18 @@ const EmergencyContactForm = () => {
               },
             ]}
           >
-            <Input id="emergency-contact-first-name-input" data-cy="emergency-contact-first-name-input" />
+            <Input
+              id="emergency-contact-first-name-input"
+              data-cy="emergency-contact-first-name-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={8} id="emergency-contact-middle-name-col" data-cy="emergency-contact-middle-name-col">
+        <Col
+          xs={24}
+          sm={8}
+          id="emergency-contact-middle-name-col"
+          data-cy="emergency-contact-middle-name-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'middleName']}
@@ -66,10 +83,18 @@ const EmergencyContactForm = () => {
               },
             ]}
           >
-            <Input id="emergency-contact-middle-name-input" data-cy="emergency-contact-middle-name-input" />
+            <Input
+              id="emergency-contact-middle-name-input"
+              data-cy="emergency-contact-middle-name-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={8} id="emergency-contact-last-name-col" data-cy="emergency-contact-last-name-col">
+        <Col
+          xs={24}
+          sm={8}
+          id="emergency-contact-last-name-col"
+          data-cy="emergency-contact-last-name-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'lastName']}
@@ -90,12 +115,24 @@ const EmergencyContactForm = () => {
               },
             ]}
           >
-            <Input id="emergency-contact-last-name-input" data-cy="emergency-contact-last-name-input" />
+            <Input
+              id="emergency-contact-last-name-input"
+              data-cy="emergency-contact-last-name-input"
+            />
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16} id="emergency-contact-row-phone" data-cy="emergency-contact-row-phone">
-        <Col xs={24} sm={12} id="emergency-contact-phone-col" data-cy="emergency-contact-phone-col">
+      <Row
+        gutter={16}
+        id="emergency-contact-row-phone"
+        data-cy="emergency-contact-row-phone"
+      >
+        <Col
+          xs={24}
+          sm={12}
+          id="emergency-contact-phone-col"
+          data-cy="emergency-contact-phone-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'phoneNumber']}
@@ -115,10 +152,18 @@ const EmergencyContactForm = () => {
               },
             ]}
           >
-            <Input id="emergency-contact-phone-input" data-cy="emergency-contact-phone-input" />
+            <Input
+              id="emergency-contact-phone-input"
+              data-cy="emergency-contact-phone-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} id="emergency-contact-gender-col" data-cy="emergency-contact-gender-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="emergency-contact-gender-col"
+          data-cy="emergency-contact-gender-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'gender']}
@@ -127,19 +172,41 @@ const EmergencyContactForm = () => {
             data-cy="emergencyContactGender"
             rules={[{ required: true }]}
           >
-            <Select placeholder="Select gender" allowClear id="emergency-contact-gender-select" data-cy="emergency-contact-gender-select">
-              <Option value="male" id="emergency-contact-gender-male" data-cy="emergency-contact-gender-male">
+            <Select
+              placeholder="Select gender"
+              allowClear
+              id="emergency-contact-gender-select"
+              data-cy="emergency-contact-gender-select"
+            >
+              <Option
+                value="male"
+                id="emergency-contact-gender-male"
+                data-cy="emergency-contact-gender-male"
+              >
                 Male
               </Option>
-              <Option value="female" id="emergency-contact-gender-female" data-cy="emergency-contact-gender-female">
+              <Option
+                value="female"
+                id="emergency-contact-gender-female"
+                data-cy="emergency-contact-gender-female"
+              >
                 Female
               </Option>
             </Select>
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16} id="emergency-contact-row-nationality" data-cy="emergency-contact-row-nationality">
-        <Col xs={24} sm={24} id="emergency-contact-nationality-col" data-cy="emergency-contact-nationality-col">
+      <Row
+        gutter={16}
+        id="emergency-contact-row-nationality"
+        data-cy="emergency-contact-row-nationality"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="emergency-contact-nationality-col"
+          data-cy="emergency-contact-nationality-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['emergencyContact', 'nationality']}
@@ -150,7 +217,12 @@ const EmergencyContactForm = () => {
             data-cy="emergencyContactNationality"
             rules={[{ required: true }]}
           >
-            <Select placeholder="Select nationality" allowClear id="emergency-contact-nationality-select" data-cy="emergency-contact-nationality-select">
+            <Select
+              placeholder="Select nationality"
+              allowClear
+              id="emergency-contact-nationality-select"
+              data-cy="emergency-contact-nationality-select"
+            >
               {nationalities?.items?.map((nationality: any, index: number) => (
                 <Option
                   key={index}

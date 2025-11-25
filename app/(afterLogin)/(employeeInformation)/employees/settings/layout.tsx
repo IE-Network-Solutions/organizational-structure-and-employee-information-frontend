@@ -36,7 +36,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             <FaUser
               className={`hidden lg:block ${pathname.includes('/employees/settings/employementType') ? 'text-[#1677FF]' : ''}`}
             />
-            <p id="settings-menu-employment-type-label" data-cy="settings-menu-employment-type-label">
+            <p
+              id="settings-menu-employment-type-label"
+              data-cy="settings-menu-employment-type-label"
+            >
               Employment Type
             </p>
           </div>
@@ -57,7 +60,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             <IoMdSettings
               className={`hidden lg:block ${pathname.includes('/employees/settings/rolePermission') ? 'text-[#1677FF]' : ''}`}
             />
-            <p id="settings-menu-role-permission-label" data-cy="settings-menu-role-permission-label">
+            <p
+              id="settings-menu-role-permission-label"
+              data-cy="settings-menu-role-permission-label"
+            >
               Role Permission
             </p>
           </div>
@@ -77,7 +83,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             <IoMdSettings
               className={`hidden lg:block ${pathname.includes('/employees/settings/positions') ? 'text-[#1677FF]' : ''}`}
             />
-            <p id="settings-menu-positions-label" data-cy="settings-menu-positions-label">
+            <p
+              id="settings-menu-positions-label"
+              data-cy="settings-menu-positions-label"
+            >
               Positions
             </p>
           </div>
@@ -97,7 +106,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             <IoMdSettings
               className={`hidden lg:block ${pathname.includes('/employees/settings/approvals') ? 'text-[#1677FF]' : ''}`}
             />
-            <p id="settings-menu-approvals-label" data-cy="settings-menu-approvals-label">
+            <p
+              id="settings-menu-approvals-label"
+              data-cy="settings-menu-approvals-label"
+            >
               Approval Workflow
             </p>
           </div>

@@ -157,7 +157,11 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
         typeof window !== 'undefined' && window.innerWidth < 640 ? '95%' : 600
       }
       footer={[
-        <Button key="cancel" onClick={onClose} data-cy="probation-template-cancel-btn">
+        <Button
+          key="cancel"
+          onClick={onClose}
+          data-cy="probation-template-cancel-btn"
+        >
           Cancel
         </Button>,
         <Button
@@ -206,14 +210,30 @@ const ProbationTemplate: React.FC<ProbationTemplateProps> = ({
                   id={`probation-template-checkbox-${taskSlug}`}
                   data-cy={`probation-template-checkbox-${taskSlug}`}
                 />
-                <div className="flex-1" id={`probation-template-task-content-${taskSlug}`} data-cy={`probation-template-task-content-${taskSlug}`}>
-                  <div className="font-medium" id={`probation-template-task-title-${taskSlug}`} data-cy={`probation-template-task-title-${taskSlug}`}>
+                <div
+                  className="flex-1"
+                  id={`probation-template-task-content-${taskSlug}`}
+                  data-cy={`probation-template-task-content-${taskSlug}`}
+                >
+                  <div
+                    className="font-medium"
+                    id={`probation-template-task-title-${taskSlug}`}
+                    data-cy={`probation-template-task-title-${taskSlug}`}
+                  >
                     {task.title}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1" id={`probation-template-task-desc-${taskSlug}`} data-cy={`probation-template-task-desc-${taskSlug}`}>
+                  <div
+                    className="text-sm text-gray-600 mt-1"
+                    id={`probation-template-task-desc-${taskSlug}`}
+                    data-cy={`probation-template-task-desc-${taskSlug}`}
+                  >
                     {task.description}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1" id={`probation-template-task-meta-${taskSlug}`} data-cy={`probation-template-task-meta-${taskSlug}`}>
+                  <div
+                    className="text-xs text-gray-500 mt-1"
+                    id={`probation-template-task-meta-${taskSlug}`}
+                    data-cy={`probation-template-task-meta-${taskSlug}`}
+                  >
                     Weight: {task.weight}% | Due: {task.dueDate} | Assigned to:{' '}
                     {task.approverId}
                   </div>

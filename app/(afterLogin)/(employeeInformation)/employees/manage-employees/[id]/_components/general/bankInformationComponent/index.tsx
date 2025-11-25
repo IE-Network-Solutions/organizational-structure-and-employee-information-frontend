@@ -92,8 +92,16 @@ const BankInformationComponent = ({
           id="bank-information-form"
           data-cy="bank-information-form"
         >
-          <Row gutter={[16, 24]} id="bank-information-form-row" data-cy="bank-information-form-row">
-            <Col lg={16} id="bank-information-form-col" data-cy="bank-information-form-col">
+          <Row
+            gutter={[16, 24]}
+            id="bank-information-form-row"
+            data-cy="bank-information-form-row"
+          >
+            <Col
+              lg={16}
+              id="bank-information-form-col"
+              data-cy="bank-information-form-col"
+            >
               {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
@@ -157,17 +165,38 @@ const BankInformationComponent = ({
               ))}
             </Col>
           </Row>
-          <Row id="bank-information-submit-row" data-cy="bank-information-submit-row">
-            <Col span={24} style={{ textAlign: 'right' }} id="bank-information-submit-col" data-cy="bank-information-submit-col">
-              <Button type="primary" htmlType="submit" id="bank-information-submit-btn" data-cy="bank-information-submit-btn">
+          <Row
+            id="bank-information-submit-row"
+            data-cy="bank-information-submit-row"
+          >
+            <Col
+              span={24}
+              style={{ textAlign: 'right' }}
+              id="bank-information-submit-col"
+              data-cy="bank-information-submit-col"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="bank-information-submit-btn"
+                data-cy="bank-information-submit-btn"
+              >
                 Save Changes
               </Button>
             </Col>
           </Row>
         </Form>
       ) : (
-        <Row gutter={[16, 24]} id="bank-information-display-row" data-cy="bank-information-display-row">
-          <Col lg={16} id="bank-information-display-col" data-cy="bank-information-display-col">
+        <Row
+          gutter={[16, 24]}
+          id="bank-information-display-row"
+          data-cy="bank-information-display-row"
+        >
+          <Col
+            lg={16}
+            id="bank-information-display-col"
+            data-cy="bank-information-display-col"
+          >
             {Object.entries(allFields).map(([key, val]) => (
               <InfoLine
                 key={key}

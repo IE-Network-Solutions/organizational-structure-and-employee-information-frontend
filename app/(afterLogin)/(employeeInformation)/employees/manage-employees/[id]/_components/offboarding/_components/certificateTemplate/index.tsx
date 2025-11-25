@@ -117,7 +117,12 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                 data-cy="certificate-template-download-icon-path"
               />
             </svg>
-            <span id="certificate-template-download-text" data-cy="certificate-template-download-text">Download</span>
+            <span
+              id="certificate-template-download-text"
+              data-cy="certificate-template-download-text"
+            >
+              Download
+            </span>
           </button>
         </div>
 
@@ -179,79 +184,156 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
               {completedTasks.map((task, index) => {
                 const taskSlug = toSlug(task?.id ?? index);
                 return (
-                <div
-                  key={task.id || index}
-                  className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
+                  <div
+                    key={task.id || index}
+                    className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
                     id={`certificate-template-task-${taskSlug}`}
                     data-cy={`certificate-template-task-${taskSlug}`}
-                >
-                  <div className="flex items-center space-x-3" id="certificate-template-task-approver-wrapper" data-cy="certificate-template-task-approver-wrapper">
-                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-300" id="certificate-template-task-approver-image-wrapper" data-cy="certificate-template-task-approver-image-wrapper">
-                      {task.approver?.profilePicture ||
-                      task.approver?.profileImage ||
-                      task.approver?.avatar ? (
-                        <Image
-                          src={
-                            task.approver.profilePicture ||
-                            task.approver.profileImage ||
-                            task.approver.avatar
-                          }
-                          alt={`${task.approver?.firstName || 'Approver'} ${task.approver?.lastName || ''}`}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-sm border border-gray-300" id="certificate-template-task-approver-text-wrapper" data-cy="certificate-template-task-approver-text-wrapper">
-                          {`${task.approver?.firstName?.[0] || 'A'}${task.approver?.lastName?.[0] || 'P'}`.toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div id="certificate-template-task-title-wrapper" data-cy="certificate-template-task-title-wrapper">
-                      <p className="font-medium text-gray-800" id="certificate-template-task-title-text" data-cy="certificate-template-task-title-text">{task.title}</p>
-                      <p className="text-sm text-gray-500" id="certificate-template-task-approver-text" data-cy="certificate-template-task-approver-text">
-                        {`${task.approver?.firstName || ''} ${task.approver?.middleName || ''} ${task.approver?.lastName || ''}`.trim()}
-                      </p>
+                  >
+                    <div
+                      className="flex items-center space-x-3"
+                      id="certificate-template-task-approver-wrapper"
+                      data-cy="certificate-template-task-approver-wrapper"
+                    >
+                      <div
+                        className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-300"
+                        id="certificate-template-task-approver-image-wrapper"
+                        data-cy="certificate-template-task-approver-image-wrapper"
+                      >
+                        {task.approver?.profilePicture ||
+                        task.approver?.profileImage ||
+                        task.approver?.avatar ? (
+                          <Image
+                            src={
+                              task.approver.profilePicture ||
+                              task.approver.profileImage ||
+                              task.approver.avatar
+                            }
+                            alt={`${task.approver?.firstName || 'Approver'} ${task.approver?.lastName || ''}`}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full bg-white flex items-center justify-center text-black font-semibold text-sm border border-gray-300"
+                            id="certificate-template-task-approver-text-wrapper"
+                            data-cy="certificate-template-task-approver-text-wrapper"
+                          >
+                            {`${task.approver?.firstName?.[0] || 'A'}${task.approver?.lastName?.[0] || 'P'}`.toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        id="certificate-template-task-title-wrapper"
+                        data-cy="certificate-template-task-title-wrapper"
+                      >
+                        <p
+                          className="font-medium text-gray-800"
+                          id="certificate-template-task-title-text"
+                          data-cy="certificate-template-task-title-text"
+                        >
+                          {task.title}
+                        </p>
+                        <p
+                          className="text-sm text-gray-500"
+                          id="certificate-template-task-approver-text"
+                          data-cy="certificate-template-task-approver-text"
+                        >
+                          {`${task.approver?.firstName || ''} ${task.approver?.middleName || ''} ${task.approver?.lastName || ''}`.trim()}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
                 );
               })}
             </div>
 
             {/* Completion Statement */}
-            <div className="text-center py-6" id="certificate-template-completion" data-cy="certificate-template-completion">
-              <p className="text-xl font-bold text-gray-800 mb-2" id="certificate-template-completion-text" data-cy="certificate-template-completion-text">
+            <div
+              className="text-center py-6"
+              id="certificate-template-completion"
+              data-cy="certificate-template-completion"
+            >
+              <p
+                className="text-xl font-bold text-gray-800 mb-2"
+                id="certificate-template-completion-text"
+                data-cy="certificate-template-completion-text"
+              >
                 Successfully Completed these{' '}
                 <span className=" text-blue px-2 py-1 rounded">
                   Off Boarding Process&apos;s on
                 </span>
               </p>
-              <p className="text-lg text-gray-700" id="certificate-template-award-date" data-cy="certificate-template-award-date">
+              <p
+                className="text-lg text-gray-700"
+                id="certificate-template-award-date"
+                data-cy="certificate-template-award-date"
+              >
                 Award Date: {currentDate}
               </p>
             </div>
           </div>
 
           {/* Signature Section */}
-          <div className="relative z-10 px-8 py-8" id="certificate-template-signature-section" data-cy="certificate-template-signature-section">
-            <div className="flex justify-between items-end space-x-8" id="certificate-template-signature-row" data-cy="certificate-template-signature-row">
+          <div
+            className="relative z-10 px-8 py-8"
+            id="certificate-template-signature-section"
+            data-cy="certificate-template-signature-section"
+          >
+            <div
+              className="flex justify-between items-end space-x-8"
+              id="certificate-template-signature-row"
+              data-cy="certificate-template-signature-row"
+            >
               <div className="flex-1 text-center">
-                <div className="border-b-2 border-gray-400 w-32 mx-auto mb-2" id="certificate-template-signature-block-divider" data-cy="certificate-template-signature-block-divider"></div>
-                <p className="text-sm font-medium text-gray-700" id="certificate-template-signature-block-text" data-cy="certificate-template-signature-block-text">SIGNATURE</p>
+                <div
+                  className="border-b-2 border-gray-400 w-32 mx-auto mb-2"
+                  id="certificate-template-signature-block-divider"
+                  data-cy="certificate-template-signature-block-divider"
+                ></div>
+                <p
+                  className="text-sm font-medium text-gray-700"
+                  id="certificate-template-signature-block-text"
+                  data-cy="certificate-template-signature-block-text"
+                >
+                  SIGNATURE
+                </p>
               </div>
-              <div className="flex-1 text-center" id="certificate-template-date-block-wrapper" data-cy="certificate-template-date-block-wrapper">
-                <div className="border-b-2 border-gray-400 w-32 mx-auto mb-2" id="certificate-template-date-block-divider" data-cy="certificate-template-date-block-divider">
+              <div
+                className="flex-1 text-center"
+                id="certificate-template-date-block-wrapper"
+                data-cy="certificate-template-date-block-wrapper"
+              >
+                <div
+                  className="border-b-2 border-gray-400 w-32 mx-auto mb-2"
+                  id="certificate-template-date-block-divider"
+                  data-cy="certificate-template-date-block-divider"
+                >
                   {' '}
                   {currentDate}
                 </div>
-                <p className="text-sm font-medium text-gray-700" id="certificate-template-date-block-text" data-cy="certificate-template-date-block-text">DATE</p>
+                <p
+                  className="text-sm font-medium text-gray-700"
+                  id="certificate-template-date-block-text"
+                  data-cy="certificate-template-date-block-text"
+                >
+                  DATE
+                </p>
               </div>
-              <div className="flex-1 text-center" id="certificate-template-stamp-block-wrapper" data-cy="certificate-template-stamp-block-wrapper">
-                <div className="w-32 mx-auto mb-2 flex items-center justify-center" id="certificate-template-stamp-block-image-wrapper" data-cy="certificate-template-stamp-block-image-wrapper">
+              <div
+                className="flex-1 text-center"
+                id="certificate-template-stamp-block-wrapper"
+                data-cy="certificate-template-stamp-block-wrapper"
+              >
+                <div
+                  className="w-32 mx-auto mb-2 flex items-center justify-center"
+                  id="certificate-template-stamp-block-image-wrapper"
+                  data-cy="certificate-template-stamp-block-image-wrapper"
+                >
                   {tenantData?.stamp ? (
                     <Image
                       src={tenantData.stamp}
@@ -263,10 +345,18 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                       data-cy="certificate-template-stamp-block-image-img"
                     />
                   ) : (
-                    <div className="border-b-2 border-gray-400 w-full" id="certificate-template-stamp-block-image-fallback-wrapper" data-cy="certificate-template-stamp-block-image-fallback-wrapper"></div>
+                    <div
+                      className="border-b-2 border-gray-400 w-full"
+                      id="certificate-template-stamp-block-image-fallback-wrapper"
+                      data-cy="certificate-template-stamp-block-image-fallback-wrapper"
+                    ></div>
                   )}
                 </div>
-                <p className="text-sm font-medium text-gray-700" id="certificate-template-stamp-block-text" data-cy="certificate-template-stamp-block-text">
+                <p
+                  className="text-sm font-medium text-gray-700"
+                  id="certificate-template-stamp-block-text"
+                  data-cy="certificate-template-stamp-block-text"
+                >
                   COMPANY STAMP
                 </p>
               </div>

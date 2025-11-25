@@ -51,12 +51,7 @@ const Request = ({
           ...
         </div>
       );
-    if (isError)
-      return (
-        <>
-          -
-        </>
-      );
+    if (isError) return <>-</>;
 
     return employeeData ? (
       <div
@@ -73,7 +68,11 @@ const Request = ({
         </div>
         <Avatar
           size={24}
-          icon={<UserOutlined id={`department-request-emp-avatar-user-icon-${userSlug}`} />}
+          icon={
+            <UserOutlined
+              id={`department-request-emp-avatar-user-icon-${userSlug}`}
+            />
+          }
           data-cy={`department-request-emp-avatar-icon-${userSlug}`}
         />
         <div
@@ -99,7 +98,7 @@ const Request = ({
         </div>
       </div>
     ) : (
-        '-'
+      '-'
     );
   };
   const {
@@ -133,7 +132,7 @@ const Request = ({
       render: (text: LeaveRequestStatus, record: any) => {
         const statusSlug = toSlug(`${record?.id}-${text}`);
         return (
-          <StatusBadge 
+          <StatusBadge
             theme={LeaveRequestStatusBadgeTheme[text]}
             data-cy={`department-request-status-wrapper-${statusSlug}`}
           >
@@ -163,9 +162,7 @@ const Request = ({
             onDetail={() => {
               isShowDetail(true);
               setBranchRequestSidebarData(data.id);
-              setBranchRequestSidebarWorkflowData(
-                data.approvalWorkflowId,
-              );
+              setBranchRequestSidebarWorkflowData(data.approvalWorkflowId);
             }}
           />
         );

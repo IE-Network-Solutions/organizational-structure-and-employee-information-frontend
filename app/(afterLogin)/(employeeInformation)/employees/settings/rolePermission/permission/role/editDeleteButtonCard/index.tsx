@@ -45,7 +45,9 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
             onClick={() => props?.handleButtonClick(props?.item?.id)}
             data-cy={`settings-permission-role-card-menu-btn-${props?.item?.id}`}
           >
-            <IoMdMore data-cy={`settings-permission-role-card-menu-btn-icon-${props?.item?.id}`} />
+            <IoMdMore
+              data-cy={`settings-permission-role-card-menu-btn-icon-${props?.item?.id}`}
+            />
           </button>
           {props?.visibleEditCardId === props?.item?.id && (
             <KebabMenu

@@ -101,7 +101,11 @@ const TaskItem: React.FC<{
             data-cy={`probation-template-task-checkbox-${taskSlug}`}
           />
 
-          <div className="flex flex-col min-w-0" id={`probation-template-task-info-wrapper-${taskSlug}`} data-cy={`probation-template-task-info-wrapper-${taskSlug}`}>
+          <div
+            className="flex flex-col min-w-0"
+            id={`probation-template-task-info-wrapper-${taskSlug}`}
+            data-cy={`probation-template-task-info-wrapper-${taskSlug}`}
+          >
             <div
               className={`text-sm font-medium ${task?.isCompleted ? 'text-gray-400 line-through' : 'text-gray-900'}`}
               id={`probation-template-task-title-${taskSlug}`}
@@ -154,9 +158,24 @@ const TaskItem: React.FC<{
             id={`probation-template-task-weight-${taskSlug}`}
             data-cy={`probation-template-task-weight-${taskSlug}`}
           >
-            <div className="text-sm font-medium" id={`probation-template-task-weight-text-${taskSlug}`} data-cy={`probation-template-task-weight-text-${taskSlug}`}>
-              <span className="text-gray-500" id={`probation-template-task-weight-text-span-${taskSlug}`} data-cy={`probation-template-task-weight-text-span-${taskSlug}`}>Weight:</span>{' '}
-              <strong id={`probation-template-task-weight-strong-${taskSlug}`} data-cy={`probation-template-task-weight-strong-${taskSlug}`}>{task.weight}</strong>
+            <div
+              className="text-sm font-medium"
+              id={`probation-template-task-weight-text-${taskSlug}`}
+              data-cy={`probation-template-task-weight-text-${taskSlug}`}
+            >
+              <span
+                className="text-gray-500"
+                id={`probation-template-task-weight-text-span-${taskSlug}`}
+                data-cy={`probation-template-task-weight-text-span-${taskSlug}`}
+              >
+                Weight:
+              </span>{' '}
+              <strong
+                id={`probation-template-task-weight-strong-${taskSlug}`}
+                data-cy={`probation-template-task-weight-strong-${taskSlug}`}
+              >
+                {task.weight}
+              </strong>
             </div>
             {task.isCompleted && !task.score && (
               <div
@@ -190,8 +209,19 @@ const TaskItem: React.FC<{
                 id={`probation-template-task-score-display-${taskSlug}`}
                 data-cy={`probation-template-task-score-display-${taskSlug}`}
               >
-                <span className="text-gray-500" id={`probation-template-task-score-text-span-${taskSlug}`} data-cy={`probation-template-task-score-text-span-${taskSlug}`}>Score:</span>{' '}
-                <strong id={`probation-template-task-score-strong-${taskSlug}`} data-cy={`probation-template-task-score-strong-${taskSlug}`}>{task.score}</strong>
+                <span
+                  className="text-gray-500"
+                  id={`probation-template-task-score-text-span-${taskSlug}`}
+                  data-cy={`probation-template-task-score-text-span-${taskSlug}`}
+                >
+                  Score:
+                </span>{' '}
+                <strong
+                  id={`probation-template-task-score-strong-${taskSlug}`}
+                  data-cy={`probation-template-task-score-strong-${taskSlug}`}
+                >
+                  {task.score}
+                </strong>
               </div>
             )}
           </div>
@@ -252,14 +282,26 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
   };
 
   return (
-    <div className="p-1" id="probation-tasks-container" data-cy="probation-tasks-container">
+    <div
+      className="p-1"
+      id="probation-tasks-container"
+      data-cy="probation-tasks-container"
+    >
       <Card
         id="probation-tasks-card"
         data-cy="probation-tasks-card"
         title="Probation Tasks"
         extra={
-          <div className="flex flex-wrap gap-2" id="probation-tasks-actions" data-cy="probation-tasks-actions">
-            <AccessGuard permissions={[Permissions.AddOffloadingTasks]} id="probation-add-task-btn-guard" data-cy="probation-add-task-btn-guard">
+          <div
+            className="flex flex-wrap gap-2"
+            id="probation-tasks-actions"
+            data-cy="probation-tasks-actions"
+          >
+            <AccessGuard
+              permissions={[Permissions.AddOffloadingTasks]}
+              id="probation-add-task-btn-guard"
+              data-cy="probation-add-task-btn-guard"
+            >
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -268,10 +310,19 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
                 id="probation-add-task-btn"
                 data-cy="probation-add-task-btn"
               >
-                <span className="hidden sm:inline" id="probation-add-task-btn-text" data-cy="probation-add-task-btn-text">Add Task</span>
+                <span
+                  className="hidden sm:inline"
+                  id="probation-add-task-btn-text"
+                  data-cy="probation-add-task-btn-text"
+                >
+                  Add Task
+                </span>
               </Button>
             </AccessGuard>
-            <div id="probation-template-tasks" data-cy="probation-template-tasks">
+            <div
+              id="probation-template-tasks"
+              data-cy="probation-template-tasks"
+            >
               <AccessGuard
                 permissions={[Permissions.AddOffloadingTemplateTasks]}
                 id="probation-template-dropdown-guard"
@@ -283,9 +334,20 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
                   placement="bottomRight"
                   data-cy="probation-template-dropdown"
                 >
-                  <Button className="flex items-center w-full sm:w-auto" id="probation-template-dropdown-btn" data-cy="probation-template-dropdown-btn">
-                    <SettingOutlined className="mr-2 hidden sm:inline" id="probation-template-dropdown-btn-icon" data-cy="probation-template-dropdown-btn-icon" />
-                    <DownOutlined id="probation-template-dropdown-btn-icon-down" data-cy="probation-template-dropdown-btn-icon-down" />
+                  <Button
+                    className="flex items-center w-full sm:w-auto"
+                    id="probation-template-dropdown-btn"
+                    data-cy="probation-template-dropdown-btn"
+                  >
+                    <SettingOutlined
+                      className="mr-2 hidden sm:inline"
+                      id="probation-template-dropdown-btn-icon"
+                      data-cy="probation-template-dropdown-btn-icon"
+                    />
+                    <DownOutlined
+                      id="probation-template-dropdown-btn-icon-down"
+                      data-cy="probation-template-dropdown-btn-icon-down"
+                    />
                   </Button>
                 </Dropdown>
               </AccessGuard>
@@ -294,7 +356,11 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
         }
         className="w-full"
       >
-        <div className="space-y-3 max-h-96 sm:max-h-64 overflow-y-scroll scrollbar-none pr-1" id="probation-tasks-list" data-cy="probation-tasks-list">
+        <div
+          className="space-y-3 max-h-96 sm:max-h-64 overflow-y-scroll scrollbar-none pr-1"
+          id="probation-tasks-list"
+          data-cy="probation-tasks-list"
+        >
           {probationTasks.length > 0 ? (
             probationTasks.map((task: ProbationTask) => (
               <TaskItem
@@ -330,7 +396,11 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
           id="probation-tasks-total-wrapper"
           data-cy="probation-tasks-total-wrapper"
         >
-          <div className="text-[14px] font-bold text-gray-900" id="probation-tasks-total-score" data-cy="probation-tasks-total-score">
+          <div
+            className="text-[14px] font-bold text-gray-900"
+            id="probation-tasks-total-score"
+            data-cy="probation-tasks-total-score"
+          >
             Total: {getCompletedTasksScore()}
           </div>
         </div>
@@ -349,12 +419,26 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
             data-cy="probation-task-delete-modal"
             customMessage={
               <>
-                <div id="probation-task-delete-modal-body" data-cy="probation-task-delete-modal-body">
-                  <p id="probation-task-delete-modal-title" data-cy="probation-task-delete-modal-title">
+                <div
+                  id="probation-task-delete-modal-body"
+                  data-cy="probation-task-delete-modal-body"
+                >
+                  <p
+                    id="probation-task-delete-modal-title"
+                    data-cy="probation-task-delete-modal-title"
+                  >
                     <strong>Title: </strong> {taskToDelete.title}
                   </p>
-                  <p id="probation-task-delete-modal-assigned" data-cy="probation-task-delete-modal-assigned">
-                    <strong id="probation-task-delete-modal-assigned-strong" data-cy="probation-task-delete-modal-assigned-strong">Assigned To: </strong>
+                  <p
+                    id="probation-task-delete-modal-assigned"
+                    data-cy="probation-task-delete-modal-assigned"
+                  >
+                    <strong
+                      id="probation-task-delete-modal-assigned-strong"
+                      data-cy="probation-task-delete-modal-assigned-strong"
+                    >
+                      Assigned To:{' '}
+                    </strong>
                     {`${taskToDelete?.approver?.firstName || ''} ${taskToDelete?.approver?.middleName || ''} ${taskToDelete?.approver?.lastName || ''}`.trim() ||
                       'Not assigned'}
                   </p>
@@ -364,7 +448,10 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
           />
         )}
 
-        <div id="probation-add-task-modal-wrapper" data-cy="probation-add-task-modal-wrapper">
+        <div
+          id="probation-add-task-modal-wrapper"
+          data-cy="probation-add-task-modal-wrapper"
+        >
           <AddTaskModal
             id={id}
             isVisible={isAddTaskModalVisible}
@@ -373,7 +460,10 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
           />
         </div>
       </Card>
-      <div id="probation-template-modal-wrapper" data-cy="probation-template-modal-wrapper">
+      <div
+        id="probation-template-modal-wrapper"
+        data-cy="probation-template-modal-wrapper"
+      >
         <ProbationTemplate
           id={id}
           isVisible={isTaskTemplateVisible}

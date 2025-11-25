@@ -82,8 +82,14 @@ const Permission: React.FC<any> = () => {
   };
 
   return (
-    <div id="settings-permission-container" data-cy="settings-permission-container">
-      <div id="settings-permission-filters" data-cy="settings-permission-filters">
+    <div
+      id="settings-permission-container"
+      data-cy="settings-permission-container"
+    >
+      <div
+        id="settings-permission-filters"
+        data-cy="settings-permission-filters"
+      >
         {isMobile ? (
           <Row gutter={16}>
             <Col xl={14} lg={14} md={14} sm={20} xs={20}>
@@ -95,7 +101,15 @@ const Permission: React.FC<any> = () => {
                 data-cy="settings-permission-search-input-mobile"
               />
             </Col>
-            <Col xl={10} lg={10} md={10} sm={4} xs={4} id="settings-permission-group-select-wrapper-mobile" data-cy="settings-permission-group-select-wrapper-mobile">
+            <Col
+              xl={10}
+              lg={10}
+              md={10}
+              sm={4}
+              xs={4}
+              id="settings-permission-group-select-wrapper-mobile"
+              data-cy="settings-permission-group-select-wrapper-mobile"
+            >
               <Select
                 showSearch
                 className=" control m-0 w-[48px] h-10 mx-auto p-0 pl-2"
@@ -121,7 +135,12 @@ const Permission: React.FC<any> = () => {
               >
                 {groupPermissionDatawithOutPagination?.items?.map(
                   (item: GroupPermissionItem) => (
-                    <Option key={item?.id} value={item?.id} id={`settings-permission-group-option-${item?.id}`} data-cy={`settings-permission-group-option-${item?.id}`}>
+                    <Option
+                      key={item?.id}
+                      value={item?.id}
+                      id={`settings-permission-group-option-${item?.id}`}
+                      data-cy={`settings-permission-group-option-${item?.id}`}
+                    >
                       {item?.name}
                     </Option>
                   ),
@@ -131,8 +150,21 @@ const Permission: React.FC<any> = () => {
             </Col>
           </Row>
         ) : (
-          <Row gutter={16} justify="space-between" id="settings-permission-group-select-wrapper-desktop" data-cy="settings-permission-group-select-wrapper-desktop">
-            <Col xl={14} lg={14} md={14} sm={14} xs={14} id="settings-permission-search-input-wrapper-desktop" data-cy="settings-permission-search-input-wrapper-desktop">
+          <Row
+            gutter={16}
+            justify="space-between"
+            id="settings-permission-group-select-wrapper-desktop"
+            data-cy="settings-permission-group-select-wrapper-desktop"
+          >
+            <Col
+              xl={14}
+              lg={14}
+              md={14}
+              sm={14}
+              xs={14}
+              id="settings-permission-search-input-wrapper-desktop"
+              data-cy="settings-permission-search-input-wrapper-desktop"
+            >
               <Input
                 className="w-full h-10"
                 placeholder="Search permission"
@@ -141,7 +173,15 @@ const Permission: React.FC<any> = () => {
                 data-cy="settings-permission-search-input"
               />
             </Col>
-            <Col xl={10} lg={10} md={10} sm={10} xs={10} id="settings-permission-group-select-wrapper-desktop" data-cy="settings-permission-group-select-wrapper-desktop">
+            <Col
+              xl={10}
+              lg={10}
+              md={10}
+              sm={10}
+              xs={10}
+              id="settings-permission-group-select-wrapper-desktop"
+              data-cy="settings-permission-group-select-wrapper-desktop"
+            >
               <Select
                 showSearch
                 className="w-full h-10"
@@ -160,7 +200,12 @@ const Permission: React.FC<any> = () => {
               >
                 {groupPermissionDatawithOutPagination?.items?.map(
                   (item: GroupPermissionItem) => (
-                    <Option key={item?.id} value={item?.id} id={`settings-permission-group-option-${item?.id}`} data-cy={`settings-permission-group-option-${item?.id}`}>
+                    <Option
+                      key={item?.id}
+                      value={item?.id}
+                      id={`settings-permission-group-option-${item?.id}`}
+                      data-cy={`settings-permission-group-option-${item?.id}`}
+                    >
                       {item?.name}
                     </Option>
                   ),
@@ -171,8 +216,16 @@ const Permission: React.FC<any> = () => {
           </Row>
         )}
       </div>
-      <div className="mb-4" id="settings-permission-selected-count" data-cy="settings-permission-selected-count">
-        <span className="" id="settings-permission-selected-count-text" data-cy="settings-permission-selected-count-text">
+      <div
+        className="mb-4"
+        id="settings-permission-selected-count"
+        data-cy="settings-permission-selected-count"
+      >
+        <span
+          className=""
+          id="settings-permission-selected-count-text"
+          data-cy="settings-permission-selected-count-text"
+        >
           {hasSelected ? `Selected ${selectedRowKeys?.length} items` : ''}
         </span>
       </div>

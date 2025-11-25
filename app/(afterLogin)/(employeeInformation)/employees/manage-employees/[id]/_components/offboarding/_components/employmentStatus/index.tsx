@@ -23,7 +23,10 @@ const EmploymentStatus: React.FC = () => {
         id="offboarding-employment-status-header"
         data-cy="offboarding-employment-status-header"
       >
-        <Col id="offboarding-employment-status-avatar-col" data-cy="offboarding-employment-status-avatar-col">
+        <Col
+          id="offboarding-employment-status-avatar-col"
+          data-cy="offboarding-employment-status-avatar-col"
+        >
           <Image
             src={employeeData?.avatar || avatar}
             alt={employeeData?.name || 'Employee'}
@@ -34,26 +37,51 @@ const EmploymentStatus: React.FC = () => {
             data-cy="offboarding-employment-status-avatar"
           />
         </Col>
-        <Col id="offboarding-employment-status-info-col" data-cy="offboarding-employment-status-info-col">
-          <h2 className="text-base font-semibold mb-0" id="offboarding-employment-status-name" data-cy="offboarding-employment-status-name">
+        <Col
+          id="offboarding-employment-status-info-col"
+          data-cy="offboarding-employment-status-info-col"
+        >
+          <h2
+            className="text-base font-semibold mb-0"
+            id="offboarding-employment-status-name"
+            data-cy="offboarding-employment-status-name"
+          >
             {employeeData?.name ? employeeData?.name : 'Gelila Tegegne'}
           </h2>
-          <p className="text-gray-500 mb-0 text-sm" id="offboarding-employment-status-role" data-cy="offboarding-employment-status-role">
+          <p
+            className="text-gray-500 mb-0 text-sm"
+            id="offboarding-employment-status-role"
+            data-cy="offboarding-employment-status-role"
+          >
             {employeeData?.position
               ? employeeData?.position
               : 'Jr. Software Developer'}
           </p>
-          <p className="text-sm text-gray-900 mb-0" id="offboarding-employment-status-manager" data-cy="offboarding-employment-status-manager">
+          <p
+            className="text-sm text-gray-900 mb-0"
+            id="offboarding-employment-status-manager"
+            data-cy="offboarding-employment-status-manager"
+          >
             Reports Directly to {''}
             {employeeData?.manager ? employeeData?.manager : 'Abeselom G/kidan'}
           </p>
         </Col>
       </Row>
-      <p className="text-base font-semibold my-4" id="offboarding-employment-status-title" data-cy="offboarding-employment-status-title">
+      <p
+        className="text-base font-semibold my-4"
+        id="offboarding-employment-status-title"
+        data-cy="offboarding-employment-status-title"
+      >
         Employment Status
       </p>
-      <div id="offboarding-employment-control-wrapper" data-cy="offboarding-employment-control-wrapper">
-        <OffboardingFormControl id="offboarding-employment-control" data-cy="offboarding-employment-control" />
+      <div
+        id="offboarding-employment-control-wrapper"
+        data-cy="offboarding-employment-control-wrapper"
+      >
+        <OffboardingFormControl
+          id="offboarding-employment-control"
+          data-cy="offboarding-employment-control"
+        />
       </div>
     </div>
   );

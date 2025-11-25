@@ -39,7 +39,11 @@ const Positions: React.FC = () => {
           >
             Employee Positions
           </Title>
-          <AccessGuard permissions={[Permissions.CreatePosition]} id="settings-positions-new-btn-guard" data-cy="settings-positions-new-btn-guard">
+          <AccessGuard
+            permissions={[Permissions.CreatePosition]}
+            id="settings-positions-new-btn-guard"
+            data-cy="settings-positions-new-btn-guard"
+          >
             <Button
               type="primary"
               className="h-10 w-10 sm:w-auto"
@@ -66,10 +70,7 @@ const Positions: React.FC = () => {
         </div>
       </Card>
 
-      <div
-        id="settings-positions-create"
-        data-cy="settings-positions-create"
-      >
+      <div id="settings-positions-create" data-cy="settings-positions-create">
         <CreatePosition data-cy="settings-positions-create-form" />
       </div>
     </div>

@@ -133,7 +133,7 @@ const RequestDetail = () => {
             >
               {leaveData?.status ? (
                 <StatusBadge
-                //   theme={LeaveRequestStatusBadgeTheme[leaveData?.status]}
+                  //   theme={LeaveRequestStatusBadgeTheme[leaveData?.status]}
                   data-cy="department-request-detail-status-badge"
                 >
                   {leaveData?.status}

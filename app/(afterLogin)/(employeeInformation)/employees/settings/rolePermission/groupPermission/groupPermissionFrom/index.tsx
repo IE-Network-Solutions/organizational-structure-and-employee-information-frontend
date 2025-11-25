@@ -103,10 +103,17 @@ const GroupPermission = () => {
         id="settings-group-permission-form"
         data-cy="settings-group-permission-form"
       >
-        <div className="grid gap-2" id='settings-group-permission-form-div' data-cy='settings-group-permission-form-div'>
+        <div
+          className="grid gap-2"
+          id="settings-group-permission-form-div"
+          data-cy="settings-group-permission-form-div"
+        >
           {currentModal === 'editModal' && (
             <Form.Item name="id" id="settings-group-permission-id-item">
-              <Input type="hidden" data-cy="settings-group-permission-id-input" />
+              <Input
+                type="hidden"
+                data-cy="settings-group-permission-id-input"
+              />
             </Form.Item>
           )}
           <div>
@@ -147,7 +154,10 @@ const GroupPermission = () => {
               />
             </Form.Item>
           </div>
-          <div id="groupPermissionId" data-cy="settings-group-permission-select-wrapper">
+          <div
+            id="groupPermissionId"
+            data-cy="settings-group-permission-select-wrapper"
+          >
             <Form.Item
               name="permissions"
               label={
@@ -173,7 +183,11 @@ const GroupPermission = () => {
             </Form.Item>
           </div>
         </div>
-        <Form.Item wrapperCol={{ span: 24, md: { span: 12, offset: 6 } }} id="settings-group-permission-actions-form-item" data-cy="settings-group-permission-actions-form-item">
+        <Form.Item
+          wrapperCol={{ span: 24, md: { span: 12, offset: 6 } }}
+          id="settings-group-permission-actions-form-item"
+          data-cy="settings-group-permission-actions-form-item"
+        >
           <div
             className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
             id="settings-group-permission-actions"

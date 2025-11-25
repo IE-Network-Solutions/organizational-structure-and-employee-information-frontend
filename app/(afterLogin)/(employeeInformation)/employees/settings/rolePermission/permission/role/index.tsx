@@ -89,7 +89,11 @@ const RoleComponent: React.FC = () => {
           {' '}
           <Empty
             description={'data not found'}
-            image={<EmptyImage data-cy={`settings-permission-role-empty-icon-${componentSlug}`} />}
+            image={
+              <EmptyImage
+                data-cy={`settings-permission-role-empty-icon-${componentSlug}`}
+              />
+            }
             data-cy={`settings-permission-role-empty-image-${componentSlug}`}
           />
         </div>

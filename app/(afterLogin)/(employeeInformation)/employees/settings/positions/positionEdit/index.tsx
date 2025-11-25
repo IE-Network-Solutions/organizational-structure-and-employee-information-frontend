@@ -56,7 +56,11 @@ const PositionsEdit: React.FC = () => {
             data-cy="settings-position-edit-name-item"
             name="name"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700" id="settings-position-edit-name-label" data-cy="settings-position-edit-name-label">
+              <span
+                className="text-md my-2 font-semibold text-gray-700"
+                id="settings-position-edit-name-label"
+                data-cy="settings-position-edit-name-label"
+              >
                 Position Name
               </span>
             }

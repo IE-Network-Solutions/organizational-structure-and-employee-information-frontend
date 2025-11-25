@@ -144,8 +144,16 @@ const ApprovalTable = () => {
           icon={<UserOutlined />}
           data-cy={`department-request-approval-emp-avatar-${userSlug}`}
         />
-        <div className="flex-1" data-cy={`department-request-approval-emp-info-${userSlug}`} id={`department-request-approval-emp-info-${userSlug}`} >
-          <div className="text-xs text-gray-900" data-cy={`department-request-approval-emp-name-${userSlug}`} id={`department-request-approval-emp-name-${userSlug}`} >
+        <div
+          className="flex-1"
+          data-cy={`department-request-approval-emp-info-${userSlug}`}
+          id={`department-request-approval-emp-info-${userSlug}`}
+        >
+          <div
+            className="text-xs text-gray-900"
+            data-cy={`department-request-approval-emp-name-${userSlug}`}
+            id={`department-request-approval-emp-name-${userSlug}`}
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
@@ -192,7 +200,10 @@ const ApprovalTable = () => {
             id={`department-request-approval-status-${statusSlug}`}
             data-cy={`department-request-approval-status-${statusSlug}`}
           >
-            <StatusBadge theme={LeaveRequestStatusBadgeTheme[text]} data-cy={`department-request-approval-status-${statusSlug}`}>
+            <StatusBadge
+              theme={LeaveRequestStatusBadgeTheme[text]}
+              data-cy={`department-request-approval-status-${statusSlug}`}
+            >
               {text}
             </StatusBadge>
           </span>

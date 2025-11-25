@@ -78,7 +78,10 @@ const DocumentUploadForm = () => {
                 id="document-upload-header"
                 data-cy="document-upload-header"
               >
-                <p id="document-upload-header-text" data-cy="document-upload-header-text">
+                <p
+                  id="document-upload-header-text"
+                  data-cy="document-upload-header-text"
+                >
                   Documents Upload
                 </p>
               </div>

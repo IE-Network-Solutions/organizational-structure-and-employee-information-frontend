@@ -269,16 +269,30 @@ const ManageEmployees: React.FC<any> = () => {
                   id="createUserButton"
                   data-cy="manage-employees-create-btn"
                   className="h-10 w-10 sm:w-auto"
-                  icon={<FaPlus id='manage-employees-create-icon' data-cy='manage-employees-create-icon' />}
+                  icon={
+                    <FaPlus
+                      id="manage-employees-create-icon"
+                      data-cy="manage-employees-create-icon"
+                    />
+                  }
                   onClick={showDrawer}
                   loading={isLoading || subscriptionLoading}
                   disabled={!isAvailableSlots}
                 >
-                  <span className="hidden sm:inline" id='manage-employees-create-btn-text' data-cy='manage-employees-create-btn-text'>Create user</span>
+                  <span
+                    className="hidden sm:inline"
+                    id="manage-employees-create-btn-text"
+                    data-cy="manage-employees-create-btn-text"
+                  >
+                    Create user
+                  </span>
                 </Button>
               </Tooltip>
             </AccessGuard>
-            <UserSidebar onClose={onClose} data-cy='manage-employees-user-sidebar' />
+            <UserSidebar
+              onClose={onClose}
+              data-cy="manage-employees-user-sidebar"
+            />
           </div>
         </div>
         <div

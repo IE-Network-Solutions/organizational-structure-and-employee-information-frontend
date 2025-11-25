@@ -82,8 +82,16 @@ const EmployeeSearch: React.FC = () => {
     : 'notNull';
 
   const Filters = (
-    <div className="space-y-4" id="employee-search-filters" data-cy="employee-search-filters">
-      <div className="space-y-4" id="employee-search-filters-content" data-cy="employee-search-filters-content">
+    <div
+      className="space-y-4"
+      id="employee-search-filters"
+      data-cy="employee-search-filters"
+    >
+      <div
+        className="space-y-4"
+        id="employee-search-filters-content"
+        data-cy="employee-search-filters-content"
+      >
         <Select
           id={`selectBranches${searchParams.allOffices}`}
           data-cy={`selectBranches${searchParams.allOffices}`}
@@ -217,7 +225,13 @@ const EmployeeSearch: React.FC = () => {
                 id="employee-search-date-picker-suffix-icon-path"
                 data-cy="employee-search-date-picker-suffix-icon-path"
               />
-              <path d="M2 6h12" stroke="currentColor" strokeWidth="1.5" id="employee-search-date-picker-suffix-icon-path-2" data-cy="employee-search-date-picker-suffix-icon-path-2" />
+              <path
+                d="M2 6h12"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                id="employee-search-date-picker-suffix-icon-path-2"
+                data-cy="employee-search-date-picker-suffix-icon-path-2"
+              />
               <text
                 x="8"
                 y="10"
@@ -232,8 +246,18 @@ const EmployeeSearch: React.FC = () => {
             </svg>
           }
           renderExtraFooter={() => (
-            <div className="flex items-center justify-between w-full px-2" id="employee-search-date-footer" data-cy="employee-search-date-footer">
-              <span className="font-semibold text-sm" id="employee-search-date-label" data-cy="employee-search-date-label">Set Date</span>
+            <div
+              className="flex items-center justify-between w-full px-2"
+              id="employee-search-date-footer"
+              data-cy="employee-search-date-footer"
+            >
+              <span
+                className="font-semibold text-sm"
+                id="employee-search-date-label"
+                data-cy="employee-search-date-label"
+              >
+                Set Date
+              </span>
               <Radio.Group
                 value={searchParams.joinedDateType || 'after'}
                 onChange={(e) => setJoinedDateType(e.target.value)}
@@ -241,8 +265,20 @@ const EmployeeSearch: React.FC = () => {
                 id="employee-search-date-type-group"
                 data-cy="employee-search-date-type-group"
               >
-                <Radio value="before" id="employee-search-date-before" data-cy="employee-search-date-before">Before</Radio>
-                <Radio value="after" id="employee-search-date-after" data-cy="employee-search-date-after">After</Radio>
+                <Radio
+                  value="before"
+                  id="employee-search-date-before"
+                  data-cy="employee-search-date-before"
+                >
+                  Before
+                </Radio>
+                <Radio
+                  value="after"
+                  id="employee-search-date-after"
+                  data-cy="employee-search-date-after"
+                >
+                  After
+                </Radio>
               </Radio.Group>
             </div>
           )}
@@ -258,7 +294,11 @@ const EmployeeSearch: React.FC = () => {
       onCancel={() => setIsMobileFilterVisible(false)}
       data-cy="employee-search-modal"
       footer={
-        <div className="flex justify-center space-x-4 " id="employee-search-modal-footer" data-cy="employee-search-modal-footer">
+        <div
+          className="flex justify-center space-x-4 "
+          id="employee-search-modal-footer"
+          data-cy="employee-search-modal-footer"
+        >
           <Button
             type="default"
             onClick={() => setIsMobileFilterVisible(false)}

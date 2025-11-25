@@ -134,7 +134,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
             data-cy={`probation-add-task-title-input-${modalSlug}`}
           />
         </Form.Item>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full" id={`probation-add-task-form-items-wrapper-${modalSlug}`} data-cy={`probation-add-task-form-items-wrapper-${modalSlug}`}>
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full"
+          id={`probation-add-task-form-items-wrapper-${modalSlug}`}
+          data-cy={`probation-add-task-form-items-wrapper-${modalSlug}`}
+        >
           <Form.Item
             name="approverId"
             label="*Approver"
@@ -177,7 +181,12 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
             />
           </Form.Item>
         </div>
-        <Form.Item name="description" label="Description" id={`probation-add-task-description-form-item-${modalSlug}`} data-cy={`probation-add-task-description-form-item-${modalSlug}`}>
+        <Form.Item
+          name="description"
+          label="Description"
+          id={`probation-add-task-description-form-item-${modalSlug}`}
+          data-cy={`probation-add-task-description-form-item-${modalSlug}`}
+        >
           <Input.TextArea
             placeholder="Description"
             rows={4}
@@ -186,7 +195,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
           />
         </Form.Item>
 
-        <Form.Item className="mt-4" id={`probation-add-task-actions-form-item-${modalSlug}`} data-cy={`probation-add-task-actions-form-item-${modalSlug}`}>
+        <Form.Item
+          className="mt-4"
+          id={`probation-add-task-actions-form-item-${modalSlug}`}
+          data-cy={`probation-add-task-actions-form-item-${modalSlug}`}
+        >
           <div
             className="flex flex-col-reverse sm:flex-row justify-end gap-2"
             id={`probation-add-task-actions-${modalSlug}`}

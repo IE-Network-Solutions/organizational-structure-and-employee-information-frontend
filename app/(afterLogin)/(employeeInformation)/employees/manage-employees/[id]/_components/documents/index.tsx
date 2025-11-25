@@ -71,7 +71,10 @@ const Documents = ({ id }: { id: string }) => {
         title: 'Actions',
         key: 'actions',
         render: (text: any, record: any) => (
-          <Space id={`documents-table-actions-${record.id}`} data-cy={`documents-table-actions-${record.id}`}>
+          <Space
+            id={`documents-table-actions-${record.id}`}
+            data-cy={`documents-table-actions-${record.id}`}
+          >
             <AccessGuard
               permissions={[Permissions.DownloadEmployeeDocument]}
               selfShouldAccess
@@ -80,18 +83,32 @@ const Documents = ({ id }: { id: string }) => {
             >
               <Button
                 type="link"
-                icon={<AiOutlineDownload id='documents-table-download-icon' data-cy='documents-table-download-icon' />}
+                icon={
+                  <AiOutlineDownload
+                    id="documents-table-download-icon"
+                    data-cy="documents-table-download-icon"
+                  />
+                }
                 href={record.documentLink}
                 target="_blank"
                 id={`documents-table-download-btn-${record.id}`}
                 data-cy={`documents-table-download-btn-${record.id}`}
               />
             </AccessGuard>
-            <AccessGuard permissions={[Permissions.DeleteEmployeeDocument]} id='documents-table-delete-guard' data-cy='documents-table-delete-guard'>
+            <AccessGuard
+              permissions={[Permissions.DeleteEmployeeDocument]}
+              id="documents-table-delete-guard"
+              data-cy="documents-table-delete-guard"
+            >
               <Button
                 type="link"
                 className="text-xl font-bold text-red-600"
-                icon={<AiOutlineDelete id='documents-table-delete-icon' data-cy='documents-table-delete-icon' />}
+                icon={
+                  <AiOutlineDelete
+                    id="documents-table-delete-icon"
+                    data-cy="documents-table-delete-icon"
+                  />
+                }
                 onClick={() => onDelete(record.id)}
                 id={`documents-table-delete-btn-${record.id}`}
                 data-cy={`documents-table-delete-btn-${record.id}`}
@@ -136,10 +153,27 @@ const Documents = ({ id }: { id: string }) => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8" id="documents-container" data-cy="documents-container">
-      <Row justify="center" style={{ width: '100%' }} id="documents-upload-row" data-cy="documents-upload-row">
-        <AccessGuard permissions={[Permissions.UploadEmployeeDocuments]} id="documents-upload-guard" data-cy="documents-upload-guard">
-          <Col span={24} id="documents-upload-col" data-cy="documents-upload-col">
+    <div
+      className="p-4 sm:p-6 lg:p-8"
+      id="documents-container"
+      data-cy="documents-container"
+    >
+      <Row
+        justify="center"
+        style={{ width: '100%' }}
+        id="documents-upload-row"
+        data-cy="documents-upload-row"
+      >
+        <AccessGuard
+          permissions={[Permissions.UploadEmployeeDocuments]}
+          id="documents-upload-guard"
+          data-cy="documents-upload-guard"
+        >
+          <Col
+            span={24}
+            id="documents-upload-col"
+            data-cy="documents-upload-col"
+          >
             <Form
               form={form}
               name="dependencies"
@@ -181,8 +215,17 @@ const Documents = ({ id }: { id: string }) => {
                   id="documents-upload-dragger"
                   data-cy="documents-upload-dragger"
                 >
-                  <div className="flex justify-between items-center text-xl font-semibold text-gray-950" id="documents-upload-header" data-cy="documents-upload-header">
-                    <p id="documents-upload-title" data-cy="documents-upload-title">Document Uploads</p>
+                  <div
+                    className="flex justify-between items-center text-xl font-semibold text-gray-950"
+                    id="documents-upload-header"
+                    data-cy="documents-upload-header"
+                  >
+                    <p
+                      id="documents-upload-title"
+                      data-cy="documents-upload-title"
+                    >
+                      Document Uploads
+                    </p>
                     {/* <div className="flex py-3 px-6 my-4 items-center">
                       <Button
                         className="ant-upload-text font-semibold text-white  text-sm  bg-blue-500 hover:bg-blue-600"
@@ -193,7 +236,11 @@ const Documents = ({ id }: { id: string }) => {
                       </Button>
                     </div> */}
                   </div>
-                  <p className="ant-upload-drag-icon" id="documents-upload-icon" data-cy="documents-upload-icon">
+                  <p
+                    className="ant-upload-drag-icon"
+                    id="documents-upload-icon"
+                    data-cy="documents-upload-icon"
+                  >
                     <Image
                       preview={false}
                       className="w-full max-w-xs"
@@ -203,10 +250,18 @@ const Documents = ({ id }: { id: string }) => {
                       data-cy="documents-upload-image"
                     />
                   </p>
-                  <p className="ant-upload-hint text-xl font-bold text-gray-950 my-4" id="documents-upload-drag-hint" data-cy="documents-upload-drag-hint">
+                  <p
+                    className="ant-upload-hint text-xl font-bold text-gray-950 my-4"
+                    id="documents-upload-drag-hint"
+                    data-cy="documents-upload-drag-hint"
+                  >
                     Drag & drop here to Upload
                   </p>
-                  <p className="ant-upload-hint text-xs text-gray-950" id="documents-upload-select-hint" data-cy="documents-upload-select-hint">
+                  <p
+                    className="ant-upload-hint text-xs text-gray-950"
+                    id="documents-upload-select-hint"
+                    data-cy="documents-upload-select-hint"
+                  >
                     or select a file from your computer
                   </p>
                   <Button
@@ -215,13 +270,27 @@ const Documents = ({ id }: { id: string }) => {
                     id="documents-upload-btn"
                     data-cy="documents-upload-btn"
                   >
-                    <MdOutlineUploadFile className="text-white text-xl mr-2" id="documents-upload-btn-icon" data-cy="documents-upload-btn-icon" />
+                    <MdOutlineUploadFile
+                      className="text-white text-xl mr-2"
+                      id="documents-upload-btn-icon"
+                      data-cy="documents-upload-btn-icon"
+                    />
                     Upload File
                   </Button>
                 </Dragger>
               </Form.Item>
-              <div className="flex justify-between px-2 items-center" id="documents-upload-footer" data-cy="documents-upload-footer">
-                <p className="font-bold" id="documents-upload-footer-title" data-cy="documents-upload-footer-title">Uploaded Documents</p>
+              <div
+                className="flex justify-between px-2 items-center"
+                id="documents-upload-footer"
+                data-cy="documents-upload-footer"
+              >
+                <p
+                  className="font-bold"
+                  id="documents-upload-footer-title"
+                  data-cy="documents-upload-footer-title"
+                >
+                  Uploaded Documents
+                </p>
                 <Button
                   disabled={documentFileList?.length === 0}
                   loading={addEmployee}

@@ -157,7 +157,11 @@ const EmploymentType = () => {
           id={`settings-${pageSlug}-actions`}
           data-cy={`settings-${pageSlug}-actions`}
         >
-          <AccessGuard permissions={[Permissions.CreateEmploymentType]} id="settings-employment-type-add-btn-guard" data-cy="settings-employment-type-add-btn-guard">
+          <AccessGuard
+            permissions={[Permissions.CreateEmploymentType]}
+            id="settings-employment-type-add-btn-guard"
+            data-cy="settings-employment-type-add-btn-guard"
+          >
             {/* Desktop button */}
             <Button
               className="hidden sm:flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
@@ -217,10 +221,7 @@ const EmploymentType = () => {
             id={`settings-${pageSlug}-loader`}
             data-cy={`settings-${pageSlug}-loader`}
           >
-            <Spin
-              size="large"
-              data-cy={`settings-${pageSlug}-loader-spin`}
-            />
+            <Spin size="large" data-cy={`settings-${pageSlug}-loader-spin`} />
           </div>
         ) : (
           <div

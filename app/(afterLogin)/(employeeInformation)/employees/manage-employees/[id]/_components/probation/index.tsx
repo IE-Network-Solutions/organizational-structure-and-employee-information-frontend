@@ -178,8 +178,11 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
         id="probation-create-target-wrapper"
         data-cy="probation-create-target-wrapper"
       >
-       
-        <AccessGuard permissions={[Permissions.CreateProbationTarget]} id="probation-create-target-guard" data-cy="probation-create-target-guard">
+        <AccessGuard
+          permissions={[Permissions.CreateProbationTarget]}
+          id="probation-create-target-guard"
+          data-cy="probation-create-target-guard"
+        >
           <Button
             type="primary"
             onClick={handleCreateProbationTarget}

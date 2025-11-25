@@ -58,7 +58,13 @@ const ApprovalBranchFilter = () => {
           type="primary"
           data-cy="settings-approvals-filter-button"
         >
-          <span className="hidden sm:inline" data-cy="settings-approvals-filter-button-text" id="settings-approvals-filter-button-text">Set Approval</span>
+          <span
+            className="hidden sm:inline"
+            data-cy="settings-approvals-filter-button-text"
+            id="settings-approvals-filter-button-text"
+          >
+            Set Approval
+          </span>
         </Button>
       </AccessGuard>
     </div>

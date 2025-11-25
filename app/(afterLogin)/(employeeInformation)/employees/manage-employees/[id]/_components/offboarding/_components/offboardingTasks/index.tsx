@@ -114,7 +114,11 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             id="offboarding-tasks-actions"
             data-cy="offboarding-tasks-actions"
           >
-            <AccessGuard permissions={[Permissions.AddOffloadingTasks]} id="offboarding-add-task-guard" data-cy="offboarding-add-task-guard">
+            <AccessGuard
+              permissions={[Permissions.AddOffloadingTasks]}
+              id="offboarding-add-task-guard"
+              data-cy="offboarding-add-task-guard"
+            >
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -123,13 +127,24 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 id="offboarding-add-task-btn"
                 data-cy="offboarding-add-task-btn"
               >
-                <span className="hidden sm:inline" id="offboarding-add-task-btn-text" data-cy="offboarding-add-task-btn-text">Add Task</span>
+                <span
+                  className="hidden sm:inline"
+                  id="offboarding-add-task-btn-text"
+                  data-cy="offboarding-add-task-btn-text"
+                >
+                  Add Task
+                </span>
               </Button>
             </AccessGuard>
             {allTasksCompleted && (
               <Button
                 type="primary"
-                icon={<DownloadOutlined id="offboarding-download-certificate-icon" data-cy="offboarding-download-certificate-icon" />}
+                icon={
+                  <DownloadOutlined
+                    id="offboarding-download-certificate-icon"
+                    data-cy="offboarding-download-certificate-icon"
+                  />
+                }
                 onClick={async () => {
                   try {
                     // Generate PDF using html2canvas and jsPDF
@@ -208,10 +223,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
               id="offboarding-template-tasks"
               data-cy="offboarding-template-tasks"
             >
-              <AccessGuard 
+              <AccessGuard
                 permissions={[Permissions.AddOffloadingTemplateTasks]}
-                data-cy='offboarding-template-dropdown-guard'
-                id='offboarding-template-dropdown-guard'
+                data-cy="offboarding-template-dropdown-guard"
+                id="offboarding-template-dropdown-guard"
               >
                 <Dropdown
                   menu={{ items: menuItems }}
@@ -225,8 +240,15 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     id="offboarding-template-dropdown-btn"
                     data-cy="offboarding-template-dropdown-btn"
                   >
-                    <SettingOutlined className="mr-2 hidden sm:inline" id='offboarding-template-setting-icon' data-cy='offboarding-template-setting-icon' />
-                    <DownOutlined id='offboarding-template-down-icon' data-cy='offboarding-template-down-icon' />
+                    <SettingOutlined
+                      className="mr-2 hidden sm:inline"
+                      id="offboarding-template-setting-icon"
+                      data-cy="offboarding-template-setting-icon"
+                    />
+                    <DownOutlined
+                      id="offboarding-template-down-icon"
+                      data-cy="offboarding-template-down-icon"
+                    />
                   </Button>
                 </Dropdown>
               </AccessGuard>
@@ -316,10 +338,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             id="offboarding-tasks-empty-wrapper"
             data-cy="offboarding-tasks-empty-wrapper"
           >
-            <Empty 
-              description={'data not found'} 
-              image={<EmptyImage data-cy='offboarding-tasks-empty-icon' />} 
-              data-cy='offboarding-tasks-empty'
+            <Empty
+              description={'data not found'}
+              image={<EmptyImage data-cy="offboarding-tasks-empty-icon" />}
+              data-cy="offboarding-tasks-empty"
             />
           </div>
         )}

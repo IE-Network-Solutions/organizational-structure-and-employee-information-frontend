@@ -21,9 +21,7 @@ const Resignation = () => {
           Requests
         </span>
       ),
-      children: (
-        <TableData data-cy="settings-resignation-table" />
-      ),
+      children: <TableData data-cy="settings-resignation-table" />,
     },
     {
       key: '2',
@@ -36,9 +34,7 @@ const Resignation = () => {
           Hand Over Tasks
         </span>
       ),
-        children: (
-          <TableData data-cy="settings-resignation-table" />
-      ),
+      children: <TableData data-cy="settings-resignation-table" />,
     },
   ];
 

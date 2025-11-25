@@ -86,7 +86,11 @@ function General({ id }: { id: string }) {
 
   return (
     <>
-      <PersonalDataComponent id={id} handleSaveChanges={handleSaveChanges} data-cy="general-personal-data-component" />
+      <PersonalDataComponent
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+        data-cy="general-personal-data-component"
+      />
       <EmergencyContact
         mergedFields={mergedFields}
         id={id}

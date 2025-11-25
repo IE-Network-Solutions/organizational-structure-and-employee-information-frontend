@@ -17,7 +17,12 @@ const EmployeeAddressForm = () => {
         Address
       </div>
       <Row gutter={16} id="employee-address-row" data-cy="employee-address-row">
-        <Col xs={24} sm={12} id="employee-address-country-col" data-cy="employee-address-country-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="employee-address-country-col"
+          data-cy="employee-address-country-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['address', 'country']}
@@ -35,10 +40,18 @@ const EmployeeAddressForm = () => {
               },
             ]}
           >
-            <Input id="employee-address-country-input" data-cy="employee-address-country-input" />
+            <Input
+              id="employee-address-country-input"
+              data-cy="employee-address-country-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} id="employee-address-city-col" data-cy="employee-address-city-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="employee-address-city-col"
+          data-cy="employee-address-city-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name={['address', 'city']}
@@ -57,20 +70,36 @@ const EmployeeAddressForm = () => {
               },
             ]}
           >
-            <Input id="employee-address-city-input" data-cy="employee-address-city-input" />
+            <Input
+              id="employee-address-city-input"
+              data-cy="employee-address-city-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} id="employee-address-subcity-col" data-cy="employee-address-subcity-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="employee-address-subcity-col"
+          data-cy="employee-address-subcity-col"
+        >
           <Form.Item
             name={['address', 'subCity']}
             label={<span className="mb-1 font-semibold text-xs">Sub City</span>}
             id="addressSubCityId"
             data-cy="addressSubCityId"
           >
-            <Input id="employee-address-subcity-input" data-cy="employee-address-subcity-input" />
+            <Input
+              id="employee-address-subcity-input"
+              data-cy="employee-address-subcity-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} id="employee-address-phone-col" data-cy="employee-address-phone-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="employee-address-phone-col"
+          data-cy="employee-address-phone-col"
+        >
           <Form.Item
             name={['address', 'phoneNumber']}
             label={
@@ -89,7 +118,10 @@ const EmployeeAddressForm = () => {
               },
             ]}
           >
-            <Input id="employee-address-phone-input" data-cy="employee-address-phone-input" />
+            <Input
+              id="employee-address-phone-input"
+              data-cy="employee-address-phone-input"
+            />
           </Form.Item>
         </Col>
       </Row>

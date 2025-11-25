@@ -13,13 +13,22 @@ const page = () => {
       id="department-request-page"
       data-cy="department-request-page"
     >
-      <BlockWrapper className="mt-[30px]" data-cy='department-request-approval-block-wrapper'>
+      <BlockWrapper
+        className="mt-[30px]"
+        data-cy="department-request-approval-block-wrapper"
+      >
         <ApprovalTable data-cy="department-request-approval-table" />
       </BlockWrapper>
-      <BlockWrapper className="mt-[30px]" data-cy='department-request-my-block-wrapper'>
+      <BlockWrapper
+        className="mt-[30px]"
+        data-cy="department-request-my-block-wrapper"
+      >
         <MyRequest data-cy="department-request-my-table" />
       </BlockWrapper>
-      <BlockWrapper className="mt-[30px]" data-cy='department-request-all-block-wrapper'>
+      <BlockWrapper
+        className="mt-[30px]"
+        data-cy="department-request-all-block-wrapper"
+      >
         <AllRequest data-cy="department-request-all-table" />
       </BlockWrapper>
       <RequestDetail data-cy="department-request-detail" />

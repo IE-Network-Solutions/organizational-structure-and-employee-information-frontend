@@ -510,7 +510,11 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         {isGenerating ? (
           <Spin size="small" data-cy="job-download-spin" />
         ) : (
-          <MdDownloadForOffline className="text-primary text-2xl" id="job-download-icon" data-cy="job-download-icon" />
+          <MdDownloadForOffline
+            className="text-primary text-2xl"
+            id="job-download-icon"
+            data-cy="job-download-icon"
+          />
         )}
       </button>
     </div>

@@ -143,32 +143,35 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
                 id={`offboarding-template-item-${taskSlug}`}
                 data-cy={`offboarding-template-item-${taskSlug}`}
               >
-              <div>
-                <Checkbox
-                  onClick={() => handelSelectedTemplateTasks(item)}
-                  key={index}
-                  className="flex mb-2"
-                  checked={selectedTemplateTasks.some(
-                    (task: any) => task.id === item.id,
-                  )}
-                  id={`offboarding-template-checkbox-${taskSlug}`}
-                  data-cy={`offboarding-template-checkbox-${taskSlug}`}
+                <div>
+                  <Checkbox
+                    onClick={() => handelSelectedTemplateTasks(item)}
+                    key={index}
+                    className="flex mb-2"
+                    checked={selectedTemplateTasks.some(
+                      (task: any) => task.id === item.id,
+                    )}
+                    id={`offboarding-template-checkbox-${taskSlug}`}
+                    data-cy={`offboarding-template-checkbox-${taskSlug}`}
+                  >
+                    {item.title}
+                  </Checkbox>
+                </div>
+                <div
+                  id={`offboarding-template-delete-btn-wrapper-${taskSlug}`}
+                  data-cy={`offboarding-template-delete-btn-wrapper-${taskSlug}`}
                 >
-                  {item.title}
-                </Checkbox>
-              </div>
-              <div id={`offboarding-template-delete-btn-wrapper-${taskSlug}`} data-cy={`offboarding-template-delete-btn-wrapper-${taskSlug}`}>
-                <Button
-                  onClick={() => {
-                    setIsDeleteModalVisible(true);
-                    setTaskToDelete(item); // Track the task to be deleted
-                  }}
-                  danger
-                  icon={<MdDelete />}
-                  id={`offboarding-template-delete-btn-${taskSlug}`}
-                  data-cy={`offboarding-template-delete-btn-${taskSlug}`}
-                />
-              </div>
+                  <Button
+                    onClick={() => {
+                      setIsDeleteModalVisible(true);
+                      setTaskToDelete(item); // Track the task to be deleted
+                    }}
+                    danger
+                    icon={<MdDelete />}
+                    id={`offboarding-template-delete-btn-${taskSlug}`}
+                    data-cy={`offboarding-template-delete-btn-${taskSlug}`}
+                  />
+                </div>
               </div>
             );
           })}
@@ -188,12 +191,32 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
             }}
             customMessage={
               <>
-                <div id="offboarding-template-delete-modal-message-wrapper" data-cy="offboarding-template-delete-modal-message-wrapper">
-                  <p id="offboarding-template-delete-modal-message-title" data-cy="offboarding-template-delete-modal-message-title">
-                    <strong id="offboarding-template-delete-modal-message-title-strong" data-cy="offboarding-template-delete-modal-message-title-strong">Title: </strong> {taskToDelete.title}
+                <div
+                  id="offboarding-template-delete-modal-message-wrapper"
+                  data-cy="offboarding-template-delete-modal-message-wrapper"
+                >
+                  <p
+                    id="offboarding-template-delete-modal-message-title"
+                    data-cy="offboarding-template-delete-modal-message-title"
+                  >
+                    <strong
+                      id="offboarding-template-delete-modal-message-title-strong"
+                      data-cy="offboarding-template-delete-modal-message-title-strong"
+                    >
+                      Title:{' '}
+                    </strong>{' '}
+                    {taskToDelete.title}
                   </p>
-                  <p id="offboarding-template-delete-modal-message-assigned-to" data-cy="offboarding-template-delete-modal-message-assigned-to">
-                    <strong id="offboarding-template-delete-modal-message-assigned-to-strong" data-cy="offboarding-template-delete-modal-message-assigned-to-strong">Assigned To: </strong>
+                  <p
+                    id="offboarding-template-delete-modal-message-assigned-to"
+                    data-cy="offboarding-template-delete-modal-message-assigned-to"
+                  >
+                    <strong
+                      id="offboarding-template-delete-modal-message-assigned-to-strong"
+                      data-cy="offboarding-template-delete-modal-message-assigned-to-strong"
+                    >
+                      Assigned To:{' '}
+                    </strong>
                     {`${taskToDelete?.approver?.firstName || ''} ${taskToDelete?.approver?.middleName || ''} ${taskToDelete?.approver?.lastName || ''}`.trim()}
                   </p>
                 </div>

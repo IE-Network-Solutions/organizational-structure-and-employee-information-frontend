@@ -12,8 +12,15 @@ const data: any = [
         id="settings-table-levels-john-brown"
         data-cy="settings-table-levels-john-brown"
       >
-        <FaUser className="w-5 h-5 p-1 border-black border-2 rounded-full" data-cy="settings-table-levels-icon-john-brown" id="settings-table-levels-icon-john-brown" />
-        <span id="settings-table-levels-name-john-brown" data-cy="settings-table-levels-name-john-brown">
+        <FaUser
+          className="w-5 h-5 p-1 border-black border-2 rounded-full"
+          data-cy="settings-table-levels-icon-john-brown"
+          id="settings-table-levels-icon-john-brown"
+        />
+        <span
+          id="settings-table-levels-name-john-brown"
+          data-cy="settings-table-levels-name-john-brown"
+        >
           John Brown
         </span>
       </p>
@@ -34,7 +41,10 @@ const data: any = [
         id="settings-table-action-john-brown"
         data-cy="settings-table-action-john-brown"
       >
-        <MdOutlineModeEditOutline id='settings-table-icon-john-brown' data-cy='settings-table-icon-john-brown' />
+        <MdOutlineModeEditOutline
+          id="settings-table-icon-john-brown"
+          data-cy="settings-table-icon-john-brown"
+        />
       </Button>
     ),
   },
@@ -46,8 +56,15 @@ const data: any = [
         id="settings-table-levels-gim-green"
         data-cy="settings-table-levels-gim-green"
       >
-        <FaUser className="w-5 h-5 p-1 border-black border-2 rounded-full" id='settings-table-levels-icon-gim-green' data-cy="settings-table-levels-icon-gim-green" />
-        <span id="settings-table-levels-name-gim-green" data-cy="settings-table-levels-name-gim-green">
+        <FaUser
+          className="w-5 h-5 p-1 border-black border-2 rounded-full"
+          id="settings-table-levels-icon-gim-green"
+          data-cy="settings-table-levels-icon-gim-green"
+        />
+        <span
+          id="settings-table-levels-name-gim-green"
+          data-cy="settings-table-levels-name-gim-green"
+        >
           Gim Green
         </span>
       </p>
@@ -80,8 +97,14 @@ const data: any = [
         id="settings-table-levels-joy-black"
         data-cy="settings-table-levels-joy-black"
       >
-        <FaUser className="w-5 h-5 p-1 border-black border-2 rounded-full" data-cy="settings-table-levels-icon-joy-black" />
-        <span id="settings-table-levels-name-joy-black" data-cy="settings-table-levels-name-joy-black">
+        <FaUser
+          className="w-5 h-5 p-1 border-black border-2 rounded-full"
+          data-cy="settings-table-levels-icon-joy-black"
+        />
+        <span
+          id="settings-table-levels-name-joy-black"
+          data-cy="settings-table-levels-name-joy-black"
+        >
           Joy Black
         </span>
       </p>

@@ -196,9 +196,7 @@ const Notifications = () => {
           />
         </div>
       ) : (
-        <EmptyImage
-          data-cy={`notification-unread-empty-${pageSlug}`}
-        />
+        <EmptyImage data-cy={`notification-unread-empty-${pageSlug}`} />
       )}
       <Divider
         orientation="left"
@@ -294,12 +292,13 @@ const Notifications = () => {
           />
         </div>
       ) : (
-        <EmptyImage
-          data-cy={`notification-read-empty-${pageSlug}`}
-        />
+        <EmptyImage data-cy={`notification-read-empty-${pageSlug}`} />
       )}
       {selectedNotificationId && (
-        <NotificationDetailVisible id={selectedNotificationId} data-cy={`notification-detail-modal-${pageSlug}`} />
+        <NotificationDetailVisible
+          id={selectedNotificationId}
+          data-cy={`notification-detail-modal-${pageSlug}`}
+        />
       )}
     </div>
   );

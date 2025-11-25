@@ -188,10 +188,23 @@ function BasicInfo({ id }: { id: string }) {
   });
 
   return (
-    <Card loading={isLoading} className="mb-3" id="basic-info-card" data-cy="basic-info-card">
-      <div className="flex flex-col gap-3 items-center" id="basic-info-content" data-cy="basic-info-content">
+    <Card
+      loading={isLoading}
+      className="mb-3"
+      id="basic-info-card"
+      data-cy="basic-info-card"
+    >
+      <div
+        className="flex flex-col gap-3 items-center"
+        id="basic-info-content"
+        data-cy="basic-info-content"
+      >
         {/* Profile Image Section */}
-        <div className="relative group" id="basic-info-avatar-wrapper" data-cy="basic-info-avatar-wrapper">
+        <div
+          className="relative group"
+          id="basic-info-avatar-wrapper"
+          data-cy="basic-info-avatar-wrapper"
+        >
           <Avatar
             size={144}
             src={getDisplayImageUrl()}
@@ -218,7 +231,11 @@ function BasicInfo({ id }: { id: string }) {
                   <FiTrash2 size={16} />
                 </button>
               )}
-              <div className="absolute bottom-0 left-0 w-full h-1/2 z-10 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-full" id="basic-info-update-image-overlay" data-cy="basic-info-update-image-overlay">
+              <div
+                className="absolute bottom-0 left-0 w-full h-1/2 z-10 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-full"
+                id="basic-info-update-image-overlay"
+                data-cy="basic-info-update-image-overlay"
+              >
                 <button
                   onClick={showModal}
                   className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded hover:bg-blue-600 transition-colors"
@@ -243,7 +260,11 @@ function BasicInfo({ id }: { id: string }) {
           )?.position?.name || '-'}
         </p>
 
-        <Tag color="purple-inverse" id="basic-info-employment-type" data-cy="basic-info-employment-type">
+        <Tag
+          color="purple-inverse"
+          id="basic-info-employment-type"
+          data-cy="basic-info-employment-type"
+        >
           {employeeData?.employeeJobInformation?.find(
             (e: any) => e.isPositionActive === true,
           )?.employementType?.name || '-'}
@@ -258,7 +279,12 @@ function BasicInfo({ id }: { id: string }) {
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={[
-          <Button key="cancel" onClick={handleCloseModal} id="basic-info-change-image-cancel-btn" data-cy="basic-info-change-image-cancel-btn">
+          <Button
+            key="cancel"
+            onClick={handleCloseModal}
+            id="basic-info-change-image-cancel-btn"
+            data-cy="basic-info-change-image-cancel-btn"
+          >
             Cancel
           </Button>,
           <Button
@@ -298,33 +324,81 @@ function BasicInfo({ id }: { id: string }) {
             />
           ) : (
             <>
-              <p className="ant-upload-drag-icon" id="basic-info-change-profile-image-modal-dragger-icon" data-cy="basic-info-change-profile-image-modal-dragger-icon">
-                <InboxOutlined id="basic-info-change-profile-image-modal-dragger-icon-inbox-outlined" data-cy="basic-info-change-profile-image-modal-dragger-icon-inbox-outlined" />
+              <p
+                className="ant-upload-drag-icon"
+                id="basic-info-change-profile-image-modal-dragger-icon"
+                data-cy="basic-info-change-profile-image-modal-dragger-icon"
+              >
+                <InboxOutlined
+                  id="basic-info-change-profile-image-modal-dragger-icon-inbox-outlined"
+                  data-cy="basic-info-change-profile-image-modal-dragger-icon-inbox-outlined"
+                />
               </p>
-              <p className="ant-upload-drag-text font-semibold text-xs" id="basic-info-change-profile-image-modal-dragger-text" data-cy="basic-info-change-profile-image-modal-dragger-text">
+              <p
+                className="ant-upload-drag-text font-semibold text-xs"
+                id="basic-info-change-profile-image-modal-dragger-text"
+                data-cy="basic-info-change-profile-image-modal-dragger-text"
+              >
                 Drag and drop your image here or click to upload.
               </p>
             </>
           )}
         </Dragger>
       </Modal>
-      <div className="px-4 flex gap-5 my-2 items-center" id="basic-info-email" data-cy="basic-info-email">
-        <HiOutlineMail color="#BFBFBF" id="basic-info-email-icon" data-cy="basic-info-email-icon" />
-        <p className="font-semibold" id="basic-info-email-text" data-cy="basic-info-email-text">{employeeData?.email}</p>
+      <div
+        className="px-4 flex gap-5 my-2 items-center"
+        id="basic-info-email"
+        data-cy="basic-info-email"
+      >
+        <HiOutlineMail
+          color="#BFBFBF"
+          id="basic-info-email-icon"
+          data-cy="basic-info-email-icon"
+        />
+        <p
+          className="font-semibold"
+          id="basic-info-email-text"
+          data-cy="basic-info-email-text"
+        >
+          {employeeData?.email}
+        </p>
       </div>
 
       <Divider className="my-2" key="arrows" data-cy="basic-info-divider-2" />
-      <List split={false} size="small" id="basic-info-list" data-cy="basic-info-list">
+      <List
+        split={false}
+        size="small"
+        id="basic-info-list"
+        data-cy="basic-info-list"
+      >
         <List.Item
           key={'department'}
-          actions={[<MdKeyboardArrowRight key="arrow" id="basic-info-team-arrow" data-cy="basic-info-team-arrow" />]}
+          actions={[
+            <MdKeyboardArrowRight
+              key="arrow"
+              id="basic-info-team-arrow"
+              data-cy="basic-info-team-arrow"
+            />,
+          ]}
           id="basic-info-team-item"
           data-cy="basic-info-team-item"
         >
           <List.Item.Meta
-            title={<p className="text-xs font-light" id="basic-info-team-title" data-cy="basic-info-team-title">Team</p>}
+            title={
+              <p
+                className="text-xs font-light"
+                id="basic-info-team-title"
+                data-cy="basic-info-team-title"
+              >
+                Team
+              </p>
+            }
             description={
-              <p className="font-bold text-black text-sm" id="basic-info-team-value" data-cy="basic-info-team-value">
+              <p
+                className="font-bold text-black text-sm"
+                id="basic-info-team-value"
+                data-cy="basic-info-team-value"
+              >
                 {employeeData?.employeeJobInformation?.find(
                   (e: any) => e.isPositionActive === true,
                 )?.department?.name || '-'}
@@ -344,17 +418,33 @@ function BasicInfo({ id }: { id: string }) {
               id="basic-info-office-popover"
               data-cy="basic-info-office-popover"
             >
-              <MdKeyboardArrowRight key="arrow" id="basic-info-office-arrow" data-cy="basic-info-office-arrow" />
+              <MdKeyboardArrowRight
+                key="arrow"
+                id="basic-info-office-arrow"
+                data-cy="basic-info-office-arrow"
+              />
             </Popover>,
           ]}
           id="basic-info-office-item"
           data-cy="basic-info-office-item"
         >
           <List.Item.Meta
-            data-cy='basic-info-list-item-meta'
-            title={<p className="text-xs font-light" id="basic-info-office-title" data-cy="basic-info-office-title">Office</p>}
+            data-cy="basic-info-list-item-meta"
+            title={
+              <p
+                className="text-xs font-light"
+                id="basic-info-office-title"
+                data-cy="basic-info-office-title"
+              >
+                Office
+              </p>
+            }
             description={
-              <p className="font-bold text-black text-sm" id="basic-info-office-value" data-cy="basic-info-office-value">
+              <p
+                className="font-bold text-black text-sm"
+                id="basic-info-office-value"
+                data-cy="basic-info-office-value"
+              >
                 {employeeData?.employeeJobInformation?.find(
                   (e: any) => e.isPositionActive === true,
                 )?.branch?.name || '-'}
@@ -371,15 +461,37 @@ function BasicInfo({ id }: { id: string }) {
             >
               <List.Item
                 key="Manager"
-                actions={[<MdKeyboardArrowRight key="arrow" id="basic-info-manager-arrow" data-cy="basic-info-manager-arrow" />]}
+                actions={[
+                  <MdKeyboardArrowRight
+                    key="arrow"
+                    id="basic-info-manager-arrow"
+                    data-cy="basic-info-manager-arrow"
+                  />,
+                ]}
                 id="basic-info-manager-item"
                 data-cy="basic-info-manager-item"
               >
                 <List.Item.Meta
-                  title={<p className="text-xs font-light" id="basic-info-manager-title" data-cy="basic-info-manager-title">Manager</p>}
+                  title={
+                    <p
+                      className="text-xs font-light"
+                      id="basic-info-manager-title"
+                      data-cy="basic-info-manager-title"
+                    >
+                      Manager
+                    </p>
+                  }
                   description={
-                    <p className="font-bold text-black text-sm" id="basic-info-manager-value" data-cy="basic-info-manager-value">
-                      <span className="mr-2" id="basic-info-manager-avatar-wrapper" data-cy="basic-info-manager-avatar-wrapper">
+                    <p
+                      className="font-bold text-black text-sm"
+                      id="basic-info-manager-value"
+                      data-cy="basic-info-manager-value"
+                    >
+                      <span
+                        className="mr-2"
+                        id="basic-info-manager-avatar-wrapper"
+                        data-cy="basic-info-manager-avatar-wrapper"
+                      >
                         <Avatar
                           src={
                             employeeData?.delegatedTo
@@ -398,12 +510,32 @@ function BasicInfo({ id }: { id: string }) {
               </List.Item>
             </Link>
           ) : (
-            <List.Item key="Manager" id="basic-info-manager-item-no-access" data-cy="basic-info-manager-item-no-access">
+            <List.Item
+              key="Manager"
+              id="basic-info-manager-item-no-access"
+              data-cy="basic-info-manager-item-no-access"
+            >
               <List.Item.Meta
-                title={<p className="text-xs font-light" id="basic-info-manager-title-no-access" data-cy="basic-info-manager-title-no-access">Manager</p>}
+                title={
+                  <p
+                    className="text-xs font-light"
+                    id="basic-info-manager-title-no-access"
+                    data-cy="basic-info-manager-title-no-access"
+                  >
+                    Manager
+                  </p>
+                }
                 description={
-                  <p className="font-bold text-black text-sm" id="basic-info-manager-value-no-access" data-cy="basic-info-manager-value-no-access">
-                    <span className="mr-2" id="basic-info-manager-avatar-wrapper-no-access" data-cy="basic-info-manager-avatar-wrapper-no-access">
+                  <p
+                    className="font-bold text-black text-sm"
+                    id="basic-info-manager-value-no-access"
+                    data-cy="basic-info-manager-value-no-access"
+                  >
+                    <span
+                      className="mr-2"
+                      id="basic-info-manager-avatar-wrapper-no-access"
+                      data-cy="basic-info-manager-avatar-wrapper-no-access"
+                    >
                       <Avatar
                         src={
                           employeeData?.delegatedTo
@@ -422,11 +554,30 @@ function BasicInfo({ id }: { id: string }) {
             </List.Item>
           )
         ) : (
-          <List.Item key="Manager" className="text-gray-500 cursor-not-allowed" id="basic-info-manager-item-not-assigned" data-cy="basic-info-manager-item-not-assigned">
+          <List.Item
+            key="Manager"
+            className="text-gray-500 cursor-not-allowed"
+            id="basic-info-manager-item-not-assigned"
+            data-cy="basic-info-manager-item-not-assigned"
+          >
             <List.Item.Meta
-              title={<p className="text-xs font-light" id="basic-info-manager-title-not-assigned" data-cy="basic-info-manager-title-not-assigned">Manager</p>}
+              title={
+                <p
+                  className="text-xs font-light"
+                  id="basic-info-manager-title-not-assigned"
+                  data-cy="basic-info-manager-title-not-assigned"
+                >
+                  Manager
+                </p>
+              }
               description={
-                <p className="font-bold text-black text-sm" id="basic-info-manager-value-not-assigned" data-cy="basic-info-manager-value-not-assigned">Not Assigned</p>
+                <p
+                  className="font-bold text-black text-sm"
+                  id="basic-info-manager-value-not-assigned"
+                  data-cy="basic-info-manager-value-not-assigned"
+                >
+                  Not Assigned
+                </p>
               }
             />
           </List.Item>

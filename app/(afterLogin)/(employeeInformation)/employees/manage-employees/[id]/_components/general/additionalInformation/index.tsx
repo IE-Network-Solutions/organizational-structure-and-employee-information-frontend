@@ -120,8 +120,20 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                       id={`additional-information-${key}-select`}
                       data-cy={`additional-information-${key}-select`}
                     >
-                      <Option value="male" id={`additional-information-${key}-option-male`} data-cy={`additional-information-${key}-option-male`}>Male</Option>
-                      <Option value="female" id={`additional-information-${key}-option-female`} data-cy={`additional-information-${key}-option-female`}>Female</Option>
+                      <Option
+                        value="male"
+                        id={`additional-information-${key}-option-male`}
+                        data-cy={`additional-information-${key}-option-male`}
+                      >
+                        Male
+                      </Option>
+                      <Option
+                        value="female"
+                        id={`additional-information-${key}-option-female`}
+                        data-cy={`additional-information-${key}-option-female`}
+                      >
+                        Female
+                      </Option>
                     </Select>
                   );
 
@@ -136,7 +148,12 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                     >
                       {nationalities?.items?.map(
                         (nationality: any, index: number) => (
-                          <Option key={index} value={nationality?.id} id={`additional-information-${key}-option-${nationality?.id}`} data-cy={`additional-information-${key}-option-${nationality?.id}`}>
+                          <Option
+                            key={index}
+                            value={nationality?.id}
+                            id={`additional-information-${key}-option-${nationality?.id}`}
+                            data-cy={`additional-information-${key}-option-${nationality?.id}`}
+                          >
                             {nationality?.name}
                           </Option>
                         ),
@@ -158,8 +175,19 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
           </Form.Item>
         ))}
 
-        <Form.Item className="mt-6" id="additional-information-submit-form-item" data-cy="additional-information-submit-form-item">
-          <Button type="primary" htmlType="submit" loading={isLoading} block id="additional-information-submit-btn" data-cy="additional-information-submit-btn">
+        <Form.Item
+          className="mt-6"
+          id="additional-information-submit-form-item"
+          data-cy="additional-information-submit-form-item"
+        >
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={isLoading}
+            block
+            id="additional-information-submit-btn"
+            data-cy="additional-information-submit-btn"
+          >
             Save Changes
           </Button>
         </Form.Item>
@@ -200,8 +228,16 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       {edit.additionalInformation ? (
         <AdditionalInformationForm data-cy="additional-information-form" />
       ) : (
-        <Row gutter={[16, 24]} id="additional-information-display-row" data-cy="additional-information-display-row">
-          <Col lg={16} id="additional-information-display-col" data-cy="additional-information-display-col">
+        <Row
+          gutter={[16, 24]}
+          id="additional-information-display-row"
+          data-cy="additional-information-display-row"
+        >
+          <Col
+            lg={16}
+            id="additional-information-display-col"
+            data-cy="additional-information-display-col"
+          >
             {Object.entries(allFields).map(([key, val]) => {
               const displayValue =
                 key === 'nationality'
@@ -214,7 +250,14 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
                   .split('_')
                   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                   .join(' ');
-              return <InfoLine key={key} title={title} value={displayValue} data-cy={`additional-information-display-${key}`} />;
+              return (
+                <InfoLine
+                  key={key}
+                  title={title}
+                  value={displayValue}
+                  data-cy={`additional-information-display-${key}`}
+                />
+              );
             })}
           </Col>
         </Row>

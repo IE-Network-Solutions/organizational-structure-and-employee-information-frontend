@@ -92,8 +92,16 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   ];
 
   return (
-    <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen" id="employee-detail-page" data-cy="employee-detail-page">
-      <div className="flex gap-2 items-center mb-4" id="employee-detail-header" data-cy="employee-detail-header">
+    <div
+      className="bg-[#F5F5F5] px-2 h-auto min-h-screen"
+      id="employee-detail-page"
+      data-cy="employee-detail-page"
+    >
+      <div
+        className="flex gap-2 items-center mb-4"
+        id="employee-detail-header"
+        data-cy="employee-detail-header"
+      >
         <Button
           value={'back'}
           name="back"
@@ -104,15 +112,42 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         >
           <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
         </Button>
-        <h4 className="text-base sm:text-lg md:text-xl" id="employee-detail-title" data-cy="employee-detail-title">Detail Employee</h4>
+        <h4
+          className="text-base sm:text-lg md:text-xl"
+          id="employee-detail-title"
+          data-cy="employee-detail-title"
+        >
+          Detail Employee
+        </h4>
       </div>
-      <Row gutter={[16, 24]} id="employee-detail-content-row" data-cy="employee-detail-content-row">
-        <Col lg={8} md={10} xs={24} id="employee-detail-sidebar-col" data-cy="employee-detail-sidebar-col">
-          <div id="employee-detail-basic-info-wrapper" data-cy="employee-detail-basic-info-wrapper">
+      <Row
+        gutter={[16, 24]}
+        id="employee-detail-content-row"
+        data-cy="employee-detail-content-row"
+      >
+        <Col
+          lg={8}
+          md={10}
+          xs={24}
+          id="employee-detail-sidebar-col"
+          data-cy="employee-detail-sidebar-col"
+        >
+          <div
+            id="employee-detail-basic-info-wrapper"
+            data-cy="employee-detail-basic-info-wrapper"
+          >
             <BasicInfo id={id} data-cy="employee-detail-basic-info" />
           </div>
-          <AccessGuard permissions={[Permissions.EndEmployment]} id="employee-detail-employment-actions-guard" data-cy="employee-detail-employment-actions-guard">
-            <div className="flex gap-3 justify-center mb-2" id="employee-detail-employment-actions" data-cy="employee-detail-employment-actions">
+          <AccessGuard
+            permissions={[Permissions.EndEmployment]}
+            id="employee-detail-employment-actions-guard"
+            data-cy="employee-detail-employment-actions-guard"
+          >
+            <div
+              className="flex gap-3 justify-center mb-2"
+              id="employee-detail-employment-actions"
+              data-cy="employee-detail-employment-actions"
+            >
               {resignationSubmittedDate === null ? (
                 (() => {
                   const activeJob = employeeData?.employeeJobInformation?.find(
@@ -162,8 +197,17 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             </div>
           </AccessGuard>
         </Col>
-        <Col lg={16} md={14} xs={24} id="employee-detail-main-col" data-cy="employee-detail-main-col">
-          <Card id="employee-detail-tabs-card" data-cy="employee-detail-tabs-card">
+        <Col
+          lg={16}
+          md={14}
+          xs={24}
+          id="employee-detail-main-col"
+          data-cy="employee-detail-main-col"
+        >
+          <Card
+            id="employee-detail-tabs-card"
+            data-cy="employee-detail-tabs-card"
+          >
             <Tabs
               activeKey={activeTab}
               onChange={setActiveTab}
@@ -176,7 +220,10 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           </Card>
         </Col>
       </Row>
-      <OffboardingFormControl userId={id} data-cy="employee-detail-offboarding-form-control" />
+      <OffboardingFormControl
+        userId={id}
+        data-cy="employee-detail-offboarding-form-control"
+      />
     </div>
   );
 }

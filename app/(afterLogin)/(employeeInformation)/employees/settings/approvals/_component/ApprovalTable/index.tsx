@@ -210,8 +210,14 @@ const ApprovalTable = () => {
                     id={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
                     data-cy={`settings-approvals-row-assignee-${rowSlug}-${empIndex}`}
                   >
-                    <UserAvatar userId={employee?.userId} data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`} />
-                    <div className="flex flex-wrap flex-col justify-center" data-cy={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}>
+                    <UserAvatar
+                      userId={employee?.userId}
+                      data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
+                    />
+                    <div
+                      className="flex flex-wrap flex-col justify-center"
+                      data-cy={`settings-approvals-row-assignee-info-${rowSlug}-${empIndex}`}
+                    >
                       <p
                         id={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
                         data-cy={`settings-approvals-row-assignee-name-${rowSlug}-${empIndex}`}
@@ -245,7 +251,11 @@ const ApprovalTable = () => {
             id={`settings-approvals-row-add-guard-${rowSlug}`}
             data-cy={`settings-approvals-row-add-guard-${rowSlug}`}
           >
-            <Tooltip title={'Add Approver'} id={`settings-approvals-row-tooltip=${rowSlug}`} data-cy={`settings-approvals-tooltip=${rowSlug}`}>
+            <Tooltip
+              title={'Add Approver'}
+              id={`settings-approvals-row-tooltip=${rowSlug}`}
+              data-cy={`settings-approvals-tooltip=${rowSlug}`}
+            >
               <Button
                 id={`editUserButton${item?.id}`}
                 className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none"
@@ -273,7 +283,11 @@ const ApprovalTable = () => {
             id={`settings-approvals-row-edit-guard-${rowSlug}`}
             data-cy={`settings-approvals-row-edit-guard-${rowSlug}`}
           >
-            <Tooltip title={'Edit Approver'} id={`settings-approvals-row-edit-btn-${rowSlug}`} data-cy={`settings-approvals-row-edit-btn-${rowSlug}`}>
+            <Tooltip
+              title={'Edit Approver'}
+              id={`settings-approvals-row-edit-btn-${rowSlug}`}
+              data-cy={`settings-approvals-row-edit-btn-${rowSlug}`}
+            >
               <Button
                 id={`editUserButton${item?.id}`}
                 className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none"
@@ -302,7 +316,11 @@ const ApprovalTable = () => {
             id={`settings-approvals-row-delete-guard-${rowSlug}`}
             data-cy={`settings-approvals-row-delete-guard-${rowSlug}`}
           >
-            <Tooltip title={'Delete Employee'} id={`settings-approvals-row-delete-btn-${rowSlug}`} data-cy={`settings-approvals-row-delete-btn-${rowSlug}`}>
+            <Tooltip
+              title={'Delete Employee'}
+              id={`settings-approvals-row-delete-btn-${rowSlug}`}
+              data-cy={`settings-approvals-row-delete-btn-${rowSlug}`}
+            >
               <Button
                 id={`deleteUserButton${item?.id}`}
                 className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none"
@@ -325,7 +343,10 @@ const ApprovalTable = () => {
   });
 
   return (
-    <div id="settings-approvals-table-container" data-cy="settings-approvals-table-container">
+    <div
+      id="settings-approvals-table-container"
+      data-cy="settings-approvals-table-container"
+    >
       <DeleteModal
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}

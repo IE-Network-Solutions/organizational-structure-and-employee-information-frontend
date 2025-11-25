@@ -151,8 +151,16 @@ const UserTable = () => {
           id={`user-table-employee-tooltip-${item?.id}`}
           data-cy={`user-table-employee-tooltip-${item?.id}`}
         >
-          <div className="flex items-center flex-wrap sm:flex-row justify-start gap-2" id={`user-table-employee-name-${item?.id}`} data-cy={`user-table-employee-name-${item?.id}`}>
-            <div className="relative w-6 h-6 rounded-full overflow-hidden" id={`user-table-employee-avatar-wrapper-${item?.id}`} data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}>
+          <div
+            className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
+            id={`user-table-employee-name-${item?.id}`}
+            data-cy={`user-table-employee-name-${item?.id}`}
+          >
+            <div
+              className="relative w-6 h-6 rounded-full overflow-hidden"
+              id={`user-table-employee-avatar-wrapper-${item?.id}`}
+              data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}
+            >
               <Image
                 src={
                   item?.profileImage && typeof item?.profileImage === 'string'
@@ -177,9 +185,24 @@ const UserTable = () => {
                 data-cy={`user-table-employee-avatar-${item?.id}`}
               />
             </div>
-            <div className="flex flex-wrap flex-col justify-center" id={`user-table-employee-info-${item?.id}`} data-cy={`user-table-employee-info-${item?.id}`}>
-              <p id={`user-table-employee-display-name-${item?.id}`} data-cy={`user-table-employee-display-name-${item?.id}`}>{displayName}</p>
-              <p className="font-extralight text-[12px]" id={`user-table-employee-display-email-${item?.id}`} data-cy={`user-table-employee-display-email-${item?.id}`}>{displayEmail}</p>
+            <div
+              className="flex flex-wrap flex-col justify-center"
+              id={`user-table-employee-info-${item?.id}`}
+              data-cy={`user-table-employee-info-${item?.id}`}
+            >
+              <p
+                id={`user-table-employee-display-name-${item?.id}`}
+                data-cy={`user-table-employee-display-name-${item?.id}`}
+              >
+                {displayName}
+              </p>
+              <p
+                className="font-extralight text-[12px]"
+                id={`user-table-employee-display-email-${item?.id}`}
+                data-cy={`user-table-employee-display-email-${item?.id}`}
+              >
+                {displayEmail}
+              </p>
             </div>
           </div>
         </Tooltip>
@@ -197,16 +220,32 @@ const UserTable = () => {
         item?.employeeJobInformation[0]?.employementType?.name,
       ),
       account: (
-        <span className="text-sm text-gray-900" id={`user-table-employee-account-${item?.id}`} data-cy={`user-table-employee-account-${item?.id}`}>
+        <span
+          className="text-sm text-gray-900"
+          id={`user-table-employee-account-${item?.id}`}
+          data-cy={`user-table-employee-account-${item?.id}`}
+        >
           {!item?.deletedAt ? 'Active' : 'InActive'}
         </span>
       ),
       role: item?.role?.name ? item?.role?.name : ' - ',
       action: (
-        <div className="flex gap-4 text-white" id={`user-table-action-${item?.id}`} data-cy={`user-table-action-${item?.id}`}>
-          <AccessGuard permissions={[Permissions.DeleteEmployee]} id={`user-table-action-access-guard-${item?.id}`} data-cy={`user-table-action-access-guard-${item?.id}`}>
+        <div
+          className="flex gap-4 text-white"
+          id={`user-table-action-${item?.id}`}
+          data-cy={`user-table-action-${item?.id}`}
+        >
+          <AccessGuard
+            permissions={[Permissions.DeleteEmployee]}
+            id={`user-table-action-access-guard-${item?.id}`}
+            data-cy={`user-table-action-access-guard-${item?.id}`}
+          >
             {item.deletedAt === null ? (
-              <Tooltip title={'Deactive Employee'} id={`user-table-deactivate-tooltip-${item?.id}`} data-cy={`user-table-deactivate-tooltip-${item?.id}`}>
+              <Tooltip
+                title={'Deactive Employee'}
+                id={`user-table-deactivate-tooltip-${item?.id}`}
+                data-cy={`user-table-deactivate-tooltip-${item?.id}`}
+              >
                 <Button
                   id={`deleteUserButton${item?.id}`}
                   data-cy={`deleteUserButton${item?.id}`}
@@ -222,7 +261,11 @@ const UserTable = () => {
                 </Button>
               </Tooltip>
             ) : (
-              <Tooltip title={'Activate Employee'} id={`user-table-activate-tooltip-${item?.id}`} data-cy={`user-table-activate-tooltip-${item?.id}`}>
+              <Tooltip
+                title={'Activate Employee'}
+                id={`user-table-activate-tooltip-${item?.id}`}
+                data-cy={`user-table-activate-tooltip-${item?.id}`}
+              >
                 <Button
                   type="primary"
                   htmlType="submit"
@@ -284,7 +327,11 @@ const UserTable = () => {
   };
 
   return (
-    <div className="mt-2" id="user-table-container" data-cy="user-table-container">
+    <div
+      className="mt-2"
+      id="user-table-container"
+      data-cy="user-table-container"
+    >
       <div id="user-table-wrapper" data-cy="user-table-wrapper">
         <Table
           className="w-full cursor-pointer"
@@ -363,8 +410,15 @@ const UserTable = () => {
           <JobTimeLineForm />
 
           <WorkScheduleForm />
-          <Form.Item id="user-table-rehire-form-actions" data-cy="user-table-rehire-form-actions">
-            <Row className="flex justify-end gap-3" id="user-table-rehire-form-actions-row" data-cy="user-table-rehire-form-actions-row">
+          <Form.Item
+            id="user-table-rehire-form-actions"
+            data-cy="user-table-rehire-form-actions"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="user-table-rehire-form-actions-row"
+              data-cy="user-table-rehire-form-actions-row"
+            >
               <Button
                 loading={rehireLoading}
                 type="primary"

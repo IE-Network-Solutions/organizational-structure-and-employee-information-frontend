@@ -84,8 +84,17 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
       >
         Work Schedule
       </div>
-      <Row gutter={16} id="work-schedule-select-row" data-cy="work-schedule-select-row">
-        <Col xs={24} sm={24} id="work-schedule-select-col" data-cy="work-schedule-select-col">
+      <Row
+        gutter={16}
+        id="work-schedule-select-row"
+        data-cy="work-schedule-select-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="work-schedule-select-col"
+          data-cy="work-schedule-select-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="workScheduleId"
@@ -123,8 +132,17 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16} id="work-schedule-table-row" data-cy="work-schedule-table-row">
-        <Col xs={24} sm={24} id="work-schedule-table-col" data-cy="work-schedule-table-col">
+      <Row
+        gutter={16}
+        id="work-schedule-table-row"
+        data-cy="work-schedule-table-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="work-schedule-table-col"
+          data-cy="work-schedule-table-col"
+        >
           <Table
             columns={columns}
             dataSource={data}

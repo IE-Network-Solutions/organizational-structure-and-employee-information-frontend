@@ -13,12 +13,6 @@ import PermissionWraper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { IoArrowBack } from 'react-icons/io5';
 
-const toSlug = (value: string | number | null | undefined) =>
-  String(value ?? 'na')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-
 const Approvals = () => {
   const {
     setApproverType,
@@ -108,7 +102,10 @@ const Approvals = () => {
                 id={`settings-${pageSlug}-workflow-setting-back-btn`}
                 data-cy={`settings-${pageSlug}-workflow-setting-back-btn`}
               >
-                <IoArrowBack className="text-white" data-cy="settings-approvals-back-btn-icon" />
+                <IoArrowBack
+                  className="text-white"
+                  data-cy="settings-approvals-back-btn-icon"
+                />
                 <span data-cy="settings-approvals-back-btn-text"> Back</span>
               </Button>
               <div
@@ -141,7 +138,10 @@ const Approvals = () => {
                 id={`settings-${pageSlug}-workflow-config-back-btn`}
                 data-cy={`settings-${pageSlug}-workflow-config-back-btn`}
               >
-                <IoArrowBack className="text-white" data-cy="settings-approvals-back-btn-icon" />
+                <IoArrowBack
+                  className="text-white"
+                  data-cy="settings-approvals-back-btn-icon"
+                />
                 <span> Back</span>
               </Button>
               <div
@@ -157,7 +157,10 @@ const Approvals = () => {
           </div>
         )
       ) : (
-        <div id={`settings-${pageSlug}-list`} data-cy={`settings-${pageSlug}-list`}>
+        <div
+          id={`settings-${pageSlug}-list`}
+          data-cy={`settings-${pageSlug}-list`}
+        >
           <div
             className="mb-4 flex justify-between"
             id={`settings-${pageSlug}-list-header`}
@@ -183,7 +186,13 @@ const Approvals = () => {
                 id={`settings-${pageSlug}-add-approval-btn`}
                 data-cy={`settings-${pageSlug}-add-approval-btn`}
               >
-                <span className="hidden sm:inline" data-cy="settings-approvals-add-btn-text"> Add Approval</span>
+                <span
+                  className="hidden sm:inline"
+                  data-cy="settings-approvals-add-btn-text"
+                >
+                  {' '}
+                  Add Approval
+                </span>
               </Button>
             </PermissionWraper>
           </div>
@@ -193,7 +202,9 @@ const Approvals = () => {
             id={`settings-${pageSlug}-filters`}
             data-cy={`settings-${pageSlug}-filters`}
           >
-            <ApprovalBranchFilter data-cy={`settings-${pageSlug}-branch-filter`} />
+            <ApprovalBranchFilter
+              data-cy={`settings-${pageSlug}-branch-filter`}
+            />
           </div>
           <div
             className="flex  overflow-x-auto scrollbar-none  w-full"

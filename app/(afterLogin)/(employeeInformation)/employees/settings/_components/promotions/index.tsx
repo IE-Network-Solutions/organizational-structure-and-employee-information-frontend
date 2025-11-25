@@ -29,10 +29,7 @@ const Promotions = () => {
           id="settings-promotions-icon"
           data-cy="settings-promotions-icon"
         />
-        <span
-          id="settings-promotions-text"
-          data-cy="settings-promotions-text"
-        >
+        <span id="settings-promotions-text" data-cy="settings-promotions-text">
           Lorem Ipsum is simply dummy text of the printing and typesetting
           industry. Lorem Ipsum has been the industry standard dummy text ever
           since the 1500s.

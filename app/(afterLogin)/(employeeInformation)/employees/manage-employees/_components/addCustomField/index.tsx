@@ -85,7 +85,11 @@ const AddCustomField: React.FC<any> = ({
   };
   const handleFormFailed = () => {};
   const popoverContent = (
-    <div className="w-80" id={`add-custom-field-popover-${formTitle}`} data-cy={`add-custom-field-popover-${formTitle}`}>
+    <div
+      className="w-80"
+      id={`add-custom-field-popover-${formTitle}`}
+      data-cy={`add-custom-field-popover-${formTitle}`}
+    >
       <Form
         layout="vertical"
         form={form}
@@ -122,8 +126,19 @@ const AddCustomField: React.FC<any> = ({
           data-cy={`add-custom-field-type-${formTitle}`}
           rules={[{ required: true, message: 'Field Type is required' }]}
         >
-          <Select value={fieldType} onChange={(value) => setFieldType(value)} id={`add-custom-field-type-select-${formTitle}`} data-cy={`add-custom-field-type-select-${formTitle}`}>
-            <Option value="input" id={`add-custom-field-type-option-input-${formTitle}`} data-cy={`add-custom-field-type-option-input-${formTitle}`}>Input</Option>
+          <Select
+            value={fieldType}
+            onChange={(value) => setFieldType(value)}
+            id={`add-custom-field-type-select-${formTitle}`}
+            data-cy={`add-custom-field-type-select-${formTitle}`}
+          >
+            <Option
+              value="input"
+              id={`add-custom-field-type-option-input-${formTitle}`}
+              data-cy={`add-custom-field-type-option-input-${formTitle}`}
+            >
+              Input
+            </Option>
           </Select>
         </Form.Item>
 
@@ -134,17 +149,62 @@ const AddCustomField: React.FC<any> = ({
           data-cy={`add-custom-field-validation-${formTitle}`}
           rules={[{ required: true, message: 'Field Validation is required' }]}
         >
-          <Select id={`add-custom-field-validation-select-${formTitle}`} data-cy={`add-custom-field-validation-select-${formTitle}`}>
-            <Option value="text" id={`add-custom-field-validation-option-text-${formTitle}`} data-cy={`add-custom-field-validation-option-text-${formTitle}`}>Text</Option>
-            <Option value="number" id={`add-custom-field-validation-option-number-${formTitle}`} data-cy={`add-custom-field-validation-option-number-${formTitle}`}>Number</Option>
-            <Option value="email" id={`add-custom-field-validation-option-email-${formTitle}`} data-cy={`add-custom-field-validation-option-email-${formTitle}`}>Email</Option>
-            <Option value="date" id={`add-custom-field-validation-option-date-${formTitle}`} data-cy={`add-custom-field-validation-option-date-${formTitle}`}>Date</Option>
-            <Option value="url" id={`add-custom-field-validation-option-url-${formTitle}`} data-cy={`add-custom-field-validation-option-url-${formTitle}`}>URL</Option>
-            <Option value="any" id={`add-custom-field-validation-option-any-${formTitle}`} data-cy={`add-custom-field-validation-option-any-${formTitle}`}>any</Option>
+          <Select
+            id={`add-custom-field-validation-select-${formTitle}`}
+            data-cy={`add-custom-field-validation-select-${formTitle}`}
+          >
+            <Option
+              value="text"
+              id={`add-custom-field-validation-option-text-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-text-${formTitle}`}
+            >
+              Text
+            </Option>
+            <Option
+              value="number"
+              id={`add-custom-field-validation-option-number-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-number-${formTitle}`}
+            >
+              Number
+            </Option>
+            <Option
+              value="email"
+              id={`add-custom-field-validation-option-email-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-email-${formTitle}`}
+            >
+              Email
+            </Option>
+            <Option
+              value="date"
+              id={`add-custom-field-validation-option-date-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-date-${formTitle}`}
+            >
+              Date
+            </Option>
+            <Option
+              value="url"
+              id={`add-custom-field-validation-option-url-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-url-${formTitle}`}
+            >
+              URL
+            </Option>
+            <Option
+              value="any"
+              id={`add-custom-field-validation-option-any-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-any-${formTitle}`}
+            >
+              any
+            </Option>
           </Select>
         </Form.Item>
 
-        <Form.Item label="Is Active" name="isActive" valuePropName="checked" id={`add-custom-field-active-${formTitle}`} data-cy={`add-custom-field-active-${formTitle}`}>
+        <Form.Item
+          label="Is Active"
+          name="isActive"
+          valuePropName="checked"
+          id={`add-custom-field-active-${formTitle}`}
+          data-cy={`add-custom-field-active-${formTitle}`}
+        >
           <Switch
             checked={isActive}
             onChange={(checked) => setIsActive(checked)}
@@ -153,7 +213,10 @@ const AddCustomField: React.FC<any> = ({
           />
         </Form.Item>
         <Divider data-cy={`add-custom-field-divider-${formTitle}`} />
-        <Form.Item id={`add-custom-field-submit-${formTitle}`} data-cy={`add-custom-field-submit-${formTitle}`}>
+        <Form.Item
+          id={`add-custom-field-submit-${formTitle}`}
+          data-cy={`add-custom-field-submit-${formTitle}`}
+        >
           <Button
             type="primary"
             id={`addField${formTitle}`}
@@ -169,11 +232,36 @@ const AddCustomField: React.FC<any> = ({
   );
 
   return (
-    <Card bordered={false} bodyStyle={{ padding: 0, border: 'none' }} id={`add-custom-field-card-${formTitle}`} data-cy={`add-custom-field-card-${formTitle}`}>
-      <Row gutter={16} id={`add-custom-field-row-${formTitle}`} data-cy={`add-custom-field-row-${formTitle}`}>
-        <Col xs={24} sm={24} className="flex justify-center items-center " id={`add-custom-field-col-${formTitle}`} data-cy={`add-custom-field-col-${formTitle}`}>
-          <Form.Item className="font-semibold text-xs" id={`add-custom-field-form-item-${formTitle}`} data-cy={`add-custom-field-form-item-${formTitle}`}>
-            <Popover content={popoverContent} title={formTitle} trigger="click" id={`add-custom-field-popover-wrapper-${formTitle}`} data-cy={`add-custom-field-popover-wrapper-${formTitle}`}>
+    <Card
+      bordered={false}
+      bodyStyle={{ padding: 0, border: 'none' }}
+      id={`add-custom-field-card-${formTitle}`}
+      data-cy={`add-custom-field-card-${formTitle}`}
+    >
+      <Row
+        gutter={16}
+        id={`add-custom-field-row-${formTitle}`}
+        data-cy={`add-custom-field-row-${formTitle}`}
+      >
+        <Col
+          xs={24}
+          sm={24}
+          className="flex justify-center items-center "
+          id={`add-custom-field-col-${formTitle}`}
+          data-cy={`add-custom-field-col-${formTitle}`}
+        >
+          <Form.Item
+            className="font-semibold text-xs"
+            id={`add-custom-field-form-item-${formTitle}`}
+            data-cy={`add-custom-field-form-item-${formTitle}`}
+          >
+            <Popover
+              content={popoverContent}
+              title={formTitle}
+              trigger="click"
+              id={`add-custom-field-popover-wrapper-${formTitle}`}
+              data-cy={`add-custom-field-popover-wrapper-${formTitle}`}
+            >
               <Button
                 id={`addCustomField${formTitle}`}
                 data-cy={`addCustomField${formTitle}`}

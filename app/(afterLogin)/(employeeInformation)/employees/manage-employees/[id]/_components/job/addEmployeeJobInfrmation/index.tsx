@@ -87,16 +87,33 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         destroyOnClose
         data-cy="job-add-job-info-modal"
       >
-        <Form form={form} onFinish={createTsks} layout="vertical" id="job-add-job-info-form" data-cy="job-add-job-info-form">
-            <JobTimeLineForm employeeData={employeeData} form={form} data-cy="job-add-job-info-timeline" />
-            <WorkScheduleForm
-              selectedWorkScheduleDetails={
-                employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
-              }
-              data-cy="job-add-job-info-schedule"
-            />
-          <Form.Item id="job-add-job-info-submit-form-item" data-cy="job-add-job-info-submit-form-item">
-            <Row className="flex justify-end gap-3" id="job-add-job-info-submit-row" data-cy="job-add-job-info-submit-row">
+        <Form
+          form={form}
+          onFinish={createTsks}
+          layout="vertical"
+          id="job-add-job-info-form"
+          data-cy="job-add-job-info-form"
+        >
+          <JobTimeLineForm
+            employeeData={employeeData}
+            form={form}
+            data-cy="job-add-job-info-timeline"
+          />
+          <WorkScheduleForm
+            selectedWorkScheduleDetails={
+              employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
+            }
+            data-cy="job-add-job-info-schedule"
+          />
+          <Form.Item
+            id="job-add-job-info-submit-form-item"
+            data-cy="job-add-job-info-submit-form-item"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="job-add-job-info-submit-row"
+              data-cy="job-add-job-info-submit-row"
+            >
               <Button
                 type="primary"
                 htmlType="submit"

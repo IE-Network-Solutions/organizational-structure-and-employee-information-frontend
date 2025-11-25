@@ -64,16 +64,37 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
     switch (field.fieldType) {
       case 'input':
         return (
-          <Form.Item key={field.fieldName} {...commonProps} id={`${formTitle}-${field.fieldName}-input-form-item`} data-cy={`${formTitle}-${field.fieldName}-input-form-item`}>
-            <Input id={`${formTitle}-${field.fieldName}-input`} data-cy={`${formTitle}-${field.fieldName}-input`} />
+          <Form.Item
+            key={field.fieldName}
+            {...commonProps}
+            id={`${formTitle}-${field.fieldName}-input-form-item`}
+            data-cy={`${formTitle}-${field.fieldName}-input-form-item`}
+          >
+            <Input
+              id={`${formTitle}-${field.fieldName}-input`}
+              data-cy={`${formTitle}-${field.fieldName}-input`}
+            />
           </Form.Item>
         );
       case 'select':
         return (
-          <Form.Item key={field.fieldName} {...commonProps} id={`${formTitle}-${field.fieldName}-select-form-item`} data-cy={`${formTitle}-${field.fieldName}-select-form-item`}>
-            <Select id={`${formTitle}-${field.fieldName}-select`} data-cy={`${formTitle}-${field.fieldName}-select`}>
+          <Form.Item
+            key={field.fieldName}
+            {...commonProps}
+            id={`${formTitle}-${field.fieldName}-select-form-item`}
+            data-cy={`${formTitle}-${field.fieldName}-select-form-item`}
+          >
+            <Select
+              id={`${formTitle}-${field.fieldName}-select`}
+              data-cy={`${formTitle}-${field.fieldName}-select`}
+            >
               {field.options?.map((option) => (
-                <Option key={option} value={option} id={`${formTitle}-${field.fieldName}-option-${option}`} data-cy={`${formTitle}-${field.fieldName}-option-${option}`}>
+                <Option
+                  key={option}
+                  value={option}
+                  id={`${formTitle}-${field.fieldName}-option-${option}`}
+                  data-cy={`${formTitle}-${field.fieldName}-option-${option}`}
+                >
                   {option}
                 </Option>
               ))}
@@ -83,15 +104,25 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
       case 'datePicker':
         return (
           <Form.Item key={field.fieldName} {...commonProps} className="w-full">
-            <DatePicker id={`${formTitle}-${field.fieldName}-datepicker`} data-cy={`${formTitle}-${field.fieldName}-datepicker`} />
+            <DatePicker
+              id={`${formTitle}-${field.fieldName}-datepicker`}
+              data-cy={`${formTitle}-${field.fieldName}-datepicker`}
+            />
           </Form.Item>
         );
       case 'checkbox':
         return (
           <Form.Item key={field.fieldName} {...commonProps}>
-            <Checkbox.Group data-cy={`${formTitle}-${field.fieldName}-checkbox-group`}>
+            <Checkbox.Group
+              data-cy={`${formTitle}-${field.fieldName}-checkbox-group`}
+            >
               {field.options?.map((option) => (
-                <Checkbox key={option} value={option} id={`${formTitle}-${field.fieldName}-checkbox-${option}`} data-cy={`${formTitle}-${field.fieldName}-checkbox-${option}`}>
+                <Checkbox
+                  key={option}
+                  value={option}
+                  id={`${formTitle}-${field.fieldName}-checkbox-${option}`}
+                  data-cy={`${formTitle}-${field.fieldName}-checkbox-${option}`}
+                >
                   {option}
                 </Checkbox>
               ))}
@@ -105,7 +136,10 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
             {...commonProps}
             valuePropName="checked"
           >
-            <Switch id={`${formTitle}-${field.fieldName}-switch`} data-cy={`${formTitle}-${field.fieldName}-switch`} />
+            <Switch
+              id={`${formTitle}-${field.fieldName}-switch`}
+              data-cy={`${formTitle}-${field.fieldName}-switch`}
+            />
           </Form.Item>
         );
       default:
@@ -117,11 +151,26 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
     const rows = [];
     for (let i = 0; i < fields?.length; i += 2) {
       rows.push(
-        <Row gutter={16} key={`row-${i}`} id={`${formTitle}-dynamic-row-${i}`} data-cy={`${formTitle}-dynamic-row-${i}`}>
-          <Col xs={24} sm={12} id={`${formTitle}-dynamic-col-${i}`} data-cy={`${formTitle}-dynamic-col-${i}`}>
+        <Row
+          gutter={16}
+          key={`row-${i}`}
+          id={`${formTitle}-dynamic-row-${i}`}
+          data-cy={`${formTitle}-dynamic-row-${i}`}
+        >
+          <Col
+            xs={24}
+            sm={12}
+            id={`${formTitle}-dynamic-col-${i}`}
+            data-cy={`${formTitle}-dynamic-col-${i}`}
+          >
             {fields[i] && renderField(fields[i])}
           </Col>
-          <Col xs={24} sm={12} id={`${formTitle}-dynamic-col-${i + 1}`} data-cy={`${formTitle}-dynamic-col-${i + 1}`}>
+          <Col
+            xs={24}
+            sm={12}
+            id={`${formTitle}-dynamic-col-${i + 1}`}
+            data-cy={`${formTitle}-dynamic-col-${i + 1}`}
+          >
             {fields[i + 1] && renderField(fields[i + 1])}
           </Col>
         </Row>,

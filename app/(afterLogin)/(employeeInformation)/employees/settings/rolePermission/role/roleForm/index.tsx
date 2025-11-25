@@ -229,13 +229,25 @@ const ListOfRoles = () => {
           className="p-4 sm:p-2 md:p-4 lg:p-6"
           data-cy="settings-role-form"
         >
-          <div className="grid" id="settings-role-form-wrapper" data-cy="settings-role-form-wrapper">
+          <div
+            className="grid"
+            id="settings-role-form-wrapper"
+            data-cy="settings-role-form-wrapper"
+          >
             {currentModal === 'editRoleModal' && (
-              <Form.Item name="id" id="settings-role-id-item" data-cy="settings-role-id-item">
+              <Form.Item
+                name="id"
+                id="settings-role-id-item"
+                data-cy="settings-role-id-item"
+              >
                 <Input type="hidden" data-cy="settings-role-id-input" />
               </Form.Item>
             )}
-            <div className="mb-1" id="settings-role-name-wrapper" data-cy="settings-role-name-wrapper">
+            <div
+              className="mb-1"
+              id="settings-role-name-wrapper"
+              data-cy="settings-role-name-wrapper"
+            >
               <Form.Item
                 name="name"
                 label={
@@ -253,7 +265,11 @@ const ListOfRoles = () => {
                 />
               </Form.Item>
             </div>
-            <div className="mb-1" id="settings-role-description-wrapper" data-cy="settings-role-description-wrapper">
+            <div
+              className="mb-1"
+              id="settings-role-description-wrapper"
+              data-cy="settings-role-description-wrapper"
+            >
               <Form.Item
                 name="description"
                 label={
@@ -273,8 +289,16 @@ const ListOfRoles = () => {
                 />
               </Form.Item>
             </div>
-            <div className="mb-1" id="settings-role-group-permission-wrapper" data-cy="settings-role-group-permission-wrapper">
-              <p className="text-xs font-bold text-gray-600" id="settings-role-group-permission-label" data-cy="settings-role-group-permission-label">
+            <div
+              className="mb-1"
+              id="settings-role-group-permission-wrapper"
+              data-cy="settings-role-group-permission-wrapper"
+            >
+              <p
+                className="text-xs font-bold text-gray-600"
+                id="settings-role-group-permission-label"
+                data-cy="settings-role-group-permission-label"
+              >
                 Group Permission
               </p>
               <Select
@@ -294,15 +318,29 @@ const ListOfRoles = () => {
                 )}
                 data-cy="settings-role-group-select"
               />
-              <p className="flex gap-2 text-xs text-gray-600 mt-2" id="settings-role-group-permission-description" data-cy="settings-role-group-permission-description">
-                <RiErrorWarningFill className="mt-1" data-cy="settings-role-group-permission-description-icon" />
-                <span id="settings-role-group-permission-description-text" data-cy="settings-role-group-permission-description-text">
+              <p
+                className="flex gap-2 text-xs text-gray-600 mt-2"
+                id="settings-role-group-permission-description"
+                data-cy="settings-role-group-permission-description"
+              >
+                <RiErrorWarningFill
+                  className="mt-1"
+                  data-cy="settings-role-group-permission-description-icon"
+                />
+                <span
+                  id="settings-role-group-permission-description-text"
+                  data-cy="settings-role-group-permission-description-text"
+                >
                   Group permission allows you to get a bundle of permissions in
                   one place.
                 </span>
               </p>
             </div>
-            <div className="mb-1" id="settings-role-permission-wrapper" data-cy="settings-role-permission-wrapper">
+            <div
+              className="mb-1"
+              id="settings-role-permission-wrapper"
+              data-cy="settings-role-permission-wrapper"
+            >
               <Form.Item
                 name="permission"
                 className="h-auto"
@@ -328,13 +366,29 @@ const ListOfRoles = () => {
                   data-cy="settings-role-permission-select"
                 />
               </Form.Item>
-              <p className="flex gap-2 text-xs text-gray-600 mt-2" id="settings-role-permission-description" data-cy="settings-role-permission-description">
-                <RiErrorWarningFill className="mt-1" data-cy="settings-role-permission-description-icon" id="settings-role-permission-description-icon" />
-                <span id="settings-role-permission-description-text" data-cy="settings-role-permission-description-text">This is a set of permissions assigned to the roles.</span>
+              <p
+                className="flex gap-2 text-xs text-gray-600 mt-2"
+                id="settings-role-permission-description"
+                data-cy="settings-role-permission-description"
+              >
+                <RiErrorWarningFill
+                  className="mt-1"
+                  data-cy="settings-role-permission-description-icon"
+                  id="settings-role-permission-description-icon"
+                />
+                <span
+                  id="settings-role-permission-description-text"
+                  data-cy="settings-role-permission-description-text"
+                >
+                  This is a set of permissions assigned to the roles.
+                </span>
               </p>
             </div>
           </div>
-          <Form.Item id="settings-role-form-actions-form-item" data-cy="settings-role-form-actions-form-item">
+          <Form.Item
+            id="settings-role-form-actions-form-item"
+            data-cy="settings-role-form-actions-form-item"
+          >
             <div
               className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
               id="settings-role-form-actions"
@@ -404,7 +458,12 @@ const ListOfRoles = () => {
           id="settings-role-select-all-wrapper"
           data-cy="settings-role-select-all-wrapper"
         >
-          <Checkbox checked={selectAll} onChange={handleSelectAll} id="settings-role-select-all-checkbox" data-cy="settings-role-select-all-checkbox">
+          <Checkbox
+            checked={selectAll}
+            onChange={handleSelectAll}
+            id="settings-role-select-all-checkbox"
+            data-cy="settings-role-select-all-checkbox"
+          >
             Select All
           </Checkbox>
         </div>

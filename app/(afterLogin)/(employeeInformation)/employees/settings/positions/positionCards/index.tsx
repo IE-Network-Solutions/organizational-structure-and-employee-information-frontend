@@ -84,7 +84,11 @@ const PositionCards: React.FC = () => {
                 id={`settings-position-card-actions-${positionSlug}`}
                 data-cy={`settings-position-card-actions-${positionSlug}`}
               >
-                <AccessGuard permissions={[Permissions.UpdatePosition]} id="settings-position-edit-btn-guard" data-cy="settings-position-edit-btn-guard">
+                <AccessGuard
+                  permissions={[Permissions.UpdatePosition]}
+                  id="settings-position-edit-btn-guard"
+                  data-cy="settings-position-edit-btn-guard"
+                >
                   <div
                     className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
                     id={`settings-position-edit-btn-${positionSlug}`}
@@ -98,7 +102,11 @@ const PositionCards: React.FC = () => {
                     />
                   </div>
                 </AccessGuard>
-                <AccessGuard permissions={[Permissions.DeletePosition]} id="settings-position-delete-btn-guard" data-cy="settings-position-delete-btn-guard">
+                <AccessGuard
+                  permissions={[Permissions.DeletePosition]}
+                  id="settings-position-delete-btn-guard"
+                  data-cy="settings-position-delete-btn-guard"
+                >
                   <div
                     className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center"
                     id={`settings-position-delete-btn-${positionSlug}`}
@@ -129,7 +137,7 @@ const PositionCards: React.FC = () => {
         open={deleteModal}
         onCancel={() => setDeleteModal(false)}
         onConfirm={handleDelete}
-        data-cy='settings-position-delete-modal'
+        data-cy="settings-position-delete-modal"
       />
       {editModal && <PositionsEdit data-cy="settings-position-edit-form" />}
 
@@ -139,7 +147,7 @@ const PositionCards: React.FC = () => {
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onPageChange}
-          data-cy='settings-position-custom-mobile-pagination'
+          data-cy="settings-position-custom-mobile-pagination"
         />
       ) : (
         <CustomPagination
@@ -148,7 +156,7 @@ const PositionCards: React.FC = () => {
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={(pageSize) => setPageSize(pageSize)}
-          data-cy='settings-position-custom-pagination'
+          data-cy="settings-position-custom-pagination"
         />
       )}
     </>

@@ -18,7 +18,12 @@ const BankInformationForm = () => {
         Bank Account
       </div>
       <Row gutter={16} id="bank-info-row-main" data-cy="bank-info-row-main">
-        <Col xs={24} sm={12} id="bank-info-bank-name-col" data-cy="bank-info-bank-name-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="bank-info-bank-name-col"
+          data-cy="bank-info-bank-name-col"
+        >
           <Form.Item
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'bankName']}
@@ -39,10 +44,18 @@ const BankInformationForm = () => {
               },
             ]}
           >
-            <Input id="bank-info-bank-name-input" data-cy="bank-info-bank-name-input" />
+            <Input
+              id="bank-info-bank-name-input"
+              data-cy="bank-info-bank-name-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} id="bank-info-branch-col" data-cy="bank-info-branch-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="bank-info-branch-col"
+          data-cy="bank-info-branch-col"
+        >
           <Form.Item
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'branch']}
@@ -61,12 +74,24 @@ const BankInformationForm = () => {
               },
             ]}
           >
-            <Input id="bank-info-branch-input" data-cy="bank-info-branch-input" />
+            <Input
+              id="bank-info-branch-input"
+              data-cy="bank-info-branch-input"
+            />
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16} id="bank-info-row-account" data-cy="bank-info-row-account">
-        <Col xs={24} sm={12} id="bank-info-account-name-col" data-cy="bank-info-account-name-col">
+      <Row
+        gutter={16}
+        id="bank-info-row-account"
+        data-cy="bank-info-row-account"
+      >
+        <Col
+          xs={24}
+          sm={12}
+          id="bank-info-account-name-col"
+          data-cy="bank-info-account-name-col"
+        >
           <Form.Item
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'accountName']}
@@ -87,10 +112,18 @@ const BankInformationForm = () => {
               },
             ]}
           >
-            <Input id="bank-info-account-name-input" data-cy="bank-info-account-name-input" />
+            <Input
+              id="bank-info-account-name-input"
+              data-cy="bank-info-account-name-input"
+            />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={12} id="bank-info-account-number-col" data-cy="bank-info-account-number-col">
+        <Col
+          xs={24}
+          sm={12}
+          id="bank-info-account-number-col"
+          data-cy="bank-info-account-number-col"
+        >
           <Form.Item
             className="font-semibold text-xs w-full"
             name={['bankInformation', 'accountNumber']}

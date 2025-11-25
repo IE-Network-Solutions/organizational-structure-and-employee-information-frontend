@@ -40,9 +40,23 @@ function SettingsPage() {
     {
       key: '1',
       label: (
-        <span className="flex gap-2 mt-4" data-cy="org-settings-page-branches-tab-label" id="org-settings-page-branches-tab-label">
-          <PiBuildingsLight className="mt-1" data-cy="org-settings-page-branches-tab-icon" id="org-settings-page-branches-tab-icon" />{' '}
-          <p className="font-semibold" data-cy="org-settings-page-branches-tab-title" id="org-settings-page-branches-tab-title">Branches </p>
+        <span
+          className="flex gap-2 mt-4"
+          data-cy="org-settings-page-branches-tab-label"
+          id="org-settings-page-branches-tab-label"
+        >
+          <PiBuildingsLight
+            className="mt-1"
+            data-cy="org-settings-page-branches-tab-icon"
+            id="org-settings-page-branches-tab-icon"
+          />{' '}
+          <p
+            className="font-semibold"
+            data-cy="org-settings-page-branches-tab-title"
+            id="org-settings-page-branches-tab-title"
+          >
+            Branches{' '}
+          </p>
         </span>
       ),
       children: <Branches data-cy="org-settings-page-branches-content" />,
@@ -50,33 +64,90 @@ function SettingsPage() {
     {
       key: '2',
       label: (
-        <span className="flex gap-2 mt-4" data-cy="org-settings-page-fiscal-year-tab-label" id="org-settings-page-fiscal-year-tab-label">
-          <BsSafe className="mt-1" data-cy="org-settings-page-fiscal-year-tab-icon" id="org-settings-page-fiscal-year-tab-icon" />{' '}
-          <p className="font-semibold" data-cy="org-settings-page-fiscal-year-tab-title" id="org-settings-page-fiscal-year-tab-title">Fiscal Year </p>
+        <span
+          className="flex gap-2 mt-4"
+          data-cy="org-settings-page-fiscal-year-tab-label"
+          id="org-settings-page-fiscal-year-tab-label"
+        >
+          <BsSafe
+            className="mt-1"
+            data-cy="org-settings-page-fiscal-year-tab-icon"
+            id="org-settings-page-fiscal-year-tab-icon"
+          />{' '}
+          <p
+            className="font-semibold"
+            data-cy="org-settings-page-fiscal-year-tab-title"
+            id="org-settings-page-fiscal-year-tab-title"
+          >
+            Fiscal Year{' '}
+          </p>
         </span>
       ),
-      children: <FiscalYearListCard data-cy="org-settings-page-fiscal-year-content" />,
+      children: (
+        <FiscalYearListCard data-cy="org-settings-page-fiscal-year-content" />
+      ),
     },
     {
       key: '3',
       label: (
-        <span className="flex gap-2 mt-4" data-cy="org-settings-page-work-schedule-tab-label" id="org-settings-page-work-schedule-tab-label">
-          <PiCalendar className="mt-1" data-cy="org-settings-page-work-schedule-tab-icon" id="org-settings-page-work-schedule-tab-icon" />
-          <p className="font-semibold" data-cy="org-settings-page-work-schedule-tab-title" id="org-settings-page-work-schedule-tab-title">Work Schedule </p>
+        <span
+          className="flex gap-2 mt-4"
+          data-cy="org-settings-page-work-schedule-tab-label"
+          id="org-settings-page-work-schedule-tab-label"
+        >
+          <PiCalendar
+            className="mt-1"
+            data-cy="org-settings-page-work-schedule-tab-icon"
+            id="org-settings-page-work-schedule-tab-icon"
+          />
+          <p
+            className="font-semibold"
+            data-cy="org-settings-page-work-schedule-tab-title"
+            id="org-settings-page-work-schedule-tab-title"
+          >
+            Work Schedule{' '}
+          </p>
         </span>
       ),
-      children: <WorkScheduleTab data-cy="org-settings-page-work-schedule-content" />,
+      children: (
+        <WorkScheduleTab data-cy="org-settings-page-work-schedule-content" />
+      ),
     },
   ];
   return (
     <>
-      <div className="flex justify-start  -mt-2 -ml-2" data-cy="org-organization-settings-settingspage-index-div-1" id="org-organization-settings-settingspage-index-div-1">
-        <Card className="shadow-none" bordered={false} data-cy="org-settings-page-branches-card" id="org-settings-page-branches-card">
-          <p className="font-bold text-xl" data-cy="org-settings-page-branches-card-title" id="org-settings-page-branches-card-title">Branches</p>
-          <p className="text-gray-400" data-cy="org-settings-page-branches-card-description" id="org-settings-page-branches-card-description">Branch</p>
+      <div
+        className="flex justify-start  -mt-2 -ml-2"
+        data-cy="org-organization-settings-settingspage-index-div-1"
+        id="org-organization-settings-settingspage-index-div-1"
+      >
+        <Card
+          className="shadow-none"
+          bordered={false}
+          data-cy="org-settings-page-branches-card"
+          id="org-settings-page-branches-card"
+        >
+          <p
+            className="font-bold text-xl"
+            data-cy="org-settings-page-branches-card-title"
+            id="org-settings-page-branches-card-title"
+          >
+            Branches
+          </p>
+          <p
+            className="text-gray-400"
+            data-cy="org-settings-page-branches-card-description"
+            id="org-settings-page-branches-card-description"
+          >
+            Branch
+          </p>
         </Card>
       </div>
-      <hr className="py-2 " data-cy="org-settings-page-branches-divider" id="org-settings-page-branches-divider"></hr>
+      <hr
+        className="py-2 "
+        data-cy="org-settings-page-branches-divider"
+        id="org-settings-page-branches-divider"
+      ></hr>
       <Tabs
         defaultActiveKey="1"
         moreIcon={false}

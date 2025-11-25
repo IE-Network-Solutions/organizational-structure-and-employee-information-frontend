@@ -139,7 +139,11 @@ const TaskItem: React.FC<{
             data-cy={`probation-task-checkbox-${taskSlug}`}
           />
 
-          <div className="flex flex-col min-w-0" id={`probation-task-title-wrapper-${taskSlug}`} data-cy={`probation-task-title-wrapper-${taskSlug}`}>
+          <div
+            className="flex flex-col min-w-0"
+            id={`probation-task-title-wrapper-${taskSlug}`}
+            data-cy={`probation-task-title-wrapper-${taskSlug}`}
+          >
             <div
               className={`text-sm font-medium ${task?.isCompleted ? 'text-gray-400 line-through' : 'text-gray-900'}`}
               id={`probation-task-title-${taskSlug}`}
@@ -195,9 +199,24 @@ const TaskItem: React.FC<{
             id={`probation-task-weight-${taskSlug}`}
             data-cy={`probation-task-weight-${taskSlug}`}
           >
-            <div className="text-sm font-medium" id={`probation-task-weight-text-${taskSlug}`} data-cy={`probation-task-weight-text-${taskSlug}`}>
-              <span className="text-gray-500" id={`probation-task-weight-text-span-${taskSlug}`} data-cy={`probation-task-weight-text-span-${taskSlug}`}>Weight:</span>{' '}
-              <strong id={`probation-task-weight-strong-${taskSlug}`} data-cy={`probation-task-weight-strong-${taskSlug}`}>{task.weight}</strong>
+            <div
+              className="text-sm font-medium"
+              id={`probation-task-weight-text-${taskSlug}`}
+              data-cy={`probation-task-weight-text-${taskSlug}`}
+            >
+              <span
+                className="text-gray-500"
+                id={`probation-task-weight-text-span-${taskSlug}`}
+                data-cy={`probation-task-weight-text-span-${taskSlug}`}
+              >
+                Weight:
+              </span>{' '}
+              <strong
+                id={`probation-task-weight-strong-${taskSlug}`}
+                data-cy={`probation-task-weight-strong-${taskSlug}`}
+              >
+                {task.weight}
+              </strong>
             </div>
             {task.isCompleted && task.evaluationScore == '0.00' && (
               <div
@@ -233,12 +252,27 @@ const TaskItem: React.FC<{
                 id={`probation-task-score-display-${taskSlug}`}
                 data-cy={`probation-task-score-display-${taskSlug}`}
               >
-                <span className="text-gray-500" id={`probation-task-score-text-span-${taskSlug}`} data-cy={`probation-task-score-text-span-${taskSlug}`}>Score:</span>{' '}
-                <strong id={`probation-task-score-strong-${taskSlug}`} data-cy={`probation-task-score-strong-${taskSlug}`}>{task.evaluationScore}</strong>
+                <span
+                  className="text-gray-500"
+                  id={`probation-task-score-text-span-${taskSlug}`}
+                  data-cy={`probation-task-score-text-span-${taskSlug}`}
+                >
+                  Score:
+                </span>{' '}
+                <strong
+                  id={`probation-task-score-strong-${taskSlug}`}
+                  data-cy={`probation-task-score-strong-${taskSlug}`}
+                >
+                  {task.evaluationScore}
+                </strong>
               </div>
             )}
           </div>
-          <AccessGuard permissions={[Permissions.UpdateProbationTask]} id={`probation-task-edit-btn-guard-${taskSlug}`} data-cy={`probation-task-edit-btn-guard-${taskSlug}`}>
+          <AccessGuard
+            permissions={[Permissions.UpdateProbationTask]}
+            id={`probation-task-edit-btn-guard-${taskSlug}`}
+            data-cy={`probation-task-edit-btn-guard-${taskSlug}`}
+          >
             <Button
               type="default"
               size="small"
@@ -252,7 +286,11 @@ const TaskItem: React.FC<{
             />
           </AccessGuard>
 
-          <AccessGuard permissions={[Permissions.DeleteProbationTask]} id={`probation-task-delete-btn-guard-${taskSlug}`} data-cy={`probation-task-delete-btn-guard-${taskSlug}`}>
+          <AccessGuard
+            permissions={[Permissions.DeleteProbationTask]}
+            id={`probation-task-delete-btn-guard-${taskSlug}`}
+            data-cy={`probation-task-delete-btn-guard-${taskSlug}`}
+          >
             <Button
               onClick={onDelete}
               danger
@@ -635,7 +673,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                           target.user.lastName,
                         )}
                     </Avatar>
-                    <div className="flex flex-col" id={`probation-target-name-wrapper-${targetSlug}`} data-cy={`probation-target-name-wrapper-${targetSlug}`}>
+                    <div
+                      className="flex flex-col"
+                      id={`probation-target-name-wrapper-${targetSlug}`}
+                      data-cy={`probation-target-name-wrapper-${targetSlug}`}
+                    >
                       <Text
                         className="mb-0 text-md font-bold"
                         id={`probation-target-name-${targetSlug}`}
@@ -658,7 +700,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                     id={`probation-target-actions-${targetSlug}`}
                     data-cy={`probation-target-actions-${targetSlug}`}
                   >
-                    <div className="flex items-center gap-2 sm:gap-4" id={`probation-target-status-tags-wrapper-${targetSlug}`} data-cy={`probation-target-status-tags-wrapper-${targetSlug}`}>
+                    <div
+                      className="flex items-center gap-2 sm:gap-4"
+                      id={`probation-target-status-tags-wrapper-${targetSlug}`}
+                      data-cy={`probation-target-status-tags-wrapper-${targetSlug}`}
+                    >
                       <Space
                         id={`probation-target-status-tags-${targetSlug}`}
                         data-cy={`probation-target-status-tags-${targetSlug}`}
@@ -678,7 +724,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                         {completedTasks === target.probationTasks.length &&
                           target.probationTasks.length > 0 &&
                           !completedTargets.has(target.id) && (
-                            <Tooltip title="Complete Probation" id={`probation-target-complete-btn-tooltip-${targetSlug}`} data-cy={`probation-target-complete-btn-tooltip-${targetSlug}`}>
+                            <Tooltip
+                              title="Complete Probation"
+                              id={`probation-target-complete-btn-tooltip-${targetSlug}`}
+                              data-cy={`probation-target-complete-btn-tooltip-${targetSlug}`}
+                            >
                               <Button
                                 type={'primary'}
                                 size="small"
@@ -703,7 +753,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       </Space>
                     </div>
                     {target.probationTasks.length === 0 && (
-                      <Tooltip title="Add Probation Task" id={`probation-target-add-task-btn-tooltip-${targetSlug}`} data-cy={`probation-target-add-task-btn-tooltip-${targetSlug}`}>
+                      <Tooltip
+                        title="Add Probation Task"
+                        id={`probation-target-add-task-btn-tooltip-${targetSlug}`}
+                        data-cy={`probation-target-add-task-btn-tooltip-${targetSlug}`}
+                      >
                         <AccessGuard
                           permissions={[Permissions.CreateProbationTask]}
                           id={`probation-target-add-task-btn-guard-${targetSlug}`}
@@ -833,12 +887,15 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                     />
                   ))
                 ) : (
-                  <div className="flex justify-center items-center py-8" id={`probation-target-empty-tasks-wrapper-${targetSlug}`} data-cy={`probation-target-empty-tasks-wrapper-${targetSlug}`}>
+                  <div
+                    className="flex justify-center items-center py-8"
+                    id={`probation-target-empty-tasks-wrapper-${targetSlug}`}
+                    data-cy={`probation-target-empty-tasks-wrapper-${targetSlug}`}
+                  >
                     <Empty
                       description="No tasks found for this probation target"
                       image={<EmptyImage />}
                       data-cy={`probation-target-empty-tasks-${targetSlug}`}
-                      
                     />
                   </div>
                 )}
@@ -878,15 +935,31 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
         data-cy="probation-task-delete-modal"
       >
         {taskToDelete && (
-          <div id="probation-task-delete-modal-body" data-cy="probation-task-delete-modal-body">
-            <p id="probation-task-delete-modal-text" data-cy="probation-task-delete-modal-text">
+          <div
+            id="probation-task-delete-modal-body"
+            data-cy="probation-task-delete-modal-body"
+          >
+            <p
+              id="probation-task-delete-modal-text"
+              data-cy="probation-task-delete-modal-text"
+            >
               Are you sure you want to delete this task?
             </p>
-            <div className="mt-4 p-3 bg-gray-50 rounded" id="probation-task-delete-modal-details" data-cy="probation-task-delete-modal-details">
-              <p id="probation-task-delete-modal-task" data-cy="probation-task-delete-modal-task">
+            <div
+              className="mt-4 p-3 bg-gray-50 rounded"
+              id="probation-task-delete-modal-details"
+              data-cy="probation-task-delete-modal-details"
+            >
+              <p
+                id="probation-task-delete-modal-task"
+                data-cy="probation-task-delete-modal-task"
+              >
                 <strong>Task:</strong> {taskToDelete.taskName}
               </p>
-              <p id="probation-task-delete-modal-assigned" data-cy="probation-task-delete-modal-assigned">
+              <p
+                id="probation-task-delete-modal-assigned"
+                data-cy="probation-task-delete-modal-assigned"
+              >
                 <strong>Assigned To:</strong>{' '}
                 {`${taskToDelete.evaluatorUser?.firstName || ''} ${taskToDelete.evaluatorUser?.lastName || ''}`.trim() ||
                   'Unassigned'}
@@ -898,59 +971,75 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
 
       {/* Edit Probation Tasks Drawer */}
       {targetForTaskEdit && (
-        
-          <CustomDrawerLayout
-            open={isTaskDrawerOpen}
-            onClose={closeTaskEditDrawer}
-            modalHeader={
-              <CustomDrawerHeader className="flex justify-start">
-                Edit Tasks - {targetForTaskEdit.name}
-              </CustomDrawerHeader>
-            }
-            width={isMobile ? '100%' : '45%'}
-            footer={
-              <div className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" id="probation-task-drawer-footer" data-cy="probation-task-drawer-footer">
-                <div
-                  className={`text-sm font-bold ${
-                    drawerTotalWeight === 100
-                      ? 'text-green-600'
-                      : drawerTotalWeight > 100
-                        ? 'text-red-600'
-                        : 'text-orange-600'
-                  }`}
-                  id="probation-task-drawer-total-weight"
-                  data-cy="probation-task-drawer-total-weight"
-                >
-                  Total Weight: {drawerTotalWeight}/100
-                </div>
-                <div className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto" id="probation-task-drawer-action-buttons" data-cy="probation-task-drawer-action-buttons">
-                  <Button
-                    onClick={closeTaskEditDrawer}
-                    className="w-full sm:w-auto"
-                    id="probation-task-drawer-cancel-btn"
-                    data-cy="probation-task-drawer-cancel-btn"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="primary"
-                    loading={createTaskSaveAllMutation.isLoading}
-                    disabled={drawerTotalWeight !== 100}
-                    onClick={handleDrawerSaveAll}
-                    className="w-full sm:w-auto"
-                    id="probation-task-drawer-save-btn"
-                    data-cy="probation-task-drawer-save-btn"
-                  >
-                    Save Changes
-                  </Button>
-                </div>
+        <CustomDrawerLayout
+          open={isTaskDrawerOpen}
+          onClose={closeTaskEditDrawer}
+          modalHeader={
+            <CustomDrawerHeader className="flex justify-start">
+              Edit Tasks - {targetForTaskEdit.name}
+            </CustomDrawerHeader>
+          }
+          width={isMobile ? '100%' : '45%'}
+          footer={
+            <div
+              className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              id="probation-task-drawer-footer"
+              data-cy="probation-task-drawer-footer"
+            >
+              <div
+                className={`text-sm font-bold ${
+                  drawerTotalWeight === 100
+                    ? 'text-green-600'
+                    : drawerTotalWeight > 100
+                      ? 'text-red-600'
+                      : 'text-orange-600'
+                }`}
+                id="probation-task-drawer-total-weight"
+                data-cy="probation-task-drawer-total-weight"
+              >
+                Total Weight: {drawerTotalWeight}/100
               </div>
-            }
-            data-cy="probation-task-drawer"
+              <div
+                className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto"
+                id="probation-task-drawer-action-buttons"
+                data-cy="probation-task-drawer-action-buttons"
+              >
+                <Button
+                  onClick={closeTaskEditDrawer}
+                  className="w-full sm:w-auto"
+                  id="probation-task-drawer-cancel-btn"
+                  data-cy="probation-task-drawer-cancel-btn"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  loading={createTaskSaveAllMutation.isLoading}
+                  disabled={drawerTotalWeight !== 100}
+                  onClick={handleDrawerSaveAll}
+                  className="w-full sm:w-auto"
+                  id="probation-task-drawer-save-btn"
+                  data-cy="probation-task-drawer-save-btn"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          }
+          data-cy="probation-task-drawer"
+        >
+          <div
+            className="py-2"
+            id="probation-task-drawer-body"
+            data-cy="probation-task-drawer-body"
           >
-            <div className="py-2" id="probation-task-drawer-body" data-cy="probation-task-drawer-body">
-              <Form form={drawerForm} layout="vertical" id="probation-task-drawer-form" data-cy="probation-task-drawer-form">
-                <Form.List name="tasks" data-cy="probation-task-drawer-list">
+            <Form
+              form={drawerForm}
+              layout="vertical"
+              id="probation-task-drawer-form"
+              data-cy="probation-task-drawer-form"
+            >
+              <Form.List name="tasks" data-cy="probation-task-drawer-list">
                 {(fields, { add, remove }) => (
                   <>
                     <div
@@ -983,7 +1072,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                               id={`probation-task-drawer-card-header-${fieldSlug}`}
                               data-cy={`probation-task-drawer-card-header-${fieldSlug}`}
                             >
-                              <div className="text-sm font-medium text-gray-700" id={`probation-task-drawer-card-header-text-${fieldSlug}`} data-cy={`probation-task-drawer-card-header-text-${fieldSlug}`}>
+                              <div
+                                className="text-sm font-medium text-gray-700"
+                                id={`probation-task-drawer-card-header-text-${fieldSlug}`}
+                                data-cy={`probation-task-drawer-card-header-text-${fieldSlug}`}
+                              >
                                 Task {index + 1}
                               </div>
                               {!hasId && (
@@ -998,7 +1091,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                                 />
                               )}
                             </div>
-                            <div className="grid grid-cols-12 gap-3" id={`probation-task-drawer-card-body-${fieldSlug}`} data-cy={`probation-task-drawer-card-body-${fieldSlug}`}>
+                            <div
+                              className="grid grid-cols-12 gap-3"
+                              id={`probation-task-drawer-card-body-${fieldSlug}`}
+                              data-cy={`probation-task-drawer-card-body-${fieldSlug}`}
+                            >
                               <Form.Item
                                 {...field}
                                 name={[field.name, 'id']}
@@ -1006,7 +1103,10 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                                 id={`probation-task-drawer-card-body-id-${fieldSlug}`}
                                 data-cy={`probation-task-drawer-card-body-id-${fieldSlug}`}
                               >
-                                <Input id={`probation-task-drawer-card-body-id-input-${fieldSlug}`} data-cy={`probation-task-drawer-card-body-id-input-${fieldSlug}`} />
+                                <Input
+                                  id={`probation-task-drawer-card-body-id-input-${fieldSlug}`}
+                                  data-cy={`probation-task-drawer-card-body-id-input-${fieldSlug}`}
+                                />
                               </Form.Item>
                               <Form.Item
                                 {...field}
@@ -1015,9 +1115,16 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                                 id={`probation-task-drawer-card-body-is-completed-${fieldSlug}`}
                                 data-cy={`probation-task-drawer-card-body-is-completed-${fieldSlug}`}
                               >
-                                <Input id={`probation-task-drawer-card-body-is-completed-input-${fieldSlug}`} data-cy={`probation-task-drawer-card-body-is-completed-input-${fieldSlug}`} />
+                                <Input
+                                  id={`probation-task-drawer-card-body-is-completed-input-${fieldSlug}`}
+                                  data-cy={`probation-task-drawer-card-body-is-completed-input-${fieldSlug}`}
+                                />
                               </Form.Item>
-                              <div className="col-span-5" id={`probation-task-drawer-card-body-task-name-wrapper-${fieldSlug}`} data-cy={`probation-task-drawer-card-body-task-name-wrapper-${fieldSlug}`}>
+                              <div
+                                className="col-span-5"
+                                id={`probation-task-drawer-card-body-task-name-wrapper-${fieldSlug}`}
+                                data-cy={`probation-task-drawer-card-body-task-name-wrapper-${fieldSlug}`}
+                              >
                                 <Form.Item
                                   label="Task Name"
                                   name={[field.name, 'taskName']}
@@ -1039,7 +1146,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                                   />
                                 </Form.Item>
                               </div>
-                              <div className="col-span-4" id={`probation-task-drawer-card-body-approver-wrapper-${fieldSlug}`} data-cy={`probation-task-drawer-card-body-approver-wrapper-${fieldSlug}`}>
+                              <div
+                                className="col-span-4"
+                                id={`probation-task-drawer-card-body-approver-wrapper-${fieldSlug}`}
+                                data-cy={`probation-task-drawer-card-body-approver-wrapper-${fieldSlug}`}
+                              >
                                 <Form.Item
                                   id={`probation-task-drawer-card-body-approver-form-item-${fieldSlug}`}
                                   label="Approver"
@@ -1063,7 +1174,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                                   />
                                 </Form.Item>
                               </div>
-                              <div className="col-span-3" id={`probation-task-drawer-card-body-weight-wrapper-${fieldSlug}`} data-cy={`probation-task-drawer-card-body-weight-wrapper-${fieldSlug}`}>
+                              <div
+                                className="col-span-3"
+                                id={`probation-task-drawer-card-body-weight-wrapper-${fieldSlug}`}
+                                data-cy={`probation-task-drawer-card-body-weight-wrapper-${fieldSlug}`}
+                              >
                                 <Form.Item
                                   label="Weight"
                                   name={[field.name, 'weight']}
@@ -1088,7 +1203,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                                   />
                                 </Form.Item>
                               </div>
-                              <div className="col-span-12" id={`probation-task-drawer-card-body-description-wrapper-${fieldSlug}`} data-cy={`probation-task-drawer-card-body-description-wrapper-${fieldSlug}`}>
+                              <div
+                                className="col-span-12"
+                                id={`probation-task-drawer-card-body-description-wrapper-${fieldSlug}`}
+                                data-cy={`probation-task-drawer-card-body-description-wrapper-${fieldSlug}`}
+                              >
                                 <Form.Item
                                   label="Description"
                                   name={[field.name, 'description']}
@@ -1141,8 +1260,16 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
       {/* Employment Type Update Modal */}
       <Modal
         title={
-          <div className="flex items-center" id="probation-employment-modal-title" data-cy="probation-employment-modal-title">
-            <CheckCircleOutlined className="text-green-500 mr-2" id="probation-employment-modal-title-icon" data-cy="probation-employment-modal-title-icon" />
+          <div
+            className="flex items-center"
+            id="probation-employment-modal-title"
+            data-cy="probation-employment-modal-title"
+          >
+            <CheckCircleOutlined
+              className="text-green-500 mr-2"
+              id="probation-employment-modal-title-icon"
+              data-cy="probation-employment-modal-title-icon"
+            />
             Update Employment Type
           </div>
         }
@@ -1152,8 +1279,16 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
         width={isMobile ? '95%' : 500}
         data-cy="probation-employment-modal"
       >
-        <div className="py-4" id="probation-employment-modal-body" data-cy="probation-employment-modal-body">
-          <p className="mb-4 text-gray-600" id="probation-employment-modal-text" data-cy="probation-employment-modal-text">
+        <div
+          className="py-4"
+          id="probation-employment-modal-body"
+          data-cy="probation-employment-modal-body"
+        >
+          <p
+            className="mb-4 text-gray-600"
+            id="probation-employment-modal-text"
+            data-cy="probation-employment-modal-text"
+          >
             Probation completed successfully! Please update the employment type
             for this employee.
           </p>
@@ -1187,11 +1322,24 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                 data-cy="probation-employment-type-select"
               />
             </Form.Item>
-            <div className="flex justify-end space-x-2 mt-6" id="probation-employment-modal-actions" data-cy="probation-employment-modal-actions">
-              <Button onClick={handleEmploymentModalCancel} id="probation-employment-cancel-btn" data-cy="probation-employment-cancel-btn">
+            <div
+              className="flex justify-end space-x-2 mt-6"
+              id="probation-employment-modal-actions"
+              data-cy="probation-employment-modal-actions"
+            >
+              <Button
+                onClick={handleEmploymentModalCancel}
+                id="probation-employment-cancel-btn"
+                data-cy="probation-employment-cancel-btn"
+              >
                 Cancel
               </Button>
-              <Button type="primary" htmlType="submit" id="probation-employment-submit-btn" data-cy="probation-employment-submit-btn">
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="probation-employment-submit-btn"
+                data-cy="probation-employment-submit-btn"
+              >
                 Update Employment Type
               </Button>
             </div>
@@ -1202,8 +1350,16 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
       {/* Edit Probation Target Modal */}
       <Modal
         title={
-          <div className="flex items-center" id="probation-edit-target-modal-title" data-cy="probation-edit-target-modal-title">
-            <EditOutlined className="text-blue-500 mr-2" id="probation-edit-target-modal-title-icon" data-cy="probation-edit-target-modal-title-icon" />
+          <div
+            className="flex items-center"
+            id="probation-edit-target-modal-title"
+            data-cy="probation-edit-target-modal-title"
+          >
+            <EditOutlined
+              className="text-blue-500 mr-2"
+              id="probation-edit-target-modal-title-icon"
+              data-cy="probation-edit-target-modal-title-icon"
+            />
             Edit Probation Target
           </div>
         }
@@ -1213,7 +1369,11 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
         width={isMobile ? '95%' : 400}
         data-cy="probation-edit-target-modal"
       >
-        <div className="py-4" id="probation-edit-target-modal-body" data-cy="probation-edit-target-modal-body">
+        <div
+          className="py-4"
+          id="probation-edit-target-modal-body"
+          data-cy="probation-edit-target-modal-body"
+        >
           <Form
             form={editForm}
             layout="vertical"
@@ -1235,8 +1395,16 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
             >
               <Input placeholder="Enter probation target name" />
             </Form.Item>
-            <div className="flex justify-end space-x-2 mt-6" id="probation-edit-target-actions" data-cy="probation-edit-target-actions">
-              <Button onClick={handleEditModalCancel} id="probation-edit-target-cancel-btn" data-cy="probation-edit-target-cancel-btn">
+            <div
+              className="flex justify-end space-x-2 mt-6"
+              id="probation-edit-target-actions"
+              data-cy="probation-edit-target-actions"
+            >
+              <Button
+                onClick={handleEditModalCancel}
+                id="probation-edit-target-cancel-btn"
+                data-cy="probation-edit-target-cancel-btn"
+              >
                 Cancel
               </Button>
               <Button
@@ -1270,23 +1438,46 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
         data-cy="probation-delete-target-modal"
       >
         {targetToDelete && (
-          <div id="probation-delete-target-modal-body" data-cy="probation-delete-target-modal-body">
-            <p id="probation-delete-target-modal-text" data-cy="probation-delete-target-modal-text">
+          <div
+            id="probation-delete-target-modal-body"
+            data-cy="probation-delete-target-modal-body"
+          >
+            <p
+              id="probation-delete-target-modal-text"
+              data-cy="probation-delete-target-modal-text"
+            >
               Are you sure you want to delete this probation target?
             </p>
-            <div className="mt-4 p-3 bg-gray-50 rounded" id="probation-delete-target-modal-details" data-cy="probation-delete-target-modal-details">
-              <p id="probation-delete-target-modal-name" data-cy="probation-delete-target-modal-name">
+            <div
+              className="mt-4 p-3 bg-gray-50 rounded"
+              id="probation-delete-target-modal-details"
+              data-cy="probation-delete-target-modal-details"
+            >
+              <p
+                id="probation-delete-target-modal-name"
+                data-cy="probation-delete-target-modal-name"
+              >
                 <strong>Target Name:</strong> {targetToDelete.name}
               </p>
-              <p id="probation-delete-target-modal-employee" data-cy="probation-delete-target-modal-employee">
+              <p
+                id="probation-delete-target-modal-employee"
+                data-cy="probation-delete-target-modal-employee"
+              >
                 <strong>Employee:</strong>{' '}
                 {`${targetToDelete.user.firstName} ${targetToDelete.user.lastName}`.trim()}
               </p>
-              <p id="probation-delete-target-modal-tasks" data-cy="probation-delete-target-modal-tasks">
+              <p
+                id="probation-delete-target-modal-tasks"
+                data-cy="probation-delete-target-modal-tasks"
+              >
                 <strong>Tasks:</strong> {targetToDelete.probationTasks.length}
               </p>
             </div>
-            <p className="mt-3 text-red-600 text-sm" id="probation-delete-target-modal-warning" data-cy="probation-delete-target-modal-warning">
+            <p
+              className="mt-3 text-red-600 text-sm"
+              id="probation-delete-target-modal-warning"
+              data-cy="probation-delete-target-modal-warning"
+            >
               This action cannot be undone and will delete all associated tasks.
             </p>
           </div>

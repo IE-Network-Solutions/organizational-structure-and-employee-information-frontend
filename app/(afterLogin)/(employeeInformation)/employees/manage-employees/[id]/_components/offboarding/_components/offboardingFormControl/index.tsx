@@ -90,13 +90,25 @@ const OffboardingFormControl: React.FC<any> = ({
             className="w-full"
             data-cy="offboarding-termination-type-select"
           >
-            <Option value="Resignation" id="offboarding-type-resignation" data-cy="offboarding-type-resignation">
+            <Option
+              value="Resignation"
+              id="offboarding-type-resignation"
+              data-cy="offboarding-type-resignation"
+            >
               Resignation
             </Option>
-            <Option value="Termination" id="offboarding-type-termination" data-cy="offboarding-type-termination">
+            <Option
+              value="Termination"
+              id="offboarding-type-termination"
+              data-cy="offboarding-type-termination"
+            >
               Termination
             </Option>
-            <Option value="Death" id="offboarding-type-death" data-cy="offboarding-type-death">
+            <Option
+              value="Death"
+              id="offboarding-type-death"
+              data-cy="offboarding-type-death"
+            >
               Death
             </Option>
           </Select>
@@ -132,10 +144,18 @@ const OffboardingFormControl: React.FC<any> = ({
             className="w-full"
             data-cy="offboarding-eligible-select"
           >
-            <Option value="yes" id="offboarding-eligible-yes" data-cy="offboarding-eligible-yes">
+            <Option
+              value="yes"
+              id="offboarding-eligible-yes"
+              data-cy="offboarding-eligible-yes"
+            >
               Yes
             </Option>
-            <Option value="no" id="offboarding-eligible-no" data-cy="offboarding-eligible-no">
+            <Option
+              value="no"
+              id="offboarding-eligible-no"
+              data-cy="offboarding-eligible-no"
+            >
               No
             </Option>
           </Select>
