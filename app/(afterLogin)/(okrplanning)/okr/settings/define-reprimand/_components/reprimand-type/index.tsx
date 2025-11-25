@@ -59,23 +59,35 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
   }, [repType, form]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {repType ? 'Edit Reprimand Type' : 'Add Reprimand Type'}
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      id="okr-reprimand-type-drawer-header"
+      data-cy="okr-reprimand-type-drawer-header"
+    >
+        {repType ? 'Edit Reprimand Type' : 'Add Reprimand Type'}
     </div>
   );
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      id="okr-reprimand-type-drawer-footer"
+      data-cy="okr-reprimand-type-drawer-footer"
+    >
       <CustomButton
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
+        id="okr-reprimand-type-drawer-cancel-button"
+        data-cy="okr-reprimand-type-drawer-cancel-button"
       />
       <CustomButton
         htmlType="submit"
         title={repType ? 'Update' : 'Add'}
         type="primary"
         onClick={() => form.submit()}
+        id="okr-reprimand-type-drawer-submit-button"
+        data-cy="okr-reprimand-type-drawer-submit-button"
       />
     </div>
   );
@@ -85,6 +97,8 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
+ 
+      data-cy="okr-reprimand-type-drawer"
     >
       <Form
         form={form}
@@ -92,6 +106,8 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
         layout="vertical"
         onFinish={onFinish}
         initialValues={repType || {}}
+        id="okr-reprimand-type-drawer-form"
+        data-cy="okr-reprimand-type-drawer-form"
       >
         <Form.Item
           label="Reprimand Type"
@@ -99,16 +115,28 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
           rules={[
             { required: true, message: 'Please enter appreciation type' },
           ]}
+          id="okr-reprimand-type-drawer-name-field"
+          data-cy="okr-reprimand-type-drawer-name-field"
         >
-          <Input placeholder="Enter appreciation type" />
+          <Input
+            placeholder="Enter appreciation type"
+            id="okr-reprimand-type-drawer-name-input"
+            data-cy="okr-reprimand-type-drawer-name-input"
+          />
         </Form.Item>
 
         <Form.Item
           label="Description"
           name="description"
           rules={[{ required: true, message: 'Please enter a description' }]}
+          id="okr-reprimand-type-drawer-description-field"
+          data-cy="okr-reprimand-type-drawer-description-field"
         >
-          <Input.TextArea placeholder="Description of the reprimand" />
+          <Input.TextArea
+            placeholder="Description of the reprimand"
+            id="okr-reprimand-type-drawer-description-input"
+            data-cy="okr-reprimand-type-drawer-description-input"
+          />
         </Form.Item>
 
         <Form.Item
@@ -118,17 +146,32 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
           rules={[
             { required: true, message: 'Please enter appreciation weight' },
           ]}
+          id="okr-reprimand-type-drawer-weight-field"
+          data-cy="okr-reprimand-type-drawer-weight-field"
         >
           <InputNumber
             className="w-full"
             min={1}
             max={10}
             placeholder="Please enter appreciation weight"
+            id="okr-reprimand-type-drawer-weight-input"
+            data-cy="okr-reprimand-type-drawer-weight-input"
           />
         </Form.Item>
-        <div className="flex gap-3 items-center">
-          <MdInfo />
-          <span className="font-normal text-md">
+        <div
+          className="flex gap-3 items-center"
+          id="okr-reprimand-type-drawer-info"
+          data-cy="okr-reprimand-type-drawer-info"
+        >
+          <MdInfo
+            id="okr-reprimand-type-drawer-info-icon"
+            data-cy="okr-reprimand-type-drawer-info-icon"
+          />
+          <span
+            className="font-normal text-md"
+            id="okr-reprimand-type-drawer-info-text"
+            data-cy="okr-reprimand-type-drawer-info-text"
+          >
             The weight is from 1- 10 Scale
           </span>
         </div>

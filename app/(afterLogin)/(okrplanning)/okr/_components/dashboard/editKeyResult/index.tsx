@@ -99,6 +99,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
   const modalHeader = (
     <div
       id="edit-key-result-modal-header"
+      data-cy="okr-edit-key-result-modal-header"
       className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
     >
       Edit Key Result
@@ -108,10 +109,12 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
   const footer = (
     <div
       id="edit-key-result-modal-footer"
+      data-cy="okr-edit-key-result-modal-footer"
       className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
     >
       <CustomButton
         id="edit-key-result-cancel-button"
+        data-cy="okr-edit-key-result-cancel-button"
         type="default"
         title="Cancel"
         onClick={handleModalClose}
@@ -119,6 +122,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
       />
       <CustomButton
         id="edit-key-result-save-button"
+        data-cy="okr-edit-key-result-save-button"
         title={'Save'}
         type="primary"
         onClick={onSubmit}
@@ -130,6 +134,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   return (
     <Modal
+      data-cy="okr-edit-key-result-modal"
       open={props.open}
       onCancel={handleModalClose}
       footer={footer}
@@ -144,18 +149,31 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     >
       <Form
         id="edit-key-result-form"
+          data-cy="okr-edit-key-result-form"
         form={form}
         layout="vertical"
         className="w-full"
       >
-        <div id="edit-key-result-section-header" className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        <div
+          id="edit-key-result-section-header"
+          data-cy="okr-edit-key-result-section-header"
+          className="mb-6"
+        >
+          <h2
+            id="edit-key-result-section-title"
+            data-cy="okr-edit-key-result-section-title"
+            className="text-xl font-semibold text-gray-800 mb-4"
+          >
             Key Result
           </h2>
         </div>
 
-        <div id="edit-key-result-view-container">
+        <div
+          id="edit-key-result-view-container"
+          data-cy="okr-edit-key-result-view-container"
+        >
           <KeyResultView
+            data-cy="okr-edit-key-result-view"
             key={`${props?.keyResult?.metricTypeId || 'default'}-${props?.keyResult?.id || 'new'}`}
             keyValue={props?.keyResult}
             objective={objectiveValue}
@@ -169,9 +187,14 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
         {keyResultValue && (
           <div
             id="edit-key-result-total-weight"
+            data-cy="okr-edit-key-result-total-weight"
             className="flex justify-end mt-4 mb-4"
           >
-            <span className="text-sm text-gray-500">
+            <span
+              id="okr-edit-key-result-total-weight-text"
+              data-cy="okr-edit-key-result-total-weight-text"
+              className="text-sm text-gray-500"
+            >
               Total Key Results Weight:{' '}
               <strong>{keyResultValue.weight || 0} %</strong>
             </span>
