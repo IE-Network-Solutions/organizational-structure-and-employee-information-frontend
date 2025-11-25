@@ -10,7 +10,6 @@ import {
   notification,
   Button,
 } from 'antd';
-import type { UploadProps } from 'antd';
 import { countries } from '@/utils/countries';
 import { useEffect, useState } from 'react';
 import { useGetClientById } from '@/store/server/features/tenant-management/clients/queries';
@@ -18,6 +17,8 @@ import { useUpdateClient } from '@/store/server/features/tenant-management/clien
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { Tenant } from '@/types/tenant-management';
 import type { UpdateClientDto } from '@/store/server/features/tenant-management/clients/mutation';
+import { useUpdateCompanyProfileWithStamp } from '@/store/server/features/organizationStructure/companyProfile/mutation';
+import type { UploadFile } from 'antd/es/upload/interface';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -42,6 +43,7 @@ const AdminProfile = () => {
     data: client,
     isLoading: isClientLoading,
     error,
+    refetch: refetchClient,
   } = useGetClientById(DEFAULT_TENANT_ID);
 
   // Checking the existence of images
@@ -81,29 +83,48 @@ const AdminProfile = () => {
     }
   }, [client, error]);
 
-  const uploadProps: UploadProps = {
-    name: 'file',
-    multiple: false,
-    action: '/api/upload',
-    onChange(info) {
-      const { status } = info.file;
-      if (status !== 'uploading') {
-      }
-      if (status === 'done') {
-      } else if (status === 'error') {
-      }
-    },
-    onDrop() {},
+  const customRequest = ({ file, onSuccess }: any) => {
+    setTimeout(() => {
+      onSuccess('ok', file);
+    }, 0);
   };
 
   // Component with profile form
-  const ProfileForm = () => {
+  const ProfileForm = ({
+    onUpdateSuccess,
+  }: {
+    onUpdateSuccess: () => void;
+  }) => {
     // Form initialization here is only when the component is actually rendered
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
+    const [logoFileList, setLogoFileList] = useState<UploadFile[]>([]);
+    const [stampFileList, setStampFileList] = useState<UploadFile[]>([]);
+    const [logoPreview, setLogoPreview] = useState<string | undefined>(
+      undefined,
+    );
+    const [stampPreview, setStampPreview] = useState<string | undefined>(
+      undefined,
+    );
 
     // Hook to update client data
     const updateClientMutation = useUpdateClient();
+    const updateCompanyProfileMutation = useUpdateCompanyProfileWithStamp();
+
+    // Reset file lists when clientData changes (e.g., after page reload)
+    useEffect(() => {
+      setLogoFileList([]);
+      setStampFileList([]);
+      if (logoPreview) {
+        URL.revokeObjectURL(logoPreview);
+        setLogoPreview(undefined);
+      }
+      if (stampPreview) {
+        URL.revokeObjectURL(stampPreview);
+        setStampPreview(undefined);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [clientData?.id]);
 
     // Filling the form with data when mounting the component
     useEffect(() => {
@@ -120,6 +141,7 @@ const AdminProfile = () => {
           billingEmail: clientData.billingEmail,
         });
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [form, clientData]);
 
     const handleFormSubmit = async (values: any) => {
@@ -147,15 +169,44 @@ const AdminProfile = () => {
           billingEmail: values.billingEmail,
         };
 
-        await updateClientMutation.mutateAsync({
-          id: clientData.id,
-          data: updateData,
-        });
+        const logoFile = logoFileList.length > 0 ? logoFileList[0] : null;
+        const stampFile = stampFileList.length > 0 ? stampFileList[0] : null;
+        const hasLogo = logoFile?.originFileObj instanceof File;
+        const hasStamp = stampFile?.originFileObj instanceof File;
+
+        if (hasLogo || hasStamp) {
+          await updateCompanyProfileMutation.mutateAsync({
+            id: clientData.id,
+            updateClientDto: updateData,
+            companyProfileImage: hasLogo ? logoFile : undefined,
+            companyStamp: hasStamp ? stampFile : undefined,
+          });
+        } else {
+          await updateClientMutation.mutateAsync({
+            id: clientData.id,
+            data: updateData,
+          });
+        }
+
+        // Clear file lists and previews after successful submission
+        setLogoFileList([]);
+        setStampFileList([]);
+        if (logoPreview) {
+          URL.revokeObjectURL(logoPreview);
+          setLogoPreview(undefined);
+        }
+        if (stampPreview) {
+          URL.revokeObjectURL(stampPreview);
+          setStampPreview(undefined);
+        }
 
         notification.success({
           message: 'Success',
           description: 'Profile information updated successfully',
         });
+
+        // Refetch client data to get updated images
+        onUpdateSuccess();
       } catch (error) {
         notification.error({
           message: 'Error',
@@ -168,6 +219,97 @@ const AdminProfile = () => {
         setSubmitting(false);
       }
     };
+
+    const handleLogoChange = (info: any) => {
+      const { fileList, file } = info;
+
+      // Handle file removal
+      if (fileList.length === 0) {
+        setLogoFileList([]);
+        if (logoPreview) {
+          URL.revokeObjectURL(logoPreview);
+          setLogoPreview(undefined);
+        }
+        return;
+      }
+
+      // Get the latest file from the list
+      const latestFileItem = fileList[fileList.length - 1];
+
+      // Ensure originFileObj is set - prioritize info.file as it's the actual File object
+      const actualFileObj =
+        latestFileItem.originFileObj || file || (latestFileItem as any);
+      const fileWithOrigin: UploadFile = {
+        ...latestFileItem,
+        originFileObj: actualFileObj,
+      };
+
+      // Only keep the latest file (maxCount is 1)
+      setLogoFileList([fileWithOrigin]);
+
+      // Handle preview
+      if (actualFileObj) {
+        const fileObj = actualFileObj as any;
+        if (fileObj instanceof File || fileObj instanceof Blob) {
+          if (logoPreview) {
+            URL.revokeObjectURL(logoPreview);
+          }
+          const previewUrl = URL.createObjectURL(fileObj);
+          setLogoPreview(previewUrl);
+        }
+      }
+    };
+
+    const handleStampChange = (info: any) => {
+      const { fileList, file } = info;
+
+      // Handle file removal
+      if (fileList.length === 0) {
+        setStampFileList([]);
+        if (stampPreview) {
+          URL.revokeObjectURL(stampPreview);
+          setStampPreview(undefined);
+        }
+        return;
+      }
+
+      // Get the latest file from the list
+      const latestFileItem = fileList[fileList.length - 1];
+
+      // Ensure originFileObj is set - prioritize info.file as it's the actual File object
+      const actualFileObj =
+        latestFileItem.originFileObj || file || (latestFileItem as any);
+      const fileWithOrigin: UploadFile = {
+        ...latestFileItem,
+        originFileObj: actualFileObj,
+      };
+
+      // Only keep the latest file (maxCount is 1)
+      setStampFileList([fileWithOrigin]);
+
+      // Handle preview
+      if (actualFileObj) {
+        const fileObj = actualFileObj as any;
+        if (fileObj instanceof File || fileObj instanceof Blob) {
+          if (stampPreview) {
+            URL.revokeObjectURL(stampPreview);
+          }
+          const previewUrl = URL.createObjectURL(fileObj);
+          setStampPreview(previewUrl);
+        }
+      }
+    };
+
+    useEffect(() => {
+      return () => {
+        if (logoPreview) {
+          URL.revokeObjectURL(logoPreview);
+        }
+        if (stampPreview) {
+          URL.revokeObjectURL(stampPreview);
+        }
+      };
+    }, [logoPreview, stampPreview]);
 
     return (
       <Form
@@ -185,9 +327,26 @@ const AdminProfile = () => {
           </span>
         </div>
 
-        <Dragger {...uploadProps} className="!h-[200px]">
+        <Dragger
+          name="logo"
+          multiple={false}
+          customRequest={customRequest}
+          beforeUpload={() => false}
+          onChange={handleLogoChange}
+          fileList={logoFileList}
+          accept="image/*"
+          className="!h-[200px]"
+        >
           <div className="flex flex-col items-center justify-center gap-2">
-            {clientData?.logo && logoExists ? (
+            {logoPreview ? (
+              <Image
+                src={logoPreview}
+                alt="Company Logo"
+                width={100}
+                height={100}
+                className="mb-4 rounded-full object-cover"
+              />
+            ) : clientData?.logo && logoExists ? (
               <Image
                 src={clientData.logo}
                 alt="Company Logo"
@@ -298,9 +457,26 @@ const AdminProfile = () => {
           </span>
         </div>
 
-        <Dragger {...uploadProps} className="!h-[200px]">
+        <Dragger
+          name="stamp"
+          multiple={false}
+          customRequest={customRequest}
+          beforeUpload={() => false}
+          onChange={handleStampChange}
+          fileList={stampFileList}
+          accept="image/*"
+          className="!h-[200px]"
+        >
           <div className="flex flex-col items-center justify-center gap-2">
-            {clientData?.stamp && stampExists ? (
+            {stampPreview ? (
+              <Image
+                src={stampPreview}
+                alt="Company Stamp"
+                width={100}
+                height={100}
+                className="mb-4 rounded-full object-cover"
+              />
+            ) : clientData?.stamp && stampExists ? (
               <Image
                 src={clientData.stamp}
                 alt="Company Stamp"
@@ -326,7 +502,11 @@ const AdminProfile = () => {
         <h2 className="text-2xl font-bold mt-6 mb-6">Contact information</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6">
-          <Form.Item name="contactPersonName" label="Contact Person Name">
+          <Form.Item
+            name="contactPersonName"
+            label="Contact Person Name"
+            rules={[{ required: true, message: 'Please enter person name' }]}
+          >
             <Input placeholder="Enter contact person name" />
           </Form.Item>
 
@@ -384,7 +564,7 @@ const AdminProfile = () => {
           </div>
         ) : (
           <>
-            <ProfileForm />
+            <ProfileForm onUpdateSuccess={() => refetchClient()} />
           </>
         )}
       </div>
