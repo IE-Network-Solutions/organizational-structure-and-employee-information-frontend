@@ -59,6 +59,7 @@ const ApprovalListTable = () => {
       pageSize,
       userCurrentPage,
       searchParams?.entityType ? searchParams.entityType : '',
+      searchParams?.entityId ? searchParams.entityId : '',
       searchParams?.name || '',
       APPROVALTYPES.LEAVE,
     );
