@@ -29,6 +29,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
+import Link from 'next/link';
 
 const { Dragger } = Upload;
 
