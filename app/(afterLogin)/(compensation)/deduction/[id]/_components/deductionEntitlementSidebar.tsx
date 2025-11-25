@@ -166,7 +166,6 @@ const AllowanceEntitlementSideBar = () => {
     <>
       {isAllowanceEntitlementSidebarOpen && (
           <CustomDrawerLayout
-            data-cy="compensation-deduction-sidebar-layout"
             open={isAllowanceEntitlementSidebarOpen}
             onClose={onClose}
             modalHeader={
