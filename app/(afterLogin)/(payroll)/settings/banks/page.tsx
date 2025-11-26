@@ -74,9 +74,15 @@ const Banks = () => {
       title: 'Action',
       key: 'action',
       render: (text: any, record: any) => (
-        <Space size="middle">
-          <Tooltip title="Edit">
+        <Space
+          id={`payroll-bank-row-actions-view-space-${record.key}`}
+          data-cy={`payroll-bank-row-actions-view-space-${record.key}`}
+          size="middle"
+        >
+          <Tooltip data-cy={`payroll-bank-edit-click-button-tooltip-${record.key}`} title="Edit">
             <Button
+              id={`payroll-bank-edit-click-button-${record.key}`}
+              data-cy={`payroll-bank-edit-click-button-${record.key}`}
               type="primary"
               shape="circle"
               icon={<EditOutlined />}
@@ -84,6 +90,8 @@ const Banks = () => {
             />
           </Tooltip>
           <Popconfirm
+            id={`payroll-bank-delete-popconfirm-view-component-${record.key}`}
+            data-cy={`payroll-bank-delete-popconfirm-view-component-${record.key}`}
             title="Are you sure to delete this bank?"
             onConfirm={() => handleDelete(record.key)}
             okText="Yes"
@@ -91,8 +99,10 @@ const Banks = () => {
           >
             <Tooltip title="Delete">
               <Button
+                id={`payroll-bank-delete-click-button-${record.key}`}
+                data-cy={`payroll-bank-delete-click-button-${record.key}`}
                 className="bg-red-600 text-white border-none"
-                icon={<DeleteOutlined />}
+                icon={<DeleteOutlined data-cy={`payroll-bank-delete-click-button-${record.key}`} />}
               />
             </Tooltip>
           </Popconfirm>
@@ -113,12 +123,28 @@ const Banks = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center">
-        <Title level={3}>Banks</Title>
+    <div
+      id="payroll-banks-page-view-container"
+      data-cy="payroll-banks-page-view-container"
+      className="p-6"
+    >
+      <div
+        id="payroll-banks-header-view-container"
+        data-cy="payroll-banks-header-view-container"
+        className="flex justify-between items-center"
+      >
+        <Title
+          id="payroll-banks-title-view-text"
+          data-cy="payroll-banks-title-view-text"
+          level={3}
+        >
+          Banks
+        </Title>
         <Button
+          id="payroll-banks-add-click-button"
+          data-cy="payroll-banks-add-click-button"
           type="primary"
-          icon={<PlusOutlined />}
+          icon={<PlusOutlined data-cy="payroll-banks-add-click-button-icon" />}
           onClick={handleAddBank}
           style={{ marginBottom: '16px' }}
         >
@@ -126,8 +152,15 @@ const Banks = () => {
         </Button>
       </div>
 
-      <Table dataSource={data} columns={columns} pagination={false} bordered />
-      <Drawer />
+      <Table
+        id="payroll-banks-table-view-table"
+        data-cy="payroll-banks-table-view-table"
+        dataSource={data}
+        columns={columns}
+        pagination={false}
+        bordered
+      />
+        <Drawer data-cy="payroll-banks-drawer-view-component" />
     </div>
   );
 };
