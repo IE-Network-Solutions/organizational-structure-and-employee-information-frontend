@@ -13,6 +13,12 @@ interface CustomModalProps {
   route: string;
 }
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const CustomModal: React.FC<CustomModalProps> = ({
   visible,
   onClose,
@@ -42,22 +48,50 @@ const CustomModal: React.FC<CustomModalProps> = ({
       return () => clearInterval(timer);
     }
   }, [visible, router, route]);
+  const modalSlug = toSlug(text || route || 'success-modal');
   return (
-    <Modal open={visible} footer={null} onCancel={onClose} centered>
-      <div style={{ textAlign: 'center' }} className="grid ">
-        <div className="flex justify-center  items-center">
+    <Modal
+      open={visible}
+      footer={null}
+      onCancel={onClose}
+      centered
+      data-cy={`success-modal-${modalSlug}`}
+    >
+      <div
+        style={{ textAlign: 'center' }}
+        className="grid "
+        id={`success-modal-content-${modalSlug}`}
+        data-cy={`success-modal-content-${modalSlug}`}
+      >
+        <div
+          className="flex justify-center  items-center"
+          id={`success-modal-image-wrapper-${modalSlug}`}
+          data-cy={`success-modal-image-wrapper-${modalSlug}`}
+        >
           <Image
             className=""
             src="/icons/success.svg"
             alt="Success"
             width={200}
             height={200}
+            id={`success-modal-image-${modalSlug}`}
+            data-cy={`success-modal-image-${modalSlug}`}
           />
         </div>
 
-        <Text className="mt-4 font-bold text-2xl">{text}</Text>
+        <Text
+          className="mt-4 font-bold text-2xl"
+          id={`success-modal-text-${modalSlug}`}
+          data-cy={`success-modal-text-${modalSlug}`}
+        >
+          {text}
+        </Text>
       </div>
-      <div style={{ width: '100%', marginTop: 20 }}>
+      <div
+        style={{ width: '100%', marginTop: 20 }}
+        id={`success-modal-progress-wrapper-${modalSlug}`}
+        data-cy={`success-modal-progress-wrapper-${modalSlug}`}
+      >
         <div
           style={{
             width: '100%',
@@ -65,6 +99,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
             backgroundColor: '#e0e0e0',
             borderRadius: 5,
           }}
+          id={`success-modal-progress-track-${modalSlug}`}
+          data-cy={`success-modal-progress-track-${modalSlug}`}
         >
           <div
             style={{
@@ -74,6 +110,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
               borderRadius: 5,
               transition: 'width 0.03s',
             }}
+            id={`success-modal-progress-bar-${modalSlug}`}
+            data-cy={`success-modal-progress-bar-${modalSlug}`}
           />
         </div>
       </div>

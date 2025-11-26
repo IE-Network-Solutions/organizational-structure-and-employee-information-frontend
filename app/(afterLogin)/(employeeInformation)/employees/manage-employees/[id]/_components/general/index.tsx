@@ -86,26 +86,34 @@ function General({ id }: { id: string }) {
 
   return (
     <>
-      <PersonalDataComponent id={id} handleSaveChanges={handleSaveChanges} />
+      <PersonalDataComponent
+        id={id}
+        handleSaveChanges={handleSaveChanges}
+        data-cy="general-personal-data-component"
+      />
       <EmergencyContact
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-emergency-contact-component"
       />
       <AddressComponent
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-address-component"
       />
       <BankInformationComponent
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-bank-information-component"
       />
       <AdditionalInformation
         mergedFields={mergedFields}
         id={id}
         handleSaveChanges={handleSaveChanges}
+        data-cy="general-additional-information-component"
       />
     </>
   );
