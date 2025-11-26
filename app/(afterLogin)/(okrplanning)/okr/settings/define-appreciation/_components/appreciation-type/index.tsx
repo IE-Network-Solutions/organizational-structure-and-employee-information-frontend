@@ -62,24 +62,37 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
   }, [appType, form]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {appType ? 'Edit Appreciation Type' : 'Add Appreciation Type'}
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      id="okr-appreciation-type-drawer-header"
+      data-cy="okr-appreciation-type-drawer-header"
+    >
+ 
+        {appType ? 'Edit Appreciation Type' : 'Add Appreciation Type'}
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      id="okr-appreciation-type-drawer-footer"
+      data-cy="okr-appreciation-type-drawer-footer"
+    >
       <CustomButton
         type="default"
         title="Cancel"
         onClick={handleDrawerClose}
         style={{ marginRight: 8 }}
+        id="okr-appreciation-type-drawer-cancel-button"
+        data-cy="okr-appreciation-type-drawer-cancel-button"
       />
       <CustomButton
         htmlType="submit"
         title={appType ? 'Update' : 'Add'}
         type="primary"
         onClick={() => form.submit()}
+        id="okr-appreciation-type-drawer-submit-button"
+        data-cy="okr-appreciation-type-drawer-submit-button"
       />
     </div>
   );
@@ -90,6 +103,8 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
+
+      data-cy="okr-appreciation-type-drawer"
     >
       <Form
         form={form}
@@ -97,6 +112,8 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
         layout="vertical"
         onFinish={onFinish}
         initialValues={appType || {}}
+        id="okr-appreciation-type-drawer-form"
+        data-cy="okr-appreciation-type-drawer-form"
       >
         <Form.Item
           label="Appreciation Type"
@@ -104,16 +121,28 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
           rules={[
             { required: true, message: 'Please enter appreciation type' },
           ]}
+          id="okr-appreciation-type-drawer-name-field"
+          data-cy="okr-appreciation-type-drawer-name-field"
         >
-          <Input placeholder="Enter appreciation type" />
+          <Input
+            placeholder="Enter appreciation type"
+            id="okr-appreciation-type-drawer-name-input"
+            data-cy="okr-appreciation-type-drawer-name-input"
+          />
         </Form.Item>
 
         <Form.Item
           label="Description"
           name="description"
           rules={[{ required: true, message: 'Please enter a description' }]}
+          id="okr-appreciation-type-drawer-description-field"
+          data-cy="okr-appreciation-type-drawer-description-field"
         >
-          <Input.TextArea placeholder="Description of the reprimand" />
+          <Input.TextArea
+            placeholder="Description of the reprimand"
+            id="okr-appreciation-type-drawer-description-input"
+            data-cy="okr-appreciation-type-drawer-description-input"
+          />
         </Form.Item>
 
         <Form.Item
@@ -123,6 +152,8 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
           rules={[
             { required: true, message: 'Please enter appreciation weight' },
           ]}
+          id="okr-appreciation-type-drawer-weight-field"
+          data-cy="okr-appreciation-type-drawer-weight-field"
         >
           <InputNumber
             type="number"
@@ -130,12 +161,25 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
             min={1}
             max={10}
             placeholder="Please enter appreciation weight"
+            id="okr-appreciation-type-drawer-weight-input"
+            data-cy="okr-appreciation-type-drawer-weight-input"
           />
         </Form.Item>
 
-        <div className="flex gap-3 items-center">
-          <MdInfo />
-          <span className="font-normal text-md">
+        <div
+          className="flex gap-3 items-center"
+          id="okr-appreciation-type-drawer-info"
+          data-cy="okr-appreciation-type-drawer-info"
+        >
+          <MdInfo
+            id="okr-appreciation-type-drawer-info-icon"
+            data-cy="okr-appreciation-type-drawer-info-icon"
+          />
+          <span
+            className="font-normal text-md"
+            id="okr-appreciation-type-drawer-info-text"
+            data-cy="okr-appreciation-type-drawer-info-text"
+          >
             The weight is from 1-10 Scale
           </span>
         </div>

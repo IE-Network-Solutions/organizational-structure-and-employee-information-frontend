@@ -113,21 +113,33 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   return (
     <div
       id={`objective-card-${objective?.id}`}
+      data-cy={`okr-objective-card-${objective?.id}`}
       className={`${isMobile ? 'p-0 grid gap-0' : 'p-2 grid gap-0'}`}
     >
-      <div className="flex justify-center">
+      <div
+        data-cy={`okr-objective-card-wrapper-${objective?.id}`}
+        className="flex justify-center"
+      >
         <Card
           id={`objective-card-container-${objective?.id}`}
+          data-cy={`okr-objective-card-container-${objective?.id}`}
           className={`bg-white shadow-sm rounded-lg w-full mb-3 ${isMobile ? 'p-0' : 'p-6'}`}
         >
-          <div className="flex flex-col gap-4">
+          <div
+            id={`okr-objective-card-content-${objective?.id}`}
+            data-cy={`okr-objective-card-content-${objective?.id}`}
+            className="flex flex-col gap-4"
+          >
             {/* Title Section */}
             <div
+              id={`okr-objective-card-title-section-${objective?.id}`}
+              data-cy={`okr-objective-card-title-section-${objective?.id}`}
               className={`flex justify-between items-start ${isMobile ? 'mb-1' : 'mb-4'}`}
             >
               <div className="flex flex-col">
                 <h2
                   id={`objective-title-${objective?.id}`}
+                  data-cy={`okr-objective-title-${objective?.id}`}
                   className={`font-bold text-black ${isMobile ? 'text-xs' : 'text-sm'}`}
                 >
                   {objective?.title}
@@ -135,12 +147,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
               </div>
               {objective?.isClosed === false && menu ? (
                 <Dropdown
+                  data-cy={`okr-objective-actions-dropdown-${objective?.id}`}
                   overlay={menu}
                   trigger={['click']}
                   placement="bottomRight"
                 >
                   <MoreOutlined
                     id={`objective-menu-button-${objective?.id}`}
+                    data-cy={`okr-objective-menu-button-${objective?.id}`}
                     className="text-gray-500 text-lg cursor-pointer"
                   />
                 </Dropdown>
@@ -148,17 +162,30 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
             </div>
 
             <div
+              id={`okr-objective-body-${objective?.id}`}
+              data-cy={`okr-objective-body-${objective?.id}`}
               className={`flex ${isMobile ? 'flex-col gap-4' : isTablet ? 'flex-col sm:flex-row gap-6' : 'flex-col sm:flex-row'} justify-between items-${isMobile ? 'start' : 'center'}`}
             >
               {/* Progress and Metrics Section */}
               <div
+                id={`okr-objective-progress-wrapper-${objective?.id}`}
+                data-cy={`okr-objective-progress-wrapper-${objective?.id}`}
                 className={`${isMobile ? 'flex justify-between items-center gap-2 w-full' : 'flex items-center gap-2 w-full sm:gap-8'}`}
               >
                 {/* Objective Progress */}
-                <div className={`${isMobile ? 'w-full' : 'grid items-center'}`}>
-                  <div className="text-xs text-gray-600">
+                <div
+                  id={`okr-objective-progress-block-${objective?.id}`}
+                  data-cy={`okr-objective-progress-block-${objective?.id}`}
+                  className={`${isMobile ? 'w-full' : 'grid items-center'}`}
+                >
+                  <div
+                    id={`okr-objective-progress-label-${objective?.id}`}
+                    data-cy={`okr-objective-progress-label-${objective?.id}`}
+                    className="text-xs text-gray-600"
+                  >
                     <span
                       id={`objective-progress-text-${objective?.id}`}
+                      data-cy={`okr-objective-progress-text-${objective?.id}`}
                       className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue`}
                     >
                       {Number(objective?.objectiveProgress)?.toLocaleString()}%
@@ -166,6 +193,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     Objective Progress
                   </div>
                   <Progress
+                    data-cy={`okr-objective-progress-bar-${objective?.id}`}
                     percent={objective?.objectiveProgress}
                     showInfo={false}
                     strokeColor="#3636f0"
@@ -174,6 +202,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   />
                   <div
                     id={`objective-key-results-count-${objective?.id}`}
+                    data-cy={`okr-objective-key-results-count-${objective?.id}`}
                     className="text-xs text-gray-600"
                   >
                     {completedKeyResults}/{totalKeyResults} Key Result Done
@@ -182,33 +211,52 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
 
                 {/* Key Result Section */}
                 <div
+                  id={`okr-objective-days-left-section-${objective?.id}`}
+                  data-cy={`okr-objective-days-left-section-${objective?.id}`}
                   className={`${isMobile ? 'gap-2 items-center justify-between w-full' : 'grid items-center gap-0'}`}
                 >
-                  <div className="flex items-center">
-                    <PiCalendarBold className="text-blue mt-1" />
+                  <div
+                    id={`okr-objective-days-left-wrapper-${objective?.id}`}
+                    data-cy={`okr-objective-days-left-wrapper-${objective?.id}`}
+                    className="flex items-center"
+                  >
+                    <PiCalendarBold
+                      data-cy={`okr-objective-days-left-icon-${objective?.id}`}
+                      className="text-blue mt-1"
+                    />
                     <div
                       id={`objective-days-left-${objective?.id}`}
+                      data-cy={`okr-objective-days-left-${objective?.id}`}
                       className={`font-bold text-[#3636f0] ${isMobile ? 'text-lg ml-2' : 'text-2xl'}`}
                     >
                       {objective?.daysLeft}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-600 ">Days left</div>
+                  <div
+                    id={`okr-objective-days-left-label-${objective?.id}`}
+                    data-cy={`okr-objective-days-left-label-${objective?.id}`}
+                    className="text-xs text-gray-600 "
+                  >
+                    Days left
+                  </div>
                 </div>
               </div>
 
               {!myOkr && (
                 <div
                   id={`objective-user-info-${objective?.id}`}
+                  data-cy={`okr-objective-user-info-${objective?.id}`}
                   className={`flex items-center gap-1 ${isMobile ? 'mt-2' : 'mt-4 sm:mt-0'}`}
                 >
                   <div className="flex flex-col gap-0">
                     <span
                       id={`objective-user-name-${objective?.id}`}
+                      data-cy={`okr-objective-user-name-${objective?.id}`}
                       className="text-xs text-normal"
                     >{`${objective?.user?.firstName} ${objective?.user?.middleName}  ${objective?.user?.lastName} `}</span>
                     <span
                       id={`objective-user-email-${objective?.id}`}
+                      data-cy={`okr-objective-user-email-${objective?.id}`}
                       className="text-xs text-normal"
                     >
                       {objective?.user?.email}
@@ -216,11 +264,15 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   </div>
                   {objective?.user?.profileImage ? (
                     <Avatar
+                      data-cy={`okr-objective-user-avatar-${objective?.id}`}
                       size={isMobile ? 32 : 40}
                       src={objective?.user?.profileImage}
                     />
                   ) : (
-                    <Avatar size={isMobile ? 32 : 40}>
+                    <Avatar
+                      data-cy={`okr-objective-user-avatar-fallback-${objective?.id}`}
+                      size={isMobile ? 32 : 40}
+                    >
                       {objective?.user?.firstName[0]?.toUpperCase()}{' '}
                       {objective?.user?.middleName[0]?.toUpperCase()}
                       {objective?.user?.lastName[0]?.toUpperCase()}
@@ -234,6 +286,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       </div>
       {objective.keyResults?.map((keyResult: any) => (
         <KeyResultMetrics
+          data-cy={`okr-objective-card-key-result-metrics-${keyResult?.id}`}
           myOkr={myOkr}
           keyResult={keyResult}
           key={keyResult.id}
@@ -244,12 +297,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         />
       ))}
       <EditObjective
+        data-cy={`okr-objective-card-edit-objective-${objective?.id}`}
         objective={objectiveValue}
         open={open}
         onClose={onClose}
         isClosed={objective?.isClosed}
       />
       <DeleteModal
+        data-cy={`okr-objective-card-delete-modal-${objective?.id}`}
         open={openDeleteModal}
         onConfirm={() => handleDeleteObjective(objectiveValue.id as string)}
         onCancel={onCloseDeleteModal}
