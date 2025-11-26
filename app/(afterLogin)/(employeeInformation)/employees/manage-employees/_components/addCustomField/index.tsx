@@ -39,9 +39,7 @@ const AddCustomField: React.FC<any> = ({
   >('input');
   const [isActive, setIsActive] = useState(true);
   const [options, setOptions] = useState<string[]>([]);
-  /*  eslint-disable-next-line @typescript-eslint/naming-convention */
   const [popoverOpen, setPopoverOpen] = useState(false);
-  /*  eslint-enable-next-line @typescript-eslint/naming-convention */
 
   const resetForm = () => {
     form.resetFields();
@@ -61,9 +59,7 @@ const AddCustomField: React.FC<any> = ({
         await createCustomForm.mutateAsync(newFormDataValue);
         resetForm();
         setPopoverOpen(false);
-      } catch (error) {
-        // Error handling is done by the mutation hook
-      }
+      } catch (error) {}
     } else {
       const fieldExists = formData?.form?.some(
         (field: any) => field.fieldName === newField.fieldName,
@@ -77,9 +73,7 @@ const AddCustomField: React.FC<any> = ({
           await createCustomForm.mutateAsync(newFormData);
           resetForm();
           setPopoverOpen(false);
-        } catch (error) {
-          // Error handling is done by the mutation hook
-        }
+        } catch (error) {}
       } else {
         message.error(`The field ${newField.fieldName} already exists!`);
       }
@@ -277,6 +271,8 @@ const AddCustomField: React.FC<any> = ({
               content={popoverContent}
               title={formTitle}
               trigger="click"
+              open={popoverOpen}
+              onOpenChange={setPopoverOpen}
               id={`add-custom-field-popover-wrapper-${formTitle}`}
               data-cy={`add-custom-field-popover-wrapper-${formTitle}`}
             >
