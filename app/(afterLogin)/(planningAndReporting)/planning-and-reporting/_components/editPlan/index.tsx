@@ -96,7 +96,24 @@ function EditPlan() {
   const handleAddBoard = (kId: string) => {
     const boardsKey = `board-${kId}`;
     const board = form.getFieldValue(boardsKey) || [];
-    form.setFieldsValue({ [boardsKey]: [...board, {}] });
+
+    // Get the latest mkAsATask from store to avoid stale closure issues
+    const currentMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
+    
+    // Check if we're planning a milestone/key result as a task
+    const taskTitle = currentMkAsATask?.title || '';
+    const achieveMK = !!currentMkAsATask;
+
+    // Create a task object - if mkAsATask exists, use its title
+    const newTask = {
+      task: taskTitle,
+      priority: undefined,
+      weight: undefined,
+      targetValue: undefined,
+      achieveMK: achieveMK,
+    };
+
+    form.setFieldsValue({ [boardsKey]: [...board, newTask] });
   };
   const handleRemoveBoard = (index: number, kId: string) => {
     const boardsKey = `board-${kId}`;
