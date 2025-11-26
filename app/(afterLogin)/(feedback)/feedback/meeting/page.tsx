@@ -15,14 +15,15 @@ export default function Index() {
     <TabLandingLayout
       buttonDisabled={false}
       id="meetingLayoutId"
+      data-cy="feedback-meeting-page-tab-landing-layout"
       title="Meetings"
       subtitle="Manage your Meetings"
       buttonTitle={'Add New'}
-      buttonIcon={<FaPlus />}
+      buttonIcon={<FaPlus data-cy="feedback-meeting-page-icon-plus" id="feedback-meeting-page-icon-plus" />}
       onClickHandler={() => HandleOpen()}
     >
-      <MeetingList />
-      <AddNewMeetingForm />
+      <MeetingList data-cy="feedback-meeting-page-meeting-list" />
+      <AddNewMeetingForm data-cy="feedback-meeting-page-add-new-meeting-form" />
     </TabLandingLayout>
   );
 }
