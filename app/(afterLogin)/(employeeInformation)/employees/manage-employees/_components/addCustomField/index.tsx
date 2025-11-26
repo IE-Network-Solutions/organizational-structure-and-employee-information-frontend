@@ -39,7 +39,9 @@ const AddCustomField: React.FC<any> = ({
   >('input');
   const [isActive, setIsActive] = useState(true);
   const [options, setOptions] = useState<string[]>([]);
+  /*  eslint-disable-next-line @typescript-eslint/naming-convention */
   const [popoverOpen, setPopoverOpen] = useState(false);
+  /*  eslint-enable-next-line @typescript-eslint/naming-convention */
 
   const resetForm = () => {
     form.resetFields();
