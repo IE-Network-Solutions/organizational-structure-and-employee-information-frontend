@@ -32,6 +32,8 @@ import { useCreatePosition } from '@/store/server/features/employees/positions/m
 import { useFetchAllowanceTypesByTypeAllowance } from '@/store/server/features/compensation/settings/queries';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import AllowanceTypeSideBar from '@/app/(afterLogin)/(compensation)/compensationSetting/allowanceType/_components/allowanceTypeSidebar';
+import { useParams } from 'next/navigation';
+import { useGetEmployeeAllowances } from '@/store/server/features/payroll/payroll/queries';
 
 interface JobTimeLineFormProps {
   employeeData?: any;
@@ -51,6 +53,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     setSelectedDepartmentId,
     tempAllowances,
     setTempAllowances,
+    isAddEmployeeJobInfoModalVisible,
   } = useEmployeeManagementStore();
   const { data: departmentData, refetch: departmentsRefetch } =
     useGetDepartments();
@@ -69,9 +72,50 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
   } = useCreatePosition();
   const { data: allowanceTypes, refetch: refetchAllowanceTypes } =
     useFetchAllowanceTypesByTypeAllowance();
+  const params = useParams();
+  const employeeIdFromParams = params?.id as string | undefined;
+  const { data: employeeAllowances } = useGetEmployeeAllowances(employeeIdFromParams);
   const { setIsAllowanceOpen, isAllowanceOpen } = useCompensationSettingStore();
   const [contractType, setContractType] = useState<string>('Permanent');
   const [wasAllowanceOpen, setWasAllowanceOpen] = useState<boolean>(false);
+
+  // Populate employee allowances in form when modal opens
+  useEffect(() => {
+    if (isAddEmployeeJobInfoModalVisible && employeeAllowances && actualForm) {
+      const allowancesArray = Array.isArray(employeeAllowances)
+        ? employeeAllowances
+        : employeeAllowances?.data || [];
+
+      if (allowancesArray.length > 0) {
+        // Transform allowances to match form structure
+        const transformed = allowancesArray
+          .map((allowance: any) => {
+            const compensationItem = allowance.compensationItem || allowance;
+            return {
+              id: compensationItem.id || allowance.compensationItemId || allowance.id,
+              name: compensationItem.name || allowance.name,
+              description: compensationItem.description || allowance.description,
+              isRate: compensationItem.isRate ?? allowance.isRate ?? false,
+              defaultAmount:
+                compensationItem.defaultAmount ||
+                allowance.defaultAmount ||
+                allowance.totalAmount ||
+                allowance.amount,
+              notTaxableAmount:
+                compensationItem.notTaxableAmount || allowance.notTaxableAmount,
+              type: compensationItem.type || allowance.type || 'ALLOWANCE',
+            };
+          })
+          .filter((a: any) => a?.id && a?.name);
+
+        if (transformed.length > 0) {
+          const allowanceIds = transformed.map((a: any) => a.id);
+          actualForm.setFieldValue('allowanceIds', allowanceIds);
+          actualForm.setFieldValue('allowances', transformed);
+        }
+      }
+    }
+  }, [isAddEmployeeJobInfoModalVisible, employeeAllowances, actualForm]);
 
   const handleContractTypeChange = (e: any) => {
     setContractType(e.target.value);
@@ -486,15 +530,25 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               <Form.Item shouldUpdate noStyle>
                 {({ getFieldValue, setFieldValue }) => {
                   const selectedIds = getFieldValue('allowanceIds') || [];
+                  
+                  // Get employee allowances from form (already populated)
+                  const formAllowances = getFieldValue('allowances') || [];
 
-                  // Combine fetched allowance types with temporary ones
+                  // Combine fetched allowance types, employee allowances, and temporary ones
                   const allAllowanceTypes = [
                     ...(allowanceTypes || []),
+                    ...formAllowances, // Include employee allowances so they can be removed
                     ...tempAllowances,
                   ];
+                  
+                  // Remove duplicates by id
+                  const uniqueAllowanceTypes = allAllowanceTypes.filter(
+                    (type: any, index: number, self: any[]) =>
+                      index === self.findIndex((t: any) => String(t.id) === String(type.id))
+                  );
 
                   const allOptions =
-                    allAllowanceTypes?.map((a: any) => ({
+                    uniqueAllowanceTypes?.map((a: any) => ({
                       value: a.id,
                       label: a.name,
                     })) || [];
@@ -551,15 +605,23 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                       onChange={(newSelectedIds) => {
                         setFieldValue('allowanceIds', newSelectedIds);
 
-                        // Combine fetched allowance types with temporary ones
+                        // Combine fetched allowance types, employee allowances, and temporary ones
+                        const currentFormAllowances = getFieldValue('allowances') || [];
                         const allAllowanceTypes = [
                           ...(allowanceTypes || []),
+                          ...currentFormAllowances, // Include employee allowances
                           ...tempAllowances,
                         ];
+                        
+                        // Remove duplicates by id
+                        const uniqueAllowanceTypes = allAllowanceTypes.filter(
+                          (type: any, index: number, self: any[]) =>
+                            index === self.findIndex((t: any) => String(t.id) === String(type.id))
+                        );
 
                         // Sync allowances array with selected IDs
                         const allowances =
-                          allAllowanceTypes
+                          uniqueAllowanceTypes
                             ?.filter((type: any) =>
                               newSelectedIds.some(
                                 (id: any) => String(id) === String(type.id),
