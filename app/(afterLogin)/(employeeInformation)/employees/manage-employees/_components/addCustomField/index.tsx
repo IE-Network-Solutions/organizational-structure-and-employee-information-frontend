@@ -39,6 +39,7 @@ const AddCustomField: React.FC<any> = ({
   >('input');
   const [isActive, setIsActive] = useState(true);
   const [options, setOptions] = useState<string[]>([]);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const addFieldIfNotExists = (formData: any, newField: FormField) => {
     if (formData?.length < 1) {
@@ -82,6 +83,7 @@ const AddCustomField: React.FC<any> = ({
     setFieldName('');
     setFieldType('input');
     setIsActive(true);
+    setPopoverOpen(false);
   };
   const handleFormFailed = () => {};
   const popoverContent = (
@@ -142,14 +144,26 @@ const AddCustomField: React.FC<any> = ({
         </Form.Item>
         <Divider />
         <Form.Item>
+          <div className="flex justify-center gap-4">
+          <Button
+            type="default"
+            onClick={() => {
+              form.resetFields();
+              setPopoverOpen(false);
+            }}
+            className="px-8 py-1 rounded-lg w-1/3"
+          >
+            Cancel
+          </Button>
           <Button
             type="primary"
             id={`addField${formTitle}`}
             htmlType="submit"
-            style={{ width: '100%' }}
+            style={{ width: '30%' }}
           >
             Add Field
           </Button>
+          </div>
         </Form.Item>
       </Form>
     </div>
@@ -160,7 +174,13 @@ const AddCustomField: React.FC<any> = ({
       <Row gutter={16}>
         <Col xs={24} sm={24} className="flex justify-center items-center ">
           <Form.Item className="font-semibold text-xs">
-            <Popover content={popoverContent} title={formTitle} trigger="click">
+            <Popover 
+              content={popoverContent} 
+              title={formTitle} 
+              trigger="click"
+              open={popoverOpen}
+              onOpenChange={setPopoverOpen}
+            >
               <Button
                 id={`addCustomField${formTitle}`}
                 type="primary"
