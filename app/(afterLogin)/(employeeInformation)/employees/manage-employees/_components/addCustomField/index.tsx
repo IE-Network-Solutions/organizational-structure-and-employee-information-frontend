@@ -219,8 +219,14 @@ const AddCustomField: React.FC<any> = ({
           id={`add-custom-field-submit-${formTitle}`}
           data-cy={`add-custom-field-submit-${formTitle}`}
         >
-          <div className="flex justify-center gap-4">
+          <div
+            id={`add-custom-field-submit-${formTitle}`}
+            data-cy={`add-custom-field-submit-${formTitle}`}
+            className="flex justify-center gap-4"
+          >
             <Button
+              id={`add-custom-field-cancel-${formTitle}`}
+              data-cy={`add-custom-field-cancel-${formTitle}`}
               type="default"
               onClick={() => {
                 form.resetFields();
