@@ -110,11 +110,21 @@ export const getAdminPendingLeaveRequests = async (params?: {
   leaveTypeId?: string;
 }) => {
   const requestHeaders = await requestHeader();
+
+  // Filter out undefined, null, and empty string values
+  const filteredParams = params
+    ? Object.fromEntries(
+        Object.entries(params).filter(
+          ([value]) => value !== undefined && value !== null && value !== '',
+        ),
+      )
+    : undefined;
+
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/${DASHBOARD_API.GET_ADMIN_PENDING_LEAVE_REQUESTS_API}`,
     method: 'GET',
     headers: requestHeaders,
-    params,
+    params: filteredParams,
   });
 };
 
@@ -125,9 +135,10 @@ export const useGetAdminPendingLeaveRequests = (params?: {
   departmentId?: string;
   leaveTypeId?: string;
 }) => {
-  return useQuery(['adminPendingLeaveRequests', params], () =>
-    getAdminPendingLeaveRequests(params),
-  );
+  // Serialize params for stable query key comparison
+  const queryKey = ['adminPendingLeaveRequests', JSON.stringify(params || {})];
+
+  return useQuery(queryKey, () => getAdminPendingLeaveRequests(params));
 };
 
 export const getAdminAttendanceStats = async (params: {

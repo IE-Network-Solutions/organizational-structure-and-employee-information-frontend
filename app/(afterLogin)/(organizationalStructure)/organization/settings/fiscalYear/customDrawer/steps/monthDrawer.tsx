@@ -358,11 +358,24 @@ const MonthDrawer: React.FC<
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={onSubmit}>
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={onSubmit}
+      data-cy="org-settings-fiscal-year-month-drawer-form"
+      id="org-settings-fiscal-year-month-drawer-form"
+      className="px-4"
+    >
       <div
         className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0 items-center w-full h-full`}
+        data-cy="org-settings-fiscal-year-month-drawer-form-content"
+        id="org-settings-fiscal-year-month-drawer-form-content"
       >
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2">
+        <div
+          className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2"
+          data-cy="org-settings-fiscal-year-month-drawer-form-content-title"
+          id="org-settings-fiscal-year-month-drawer-form-content-title"
+        >
           Set up Month
         </div>
 
@@ -372,12 +385,20 @@ const MonthDrawer: React.FC<
           return (
             <React.Fragment
               key={`${monthInfo.monthNumber}-${monthInfo.startDate?.format('YYYY-MM-DD')}-${monthInfo.endDate?.format('YYYY-MM-DD')}`}
+              data-cy={`org-settings-fiscal-year-month-${monthInfo.monthNumber}`}
             >
               <Form.Item
+                data-cy={`org-settings-fiscal-year-month-name-${monthInfo.monthNumber}`}
                 id={`monthNameId_${monthInfo.monthNumber}`}
                 name={`monthName_${monthInfo.monthNumber}`}
                 label={
-                  <span className="font-medium">{monthInfo.monthName}</span>
+                  <span
+                    className="font-medium"
+                    data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-1"
+                    id="org-fiscalyear-customdrawer-steps-monthdrawer-span-1"
+                  >
+                    {monthInfo.monthName}
+                  </span>
                 }
                 rules={[
                   {
@@ -390,14 +411,38 @@ const MonthDrawer: React.FC<
                   size="large"
                   className="w-full text-sm"
                   placeholder={`Enter name for ${monthName}`}
+                  data-cy={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
+                  id={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
                 />
               </Form.Item>
 
-              <Row gutter={[16, 10]}>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+              <Row
+                gutter={[16, 10]}
+                data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-row-1"
+                id="org-fiscalyear-customdrawer-steps-monthdrawer-row-1"
+              >
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-1"
+                  id="org-fiscalyear-customdrawer-steps-monthdrawer-col-1"
+                >
                   <Form.Item
+                    data-cy={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
+                    id={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     name={`monthStartDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium">Start Date</span>}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-2"
+                        id="org-fiscalyear-customdrawer-steps-monthdrawer-span-2"
+                      >
+                        Start Date
+                      </span>
+                    }
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -451,13 +496,33 @@ const MonthDrawer: React.FC<
                       onChange={() => {
                         clearRelatedValidationErrors(monthInfo.monthNumber);
                       }}
+                      data-cy={`org-settings-fiscal-year-month-start-date-input-${monthInfo.monthNumber}`}
+                      id={`org-settings-fiscal-year-month-start-date-input-${monthInfo.monthNumber}`}
                     />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-2"
+                  id="org-fiscalyear-customdrawer-steps-monthdrawer-col-2"
+                >
                   <Form.Item
+                    data-cy={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
+                    id={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     name={`monthEndDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium">End Date</span>}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-3"
+                        id="org-fiscalyear-customdrawer-steps-monthdrawer-span-3"
+                      >
+                        End Date
+                      </span>
+                    }
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -514,29 +579,48 @@ const MonthDrawer: React.FC<
                       onChange={() => {
                         clearRelatedValidationErrors(monthInfo.monthNumber);
                       }}
+                      data-cy={`org-settings-fiscal-year-month-end-date-input-${monthInfo.monthNumber}`}
+                      id={`org-settings-fiscal-year-month-end-date-input-${monthInfo.monthNumber}`}
                     />
                   </Form.Item>
                 </Col>
               </Row>
 
               <Form.Item
-                id={`monthDescriptionId_${monthInfo.monthNumber}`}
+                data-cy={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
+                id={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 name={`monthDescription_${monthInfo.monthNumber}`}
-                label={<span className="font-medium">Description</span>}
+                label={
+                  <span
+                    className="font-medium"
+                    data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-4"
+                    id="org-fiscalyear-customdrawer-steps-monthdrawer-span-4"
+                  >
+                    Description
+                  </span>
+                }
               >
                 <TextArea
                   placeholder={`Enter description for ${monthName}`}
                   className={'h-32 font-normal text-sm mt-2'}
                   size="large"
+                  data-cy={`org-settings-fiscal-year-month-description-input-${monthInfo.monthNumber}`}
+                  id={`org-settings-fiscal-year-month-description-input-${monthInfo.monthNumber}`}
                 />
               </Form.Item>
             </React.Fragment>
           );
         })}
 
-        <Form.Item className="mb-0">
+        <Form.Item
+          className="mb-0"
+          data-cy="org-settings-fiscal-year-month-previous-btn-form-item"
+          id="org-settings-fiscal-year-month-previous-btn-form-item"
+        >
           <div
             className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+            data-cy="org-settings-fiscal-year-month-previous-btn-container"
+            id="org-settings-fiscal-year-month-previous-btn-container"
           >
             <Button
               type="default"
@@ -559,6 +643,8 @@ const MonthDrawer: React.FC<
                 setCurrent(1); // Go to previous step
               }}
               className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              data-cy="org-settings-fiscal-year-month-previous-btn"
+              id="org-settings-fiscal-year-month-previous-btn"
             >
               Previous
             </Button>
@@ -566,15 +652,30 @@ const MonthDrawer: React.FC<
               type="primary"
               htmlType="submit"
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              data-cy="org-settings-fiscal-year-month-next-btn"
+              id="org-settings-fiscal-year-month-next-btn"
             >
               {isCreateLoading || isUpdateLoading ? (
-                <div>
-                  <Spin />
+                <div
+                  data-cy="org-settings-fiscal-year-month-next-btn-spinner-div"
+                  id="org-settings-fiscal-year-month-next-btn-spinner-div"
+                >
+                  <Spin data-cy="org-settings-fiscal-year-month-next-btn-spinner" />
                 </div>
               ) : isEditMode ? (
-                <span>Edit</span>
+                <span
+                  data-cy="org-settings-fiscal-year-month-next-btn-text"
+                  id="org-settings-fiscal-year-month-next-btn-text"
+                >
+                  Edit
+                </span>
               ) : (
-                <span>Create</span>
+                <span
+                  data-cy="org-settings-fiscal-year-month-next-btn-text"
+                  id="org-settings-fiscal-year-month-next-btn-text"
+                >
+                  Create
+                </span>
               )}
             </Button>
           </div>

@@ -113,7 +113,11 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
   }, [isEdit, editData, open, form, setDocumentFileList]);
 
   const internApplicantsDrawerHeader = (
-    <div className=" text-xl font-extrabold text-gray-800 ">
+    <div
+      id="talent-acquisition-intern-drawer-header"
+      data-cy="talent-acquisition-intern-drawer-header"
+      className=" text-xl font-extrabold text-gray-800 "
+    >
       {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}
     </div>
   );
@@ -125,6 +129,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       className: 'h-[40px] text-base',
       size: 'large',
       onClick: onClose,
+      id: 'talent-acquisition-intern-button-cancel',
+      'data-cy': 'talent-acquisition-intern-button-cancel',
     },
     {
       label: isEdit ? 'Update' : 'Create',
@@ -134,6 +140,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       type: 'primary',
       loading: isEdit ? isUpdateLoading : isCreateLoading,
       onClick: () => form.submit(),
+      id: isEdit
+        ? 'talent-acquisition-intern-button-update'
+        : 'talent-acquisition-intern-button-create',
+      'data-cy': isEdit
+        ? 'talent-acquisition-intern-button-update'
+        : 'talent-acquisition-intern-button-create',
     },
   ];
 
@@ -191,6 +203,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
 
   return (
     <CustomDrawerLayout
+      data-cy="talent-acquisition-intern-drawer"
       open={open}
       onClose={onClose}
       modalHeader={internApplicantsDrawerHeader}
@@ -198,7 +211,13 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       customMobileHeight="75vh"
       footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
     >
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form
+        id="talent-acquisition-intern-form"
+        data-cy="talent-acquisition-intern-form"
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
         <Form.Item
           id="fullNameId"
           name="fullName"
@@ -215,7 +234,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             },
           ]}
         >
-          <Input placeholder="Full Name" className="w-full h-10 text-sm" />
+          <Input
+            id="talent-acquisition-intern-input-full-name"
+            data-cy="talent-acquisition-intern-input-full-name"
+            placeholder="Full Name"
+            className="w-full h-10 text-sm"
+          />
         </Form.Item>
 
         <Row gutter={16}>
@@ -237,6 +261,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               ]}
             >
               <Input
+                id="talent-acquisition-intern-input-email"
+                data-cy="talent-acquisition-intern-input-email"
                 type="email"
                 className="text-sm w-full h-10"
                 placeholder="Email address"
@@ -262,6 +288,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               ]}
             >
               <Input
+                id="talent-acquisition-intern-input-phone"
+                data-cy="talent-acquisition-intern-input-phone"
                 type="tel"
                 className="text-sm w-full h-10"
                 placeholder="Phone number"
@@ -283,6 +311,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               rules={[{ required: true, message: 'Please input CGPA' }]}
             >
               <InputNumber
+                id="talent-acquisition-intern-input-cgpa"
+                data-cy="talent-acquisition-intern-input-cgpa"
                 type="number"
                 min={0}
                 max={4}
@@ -291,7 +321,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 placeholder="CGPA"
               />
             </Form.Item>
-            <div className="flex items-center justify-start gap-1 ml-1">
+            <div
+              data-cy="talent-acquisition-intern-drawer-div-cgpa-info"
+              className="flex items-center justify-start gap-1 ml-1"
+            >
               <FaInfoCircle />
               <div className="text-xs font-md">Put your point 4.0 scale</div>
             </div>
@@ -315,6 +348,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           ]}
         >
           <Input
+            id="talent-acquisition-intern-input-year-graduation"
+            data-cy="talent-acquisition-intern-input-year-graduation"
             placeholder="Expected Year of Graduation"
             className="w-full h-10 text-sm"
           />
@@ -331,6 +366,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           rules={[{ required: true, message: 'Please input department!' }]}
         >
           <Select
+            id="talent-acquisition-intern-select-department"
+            data-cy="talent-acquisition-intern-select-department"
             placeholder="Department"
             className="w-full h-10 text-sm"
             showSearch
@@ -342,7 +379,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             }
           >
             {EmployeeDepartment?.map((item: DepartmentData) => (
-              <Option key={item?.id} value={item?.id}>
+              <Option
+                key={item?.id}
+                value={item?.id}
+                id={`talent-acquisition-intern-option-department-${item?.id}`}
+                data-cy={`talent-acquisition-intern-option-department-${item?.id}`}
+              >
                 {item?.name}
               </Option>
             ))}
@@ -359,6 +401,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           rules={[{ required: true, message: 'Please input cover letter' }]}
         >
           <TextArea
+            id="talent-acquisition-intern-textarea-cover-letter"
+            data-cy="talent-acquisition-intern-textarea-cover-letter"
             rows={4}
             className="text-sm w-full"
             placeholder="Please enter your cover letter here"
@@ -385,6 +429,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           ]}
         >
           <Dragger
+            id="talent-acquisition-intern-upload-cv"
+            data-cy="talent-acquisition-intern-upload-cv"
             name="documentName"
             fileList={documentFileList}
             onChange={handleDocumentChange}

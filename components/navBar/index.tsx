@@ -270,7 +270,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           permissions: ['manage_recruitment_talent_pool'],
         },
         {
-          title: <span>Settings</span>,
+          title: <span className="font-bold">Settings</span>,
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
@@ -428,7 +428,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/payroll-menu',
       className: 'font-bold',
+      permissions: ['view_payroll_overview'],
       disabled: hasEndedFiscalYear,
+      // || isSubscriptionExpired,
       children: [
         {
           title: <span>Employee Information</span>,
@@ -735,10 +737,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
-    } else if (
-      !employeeData.employeeJobInformation ||
-      employeeData.employeeJobInformation.length === 0
-    ) {
+    } else if (employeeData?.employeeJobInformation?.length === 0) {
       setIsAddEmployeeJobInfoModalVisible(true);
       setEmployeeJobInfoModalWidth('100%');
     }

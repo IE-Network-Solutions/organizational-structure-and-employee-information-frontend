@@ -84,7 +84,7 @@ const AllowanceTypeSideBar = ({
       mode: 'CREDIT',
       isRate: formValues.isRate,
       defaultAmount: Number(formValues.defaultAmount),
-      notTaxableAmount: Number(formValues.nonTaxableAmount || 0),
+      nonTaxableAmount: Number(formValues.nonTaxableAmount || 0),
       applicableTo: formValues.isAllEmployee ? 'GLOBAL' : 'PER-EMPLOYEE',
       employeeIds: !formValues.isAllEmployee ? formValues.employees : [],
     };
@@ -98,7 +98,7 @@ const AllowanceTypeSideBar = ({
         description: payload.description,
         isRate: payload.isRate,
         defaultAmount: payload.defaultAmount,
-        notTaxableAmount: payload.notTaxableAmount,
+        notTaxableAmount: payload.nonTaxableAmount,
         type: payload.type,
       };
       onAddToSelect(tempAllowanceData);
@@ -349,7 +349,7 @@ const AllowanceTypeSideBar = ({
             <Form.Item
               name="nonTaxableAmount"
               label="Non-Taxable Amount"
-              dependencies={['defaultAmount']}
+              dependencies={['defaultAmount', 'isRate']}
               rules={[
                 {
                   validator: (notused, value) => {
@@ -364,7 +364,9 @@ const AllowanceTypeSideBar = ({
                 {
                   validator: (notused, value) => {
                     const defaultAmount = form.getFieldValue('defaultAmount');
+                    const isRate = form.getFieldValue('isRate');
                     if (
+                      !isRate &&
                       value &&
                       defaultAmount &&
                       Number(value) > Number(defaultAmount)
