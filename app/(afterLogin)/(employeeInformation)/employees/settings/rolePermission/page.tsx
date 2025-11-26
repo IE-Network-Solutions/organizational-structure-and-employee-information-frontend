@@ -8,6 +8,7 @@ import ListOfRoles from './role/roleForm';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteGroupPermission } from '@/store/server/features/employees/settings/groupPermission/mutations';
 import { useDeleteRole } from '@/store/server/features/employees/settings/role/mutations';
+
 const SettingsPage = () => {
   const {
     currentModal,
@@ -50,16 +51,24 @@ const SettingsPage = () => {
     setTabButton(tabName[tabKey]);
   };
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
-      <ParentRolePermissionCards onChange={onChange} />
-      <GroupPermission />
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="settings-role-permission-container"
+      data-cy="settings-role-permission-container"
+    >
+      <ParentRolePermissionCards
+        onChange={onChange}
+        data-cy="settings-role-permission-tabs"
+      />
+      <GroupPermission data-cy="settings-role-permission-group" />
       {(currentModal === 'roleModal' || currentModal === 'editRoleModal') && (
-        <ListOfRoles />
+        <ListOfRoles data-cy="settings-role-permission-role-form" />
       )}
       <DeleteModal
         open={currentModal === 'deleteModal'}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setCurrentModal(null)}
+        data-cy="settings-role-permission-delete-modal"
       />
     </div>
   );
