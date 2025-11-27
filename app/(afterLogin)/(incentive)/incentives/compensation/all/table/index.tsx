@@ -90,7 +90,7 @@ const AllIncentiveTable: React.FC = () => {
           data-cy={`incentive-table-actions-${record.id}`}
         >
           <AccessGuard
-            permissions={[Permissions.DeleteRecognition]}
+            permissions={[Permissions.DeleteIncentive]}
             id={`incentive-table-delete-guard-${record.id}`}
             data-cy={`incentive-table-delete-guard-${record.id}`}
           >
@@ -141,9 +141,9 @@ const AllIncentiveTable: React.FC = () => {
   };
 
   const allIncentiveTableData =
-    responseLoading || incentiveData?.items?.length < 0
+    responseLoading || !incentiveData?.items || incentiveData?.items?.length === 0
       ? []
-      : incentiveData?.items?.map((item: AllIncentiveData) => {
+      : incentiveData.items.map((item: AllIncentiveData) => {
           return {
             id: item?.id,
             userId: item?.userId,
@@ -196,9 +196,9 @@ const AllIncentiveTable: React.FC = () => {
               </div>
             ),
           };
-        });
+        }) || [];
 
-  const currentPageIds = allIncentiveTableData.map((item: any) => String(item.id));
+  const currentPageIds = (allIncentiveTableData || []).map((item: any) => String(item.id));
   const currentPageSelectedKeys = (selectedRowKeys || []).filter((key) =>
     currentPageIds.includes(String(key))
   );

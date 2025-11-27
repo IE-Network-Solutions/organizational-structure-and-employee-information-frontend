@@ -59,7 +59,7 @@ const AllIncentives = () => {
       {!parentResponseIsLoading && hasSelectedRows && (
         <div className="mb-4 flex justify-end">
           <AccessGuard
-            permissions={[Permissions.DeleteRecognition]}
+            permissions={[Permissions.DeleteIncentive]}
             id="incentive-bulk-delete-guard"
             data-cy="incentive-bulk-delete-guard"
           >
