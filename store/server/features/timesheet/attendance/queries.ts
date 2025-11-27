@@ -131,10 +131,6 @@ const getAttendances = async (
       return zktResponse;
     } catch (error) {
       // If ZKT endpoint fails, fall back to standard endpoint
-      console.warn(
-        'ZKT endpoint failed, falling back to standard endpoint:',
-        error,
-      );
       // Continue to standard endpoint below
     }
   }

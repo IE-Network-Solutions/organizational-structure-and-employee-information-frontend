@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Form, Input, Button, Avatar, message } from 'antd';
-import { GlobalOutlined, DeleteOutlined } from '@ant-design/icons';
+import { GlobalOutlined } from '@ant-design/icons';
 import Logo from '@/components/common/logo';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { IoIosLink } from 'react-icons/io';
@@ -38,7 +38,6 @@ const ZKTAddonPage = () => {
 
     authenticateZkt(payload, {
       onSuccess: (data) => {
-        console.log(data, 'zktAuthToken');
         if (typeof window !== 'undefined' && data?.token) {
           // Save plain token to localStorage (no encryption needed)
           window.localStorage.setItem('zktAuthToken', data.token);
@@ -71,10 +70,6 @@ const ZKTAddonPage = () => {
     resetZktConfiguration();
     form.resetFields();
     // You can add API call here to delete the configuration
-  };
-
-  const handleEdit = () => {
-    setIsZktConfigured(false);
   };
 
   return (
@@ -207,7 +202,7 @@ const ZKTAddonPage = () => {
                   onCancel={() => {
                     // Popover will close automatically
                   }}
-                  onDelete={(e) => {
+                  onDelete={() => {
                     handleDelete();
                   }}
                 >

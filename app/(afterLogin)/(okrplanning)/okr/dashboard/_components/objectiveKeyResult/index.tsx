@@ -211,7 +211,6 @@ const ObjectiveKeyResult: React.FC = () => {
                     showInfo={false}
                     size={{ height: 10 }}
                     className="w-[100%]"
-          
                     data-cy="okr-objective-total-kr-progress"
                   />
                 </div>

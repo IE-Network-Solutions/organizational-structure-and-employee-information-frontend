@@ -51,10 +51,7 @@ const EmployeeDetails = ({
   if (isLoading)
     return (
       <>
-        <Spin
-      
-          data-cy={`okr-checkin-rule-employee-details-spin-${empId}`}
-        />
+        <Spin data-cy={`okr-checkin-rule-employee-details-spin-${empId}`} />
       </>
     );
 
@@ -74,10 +71,9 @@ const EmployeeDetails = ({
       <Avatar
         src={profileImage}
         className="h-5 w-5"
-       
         data-cy={`okr-checkin-rule-employee-details-avatar-${empId}`}
       />
-        {userName}
+      {userName}
     </Space>
   );
 };
@@ -690,7 +686,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       id="okr-checkin-rule-drawer-header-display-div"
       data-cy="okr-checkin-rule-drawer-header-display-div"
     >
-        {checkInRule ? 'Edit Check-in Rule' : 'Create Check-in Rule'}
+      {checkInRule ? 'Edit Check-in Rule' : 'Create Check-in Rule'}
     </div>
   );
 
@@ -852,9 +848,19 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           {/* User Selection with Chips */}
           <Form.Item
             label={
-              <span id="okr-checkin-rule-drawer-form-users-label-display-span" data-cy="okr-checkin-rule-drawer-form-users-label-display-span">
-                <span className="text-red-500" id="okr-checkin-rule-drawer-form-users-label-required-display-span" data-cy="okr-checkin-rule-drawer-form-users-label-required-display-span">*</span> Users
-                </span>
+              <span
+                id="okr-checkin-rule-drawer-form-users-label-display-span"
+                data-cy="okr-checkin-rule-drawer-form-users-label-display-span"
+              >
+                <span
+                  className="text-red-500"
+                  id="okr-checkin-rule-drawer-form-users-label-required-display-span"
+                  data-cy="okr-checkin-rule-drawer-form-users-label-required-display-span"
+                >
+                  *
+                </span>{' '}
+                Users
+              </span>
             }
             name="selectedUserIds"
             rules={[
@@ -928,7 +934,10 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   id={`okr-checkin-rule-drawer-form-users-option-${user.id}`}
                   data-cy={`okr-checkin-rule-drawer-form-users-option-${user.id}`}
                 >
-                  <EmployeeDetails data-cy="okr-checkin-rule-employee-details-display-employee-details" empId={user.id} />
+                  <EmployeeDetails
+                    data-cy="okr-checkin-rule-employee-details-display-employee-details"
+                    empId={user.id}
+                  />
                 </Select.Option>
               ))}
             </Select>
@@ -1177,32 +1186,65 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                       data-cy="okr-checkin-rule-applicable-days-table-header-grid"
                       id="okr-checkin-rule-applicable-days-table-header-grid"
                     >
-                      <div className="col-span-1" data-cy="okr-checkin-rule-applicable-days-th-day">
-                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-day-label">
+                      <div
+                        className="col-span-1"
+                        data-cy="okr-checkin-rule-applicable-days-th-day"
+                      >
+                        <span
+                          className="text-xs text-gray-600 font-medium"
+                          data-cy="okr-checkin-rule-applicable-days-th-day-label"
+                        >
                           Day
                         </span>
                       </div>
-                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-start-day">
-                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-start-day-label">
+                      <div
+                        className="col-span-1 text-center"
+                        data-cy="okr-checkin-rule-applicable-days-th-start-day"
+                      >
+                        <span
+                          className="text-xs text-gray-600 font-medium"
+                          data-cy="okr-checkin-rule-applicable-days-th-start-day-label"
+                        >
                           Start Day
                         </span>
                       </div>
-                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-start-time">
-                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-start-time-label">
+                      <div
+                        className="col-span-1 text-center"
+                        data-cy="okr-checkin-rule-applicable-days-th-start-time"
+                      >
+                        <span
+                          className="text-xs text-gray-600 font-medium"
+                          data-cy="okr-checkin-rule-applicable-days-th-start-time-label"
+                        >
                           Start
                         </span>
                       </div>
-                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-end-time">
-                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-end-time-label">
+                      <div
+                        className="col-span-1 text-center"
+                        data-cy="okr-checkin-rule-applicable-days-th-end-time"
+                      >
+                        <span
+                          className="text-xs text-gray-600 font-medium"
+                          data-cy="okr-checkin-rule-applicable-days-th-end-time-label"
+                        >
                           End
                         </span>
                       </div>
-                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-end-day">
-                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-end-day-label">
+                      <div
+                        className="col-span-1 text-center"
+                        data-cy="okr-checkin-rule-applicable-days-th-end-day"
+                      >
+                        <span
+                          className="text-xs text-gray-600 font-medium"
+                          data-cy="okr-checkin-rule-applicable-days-th-end-day-label"
+                        >
                           End Day
                         </span>
                       </div>
-                      <div className="col-span-1" data-cy="okr-checkin-rule-applicable-days-th-blank"></div>
+                      <div
+                        className="col-span-1"
+                        data-cy="okr-checkin-rule-applicable-days-th-blank"
+                      ></div>
                     </div>
                   </div>
 
@@ -1416,7 +1458,10 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                             </div>
 
                             {/* Empty column for spacing */}
-                            <div className="col-span-1" data-cy={`okr-checkin-rule-applicable-days-empty-col-${day.id}`}></div>
+                            <div
+                              className="col-span-1"
+                              data-cy={`okr-checkin-rule-applicable-days-empty-col-${day.id}`}
+                            ></div>
                           </div>
                         </div>
 
@@ -1471,8 +1516,13 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                             data-cy={`okr-checkin-rule-applicable-days-mobile-grid-${day.id}`}
                             id={`okr-checkin-rule-applicable-days-mobile-grid-${day.id}`}
                           >
-                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-start-day-${day.id}`}>
-                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-start-day-label-${day.id}`}>
+                            <div
+                              data-cy={`okr-checkin-rule-applicable-days-mobile-start-day-${day.id}`}
+                            >
+                              <label
+                                className="block text-xs text-gray-600 mb-1"
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-start-day-label-${day.id}`}
+                              >
                                 Start Day
                               </label>
                               <Select
@@ -1496,8 +1546,13 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                               />
                             </div>
 
-                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-${day.id}`}>
-                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-label-${day.id}`}>
+                            <div
+                              data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-${day.id}`}
+                            >
+                              <label
+                                className="block text-xs text-gray-600 mb-1"
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-label-${day.id}`}
+                              >
                                 Start Time
                               </label>
                               <Form.Item
@@ -1525,8 +1580,13 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                               </Form.Item>
                             </div>
 
-                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-${day.id}`}>
-                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-label-${day.id}`}>
+                            <div
+                              data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-${day.id}`}
+                            >
+                              <label
+                                className="block text-xs text-gray-600 mb-1"
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-label-${day.id}`}
+                              >
                                 End Time
                               </label>
                               <Form.Item
@@ -1591,8 +1651,13 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                               </Form.Item>
                             </div>
 
-                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-end-day-${day.id}`}>
-                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-end-day-label-${day.id}`}>
+                            <div
+                              data-cy={`okr-checkin-rule-applicable-days-mobile-end-day-${day.id}`}
+                            >
+                              <label
+                                className="block text-xs text-gray-600 mb-1"
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-end-day-label-${day.id}`}
+                              >
                                 End Day
                               </label>
                               <Select
@@ -1731,7 +1796,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             </Form.Item>
           </div>
         </Form>
-      </div>     
+      </div>
       <style jsx>{`
         .no-border-dropdown .ant-select-dropdown-menu-item {
           border: none !important;
