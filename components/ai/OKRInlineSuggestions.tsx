@@ -184,7 +184,11 @@ const OKRInlineSuggestions: React.FC<OKRInlineSuggestionsProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className="mb-4 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-4">
+    <div
+      className="mb-4 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-4"
+      id="okr-inline-ai-suggestions-wrapper-view-space"
+      data-cy="okr-inline-ai-suggestions-wrapper-view-space"
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

@@ -101,7 +101,11 @@ function CreatePlan() {
         Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
         Plan
       </div>
-      <div className="text-right">
+      <div
+        className="text-right"
+        id="planning-ai-suggestions-wrapper-view-space"
+        data-cy="planning-ai-suggestions-wrapper-view-space"
+      >
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {

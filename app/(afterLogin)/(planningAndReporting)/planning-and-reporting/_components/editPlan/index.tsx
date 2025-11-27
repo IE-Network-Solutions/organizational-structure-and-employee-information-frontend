@@ -113,7 +113,11 @@ function EditPlan() {
       <div>
         Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
       </div>
-      <div className="text-right">
+      <div
+        className="text-right"
+        id="planning-ai-suggestions-wrapper-view-space"
+        data-cy="planning-ai-suggestions-wrapper-view-space"
+      >
         {/* AI Suggestions for all plan types */}
         <AISuggestionsModal
           getKeyResults={() => {

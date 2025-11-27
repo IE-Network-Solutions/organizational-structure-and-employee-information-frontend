@@ -219,7 +219,11 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
           </div>
         </div>
 
-        <div className="max-h-96 overflow-y-auto">
+        <div
+          className="max-h-96 overflow-y-auto"
+          id="okr-ai-suggestions-modal-wrapper-view-space"
+          data-cy="okr-ai-suggestions-modal-wrapper-view-space"
+        >
           {loading && (
             <div className="flex justify-center items-center py-8">
               <Spin size="large" />

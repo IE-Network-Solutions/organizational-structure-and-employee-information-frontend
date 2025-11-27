@@ -22,7 +22,11 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
     <div className="relative">
       {/* AI Suggestion Indicator */}
       {keyItem.isAISuggestion && (
-        <div className="mx-4 mt-4 mb-2 px-3 py-2 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg flex items-center gap-2">
+        <div
+          className="mx-4 mt-4 mb-2 px-3 py-2 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg flex items-center gap-2"
+          id="okr-ai-suggestion-indicator-wrapper-view-space"
+          data-cy="okr-ai-suggestion-indicator-wrapper-view-space"
+        >
           <ThunderboltFilled
             className="text-indigo-600"
             style={{ fontSize: '14px' }}

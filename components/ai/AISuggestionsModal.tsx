@@ -694,7 +694,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             }
           />
         ) : (
-          <div className="space-y-4 p-4 sm:p-6">
+          <div
+            className="space-y-4 p-4 sm:p-6"
+            id="planning-ai-suggestions-modal-wrapper-view-space"
+            data-cy="planning-ai-suggestions-modal-wrapper-view-space"
+          >
             <div
               className={`rounded-3xl bg-white/80 shadow-sm ${
                 isMobile ? 'p-4' : 'p-6'

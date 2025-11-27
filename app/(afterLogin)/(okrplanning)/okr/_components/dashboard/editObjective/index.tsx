@@ -674,7 +674,11 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           className="flex justify-between items-center mb-6 mt-8"
         >
           <h2 className="text-xl font-semibold text-gray-800">Key Result</h2>
-          <div className="flex gap-2">
+          <div
+            className="flex gap-2"
+            id="okr-edit-ai-suggestions-trigger-wrapper-view-space"
+            data-cy="okr-edit-ai-suggestions-trigger-wrapper-view-space"
+          >
             <Button
               type="primary"
               ghost
