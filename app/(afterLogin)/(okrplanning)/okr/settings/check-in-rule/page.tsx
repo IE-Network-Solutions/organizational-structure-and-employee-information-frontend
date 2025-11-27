@@ -78,16 +78,27 @@ const CheckInRulePage: React.FC = () => {
       title: 'Rule Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string) => (
-        <span className="font-medium text-gray-900">{text}</span>
+      render: (text: string, record: CheckInRule) => (
+        <span
+          className="font-medium text-gray-900"
+          id={`okr-checkin-rule-table-rule-name-${record.id}`}
+          data-cy={`okr-checkin-rule-table-rule-name-${record.id}`}
+        >
+          {text}
+        </span>
       ),
     },
     {
       title: 'Applies To',
       dataIndex: 'appliesTo',
       key: 'appliesTo',
-      render: (appliesTo: string) => (
-        <Tag color={getAppliesToColor(appliesTo)} className="font-medium">
+      render: (appliesTo: string, record: CheckInRule) => (
+        <Tag
+          color={getAppliesToColor(appliesTo)}
+          className="font-medium"
+          id={`okr-checkin-rule-table-applies-to-${record.id}`}
+          data-cy={`okr-checkin-rule-table-applies-to-${record.id}`}
+        >
           {appliesTo}
         </Tag>
       ),
@@ -106,14 +117,28 @@ const CheckInRulePage: React.FC = () => {
       title: 'Frequency',
       dataIndex: 'frequency',
       key: 'frequency',
-      render: (text: number) => <span className="text-gray-900">{text}</span>,
+      render: (text: number, record: CheckInRule) => (
+        <span
+          className="text-gray-900"
+          id={`okr-checkin-rule-table-frequency-${record.id}`}
+          data-cy={`okr-checkin-rule-table-frequency-${record.id}`}
+        >
+          {text}
+        </span>
+      ),
     },
     {
       title: 'Operation',
       dataIndex: 'operation',
       key: 'operation',
-      render: (operation: string) => (
-        <span className="text-gray-900">{operation}</span>
+      render: (operation: string, record: CheckInRule) => (
+        <span
+          className="text-gray-900"
+          id={`okr-checkin-rule-table-operation-${record.id}`}
+          data-cy={`okr-checkin-rule-table-operation-${record.id}`}
+        >
+          {operation}
+        </span>
       ),
     },
     {
@@ -126,7 +151,12 @@ const CheckInRulePage: React.FC = () => {
         );
 
         return (
-          <Tag color="cyan" className="font-medium">
+          <Tag
+            color="cyan"
+            className="font-medium"
+            id={`okr-checkin-rule-table-interval-${record.id}`}
+            data-cy={`okr-checkin-rule-table-interval-${record.id}`}
+          >
             {planningPeriod?.name || 'Not Set'}
           </Tag>
         );
@@ -144,7 +174,12 @@ const CheckInRulePage: React.FC = () => {
         );
 
         return (
-          <Tag color="orange" className="font-medium">
+          <Tag
+            color="orange"
+            className="font-medium"
+            id={`okr-checkin-rule-table-category-${categoryId}`}
+            data-cy={`okr-checkin-rule-table-category-${categoryId}`}
+          >
             {feedbackType?.category || 'Unknown Category'}
           </Tag>
         );
@@ -154,21 +189,42 @@ const CheckInRulePage: React.FC = () => {
       title: 'Actions',
       key: 'actions',
       render: (record: any) => (
-        <div className="flex space-x-2">
-          <AccessGuard permissions={[Permissions.CreateOkrRule]}>
+        <div
+          className="flex space-x-2"
+          id={`okr-checkin-rule-table-actions-${record.id}`}
+          data-cy={`okr-checkin-rule-table-actions-${record.id}`}
+        >
+          <AccessGuard
+            data-cy="okr-checkin-rule-table-edit-button-access-guard-display-guard"
+            permissions={[Permissions.CreateOkrRule]}
+          >
             <Button
               type="default"
               className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
               icon={<GrEdit />}
               onClick={() => handleEdit(record)}
+              id={`okr-checkin-rule-table-edit-button-${record.id}`}
+              data-cy={`okr-checkin-rule-table-edit-button-${record.id}`}
             />
           </AccessGuard>
-          <DeletePopover onDelete={() => handleDelete(record)}>
-            <AccessGuard permissions={[Permissions.CreateOkrRule]}>
+          <DeletePopover
+            data-cy={`okr-checkin-rule-table-delete-popover-${record.id}`}
+            onDelete={() => handleDelete(record)}
+          >
+            <AccessGuard
+              data-cy="okr-checkin-rule-table-delete-button-access-guard-display-guard"
+              permissions={[Permissions.CreateOkrRule]}
+            >
               <Button
                 type="default"
                 className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={<RiDeleteBin6Line />}
+                icon={
+                  <RiDeleteBin6Line
+                    data-cy={`okr-checkin-rule-table-delete-button-icon-${record.id}`}
+                  />
+                }
+                id={`okr-checkin-rule-table-delete-button-${record.id}`}
+                data-cy={`okr-checkin-rule-table-delete-button-${record.id}`}
               />
             </AccessGuard>
           </DeletePopover>
@@ -178,22 +234,47 @@ const CheckInRulePage: React.FC = () => {
   ];
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Check-in Rule</h1>
-        <AccessGuard permissions={[Permissions.CreateOkrRule]}>
+    <div
+      className="p-6"
+      id="okr-checkin-rule-container-display-div"
+      data-cy="okr-checkin-rule-container-display-div"
+    >
+      <div
+        className="flex justify-between items-center mb-6"
+        id="okr-checkin-rule-header-display-div"
+        data-cy="okr-checkin-rule-header-display-div"
+      >
+        <h1
+          className="text-2xl font-bold text-gray-900"
+          id="okr-checkin-rule-title-display-h1"
+          data-cy="okr-checkin-rule-title-display-h1"
+        >
+          Check-in Rule
+        </h1>
+        <AccessGuard
+          data-cy="okr-checkin-rule-add-button-access-guard-display-guard"
+          permissions={[Permissions.CreateOkrRule]}
+        >
           <Button
             type="primary"
             onClick={handleAddNew}
             className="bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700 flex items-center gap-2"
-            icon={<FaPlus />}
+            icon={
+              <FaPlus data-cy="okr-checkin-rule-add-button-icon-display-button" />
+            }
+            id="okr-checkin-rule-add-button-display-button"
+            data-cy="okr-checkin-rule-add-button-display-button"
           >
             Add New
           </Button>
         </AccessGuard>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
+      <div
+        className="bg-white rounded-lg shadow overflow-x-auto"
+        id="okr-checkin-rule-table-wrapper-display-div"
+        data-cy="okr-checkin-rule-table-wrapper-display-div"
+      >
         <Table
           dataSource={rules}
           columns={columns}
@@ -204,6 +285,8 @@ const CheckInRulePage: React.FC = () => {
             emptyText: undefined, // Use default "No data found" message
           }}
           className="min-w-full"
+          id="okr-checkin-rule-table-display-table"
+          data-cy="okr-checkin-rule-table-display-table"
         />
       </div>
 
@@ -218,6 +301,7 @@ const CheckInRulePage: React.FC = () => {
             queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
           }
         }}
+        data-cy="okr-checkin-rule-drawer-display-drawer"
       />
 
       <style jsx>{`

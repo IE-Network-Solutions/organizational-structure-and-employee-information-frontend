@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, DatePicker, Form, Input, InputNumber, Select } from 'antd';
+import { DatePicker, Form, Input, InputNumber, Select } from 'antd';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { GoPlus } from 'react-icons/go';
 
 const MilestoneForm: React.FC<OKRFormProps> = ({
   keyItem,
@@ -65,18 +64,23 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const { isMobile } = useIsMobile();
 
   return (
-    <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">
+    <div
+      id={`okr-milestone-form-container-${index}`}
+      data-cy={`okr-milestone-form-container-${index}`}
+      className="relative bg-gray-50 rounded-xl border-none p-6 mb-4"
+    >
       <button
         onClick={() => removeKeyResult(index)}
         title="Remove Key Result"
         aria-label="Remove Key Result"
-        className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+        className="absolute top-2 right-2 rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
         style={{ zIndex: 10 }}
         id={`cancel-key-result-${index}`}
+        data-cy={`okr-milestone-remove-key-result-${index}`}
       >
         <svg
-          width="12"
-          height="12"
+          width={isMobile ? '12' : '20'}
+          height={isMobile ? '12' : '20'}
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -89,11 +93,24 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           />
         </svg>
       </button>
-      <Form form={form} layout="vertical" initialValues={keyItem}>
+      <Form
+        id={`okr-milestone-form-${index}`}
+        data-cy={`okr-milestone-form-${index}`}
+        form={form}
+        layout="vertical"
+        initialValues={keyItem}
+      >
         {isMobile ? (
-          <div className="flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2">
+          <div
+            id={`okr-milestone-mobile-wrapper-${index}`}
+            data-cy={`okr-milestone-mobile-wrapper-${index}`}
+            className="flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2"
+          >
             {/* Row 1: Key Result Name */}
-            <div>
+            <div
+              id={`okr-milestone-mobile-title-row-${index}`}
+              data-cy={`okr-milestone-mobile-title-row-${index}`}
+            >
               <Form.Item
                 className="mb-0"
                 name="title"
@@ -104,8 +121,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   },
                 ]}
                 id={`key-result-title-${index}`}
+                data-cy={`okr-milestone-mobile-title-item-${index}`}
               >
                 <Input
+                  id={`okr-milestone-mobile-title-input-${index}`}
+                  data-cy={`okr-milestone-mobile-title-input-${index}`}
                   placeholder="Key Result Name"
                   aria-label="Key Result Name"
                   className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
@@ -117,7 +137,10 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               </Form.Item>
             </div>
             {/* Row 2: Type (full width on mobile) */}
-            <div>
+            <div
+              id={`okr-milestone-mobile-meta-row-${index}`}
+              data-cy={`okr-milestone-mobile-meta-row-${index}`}
+            >
               <Form.Item
                 className="mb-0"
                 rules={[
@@ -127,9 +150,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   },
                 ]}
                 id={`key-result-type-${index}`}
+                data-cy={`okr-milestone-mobile-type-item-${index}`}
               >
                 <Select
                   className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                  data-cy={`okr-milestone-mobile-type-select-${index}`}
                   placeholder="Select metric type"
                   onChange={(value) => {
                     const selectedMetric = metrics?.items?.find(
@@ -147,11 +172,19 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   }
                   id={`select-metric-type-${index}`}
                 >
-                  <Option value="" disabled>
+                  <Option
+                    data-cy={`okr-milestone-mobile-type-option-${index}`}
+                    value=""
+                    disabled
+                  >
                     Select metric type
                   </Option>
                   {metrics?.items?.map((metric) => (
-                    <Option key={metric?.id} value={metric?.id}>
+                    <Option
+                      data-cy={`okr-milestone-mobile-type-option-${index}-${metric?.id}`}
+                      key={metric?.id}
+                      value={metric?.id}
+                    >
                       {metric?.name}
                     </Option>
                   ))}
@@ -168,9 +201,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   { type: 'number', message: 'Must be a number' },
                 ]}
                 id={`key-result-weight-${index}`}
+                data-cy={`okr-milestone-mobile-weight-item-${index}`}
               >
                 <InputNumber
                   className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                  data-cy={`okr-milestone-mobile-weight-input-${index}`}
                   min={0}
                   max={100}
                   suffix="%"
@@ -184,9 +219,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 name={`dead_line_${index}`}
                 rules={[{ required: true, message: 'Deadline required' }]}
                 id={`key-result-deadline-${index}`}
+                data-cy={`okr-milestone-mobile-deadline-item-${index}`}
               >
                 <DatePicker
                   className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                  data-cy={`okr-milestone-mobile-deadline-picker-${index}`}
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                   format="YYYY-MM-DD"
                   disabledDate={(current) => {
@@ -209,11 +246,24 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               </Form.Item>
             </div>
             {/* Row 4: Milestone fields */}
-            <div className="flex flex-col gap-2 sm:pl-3">
+            <div
+              id={`okr-milestone-mobile-list-${index}`}
+              data-cy={`okr-milestone-mobile-list-${index}`}
+              className="flex flex-col gap-2 sm:pl-3"
+            >
               {/* First milestone row */}
-              <div className="flex flex-col xs:flex-row gap-2">
-                <Form.Item className="flex-1 mb-0">
+              <div
+                id={`okr-milestone-mobile-row-0-${index}`}
+                data-cy={`okr-milestone-mobile-row-0-${index}`}
+                className="flex flex-col xs:flex-row gap-2"
+              >
+                <Form.Item
+                  className="flex-1 mb-0"
+                  data-cy={`okr-milestone-mobile-title-item-0-${index}`}
+                >
                   <Input
+                    id={`okr-milestone-mobile-title-input-0-${index}`}
+                    data-cy={`okr-milestone-mobile-title-input-0-${index}`}
                     className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                     placeholder="Set Milestone"
                     value={
@@ -226,9 +276,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     }
                   />
                 </Form.Item>
-                <div className="flex items-center gap-2">
-                  <Form.Item className="flex-1 xs:w-20 sm:w-24 mb-0">
+                <div className="flex gap-2 items-center">
+                  <Form.Item
+                    className="flex-1 xs:w-20 sm:w-24 mb-0"
+                    data-cy={`okr-milestone-mobile-weight-item-0-${index}`}
+                  >
                     <InputNumber
+                      id={`okr-milestone-mobile-weight-input-0-${index}`}
+                      data-cy={`okr-milestone-mobile-weight-input-0-${index}`}
                       className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                       min={0}
                       max={100}
@@ -241,10 +296,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                   <button
+                    id={`okr-milestone-mobile-remove-0-${index}`}
+                    data-cy={`okr-milestone-mobile-remove-0-${index}`}
                     onClick={() => handleRemoveMilestone(0)}
                     title="Remove Milestone"
                     aria-label="Remove Milestone"
-                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow transition-colors flex-shrink-0"
                     style={{ zIndex: 10 }}
                   >
                     <svg
@@ -263,15 +320,15 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     </svg>
                   </button>
                   <button
-                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-md w-6 h-6 flex items-center justify-center p-3"
+                    id={`okr-milestone-mobile-add-${index}`}
+                    data-cy={`okr-milestone-mobile-add-${index}`}
+                    className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-6 sm:h-11 px-2 sm:px-4 flex items-center justify-center flex-shrink-0"
                     aria-label="Add Milestone"
                     onClick={handleAddMilestone}
                     type="button"
                   >
-                    <span className="sr-only">Add Milestone</span>
-                    <span aria-hidden="true">
-                      <GoPlus size={16} />
-                    </span>
+                    <span className="hidden xs:inline">Add</span>
+                    <span className="xs:hidden text-sm">+</span>
                   </button>
                 </div>
               </div>
@@ -279,10 +336,17 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               {milestones.slice(1).map((milestone, mIndex) => (
                 <div
                   key={mIndex + 1}
+                  id={`okr-milestone-mobile-row-${mIndex + 1}-${index}`}
+                  data-cy={`okr-milestone-mobile-row-${mIndex + 1}-${index}`}
                   className="flex flex-col xs:flex-row gap-2"
                 >
-                  <Form.Item className="flex-1 mb-0">
+                  <Form.Item
+                    className="flex-1 mb-0"
+                    data-cy={`okr-milestone-mobile-title-item-${mIndex + 1}-${index}`}
+                  >
                     <Input
+                      id={`okr-milestone-mobile-title-input-${mIndex + 1}-${index}`}
+                      data-cy={`okr-milestone-mobile-title-input-${mIndex + 1}-${index}`}
                       className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                       placeholder="Set Milestone"
                       value={
@@ -298,8 +362,13 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                   <div className="flex gap-2">
-                    <Form.Item className="flex-1 xs:w-20 sm:w-24 mb-0">
+                    <Form.Item
+                      className="flex-1 xs:w-20 sm:w-24 mb-0"
+                      data-cy={`okr-milestone-mobile-weight-item-${mIndex + 1}-${index}`}
+                    >
                       <InputNumber
+                        id={`okr-milestone-mobile-weight-input-${mIndex + 1}-${index}`}
+                        data-cy={`okr-milestone-mobile-weight-input-${mIndex + 1}-${index}`}
                         className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                         min={0}
                         max={100}
@@ -312,10 +381,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       />
                     </Form.Item>
                     <button
+                      id={`okr-milestone-mobile-remove-${mIndex + 1}-${index}`}
+                      data-cy={`okr-milestone-mobile-remove-${mIndex + 1}-${index}`}
                       onClick={() => handleRemoveMilestone(mIndex + 1)}
                       title="Remove Milestone"
                       aria-label="Remove Milestone"
-                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-10 h-10 sm:w-11 sm:h-11 mt-2 flex items-center justify-center shadow transition-colors flex-shrink-0bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
+                      className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow transition-colors flex-shrink-0"
                       style={{ zIndex: 10 }}
                     >
                       <svg
@@ -339,9 +410,17 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 mt-4 px-2 md:px-4">
+          <div
+            id={`okr-milestone-tablet-wrapper-${index}`}
+            data-cy={`okr-milestone-tablet-wrapper-${index}`}
+            className="flex flex-col gap-3 mt-4 px-2 md:px-4"
+          >
             {/* Key Result row */}
-            <div className="flex flex-col lg:flex-row gap-2 items-stretch lg:items-center">
+            <div
+              id={`okr-milestone-tablet-meta-row-${index}`}
+              data-cy={`okr-milestone-tablet-meta-row-${index}`}
+              className="flex flex-col lg:flex-row gap-2 items-stretch lg:items-center"
+            >
               <Form.Item
                 className="flex-1 mb-0"
                 name={`title-${index}`}
@@ -351,9 +430,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     message: 'Please enter the Key Result name',
                   },
                 ]}
-                id={`key-result-title-${index}`}
+                id={`okr-milestone-tablet-title-item-${index}`}
+                data-cy={`okr-milestone-tablet-title-item-${index}`}
               >
                 <Input
+                  id={`okr-milestone-tablet-title-input-${index}`}
+                  data-cy={`okr-milestone-tablet-title-input-${index}`}
                   placeholder="Key Result Name"
                   aria-label="Key Result Name"
                   className="h-10 md:h-11 rounded-lg text-base"
@@ -363,7 +445,11 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   }
                 />
               </Form.Item>
-              <div className="flex gap-2 flex-wrap lg:flex-nowrap">
+              <div
+                id={`okr-milestone-tablet-meta-fields-${index}`}
+                data-cy={`okr-milestone-tablet-meta-fields-${index}`}
+                className="flex gap-2 flex-wrap lg:flex-nowrap"
+              >
                 <Form.Item
                   className="flex-1 lg:w-40 xl:w-48 mb-0 min-w-[180px]"
                   rules={[
@@ -372,9 +458,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       message: 'Please select a Key Result type',
                     },
                   ]}
-                  id={`key-result-type-${index}`}
+                  id={`okr-milestone-tablet-type-item-${index}`}
+                  data-cy={`okr-milestone-tablet-type-item-${index}`}
                 >
                   <Select
+                    id={`okr-milestone-tablet-type-select-${index}`}
+                    data-cy={`okr-milestone-tablet-type-select-${index}`}
                     className="w-full h-10 md:h-11 rounded-lg text-base"
                     placeholder="Select metric type"
                     onChange={(value) => {
@@ -391,7 +480,6 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         (metric) => metric.name === keyItem.key_type,
                       )?.id || ''
                     }
-                    id={`select-metric-type-${index}`}
                   >
                     <Option value="" disabled>
                       Select metric type
@@ -411,9 +499,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     { required: true, message: 'Please enter the Weight' },
                     { type: 'number', message: 'Weight must be a number' },
                   ]}
-                  id={`key-result-weight-${index}`}
+                  id={`okr-milestone-tablet-weight-item-${index}`}
+                  data-cy={`okr-milestone-tablet-weight-item-${index}`}
                 >
                   <InputNumber
+                    id={`okr-milestone-tablet-weight-input-${index}`}
+                    data-cy={`okr-milestone-tablet-weight-input-${index}`}
                     className="w-full h-10 md:h-11 rounded-lg text-base"
                     min={0}
                     max={100}
@@ -431,9 +522,12 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   rules={[
                     { required: true, message: 'Please select a deadline' },
                   ]}
-                  id={`key-result-deadline-${index}`}
+                  id={`okr-milestone-tablet-deadline-item-${index}`}
+                  data-cy={`okr-milestone-tablet-deadline-item-${index}`}
                 >
                   <DatePicker
+                    id={`okr-milestone-tablet-deadline-picker-${index}`}
+                    data-cy={`okr-milestone-tablet-deadline-picker-${index}`}
                     className="w-full h-10 md:h-11 rounded-lg text-base"
                     value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                     format="YYYY-MM-DD"
@@ -452,17 +546,29 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         date ? date.format('YYYY-MM-DD') : null,
                       )
                     }
-                    id={`deadline-picker-${index}`}
                   />
                 </Form.Item>
               </div>
             </div>
             {/* Milestone rows */}
-            <div className="flex flex-col gap-2 pl-3 md:pl-4">
+            <div
+              id={`okr-milestone-tablet-list-${index}`}
+              data-cy={`okr-milestone-tablet-list-${index}`}
+              className="flex flex-col gap-2 pl-3 md:pl-4"
+            >
               {/* First milestone row */}
-              <div className="flex flex-col md:flex-row gap-2 items-stretch md:items-center">
-                <Form.Item className="flex-1 mb-0">
+              <div
+                id={`okr-milestone-tablet-row-0-${index}`}
+                data-cy={`okr-milestone-tablet-row-0-${index}`}
+                className="flex flex-col md:flex-row gap-2 items-stretch md:items-center"
+              >
+                <Form.Item
+                  className="flex-1 mb-0"
+                  data-cy={`okr-milestone-tablet-title-item-0-${index}`}
+                >
                   <Input
+                    id={`okr-milestone-tablet-title-input-0-${index}`}
+                    data-cy={`okr-milestone-tablet-title-input-0-${index}`}
                     className="h-10 md:h-11 rounded-lg text-base"
                     placeholder="Set Milestone"
                     value={
@@ -476,8 +582,13 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   />
                 </Form.Item>
                 <div className="flex gap-2">
-                  <Form.Item className="w-20 md:w-24 mb-0">
+                  <Form.Item
+                    className="w-20 md:w-24 mb-0"
+                    data-cy={`okr-milestone-tablet-weight-item-0-${index}`}
+                  >
                     <InputNumber
+                      id={`okr-milestone-tablet-weight-input-0-${index}`}
+                      data-cy={`okr-milestone-tablet-weight-input-0-${index}`}
                       className="w-full h-10 md:h-11 rounded-lg text-base"
                       min={0}
                       max={100}
@@ -489,8 +600,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       }
                     />
                   </Form.Item>
-                  <div className="flex gap-2 items-center flex-1 md:w-40 xl:w-48">
+                  <div
+                    id={`okr-milestone-tablet-actions-0-${index}`}
+                    data-cy={`okr-milestone-tablet-actions-0-${index}`}
+                    className="flex gap-2 items-center flex-1 md:w-40 xl:w-48"
+                  >
                     <button
+                      id={`okr-milestone-tablet-remove-0-${index}`}
+                      data-cy={`okr-milestone-tablet-remove-0-${index}`}
                       onClick={() => handleRemoveMilestone(0)}
                       title="Remove Milestone"
                       aria-label="Remove Milestone"
@@ -512,14 +629,16 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         />
                       </svg>
                     </button>
-                    <Button
+                    <button
+                      id={`okr-milestone-tablet-add-${index}`}
+                      data-cy={`okr-milestone-tablet-add-${index}`}
                       className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white font-semibold rounded-lg h-10 md:h-11 flex items-center justify-center flex-1"
                       aria-label="Add Milestone"
                       onClick={handleAddMilestone}
-                      type="primary"
+                      type="button"
                     >
                       Add Milestone
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -527,10 +646,17 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               {milestones.slice(1).map((milestone, mIndex) => (
                 <div
                   key={mIndex + 1}
+                  id={`okr-milestone-tablet-row-${mIndex + 1}-${index}`}
+                  data-cy={`okr-milestone-tablet-row-${mIndex + 1}-${index}`}
                   className="flex flex-col md:flex-row gap-2 items-stretch md:items-center"
                 >
-                  <Form.Item className="flex-1 mb-0">
+                  <Form.Item
+                    className="flex-1 mb-0"
+                    data-cy={`okr-milestone-tablet-title-item-${mIndex + 1}-${index}`}
+                  >
                     <Input
+                      id={`okr-milestone-tablet-title-input-${mIndex + 1}-${index}`}
+                      data-cy={`okr-milestone-tablet-title-input-${mIndex + 1}-${index}`}
                       className="h-10 md:h-11 rounded-lg text-base"
                       placeholder="Set Milestone"
                       value={
@@ -545,9 +671,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       }
                     />
                   </Form.Item>
-                  <div className="flex gap-2">
-                    <Form.Item className="w-20 md:w-24 mb-0">
+                  <div className="flex gap-2 items-center">
+                    <Form.Item
+                      className="w-20 md:w-24 mb-0"
+                      data-cy={`okr-milestone-tablet-weight-item-${mIndex + 1}-${index}`}
+                    >
                       <InputNumber
+                        id={`okr-milestone-tablet-weight-input-${mIndex + 1}-${index}`}
+                        data-cy={`okr-milestone-tablet-weight-input-${mIndex + 1}-${index}`}
                         className="w-full h-10 md:h-11 rounded-lg text-base"
                         min={0}
                         max={100}
@@ -559,12 +690,18 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         }
                       />
                     </Form.Item>
-                    <div className="flex gap-2 items-center flex-1 md:w-40 xl:w-48">
+                    <div
+                      id={`okr-milestone-tablet-actions-${mIndex + 1}-${index}`}
+                      data-cy={`okr-milestone-tablet-actions-${mIndex + 1}-${index}`}
+                      className="flex gap-2 items-center flex-1 md:w-40 xl:w-48"
+                    >
                       <button
+                        id={`okr-milestone-tablet-remove-${mIndex + 1}-${index}`}
+                        data-cy={`okr-milestone-tablet-remove-${mIndex + 1}-${index}`}
                         onClick={() => handleRemoveMilestone(mIndex + 1)}
                         title="Remove Milestone"
                         aria-label="Remove Milestone"
-                        className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-10 h-10 md:w-11 md:h-11 flex items-center justify-center shadow transition-colors flex-shrink-0"
+                        className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-8 h-8 md:w-11 md:h-11 flex items-center justify-center shadow transition-colors flex-shrink-0"
                         style={{ zIndex: 10 }}
                       >
                         <svg

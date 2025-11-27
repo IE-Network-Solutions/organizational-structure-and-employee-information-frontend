@@ -47,7 +47,10 @@ const TaxRules = () => {
       render: (notused: any, record: TaxRule) => {
         const { minIncome, maxIncome } = record;
         return (
-          <span>
+          <span
+            id={`payroll-tax-rule-range-view-text-${record.id}`}
+            data-cy={`payroll-tax-rule-range-view-text-${record.id}`}
+          >
             {minIncome} - {maxIncome}
           </span>
         );
@@ -69,20 +72,42 @@ const TaxRules = () => {
       title: 'Action',
       key: 'action',
       render: (text: any, record: any) => (
-        <Space size="middle">
-          <Tooltip title="Edit">
+        <Space
+          id={`payroll-tax-rule-actions-view-space-${record.id}`}
+          data-cy={`payroll-tax-rule-actions-view-space-${record.id}`}
+          size="middle"
+        >
+          <Tooltip
+            data-cy={`payroll-tax-rule-edit-click-button-tooltip-${record.id}`}
+            title="Edit"
+          >
             <Button
+              id={`payroll-tax-rule-edit-click-button-${record.id}`}
+              data-cy={`payroll-tax-rule-edit-click-button-${record.id}`}
               type="primary"
               className=" border-none rounded-xl"
-              icon={<EditOutlined />}
+              icon={
+                <EditOutlined
+                  data-cy={`payroll-tax-rule-edit-click-button-icon-${record.id}`}
+                />
+              }
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
 
-          <DeletePopover onDelete={() => handleDelete(record.id)}>
+          <DeletePopover
+            data-cy={`payroll-tax-rule-delete-popover-view-component-${record.id}`}
+            onDelete={() => handleDelete(record.id)}
+          >
             <Button
+              id={`payroll-tax-rule-delete-click-button-${record.id}`}
+              data-cy={`payroll-tax-rule-delete-click-button-${record.id}`}
               className="bg-red-600 text-white border-none rounded-xl"
-              icon={<DeleteOutlined />}
+              icon={
+                <DeleteOutlined
+                  data-cy={`payroll-tax-rule-delete-click-button-icon-${record.id}`}
+                />
+              }
             />
           </DeletePopover>
         </Space>
@@ -104,21 +129,53 @@ const TaxRules = () => {
   };
 
   return (
-    <div className="p-5 rounded-2xl bg-white">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-lg text-bold">Tax Rule</h1>
+    <div
+      id="payroll-tax-rule-page-view-container"
+      data-cy="payroll-tax-rule-page-view-container"
+      className="p-5 rounded-2xl bg-white"
+    >
+      <div
+        id="payroll-tax-rule-header-view-container"
+        data-cy="payroll-tax-rule-header-view-container"
+        className="flex justify-between items-center mb-4"
+      >
+        <h1
+          id="payroll-tax-rule-title-view-text"
+          data-cy="payroll-tax-rule-title-view-text"
+          className="text-lg text-bold"
+        >
+          Tax Rule
+        </h1>
         <Button
+          id="payroll-tax-rule-add-click-button"
+          data-cy="payroll-tax-rule-add-click-button"
           type="primary"
           className="h-10 w-10 sm:w-auto bg-[#3636f0]"
-          icon={<FaPlus />}
+          icon={<FaPlus data-cy="payroll-tax-rule-add-click-button-icon" />}
           onClick={handleAddRule}
         >
-          <span className="hidden sm:inline">Add Tax Rule</span>
+          <span
+            id="payroll-tax-rule-add-click-button-text"
+            data-cy="payroll-tax-rule-add-click-button-text"
+            className="hidden sm:inline"
+          >
+            Add Tax Rule
+          </span>
         </Button>
       </div>
-      <div className="flex overflow-x-auto scrollbar-none w-full">
-        <div className="w-full">
+      <div
+        id="payroll-tax-rule-table-wrapper-view-container"
+        data-cy="payroll-tax-rule-table-wrapper-view-container"
+        className="flex overflow-x-auto scrollbar-none w-full"
+      >
+        <div
+          id="payroll-tax-rule-table-inner-view-container"
+          data-cy="payroll-tax-rule-table-inner-view-container"
+          className="w-full"
+        >
           <Table
+            id="payroll-tax-rule-table-view-table"
+            data-cy="payroll-tax-rule-table-view-table"
             dataSource={data}
             columns={columns}
             pagination={false}
@@ -127,7 +184,7 @@ const TaxRules = () => {
           />
         </div>
       </div>
-      <Drawer />
+      <Drawer data-cy="payroll-tax-rule-drawer-view-component" />
     </div>
   );
 };

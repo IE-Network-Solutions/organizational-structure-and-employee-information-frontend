@@ -112,8 +112,13 @@ function Page() {
       title: 'Action',
       key: 'action',
       render: (record: AssignedCriteriaRecord) => (
-        <div className="flex space-x-2">
+        <div
+          className="flex space-x-2"
+          id={`okr-criteria-assigned-table-actions-${record.key}`}
+          data-cy={`okr-criteria-assigned-table-actions-${record.key}`}
+        >
           <AccessGuard
+            data-cy="okr-criteria-assigned-table-edit-button-access-guard-display-guard"
             permissions={[Permissions.UpdateVpScoringConfigurations]}
           >
             <Button
@@ -121,17 +126,29 @@ function Page() {
               className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-500 border-none"
               icon={<GrEdit />}
               onClick={() => handleEditClick(record.key)}
+              id={`okr-criteria-assigned-table-edit-button-${record.key}`}
+              data-cy={`okr-criteria-assigned-table-edit-button-${record.key}`}
             />
           </AccessGuard>
 
-          <DeletePopover onDelete={() => handleDelete(record.key)}>
+          <DeletePopover
+            onDelete={() => handleDelete(record.key)}
+            data-cy={`okr-criteria-assigned-table-delete-popover-${record.key}`}
+          >
             <AccessGuard
+              data-cy="okr-criteria-assigned-table-delete-button-access-guard-display-guard"
               permissions={[Permissions.DeleteVpScoringConfigurations]}
             >
               <Button
                 type="default"
                 className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={<RiDeleteBin6Line />}
+                icon={
+                  <RiDeleteBin6Line
+                    data-cy={`okr-criteria-assigned-table-delete-button-icon-${record.key}`}
+                  />
+                }
+                id={`okr-criteria-assigned-table-delete-button-${record.key}`}
+                data-cy={`okr-criteria-assigned-table-delete-button-${record.key}`}
               />
             </AccessGuard>
           </DeletePopover>
@@ -159,39 +176,85 @@ function Page() {
   ];
 
   return (
-    <div className="p-5 rounded-2xl bg-white ">
+    <div
+      className="p-5 rounded-2xl bg-white "
+      id="okr-criteria-management-container"
+      data-cy="okr-criteria-management-container"
+    >
       {/* Desktop layout: visible from md and up */}
-      <div className="hidden md:flex justify-between mb-6">
-        <h1 className="text-2xl font-bold md:text-lg">Criteria Management</h1>
-        <AccessGuard permissions={[Permissions.CreateVpScoringConfigurations]}>
+      <div
+        className="hidden md:flex justify-between mb-6"
+        id="okr-criteria-management-desktop-header"
+        data-cy="okr-criteria-management-desktop-header"
+      >
+        <h1
+          className="text-2xl font-bold md:text-lg"
+          id="okr-criteria-management-desktop-title"
+          data-cy="okr-criteria-management-desktop-title"
+        >
+          Criteria Management
+        </h1>
+        <AccessGuard
+          data-cy="okr-criteria-management-desktop-add-button-access-guard-display-guard"
+          permissions={[Permissions.CreateVpScoringConfigurations]}
+        >
           <Button
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 md:w-auto"
             icon={<FaPlus />}
             onClick={() => openDrawer()}
+            id="okr-criteria-management-desktop-add-button"
+            data-cy="okr-criteria-management-desktop-add-button"
           >
-            <span className="hidden lg:block"> Scoring Configuration</span>
+            <span
+              className="hidden lg:block"
+              id="okr-criteria-management-desktop-add-button-label"
+              data-cy="okr-criteria-management-desktop-add-button-label"
+            >
+              Scoring Configuration
+            </span>
           </Button>
         </AccessGuard>
       </div>
-      <div className="hidden md:block w-full">
+      <div
+        className="hidden md:block w-full"
+        id="okr-criteria-management-desktop-filters-wrapper"
+        data-cy="okr-criteria-management-desktop-filters-wrapper"
+      >
         <CriteriaFilters
           onSearch={handleSearch}
           onTypeChange={handleTypeChange}
           criteriaNames={['All Types', ...criteriaTypes]}
+          data-cy="okr-criteria-management-desktop-filters"
         />
       </div>
 
       {/* Mobile layout: visible on small screens */}
-      <div className="md:hidden">
-        <h1 className="text-lg font-bold md:text-lg">Criteria Management</h1>
-        <div className="mt-4 flex justify-between gap-4">
+      <div
+        className="md:hidden"
+        id="okr-criteria-management-mobile-section"
+        data-cy="okr-criteria-management-mobile-section"
+      >
+        <h1
+          className="text-lg font-bold md:text-lg"
+          id="okr-criteria-management-mobile-title"
+          data-cy="okr-criteria-management-mobile-title"
+        >
+          Criteria Management
+        </h1>
+        <div
+          className="mt-4 flex justify-between gap-4"
+          id="okr-criteria-management-mobile-toolbar"
+          data-cy="okr-criteria-management-mobile-toolbar"
+        >
           <CriteriaFilters
             onSearch={handleSearch}
             onTypeChange={handleTypeChange}
             criteriaNames={['All Types', ...criteriaTypes]}
+            data-cy="okr-criteria-management-mobile-filters"
           />
           <AccessGuard
+            data-cy="okr-criteria-management-mobile-add-button-access-guard-display-guard"
             permissions={[Permissions.CreateVpScoringConfigurations]}
           >
             <Button
@@ -199,36 +262,72 @@ function Page() {
               className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 w-10 md:w-auto h-10"
               icon={<FaPlus />}
               onClick={() => openDrawer()}
+              id="okr-criteria-management-mobile-add-button"
+              data-cy="okr-criteria-management-mobile-add-button"
             >
-              <span className="hidden lg:block"> Scoring Configuration</span>
+              <span
+                className="hidden lg:block"
+                id="okr-criteria-management-mobile-add-button-label"
+                data-cy="okr-criteria-management-mobile-add-button-label"
+              >
+                {' '}
+                Scoring Configuration
+              </span>
             </Button>
           </AccessGuard>
         </div>
       </div>
 
-      <div className="flex  overflow-x-auto scrollbar-none w-full">
-        <div className="w-full">
-          <Tabs centered defaultActiveKey="1">
-            <Tabs.TabPane tab="Scoring Configuration" key="1">
+      <div
+        className="flex  overflow-x-auto scrollbar-none w-full"
+        id="okr-criteria-management-tabs-wrapper"
+        data-cy="okr-criteria-management-tabs-wrapper"
+      >
+        <div
+          className="w-full"
+          id="okr-criteria-management-tabs-container"
+          data-cy="okr-criteria-management-tabs-container"
+        >
+          <Tabs
+            centered
+            defaultActiveKey="1"
+            id="okr-criteria-management-tabs"
+            data-cy="okr-criteria-management-tabs"
+          >
+            <Tabs.TabPane
+              tab="Scoring Configuration"
+              key="1"
+              id="okr-criteria-management-tab-scoring"
+              data-cy="okr-criteria-management-tab-scoring"
+            >
               <Table
                 dataSource={assignedCriteriaData}
                 columns={assignedCriteriaColumns}
                 pagination={{ pageSize: 5 }}
                 loading={vpScoringLoading}
+                id="okr-criteria-management-assigned-table"
+                data-cy="okr-criteria-management-assigned-table"
               />
             </Tabs.TabPane>
-            <Tabs.TabPane tab="Available Criteria" key="2">
+            <Tabs.TabPane
+              tab="Available Criteria"
+              key="2"
+              id="okr-criteria-management-tab-available"
+              data-cy="okr-criteria-management-tab-available"
+            >
               <Table
                 dataSource={availableCriteriaData}
                 columns={availableCriteriaColumns}
                 pagination={{ pageSize: 5 }}
                 loading={criteriaLoading}
+                id="okr-criteria-management-available-table"
+                data-cy="okr-criteria-management-available-table"
               />
             </Tabs.TabPane>
           </Tabs>
         </div>
       </div>
-      <ScoringDrawer />
+      <ScoringDrawer data-cy="okr-criteria-management-drawer" />
     </div>
   );
 }

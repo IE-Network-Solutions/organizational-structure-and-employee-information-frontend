@@ -85,21 +85,42 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         onCancel={handleClose}
         footer={false}
         destroyOnClose
+        data-cy="job-add-job-info-modal"
       >
-        <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm employeeData={employeeData} form={form} />
+        <Form
+          form={form}
+          onFinish={createTsks}
+          layout="vertical"
+          id="job-add-job-info-form"
+          data-cy="job-add-job-info-form"
+        >
+          <JobTimeLineForm
+            employeeData={employeeData}
+            form={form}
+            data-cy="job-add-job-info-timeline"
+          />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
             }
+            data-cy="job-add-job-info-schedule"
           />
-          <Form.Item>
-            <Row className="flex justify-end gap-3">
+          <Form.Item
+            id="job-add-job-info-submit-form-item"
+            data-cy="job-add-job-info-submit-form-item"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="job-add-job-info-submit-row"
+              data-cy="job-add-job-info-submit-row"
+            >
               <Button
                 type="primary"
                 htmlType="submit"
                 name="submit"
                 loading={isLoading}
+                id="job-add-job-info-submit-btn"
+                data-cy="job-add-job-info-submit-btn"
               >
                 Submit
               </Button>
@@ -109,6 +130,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
                 value={'cancel'}
                 name="cancel"
                 onClick={handleClose}
+                id="job-add-job-info-cancel-btn"
+                data-cy="job-add-job-info-cancel-btn"
               >
                 Cancel
               </Button>
