@@ -39,14 +39,27 @@ const AddCustomField: React.FC<any> = ({
   >('input');
   const [isActive, setIsActive] = useState(true);
   const [options, setOptions] = useState<string[]>([]);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const addFieldIfNotExists = (formData: any, newField: FormField) => {
+  const resetForm = () => {
+    form.resetFields();
+    setOptions([]);
+    setFieldName('');
+    setFieldType('input');
+    setIsActive(true);
+  };
+
+  const addFieldIfNotExists = async (formData: any, newField: FormField) => {
     if (formData?.length < 1) {
       const newFormDataValue = {
         formTitle: formTitle,
         form: [newField],
       };
-      createCustomForm.mutate(newFormDataValue);
+      try {
+        await createCustomForm.mutateAsync(newFormDataValue);
+        resetForm();
+        setPopoverOpen(false);
+      } catch (error) {}
     } else {
       const fieldExists = formData?.form?.some(
         (field: any) => field.fieldName === newField.fieldName,
@@ -56,7 +69,11 @@ const AddCustomField: React.FC<any> = ({
           ...customEmployeeInformationForm,
           form: [...customEmployeeInformationForm?.form, newField],
         };
-        createCustomForm.mutate(newFormData);
+        try {
+          await createCustomForm.mutateAsync(newFormData);
+          resetForm();
+          setPopoverOpen(false);
+        } catch (error) {}
       } else {
         message.error(`The field ${newField.fieldName} already exists!`);
       }
@@ -77,11 +94,6 @@ const AddCustomField: React.FC<any> = ({
     };
 
     addFieldIfNotExists(customEmployeeInformationForm, newField);
-    form.resetFields();
-    setOptions([]);
-    setFieldName('');
-    setFieldType('input');
-    setIsActive(true);
   };
   const handleFormFailed = () => {};
   const popoverContent = (
@@ -259,6 +271,8 @@ const AddCustomField: React.FC<any> = ({
               content={popoverContent}
               title={formTitle}
               trigger="click"
+              open={popoverOpen}
+              onOpenChange={setPopoverOpen}
               id={`add-custom-field-popover-wrapper-${formTitle}`}
               data-cy={`add-custom-field-popover-wrapper-${formTitle}`}
             >
