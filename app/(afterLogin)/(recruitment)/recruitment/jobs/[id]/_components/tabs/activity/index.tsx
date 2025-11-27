@@ -38,25 +38,48 @@ const actionHistoryData: ActionHistory[] = [
 
 const CandidateActivity: React.FC<ActivityProps> = () => {
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      id="talent-acquisition-candidate-tab-activity-container"
+      data-cy="talent-acquisition-candidate-tab-activity-container"
+    >
       {actionHistoryData?.map((history, index) => (
-        <div key={index} className="flex items-start gap-4">
+        <div
+          key={index}
+          className="flex items-start gap-4"
+          data-cy={`talent-acquisition-candidate-tab-activity-entry-${index}`}
+        >
           <Avatar
             src={history?.profileImage}
             size={50}
             icon={<UserOutlined />}
             className="flex-shrink-0"
+            data-cy={`talent-acquisition-candidate-tab-activity-avatar-${index}`}
           />
-          <div className="flex-grow">
-            <div className="text-[12px] text-gray-700">
+          <div
+            className="flex-grow"
+            data-cy={`talent-acquisition-candidate-tab-activity-details-${index}`}
+          >
+            <div
+              className="text-[12px] text-gray-700"
+              data-cy={`talent-acquisition-candidate-tab-activity-description-${index}`}
+            >
               <span className="font-semibold">{history?.userName}</span>
               {history?.action}
               <span className="font-semibold">{history?.fromStage}</span> to
               <span className="font-semibold">{history?.toStage}</span>
             </div>
-            <div className="text-xs text-gray-400">{history?.timeAgo}</div>
+            <div
+              className="text-xs text-gray-400"
+              data-cy={`talent-acquisition-candidate-tab-activity-time-${index}`}
+            >
+              {history?.timeAgo}
+            </div>
             {history?.reason && (
-              <div className="mt-1 text-xs text-gray-500">
+              <div
+                className="mt-1 text-xs text-gray-500"
+                data-cy={`talent-acquisition-candidate-tab-activity-reason-${index}`}
+              >
                 <span className="font-semibold">Reason: </span>
                 {history?.reason}
               </div>

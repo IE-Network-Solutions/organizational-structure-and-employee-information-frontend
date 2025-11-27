@@ -168,6 +168,8 @@ const RecruitmentPipeline = () => {
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Department</label>
         <Select
+          id="talent-acquisition-recruitment-pipeline-select-department"
+          data-cy="talent-acquisition-recruitment-pipeline-select-department"
           placeholder="Department"
           allowClear
           showSearch
@@ -189,6 +191,8 @@ const RecruitmentPipeline = () => {
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Stage</label>
         <Select
+          id="talent-acquisition-recruitment-pipeline-select-stage"
+          data-cy="talent-acquisition-recruitment-pipeline-select-stage"
           placeholder="Stage"
           allowClear
           showSearch
@@ -210,6 +214,8 @@ const RecruitmentPipeline = () => {
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Job</label>
         <Select
+          id="talent-acquisition-recruitment-pipeline-select-job"
+          data-cy="talent-acquisition-recruitment-pipeline-select-job"
           placeholder="Job"
           allowClear
           showSearch
@@ -335,7 +341,11 @@ const RecruitmentPipeline = () => {
           </div>
         </div>
 
-        <CandidateTable data={pipelineData} isLoading={isLoading} />
+        <CandidateTable
+          data-cy="talent-acquisition-recruitment-pipeline-table"
+          data={pipelineData}
+          isLoading={isLoading}
+        />
       </Card>
 
       {/* Mobile Filter Modal */}

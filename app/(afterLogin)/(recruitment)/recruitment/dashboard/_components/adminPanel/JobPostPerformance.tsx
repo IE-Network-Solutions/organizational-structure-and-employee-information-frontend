@@ -75,10 +75,35 @@ const JobPostPerformance = () => {
     <div className="flex flex-col gap-4">
       <h3 className="text-lg font-medium mb-2">Filter</h3>
 
+      {/* Job */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-gray-600">Job</label>
+        <Select
+          id="talent-acquisition-job-post-performance-select-job"
+          data-cy="talent-acquisition-job-post-performance-select-job"
+          placeholder="Job"
+          allowClear
+          showSearch
+          value={jobPostJobId}
+          className="w-full h-12"
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
+          loading={jobsLoading}
+          options={jobOptions}
+          onChange={(value) => setJobPostJobId(value)}
+        />
+      </div>
+
       {/* Department */}
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Department</label>
         <Select
+          id="talent-acquisition-job-post-performance-select-department"
+          data-cy="talent-acquisition-job-post-performance-select-department"
           placeholder="Department"
           allowClear
           showSearch
@@ -100,6 +125,8 @@ const JobPostPerformance = () => {
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-600">Date Range</label>
         <RangePicker
+          id="talent-acquisition-job-post-performance-date-picker"
+          data-cy="talent-acquisition-job-post-performance-date-picker"
           placeholder={['Start Date', 'End Date']}
           allowClear
           className="w-full h-12"
@@ -122,6 +149,7 @@ const JobPostPerformance = () => {
       <Card
         bodyStyle={{ padding: '0px' }}
         className="bg-white p-6 rounded-xl shadow-lg mx-1"
+        data-cy="talent-acquisition-job-post-performance-card"
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-[16px] font-bold">Job Post Performance</h2>

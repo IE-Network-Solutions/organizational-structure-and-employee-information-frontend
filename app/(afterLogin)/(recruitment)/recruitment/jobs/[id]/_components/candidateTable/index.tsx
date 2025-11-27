@@ -217,7 +217,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     };
 
     const hirePopoverContent = (
-      <div className="w-64">
+      <div
+        id={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
+        data-cy={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
+        className="w-64"
+      >
         <h3 className="text-lg font-semibold mb-4 text-center">Date Hired</h3>
         <Form form={hireForm} layout="vertical">
           <Form.Item
@@ -230,13 +234,21 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             ]}
           >
             <DatePicker
+              id={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
               className="w-full"
               placeholder="Select date"
               format="DD MMM YYYY"
             />
           </Form.Item>
-          <div className="flex justify-center gap-2 mt-4">
+          <div
+            id={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
+            className="flex justify-center gap-2 mt-4"
+          >
             <Button
+              id={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
               type="primary"
               size="small"
               onClick={() => handleHireCandidate(item)}
@@ -246,6 +258,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               Hire Candidate
             </Button>
             <Button
+              id={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
               size="small"
               onClick={() => handleCancelHire(item?.id)}
               className="h-8"
@@ -268,7 +282,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       //     ? 'External'
       //     : 'Internal',
       cv: (
-        <div className="flex items-center justify-between ">
+        <div
+          id={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
+          data-cy={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
+          className="flex items-center justify-between "
+        >
           <span
             className="text-xs font-semibold cursor-pointer"
             title={item?.documentName ?? 'CV.pdf'}
@@ -277,7 +295,12 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               ? `${item.documentName.slice(0, 8)}...`
               : (item?.documentName ?? 'CV.pdf')}{' '}
           </span>
-          <div className="cursor-pointer" onClick={handleDownload}>
+          <div
+            id={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
+            className="cursor-pointer"
+            onClick={handleDownload}
+          >
             <FileDown size={20} strokeWidth={1.25} />
           </div>
         </div>
@@ -285,6 +308,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
         <Select
+          id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
+          data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
           defaultValue={item?.jobCandidate?.map(
             (e: any) => e?.applicantStatusStage?.title ?? '--',
           )}
@@ -297,16 +322,26 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           }
         >
           {statusStage?.items?.map((stage: any) => (
-            <Select.Option key={stage.id} value={stage.id}>
+            <Select.Option
+              key={stage.id}
+              value={stage.id}
+              id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+              data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+            >
               {stage.title}
             </Select.Option>
           ))}
         </Select>
       ),
       action: (
-        <div className="flex items-center justify-between gap-4 text-white">
+        <div
+          id={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
+          data-cy={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
+          className="flex items-center justify-between gap-4 text-white"
+        >
           <Button
             id={`editUserButton${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-button-view-${item?.id}`}
             disabled={item?.deletedAt !== null}
             className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
             onClick={() => handleCandidateDetail(item)}
@@ -314,12 +349,15 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
             <FaEye />
           </Button>
           <Dropdown
+            data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
             menu={{
               items: [
                 {
                   key: 'hireCandidate',
                   label: (
                     <Popover
+                      id={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
+                      data-cy={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
                       content={hirePopoverContent}
                       trigger="click"
                       open={hirePopoverVisible[item?.id]}
@@ -385,7 +423,10 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setCurrentPage(1);
   };
   return (
-    <div>
+    <div
+      id="talent-acquisition-job-candidate-table-div-container"
+      data-cy="talent-acquisition-job-candidate-table-div-container"
+    >
       <Table
         className="w-full"
         columns={columns}

@@ -8,8 +8,8 @@ const OrgPeoplesComponent = dynamic(
 
 function OrgStructure() {
   return (
-    <div>
-      <OrgPeoplesComponent />
+    <div data-cy="org-structure-page" id="org-structure-page">
+      <OrgPeoplesComponent data-cy="org-structure-component" />
     </div>
   );
 }

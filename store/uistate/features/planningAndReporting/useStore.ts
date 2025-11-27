@@ -133,9 +133,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     setWeight: (key, weight) =>
       set((state) => {
-        const updatedWeights = { ...state.weights, [key]: weight };
+        const updatedWeights = { ...state.weights, [key]: Number(weight) || 0 };
         const newTotal = Object.values(updatedWeights).reduce(
-          (acc, val) => acc + val,
+          (acc, val) => acc + Number(val || 0),
           0,
         );
         return { weights: updatedWeights, totalWeight: newTotal };
@@ -150,7 +150,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
         /* eslint-ensable-next-line @typescript-eslint/naming-convention */
 
         const newTotal = Object.values(remainingWeights).reduce(
-          (acc, val) => acc + val,
+          (acc, val) => Number(acc) + Number(val || 0),
           0,
         );
         return { weights: remainingWeights, totalWeight: newTotal };
