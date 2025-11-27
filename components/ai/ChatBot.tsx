@@ -278,6 +278,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
       <div
         role="dialog"
         aria-modal="true"
+        id="chatbot-wrapper-view-space"
+        data-cy="chatbot-wrapper-view-space"
         style={{
           position: 'fixed',
           bottom: 24,

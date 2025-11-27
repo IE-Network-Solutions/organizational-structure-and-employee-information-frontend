@@ -41,6 +41,8 @@ const ChatBotButton: React.FC = () => {
               transition: 'all 0.3s ease',
               padding: 0,
             }}
+            id="chatbot-button-wrapper-view-space"
+            data-cy="chatbot-button-wrapper-view-space"
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
               e.currentTarget.style.boxShadow =
