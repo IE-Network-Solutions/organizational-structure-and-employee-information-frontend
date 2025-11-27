@@ -351,7 +351,11 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <Tooltip title="New Chat">
+                <Tooltip
+                  title="New Chat"
+                  id="chatbot-new-chat-tooltip-wrapper-view-space"
+                  data-cy="chatbot-new-chat-tooltip-wrapper-view-space"
+                >
                   <Button
                     type="text"
                     size="small"
@@ -374,7 +378,11 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                     />
                   </Dropdown>
                 )}
-                <Tooltip title="Close">
+                <Tooltip
+                  title="Close"
+                  id="chatbot-close-tooltip-wrapper-view-space"
+                  data-cy="chatbot-close-tooltip-wrapper-view-space"
+                >
                   <Button
                     type="text"
                     size="small"

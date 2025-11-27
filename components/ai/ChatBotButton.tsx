@@ -18,7 +18,11 @@ const ChatBotButton: React.FC = () => {
 
   return (
     <>
-      <Tooltip title="Chat with SelamNew AI">
+      <Tooltip
+        title="Chat with SelamNew AI"
+        id="chatbot-tooltip-wrapper-view-space"
+        data-cy="chatbot-tooltip-wrapper-view-space"
+      >
         <Badge count={unreadCount > 0 ? unreadCount : 0} size="small">
           <Button
             type="text"
