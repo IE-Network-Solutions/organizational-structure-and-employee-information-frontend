@@ -1,5 +1,5 @@
 'use client';
-import { Button, Form, Popconfirm, Spin, Table, Tabs, Tooltip } from 'antd';
+import { Button, Form, Spin, Table, Tabs, Tooltip, Space } from 'antd';
 import { TabsProps } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import TabLandingLayout from '@/components/tabLanding';
@@ -18,8 +18,6 @@ import {
   useFetchAllFeedbackRecordForExport,
 } from '@/store/server/features/feedback/feedbackRecord/queries';
 import dayjs from 'dayjs';
-import { MdDeleteOutline } from 'react-icons/md';
-import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { FeedbackService } from './_components/feedbackAnalytics';
@@ -69,8 +67,6 @@ const Page = () => {
   } = useFetchAllFeedbackRecord({ variantType, activeTab, empId, userId });
 
   const [form] = Form.useForm();
-
-  const { mutate: deleteFeedbackRecord } = useDeleteFeedbackRecordById();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
 
   const { data: getAllUsers } = useGetAllUsers();
@@ -90,11 +86,6 @@ const Page = () => {
       givenDate,
     });
 
-  const handleDelete = (id: string) => {
-    deleteFeedbackRecord(id, {
-      onSuccess: () => {},
-    });
-  };
 
   const onChange = (key: string) => {
     setVariantType(key === 'appreciation' ? 'appreciation' : 'reprimand');
@@ -317,32 +308,8 @@ const Page = () => {
           : 'N/A';
       },
     },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'actionButtons',
-      render: (notused: any, record: any) => {
-        return (
-          <div className="flex gap-2">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              onConfirm={() => handleDelete(record?.id)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button
-                disabled={record.issuerId !== userIdData}
-                size="small"
-                icon={<MdDeleteOutline />}
-                danger
-                type="primary"
-              />
-            </Popconfirm>
-          </div>
-        );
-      },
-    },
   ];
+
 
   const searchField = [
     {
@@ -494,24 +461,27 @@ const Page = () => {
             <div className="flex-1">
               <EmployeeSearchComponent fields={searchField} />
             </div>
-            {userId === 'all' && (
-              <AccessGuard permissions={[Permissions.ViewAllEmployeeFeedback]}>
-                <Tooltip title="Export Feedback Data">
-                  <Button
-                    type="default"
-                    icon={<PiExportLight size={20} />}
-                    onClick={handleExport}
-                    loading={isExporting || isExportDataLoading}
-                    className="ml-4"
-                  >
-                    Export
-                  </Button>
-                </Tooltip>
-              </AccessGuard>
-            )}
+            <div className="flex gap-2">
+              {userId === 'all' && (
+                <AccessGuard permissions={[Permissions.ViewAllEmployeeFeedback]}>
+                  <Tooltip title="Export Feedback Data">
+                    <Button
+                      type="default"
+                      icon={<PiExportLight size={20} />}
+                      onClick={handleExport}
+                      loading={isExporting || isExportDataLoading}
+                      className="ml-4"
+                    >
+                      Export
+                    </Button>
+                  </Tooltip>
+                </AccessGuard>
+              )}
+            </div>
           </div>
           <div className="flex overflow-x-auto scrollbar-none w-full">
             <Table
+              rowKey="id"
               loading={getFeedbackRecordLoading}
               dataSource={getAllFeedbackRecord?.items}
               columns={columns}

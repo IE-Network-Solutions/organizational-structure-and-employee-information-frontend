@@ -4,14 +4,18 @@ import {
   AllIncentiveData,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Avatar, Table, TableColumnsType, Tooltip } from 'antd';
+import { Avatar, Table, TableColumnsType, Tooltip, Button, Space } from 'antd';
 import React from 'react';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRouter } from 'next/navigation';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
 
 export type IncentiveTableDataParams = {
   recognition: string;
@@ -22,35 +26,6 @@ export type IncentiveTableDataParams = {
   id: string;
 };
 
-const columns: TableColumnsType<IncentiveTableDataParams> = [
-  {
-    title: 'Recognition',
-    dataIndex: 'recognition',
-    sorter: (a, b) => a.recognition.localeCompare(b.recognition),
-  },
-  {
-    title: 'Employees',
-    dataIndex: 'employee_name',
-    sorter: (a, b) =>
-      String(a.employee_name).localeCompare(String(b.employee_name)),
-  },
-  {
-    title: 'Criteria',
-    dataIndex: 'criteria',
-    sorter: (a, b) => String(a.criteria).localeCompare(String(b.criteria)),
-  },
-  {
-    title: 'Bonus',
-    dataIndex: 'bonus',
-    sorter: (a, b) => String(a.bonus).localeCompare(String(b.bonus)),
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
-  },
-];
-
 interface IncentiveTableDetailsProps {
   id: string;
 }
@@ -59,6 +34,76 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   id,
 }) => {
   const router = useRouter();
+  const { mutate: deleteIncentive } = useDeleteIncentive();
+
+  const handleDelete = (incentiveId: string) => {
+    deleteIncentive({ id: incentiveId });
+  };
+
+  const columns: TableColumnsType<IncentiveTableDataParams> = [
+    {
+      title: 'Recognition',
+      dataIndex: 'recognition',
+      sorter: (a, b) => a.recognition.localeCompare(b.recognition),
+    },
+    {
+      title: 'Employees',
+      dataIndex: 'employee_name',
+      sorter: (a, b) =>
+        String(a.employee_name).localeCompare(String(b.employee_name)),
+    },
+    {
+      title: 'Criteria',
+      dataIndex: 'criteria',
+      sorter: (a, b) => String(a.criteria).localeCompare(String(b.criteria)),
+    },
+    {
+      title: 'Bonus',
+      dataIndex: 'bonus',
+      sorter: (a, b) => String(a.bonus).localeCompare(String(b.bonus)),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      fixed: 'right' as const,
+      width: 100,
+      render: (_: any, record: any) => (
+        <Space
+          size="middle"
+          onClick={(e) => e.stopPropagation()}
+          id={`incentive-detail-table-actions-${record.id}`}
+          data-cy={`incentive-detail-table-actions-${record.id}`}
+        >
+          <AccessGuard
+            permissions={[Permissions.DeleteRecognition]}
+            id={`incentive-detail-table-delete-guard-${record.id}`}
+            data-cy={`incentive-detail-table-delete-guard-${record.id}`}
+          >
+            <DeletePopover
+              titleText="Are you sure you want to permanently delete this record? This action cannot be undone."
+              onDelete={() => handleDelete(record.id)}
+              data-cy={`incentive-detail-table-delete-popover-${record.id}`}
+            >
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={(e) => e.stopPropagation()}
+                id={`incentive-detail-table-delete-button-${record.id}`}
+                data-cy={`incentive-detail-table-delete-button-${record.id}`}
+              />
+            </DeletePopover>
+          </AccessGuard>
+        </Space>
+      ),
+    },
+  ];
+
 
   const {
     searchParams,
@@ -96,13 +141,14 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
   };
+  const { isMobile, isTablet } = useIsMobile();
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (selectedRowKeys: any) => {
       setSelectedRowKeys(selectedRowKeys);
     },
   };
-  const { isMobile, isTablet } = useIsMobile();
 
   const IncentiveByRecognitionTypeTableData =
     responseLoading || dynamicRecognitionData?.items?.length < 0
@@ -170,7 +216,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
         dataSource={IncentiveByRecognitionTypeTableData}
         pagination={false}
         loading={responseLoading}
-        scroll={{ x: 1000 }}
+        scroll={{ x: 1100 }}
         onRow={(record) => ({
           onClick: () => {
             router.push(`/incentives/detail/${record?.id}`);
