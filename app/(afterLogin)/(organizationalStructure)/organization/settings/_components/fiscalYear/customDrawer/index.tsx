@@ -193,15 +193,23 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   };
 
   const formContent = (
-    <Form layout="vertical" onFinish={handleSubmit} data-cy="org-components-fiscalyear-customdrawer-index-form-1" id="org-components-fiscalyear-customdrawer-index-form-1">
-      {current === 0 && <FiscalYearForm  data-cy="org-components-fiscalyear-customdrawer-index-fiscalyearform-1"/>}
+    <Form
+      layout="vertical"
+      onFinish={handleSubmit}
+      data-cy="org-components-fiscalyear-customdrawer-index-form-1"
+      id="org-components-fiscalyear-customdrawer-index-form-1"
+    >
+      {current === 0 && (
+        <FiscalYearForm data-cy="org-components-fiscalyear-customdrawer-index-fiscalyearform-1" />
+      )}
       {current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
           isFiscalYear={true}
-         data-cy="org-components-fiscalyear-customdrawer-index-sessiondrawer-1"/>
+          data-cy="org-components-fiscalyear-customdrawer-index-sessiondrawer-1"
+        />
       )}
       {current === 2 && (
         <MonthDrawer
@@ -210,7 +218,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           isUpdateLoading={updateIsLoading}
           onNextStep={handleNextStep}
           isFiscalYear={true}
-         data-cy="org-components-fiscalyear-customdrawer-index-monthdrawer-1"/>
+          data-cy="org-components-fiscalyear-customdrawer-index-monthdrawer-1"
+        />
       )}
     </Form>
   );
@@ -222,7 +231,11 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
         <CustomDrawerLayout
           data-cy="org-settings-fiscal-year-drawer"
           modalHeader={
-            <h1 className="flex justify-start text-base font-bold text-gray-800" data-cy="org-settings-fiscal-year-drawer-header" id="org-settings-fiscal-year-drawer-header">
+            <h1
+              className="flex justify-start text-base font-bold text-gray-800"
+              data-cy="org-settings-fiscal-year-drawer-header"
+              id="org-settings-fiscal-year-drawer-header"
+            >
               {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
             </h1>
           }

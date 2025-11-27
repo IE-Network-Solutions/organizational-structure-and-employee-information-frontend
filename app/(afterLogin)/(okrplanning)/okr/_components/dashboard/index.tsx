@@ -6,13 +6,18 @@ export default function Dashboard() {
   return (
     <div
       id="okr-dashboard"
+      data-cy="okr-dashboard"
       className="flex flex-col w-full px-4 md:px-6 py-4 gap-4 mt-0"
     >
-      <div id="okr-search-section">
-        <OkrSearch />
+      <div id="okr-search-section" data-cy="okr-search-section">
+        <OkrSearch
+         data-cy="okr-search-section-display-component"
+        />
       </div>
-      <div id="okr-tab-section">
-        <OkrTab />
+      <div id="okr-tab-section" data-cy="okr-tab-section">
+        <OkrTab 
+        data-cy="okr-tab-section-display-component"
+        />
       </div>
     </div>
   );

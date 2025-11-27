@@ -29,16 +29,29 @@ const TalentRoasterDetails = () => {
 
   if (isLoading) {
     return (
-      <div id="talent-acquisition-talent-roaster-detail-div-container" data-cy="talent-acquisition-talent-roaster-detail-div-container" className="flex justify-center items-center min-h-96">
-        <Spin  data-cy="talent-acquisition-talent-roaster-detail-spin" size="large" />
+      <div
+        id="talent-acquisition-talent-roaster-detail-div-container"
+        data-cy="talent-acquisition-talent-roaster-detail-div-container"
+        className="flex justify-center items-center min-h-96"
+      >
+        <Spin
+          data-cy="talent-acquisition-talent-roaster-detail-spin"
+          size="large"
+        />
       </div>
     );
   }
 
   if (!talentData) {
     return (
-      <div id="talent-acquisition-talent-roaster-detail-div-not-found" data-cy="talent-acquisition-talent-roaster-detail-div-not-found" className="flex justify-center items-center min-h-96">
-        <Text data-cy="talent-acquisition-talent-roaster-detail-text-not-found">Talent roaster not found</Text>
+      <div
+        id="talent-acquisition-talent-roaster-detail-div-not-found"
+        data-cy="talent-acquisition-talent-roaster-detail-div-not-found"
+        className="flex justify-center items-center min-h-96"
+      >
+        <Text data-cy="talent-acquisition-talent-roaster-detail-text-not-found">
+          Talent roaster not found
+        </Text>
       </div>
     );
   }
@@ -61,9 +74,17 @@ const TalentRoasterDetails = () => {
   );
 
   return (
-    <div id="talent-acquisition-talent-roaster-detail-div-container" data-cy="talent-acquisition-talent-roaster-detail-div-container" className="w-full mx-auto p-4 space-y-6">
+    <div
+      id="talent-acquisition-talent-roaster-detail-div-container"
+      data-cy="talent-acquisition-talent-roaster-detail-div-container"
+      className="w-full mx-auto p-4 space-y-6"
+    >
       {/* Back Button */}
-      <div id="talent-acquisition-talent-roaster-detail-div-button-back" data-cy="talent-acquisition-talent-roaster-detail-div-button-back" className="mb-4">
+      <div
+        id="talent-acquisition-talent-roaster-detail-div-button-back"
+        data-cy="talent-acquisition-talent-roaster-detail-div-button-back"
+        className="mb-4"
+      >
         <Button
           id="talent-acquisition-talent-roaster-detail-button-back"
           data-cy="talent-acquisition-talent-roaster-detail-button-back"
@@ -77,10 +98,25 @@ const TalentRoasterDetails = () => {
       </div>
 
       {/* Personal Info Section */}
-      <Card  data-cy="talent-acquisition-talent-roaster-detail-card-personal-info" title={<Title level={4}>Personal Info</Title>} className="w-full">
-        <Row data-cy="talent-acquisition-talent-roaster-detail-row-personal-info" gutter={[24, 16]}>
-          <Col data-cy="talent-acquisition-talent-roaster-detail-col-personal-info-full-name" xs={24} md={12}>
-            <InfoRow data-cy="talent-acquisition-talent-roaster-detail-info-row-full-name" label="Full Name" value={talentData?.fullName || 'N/A'} />
+      <Card
+        data-cy="talent-acquisition-talent-roaster-detail-card-personal-info"
+        title={<Title level={4}>Personal Info</Title>}
+        className="w-full"
+      >
+        <Row
+          data-cy="talent-acquisition-talent-roaster-detail-row-personal-info"
+          gutter={[24, 16]}
+        >
+          <Col
+            data-cy="talent-acquisition-talent-roaster-detail-col-personal-info-full-name"
+            xs={24}
+            md={12}
+          >
+            <InfoRow
+              data-cy="talent-acquisition-talent-roaster-detail-info-row-full-name"
+              label="Full Name"
+              value={talentData?.fullName || 'N/A'}
+            />
             <InfoRow
               data-cy="talent-acquisition-talent-roaster-detail-info-row-application-date"
               label="Application Date"
@@ -123,7 +159,11 @@ const TalentRoasterDetails = () => {
               }
             />
           </Col>
-          <Col data-cy="talent-acquisition-talent-roaster-detail-col-personal-info-right" xs={24} md={12}>
+          <Col
+            data-cy="talent-acquisition-talent-roaster-detail-col-personal-info-right"
+            xs={24}
+            md={12}
+          >
             <InfoRow
               label="Year of Graduation"
               data-cy="talent-acquisition-talent-roaster-detail-info-row-year-of-graduation"
@@ -131,7 +171,11 @@ const TalentRoasterDetails = () => {
                 talentData?.graduateYear ? talentData?.graduateYear : 'N/A'
               }
             />
-            <InfoRow data-cy="talent-acquisition-talent-roaster-detail-info-row-cgpa" label="CGPA" value={talentData?.CGPA || 'N/A'} />
+            <InfoRow
+              data-cy="talent-acquisition-talent-roaster-detail-info-row-cgpa"
+              label="CGPA"
+              value={talentData?.CGPA || 'N/A'}
+            />
             <InfoRow
               data-cy="talent-acquisition-talent-roaster-detail-info-row-department"
               label="Department"
@@ -148,11 +192,30 @@ const TalentRoasterDetails = () => {
       </Card>
 
       {/* Address Section */}
-      <Card data-cy="talent-acquisition-talent-roaster-detail-card-address" title={<Title level={4}>Address</Title>} className="w-full">
-        <Row data-cy="talent-acquisition-talent-roaster-detail-row-address" gutter={[24, 16]}>
-          <Col data-cy="talent-acquisition-talent-roaster-detail-col-address" xs={24} md={12}>
-            <InfoRow data-cy="talent-acquisition-talent-roaster-detail-info-row-email-address" label="Email Address" value={talentData?.email || 'N/A'} />
-            <InfoRow data-cy="talent-acquisition-talent-roaster-detail-info-row-phone-number" label="Phone Number" value={talentData?.phone || 'N/A'} />
+      <Card
+        data-cy="talent-acquisition-talent-roaster-detail-card-address"
+        title={<Title level={4}>Address</Title>}
+        className="w-full"
+      >
+        <Row
+          data-cy="talent-acquisition-talent-roaster-detail-row-address"
+          gutter={[24, 16]}
+        >
+          <Col
+            data-cy="talent-acquisition-talent-roaster-detail-col-address"
+            xs={24}
+            md={12}
+          >
+            <InfoRow
+              data-cy="talent-acquisition-talent-roaster-detail-info-row-email-address"
+              label="Email Address"
+              value={talentData?.email || 'N/A'}
+            />
+            <InfoRow
+              data-cy="talent-acquisition-talent-roaster-detail-info-row-phone-number"
+              label="Phone Number"
+              value={talentData?.phone || 'N/A'}
+            />
           </Col>
         </Row>
       </Card>
@@ -163,10 +226,16 @@ const TalentRoasterDetails = () => {
         title={<Title level={4}>Additional Information</Title>}
         className="w-full"
       >
-        <div data-cy="talent-acquisition-talent-roaster-detail-div-additional-info" className="space-y-4">
+        <div
+          data-cy="talent-acquisition-talent-roaster-detail-div-additional-info"
+          className="space-y-4"
+        >
           <div data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-expected-salary">
             <Text className="text-gray-600">Expected Salary</Text>
-            <div data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-expected-salary-value" className="mt-1">
+            <div
+              data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-expected-salary-value"
+              className="mt-1"
+            >
               <Text strong>
                 {talentData?.expectedSalary
                   ? `${talentData.expectedSalary} Birr`
@@ -179,7 +248,10 @@ const TalentRoasterDetails = () => {
 
           <div data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-motivation-for-applying">
             <Text className="text-gray-600">Motivation for applying</Text>
-            <div data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-motivation-for-applying-value" className="mt-2 p-3 bg-gray-50 rounded-lg">
+            <div
+              data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-motivation-for-applying-value"
+              className="mt-2 p-3 bg-gray-50 rounded-lg"
+            >
               <Text>
                 {talentData?.motivationForApplying ||
                   'No motivation statement provided'}
@@ -191,7 +263,11 @@ const TalentRoasterDetails = () => {
             <Text className="text-gray-600">
               Why are you interested in this Company?
             </Text>
-            <div id="talent-acquisition-talent-roaster-detail-div-additional-info-why-interested-value" data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-why-interested-value" className="mt-2 p-3 bg-gray-50 rounded-lg">
+            <div
+              id="talent-acquisition-talent-roaster-detail-div-additional-info-why-interested-value"
+              data-cy="talent-acquisition-talent-roaster-detail-div-additional-info-why-interested-value"
+              className="mt-2 p-3 bg-gray-50 rounded-lg"
+            >
               <Text>{talentData?.whyInterested || 'No response provided'}</Text>
             </div>
           </div>
@@ -200,8 +276,15 @@ const TalentRoasterDetails = () => {
 
       {/* Cover Letter Section */}
       {talentData?.coverLetter && (
-        <Card data-cy="talent-acquisition-talent-roaster-detail-card-cover-letter" title={<Title level={4}>Cover Letter</Title>} className="w-full">
-          <div data-cy="talent-acquisition-talent-roaster-detail-div-cover-letter-value" className="p-3 bg-gray-50 rounded-lg">
+        <Card
+          data-cy="talent-acquisition-talent-roaster-detail-card-cover-letter"
+          title={<Title level={4}>Cover Letter</Title>}
+          className="w-full"
+        >
+          <div
+            data-cy="talent-acquisition-talent-roaster-detail-div-cover-letter-value"
+            className="p-3 bg-gray-50 rounded-lg"
+          >
             <Text style={{ whiteSpace: 'pre-wrap' }}>
               {talentData.coverLetter}
             </Text>

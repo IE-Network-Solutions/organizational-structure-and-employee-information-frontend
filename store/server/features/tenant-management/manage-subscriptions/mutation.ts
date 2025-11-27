@@ -66,6 +66,7 @@ export const useCreateSubscription = () => {
   return useMutation(createSubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -76,6 +77,7 @@ export const useUpgradeSubscription = () => {
   return useMutation(upgradeSubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -86,6 +88,7 @@ export const useBuyAdditionalSlots = () => {
   return useMutation(buyAdditionalSlots, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -96,6 +99,7 @@ export const useRenewSubscription = () => {
   return useMutation(renewSubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });
@@ -106,6 +110,7 @@ export const usePrepaySubscription = () => {
   return useMutation(prepaySubscription, {
     onSuccess: () => {
       queryClient.invalidateQueries('subscriptions');
+      queryClient.invalidateQueries('invoices');
       handleSuccessMessage('PUT');
     },
   });

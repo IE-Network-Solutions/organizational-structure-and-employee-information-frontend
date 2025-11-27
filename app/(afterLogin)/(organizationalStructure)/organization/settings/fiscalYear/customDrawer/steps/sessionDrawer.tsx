@@ -358,10 +358,23 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   // Render session form items
   const renderSessionForm = useCallback(
     (session: SessionData, index: number) => (
-      <div className="px-3 sm:px-0" key={index} data-cy={`org-settings-fiscal-year-session-${index}`} id={`org-settings-fiscal-year-session-${index}`}>
+      <div
+        className="px-3 sm:px-0"
+        key={index}
+        data-cy={`org-settings-fiscal-year-session-${index}`}
+        id={`org-settings-fiscal-year-session-${index}`}
+      >
         <Form.Item
           name={['sessionData', index, 'sessionName']}
-          label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-1" id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-1">Session {index + 1} Name</span>}
+          label={
+            <span
+              className="font-medium"
+              data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-1"
+              id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-1"
+            >
+              Session {index + 1} Name
+            </span>
+          }
           rules={[
             { required: true, message: 'Please input the session name!' },
           ]}
@@ -377,8 +390,21 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           />
         </Form.Item>
 
-        <Row gutter={[16, 6]} className="mb-4" data-cy={`org-settings-fiscal-year-session-dates-${index}`} id={`org-settings-fiscal-year-session-dates-${index}`}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy={`org-settings-fiscal-year-session-start-date-col-${index}`} id={`org-settings-fiscal-year-session-start-date-col-${index}`}>
+        <Row
+          gutter={[16, 6]}
+          className="mb-4"
+          data-cy={`org-settings-fiscal-year-session-dates-${index}`}
+          id={`org-settings-fiscal-year-session-dates-${index}`}
+        >
+          <Col
+            xs={24}
+            sm={24}
+            md={12}
+            lg={12}
+            xl={12}
+            data-cy={`org-settings-fiscal-year-session-start-date-col-${index}`}
+            id={`org-settings-fiscal-year-session-start-date-col-${index}`}
+          >
             <Form.Item
               name={['sessionData', index, 'sessionStartDate']}
               label={`Session ${index + 1} Start Date`}
@@ -392,10 +418,23 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               data-cy={`org-settings-fiscal-year-session-start-date-${index}`}
               id={`org-settings-fiscal-year-session-start-date-${index}`}
             >
-              <DatePicker format="YYYY-MM-DD" className="w-full" data-cy={`org-settings-fiscal-year-session-start-date-input-${index}`} id={`org-settings-fiscal-year-session-start-date-input-${index}`} />
+              <DatePicker
+                format="YYYY-MM-DD"
+                className="w-full"
+                data-cy={`org-settings-fiscal-year-session-start-date-input-${index}`}
+                id={`org-settings-fiscal-year-session-start-date-input-${index}`}
+              />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy={`org-settings-fiscal-year-session-end-date-col-${index}`} id={`org-settings-fiscal-year-session-end-date-col-${index}`}>
+          <Col
+            xs={24}
+            sm={24}
+            md={12}
+            lg={12}
+            xl={12}
+            data-cy={`org-settings-fiscal-year-session-end-date-col-${index}`}
+            id={`org-settings-fiscal-year-session-end-date-col-${index}`}
+          >
             <Form.Item
               name={['sessionData', index, 'sessionEndDate']}
               label={`Session ${index + 1} End Date`}
@@ -409,14 +448,27 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               data-cy={`org-settings-fiscal-year-session-end-date-${index}`}
               id={`org-settings-fiscal-year-session-end-date-${index}`}
             >
-              <DatePicker format="YYYY-MM-DD" className="w-full" data-cy={`org-settings-fiscal-year-session-end-date-input-${index}`} id={`org-settings-fiscal-year-session-end-date-input-${index}`} />
+              <DatePicker
+                format="YYYY-MM-DD"
+                className="w-full"
+                data-cy={`org-settings-fiscal-year-session-end-date-input-${index}`}
+                id={`org-settings-fiscal-year-session-end-date-input-${index}`}
+              />
             </Form.Item>
           </Col>
         </Row>
 
         <Form.Item
           name={['sessionData', index, 'sessionDescription']}
-          label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-2" id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-2">Description</span>}
+          label={
+            <span
+              className="font-medium"
+              data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-2"
+              id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-2"
+            >
+              Description
+            </span>
+          }
           data-cy={`org-settings-fiscal-year-session-description-${index}`}
           id={`org-settings-fiscal-year-session-description-${index}`}
         >
@@ -435,8 +487,16 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   );
 
   return (
-    <div className="flex-1 bg-white p-0 items-center w-full h-full" data-cy="org-settings-fiscal-year-session-drawer-container" id="org-settings-fiscal-year-session-drawer-container">
-      <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2" data-cy="org-settings-fiscal-year-session-drawer-title" id="org-settings-fiscal-year-session-drawer-title">
+    <div
+      className="flex-1 bg-white p-0 items-center w-full h-full"
+      data-cy="org-settings-fiscal-year-session-drawer-container"
+      id="org-settings-fiscal-year-session-drawer-container"
+    >
+      <div
+        className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2"
+        data-cy="org-settings-fiscal-year-session-drawer-title"
+        id="org-settings-fiscal-year-session-drawer-title"
+      >
         Set up Session
       </div>
 
@@ -449,10 +509,15 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         onFieldsChange={updateErrorState}
         data-cy="org-settings-fiscal-year-session-drawer-form"
         id="org-settings-fiscal-year-session-drawer-form"
+        className="px-4"
       >
         {sessionData.map((session, index) => renderSessionForm(session, index))}
 
-        <Form.Item className="mb-0" data-cy="org-settings-fiscal-year-session-previous-btn-form-item" id="org-settings-fiscal-year-session-previous-btn-form-item">
+        <Form.Item
+          className="mb-0"
+          data-cy="org-settings-fiscal-year-session-previous-btn-form-item"
+          id="org-settings-fiscal-year-session-previous-btn-form-item"
+        >
           <div
             className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${
               isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'
@@ -476,7 +541,10 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               data-cy="org-settings-fiscal-year-session-next-btn-popover"
               id="org-settings-fiscal-year-session-next-btn-popover"
             >
-              <span data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-3" id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-3">
+              <span
+                data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-3"
+                id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-3"
+              >
                 <Button
                   type="primary"
                   onClick={handleNext}
@@ -488,7 +556,12 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                   {isCreateLoading || isUpdateLoading ? (
                     <Spin data-cy="org-settings-fiscal-year-session-next-btn-spinner" />
                   ) : (
-                    <span data-cy="org-settings-fiscal-year-session-next-btn-text" id="org-settings-fiscal-year-session-next-btn-text">Next</span>
+                    <span
+                      data-cy="org-settings-fiscal-year-session-next-btn-text"
+                      id="org-settings-fiscal-year-session-next-btn-text"
+                    >
+                      Next
+                    </span>
                   )}
                 </Button>
               </span>

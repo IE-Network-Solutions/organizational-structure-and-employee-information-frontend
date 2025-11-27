@@ -13,6 +13,7 @@ import {
   useAuthenticateZkt,
   ZktAuthPayload,
 } from '@/store/server/features/timesheet/zkt/mutation';
+import { setZktPassUrl } from '@/utils/zktToken';
 
 const ZKTAddonPage = () => {
   const [form] = Form.useForm();
@@ -37,9 +38,12 @@ const ZKTAddonPage = () => {
 
     authenticateZkt(payload, {
       onSuccess: (data) => {
+        console.log(data, 'zktAuthToken');
         if (typeof window !== 'undefined' && data?.token) {
           // Save plain token to localStorage (no encryption needed)
           window.localStorage.setItem('zktAuthToken', data.token);
+          // Save passUrl to localStorage
+          setZktPassUrl(values.url);
         }
 
         setZktSavedData({

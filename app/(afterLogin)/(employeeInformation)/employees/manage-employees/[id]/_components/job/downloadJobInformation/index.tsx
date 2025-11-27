@@ -6,7 +6,7 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
-import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { useGetGrossSalaryById } from '@/store/server/features/employees/employeeManagment/grossSalary/queries';
 import dayjs from 'dayjs';
 import { message, Spin } from 'antd';
 
@@ -118,17 +118,23 @@ const getPronoun = (
   if (genderLower === 'male') {
     return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
   }
+  if (genderLower === 'female') {
+    return type === 'subject' ? 'She' : type === 'object' ? 'her' : 'her';
+  }
   // Default to male pronouns if unknown
   return type === 'subject' ? 'He' : type === 'object' ? 'him' : 'his';
 };
 
 const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   const { data: employeeData } = useGetEmployee(id);
+
   const { data: allEmployeesData } = useGetAllUsersData(); // Fetch all employees with full data
+
   const { data: companyInfo } = useGetCompanyProfileByTenantId(
     employeeData?.tenantId,
   );
-  const { data: basicSalaryData } = useGetBasicSalaryById(id);
+
+  const { data: grossSalaryData } = useGetGrossSalaryById(id);
   const [isGenerating, setIsGenerating] = React.useState(false);
 
   const generatePDF = async () => {
@@ -257,24 +263,8 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         (job: any) => !job.isPositionActive,
       );
 
-      // Get salary - try from query first, then from employeeData.basicSalaries
-      let activeSalaryRecord = null;
-
-      // Try from the query (works for active employees)
-      if (Array.isArray(basicSalaryData) && basicSalaryData.length > 0) {
-        activeSalaryRecord = basicSalaryData.find(
-          (salary: any) => salary.status === true,
-        );
-      }
-
-      // Fallback: try from employeeData.basicSalaries (for inactive employees)
-      if (!activeSalaryRecord && employeeData?.basicSalaries?.length > 0) {
-        activeSalaryRecord = employeeData.basicSalaries.find(
-          (salary: any) => salary.status === true,
-        );
-      }
-
-      const currentSalary = activeSalaryRecord?.basicSalary || 0;
+      // Get gross salary from the query
+      const currentSalary = grossSalaryData?.grossSalary || 0;
 
       // Generate reference number
       const refDate = dayjs().format('YYYY');
@@ -349,7 +339,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
               imageResult.data,
               imageResult.format,
               15,
-              y + 5,
+              y + 6,
               logoWidth,
               logoHeight,
             );
@@ -366,7 +356,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(54, 54, 240); // Blue color #3636F0
-        doc.text(companyInfo.companyName, 15, y + 10);
+        doc.text(companyInfo.companyName, 15, y + 6);
       }
 
       // Date and Reference Number (top right)
@@ -457,15 +447,14 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
 
       y += 10;
 
-      // Add horizontal line separator
-      doc.setDrawColor(203, 213, 224); // Grey color #CBD5E0
-      doc.setLineWidth(0.5);
-      doc.line(15, y, 195, y);
-
-      y += 10;
-
       // === PREVIOUS POSITIONS SECTION ===
       if (previousPositions.length > 0) {
+        // Add horizontal line separator
+        doc.setDrawColor(203, 213, 224); // Grey color #CBD5E0
+        doc.setLineWidth(0.5);
+        doc.line(15, y, 195, y);
+
+        y += 10;
         // Check for page overflow before drawing the box
         if (y > 240) {
           doc.addPage();
@@ -493,9 +482,9 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         const boxStartY = y;
         const boxCenterY = boxStartY + boxHeight / 2;
 
-        // Add light purple background box
+        // Add light purple background box with rounded corners
         doc.setFillColor(240, 235, 255); // Light purple
-        doc.rect(15, boxStartY, 180, boxHeight, 'F');
+        doc.roundedRect(15, boxStartY, 180, boxHeight, 3, 3, 'F');
 
         doc.setTextColor(68, 68, 68);
         doc.setFontSize(10);
@@ -637,17 +626,23 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   };
 
   return (
-    <div>
+    <div id="job-download-container" data-cy="job-download-container">
       <button
         onClick={generatePDF}
         aria-label="Download Work Experience Certificate"
         disabled={isGenerating}
         className="relative"
+        id="job-download-btn"
+        data-cy="job-download-btn"
       >
         {isGenerating ? (
-          <Spin size="small" />
+          <Spin size="small" data-cy="job-download-spin" />
         ) : (
-          <MdDownloadForOffline className="text-primary text-2xl" />
+          <MdDownloadForOffline
+            className="text-primary text-2xl"
+            id="job-download-icon"
+            data-cy="job-download-icon"
+          />
         )}
       </button>
     </div>

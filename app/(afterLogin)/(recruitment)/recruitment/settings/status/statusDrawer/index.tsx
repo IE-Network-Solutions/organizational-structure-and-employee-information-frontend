@@ -89,8 +89,16 @@ const RecruitmentStatusDrawer: React.FC = () => {
               type="default"
             />
             <CustomButton
-              id={isEditMode ? "talent-acquisition-status-button-update" : "talent-acquisition-status-button-create"}
-              data-cy={isEditMode ? "talent-acquisition-status-button-update" : "talent-acquisition-status-button-create"}
+              id={
+                isEditMode
+                  ? 'talent-acquisition-status-button-update'
+                  : 'talent-acquisition-status-button-create'
+              }
+              data-cy={
+                isEditMode
+                  ? 'talent-acquisition-status-button-update'
+                  : 'talent-acquisition-status-button-create'
+              }
               title={isEditMode ? 'Update' : 'Create'}
               onClick={handleSubmit}
             />
@@ -98,13 +106,23 @@ const RecruitmentStatusDrawer: React.FC = () => {
         </div>
       }
     >
-      <Form id="talent-acquisition-status-form" data-cy="talent-acquisition-status-form" form={form} layout="vertical">
+      <Form
+        id="talent-acquisition-status-form"
+        data-cy="talent-acquisition-status-form"
+        form={form}
+        layout="vertical"
+      >
         <Form.Item
           label="Name"
           name="title"
           rules={[{ required: true, message: 'Please enter a title' }]}
         >
-          <Input id="talent-acquisition-status-input-title" data-cy="talent-acquisition-status-input-title" className="h-10" placeholder="Enter the status title" />
+          <Input
+            id="talent-acquisition-status-input-title"
+            data-cy="talent-acquisition-status-input-title"
+            className="h-10"
+            placeholder="Enter the status title"
+          />
         </Form.Item>
 
         <Form.Item
@@ -112,7 +130,12 @@ const RecruitmentStatusDrawer: React.FC = () => {
           name="description"
           rules={[{ required: false }]}
         >
-          <Input.TextArea id="talent-acquisition-status-textarea-description" data-cy="talent-acquisition-status-textarea-description" rows={6} placeholder="Enter the status description" />
+          <Input.TextArea
+            id="talent-acquisition-status-textarea-description"
+            data-cy="talent-acquisition-status-textarea-description"
+            rows={6}
+            placeholder="Enter the status description"
+          />
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

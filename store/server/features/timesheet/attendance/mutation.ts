@@ -6,9 +6,13 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import {
   AttendanceSetShiftRequestBody,
   EditAttendance,
+  ZKTAttendanceRequestBody,
 } from '@/store/server/features/timesheet/attendance/interface';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import useAttendanceImportErrorModalStore from '@/store/uistate/features/timesheet/employeeAttendanceImport';
+import { getZktToken, getZktPassUrl } from '@/utils/zktToken';
+import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import dayjs from 'dayjs';
 
 const attendanceImport = async (file: string) => {
   const requestHeaders = await requestHeader();
@@ -137,4 +141,86 @@ export const useSetCurrentAttendance = () => {
       handleSuccessMessage(method);
     },
   });
+};
+
+/**
+ * Get passUrl from localStorage or fallback to zustand store
+ */
+const getPassUrl = (): string | null => {
+  // Try to get from localStorage first
+  const passUrlFromStorage = getZktPassUrl();
+  if (passUrlFromStorage) {
+    return passUrlFromStorage;
+  }
+
+  // Fallback to zustand store
+  const zktSavedData = useTimesheetSettingsStore.getState().zktSavedData;
+  return zktSavedData?.url || null;
+};
+
+/**
+ * Get today's date formatted as YYYY-MM-DD
+ */
+const getTodayDate = (): string => {
+  return dayjs().format('YYYY-MM-DD');
+};
+
+/**
+ * Fetch ZKT attendance data
+ */
+const fetchZKTAttendance = async (filter?: {
+  date: { from: string; to: string };
+}): Promise<any> => {
+  const passUrl = getPassUrl();
+  const zktToken = getZktToken();
+
+  if (!passUrl) {
+    throw new Error('passUrl is not found in localStorage or store');
+  }
+
+  if (!zktToken) {
+    throw new Error('ZKTToken is not found in localStorage');
+  }
+
+  // Default to today's date if no filter is provided
+  const today = getTodayDate();
+  const dateFilter = filter || {
+    date: {
+      from: today,
+      to: today,
+    },
+  };
+
+  const requestData: ZKTAttendanceRequestBody = {
+    passUrl,
+    ZKTToken: zktToken,
+    filter: dateFilter,
+  };
+
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: requestData,
+  });
+};
+
+export const useFetchZKTAttendance = () => {
+  return useMutation(
+    (filter?: { date: { from: string; to: string } }) =>
+      fetchZKTAttendance(filter),
+    {
+      onError(error: any) {
+        NotificationMessage.error({
+          message: 'Error',
+          description:
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to fetch ZKT attendance data.',
+        });
+      },
+    },
+  );
 };

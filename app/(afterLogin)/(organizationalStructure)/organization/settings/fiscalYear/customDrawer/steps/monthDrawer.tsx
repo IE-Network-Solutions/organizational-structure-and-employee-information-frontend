@@ -358,13 +358,24 @@ const MonthDrawer: React.FC<
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={onSubmit} data-cy="org-settings-fiscal-year-month-drawer-form" id="org-settings-fiscal-year-month-drawer-form">
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={onSubmit}
+      data-cy="org-settings-fiscal-year-month-drawer-form"
+      id="org-settings-fiscal-year-month-drawer-form"
+      className="px-4"
+    >
       <div
         className={`flex-1 {isFiscalYear ? 'bg-white' : 'bg-gray-50'} p-0 items-center w-full h-full`}
         data-cy="org-settings-fiscal-year-month-drawer-form-content"
         id="org-settings-fiscal-year-month-drawer-form-content"
       >
-        <div className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2" data-cy="org-settings-fiscal-year-month-drawer-form-content-title" id="org-settings-fiscal-year-month-drawer-form-content-title">
+        <div
+          className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2"
+          data-cy="org-settings-fiscal-year-month-drawer-form-content-title"
+          id="org-settings-fiscal-year-month-drawer-form-content-title"
+        >
           Set up Month
         </div>
 
@@ -381,7 +392,13 @@ const MonthDrawer: React.FC<
                 id={`monthNameId_${monthInfo.monthNumber}`}
                 name={`monthName_${monthInfo.monthNumber}`}
                 label={
-                  <span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-1" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-1">{monthInfo.monthName}</span>
+                  <span
+                    className="font-medium"
+                    data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-1"
+                    id="org-fiscalyear-customdrawer-steps-monthdrawer-span-1"
+                  >
+                    {monthInfo.monthName}
+                  </span>
                 }
                 rules={[
                   {
@@ -399,13 +416,33 @@ const MonthDrawer: React.FC<
                 />
               </Form.Item>
 
-              <Row gutter={[16, 10]} data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-row-1" id="org-fiscalyear-customdrawer-steps-monthdrawer-row-1">
-                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-1" id="org-fiscalyear-customdrawer-steps-monthdrawer-col-1">
+              <Row
+                gutter={[16, 10]}
+                data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-row-1"
+                id="org-fiscalyear-customdrawer-steps-monthdrawer-row-1"
+              >
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-1"
+                  id="org-fiscalyear-customdrawer-steps-monthdrawer-col-1"
+                >
                   <Form.Item
                     data-cy={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     id={`org-settings-fiscal-year-month-start-date-${monthInfo.monthNumber}`}
                     name={`monthStartDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-2" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-2">Start Date</span>}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-2"
+                        id="org-fiscalyear-customdrawer-steps-monthdrawer-span-2"
+                      >
+                        Start Date
+                      </span>
+                    }
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -464,12 +501,28 @@ const MonthDrawer: React.FC<
                     />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12} data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-2" id="org-fiscalyear-customdrawer-steps-monthdrawer-col-2">
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-col-2"
+                  id="org-fiscalyear-customdrawer-steps-monthdrawer-col-2"
+                >
                   <Form.Item
                     data-cy={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     id={`org-settings-fiscal-year-month-end-date-${monthInfo.monthNumber}`}
                     name={`monthEndDate_${monthInfo.monthNumber}`}
-                    label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-3" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-3">End Date</span>}
+                    label={
+                      <span
+                        className="font-medium"
+                        data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-3"
+                        id="org-fiscalyear-customdrawer-steps-monthdrawer-span-3"
+                      >
+                        End Date
+                      </span>
+                    }
                     validateTrigger="onChange"
                     rules={[
                       {
@@ -537,7 +590,15 @@ const MonthDrawer: React.FC<
                 data-cy={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 id={`org-settings-fiscal-year-month-description-${monthInfo.monthNumber}`}
                 name={`monthDescription_${monthInfo.monthNumber}`}
-                label={<span className="font-medium" data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-4" id="org-fiscalyear-customdrawer-steps-monthdrawer-span-4">Description</span>}
+                label={
+                  <span
+                    className="font-medium"
+                    data-cy="org-fiscalyear-customdrawer-steps-monthdrawer-span-4"
+                    id="org-fiscalyear-customdrawer-steps-monthdrawer-span-4"
+                  >
+                    Description
+                  </span>
+                }
               >
                 <TextArea
                   placeholder={`Enter description for ${monthName}`}
@@ -551,7 +612,11 @@ const MonthDrawer: React.FC<
           );
         })}
 
-        <Form.Item className="mb-0" data-cy="org-settings-fiscal-year-month-previous-btn-form-item" id="org-settings-fiscal-year-month-previous-btn-form-item">
+        <Form.Item
+          className="mb-0"
+          data-cy="org-settings-fiscal-year-month-previous-btn-form-item"
+          id="org-settings-fiscal-year-month-previous-btn-form-item"
+        >
           <div
             className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
             data-cy="org-settings-fiscal-year-month-previous-btn-container"
@@ -591,13 +656,26 @@ const MonthDrawer: React.FC<
               id="org-settings-fiscal-year-month-next-btn"
             >
               {isCreateLoading || isUpdateLoading ? (
-                <div data-cy="org-settings-fiscal-year-month-next-btn-spinner-div" id="org-settings-fiscal-year-month-next-btn-spinner-div">
+                <div
+                  data-cy="org-settings-fiscal-year-month-next-btn-spinner-div"
+                  id="org-settings-fiscal-year-month-next-btn-spinner-div"
+                >
                   <Spin data-cy="org-settings-fiscal-year-month-next-btn-spinner" />
                 </div>
               ) : isEditMode ? (
-                <span data-cy="org-settings-fiscal-year-month-next-btn-text" id="org-settings-fiscal-year-month-next-btn-text">Edit</span>
+                <span
+                  data-cy="org-settings-fiscal-year-month-next-btn-text"
+                  id="org-settings-fiscal-year-month-next-btn-text"
+                >
+                  Edit
+                </span>
               ) : (
-                <span data-cy="org-settings-fiscal-year-month-next-btn-text" id="org-settings-fiscal-year-month-next-btn-text">Create</span>
+                <span
+                  data-cy="org-settings-fiscal-year-month-next-btn-text"
+                  id="org-settings-fiscal-year-month-next-btn-text"
+                >
+                  Create
+                </span>
               )}
             </Button>
           </div>

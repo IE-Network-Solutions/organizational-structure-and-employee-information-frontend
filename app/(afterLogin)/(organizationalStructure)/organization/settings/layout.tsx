@@ -48,7 +48,13 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
               data-cy="org-settings-branches-icon-svg"
               id="org-settings-branches-icon-svg"
             />
-            <p className="menu-item-label" data-cy="org-settings-branches-label" id="org-settings-branches-label">Branches</p>
+            <p
+              className="menu-item-label"
+              data-cy="org-settings-branches-label"
+              id="org-settings-branches-label"
+            >
+              Branches
+            </p>
           </div>
         ),
       },
@@ -69,7 +75,13 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
               data-cy="org-settings-fiscal-year-icon-svg"
               id="org-settings-fiscal-year-icon-svg"
             />
-            <p className="menu-item-label" data-cy="org-settings-fiscal-year-label" id="org-settings-fiscal-year-label">Fiscal Year</p>
+            <p
+              className="menu-item-label"
+              data-cy="org-settings-fiscal-year-label"
+              id="org-settings-fiscal-year-label"
+            >
+              Fiscal Year
+            </p>
           </div>
         ),
       },
@@ -89,7 +101,13 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
               data-cy="org-settings-work-schedule-icon-svg"
               id="org-settings-work-schedule-icon-svg"
             />
-            <p className="menu-item-label" data-cy="org-settings-work-schedule-label" id="org-settings-work-schedule-label">Work Schedule</p>
+            <p
+              className="menu-item-label"
+              data-cy="org-settings-work-schedule-label"
+              id="org-settings-work-schedule-label"
+            >
+              Work Schedule
+            </p>
           </div>
         ),
       },
@@ -99,22 +117,59 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   ]);
 
   return (
-    <div className="min-h-screen " data-cy="org-settings-layout" id="org-settings-layout">
-      {isResponseLoading && <Skeleton active paragraph={{ rows: 0 }}  data-cy="org-organization-settings-layout-skeleton-1"/>}
+    <div
+      className="min-h-screen "
+      data-cy="org-settings-layout"
+      id="org-settings-layout"
+    >
+      {isResponseLoading && (
+        <Skeleton
+          active
+          paragraph={{ rows: 0 }}
+          data-cy="org-organization-settings-layout-skeleton-1"
+        />
+      )}
       {hasEndedFiscalYear && (
-        <div className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none " data-cy="org-settings-fiscal-year-warning" id="org-settings-fiscal-year-warning">
-          <span className="text-[#FFDE65] px-2" data-cy="org-settings-fiscal-year-warning-text" id="org-settings-fiscal-year-warning-text">
+        <div
+          className="bg-[#323B49] h-12 flex items-center justify-start text-md p-2 rounded-lg shadow-none "
+          data-cy="org-settings-fiscal-year-warning"
+          id="org-settings-fiscal-year-warning"
+        >
+          <span
+            className="text-[#FFDE65] px-2"
+            data-cy="org-settings-fiscal-year-warning-text"
+            id="org-settings-fiscal-year-warning-text"
+          >
             Your Have Finished Your Fiscal Year
           </span>
-          <span className="text-white" data-cy="org-settings-fiscal-year-warning-text-2" id="org-settings-fiscal-year-warning-text-2">
+          <span
+            className="text-white"
+            data-cy="org-settings-fiscal-year-warning-text-2"
+            id="org-settings-fiscal-year-warning-text-2"
+          >
             Please Create Your Next Fiscal Year To Continue
           </span>
         </div>
       )}
-      <div className="min-h-screen bg-[#f5f5f5]" data-cy="org-settings-layout-div" id="org-settings-layout-div">
-        <PageHeader title="Settings" description="Manage your settings here" data-cy="org-settings-page-header" />
-        <div className="flex  flex-col lg:flex-row gap-6 m-4" data-cy="org-organization-settings-layout-div-1" id="org-organization-settings-layout-div-1">
-          <SidebarMenu menuItems={menuItems} data-cy="org-settings-sidebar-menu" />
+      <div
+        className="min-h-screen bg-[#f5f5f5]"
+        data-cy="org-settings-layout-div"
+        id="org-settings-layout-div"
+      >
+        <PageHeader
+          title="Settings"
+          description="Manage your settings here"
+          data-cy="org-settings-page-header"
+        />
+        <div
+          className="flex  flex-col lg:flex-row gap-6 m-4"
+          data-cy="org-organization-settings-layout-div-1"
+          id="org-organization-settings-layout-div-1"
+        >
+          <SidebarMenu
+            menuItems={menuItems}
+            data-cy="org-settings-sidebar-menu"
+          />
           <BlockWrapper
             padding="0px"
             className="flex-1 h-max overflow-x-auto bg-[#fafafa] "

@@ -203,9 +203,10 @@ const timesheetSettingsSlice: StateCreator<
       isZktConfigured: false,
       zktSavedData: null,
     });
-    // Remove token from localStorage
+    // Remove token and passUrl from localStorage
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem('zktAuthToken');
+      window.localStorage.removeItem('zktPassUrl');
     }
   },
 });

@@ -150,10 +150,10 @@ const EmployeeInformation = () => {
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: any) => (
-        <Space>
-          <Avatar size={32} src={record.profileImage} icon={<UserOutlined />} />
-          <span>{text}</span>
-        </Space>
+        <Space data-cy={`payroll-employee-card-view-space-${record.id}`}>
+          <Avatar data-cy={`payroll-employee-avatar-view-component-${record.id}`} size={32} src={record.profileImage} icon={<UserOutlined />} />
+          <span id={`payroll-employee-name-view-text-${record.id}`} data-cy={`payroll-employee-name-view-text-${record.id}`}>{text}</span>
+          </Space>      
       ),
     },
     {
@@ -174,7 +174,11 @@ const EmployeeInformation = () => {
         allowances.map((item: any) => {
           const color = item === 'Not Entitled' ? 'red' : 'gray-300';
           return (
-            <Tag className={`${color} text-sm text-black`} key={item}>
+            <Tag
+              id={`payroll-allowance-${item?.id}-view-tag`}
+              data-cy={`payroll-allowance-${item?.id}-view-tag`}
+              className={`${color} text-sm text-black`}
+              key={item}>
               {item.name}
             </Tag>
           );
@@ -185,9 +189,9 @@ const EmployeeInformation = () => {
       dataIndex: 'bank',
       key: 'bank',
       render: (text: any) => (
-        <span style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
-          {text}
-        </span>
+        <span id={`payroll-bank-name-view-text-${text}`} data-cy={`payroll-bank-name-view-text-${text}`} style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
+            {text}
+          </span>
       ),
     },
     {
@@ -195,30 +199,34 @@ const EmployeeInformation = () => {
       dataIndex: 'account',
       key: 'account',
       render: (text: any) => (
-        <span style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
-          {text}
-        </span>
+        <span id={`payroll-bank-account-view-text-${text}`} data-cy={`payroll-bank-account-view-text-${text}`} style={{ color: text === 'Not Available' ? 'red' : 'black' }}>
+            {text}
+          </span>
       ),
     },
     {
       title: 'Action',
       key: 'action',
       render: (record: any) => (
-        <Space size="middle">
-          <AccessGuard permissions={[Permissions.UpdateAllowanceEntitlement]}>
-            <Button
-              type="primary"
-              icon={
-                <EditOutlined
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(record);
-                  }}
-                />
-              }
-            />
-          </AccessGuard>
-        </Space>
+        <Space id={`payroll-action-controls-view-space-${record.id}`} data-cy={`payroll-action-controls-view-space-${record.id}`} size="middle">
+          <AccessGuard id={`payroll-edit-guard-view-component-${record.id}`} data-cy={`payroll-edit-guard-view-component-${record.id}`} permissions={[Permissions.UpdateAllowanceEntitlement]}>
+              <Button
+                type="primary"
+                id={`payroll-edit-allowance-click-button-${record.id}`}
+                data-cy={`payroll-edit-allowance-click-button-${record.id}`}
+                icon={
+                  <EditOutlined
+                    id={`payroll-edit-allowance-click-icon-${record.id}`}
+                    data-cy={`payroll-edit-allowance-click-icon-${record.id}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(record);
+                    }}
+                  />
+                }
+              />
+            </AccessGuard>
+          </Space>
       ),
     },
   ];
@@ -255,16 +263,38 @@ const EmployeeInformation = () => {
   };
 
   return (
-    <div className={isMobile ? 'p-1' : 'p-5'}>
-      <div className="flex justify-start items-center bg-[#ffffff] -mx-1">
-        <span className="py-4 my-4 px-2 text-lg font-bold">
+    <div
+      className={isMobile ? 'p-1' : 'p-5'}
+      id="payroll-employee-information-view-container"
+      data-cy="payroll-employee-information-view-container"
+    >
+      <div
+        className="flex justify-start items-center bg-[#ffffff] -mx-1"
+        id="payroll-employee-information-header-view-container"
+        data-cy="payroll-employee-information-header-view-container"
+      >
+        <span
+          className="py-4 my-4 px-2 text-lg font-bold"
+          id="payroll-employee-information-title-view-text"
+          data-cy="payroll-employee-information-title-view-text"
+        >
           Employees Payroll Information
         </span>
       </div>
-      <Filters onSearch={handleSearch} />
+      <Filters
+       
+        data-cy="payroll-employee-information-filter-interact-component"
+        onSearch={handleSearch}
+      />
 
-      <Spin spinning={responseLoading || Loading}>
+      <Spin
+        spinning={responseLoading || Loading}
+      
+        data-cy="payroll-employee-information-loading-view-spin"
+      >
         <Table
+          id="payroll-employee-information-view-table"
+          data-cy="payroll-employee-information-view-table"
           dataSource={paginatedData}
           columns={columns}
           onRow={(record) => ({
@@ -276,6 +306,8 @@ const EmployeeInformation = () => {
         />
         {isMobile || isTablet ? (
           <CustomMobilePagination
+          
+            data-cy="payroll-employee-information-pagination-interact-mobile"
             totalResults={filteredData?.length || 0}
             pageSize={pageSize}
             onChange={onPageChange}
@@ -283,6 +315,8 @@ const EmployeeInformation = () => {
           />
         ) : (
           <CustomPagination
+           
+            data-cy="payroll-employee-information-pagination-interact-desktop"
             current={currentPage}
             total={filteredData?.length || 0}
             pageSize={pageSize}
@@ -294,7 +328,10 @@ const EmployeeInformation = () => {
           />
         )}
       </Spin>
-      <Drawer />
+      <Drawer
+     
+        data-cy="payroll-employee-information-drawer-view-component"
+      />
     </div>
   );
 };

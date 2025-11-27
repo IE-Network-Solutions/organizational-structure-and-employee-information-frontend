@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 
 export interface ZktAuthPayload {
   url: string;
@@ -24,5 +24,10 @@ const authenticateZkt = async (
 };
 
 export const useAuthenticateZkt = () => {
-  return useMutation(authenticateZkt);
+  const queryClient = useQueryClient();
+  return useMutation(authenticateZkt, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('current-attendance');
+    },
+  });
 };

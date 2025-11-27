@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
@@ -23,11 +23,17 @@ import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesh
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import dayjs from 'dayjs';
 import { AiOutlineReload } from 'react-icons/ai';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { usePathname } from 'next/navigation';
 
 const ApprovalTable = () => {
-  const { pageSize, userCurrentPage, setUserCurrentPage } =
+  const { pageSize, userCurrentPage, setUserCurrentPage, setPageSize } =
     useCurrentLeaveApprovalStore();
   const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
+  const { isMobile, isTablet } = useIsMobile();
+  const pathname = usePathname();
 
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
@@ -41,6 +47,11 @@ const ApprovalTable = () => {
   const { mutate: allReject, isLoading: allRejectIsLoading } =
     useSetRejectLeaveRequest();
   const { mutate: finalAllApproval } = useSetAllFinalApproveLeaveRequest();
+
+  useEffect(() => {
+    setUserCurrentPage(1);
+    setPageSize(5);
+  }, [pathname]);
 
   const {
     data: approvalData,
@@ -372,14 +383,31 @@ const ApprovalTable = () => {
               allRejectIsLoading
             }
             dataSource={allFilterData}
-            pagination={{
-              total: approvalData?.meta?.totalItems,
-              current: userCurrentPage,
-              pageSize: pageSize,
-              onChange: onPageChange,
-            }}
+            pagination={false}
             scroll={{ x: 'min-content' }}
           />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={approvalData?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(newPageSize) => {
+                setPageSize(newPageSize);
+                setUserCurrentPage(1);
+              }}
+            />
+          ) : (
+            <CustomPagination
+              current={userCurrentPage}
+              total={approvalData?.meta?.totalItems ?? 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(newPageSize) => {
+                setPageSize(newPageSize);
+                setUserCurrentPage(1);
+              }}
+            />
+          )}
         </Card>
       ) : (
         ''

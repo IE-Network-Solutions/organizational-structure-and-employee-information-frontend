@@ -113,7 +113,11 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
   }, [isEdit, editData, open, form, setDocumentFileList]);
 
   const internApplicantsDrawerHeader = (
-    <div id="talent-acquisition-intern-drawer-header" data-cy="talent-acquisition-intern-drawer-header" className=" text-xl font-extrabold text-gray-800 ">
+    <div
+      id="talent-acquisition-intern-drawer-header"
+      data-cy="talent-acquisition-intern-drawer-header"
+      className=" text-xl font-extrabold text-gray-800 "
+    >
       {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}
     </div>
   );
@@ -136,8 +140,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       type: 'primary',
       loading: isEdit ? isUpdateLoading : isCreateLoading,
       onClick: () => form.submit(),
-      id: isEdit ? 'talent-acquisition-intern-button-update' : 'talent-acquisition-intern-button-create',
-      'data-cy': isEdit ? 'talent-acquisition-intern-button-update' : 'talent-acquisition-intern-button-create',
+      id: isEdit
+        ? 'talent-acquisition-intern-button-update'
+        : 'talent-acquisition-intern-button-create',
+      'data-cy': isEdit
+        ? 'talent-acquisition-intern-button-update'
+        : 'talent-acquisition-intern-button-create',
     },
   ];
 
@@ -203,7 +211,13 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       customMobileHeight="75vh"
       footer={<CustomDrawerFooterButton buttons={footerModalItems} />}
     >
-      <Form id="talent-acquisition-intern-form" data-cy="talent-acquisition-intern-form" form={form} layout="vertical" onFinish={handleSubmit}>
+      <Form
+        id="talent-acquisition-intern-form"
+        data-cy="talent-acquisition-intern-form"
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
         <Form.Item
           id="fullNameId"
           name="fullName"
@@ -220,7 +234,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             },
           ]}
         >
-          <Input id="talent-acquisition-intern-input-full-name" data-cy="talent-acquisition-intern-input-full-name" placeholder="Full Name" className="w-full h-10 text-sm" />
+          <Input
+            id="talent-acquisition-intern-input-full-name"
+            data-cy="talent-acquisition-intern-input-full-name"
+            placeholder="Full Name"
+            className="w-full h-10 text-sm"
+          />
         </Form.Item>
 
         <Row gutter={16}>
@@ -240,7 +259,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   message: 'Please enter a valid email address!',
                 },
               ]}
-              >
+            >
               <Input
                 id="talent-acquisition-intern-input-email"
                 data-cy="talent-acquisition-intern-input-email"
@@ -290,7 +309,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 </span>
               }
               rules={[{ required: true, message: 'Please input CGPA' }]}
-              >
+            >
               <InputNumber
                 id="talent-acquisition-intern-input-cgpa"
                 data-cy="talent-acquisition-intern-input-cgpa"
@@ -302,7 +321,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 placeholder="CGPA"
               />
             </Form.Item>
-            <div data-cy="talent-acquisition-intern-drawer-div-cgpa-info" className="flex items-center justify-start gap-1 ml-1">
+            <div
+              data-cy="talent-acquisition-intern-drawer-div-cgpa-info"
+              className="flex items-center justify-start gap-1 ml-1"
+            >
               <FaInfoCircle />
               <div className="text-xs font-md">Put your point 4.0 scale</div>
             </div>
@@ -324,7 +346,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               message: 'Please enter a valid year!',
             },
           ]}
-          >
+        >
           <Input
             id="talent-acquisition-intern-input-year-graduation"
             data-cy="talent-acquisition-intern-input-year-graduation"
@@ -357,7 +379,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             }
           >
             {EmployeeDepartment?.map((item: DepartmentData) => (
-              <Option key={item?.id} value={item?.id} id={`talent-acquisition-intern-option-department-${item?.id}`} data-cy={`talent-acquisition-intern-option-department-${item?.id}`}>
+              <Option
+                key={item?.id}
+                value={item?.id}
+                id={`talent-acquisition-intern-option-department-${item?.id}`}
+                data-cy={`talent-acquisition-intern-option-department-${item?.id}`}
+              >
                 {item?.name}
               </Option>
             ))}

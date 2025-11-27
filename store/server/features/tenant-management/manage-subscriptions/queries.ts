@@ -9,7 +9,6 @@ import {
   GetSubscriptionByTenantRequest,
 } from './interface';
 import { Subscription } from '@/types/tenant-management';
-import { notification } from 'antd';
 
 const getSubscriptionByTenant = async (
   data: GetSubscriptionByTenantRequest,
@@ -90,12 +89,7 @@ export const useCalculateSubscriptionPrice = (
         }
 
         return response;
-      } catch (error) {
-        notification.error({
-          message: 'Calculation failed',
-          description:
-            error instanceof Error ? error.message : 'Please try again',
-        });
+      } catch (error: any) {
         throw error;
       }
     },
