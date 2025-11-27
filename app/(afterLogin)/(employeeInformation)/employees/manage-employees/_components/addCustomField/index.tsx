@@ -94,6 +94,12 @@ const AddCustomField: React.FC<any> = ({
     };
 
     addFieldIfNotExists(customEmployeeInformationForm, newField);
+    form.resetFields();
+    setOptions([]);
+    setFieldName('');
+    setFieldType('input');
+    setIsActive(true);
+    setPopoverOpen(false);
   };
   const handleFormFailed = () => {};
   const popoverContent = (
@@ -229,15 +235,33 @@ const AddCustomField: React.FC<any> = ({
           id={`add-custom-field-submit-${formTitle}`}
           data-cy={`add-custom-field-submit-${formTitle}`}
         >
-          <Button
-            type="primary"
-            id={`addField${formTitle}`}
-            data-cy={`addField${formTitle}`}
-            htmlType="submit"
-            style={{ width: '100%' }}
+          <div
+            id={`add-custom-field-submit-${formTitle}`}
+            data-cy={`add-custom-field-submit-${formTitle}`}
+            className="flex justify-center gap-4"
           >
-            Add Field
-          </Button>
+            <Button
+              id={`add-custom-field-cancel-${formTitle}`}
+              data-cy={`add-custom-field-cancel-${formTitle}`}
+              type="default"
+              onClick={() => {
+                form.resetFields();
+                setPopoverOpen(false);
+              }}
+              className="px-8 py-1 rounded-lg w-1/3"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              id={`addField${formTitle}`}
+              data-cy={`addField${formTitle}`}
+              htmlType="submit"
+              style={{ width: '30%' }}
+            >
+              Add Field
+            </Button>
+          </div>
         </Form.Item>
       </Form>
     </div>
