@@ -538,6 +538,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 !objectiveValue?.title || objectiveValue.title.trim() === ''
               }
               className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
+              id="okr-ai-inline-suggestions-toggle-button"
+              data-cy="okr-ai-inline-suggestions-toggle-button"
             >
               <svg
                 width="14"

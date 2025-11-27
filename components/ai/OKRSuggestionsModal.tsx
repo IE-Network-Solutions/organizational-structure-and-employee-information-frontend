@@ -182,6 +182,8 @@ const OKRSuggestionsModal: React.FC<OKRSuggestionsModalProps> = ({
         disabled={!objectiveTitle || objectiveTitle.trim() === ''}
         icon={<ThunderboltFilled />}
         className="flex items-center gap-1"
+        id="okr-ai-suggestions-open-button"
+        data-cy="okr-ai-suggestions-open-button"
       >
         AI Suggestions
       </Button>

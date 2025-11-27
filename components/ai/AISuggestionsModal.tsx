@@ -659,7 +659,13 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
 
   return (
     <>
-      <Button type="primary" ghost onClick={() => setOpen(true)}>
+      <Button
+        type="primary"
+        ghost
+        onClick={() => setOpen(true)}
+        id="planning-ai-suggestions-open-button"
+        data-cy="planning-ai-suggestions-open-button"
+      >
         AI Suggestion
       </Button>
       <Modal

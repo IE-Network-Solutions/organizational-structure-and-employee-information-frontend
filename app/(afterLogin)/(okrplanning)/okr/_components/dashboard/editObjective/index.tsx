@@ -689,6 +689,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 isEditDisabled
               }
               className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
+              id="okr-edit-ai-inline-suggestions-toggle-button"
+              data-cy="okr-edit-ai-inline-suggestions-toggle-button"
             >
               <svg
                 width="14"
