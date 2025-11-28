@@ -44,15 +44,11 @@ const ApprovalBranchFilter = () => {
     }
   };
   return (
-<<<<<<< HEAD
-    <div className="flex items-start gap-3 sm:block">
-=======
     <div
-      className="flex sm:block"
+      className="flex items-start gap-3 sm:block"
       id="settings-approvals-filter"
       data-cy="settings-approvals-filter"
     >
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
       <ApprovalFilterComponent
         searchParams={searchParams}
         handleSearchInput={handleSearchInput}

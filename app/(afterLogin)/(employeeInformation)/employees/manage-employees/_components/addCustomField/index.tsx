@@ -103,11 +103,8 @@ const AddCustomField: React.FC<any> = ({
     setFieldName('');
     setFieldType('input');
     setIsActive(true);
-<<<<<<< HEAD
     setIsRequired(false);
-=======
     setPopoverOpen(false);
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
   };
 
   const handleFormFailed = () => {};
@@ -179,52 +176,6 @@ const AddCustomField: React.FC<any> = ({
           data-cy={`add-custom-field-validation-${formTitle}`}
           rules={[{ required: true, message: 'Field Validation is required' }]}
         >
-<<<<<<< HEAD
-          <Select>
-            <Option value="text">Text</Option>
-            <Option value="number">Number</Option>
-            <Option value="email">Email</Option>
-            <Option value="date">Date</Option>
-            <Option value="url">URL</Option>
-            <Option value="any">Any</Option>
-          </Select>
-        </Form.Item>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Is Active"
-              name="isActive"
-              valuePropName="checked"
-            >
-              <Switch
-                checked={isActive}
-                onChange={(checked) => setIsActive(checked)}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Is Required"
-              name="isRequired"
-              valuePropName="checked"
-            >
-              <Switch
-                checked={isRequired}
-                onChange={(checked) => setIsRequired(checked)}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Divider />
-        <Form.Item>
-          <Button
-            type="primary"
-            id={`addField${formTitle}`}
-            htmlType="submit"
-            style={{ width: '100%' }}
-=======
           <Select
             id={`add-custom-field-validation-select-${formTitle}`}
             data-cy={`add-custom-field-validation-select-${formTitle}`}
@@ -269,36 +220,52 @@ const AddCustomField: React.FC<any> = ({
               id={`add-custom-field-validation-option-any-${formTitle}`}
               data-cy={`add-custom-field-validation-option-any-${formTitle}`}
             >
-              any
+              Any
             </Option>
           </Select>
         </Form.Item>
 
-        <Form.Item
-          label="Is Active"
-          name="isActive"
-          valuePropName="checked"
-          id={`add-custom-field-active-${formTitle}`}
-          data-cy={`add-custom-field-active-${formTitle}`}
-        >
-          <Switch
-            checked={isActive}
-            onChange={(checked) => setIsActive(checked)}
-            id={`add-custom-field-active-switch-${formTitle}`}
-            data-cy={`add-custom-field-active-switch-${formTitle}`}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Is Active"
+              name="isActive"
+              valuePropName="checked"
+              id={`add-custom-field-active-${formTitle}`}
+              data-cy={`add-custom-field-active-${formTitle}`}
+            >
+              <Switch
+                checked={isActive}
+                onChange={(checked) => setIsActive(checked)}
+                id={`add-custom-field-active-switch-${formTitle}`}
+                data-cy={`add-custom-field-active-switch-${formTitle}`}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Is Required"
+              name="isRequired"
+              valuePropName="checked"
+              id={`add-custom-field-required-${formTitle}`}
+              data-cy={`add-custom-field-required-${formTitle}`}
+            >
+              <Switch
+                checked={isRequired}
+                onChange={(checked) => setIsRequired(checked)}
+                id={`add-custom-field-required-switch-${formTitle}`}
+                data-cy={`add-custom-field-required-switch-${formTitle}`}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Divider data-cy={`add-custom-field-divider-${formTitle}`} />
         <Form.Item
           id={`add-custom-field-submit-${formTitle}`}
           data-cy={`add-custom-field-submit-${formTitle}`}
         >
-          <div
-            id={`add-custom-field-submit-${formTitle}`}
-            data-cy={`add-custom-field-submit-${formTitle}`}
-            className="flex justify-center gap-4"
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
-          >
+          <div className="flex justify-center gap-4">
             <Button
               id={`add-custom-field-cancel-${formTitle}`}
               data-cy={`add-custom-field-cancel-${formTitle}`}
@@ -330,14 +297,7 @@ const AddCustomField: React.FC<any> = ({
     <Card
       bordered={false}
       bodyStyle={{ padding: 0, border: 'none' }}
-<<<<<<< HEAD
       className={className}
-    >
-      <Row gutter={16}>
-        <Col xs={24} sm={24} className="flex justify-center items-center ">
-          <Form.Item className="font-semibold text-xs">
-            <Popover content={popoverContent} title={formTitle} trigger="click">
-=======
       id={`add-custom-field-card-${formTitle}`}
       data-cy={`add-custom-field-card-${formTitle}`}
     >
@@ -367,7 +327,6 @@ const AddCustomField: React.FC<any> = ({
               id={`add-custom-field-popover-wrapper-${formTitle}`}
               data-cy={`add-custom-field-popover-wrapper-${formTitle}`}
             >
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
               <Button
                 id={`addCustomField${formTitle}`}
                 data-cy={`addCustomField${formTitle}`}

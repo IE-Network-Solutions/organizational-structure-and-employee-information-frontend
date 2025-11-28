@@ -354,21 +354,13 @@ const ManageEmployees: React.FC<any> = () => {
               size="large"
               className="h-12 w-12 sm:w-auto px-0 sm:px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center justify-center gap-2"
               onClick={() => setIsMobileFilterVisible(true)}
-<<<<<<< HEAD
               aria-label="Open filters"
-            >
-              <IoMdSwitch />
-              <span className="hidden sm:inline">Filter</span>
-=======
-              id="manage-employees-filter-toggle-btn"
-              data-cy="manage-employees-filter-toggle-btn"
             >
               <IoMdSwitch
                 id="manage-employees-filter-toggle-icon"
                 data-cy="manage-employees-filter-toggle-icon"
               />
-              Filter
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
+              <span className="hidden sm:inline">Filter</span>
             </Button>
           </div>
           <UserTable />

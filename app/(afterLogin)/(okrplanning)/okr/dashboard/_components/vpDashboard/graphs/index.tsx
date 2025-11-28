@@ -1,11 +1,11 @@
 import { Col, Row } from 'antd';
 import React from 'react';
-// import ActualVsTargetChart from './actualVsTarget';
+import ActualVsTargetChart from './actualVsTarget';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useVariablePayStore } from '@/store/uistate/features/okrplanning/VP';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetCriteriaByFilter } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-// import CriteriaContributionChart from './criteriaContribution';
+import CriteriaContributionChart from './criteriaContribution';
 
 interface VPGraphProps {
   id?: string;
@@ -26,21 +26,12 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
   }
 
   const activeMonthIds = getActiveSessionMonthIds(activeCalender);
-  useGetCriteriaByFilter(
+  const { data: variablePay } = useGetCriteriaByFilter(
     { activeMonthIds, userId: identifier },
     searchParams?.selectedRange || '',
   );
 
   return (
-<<<<<<< HEAD
-    <div className="w-full mt-12">
-      <Row gutter={[16, 16]} className="mt-4" justify="space-between">
-        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-          {/* <ActualVsTargetChart variablePay={variablePay} /> */}
-        </Col>
-        <Col xs={24} sm={24} md={10} lg={10} xl={10}>
-          {/* <CriteriaContributionChart variablePay={variablePay} /> */}
-=======
     <div
       className="w-full mt-12"
       id="okr-vpgraph-container-display-div"
@@ -62,7 +53,10 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
           id="okr-vpgraph-actualvstarget-col-display-col"
           data-cy="okr-vpgraph-actualvstarget-col-display-col"
         >
-          <ActualVsTargetChart data-cy="okr-vpgraph-actualvstarget-chart-display-chart" variablePay={variablePay} />
+          <ActualVsTargetChart
+            data-cy="okr-vpgraph-actualvstarget-chart-display-chart"
+            variablePay={variablePay}
+          />
         </Col>
         <Col
           xs={24}
@@ -73,8 +67,10 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
           id="okr-vpgraph-criteriacontribution-col-display-col"
           data-cy="okr-vpgraph-criteriacontribution-col-display-col"
         >
-          <CriteriaContributionChart data-cy="okr-vpgraph-criteriacontribution-chart-display-chart" variablePay={variablePay} />
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
+          <CriteriaContributionChart
+            data-cy="okr-vpgraph-criteriacontribution-chart-display-chart"
+            variablePay={variablePay}
+          />
         </Col>
       </Row>
     </div>

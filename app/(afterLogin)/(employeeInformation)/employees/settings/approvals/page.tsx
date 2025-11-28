@@ -99,12 +99,7 @@ const Approvals = () => {
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setDepartmentApproval(false)}
-<<<<<<< HEAD
                 aria-label="Go back"
-              >
-                <IoArrowBack className="text-white" />
-                <span className="hidden sm:inline"> Back</span>
-=======
                 id={`settings-${pageSlug}-workflow-setting-back-btn`}
                 data-cy={`settings-${pageSlug}-workflow-setting-back-btn`}
               >
@@ -112,8 +107,13 @@ const Approvals = () => {
                   className="text-white"
                   data-cy="settings-approvals-back-btn-icon"
                 />
-                <span data-cy="settings-approvals-back-btn-text"> Back</span>
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
+                <span
+                  className="hidden sm:inline"
+                  data-cy="settings-approvals-back-btn-text"
+                >
+                  {' '}
+                  Back
+                </span>
               </Button>
               <div
                 className="text-2xl font-bold "
@@ -142,12 +142,7 @@ const Approvals = () => {
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setAddDepartmentApproval(false)}
-<<<<<<< HEAD
                 aria-label="Go back"
-              >
-                <IoArrowBack className="text-white" />
-                <span className="hidden sm:inline"> Back</span>
-=======
                 id={`settings-${pageSlug}-workflow-config-back-btn`}
                 data-cy={`settings-${pageSlug}-workflow-config-back-btn`}
               >
@@ -155,8 +150,13 @@ const Approvals = () => {
                   className="text-white"
                   data-cy="settings-approvals-back-btn-icon"
                 />
-                <span> Back</span>
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
+                <span
+                  className="hidden sm:inline"
+                  data-cy="settings-approvals-back-btn-text"
+                >
+                  {' '}
+                  Back
+                </span>
               </Button>
               <div
                 className="text-2xl font-bold "

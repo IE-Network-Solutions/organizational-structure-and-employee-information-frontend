@@ -108,13 +108,6 @@ const WorkScheduleComponent: React.FC = () => {
     }
   };
 
-  const handleWorkDayToggle = (index: number, checked: boolean) => {
-    setWorkingDays((prev) => ({
-      ...prev,
-      [index]: checked,
-    }));
-  };
-
   const data: any = (selectedWorkSchedule?.detail || []).map(
     (schedule, index) => {
       const decimalHour = schedule.duration || 0;
@@ -125,23 +118,9 @@ const WorkScheduleComponent: React.FC = () => {
         .add(hours, 'hour')
         .add(minutes, 'minute');
 
-      const isWorkDayChecked =
-        workingDays[index] !== undefined
-          ? workingDays[index]
-          : schedule?.workDay;
-
       return {
         key: index.toString(),
         workingDay: (
-<<<<<<< HEAD
-          <div className="flex space-x-2 justify-start">
-            <Switch
-              checked={isWorkDayChecked}
-              disabled={!edit.workSchedule}
-              onChange={(checked) => handleWorkDayToggle(index, checked)}
-            />
-            <span>{schedule.day}</span>
-=======
           <div
             className="flex space-x-2 justify-start"
             id={`job-work-schedule-day-${index}`}
@@ -159,7 +138,6 @@ const WorkScheduleComponent: React.FC = () => {
             >
               {schedule.day}
             </span>
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
           </div>
         ),
         time: (

@@ -1,5 +1,5 @@
-import { Col, Input, Row, Select, Table, Modal, Button } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Col, Input, Row, Select, Table } from 'antd';
+import React, { useEffect } from 'react';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import {
   useGetPermissions,
@@ -29,14 +29,7 @@ const Permission: React.FC<any> = () => {
   const { data: groupPermissionDatawithOutPagination } =
     useGetPermissionGroupsWithOutPagination();
   const { isMobile, isTablet } = useIsMobile();
-
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [tempGroupValue, setTempGroupValue] = useState<string | undefined>(
-    searchTerm?.termKey === 'permissionGroupId' &&
-      typeof searchTerm?.searchTerm === 'string'
-      ? searchTerm?.searchTerm
-      : undefined,
-  );
+  // Removed unused state variables as per lint errors);
 
   const debouncedTerm = useDebounce(searchTerm?.searchTerm, 2000);
   const {
@@ -93,30 +86,6 @@ const Permission: React.FC<any> = () => {
     }
   };
 
-  const handleFilterModalOpen = () => {
-    setTempGroupValue(
-      searchTerm?.termKey === 'permissionGroupId'
-        ? typeof searchTerm?.searchTerm === 'string'
-          ? searchTerm?.searchTerm
-          : undefined
-        : undefined,
-    );
-    setIsFilterModalOpen(true);
-  };
-
-  const handleFilterModalOk = () => {
-    if (tempGroupValue) {
-      handleSearchChange(tempGroupValue, 'permissionGroupId');
-    } else {
-      handleSearchChange(undefined, 'permissionGroupId');
-    }
-    setIsFilterModalOpen(false);
-  };
-
-  const handleFilterModalCancel = () => {
-    setIsFilterModalOpen(false);
-  };
-
   return (
     <div
       id="settings-permission-container"
@@ -149,14 +118,6 @@ const Permission: React.FC<any> = () => {
                 data-cy="settings-permission-search-input-mobile"
               />
             </Col>
-<<<<<<< HEAD
-            <Col xl={10} lg={10} md={10} sm={4} xs={4}>
-              <Button
-                className="w-[48px] h-10 flex items-center justify-center p-0"
-                onClick={handleFilterModalOpen}
-                icon={<LuSettings2 size={20} />}
-              />
-=======
             <Col
               xl={10}
               lg={10}
@@ -203,7 +164,6 @@ const Permission: React.FC<any> = () => {
                 )}
               </Select>
               {/* </div> */}
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
             </Col>
           </Row>
         ) : (
@@ -272,55 +232,6 @@ const Permission: React.FC<any> = () => {
           </Row>
         )}
       </div>
-<<<<<<< HEAD
-
-      {/* Filter Modal for Mobile/Tablet */}
-      <Modal
-        title="Filter Options"
-        open={isFilterModalOpen}
-        onOk={handleFilterModalOk}
-        onCancel={handleFilterModalCancel}
-        footer={
-          <div className="flex justify-center gap-2">
-            <Button onClick={handleFilterModalCancel}>Cancel</Button>
-            <Button type="primary" onClick={handleFilterModalOk}>
-              Filter
-            </Button>
-          </div>
-        }
-      >
-        <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">
-            Permission Group
-          </label>
-          <Select
-            showSearch
-            className="w-full"
-            placeholder="Select a group"
-            optionFilterProp="children"
-            allowClear
-            value={tempGroupValue}
-            onChange={(value) => setTempGroupValue(value)}
-            filterOption={(input, option: any) =>
-              option.props.children
-                .toLowerCase()
-                .indexOf(input.toLowerCase()) >= 0
-            }
-          >
-            {groupPermissionDatawithOutPagination?.items?.map(
-              (item: GroupPermissionItem) => (
-                <Option key={item?.id} value={item?.id}>
-                  {item?.name}
-                </Option>
-              ),
-            )}
-          </Select>
-        </div>
-      </Modal>
-
-      <div className="mb-4">
-        <span className="">
-=======
       <div
         className="mb-4"
         id="settings-permission-selected-count"
@@ -331,7 +242,6 @@ const Permission: React.FC<any> = () => {
           id="settings-permission-selected-count-text"
           data-cy="settings-permission-selected-count-text"
         >
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
           {hasSelected ? `Selected ${selectedRowKeys?.length} items` : ''}
         </span>
       </div>

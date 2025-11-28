@@ -214,13 +214,7 @@ const ListOfRoles = () => {
           setSelectedRole(null);
           setCurrentModal(null);
         }}
-<<<<<<< HEAD
-        styles={{
-          body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' },
-        }}
-=======
         data-cy="settings-role-modal"
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
       >
         <Form
           form={form}
@@ -231,12 +225,8 @@ const ListOfRoles = () => {
               ? handleRoleUpdate
               : handleCreateRole
           }
-<<<<<<< HEAD
-          className="p-2 sm:p-4 md:p-4 lg:p-6"
-=======
           className="p-4 sm:p-2 md:p-4 lg:p-6"
           data-cy="settings-role-form"
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
         >
           <div
             className="grid"
@@ -404,10 +394,6 @@ const ListOfRoles = () => {
               </p>
             </div>
           </div>
-<<<<<<< HEAD
-          <Form.Item>
-            <div className="flex flex-row justify-center w-full bg-[#fff] px-2 sm:px-6 py-4 sm:py-6 gap-3 sm:gap-6">
-=======
           <Form.Item
             id="settings-role-form-actions-form-item"
             data-cy="settings-role-form-actions-form-item"
@@ -417,7 +403,6 @@ const ListOfRoles = () => {
               id="settings-role-form-actions"
               data-cy="settings-role-form-actions"
             >
->>>>>>> 2fe159d0f751c0e0a8476d232d8c470a32da7672
               <Button
                 id="cancelButtonForRole"
                 className="px-6 py-3 text-xs font-bold"
