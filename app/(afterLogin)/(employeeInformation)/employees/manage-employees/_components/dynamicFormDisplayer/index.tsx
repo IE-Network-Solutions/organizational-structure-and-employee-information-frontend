@@ -66,7 +66,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
           return (
             <Input
               placeholder={`Enter ${field.fieldName.replace(/_/g, ' ')}`}
-               id={`${formTitle}-${field.fieldName}-input`}
+              id={`${formTitle}-${field.fieldName}-input`}
               data-cy={`${formTitle}-${field.fieldName}-input`}
             />
           );
@@ -82,13 +82,16 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
             <Select
               placeholder={`Select ${field.fieldName.replace(/_/g, ' ')}`}
               allowClear
-               id={`${formTitle}-${field.fieldName}-select`}
+              id={`${formTitle}-${field.fieldName}-select`}
               data-cy={`${formTitle}-${field.fieldName}-select`}
             >
               {field.options?.map((option: string, index: number) => (
-                <Option key={index} value={option}
-                     id={`${formTitle}-${field.fieldName}-option-${option}`}
-                  data-cy={`${formTitle}-${field.fieldName}-option-${option}`}>
+                <Option
+                  key={index}
+                  value={option}
+                  id={`${formTitle}-${field.fieldName}-option-${option}`}
+                  data-cy={`${formTitle}-${field.fieldName}-option-${option}`}
+                >
                   {option}
                 </Option>
               ))}
@@ -130,8 +133,8 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
               ? 'checked'
               : 'value'
           }
-           id={`${formTitle}-${field.fieldName}-datepicker-form-item`}
-           data-cy={`${formTitle}-${field.fieldName}-datepicker-form-item`}
+          id={`${formTitle}-${field.fieldName}-datepicker-form-item`}
+          data-cy={`${formTitle}-${field.fieldName}-datepicker-form-item`}
         >
           {renderInput()}
         </Form.Item>

@@ -163,7 +163,12 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                   data-cy={`${viewPrefix}-desktop-metric-select`}
                 >
                   {metrics?.items?.map((metric: any) => (
-                    <Select.Option id={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`} data-cy={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                    <Select.Option
+                      id={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`}
+                      data-cy={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`}
+                      key={metric?.id}
+                      value={metric?.id}
+                    >
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -215,7 +220,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
 
           {/* Deadline */}
           <div className="w-48 ml-2">
-            <Form.Item id={`${viewPrefix}-desktop-deadline-input-item`} data-cy={`${viewPrefix}-desktop-deadline-input-item`} className="w-full font-bold mb-0">
+            <Form.Item
+              id={`${viewPrefix}-desktop-deadline-input-item`}
+              data-cy={`${viewPrefix}-desktop-deadline-input-item`}
+              className="w-full font-bold mb-0"
+            >
               <DatePicker
                 id={`key-result-deadline-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -246,7 +255,7 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
 
         {/* Mobile Layout */}
         <div
-            className={`${
+          className={`${
             isMobile
               ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
               : 'hidden'
@@ -317,7 +326,12 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
                   data-cy={`${viewPrefix}-mobile-metric-select`}
                 >
                   {metrics?.items?.map((metric: any) => (
-                    <Select.Option id={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`} data-cy={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                    <Select.Option
+                      id={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`}
+                      data-cy={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`}
+                      key={metric?.id}
+                      value={metric?.id}
+                    >
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -363,7 +377,11 @@ const AchieveOrNotView: React.FC<OKRProps> = ({
               />
             </Form.Item>
 
-            <Form.Item id={`${viewPrefix}-mobile-deadline-input-item`} data-cy={`${viewPrefix}-mobile-deadline-input-item`} className="w-32 font-bold mb-0">
+            <Form.Item
+              id={`${viewPrefix}-mobile-deadline-input-item`}
+              data-cy={`${viewPrefix}-mobile-deadline-input-item`}
+              className="w-32 font-bold mb-0"
+            >
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}

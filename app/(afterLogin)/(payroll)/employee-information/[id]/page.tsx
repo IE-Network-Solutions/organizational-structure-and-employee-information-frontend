@@ -234,7 +234,6 @@ const EmployeeProfile = () => {
                   data-cy="payroll-employee-profile-avatar-view-wrapper"
                 >
                   <Avatar
-                  
                     data-cy="payroll-employee-profile-avatar-view-component"
                     size={144}
                     src={
@@ -600,10 +599,7 @@ const EmployeeProfile = () => {
                         </div>
                       </div>
                     </div>
-                    <Divider
-                     
-                      data-cy="payroll-employee-profile-information-section-divider"
-                    />
+                    <Divider data-cy="payroll-employee-profile-information-section-divider" />
                     <div
                       className="flex justify-between"
                       id="payroll-employee-profile-payslip-header-view-container"
@@ -633,10 +629,7 @@ const EmployeeProfile = () => {
                         Print
                       </Button>
                     </div>
-                    <Divider
-                     
-                      data-cy="payroll-employee-profile-payslip-divider"
-                    />
+                    <Divider data-cy="payroll-employee-profile-payslip-divider" />
                     <div
                       className="flex gap-6 w-full m-4"
                       id="payroll-employee-profile-paydates-view-container"
@@ -686,7 +679,6 @@ const EmployeeProfile = () => {
                       </div>
                     </div>
                     <PayrollDetails
-
                       data-cy="payroll-employee-profile-active-details-view-component"
                       activeMergedPayroll={activeMergedPayroll || undefined}
                     />
@@ -709,7 +701,6 @@ const EmployeeProfile = () => {
                       >
                         <Divider
                           className="m-2"
-                      
                           data-cy="payroll-employee-profile-payslip-hidden-divider-top"
                         />
                         <header
@@ -879,7 +870,6 @@ const EmployeeProfile = () => {
                         </div>
                         <Divider
                           className="my-2"
-                     
                           data-cy="payroll-employee-profile-payslip-hidden-divider-mid"
                         />
 
@@ -994,10 +984,7 @@ const EmployeeProfile = () => {
                               </Text>
                             </div>
                           </div>
-                          <Divider
-
-                            data-cy="payroll-employee-profile-allowances-divider"
-                          />
+                          <Divider data-cy="payroll-employee-profile-allowances-divider" />
 
                           <div
                             className="flex flex-col w-full gap-4"
@@ -1259,7 +1246,6 @@ const EmployeeProfile = () => {
 
                         <Divider
                           className="my-2"
-                    
                           data-cy="payroll-employee-profile-bank-info-divider"
                         />
                         <header
@@ -1381,7 +1367,6 @@ const EmployeeProfile = () => {
 
                         return (
                           <Collapse
-                        
                             data-cy={`payroll-employee-profile-history-collapse-view-component-${period.id}`}
                             size="large"
                             className="p-4 m-2"
@@ -1440,7 +1425,6 @@ const EmployeeProfile = () => {
                                 </div>
                               </div>
                               <PayrollDetails
-                             
                                 data-cy={`payroll-employee-profile-history-details-view-component-${period.id}`}
                                 activeMergedPayroll={activeMergedPayroll}
                               />
@@ -1449,10 +1433,7 @@ const EmployeeProfile = () => {
                         );
                       })
                   ) : (
-                    <EmptyImage
-                  
-                      data-cy="payroll-employee-profile-history-empty-view-component"
-                    />
+                    <EmptyImage data-cy="payroll-employee-profile-history-empty-view-component" />
                   )}
                 </div>
               </TabPane>
@@ -1462,10 +1443,7 @@ const EmployeeProfile = () => {
                 tab="Settlement Tracking"
                 key="3"
               >
-                <SettlementDetail
-               
-                  data-cy="payroll-employee-profile-settlement-view-component"
-                />
+                <SettlementDetail data-cy="payroll-employee-profile-settlement-view-component" />
               </TabPane>
             </Tabs>
           </Col>

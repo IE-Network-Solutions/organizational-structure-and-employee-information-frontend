@@ -440,9 +440,17 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const keyResultMenu = (
-    <Menu data-cy="okr-edit-objective-key-result-menu" onClick={handleAddKeyResultType}>
+    <Menu
+      data-cy="okr-edit-objective-key-result-menu"
+      onClick={handleAddKeyResultType}
+    >
       {keyResultTypes.map((type) => (
-        <Menu.Item data-cy="okr-edit-objective-key-result-menu-item" key={type.value}>{type.label}</Menu.Item>
+        <Menu.Item
+          data-cy="okr-edit-objective-key-result-menu-item"
+          key={type.value}
+        >
+          {type.label}
+        </Menu.Item>
       ))}
     </Menu>
   );

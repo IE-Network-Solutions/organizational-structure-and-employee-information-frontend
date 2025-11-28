@@ -101,8 +101,17 @@ const Approvals = () => {
                 onClick={() => setDepartmentApproval(false)}
                 aria-label="Go back"
               >
-                <IoArrowBack className="text-white" data-cy="settings-approvals-back-btn-icon" />
-                <span className="hidden sm:inline" data-cy="settings-approvals-back-btn-text"> Back</span>
+                <IoArrowBack
+                  className="text-white"
+                  data-cy="settings-approvals-back-btn-icon"
+                />
+                <span
+                  className="hidden sm:inline"
+                  data-cy="settings-approvals-back-btn-text"
+                >
+                  {' '}
+                  Back
+                </span>
               </Button>
               <div
                 className="text-2xl font-bold "
@@ -133,8 +142,10 @@ const Approvals = () => {
                 onClick={() => setAddDepartmentApproval(false)}
                 aria-label="Go back"
               >
-                <IoArrowBack className="text-white"
-                data-cy="settings-approvals-back-btn-icon" />
+                <IoArrowBack
+                  className="text-white"
+                  data-cy="settings-approvals-back-btn-icon"
+                />
                 <span className="hidden sm:inline"> Back</span>
               </Button>
               <div

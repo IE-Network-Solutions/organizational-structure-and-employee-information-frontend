@@ -113,11 +113,19 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 )?.id || ''
               }
             >
-              <Option data-cy={`okr-percentage-desktop-type-option-${index}`} value="" disabled>
+              <Option
+                data-cy={`okr-percentage-desktop-type-option-${index}`}
+                value=""
+                disabled
+              >
                 Please select a metric type
               </Option>
               {metrics?.items?.map((metric) => (
-                <Option data-cy={`okr-percentage-desktop-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                <Option
+                  data-cy={`okr-percentage-desktop-type-option-${index}-${metric?.id}`}
+                  key={metric?.id}
+                  value={metric?.id}
+                >
                   {metric?.name}
                 </Option>
               ))}
@@ -249,7 +257,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
         <div
           id={`okr-percentage-mobile-wrapper-${index}`}
           data-cy={`okr-percentage-mobile-wrapper-${index}`}
-           className={`${
+          className={`${
             isMobile
               ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
               : 'hidden'
@@ -308,11 +316,19 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   )?.id || ''
                 }
               >
-                <Option data-cy={`okr-percentage-mobile-type-option-${index}`} value="" disabled>
+                <Option
+                  data-cy={`okr-percentage-mobile-type-option-${index}`}
+                  value=""
+                  disabled
+                >
                   Please select a metric type
                 </Option>
                 {metrics?.items?.map((metric) => (
-                  <Option data-cy={`okr-percentage-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                  <Option
+                    data-cy={`okr-percentage-mobile-type-option-${index}-${metric?.id}`}
+                    key={metric?.id}
+                    value={metric?.id}
+                  >
                     {metric?.name}
                   </Option>
                 ))}
@@ -388,7 +404,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               data-cy={`okr-percentage-mobile-initial-item-${index}`}
             >
               <InputNumber
-              className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 data-cy={`okr-percentage-mobile-initial-input-${index}`}
                 min={0}
                 max={100}
@@ -419,7 +435,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               data-cy={`okr-percentage-mobile-target-item-${index}`}
             >
               <InputNumber
-                 className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 data-cy={`okr-percentage-mobile-target-input-${index}`}
                 min={0}
                 max={100}

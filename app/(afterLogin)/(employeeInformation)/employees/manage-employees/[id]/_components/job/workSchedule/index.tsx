@@ -133,16 +133,24 @@ const WorkScheduleComponent: React.FC = () => {
       return {
         key: index.toString(),
         workingDay: (
-          <div  id={`job-work-schedule-day-${index}`}
-            data-cy={`job-work-schedule-day-${index}`} className="flex space-x-2 justify-start">
-            <Switch    id={`job-work-schedule-switch-${index}`}
+          <div
+            id={`job-work-schedule-day-${index}`}
+            data-cy={`job-work-schedule-day-${index}`}
+            className="flex space-x-2 justify-start"
+          >
+            <Switch
+              id={`job-work-schedule-switch-${index}`}
               data-cy={`job-work-schedule-switch-${index}`}
               checked={isWorkDayChecked}
               disabled={!edit.workSchedule}
               onChange={(checked) => handleWorkDayToggle(index, checked)}
             />
-            <span id={`job-work-schedule-day-name-${index}`}
-              data-cy={`job-work-schedule-day-name-${index}`}>{schedule.day}</span>
+            <span
+              id={`job-work-schedule-day-name-${index}`}
+              data-cy={`job-work-schedule-day-name-${index}`}
+            >
+              {schedule.day}
+            </span>
           </div>
         ),
         time: (

@@ -289,9 +289,19 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const keyResultMenu = (
-    <Menu id="okr-drawer-keyresult-menu" data-cy="okr-drawer-keyresult-menu" onClick={handleAddKeyResultType}>
+    <Menu
+      id="okr-drawer-keyresult-menu"
+      data-cy="okr-drawer-keyresult-menu"
+      onClick={handleAddKeyResultType}
+    >
       {keyResultTypes.map((type) => (
-        <Menu.Item id="okr-drawer-keyresult-menu-item" data-cy="okr-drawer-keyresult-menu-item" key={type.value}>{type.label}</Menu.Item>
+        <Menu.Item
+          id="okr-drawer-keyresult-menu-item"
+          data-cy="okr-drawer-keyresult-menu-item"
+          key={type.value}
+        >
+          {type.label}
+        </Menu.Item>
       ))}
     </Menu>
   );
@@ -318,14 +328,26 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         className="w-full"
       >
         {/* OKR Section Title */}
-        <div id="okr-drawer-objective-section-header" data-cy="okr-drawer-objective-section-header" className="mb-6">
-          <h2 id="okr-drawer-objective-section-title" data-cy="okr-drawer-objective-section-title" className="text-xl font-semibold text-gray-800 mb-4">
+        <div
+          id="okr-drawer-objective-section-header"
+          data-cy="okr-drawer-objective-section-header"
+          className="mb-6"
+        >
+          <h2
+            id="okr-drawer-objective-section-title"
+            data-cy="okr-drawer-objective-section-title"
+            className="text-xl font-semibold text-gray-800 mb-4"
+          >
             Objective
           </h2>
         </div>
 
         {isMobile ? (
-          <div id="okr-drawer-mobile-form" data-cy="okr-drawer-mobile-form" className="flex flex-col w-full">
+          <div
+            id="okr-drawer-mobile-form"
+            data-cy="okr-drawer-mobile-form"
+            className="flex flex-col w-full"
+          >
             <Form.Item
               id="okr-drawer-mobile-title-input"
               data-cy="okr-drawer-mobile-title-input"
@@ -350,7 +372,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 style={{ fontSize: '14px', height: '44px' }}
               />
             </Form.Item>
-            <div id="okr-drawer-mobile-form-alignment-select" data-cy="okr-drawer-mobile-form-alignment-select" className="flex w-full gap-4 mb-10">
+            <div
+              id="okr-drawer-mobile-form-alignment-select"
+              data-cy="okr-drawer-mobile-form-alignment-select"
+              className="flex w-full gap-4 mb-10"
+            >
               <Form.Item
                 id="okr-drawer-mobile-alignment-select"
                 data-cy="okr-drawer-mobile-alignment-select"
@@ -380,7 +406,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   style={{ fontSize: '14px', height: '44px' }}
                 >
                   {keyResultByUser?.items?.map((keyResult: any) => (
-                    <Select.Option id="okr-drawer-mobile-alignment-select-option" data-cy="okr-drawer-mobile-alignment-select-option" key={keyResult.id} value={keyResult.id}>
+                    <Select.Option
+                      id="okr-drawer-mobile-alignment-select-option"
+                      data-cy="okr-drawer-mobile-alignment-select-option"
+                      key={keyResult.id}
+                      value={keyResult.id}
+                    >
                       {keyResult.title}
                     </Select.Option>
                   ))}
@@ -440,7 +471,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             </div> */}
           </div>
         ) : (
-          <div id="okr-drawer-desktop-form" data-cy="okr-drawer-desktop-form" className="flex gap-4 w-full">
+          <div
+            id="okr-drawer-desktop-form"
+            data-cy="okr-drawer-desktop-form"
+            className="flex gap-4 w-full"
+          >
             <Form.Item
               id="okr-drawer-desktop-title-input"
               data-cy="okr-drawer-desktop-title-input"
@@ -500,7 +535,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 }}
               >
                 {keyResultByUser?.items?.map((keyResult: any) => (
-                  <Select.Option id="okr-drawer-desktop-alignment-select-option" data-cy="okr-drawer-desktop-alignment-select-option" key={keyResult.id} value={keyResult.id}>
+                  <Select.Option
+                    id="okr-drawer-desktop-alignment-select-option"
+                    data-cy="okr-drawer-desktop-alignment-select-option"
+                    key={keyResult.id}
+                    value={keyResult.id}
+                  >
                     {keyResult.title}
                   </Select.Option>
                 ))}
@@ -545,7 +585,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           data-cy="okr-drawer-key-result-section-header"
           className="flex justify-between items-center mb-6 mt-8"
         >
-          <h2 id="okr-drawer-key-result-section-title" data-cy="okr-drawer-key-result-section-title" className="text-xl font-semibold text-gray-800">Key Result</h2>
+          <h2
+            id="okr-drawer-key-result-section-title"
+            data-cy="okr-drawer-key-result-section-title"
+            className="text-xl font-semibold text-gray-800"
+          >
+            Key Result
+          </h2>
           <div className="flex gap-2">
             <Button
               type="primary"
@@ -571,7 +617,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             </Button>
             <Dropdown
               data-cy="okr-drawer-desktop-add-keyresult-button-dropdown"
-             overlay={keyResultMenu} trigger={['click']}>
+              overlay={keyResultMenu}
+              trigger={['click']}
+            >
               <Button
                 type="default"
                 id="okr-drawer-desktop-add-keyresult-button"
@@ -618,7 +666,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           className={`rounded-lg mt-5 w-full min-h-64 ${objective?.keyResults?.length > 2 ? 'max-h-96 overflow-y-auto' : ''}`}
         >
           {/* Show forms for key results */}
-          <div id="okr-drawer-key-results-list" data-cy="okr-drawer-key-results-list">
+          <div
+            id="okr-drawer-key-results-list"
+            data-cy="okr-drawer-key-results-list"
+          >
             {objective?.keyResults?.length > 0 &&
               objective?.keyResults.map((keyItem: any, index: number) => (
                 <KeyResultForm
@@ -640,7 +691,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               data-cy="okr-drawer-total-weight-display"
               className="flex justify-end mt-4 mb-4"
             >
-              <div id="okr-drawer-total-weight-display-text" data-cy="okr-drawer-total-weight-display-text" className="text-sm text-gray-600 font-bold">
+              <div
+                id="okr-drawer-total-weight-display-text"
+                data-cy="okr-drawer-total-weight-display-text"
+                className="text-sm text-gray-600 font-bold"
+              >
                 Total Weight:{' '}
                 <span
                   id="okr-drawer-total-weight-display-text-span"

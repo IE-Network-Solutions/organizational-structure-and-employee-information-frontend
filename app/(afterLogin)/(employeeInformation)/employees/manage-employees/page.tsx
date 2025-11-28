@@ -356,8 +356,10 @@ const ManageEmployees: React.FC<any> = () => {
               onClick={() => setIsMobileFilterVisible(true)}
               aria-label="Open filters"
             >
-              <IoMdSwitch  id="manage-employees-filter-toggle-icon"
-                data-cy="manage-employees-filter-toggle-icon" />
+              <IoMdSwitch
+                id="manage-employees-filter-toggle-icon"
+                data-cy="manage-employees-filter-toggle-icon"
+              />
               <span className="hidden sm:inline">Filter</span>
             </Button>
           </div>

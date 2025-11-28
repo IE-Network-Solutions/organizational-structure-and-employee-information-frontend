@@ -300,11 +300,19 @@ const NumericForm: React.FC<OKRFormProps> = ({
                   )?.id || ''
                 }
               >
-                <Option data-cy={`okr-numeric-mobile-type-option-${index}`} value="" disabled>
+                <Option
+                  data-cy={`okr-numeric-mobile-type-option-${index}`}
+                  value=""
+                  disabled
+                >
                   Please select a metric type
                 </Option>
                 {metrics?.items?.map((metric) => (
-                  <Option data-cy={`okr-numeric-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                  <Option
+                    data-cy={`okr-numeric-mobile-type-option-${index}-${metric?.id}`}
+                    key={metric?.id}
+                    value={metric?.id}
+                  >
                     {metric?.name}
                   </Option>
                 ))}
@@ -376,7 +384,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
               data-cy={`okr-numeric-mobile-initial-item-${index}`}
             >
               <InputNumber
-                 className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 data-cy={`okr-numeric-mobile-initial-input-${index}`}
                 min={0}
                 placeholder="Initial Value"

@@ -97,7 +97,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     <div
       id={`key-result-metrics-${keyResult?.id}`}
       data-cy={`okr-key-result-metrics-${keyResult?.id}`}
-     className={`${isMobile ? 'py-2 px-3' : 'py-3 px-4 sm:px-8 pr-10 pb-8 mb-2 '} bg-white shadow-sm rounded-lg border relative`}
+      className={`${isMobile ? 'py-2 px-3' : 'py-3 px-4 sm:px-8 pr-10 pb-8 mb-2 '} bg-white shadow-sm rounded-lg border relative`}
     >
       {/* Title Section */}
       <div
@@ -108,13 +108,13 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         <MdKey
           id={`key-result-icon-${keyResult?.id}`}
           data-cy={`okr-key-result-icon-${keyResult?.id}`}
-            size={isMobile ? 24 : 28}
+          size={isMobile ? 24 : 28}
           className="text-blue text-xl w-8 sm:w-10"
         />
         <h2
           id={`key-result-title-${keyResult?.id}`}
           data-cy={`okr-key-result-title-${keyResult?.id}`}
-              className={`flex items-center gap-1 ${isMobile ? 'text-sm' : 'text-base'} font-normal`}
+          className={`flex items-center gap-1 ${isMobile ? 'text-sm' : 'text-base'} font-normal`}
         >
           {keyResult?.title} {getMetricName(keyResult.metricType.name)}
         </h2>
@@ -122,7 +122,6 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
           Number(keyResult?.progress) === 0 &&
           menu && (
             <Dropdown
-             
               data-cy={`okr-key-result-actions-dropdown-${keyResult?.id}`}
               overlay={menu}
               trigger={['click']}
@@ -158,7 +157,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               <div
                 id={`key-result-metric-type-${keyResult?.id}`}
                 data-cy={`okr-key-result-metric-type-${keyResult?.id}`}
-className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10px] p-1.5' : 'text-sm p-2'} flex items-center rounded-lg`}              >
+                className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10px] p-1.5' : 'text-sm p-2'} flex items-center rounded-lg`}
+              >
                 {keyResult?.metricType?.name}
               </div>
               <div
@@ -203,7 +203,7 @@ className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10p
             >
               <div
                 className={`text-[#687588] mt-1 ${isMobile ? 'text-[10px]' : 'text-sm'} flex items-center rounded-lg`}
-                  id={`okr-key-result-weight-label-bullet-${keyResult?.id}`}
+                id={`okr-key-result-weight-label-bullet-${keyResult?.id}`}
                 data-cy={`okr-key-result-weight-label-bullet-${keyResult?.id}`}
               >
                 Weight
@@ -221,7 +221,8 @@ className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10p
           <div
             id={`okr-key-result-achieved-wrapper-${keyResult?.id}`}
             data-cy={`okr-key-result-achieved-wrapper-${keyResult?.id}`}
- className={`flex items-center ${isMobile ? 'gap-1' : 'gap-3'}`}          >
+            className={`flex items-center ${isMobile ? 'gap-1' : 'gap-3'}`}
+          >
             <div
               id={`key-result-achieved-${keyResult?.id}`}
               data-cy={`okr-key-result-achieved-${keyResult?.id}`}
@@ -245,7 +246,7 @@ className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10p
             >
               <div
                 className={`text-[#687588] mt-1 ${isMobile ? 'text-[10px]' : 'text-sm'} flex items-center rounded-lg`}
-                 id={`okr-key-result-achieved-label-bullet-${keyResult?.id}`}
+                id={`okr-key-result-achieved-label-bullet-${keyResult?.id}`}
                 data-cy={`okr-key-result-achieved-label-bullet-${keyResult?.id}`}
               >
                 Achieved
@@ -261,7 +262,6 @@ className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10p
               id={`key-result-target-${keyResult?.id}`}
               data-cy={`okr-key-result-target-${keyResult?.id}`}
               className={`bg-light_purple text-blue font-semibold ${isMobile ? 'text-xs p-2 w-auto' : 'text-base p-2 min-w-20 sm:min-w-24'} text-center rounded-lg`}
-
             >
               {keyResult?.metricType?.name === 'Milestone'
                 ? keyResult?.milestones?.length || 0
@@ -276,7 +276,7 @@ className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10p
             >
               <div
                 className={`text-[#687588] mt-1 ${isMobile ? 'text-[10px]' : 'text-sm'} flex items-center rounded-lg`}
-                 id={`okr-key-result-target-label-bullet-${keyResult?.id}`}
+                id={`okr-key-result-target-label-bullet-${keyResult?.id}`}
                 data-cy={`okr-key-result-target-label-bullet-${keyResult?.id}`}
               >
                 {keyResult?.metricType?.name === 'Milestone'
@@ -293,10 +293,8 @@ className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10p
         id={`key-result-progress-section-${keyResult?.id}`}
         data-cy={`okr-key-result-progress-section-${keyResult?.id}`}
         className={`${isMobile ? 'mt-3 flex justify-end items-center gap-2' : 'absolute bottom-2 right-2 flex items-center gap-2'}`}
-
       >
         <Progress
-          
           data-cy={`okr-key-result-progress-indicator-${keyResult?.id}`}
           type="circle"
           showInfo={false}
@@ -312,9 +310,12 @@ className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[10p
         </span>
       </div>
 
-      <EditKeyResult 
+      <EditKeyResult
         data-cy={`okr-key-result-metrics-edit-key-result-${keyResult?.id}`}
-        open={open} onClose={onClose} keyResult={keyResultValue} />
+        open={open}
+        onClose={onClose}
+        keyResult={keyResultValue}
+      />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleKeyResultDelete(keyResultValue.id)}

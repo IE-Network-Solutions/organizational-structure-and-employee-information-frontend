@@ -102,8 +102,10 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             >
               {metrics?.items?.map((metric) => (
                 <Option
-                data-cy={`okr-achieve-desktop-type-option-${index}-${metric?.id}`}
-                key={metric?.id} value={metric?.id}>
+                  data-cy={`okr-achieve-desktop-type-option-${index}-${metric?.id}`}
+                  key={metric?.id}
+                  value={metric?.id}
+                >
                   {metric?.name}
                 </Option>
               ))}
@@ -166,7 +168,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
         <div
           id={`okr-achieve-mobile-wrapper-${index}`}
           data-cy={`okr-achieve-mobile-wrapper-${index}`}
-         className={`${
+          className={`${
             isMobile
               ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
               : 'hidden'
@@ -218,7 +220,11 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                 value={keyItem.key_type}
               >
                 {metrics?.items?.map((metric) => (
-                  <Option data-cy={`okr-achieve-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                  <Option
+                    data-cy={`okr-achieve-mobile-type-option-${index}-${metric?.id}`}
+                    key={metric?.id}
+                    value={metric?.id}
+                  >
                     {metric?.name}
                   </Option>
                 ))}
@@ -254,7 +260,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               data-cy={`okr-achieve-mobile-deadline-item-${index}`}
             >
               <DatePicker
-              className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 data-cy={`okr-achieve-mobile-deadline-picker-${index}`}
                 value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                 format="YYYY-MM-DD"

@@ -159,25 +159,51 @@ const AddCustomField: React.FC<any> = ({
           rules={[{ required: true, message: 'Field Validation is required' }]}
         >
           <Select
-           id={`add-custom-field-validation-select-${formTitle}`}
+            id={`add-custom-field-validation-select-${formTitle}`}
             data-cy={`add-custom-field-validation-select-${formTitle}`}
-              >
-            <Option value="text"
+          >
+            <Option
+              value="text"
               id={`add-custom-field-validation-option-text-${formTitle}`}
-              data-cy={`add-custom-field-validation-option-text-${formTitle}`}>Text</Option>
-            <Option value="number"   id={`add-custom-field-validation-option-number-${formTitle}`}
-              data-cy={`add-custom-field-validation-option-number-${formTitle}`}>Number</Option>
-            <Option value="email" 
-               id={`add-custom-field-validation-option-email-${formTitle}`}
-              data-cy={`add-custom-field-validation-option-email-${formTitle}`}>Email</Option>
-            <Option value="date"
-             id={`add-custom-field-validation-option-date-${formTitle}`}
-              data-cy={`add-custom-field-validation-option-date-${formTitle}`}>Date</Option>
-            <Option value="url"  id={`add-custom-field-validation-option-url-${formTitle}`}
-              data-cy={`add-custom-field-validation-option-url-${formTitle}`}>URL</Option>
-            <Option value="any"
-                id={`add-custom-field-validation-option-any-${formTitle}`}
-              data-cy={`add-custom-field-validation-option-any-${formTitle}`}>Any</Option>
+              data-cy={`add-custom-field-validation-option-text-${formTitle}`}
+            >
+              Text
+            </Option>
+            <Option
+              value="number"
+              id={`add-custom-field-validation-option-number-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-number-${formTitle}`}
+            >
+              Number
+            </Option>
+            <Option
+              value="email"
+              id={`add-custom-field-validation-option-email-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-email-${formTitle}`}
+            >
+              Email
+            </Option>
+            <Option
+              value="date"
+              id={`add-custom-field-validation-option-date-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-date-${formTitle}`}
+            >
+              Date
+            </Option>
+            <Option
+              value="url"
+              id={`add-custom-field-validation-option-url-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-url-${formTitle}`}
+            >
+              URL
+            </Option>
+            <Option
+              value="any"
+              id={`add-custom-field-validation-option-any-${formTitle}`}
+              data-cy={`add-custom-field-validation-option-any-${formTitle}`}
+            >
+              Any
+            </Option>
           </Select>
         </Form.Item>
 
@@ -187,14 +213,14 @@ const AddCustomField: React.FC<any> = ({
               label="Is Active"
               name="isActive"
               valuePropName="checked"
-                id={`add-custom-field-active-${formTitle}`}
-          data-cy={`add-custom-field-active-${formTitle}`}
+              id={`add-custom-field-active-${formTitle}`}
+              data-cy={`add-custom-field-active-${formTitle}`}
             >
               <Switch
                 checked={isActive}
                 onChange={(checked) => setIsActive(checked)}
-                 id={`add-custom-field-active-switch-${formTitle}`}
-            data-cy={`add-custom-field-active-switch-${formTitle}`}
+                id={`add-custom-field-active-switch-${formTitle}`}
+                data-cy={`add-custom-field-active-switch-${formTitle}`}
               />
             </Form.Item>
           </Col>
@@ -213,8 +239,10 @@ const AddCustomField: React.FC<any> = ({
         </Row>
 
         <Divider data-cy={`add-custom-field-divider-${formTitle}`} />
-        <Form.Item id={`add-custom-field-submit-${formTitle}`}
-          data-cy={`add-custom-field-submit-${formTitle}`}>
+        <Form.Item
+          id={`add-custom-field-submit-${formTitle}`}
+          data-cy={`add-custom-field-submit-${formTitle}`}
+        >
           <Button
             type="primary"
             id={`addField${formTitle}`}
@@ -235,15 +263,30 @@ const AddCustomField: React.FC<any> = ({
       bodyStyle={{ padding: 0, border: 'none' }}
       className={className}
     >
-      <Row gutter={16}  id={`add-custom-field-row-${formTitle}`}
-        data-cy={`add-custom-field-row-${formTitle}`}>
-        <Col xs={24} sm={24} className="flex justify-center items-center"  id={`add-custom-field-col-${formTitle}`}
-          data-cy={`add-custom-field-col-${formTitle}`}>
-          <Form.Item className="font-semibold text-xs"   id={`add-custom-field-form-item-${formTitle}`}
-            data-cy={`add-custom-field-form-item-${formTitle}`}>
-            <Popover content={popoverContent} title={formTitle} trigger="click"  
-            id={`add-custom-field-popover-wrapper-${formTitle}`}
-              data-cy={`add-custom-field-popover-wrapper-${formTitle}`}>
+      <Row
+        gutter={16}
+        id={`add-custom-field-row-${formTitle}`}
+        data-cy={`add-custom-field-row-${formTitle}`}
+      >
+        <Col
+          xs={24}
+          sm={24}
+          className="flex justify-center items-center"
+          id={`add-custom-field-col-${formTitle}`}
+          data-cy={`add-custom-field-col-${formTitle}`}
+        >
+          <Form.Item
+            className="font-semibold text-xs"
+            id={`add-custom-field-form-item-${formTitle}`}
+            data-cy={`add-custom-field-form-item-${formTitle}`}
+          >
+            <Popover
+              content={popoverContent}
+              title={formTitle}
+              trigger="click"
+              id={`add-custom-field-popover-wrapper-${formTitle}`}
+              data-cy={`add-custom-field-popover-wrapper-${formTitle}`}
+            >
               <Button
                 id={`addCustomField${formTitle}`}
                 data-cy={`addCustomField${formTitle}`}

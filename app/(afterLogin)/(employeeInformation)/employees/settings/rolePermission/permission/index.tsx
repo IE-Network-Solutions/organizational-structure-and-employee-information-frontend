@@ -149,9 +149,15 @@ const Permission: React.FC<any> = () => {
                 data-cy="settings-permission-search-input-mobile"
               />
             </Col>
-            <Col xl={10} lg={10} md={10} sm={4} xs={4}  
-            id="settings-permission-group-select-wrapper-mobile"
-              data-cy="settings-permission-group-select-wrapper-mobile">
+            <Col
+              xl={10}
+              lg={10}
+              md={10}
+              sm={4}
+              xs={4}
+              id="settings-permission-group-select-wrapper-mobile"
+              data-cy="settings-permission-group-select-wrapper-mobile"
+            >
               <Button
                 className="w-[48px] h-10 flex items-center justify-center p-0"
                 onClick={handleFilterModalOpen}
@@ -270,12 +276,16 @@ const Permission: React.FC<any> = () => {
         </div>
       </Modal>
 
-      <div className="mb-4"
-       id="settings-permission-selected-count"
-        data-cy="settings-permission-selected-count">
-        <span className=""
-        id="settings-permission-selected-count-text"
-          data-cy="settings-permission-selected-count-text">
+      <div
+        className="mb-4"
+        id="settings-permission-selected-count"
+        data-cy="settings-permission-selected-count"
+      >
+        <span
+          className=""
+          id="settings-permission-selected-count-text"
+          data-cy="settings-permission-selected-count-text"
+        >
           {hasSelected ? `Selected ${selectedRowKeys?.length} items` : ''}
         </span>
       </div>
