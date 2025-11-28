@@ -25,6 +25,7 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
     '/not-found',
     '/surveys/[id]',
     '/job/[tenantID]/[jobId]',
+    '/unauthorized',
   ];
 
   return (

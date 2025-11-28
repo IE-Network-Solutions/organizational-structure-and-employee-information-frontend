@@ -1,8 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
+const JWKS = createRemoteJWKSet(
+  new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com')
+);
 
-export function middleware(req: NextRequest) {
+async function verifyFirebaseToken(token: string) {
+  try {
+    const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://securetoken.google.com/${projectId}`,
+      audience: projectId,
+    });
+
+    return payload; // Token valid
+  } catch (err) {
+    return null; // Invalid
+  }
+}
+
+export async  function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
     const pathname = url.pathname;
@@ -55,6 +74,10 @@ export function middleware(req: NextRequest) {
 
     if (!isExcludedPath && isRootPath) {
       if (token) {
+        const decoded = await verifyFirebaseToken(token);
+        if (!decoded) {
+          return NextResponse.redirect(new URL('/authentication/login', req.url));
+        }
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));
