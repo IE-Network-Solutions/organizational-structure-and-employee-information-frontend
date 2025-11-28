@@ -50,43 +50,6 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
         </div>
       }
     >
-      <div className="flex flex-col gap-4 sm:gap-6">
-        {/* Include Incentive Toggle */}
-        <div className="flex flex-col items-start justify-between mb-2 sm:mb-4 mt-4 sm:mt-6">
-          <label className="font-medium mb-2">Include Incentive</label>
-          <Switch
-            checked={includeIncentive}
-            onChange={(checked) => setIncludeIncentive(checked)}
-            className="ml-0"
-          />
-        </div>
-
-        {/* Date Range Input */}
-        <div className="mb-2 sm:mb-4">
-          <label className="block font-medium mb-1">Select Date</label>
-          <input
-            type="text"
-            placeholder="01 Jan 2023 - 10 Mar 2023"
-            //   value={dateRange}
-            //   onChange={(e) => setDateRange(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base"
-            disabled // Disabled Date Range Input
-          />
-        </div>
-
-        {/* Pay Period Select */}
-        <div className="mb-4 sm:mb-6">
-          <label className="block font-medium mb-1">Pay Period</label>
-          <select
-            //   value={payPeriod}
-            //   onChange={(e) => setPayPeriod(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base"
-            disabled // Disabled Pay Period Select
-          >
-            <option value="">Select Pay Period</option>
-          </select>
-        </div>
-      </div>
       <div
         id="payroll-generate-modal-body-view-container"
         data-cy="payroll-generate-modal-body-view-container"

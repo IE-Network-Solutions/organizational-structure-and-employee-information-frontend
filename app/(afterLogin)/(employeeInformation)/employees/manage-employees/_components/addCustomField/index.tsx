@@ -42,14 +42,27 @@ const AddCustomField: React.FC<any> = ({
   const [isActive, setIsActive] = useState(true);
   const [isRequired, setIsRequired] = useState(false);
   const [options, setOptions] = useState<string[]>([]);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const addFieldIfNotExists = (formData: any, newField: FormField) => {
+  const resetForm = () => {
+    form.resetFields();
+    setOptions([]);
+    setFieldName('');
+    setFieldType('input');
+    setIsActive(true);
+  };
+
+  const addFieldIfNotExists = async (formData: any, newField: FormField) => {
     if (formData?.length < 1) {
       const newFormDataValue = {
         formTitle: formTitle,
         form: [newField],
       };
-      createCustomForm.mutate(newFormDataValue);
+      try {
+        await createCustomForm.mutateAsync(newFormDataValue);
+        resetForm();
+        setPopoverOpen(false);
+      } catch (error) {}
     } else {
       const fieldExists = formData?.form?.some(
         (field: any) => field.fieldName === newField.fieldName,
@@ -59,7 +72,11 @@ const AddCustomField: React.FC<any> = ({
           ...customEmployeeInformationForm,
           form: [...customEmployeeInformationForm?.form, newField],
         };
-        createCustomForm.mutate(newFormData);
+        try {
+          await createCustomForm.mutateAsync(newFormData);
+          resetForm();
+          setPopoverOpen(false);
+        } catch (error) {}
       } else {
         message.error(`The field ${newField.fieldName} already exists!`);
       }
@@ -87,6 +104,7 @@ const AddCustomField: React.FC<any> = ({
     setFieldType('input');
     setIsActive(true);
     setIsRequired(false);
+    setPopoverOpen(false);
   };
 
   const handleFormFailed = () => {};
@@ -243,15 +261,33 @@ const AddCustomField: React.FC<any> = ({
           id={`add-custom-field-submit-${formTitle}`}
           data-cy={`add-custom-field-submit-${formTitle}`}
         >
-          <Button
-            type="primary"
-            id={`addField${formTitle}`}
-            data-cy={`addField${formTitle}`}
-            htmlType="submit"
-            style={{ width: '100%' }}
+          <div
+            id={`add-custom-field-submit-${formTitle}`}
+            data-cy={`add-custom-field-submit-${formTitle}`}
+            className="flex justify-center gap-4"
           >
-            Add Field
-          </Button>
+            <Button
+              id={`add-custom-field-cancel-${formTitle}`}
+              data-cy={`add-custom-field-cancel-${formTitle}`}
+              type="default"
+              onClick={() => {
+                form.resetFields();
+                setPopoverOpen(false);
+              }}
+              className="px-8 py-1 rounded-lg w-1/3"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              id={`addField${formTitle}`}
+              data-cy={`addField${formTitle}`}
+              htmlType="submit"
+              style={{ width: '100%' }}
+            >
+              Add Field
+            </Button>
+          </div>
         </Form.Item>
       </Form>
     </div>
@@ -262,6 +298,8 @@ const AddCustomField: React.FC<any> = ({
       bordered={false}
       bodyStyle={{ padding: 0, border: 'none' }}
       className={className}
+      id={`add-custom-field-card-${formTitle}`}
+      data-cy={`add-custom-field-card-${formTitle}`}
     >
       <Row
         gutter={16}
@@ -284,6 +322,8 @@ const AddCustomField: React.FC<any> = ({
               content={popoverContent}
               title={formTitle}
               trigger="click"
+              open={popoverOpen}
+              onOpenChange={setPopoverOpen}
               id={`add-custom-field-popover-wrapper-${formTitle}`}
               data-cy={`add-custom-field-popover-wrapper-${formTitle}`}
             >

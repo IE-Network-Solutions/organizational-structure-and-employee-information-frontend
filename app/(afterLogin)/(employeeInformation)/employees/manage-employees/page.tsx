@@ -355,6 +355,8 @@ const ManageEmployees: React.FC<any> = () => {
               className="h-12 w-12 sm:w-auto px-0 sm:px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center justify-center gap-2"
               onClick={() => setIsMobileFilterVisible(true)}
               aria-label="Open filters"
+              id="manage-employees-filter-toggle-btn"
+              data-cy="manage-employees-filter-toggle-btn"
             >
               <IoMdSwitch
                 id="manage-employees-filter-toggle-icon"

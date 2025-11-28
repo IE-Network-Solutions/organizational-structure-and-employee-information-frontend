@@ -100,6 +100,8 @@ const Approvals = () => {
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setDepartmentApproval(false)}
                 aria-label="Go back"
+                id={`settings-${pageSlug}-workflow-setting-back-btn`}
+                data-cy={`settings-${pageSlug}-workflow-setting-back-btn`}
               >
                 <IoArrowBack
                   className="text-white"
@@ -141,6 +143,8 @@ const Approvals = () => {
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setAddDepartmentApproval(false)}
                 aria-label="Go back"
+                id={`settings-${pageSlug}-workflow-config-back-btn`}
+                data-cy={`settings-${pageSlug}-workflow-config-back-btn`}
               >
                 <IoArrowBack
                   className="text-white"
