@@ -148,25 +148,25 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
             <div className="p-3 rounded-xl bg-indigo-50">
               <p className="font-semibold text-indigo-900 mb-1">Skills</p>
               <p className="text-gray-600">
-                {matchDetails.detailedAnalysis.skillsMatch.score}% match
+                {matchDetails.detailedAnalysis?.skillsMatch?.score ?? matchDetails.matchScore}% match
               </p>
             </div>
             <div className="p-3 rounded-xl bg-emerald-50">
               <p className="font-semibold text-emerald-900 mb-1">Experience</p>
               <p className="text-gray-600">
-                {matchDetails.detailedAnalysis.experienceMatch.score}% match
+                {matchDetails.detailedAnalysis?.experienceMatch?.score ?? matchDetails.matchScore}% match
               </p>
             </div>
             <div className="p-3 rounded-xl bg-sky-50">
               <p className="font-semibold text-sky-900 mb-1">Education</p>
               <p className="text-gray-600">
-                {matchDetails.detailedAnalysis.educationMatch.score}% match
+                {matchDetails.detailedAnalysis?.educationMatch?.score ?? matchDetails.matchScore}% match
               </p>
             </div>
             <div className="p-3 rounded-xl bg-amber-50">
               <p className="font-semibold text-amber-900 mb-1">Location</p>
               <p className="text-gray-600">
-                {matchDetails.detailedAnalysis.locationMatch.score}% match
+                {matchDetails.detailedAnalysis?.locationMatch?.score ?? matchDetails.matchScore}% match
               </p>
             </div>
           </div>
@@ -176,7 +176,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
               Recommended next steps
             </p>
             <ul className="list-disc list-inside text-xs text-gray-600 space-y-1">
-              {matchDetails.recommendations.map((item) => (
+              {(matchDetails.recommendations || []).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
@@ -186,7 +186,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
             <div>
               <p className="font-semibold text-gray-700 mb-2">Strengths</p>
               <ul className="list-disc list-inside text-gray-600 space-y-1">
-                {matchDetails.strengths.map((item) => (
+                {(matchDetails.strengths || []).map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
@@ -194,7 +194,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
             <div>
               <p className="font-semibold text-gray-700 mb-2">Concerns</p>
               <ul className="list-disc list-inside text-gray-600 space-y-1">
-                {matchDetails.concerns.map((item) => (
+                {(matchDetails.concerns || []).map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
