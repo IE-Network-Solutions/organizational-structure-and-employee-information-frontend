@@ -334,18 +334,22 @@ function CreatePlan() {
     const boardsKey = `board-${kId}`;
     const currentBoard = form.getFieldValue(boardsKey) || [];
 
-    // Always add an empty task when clicking "Add Plan Task"
-    // Failed tasks are only auto-populated when the drawer first opens
-    // Create a fresh empty object with explicit undefined values to ensure clean form
-    const emptyTask = {
-      task: '',
+    // Always grab the latest mkAsATask value to avoid stale reads
+    const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
+    const taskTitle = latestMkAsATask?.title || '';
+    const achieveMK = !!latestMkAsATask;
+
+    // Create a task object - if mkAsATask exists, use its title
+    const newTask = {
+      task: taskTitle,
       priority: undefined,
       weight: undefined,
       targetValue: undefined,
+      achieveMK: achieveMK,
     };
 
     setTimeout(() => {
-      form.setFieldsValue({ [boardsKey]: [...currentBoard, emptyTask] });
+      form.setFieldsValue({ [boardsKey]: [...currentBoard, newTask] });
     }, 0);
   };
   const handleRemoveBoard = (index: number, kId: string) => {

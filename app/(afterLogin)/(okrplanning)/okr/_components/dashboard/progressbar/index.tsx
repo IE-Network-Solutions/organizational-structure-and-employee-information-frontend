@@ -16,6 +16,7 @@ const ProgressPercent: React.FC<PercentageProps> = ({
   type,
   format,
 }) => {
+  const normalizedTitle = title.replace(/\s+/g, '-').toLowerCase();
   // Format the display text based on the type
   const formatText = () => {
     if (type === 'percent') {
@@ -29,16 +30,39 @@ const ProgressPercent: React.FC<PercentageProps> = ({
   };
 
   return (
-    <div className="p-2 flex justify-center">
+    <div
+      id={`okr-progress-percent-wrapper-${normalizedTitle}`}
+      data-cy={`okr-progress-percent-wrapper-${normalizedTitle}`}
+      className="p-2 flex justify-center"
+    >
       {/* Card Wrapper with Background Color */}
-      <Card loading={loading} className="bg-gray-100 w-full max-w-md">
-        <div className="flex flex-col items-center gap-4">
+      <Card
+        id={`okr-progress-percent-card-${normalizedTitle}`}
+        data-cy={`okr-progress-percent-card-${normalizedTitle}`}
+        loading={loading}
+        className="bg-gray-100 w-full max-w-md"
+      >
+        <div
+          id={`okr-progress-percent-content-${normalizedTitle}`}
+          data-cy={`okr-progress-percent-content-${normalizedTitle}`}
+          className="flex flex-col items-center gap-4"
+        >
           {/* Progress Bars */}
-          <div className="relative flex flex-col items-center gap-4">
-            <div className="absolute top-24 text-xs  text-[#3636f0]">
+          <div
+            id={`okr-progress-percent-graphics-${normalizedTitle}`}
+            data-cy={`okr-progress-percent-graphics-${normalizedTitle}`}
+            className="relative flex flex-col items-center gap-4"
+          >
+            <div
+              id={`okr-progress-percent-title-${normalizedTitle}`}
+              data-cy={`okr-progress-percent-title-${normalizedTitle}`}
+              className="absolute top-24 text-xs  text-[#3636f0]"
+            >
               {title}
             </div>
             <Progress
+             
+              data-cy={`okr-progress-percent-indicator-${normalizedTitle}`}
               style={{ color: '#3636f0' }}
               strokeColor="#3636f0"
               strokeWidth={8}
@@ -46,7 +70,13 @@ const ProgressPercent: React.FC<PercentageProps> = ({
               percent={typeof percent === 'number' ? percent : 0} // Handle numeric percent
               type="circle"
               format={() => (
-                <span className="text-[#3636F0]">{formatText()}</span>
+                <span
+                  id={`okr-progress-percent-format-${normalizedTitle}`}
+                  data-cy={`okr-progress-percent-format-${normalizedTitle}`}
+                  className="text-[#3636F0]"
+                >
+                  {formatText()}
+                </span>
               )}
             />
           </div>

@@ -32,12 +32,21 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
   );
 
   return (
-    <div className="w-full mt-12">
-      <Row gutter={[16, 16]} className="mt-4" justify="space-between">
-        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+    <div 
+    id="okr-vpgraph-container-display-div"
+      data-cy="okr-vpgraph-container-display-div"
+      className="w-full mt-12">
+      <Row gutter={[16, 16]} className="mt-4" justify="space-between"
+        id="okr-vpgraph-row-display-row"
+        data-cy="okr-vpgraph-row-display-row">
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}
+         id="okr-vpgraph-actualvstarget-col-display-col"
+          data-cy="okr-vpgraph-actualvstarget-col-display-col">
           {/* <ActualVsTargetChart variablePay={variablePay} /> */}
         </Col>
-        <Col xs={24} sm={24} md={10} lg={10} xl={10}>
+        <Col xs={24} sm={24} md={10} lg={10} xl={10}
+         id="okr-vpgraph-criteriacontribution-col-display-col"
+         data-cy="okr-vpgraph-criteriacontribution-col-display-col">
           {/* <CriteriaContributionChart variablePay={variablePay} /> */}
         </Col>
       </Row>

@@ -40,9 +40,11 @@ const getAllActionPlan = async (
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  // Default to currently logged-in user's ID if empId is not provided
+  const userId = empId || useAuthenticationStore.getState().userId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/meeting-action-plans?limit=${pageSizeAction}&page=${currentAction}&userId=${empId}&priority=${priority}&status=${status}&completionStartDate=${startAt}&completionEndDate=${endAt}`,
+    url: `${ORG_DEV_URL}/meeting-action-plans?limit=${pageSizeAction}&page=${currentAction}&userId=${userId}&priority=${priority}&status=${status}&completionStartDate=${startAt}&completionEndDate=${endAt}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

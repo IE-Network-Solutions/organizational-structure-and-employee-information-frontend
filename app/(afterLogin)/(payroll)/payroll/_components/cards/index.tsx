@@ -14,6 +14,8 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
 
   return (
     <Col
+      id="payroll-summary-card-view-column"
+      data-cy="payroll-summary-card-view-column"
       xs={24}
       sm={24}
       md={24}
@@ -21,6 +23,8 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
       className={`${isMobile ? 'w-full px-3' : 'max-w-[25%]'} flex-shrink-0`}
     >
       <Card
+        id="payroll-summary-card-view-card"
+        data-cy="payroll-summary-card-view-card"
         bordered={false}
         className={
           isMobile
@@ -28,13 +32,31 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
             : 'bg-[#FAFAFA] my-2 h-full'
         }
       >
-        <h3 className="text-2xl font-bold mb-2">
+        <h3
+          id="payroll-summary-card-value-view-text"
+          data-cy="payroll-summary-card-value-view-text"
+          className="text-2xl font-bold mb-2"
+        >
           {value ? Number(value).toFixed(2) : '--'}
         </h3>
-        <p className="text-gray-600">{title}</p>
-        <div className="flex justify-end items-center">
-          <span style={{ color: 'green' }}>
-            <ArrowUpOutlined /> {growth || '--'} vs last pay period
+        <p
+          id="payroll-summary-card-title-view-text"
+          data-cy="payroll-summary-card-title-view-text"
+          className="text-gray-600"
+        >
+          {title}
+        </p>
+        <div
+          id="payroll-summary-card-growth-view-container"
+          data-cy="payroll-summary-card-growth-view-container"
+          className="flex justify-end items-center"
+        >
+          <span
+            id="payroll-summary-card-growth-view-text"
+            data-cy="payroll-summary-card-growth-view-text"
+            style={{ color: 'green' }}
+          >
+            <ArrowUpOutlined data-cy="payroll-summary-card-growth-view-icon" /> {growth || '--'} vs last pay period
           </span>
         </div>
       </Card>

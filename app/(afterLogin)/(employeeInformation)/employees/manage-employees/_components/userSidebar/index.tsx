@@ -61,7 +61,11 @@ const UserSidebar = (props: any) => {
   ]);
 
   const modalHeader = (
-    <div className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6">
+    <div
+      className="flex justify-center text-lg font-bold text-gray-800 py-0 sm:py-6"
+      id="user-sidebar-header"
+      data-cy="user-sidebar-header"
+    >
       Add New Employee
     </div>
   );
@@ -128,6 +132,7 @@ const UserSidebar = (props: any) => {
         onClose={handleCancel}
         modalHeader={modalHeader}
         width="40%"
+           data-cy="user-sidebar-drawer"
       >
         <Steps
           current={current}
@@ -135,10 +140,11 @@ const UserSidebar = (props: any) => {
           responsive={false}
           // onChange={onChange}
           className="flex justify-center items-center my-0 sm:my-4 max-w-[200px] mx-auto scale-90"
+            data-cy="user-sidebar-steps"
         >
-          <Step icon={customDot(0)} />
-          <Step icon={customDot(1)} />
-          <Step icon={customDot(2)} />
+          <Step icon={customDot(0)} data-cy="user-sidebar-step-1"/>
+          <Step icon={customDot(1)} data-cy="user-sidebar-step-2"/>
+          <Step icon={customDot(2)} data-cy="user-sidebar-step-3" />
         </Steps>
         <Form
           form={form}
@@ -153,42 +159,53 @@ const UserSidebar = (props: any) => {
               description: 'please back and check the unfilled fields',
             })
           }
+              id="user-sidebar-form"
+            data-cy="user-sidebar-form"
         >
           {current === 0 && (
             <Card
               bordered={false}
               bodyStyle={{ padding: 0 }}
               className="p-2 sm:p-6 mt-2"
+                id="user-sidebar-card-basic"
+                data-cy="user-sidebar-card-basic"
+
             >
-              <BasicInformationForm form={form} />
-              <EmployeeAddressForm />
-              <EmergencyContactForm />
-              <BankInformationForm />
+              <BasicInformationForm form={form}   data-cy="user-sidebar-basic-information-form" />
+              <EmployeeAddressForm data-cy="user-sidebar-employee-address-form"  />
+              <EmergencyContactForm data-cy="user-sidebar-emergency-contact-form" />
+              <BankInformationForm data-cy="user-sidebar-bank-information-form" />
               <ButtonContinue
                 handleContinueClick={handleContinueClick}
                 handleBackClick={handleBackClick}
+                data-cy="user-sidebar-button-continue"
               />
             </Card>
           )}
           {current === 1 && (
-            <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
-              <JobTimeLineForm />
-              <RolePermissionForm form={form} />
-              <WorkScheduleForm />
+            <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6"
+             id="user-sidebar-card-job"
+                data-cy="user-sidebar-card-job">
+              <JobTimeLineForm   data-cy="user-sidebar-job-time-line-form"/>
+              <RolePermissionForm form={form}  data-cy="user-sidebar-role-permission-form"/>
+              <WorkScheduleForm data-cy="user-sidebar-work-schedule-form" />
               <ButtonContinue
                 handleContinueClick={handleContinueClick}
                 handleBackClick={handleBackClick}
+                 data-cy="user-sidebar-button-continue"
               />
             </Card>
           )}
           {current === 2 && (
-            <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6">
-              <DocumentUploadForm />
-              <AdditionalInformationForm />
+            <Card bodyStyle={{ padding: 0 }} className="p-2 sm:p-6"    id="user-sidebar-card-additional"
+                data-cy="user-sidebar-card-additional">
+              <DocumentUploadForm data-cy="user-sidebar-document-upload-form"   />
+              <AdditionalInformationForm data-cy="user-sidebar-additional-information-form" />
               <ButtonContinue
                 handleBackClick={handleBackClick}
                 handleContinueClick={handleContinueClick}
                 isLoading={isLoading}
+                data-cy="user-sidebar-button-continue"
               />
             </Card>
           )}
