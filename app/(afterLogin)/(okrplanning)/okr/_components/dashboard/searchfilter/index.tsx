@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Select, Modal } from 'antd';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
@@ -32,39 +32,112 @@ const OkrSearch: React.FC = () => {
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
 
-  // Only sync fiscal year and sessions on mount or when okrTab changes
-  // This prevents infinite loops by not tracking every data change
+  // Use refs to track previous values and prevent infinite loops
+  const prevFiscalYearIdRef = useRef<string>(fiscalYearId);
+  const prevOkrTabRef = useRef<number | string>(okrTab);
+  const initializedRef = useRef<boolean>(false);
+
+  // Only sync fiscal year and sessions on mount or when okrTab/fiscalYearId changes
+  // This prevents infinite loops by checking if values actually changed
   useEffect(() => {
     // Skip if data isn't loaded yet
     if (!getAllFiscalYears?.items && !getActiveFisicalYear) {
       return;
     }
 
-    const selectedFiscalYear = fiscalYearId
-      ? getAllFiscalYears?.items?.find((i) => i?.id == fiscalYearId)
-      : getActiveFisicalYear;
+    // Check if fiscalYearId was changed externally (by user selection)
+    const fiscalYearChangedExternally =
+      prevFiscalYearIdRef.current !== fiscalYearId;
+    const okrTabChanged = prevOkrTabRef.current !== okrTab;
 
-    // Only set default if no fiscal year is currently selected
-    if (!selectedFiscalYear) {
-      setFiscalYearId('');
-      setSessionIds([]);
+    // If fiscal year was changed externally, update sessions for that fiscal year
+    if (fiscalYearChangedExternally && fiscalYearId) {
+      const selectedFiscalYear = getAllFiscalYears?.items?.find(
+        (i) => i?.id == fiscalYearId,
+      );
+
+      if (selectedFiscalYear) {
+        if (okrTab == 4) {
+          const allSessionIds =
+            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+          setSessionIds(allSessionIds);
+        } else {
+          const activeSessionId = selectedFiscalYear?.sessions?.find(
+            (s: any) => s?.active,
+          )?.id;
+          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+          const chosen = activeSessionId || fallbackFirstSessionId || '';
+          setSessionIds(chosen ? [chosen] : []);
+        }
+      }
+      // Update refs after handling the change
+      prevFiscalYearIdRef.current = fiscalYearId;
+      prevOkrTabRef.current = okrTab;
       return;
     }
 
-    if (okrTab == 4) {
-      const allSessionIds =
-        selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-      setSessionIds(allSessionIds);
-    } else {
-      const activeSessionId = selectedFiscalYear?.sessions?.find(
-        (s: any) => s?.active,
-      )?.id;
-      const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-      const chosen = activeSessionId || fallbackFirstSessionId || '';
-      setSessionIds(chosen ? [chosen] : []);
+    // Only initialize default fiscal year if not already initialized and no fiscal year is set
+    if (!initializedRef.current && !fiscalYearId) {
+      const selectedFiscalYear = getActiveFisicalYear;
+
+      if (!selectedFiscalYear) {
+        initializedRef.current = true;
+        return;
+      }
+
+      const newFiscalYearId = selectedFiscalYear?.id || '';
+
+      if (okrTab == 4) {
+        const allSessionIds =
+          selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+        setSessionIds(allSessionIds);
+      } else {
+        const activeSessionId = selectedFiscalYear?.sessions?.find(
+          (s: any) => s?.active,
+        )?.id;
+        const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+        const chosen = activeSessionId || fallbackFirstSessionId || '';
+        setSessionIds(chosen ? [chosen] : []);
+      }
+
+      setFiscalYearId(newFiscalYearId);
+      prevFiscalYearIdRef.current = newFiscalYearId;
+      prevOkrTabRef.current = okrTab;
+      initializedRef.current = true;
+      return;
     }
-    setFiscalYearId(selectedFiscalYear?.id || '');
-  }, [getAllFiscalYears, fiscalYearId, okrTab]);
+
+    // If okrTab changed, update sessions for current fiscal year
+    if (okrTabChanged && fiscalYearId) {
+      const selectedFiscalYear = getAllFiscalYears?.items?.find(
+        (i) => i?.id == fiscalYearId,
+      );
+
+      if (selectedFiscalYear) {
+        if (okrTab == 4) {
+          const allSessionIds =
+            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
+          setSessionIds(allSessionIds);
+        } else {
+          const activeSessionId = selectedFiscalYear?.sessions?.find(
+            (s: any) => s?.active,
+          )?.id;
+          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+          const chosen = activeSessionId || fallbackFirstSessionId || '';
+          setSessionIds(chosen ? [chosen] : []);
+        }
+      }
+      // Update ref after handling the change
+      prevOkrTabRef.current = okrTab;
+    }
+  }, [
+    getAllFiscalYears?.items,
+    getActiveFisicalYear,
+    okrTab,
+    fiscalYearId,
+    setFiscalYearId,
+    setSessionIds,
+  ]);
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
@@ -75,16 +148,37 @@ const OkrSearch: React.FC = () => {
   };
 
   const MobileFilterContent = () => (
-    <div id="mobile-filter-content" className="flex flex-col gap-4">
-      <h3 className="text-lg font-medium mb-2">Filter</h3>
+    <div
+      id="mobile-filter-content"
+      data-cy="okr-mobile-filter-content"
+      className="flex flex-col gap-4"
+    >
+      <h3
+        id="mobile-filter-title"
+        data-cy="okr-mobile-filter-title"
+        className="text-lg font-medium mb-2"
+      >
+        Filter
+      </h3>
 
       {/* Fiscal Year */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Fiscal year</label>
+      <div
+        id="mobile-fiscal-year-field"
+        data-cy="okr-mobile-fiscal-year-field"
+        className="flex flex-col gap-2"
+      >
+        <label
+          id="mobile-fiscal-year-label"
+          data-cy="okr-mobile-fiscal-year-label"
+          className="text-sm text-gray-600"
+        >
+          Fiscal year
+        </label>
         <Select
           loading={fyLoading}
           value={fiscalYearId}
           id="mobile-fiscal-year-select"
+          data-cy="okr-mobile-fiscal-year-select"
           placeholder="Filter by Fiscal Year"
           onChange={(value) => setFiscalYearId(value)}
           allowClear
@@ -98,7 +192,7 @@ const OkrSearch: React.FC = () => {
           }
         >
           {getAllFiscalYears?.items?.map((item: any) => (
-            <Select.Option key={item?.id} value={item?.id}>
+            <Select.Option data-cy={`okr-mobile-fiscal-year-select-option-${item?.id}`} key={item?.id} value={item?.id}>
               {item?.name}
             </Select.Option>
           ))}
@@ -106,12 +200,23 @@ const OkrSearch: React.FC = () => {
       </div>
 
       {/* Session */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-gray-600">Session</label>
+      <div
+        id="mobile-session-field"
+        data-cy="okr-mobile-session-field"
+        className="flex flex-col gap-2"
+      >
+        <label
+          id="mobile-session-label"
+          data-cy="okr-mobile-session-label"
+          className="text-sm text-gray-600"
+        >
+          Session
+        </label>
         <Select
           loading={fyLoading}
           value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
           id="mobile-session-select"
+          data-cy="okr-mobile-session-select"
           placeholder="Filter by Session"
           className="w-full h-14 overflow-y-auto text-[10px]"
           allowClear
@@ -135,7 +240,7 @@ const OkrSearch: React.FC = () => {
           {getAllFiscalYears?.items
             ?.find((fy: any) => fy.id === fiscalYearId)
             ?.sessions?.map((session: any) => (
-              <Option key={session.id} value={session.id}>
+              <Option data-cy={`okr-mobile-session-select-option-${session?.id}`} key={session.id} value={session.id}>
                 {session.name}
               </Option>
             ))}
@@ -144,10 +249,21 @@ const OkrSearch: React.FC = () => {
 
       {/* Department */}
       {okrTab != 1 && (
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-600">Department</label>
+        <div
+          id="mobile-department-field"
+          data-cy="okr-mobile-department-field"
+          className="flex flex-col gap-2"
+        >
+          <label
+            id="mobile-department-label"
+            data-cy="okr-mobile-department-label"
+            className="text-sm text-gray-600"
+          >
+            Department
+          </label>
           <Select
             id="mobile-department-select"
+            data-cy="okr-mobile-department-select"
             placeholder="Filter by Department"
             className="w-full h-14"
             allowClear
@@ -161,7 +277,7 @@ const OkrSearch: React.FC = () => {
             }
           >
             {DepartmentWithUsers?.map((dept: any) => (
-              <Option key={dept.id} value={dept.id}>
+              <Option data-cy={`okr-mobile-department-select-option-${dept?.id}`} key={dept.id} value={dept.id}>
                 {dept.name}
               </Option>
             ))}
@@ -171,19 +287,30 @@ const OkrSearch: React.FC = () => {
 
       {/* Metric Type */}
       {okrTab != 4 && (
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-600">Metric Type</label>
+        <div
+          id="mobile-metric-type-field"
+          data-cy="okr-mobile-metric-type-field"
+          className="flex flex-col gap-2"
+        >
+          <label
+            id="mobile-metric-type-label"
+            data-cy="okr-mobile-metric-type-label"
+            className="text-sm text-gray-600"
+          >
+            Metric Type
+          </label>
           <Select
             id="mobile-metric-type-select"
+            data-cy="okr-mobile-metric-type-select"
             placeholder="Filter by Metric Type"
             className="w-full h-14"
             allowClear
             value={searchObjParams.metricTypeId}
             onChange={(value) => handleFilter(value, 'metricTypeId')}
           >
-            <Option value="">All</Option>
+            <Option data-cy="okr-mobile-metric-type-select-option-all" value="">All</Option>
             {Metrics?.items?.map((metric: any) => (
-              <Option key={metric.id} value={metric.id}>
+              <Option data-cy={`okr-mobile-metric-type-select-option-${metric?.id}`} key={metric.id} value={metric.id}>
                 {metric.name}
               </Option>
             ))}
@@ -196,13 +323,22 @@ const OkrSearch: React.FC = () => {
   return (
     <>
       {/* Desktop View */}
-      <div id="desktop-search-filters" className="hidden md:block">
-        <div className="grid grid-cols-12 gap-4">
+      <div
+        id="desktop-search-filters"
+        data-cy="okr-desktop-search-filters"
+        className="hidden md:block"
+      >
+        <div
+          id="desktop-search-grid"
+          data-cy="okr-desktop-search-grid"
+          className="grid grid-cols-12 gap-4"
+        >
           {/* User Filter */}
           {okrTab != 1 && (
             <div className="col-span-12 lg:col-span-4">
               <Select
                 id="desktop-user-select"
+                data-cy="okr-desktop-user-select"
                 showSearch
                 placeholder="Select a person"
                 className="w-full h-14"
@@ -233,6 +369,7 @@ const OkrSearch: React.FC = () => {
               loading={fyLoading}
               value={fiscalYearId}
               id="desktop-fiscal-year-select"
+              data-cy="okr-desktop-fiscal-year-select"
               placeholder="Filter by Fiscal Year"
               onChange={(value) => setFiscalYearId(value)}
               allowClear
@@ -246,7 +383,8 @@ const OkrSearch: React.FC = () => {
               }
             >
               {getAllFiscalYears?.items?.map((item: any) => (
-                <Select.Option key={item?.id} value={item?.id}>
+                <Select.Option data-cy={`okr-desktop-fiscal-year-select-option-${item?.id}`} 
+                 key={item?.id} value={item?.id}>
                   {item?.name}
                 </Select.Option>
               ))}
@@ -259,6 +397,7 @@ const OkrSearch: React.FC = () => {
               loading={fyLoading}
               value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
               id="desktop-session-select"
+              data-cy="okr-desktop-session-select"
               placeholder="Filter by Session"
               className="w-full h-14 overflow-y-auto text-[10px]"
               allowClear
@@ -282,7 +421,9 @@ const OkrSearch: React.FC = () => {
               {getAllFiscalYears?.items
                 ?.find((fy: any) => fy.id === fiscalYearId)
                 ?.sessions?.map((session: any) => (
-                  <Option key={session.id} value={session.id}>
+                  <Option 
+                  data-cy={`okr-desktop-session-select-option-${session?.id}`} 
+                  key={session.id} value={session.id}>
                     {session.name}
                   </Option>
                 ))}
@@ -294,6 +435,7 @@ const OkrSearch: React.FC = () => {
             <div className={`${okrTab == 4 ? 'col-span-2' : 'col-span-2'}`}>
               <Select
                 id="desktop-department-select"
+                data-cy="okr-desktop-department-select"
                 placeholder="Filter by Department"
                 className="w-full h-14"
                 allowClear
@@ -306,7 +448,9 @@ const OkrSearch: React.FC = () => {
                 }
               >
                 {DepartmentWithUsers?.map((dept: any) => (
-                  <Option key={dept.id} value={dept.id}>
+                  <Option
+                   data-cy={`okr-desktop-department-select-option-${dept?.id}`} 
+                   key={dept.id} value={dept.id}>
                     {dept.name}
                   </Option>
                 ))}
@@ -319,14 +463,19 @@ const OkrSearch: React.FC = () => {
             <div className="col-span-12 lg:col-span-2">
               <Select
                 id="desktop-metric-type-select"
+                data-cy="okr-desktop-metric-type-select"
                 placeholder="Filter by Metric Type"
                 className="w-full h-14"
                 allowClear
                 onChange={(value) => handleFilter(value, 'metricTypeId')}
               >
-                <Option value="">All</Option>
+                <Option
+                 data-cy="okr-desktop-metric-type-select-option-all"
+                 value="">All</Option>
                 {Metrics?.items?.map((metric: any) => (
-                  <Option key={metric.id} value={metric.id}>
+                  <Option
+                   data-cy={`okr-desktop-metric-type-select-option-${metric?.id}`} 
+                   key={metric.id} value={metric.id}>
                     {metric.name}
                   </Option>
                 ))}
@@ -337,12 +486,21 @@ const OkrSearch: React.FC = () => {
       </div>
 
       {/* Mobile View */}
-      <div id="mobile-search-filters" className="md:hidden">
-        <div className="flex justify-between gap-4 w-full">
+      <div
+        id="mobile-search-filters"
+        data-cy="okr-mobile-search-filters"
+        className="md:hidden"
+      >
+        <div
+          id="mobile-search-controls"
+          data-cy="okr-mobile-search-controls"
+          className="flex justify-between gap-4 w-full"
+        >
           {okrTab != 1 && (
             <div className="flex-1">
               <Select
                 id="mobile-user-select"
+                data-cy="okr-mobile-user-select"
                 showSearch
                 placeholder="Select a person"
                 className="w-full h-10"
@@ -369,23 +527,32 @@ const OkrSearch: React.FC = () => {
           <div className={`${okrTab == 1 ? 'ml-auto' : ''}`}>
             <CustomButton
               id="mobile-filter-button"
+              data-cy="okr-mobile-filter-button"
               type="default"
               size="small"
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
               title=""
-              icon={<LuSettings2 size={20} />}
+              icon={<LuSettings2
+                 data-cy="okr-mobile-filter-button-icon"
+                 size={20} />}
             />
           </div>
         </div>
 
         <Modal
+          data-cy="okr-mobile-filter-modal"
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
           footer={
-            <div className="flex gap-2 justify-center mt-4">
+            <div
+              id="mobile-filter-modal-footer"
+              data-cy="okr-mobile-filter-modal-footer"
+              className="flex gap-2 justify-center mt-4"
+            >
               <CustomButton
                 id="mobile-filter-cancel-button"
+                data-cy="okr-mobile-filter-cancel-button"
                 onClick={() => setIsModalOpen(false)}
                 className="px-6 py-2 border rounded-lg text-sm text-gray-900"
                 title="Cancel"
@@ -393,6 +560,7 @@ const OkrSearch: React.FC = () => {
               />
               <CustomButton
                 id="mobile-filter-apply-button"
+                data-cy="okr-mobile-filter-apply-button"
                 title="Filter"
                 type="primary"
                 onClick={() => {
@@ -412,7 +580,9 @@ const OkrSearch: React.FC = () => {
           width="90%"
           centered
         >
-          <MobileFilterContent />
+          <MobileFilterContent 
+           data-cy="okr-mobile-filter-content"
+          />
         </Modal>
       </div>
     </>

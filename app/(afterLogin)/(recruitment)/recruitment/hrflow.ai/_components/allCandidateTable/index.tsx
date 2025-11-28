@@ -185,6 +185,8 @@ const AllCandidateTable: React.FC = () => {
 
       cv: (
         <a
+          id={`talent-acquisition-hrflow-table-link-cv-${item?.id}`}
+          data-cy={`talent-acquisition-hrflow-table-link-cv-${item?.id}`}
           href={item?.resumeUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -199,8 +201,13 @@ const AllCandidateTable: React.FC = () => {
 
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: (
-        <div>
+        <div
+          id="talent-acquisition-hrflow-table-div-stages"
+          data-cy="talent-acquisition-hrflow-table-div-stages"
+        >
           <Select
+            id={`talent-acquisition-hrflow-table-select-stage-${item?.id}`}
+            data-cy={`talent-acquisition-hrflow-table-select-stage-${item?.id}`}
             defaultValue={item?.jobCandidate?.map(
               (e: any) => e?.applicantStatusStage?.title ?? '--',
             )}
@@ -213,7 +220,12 @@ const AllCandidateTable: React.FC = () => {
             }
           >
             {statusStage?.items?.map((stage: any) => (
-              <Select.Option key={stage.id} value={stage.id}>
+              <Select.Option
+                key={stage.id}
+                value={stage.id}
+                id={`talent-acquisition-hrflow-table-option-stage-${stage.id}-${item?.id}`}
+                data-cy={`talent-acquisition-hrflow-table-option-stage-${stage.id}-${item?.id}`}
+              >
                 {stage.title}
               </Select.Option>
             ))}
@@ -221,9 +233,14 @@ const AllCandidateTable: React.FC = () => {
         </div>
       ),
       action: (
-        <div className="flex items-center justify-between gap-4 text-white">
+        <div
+          id="talent-acquisition-hrflow-table-div-action"
+          data-cy="talent-acquisition-hrflow-table-div-action"
+          className="flex items-center justify-between gap-4 text-white"
+        >
           <Button
             id={`editUserButton${item?.id}`}
+            data-cy={`talent-acquisition-hrflow-table-button-view-${item?.id}`}
             disabled={item?.deletedAt !== null}
             className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
             onClick={() => handleCandidateDetail(item)}
@@ -231,6 +248,7 @@ const AllCandidateTable: React.FC = () => {
             <FaEye />
           </Button>
           <Dropdown
+            data-cy={`talent-acquisition-hrflow-table-dropdown-${item?.id}`}
             menu={{
               items: filteredItems.map(({ label, key, onClick }) => ({
                 label,
@@ -241,7 +259,10 @@ const AllCandidateTable: React.FC = () => {
             trigger={['click']}
             placement="bottomRight"
           >
-            <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
+            <FaEllipsisVertical
+              data-cy={`talent-acquisition-hrflow-table-icon-menu-${item?.id}`}
+              className="text-lg text-gray-400 cursor-pointer"
+            />
           </Dropdown>
         </div>
       ),
@@ -249,9 +270,14 @@ const AllCandidateTable: React.FC = () => {
   });
 
   return (
-    <div>
+    <div
+      id="talent-acquisition-hrflow-table-div-container"
+      data-cy="talent-acquisition-hrflow-table-div-container"
+    >
       <Table
         className="w-full"
+        id="talent-acquisition-hrflow-table"
+        data-cy="talent-acquisition-hrflow-table"
         columns={columns}
         dataSource={data}
         pagination={{
@@ -265,10 +291,10 @@ const AllCandidateTable: React.FC = () => {
         loading={isResponseLoading}
         scroll={{ x: 1000 }}
       />
-      <CandidateDetail />
-      <DeleteCandidate />
-      <EditCandidate />
-      <MoveToTalentPool />
+      <CandidateDetail data-cy="talent-acquisition-hrflow-table-candidate-detail" />
+      <DeleteCandidate data-cy="talent-acquisition-hrflow-table-delete-candidate" />
+      <EditCandidate data-cy="talent-acquisition-hrflow-table-edit-candidate" />
+      <MoveToTalentPool data-cy="talent-acquisition-hrflow-table-move-to-talent-pool" />
     </div>
   );
 };

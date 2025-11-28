@@ -11,7 +11,6 @@ import {
   JobMatchSummary,
   MatchScoreBreakdown,
 } from './interface';
-import { getMockMatchDetails, mockJobSummaries } from './mockData';
 
 interface JobCandidateRelation {
   id: string;
@@ -26,6 +25,7 @@ interface JobInformationApi {
   jobStatus?: string;
   jobLocation?: string;
   location?: string;
+  jobDeadline?: string;
   department?: { name?: string } | null;
   organizationDepartment?: { name?: string } | null;
   departmentName?: string | null;
@@ -125,16 +125,26 @@ const CONCERN_LIBRARY = [
 
 const buildHeaders = async () => {
   const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  let tenantId = useAuthenticationStore.getState().tenantId;
+  
+  // Use demo-tenant if no tenant is configured (for testing with sample data)
+  // Also use demo-tenant if tenantId is empty string or null
+  if (!tenantId || tenantId.trim() === '') {
+    tenantId = 'demo-tenant';
+    console.log('[AI Job Matching] Using demo-tenant for sample data');
+  } else {
+    console.log('[AI Job Matching] Using tenantId from store:', tenantId);
+  }
 
   const headers: Record<string, string> = {};
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  if (tenantId) {
-    headers.tenantId = tenantId;
-  }
+  // Always set tenantId
+  headers.tenantId = tenantId;
+  
+  console.log('[AI Job Matching] Request headers:', { tenantId, hasToken: !!token });
 
   return headers;
 };
@@ -204,16 +214,26 @@ const mapJobToSummary = (
     averageMatchScore: mockStats.averageMatchScore,
     lastAnalyzed: job.updatedAt || job.createdAt || mockStats.lastAnalyzed,
     jobStatus: job.jobStatus,
+    jobDeadline: job.jobDeadline || null,
   };
 };
 
 const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
+  // Call Azure Function DIRECTLY (no proxy)
+  const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL || 
+    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
+  
+  const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs`;
+  
   const headers = await buildHeaders();
+  
+  // eslint-disable-next-line no-console
+  console.log('[AI Job Matching] Calling Azure DIRECTLY:', url);
+  console.log('[AI Job Matching] Headers:', headers);
 
-  // First try to use Azure AI service via Next.js proxy
   try {
     const { data } = await axios.get<JobMatchSummary[]>(
-      '/api/ai-proxy/recruitment/job-matching/jobs',
+      url,
       {
         headers,
         params: {
@@ -223,43 +243,21 @@ const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
       },
     );
 
-    if (Array.isArray(data) && data.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log('[AI Job Matching] ✅ Received data:', Array.isArray(data) ? `Array(${data.length})` : typeof data, data);
+
+    if (Array.isArray(data)) {
       return data;
     }
-  } catch (error) {
-    // Fall back to legacy behavior if Azure AI service is unavailable
+
     // eslint-disable-next-line no-console
-    console.warn(
-      '[AI Job Matching] Failed to load summaries from Azure AI service, falling back to local computation.',
-      error,
-    );
+    console.warn('[AI Job Matching] Invalid data format:', data);
+    return [];
+  } catch (error: any) {
+    // eslint-disable-next-line no-console
+    console.error('[AI Job Matching] ❌ Error:', error?.response?.status, error?.message);
+    throw error;
   }
-
-  // Legacy fallback: derive summaries from recruitment backend data
-  const { data: legacyData } = await axios.get<JobListApiResponse>(
-    `${RECRUITMENT_URL}/job-information`,
-    {
-      headers,
-      params: {
-        limit: JOBS_PAGE_SIZE,
-        page: 1,
-      },
-    },
-  );
-
-  const jobs = legacyData?.items ?? [];
-  const activeJobs = jobs.filter(
-    (job) => job.jobStatus?.toLowerCase() === 'active',
-  );
-  const jobsToMap = activeJobs.length > 0 ? activeJobs : jobs;
-
-  if (jobsToMap.length === 0) {
-    return mockJobSummaries;
-  }
-
-  return jobsToMap.map((job, index) =>
-    mapJobToSummary(job, mockJobSummaries[index % mockJobSummaries.length]),
-  );
 };
 
 const mapCandidateToMatch = (
@@ -305,68 +303,47 @@ const fetchMatchedCandidates = async (
   jobId: string,
   options?: AIMatchOptions,
 ): Promise<AIMatchResponse> => {
+  // Call Azure Function DIRECTLY (no proxy)
+  const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL || 
+    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
+  
+  const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates`;
+  
   const headers = await buildHeaders();
-  const limit = options?.limit ?? 50;
-  const minMatchScore = options?.minMatchScore ?? 50;
+  const limit = options?.limit ?? 200;
 
-  // Prefer Azure AI service via proxy
+  // eslint-disable-next-line no-console
+  console.log(`[AI Job Matching] Calling Azure DIRECTLY for candidates:`, url);
+
   try {
     const { data } = await axios.get<AIMatchResponse>(
-      `/api/ai-proxy/recruitment/job-matching/jobs/${jobId}/candidates`,
+      url,
       {
         headers,
-        params: {
-          limit,
-          minMatchScore,
-        },
+        params: { limit },
       },
     );
 
     if (data && Array.isArray(data.matchedCandidates)) {
+      // eslint-disable-next-line no-console
+      console.log(`[AI Job Matching] ✅ Loaded ${data.matchedCandidates.length} candidates for job ${jobId}`);
       return data;
     }
-  } catch (error) {
+
     // eslint-disable-next-line no-console
-    console.warn(
-      `[AI Job Matching] Failed to load matched candidates from Azure AI service for job ${jobId}, falling back to local computation.`,
-      error,
-    );
+    console.warn(`[AI Job Matching] Invalid data for job ${jobId}`);
+    return {
+      jobId,
+      jobTitle: '',
+      matchedCandidates: [],
+      totalMatches: 0,
+      analysisTimestamp: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    // eslint-disable-next-line no-console
+    console.error(`[AI Job Matching] ❌ Error:`, error?.response?.status, error?.message);
+    throw error;
   }
-
-  // Legacy fallback: compute matches locally from recruitment backend data
-  const [{ data: candidatesResponse }, { data: jobResponse }] =
-    await Promise.all([
-      axios.get<JobCandidateListResponse>(
-        `${RECRUITMENT_URL}/job-candidate-information/job-information/${jobId}`,
-        {
-          headers,
-          params: {
-            limit,
-            page: 1,
-          },
-        },
-      ),
-      axios.get<JobInformationApi>(
-        `${RECRUITMENT_URL}/job-information/${jobId}`,
-        {
-          headers,
-        },
-      ),
-    ]);
-
-  const mappedCandidates = (candidatesResponse?.items ?? [])
-    .map((candidate) => mapCandidateToMatch(jobId, candidate))
-    .filter((candidate) => candidate.matchScore >= minMatchScore)
-    .sort((a, b) => b.matchScore - a.matchScore)
-    .slice(0, limit);
-
-  return {
-    jobId,
-    jobTitle: jobResponse?.jobTitle || 'Job',
-    matchedCandidates: mappedCandidates,
-    totalMatches: mappedCandidates.length,
-    analysisTimestamp: new Date().toISOString(),
-  };
 };
 
 const createScoreBreakdown = (
@@ -480,47 +457,28 @@ const fetchMatchDetails = async (
   jobId: string,
   candidateId: string,
 ): Promise<AIMatchDetails> => {
-  // Prefer Azure AI service via proxy
-  try {
-    const headers = await buildHeaders();
-    const { data } = await axios.get<AIMatchDetails>(
-      `/api/ai-proxy/recruitment/job-matching/jobs/${jobId}/candidates/${candidateId}`,
-      { headers },
-    );
-    if (data) {
-      return data;
-    }
-  } catch (error) {
+  // Call Azure Function DIRECTLY (no proxy)
+  const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL || 
+    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
+  
+  const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates/${candidateId}`;
+  
+  const headers = await buildHeaders();
+  
+  // eslint-disable-next-line no-console
+  console.log(`[AI Job Matching] Calling Azure DIRECTLY for match details:`, url);
+  
+  const { data } = await axios.get<AIMatchDetails>(url, { headers });
+
+  if (data) {
     // eslint-disable-next-line no-console
-    console.warn(
-      `[AI Job Matching] Failed to load detailed match from Azure AI service for job ${jobId}, candidate ${candidateId}, falling back to local computation.`,
-      error,
-    );
+    console.log(`[AI Job Matching] ✅ Loaded match details for ${candidateId}`);
+    return data;
   }
 
-  // Legacy fallback: rebuild explanation on the client or from mock
-  try {
-    const candidate = await fetchCandidateDetail(candidateId);
-    const seed = `${jobId}-${candidateId}`;
-    const matchScore = generateMatchScore(seed);
-
-    return {
-      jobId,
-      candidateId,
-      matchScore,
-      detailedAnalysis: createScoreBreakdown(
-        seed,
-        matchScore,
-        candidate.city || candidate.country,
-      ),
-      recommendations: buildRecommendations(seed),
-      strengths: buildCandidateStrengths(candidate, seed),
-      concerns: buildCandidateConcerns(candidate, seed),
-      analysisTimestamp: new Date().toISOString(),
-    };
-  } catch (error) {
-    return getMockMatchDetails(jobId, candidateId);
-  }
+  // eslint-disable-next-line no-console
+  console.warn(`[AI Job Matching] Invalid data for match details`);
+  throw new Error('Failed to load match details from Azure');
 };
 
 const getOptionsKey = (options?: AIMatchOptions) =>
@@ -550,7 +508,10 @@ export const useGetJobMatchSummaries = (enabled = true) =>
     () => fetchJobMatchSummaries(),
     {
       enabled,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 0, // Disable cache to always fetch fresh data
+      cacheTime: 0, // Don't keep old data
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
     },
   );
 

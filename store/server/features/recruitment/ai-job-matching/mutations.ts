@@ -5,14 +5,11 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { BatchMatchResponse, AIMatchOptions } from './interface';
 
-// Use Next.js API route as proxy to avoid CORS issues
-const getProxyUrl = (endpoint: string) => {
-  if (typeof window !== 'undefined') {
-    return `/api/ai-proxy${endpoint}`;
-  }
+// Call Azure Function DIRECTLY (no proxy)
+const getDirectUrl = (endpoint: string) => {
   const BASE_URL = 
     AI_REC_BASE_URL || 
-    'https://selamnew-ai-matching-a8drhxandkdwctea.canadacentral-01.azurewebsites.net';
+    'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
   return `${BASE_URL}/api${endpoint}`;
 };
 
@@ -24,11 +21,16 @@ const triggerBatchMatch = async (params: {
   options?: AIMatchOptions;
 }): Promise<BatchMatchResponse> => {
   const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  let tenantId = useAuthenticationStore.getState().tenantId;
+  
+  // Use demo-tenant if no tenant configured
+  if (!tenantId || tenantId.trim() === '') {
+    tenantId = 'demo-tenant';
+  }
 
   try {
     const { data } = await axios.post<BatchMatchResponse>(
-      getProxyUrl('/recruitment/job-matching/batch-match'),
+      getDirectUrl('/recruitment/job-matching/batch-match'),
       {
         jobIds: params.jobIds || [],
         options: {
@@ -63,10 +65,15 @@ const triggerJobMatch = async (params: {
   options?: AIMatchOptions;
 }): Promise<any> => {
   const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
+  let tenantId = useAuthenticationStore.getState().tenantId;
+  
+  // Use demo-tenant if no tenant configured
+  if (!tenantId || tenantId.trim() === '') {
+    tenantId = 'demo-tenant';
+  }
 
   const { data } = await axios.post(
-    getProxyUrl(`/recruitment/job-matching/trigger/${params.jobId}`),
+    getDirectUrl(`/recruitment/job-matching/trigger/${params.jobId}`),
     {
       options: {
         minMatchScore: params.options?.minMatchScore || 50,

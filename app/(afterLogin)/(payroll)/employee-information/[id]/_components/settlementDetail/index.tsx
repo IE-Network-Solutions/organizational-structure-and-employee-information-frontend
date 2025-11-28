@@ -21,8 +21,15 @@ const SettlementDetail = () => {
   const getCompensationName = (compensationId: any) => {
     if (comLoading)
       return (
-        <div className="py-4">
-          <LoadingOutlined />
+        <div
+          className="py-4"
+          id="payroll-settlement-loading-view-container"
+          data-cy="payroll-settlement-loading-view-container"
+        >
+          <LoadingOutlined
+            id="payroll-settlement-loading-view-icon"
+            data-cy="payroll-settlement-loading-view-icon"
+          />
         </div>
       );
     const compensation = compensationDatas?.find(
@@ -55,26 +62,51 @@ const SettlementDetail = () => {
   const renderCompensationTables = () => {
     if (Object.keys(groupedByCompensation).length === 0) {
       return (
-        <div className="flex items-center justify-center h-full">
-          <Empty description="No data available" />
+        <div
+          className="flex items-center justify-center h-full"
+          id="payroll-settlement-empty-view-container"
+          data-cy="payroll-settlement-empty-view-container"
+        >
+          <Empty
+         
+            data-cy="payroll-settlement-empty-view-component"
+            description="No data available"
+          />
         </div>
       );
     }
     return Object.entries(groupedByCompensation).map(
       ([compensationId, items]: [any, any]) => (
-        <div key={compensationId} className="mb-8">
+        <div
+          key={compensationId}
+          className="mb-8"
+          id={`payroll-settlement-compensation-view-container-${compensationId}`}
+          data-cy={`payroll-settlement-compensation-view-container-${compensationId}`}
+        >
           <Card
+            id={`payroll-settlement-compensation-view-card-${compensationId}`}
+            data-cy={`payroll-settlement-compensation-view-card-${compensationId}`}
             loading={isLoading}
             key={compensationId}
             onClick={() => setEmployeeBenefitData(items)}
             bodyStyle={{ padding: 0 }}
             className=" bg-gray-50 rounded-xl px-4 py-3 shadow-sm"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-800 text-sm font-medium">
+            <div
+              className="flex items-center justify-between mb-2"
+              id={`payroll-settlement-compensation-header-view-container-${compensationId}`}
+              data-cy={`payroll-settlement-compensation-header-view-container-${compensationId}`}
+            >
+              <span
+                className="text-gray-800 text-sm font-medium"
+                id={`payroll-settlement-compensation-name-view-text-${compensationId}`}
+                data-cy={`payroll-settlement-compensation-name-view-text-${compensationId}`}
+              >
                 {getCompensationName(compensationId)}
               </span>
               <Tag
+                id={`payroll-settlement-compensation-status-view-tag-${compensationId}`}
+                data-cy={`payroll-settlement-compensation-status-view-tag-${compensationId}`}
                 color={
                   statusColors[
                     items?.every((item: any) => item.isPaid === true)
@@ -98,13 +130,25 @@ const SettlementDetail = () => {
   const { employeeBenefitData, setEmployeeBenefitData } =
     useBenefitEntitlementStore();
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div
+      className="p-6 bg-gray-50 min-h-screen"
+      id="payroll-settlement-wrapper-view-container"
+      data-cy="payroll-settlement-wrapper-view-container"
+    >
       {employeeBenefitData == null ? (
-        <Card loading={isLoading} className="flex-1 shadow-sm">
+        <Card
+          id="payroll-settlement-list-view-card"
+          data-cy="payroll-settlement-list-view-card"
+          loading={isLoading}
+          className="flex-1 shadow-sm"
+        >
           {renderCompensationTables()}
         </Card>
       ) : (
-        <BenefitTracking />
+        <BenefitTracking
+       
+          data-cy="payroll-settlement-benefit-tracking-view-component"
+        />
       )}
     </div>
   );

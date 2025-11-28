@@ -70,7 +70,11 @@ const GroupPermission = () => {
     });
   };
   const modalTitle = (
-    <div className="flex w-full justify-center items-center text-md font-extrabold">
+    <div
+      className="flex w-full justify-center items-center text-md font-extrabold"
+      id="settings-group-permission-modal-title"
+      data-cy="settings-group-permission-modal-title"
+    >
       {currentModal !== 'editModal' ? 'Add Group' : 'Update Group'}
     </div>
   );
@@ -87,6 +91,7 @@ const GroupPermission = () => {
         setSelectedPermissionGroup(null);
         setCurrentModal(null);
       }}
+      data-cy="settings-group-permission-modal"
     >
       <Form
         form={form}
@@ -95,46 +100,85 @@ const GroupPermission = () => {
         onFinish={
           currentModal === 'editModal' ? onUpdatePermissionGroupData : onFinish
         }
+        id="settings-group-permission-form"
+        data-cy="settings-group-permission-form"
       >
-        <div className="grid gap-2">
+        <div
+          className="grid gap-2"
+          id="settings-group-permission-form-div"
+          data-cy="settings-group-permission-form-div"
+        >
           {currentModal === 'editModal' && (
-            <Form.Item name="id">
-              <Input type="hidden" />
+            <Form.Item
+              name="id"
+              id="settings-group-permission-id-item"
+              data-cy="settings-group-permission-id-item"
+            >
+              <Input
+                type="hidden"
+                data-cy="settings-group-permission-id-input"
+                id="settings-group-permission-id-input"
+              />
             </Form.Item>
           )}
-          <div>
+          <div
+            id="settings-group-permission-name-wrapper"
+            data-cy="settings-group-permission-name-wrapper"
+          >
             <Form.Item
               name="name"
               label={
-                <p className="text-xs font-bold text-gray-600">Group name</p>
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  id="settings-group-permission-name-label"
+                  data-cy="settings-group-permission-name-label"
+                >
+                  Group name
+                </p>
               }
               rules={[{ required: true, message: 'Enter group name!' }]}
+              id="settings-group-permission-name-item"
+              data-cy="settings-group-permission-name-item"
             >
               <Input
                 id="groupNameId"
                 className="h-10 text-xs text-gray-600"
                 placeholder="Enter group name"
+                data-cy="settings-group-permission-name-input"
               />
             </Form.Item>
           </div>
-          <div>
+          <div
+            id="settings-group-permission-description-wrapper"
+            data-cy="settings-group-permission-description-wrapper"
+          >
             <Form.Item
               name="description"
               label={
-                <p className="text-xs font-bold text-gray-600">
+                <p
+                  className="text-xs font-bold text-gray-600"
+                  id="settings-group-permission-description-label"
+                  data-cy="settings-group-permission-description-label"
+                >
                   Group Description
                 </p>
               }
               rules={[{ required: true, message: 'Enter role description!' }]}
+              id="settings-group-permission-description-item"
+              data-cy="settings-group-permission-description-item"
             >
               <Input
                 id="groupDescriptionId"
                 className="h-10 text-xs text-gray-600"
                 placeholder="Enter role description"
+                data-cy="settings-group-permission-description-input"
               />
             </Form.Item>
           </div>
-          <div id="groupPermissionId">
+          <div
+            id="groupPermissionId"
+            data-cy="settings-group-permission-select-wrapper"
+          >
             <Form.Item
               name="permissions"
               label={
@@ -143,6 +187,8 @@ const GroupPermission = () => {
               rules={[
                 { required: true, message: 'Select the Permission List!' },
               ]}
+              id="settings-group-permission-select-item"
+              data-cy="settings-group-permission-select-item"
             >
               <Select
                 id="groupPermissionId"
@@ -151,14 +197,23 @@ const GroupPermission = () => {
                 placeholder="Please select"
                 onChange={() => {}}
                 style={{ width: '100%' }}
+                data-cy="settings-group-permission-select"
               >
                 {children}
               </Select>
             </Form.Item>
           </div>
         </div>
-        <Form.Item wrapperCol={{ span: 24, md: { span: 12, offset: 6 } }}>
-          <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+        <Form.Item
+          wrapperCol={{ span: 24, md: { span: 12, offset: 6 } }}
+          id="settings-group-permission-actions-form-item"
+          data-cy="settings-group-permission-actions-form-item"
+        >
+          <div
+            className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+            id="settings-group-permission-actions"
+            data-cy="settings-group-permission-actions"
+          >
             <Button
               id="cancelModalButton"
               className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-xs sm:text-sm font-bold"
@@ -166,6 +221,7 @@ const GroupPermission = () => {
                 setCurrentModal(null);
                 form.resetFields();
               }}
+              data-cy="settings-group-permission-cancel-btn"
             >
               Cancel
             </Button>
@@ -177,6 +233,7 @@ const GroupPermission = () => {
               loading={
                 currentModal === 'editModal' ? updateLoaing : createLoading
               }
+              data-cy="settings-group-permission-submit-btn"
             >
               {currentModal !== 'editModal' ? 'Create' : 'Update'}
             </Button>
