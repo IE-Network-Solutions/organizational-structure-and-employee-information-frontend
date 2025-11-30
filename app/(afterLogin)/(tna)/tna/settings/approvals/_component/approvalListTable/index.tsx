@@ -210,7 +210,7 @@ const ApprovalListTable = () => {
                   );
                 }}
               >
-                <FaPencil />
+                <FaPencil size={16} />
               </Button>
             </Tooltip>
           </AccessGuard>

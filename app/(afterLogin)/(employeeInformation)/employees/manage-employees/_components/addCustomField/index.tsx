@@ -22,6 +22,7 @@ interface FormField {
   fieldName: string;
   fieldType: 'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox';
   isActive: boolean;
+  isRequired: boolean;
   options: string[];
   fieldValidation: string;
 }
@@ -29,6 +30,7 @@ interface FormField {
 const AddCustomField: React.FC<any> = ({
   formTitle,
   customEmployeeInformationForm,
+  className,
 }) => {
   const createCustomForm = useAddEmployeeInformationForm();
 
@@ -38,6 +40,7 @@ const AddCustomField: React.FC<any> = ({
     'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox'
   >('input');
   const [isActive, setIsActive] = useState(true);
+  const [isRequired, setIsRequired] = useState(false);
   const [options, setOptions] = useState<string[]>([]);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -89,6 +92,7 @@ const AddCustomField: React.FC<any> = ({
       fieldName: formattedFieldName,
       fieldType: values.fieldType,
       isActive: values.isActive,
+      isRequired: values.isRequired,
       fieldValidation: values.fieldValidation,
       options: values.options || [],
     };
@@ -99,9 +103,12 @@ const AddCustomField: React.FC<any> = ({
     setFieldName('');
     setFieldType('input');
     setIsActive(true);
+    setIsRequired(false);
     setPopoverOpen(false);
   };
+
   const handleFormFailed = () => {};
+
   const popoverContent = (
     <div
       className="w-80"
@@ -119,6 +126,7 @@ const AddCustomField: React.FC<any> = ({
         initialValues={{
           fieldType,
           isActive,
+          isRequired: false,
           options,
         }}
       >
@@ -137,6 +145,7 @@ const AddCustomField: React.FC<any> = ({
             data-cy={`add-custom-field-name-input-${formTitle}`}
           />
         </Form.Item>
+
         <Form.Item
           label="Field Type"
           name="fieldType"
@@ -211,25 +220,42 @@ const AddCustomField: React.FC<any> = ({
               id={`add-custom-field-validation-option-any-${formTitle}`}
               data-cy={`add-custom-field-validation-option-any-${formTitle}`}
             >
-              any
+              Any
             </Option>
           </Select>
         </Form.Item>
 
-        <Form.Item
-          label="Is Active"
-          name="isActive"
-          valuePropName="checked"
-          id={`add-custom-field-active-${formTitle}`}
-          data-cy={`add-custom-field-active-${formTitle}`}
-        >
-          <Switch
-            checked={isActive}
-            onChange={(checked) => setIsActive(checked)}
-            id={`add-custom-field-active-switch-${formTitle}`}
-            data-cy={`add-custom-field-active-switch-${formTitle}`}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Is Active"
+              name="isActive"
+              valuePropName="checked"
+              id={`add-custom-field-active-${formTitle}`}
+              data-cy={`add-custom-field-active-${formTitle}`}
+            >
+              <Switch
+                checked={isActive}
+                onChange={(checked) => setIsActive(checked)}
+                id={`add-custom-field-active-switch-${formTitle}`}
+                data-cy={`add-custom-field-active-switch-${formTitle}`}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Is Required"
+              name="isRequired"
+              valuePropName="checked"
+            >
+              <Switch
+                checked={isRequired}
+                onChange={(checked) => setIsRequired(checked)}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Divider data-cy={`add-custom-field-divider-${formTitle}`} />
         <Form.Item
           id={`add-custom-field-submit-${formTitle}`}
@@ -257,7 +283,7 @@ const AddCustomField: React.FC<any> = ({
               id={`addField${formTitle}`}
               data-cy={`addField${formTitle}`}
               htmlType="submit"
-              style={{ width: '30%' }}
+              style={{ width: '100%' }}
             >
               Add Field
             </Button>
@@ -271,6 +297,7 @@ const AddCustomField: React.FC<any> = ({
     <Card
       bordered={false}
       bodyStyle={{ padding: 0, border: 'none' }}
+      className={className}
       id={`add-custom-field-card-${formTitle}`}
       data-cy={`add-custom-field-card-${formTitle}`}
     >
@@ -282,7 +309,7 @@ const AddCustomField: React.FC<any> = ({
         <Col
           xs={24}
           sm={24}
-          className="flex justify-center items-center "
+          className="flex justify-center items-center"
           id={`add-custom-field-col-${formTitle}`}
           data-cy={`add-custom-field-col-${formTitle}`}
         >

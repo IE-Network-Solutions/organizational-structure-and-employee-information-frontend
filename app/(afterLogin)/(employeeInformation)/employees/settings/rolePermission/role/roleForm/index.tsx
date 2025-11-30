@@ -204,16 +204,18 @@ const ListOfRoles = () => {
   return (
     <div>
       <Modal
-        // width="50%"
-        className="w-3/4 md:w-1/4 lg:w-1/2 xl:w-1/2"
+        className="w-full sm:w-3/4 md:w-1/2 lg:w-1/2 xl:w-1/2"
         title={modalTitle}
-        style={{ top: '10vh' }}
+        style={{ top: '5vh' }}
         open={true}
         footer={null}
         onCancel={() => {
           form.resetFields();
           setSelectedRole(null);
           setCurrentModal(null);
+        }}
+        styles={{
+          body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' },
         }}
         data-cy="settings-role-modal"
       >
@@ -400,7 +402,7 @@ const ListOfRoles = () => {
             data-cy="settings-role-form-actions-form-item"
           >
             <div
-              className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+              className="flex flex-row justify-center w-full bg-[#fff] px-2 sm:px-6 py-4 sm:py-6 gap-3 sm:gap-6"
               id="settings-role-form-actions"
               data-cy="settings-role-form-actions"
             >

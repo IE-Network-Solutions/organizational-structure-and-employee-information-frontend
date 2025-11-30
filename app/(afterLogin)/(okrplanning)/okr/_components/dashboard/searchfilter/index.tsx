@@ -192,7 +192,11 @@ const OkrSearch: React.FC = () => {
           }
         >
           {getAllFiscalYears?.items?.map((item: any) => (
-            <Select.Option data-cy={`okr-mobile-fiscal-year-select-option-${item?.id}`} key={item?.id} value={item?.id}>
+            <Select.Option
+              data-cy={`okr-mobile-fiscal-year-select-option-${item?.id}`}
+              key={item?.id}
+              value={item?.id}
+            >
               {item?.name}
             </Select.Option>
           ))}
@@ -240,7 +244,11 @@ const OkrSearch: React.FC = () => {
           {getAllFiscalYears?.items
             ?.find((fy: any) => fy.id === fiscalYearId)
             ?.sessions?.map((session: any) => (
-              <Option data-cy={`okr-mobile-session-select-option-${session?.id}`} key={session.id} value={session.id}>
+              <Option
+                data-cy={`okr-mobile-session-select-option-${session?.id}`}
+                key={session.id}
+                value={session.id}
+              >
                 {session.name}
               </Option>
             ))}
@@ -277,7 +285,11 @@ const OkrSearch: React.FC = () => {
             }
           >
             {DepartmentWithUsers?.map((dept: any) => (
-              <Option data-cy={`okr-mobile-department-select-option-${dept?.id}`} key={dept.id} value={dept.id}>
+              <Option
+                data-cy={`okr-mobile-department-select-option-${dept?.id}`}
+                key={dept.id}
+                value={dept.id}
+              >
                 {dept.name}
               </Option>
             ))}
@@ -308,9 +320,15 @@ const OkrSearch: React.FC = () => {
             value={searchObjParams.metricTypeId}
             onChange={(value) => handleFilter(value, 'metricTypeId')}
           >
-            <Option data-cy="okr-mobile-metric-type-select-option-all" value="">All</Option>
+            <Option data-cy="okr-mobile-metric-type-select-option-all" value="">
+              All
+            </Option>
             {Metrics?.items?.map((metric: any) => (
-              <Option data-cy={`okr-mobile-metric-type-select-option-${metric?.id}`} key={metric.id} value={metric.id}>
+              <Option
+                data-cy={`okr-mobile-metric-type-select-option-${metric?.id}`}
+                key={metric.id}
+                value={metric.id}
+              >
                 {metric.name}
               </Option>
             ))}
@@ -383,8 +401,11 @@ const OkrSearch: React.FC = () => {
               }
             >
               {getAllFiscalYears?.items?.map((item: any) => (
-                <Select.Option data-cy={`okr-desktop-fiscal-year-select-option-${item?.id}`} 
-                 key={item?.id} value={item?.id}>
+                <Select.Option
+                  data-cy={`okr-desktop-fiscal-year-select-option-${item?.id}`}
+                  key={item?.id}
+                  value={item?.id}
+                >
                   {item?.name}
                 </Select.Option>
               ))}
@@ -421,9 +442,11 @@ const OkrSearch: React.FC = () => {
               {getAllFiscalYears?.items
                 ?.find((fy: any) => fy.id === fiscalYearId)
                 ?.sessions?.map((session: any) => (
-                  <Option 
-                  data-cy={`okr-desktop-session-select-option-${session?.id}`} 
-                  key={session.id} value={session.id}>
+                  <Option
+                    data-cy={`okr-desktop-session-select-option-${session?.id}`}
+                    key={session.id}
+                    value={session.id}
+                  >
                     {session.name}
                   </Option>
                 ))}
@@ -449,8 +472,10 @@ const OkrSearch: React.FC = () => {
               >
                 {DepartmentWithUsers?.map((dept: any) => (
                   <Option
-                   data-cy={`okr-desktop-department-select-option-${dept?.id}`} 
-                   key={dept.id} value={dept.id}>
+                    data-cy={`okr-desktop-department-select-option-${dept?.id}`}
+                    key={dept.id}
+                    value={dept.id}
+                  >
                     {dept.name}
                   </Option>
                 ))}
@@ -470,12 +495,17 @@ const OkrSearch: React.FC = () => {
                 onChange={(value) => handleFilter(value, 'metricTypeId')}
               >
                 <Option
-                 data-cy="okr-desktop-metric-type-select-option-all"
-                 value="">All</Option>
+                  data-cy="okr-desktop-metric-type-select-option-all"
+                  value=""
+                >
+                  All
+                </Option>
                 {Metrics?.items?.map((metric: any) => (
                   <Option
-                   data-cy={`okr-desktop-metric-type-select-option-${metric?.id}`} 
-                   key={metric.id} value={metric.id}>
+                    data-cy={`okr-desktop-metric-type-select-option-${metric?.id}`}
+                    key={metric.id}
+                    value={metric.id}
+                  >
                     {metric.name}
                   </Option>
                 ))}
@@ -533,9 +563,12 @@ const OkrSearch: React.FC = () => {
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
               title=""
-              icon={<LuSettings2
-                 data-cy="okr-mobile-filter-button-icon"
-                 size={20} />}
+              icon={
+                <LuSettings2
+                  data-cy="okr-mobile-filter-button-icon"
+                  size={20}
+                />
+              }
             />
           </div>
         </div>
@@ -580,9 +613,7 @@ const OkrSearch: React.FC = () => {
           width="90%"
           centered
         >
-          <MobileFilterContent 
-           data-cy="okr-mobile-filter-content"
-          />
+          <MobileFilterContent data-cy="okr-mobile-filter-content" />
         </Modal>
       </div>
     </>

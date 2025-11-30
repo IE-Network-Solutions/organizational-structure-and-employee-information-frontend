@@ -325,7 +325,6 @@ const EmployeeSearch: React.FC = () => {
   );
   return (
     <Modal
-      centered
       title="Filter"
       open={isMobileFilterVisible}
       onCancel={() => setIsMobileFilterVisible(false)}
@@ -355,8 +354,12 @@ const EmployeeSearch: React.FC = () => {
           </Button>
         </div>
       }
-      className="max-w-md"
-      width={400}
+      className="!top-20 w-full sm:max-w-md"
+      width="100%"
+      style={{ top: '80px' }}
+      styles={{
+        body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' },
+      }}
     >
       {Filters}
     </Modal>

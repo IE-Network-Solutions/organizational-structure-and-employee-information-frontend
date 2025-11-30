@@ -208,8 +208,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
                 <Button
                   type="primary"
                   className="px-3"
-                  id="talent-acquisition-job-candidate-search-button-mobile-apply"
-                  data-cy="talent-acquisition-job-candidate-search-button-mobile-apply"
+                  onClick={() => setShowMobileFilter(false)}
                 >
                   Filter
                 </Button>

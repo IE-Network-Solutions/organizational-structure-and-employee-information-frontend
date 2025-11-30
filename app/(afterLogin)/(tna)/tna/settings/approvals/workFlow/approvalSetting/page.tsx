@@ -4,9 +4,10 @@ import { useCreateApproverMutation } from '@/store/server/features/approver/muta
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';
-import { Form } from 'antd';
+import { Button, Form } from 'antd';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { IoArrowBack } from 'react-icons/io5';
 
 const ApprovalSetting = () => {
   const { mutate: CreateApprover, isSuccess } = useCreateApproverMutation();
@@ -53,8 +54,23 @@ const ApprovalSetting = () => {
       },
     );
   };
+  const handleBack = () => {
+    router.push('/tna/settings/approvals/workFlow');
+  };
+
   return (
     <div>
+      <div className="mb-4 flex justify-between">
+        <Button
+          className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
+          onClick={handleBack}
+          aria-label="Go back"
+        >
+          <IoArrowBack className="text-white" />
+          <span className="hidden sm:inline"> Back</span>
+        </Button>
+        <div className="text-2xl font-bold" />
+      </div>
       <ApprovalWorkFlowSettingComponent
         handleSubmit={handleSubmit}
         isSuccess={isSuccess}

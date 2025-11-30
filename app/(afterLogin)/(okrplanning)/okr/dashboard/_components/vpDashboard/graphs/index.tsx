@@ -1,11 +1,11 @@
 import { Col, Row } from 'antd';
 import React from 'react';
-import ActualVsTargetChart from './actualVsTarget';
+// import ActualVsTargetChart from './actualVsTarget';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useVariablePayStore } from '@/store/uistate/features/okrplanning/VP';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetCriteriaByFilter } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import CriteriaContributionChart from './criteriaContribution';
+// import CriteriaContributionChart from './criteriaContribution';
 
 interface VPGraphProps {
   id?: string;
@@ -26,16 +26,16 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
   }
 
   const activeMonthIds = getActiveSessionMonthIds(activeCalender);
-  const { data: variablePay } = useGetCriteriaByFilter(
+  useGetCriteriaByFilter(
     { activeMonthIds, userId: identifier },
     searchParams?.selectedRange || '',
   );
 
   return (
     <div
-      className="w-full mt-12"
       id="okr-vpgraph-container-display-div"
       data-cy="okr-vpgraph-container-display-div"
+      className="w-full mt-12"
     >
       <Row
         gutter={[16, 16]}
@@ -53,7 +53,7 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
           id="okr-vpgraph-actualvstarget-col-display-col"
           data-cy="okr-vpgraph-actualvstarget-col-display-col"
         >
-          <ActualVsTargetChart data-cy="okr-vpgraph-actualvstarget-chart-display-chart" variablePay={variablePay} />
+          {/* <ActualVsTargetChart variablePay={variablePay} /> */}
         </Col>
         <Col
           xs={24}
@@ -64,7 +64,7 @@ const VPGraph: React.FC<VPGraphProps> = ({ id }) => {
           id="okr-vpgraph-criteriacontribution-col-display-col"
           data-cy="okr-vpgraph-criteriacontribution-col-display-col"
         >
-          <CriteriaContributionChart data-cy="okr-vpgraph-criteriacontribution-chart-display-chart" variablePay={variablePay} />
+          {/* <CriteriaContributionChart variablePay={variablePay} /> */}
         </Col>
       </Row>
     </div>

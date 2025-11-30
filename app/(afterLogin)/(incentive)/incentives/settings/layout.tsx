@@ -33,9 +33,11 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
       // Extract the first item separately
       const firstItem = recognitionData[0];
 
+      const firstItemKey = firstItem?.id ?? 'defaultIncentiveCard';
+
       const defaultIncentiveSettings = {
         item: {
-          key: 'IncentiveSettings',
+          key: firstItemKey,
           icon: !isMobile ? (
             <CiCalendarDate
               size={16}
@@ -59,7 +61,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
               ? 'px-6'
               : 'px-1',
         },
-        link: `/incentives/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
+        link: `/incentives/settings/${firstItemKey}`,
       };
 
       // Map remaining items (excluding the first item)

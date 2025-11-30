@@ -27,9 +27,9 @@ const ActionButtons: FC<ActionButtonsProps> = ({
     <Space>
       {onEdit && (
         <Button
-          className="action-button-edit bg-blue"
+          className="action-button-edit"
           type="primary"
-          icon={<GrFormEdit size={16} className="text-white" />}
+          icon={<GrFormEdit size={16} />}
           id={`${id}buttonPopOverActionForOnEditActionId`}
           loading={loading}
           disabled={disableEdit}

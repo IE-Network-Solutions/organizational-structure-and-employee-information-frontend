@@ -4,6 +4,8 @@ import { Card, Dropdown, Button, Tooltip, Spin, Avatar } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import RecruitmentPagination from '../../../_components';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import AvatarImage from '@/public/gender_neutral_avatar.jpg';
 import Image from 'next/image';
@@ -48,6 +50,7 @@ const JobCard: React.FC = () => {
   const { mutate: deleteJob, isLoading } = useDeleteJobs();
 
   const { data: departments } = useGetDepartments();
+  const { isMobile, isTablet } = useIsMobile();
 
   const getDepartmentName = (jobDepartmentId: string | undefined) => {
     const department =
@@ -425,19 +428,35 @@ const JobCard: React.FC = () => {
       <ChangeStatusModal />
       <ShareToSocialMedia />
       <EditJob />
-      <RecruitmentPagination
-        current={currentPage}
-        total={jobList?.meta?.totalItems ?? 1}
-        pageSize={pageSize}
-        onChange={(page, pageSize) => {
-          setCurrentPage(page);
-          setPageSize(pageSize);
-        }}
-        onShowSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
-        }}
-      />
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={jobList?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onChange={(page, pageSize) => {
+            setCurrentPage(page);
+            setPageSize(pageSize);
+          }}
+          onShowSizeChange={(page, pageSize) => {
+            setCurrentPage(page);
+            setPageSize(pageSize);
+          }}
+        />
+      ) : (
+        <RecruitmentPagination
+          current={currentPage}
+          total={jobList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={(page, pageSize) => {
+            setCurrentPage(page);
+            setPageSize(pageSize);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      )}
     </>
   );
 };
