@@ -49,9 +49,19 @@ const Filters: React.FC<FiltersProps> = () => {
   if (isMobile) {
     return (
       <>
-        <div className="flex justify-between items-center mb-6 py-3 px-1">
-          <div className="flex-1 mr-2">
+        <div
+          className="flex justify-between items-center mb-6 py-3 px-1"
+          id="payroll-mobile-filterbar-view-container"
+          data-cy="payroll-mobile-filterbar-view-container"
+        >
+          <div
+            className="flex-1 mr-2"
+            id="payroll-mobile-filter-select-view-container"
+            data-cy="payroll-mobile-filter-select-view-container"
+          >
             <Select
+              id="payroll-mobile-employee-search-interact-select"
+              data-cy="payroll-mobile-employee-search-interact-select"
               showSearch
               allowClear
               className="h-10 w-[100%]"
@@ -68,9 +78,16 @@ const Filters: React.FC<FiltersProps> = () => {
             />
           </div>
           <Button
+            id="payroll-mobile-filter-open-click-button"
+            data-cy="payroll-mobile-filter-open-click-button"
             className="p-5 h-10  text-gray-500 border border-gray-300"
             onClick={() => setIsModalOpen(true)}
-            icon={<LuSettings2 />}
+            icon={
+              <LuSettings2
+                id="payroll-mobile-filter-open-click-icon"
+                data-cy="payroll-mobile-filter-open-click-icon"
+              />
+            }
           />
         </div>
 
@@ -81,13 +98,22 @@ const Filters: React.FC<FiltersProps> = () => {
           onCancel={() => setIsModalOpen(false)}
           footer={
             <div
+              id="payroll-mobile-filter-modal-footer-view-container"
+              data-cy="payroll-mobile-filter-modal-footer-view-container"
               style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
             >
-              <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+              <Button
+                id="payroll-mobile-filter-cancel-click-button"
+                data-cy="payroll-mobile-filter-cancel-click-button"
+                key="cancel"
+                onClick={() => setIsModalOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
                 key="filter"
+                id="payroll-mobile-filter-apply-click-button"
+                data-cy="payroll-mobile-filter-apply-click-button"
                 type="primary"
                 onClick={() => setIsModalOpen(false)}
                 className="bg-purple-600"
@@ -96,17 +122,28 @@ const Filters: React.FC<FiltersProps> = () => {
               </Button>
             </div>
           }
+          data-cy="payroll-mobile-filter-modal-view-modal"
         >
-          <div className="py-4">
+          <div
+            className="py-4"
+            id="payroll-mobile-filter-modal-view-container"
+            data-cy="payroll-mobile-filter-modal-view-container"
+          >
             <Select
               id={`selectDepartment${searchParams.allJobs}`}
+              data-cy="payroll-mobile-department-filter-interact-select"
               placeholder="All Departments"
               onChange={handleDepartmentChange}
               allowClear
               className="w-full h-14"
             >
               {EmployeeDepartment?.map((item: any) => (
-                <Option key={item?.id} value={item?.id}>
+                <Option
+                  id={`payroll-mobile-department-option-select-${item?.id}`}
+                  data-cy={`payroll-mobile-department-option-select-${item?.id}`}
+                  key={item?.id}
+                  value={item?.id}
+                >
                   {item?.name}
                 </Option>
               ))}
@@ -117,15 +154,30 @@ const Filters: React.FC<FiltersProps> = () => {
     );
   }
   return (
-    <div className="mb-6">
+    <div
+      className="mb-6"
+      id="payroll-desktop-filter-view-container"
+      data-cy="payroll-desktop-filter-view-container"
+    >
       <Row
+        id="payroll-desktop-filter-row-view-row"
+        data-cy="payroll-desktop-filter-row-view-row"
         gutter={[16, 16]}
         align="middle"
         justify="space-between"
         style={{ flexWrap: 'nowrap' }}
       >
-        <Col lg={16} md={14} sm={24} xs={24}>
+        <Col
+          id="payroll-desktop-filter-employee-view-column"
+          data-cy="payroll-desktop-filter-employee-view-column"
+          lg={16}
+          md={14}
+          sm={24}
+          xs={24}
+        >
           <Select
+            id="payroll-desktop-employee-search-interact-select"
+            data-cy="payroll-desktop-employee-search-interact-select"
             showSearch
             allowClear
             className="min-h-12 w-[100%]"
@@ -141,16 +193,28 @@ const Filters: React.FC<FiltersProps> = () => {
             options={options}
           />
         </Col>
-        <Col lg={8} sm={12} xs={24}>
+        <Col
+          id="payroll-desktop-filter-department-view-column"
+          data-cy="payroll-desktop-filter-department-view-column"
+          lg={8}
+          sm={12}
+          xs={24}
+        >
           <Select
             id={`selectDepartment${searchParams.allJobs}`}
+            data-cy="payroll-desktop-department-filter-interact-select"
             placeholder="All Departments"
             onChange={handleDepartmentChange}
             allowClear
             className="w-full h-14"
           >
             {EmployeeDepartment?.map((item: any) => (
-              <Option key={item?.id} value={item?.id}>
+              <Option
+                id={`payroll-desktop-department-option-select-${item?.id}`}
+                data-cy={`payroll-desktop-department-option-select-${item?.id}`}
+                key={item?.id}
+                value={item?.id}
+              >
                 {item?.name}
               </Option>
             ))}

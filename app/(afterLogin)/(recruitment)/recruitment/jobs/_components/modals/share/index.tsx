@@ -51,6 +51,7 @@ const ShareToSocialMedia: React.FC = () => {
   return (
     shareModalOpen && (
       <Modal
+        data-cy="talent-acquisition-share-modal"
         title={socialMediaShareModalHeader}
         open={shareModalOpen}
         onCancel={handleClose}
@@ -59,16 +60,44 @@ const ShareToSocialMedia: React.FC = () => {
       >
         <div className="text-lg font-bold">Share</div>
         <div className="flex items-center justify-start gap-5 p-2 py-2">
-          <FaXTwitter size={35} />
-          <FaFacebook size={35} color="#0866FF" />
-          <FaLinkedin size={35} color="#0A66C2" />
-          <FaTelegram size={35} color="#2AABEE" />
-          <FaWhatsapp size={35} color="#25D366" />
+          <FaXTwitter
+            id="talent-acquisition-share-icon-twitter"
+            data-cy="talent-acquisition-share-icon-twitter"
+            size={35}
+          />
+          <FaFacebook
+            id="talent-acquisition-share-icon-facebook"
+            data-cy="talent-acquisition-share-icon-facebook"
+            size={35}
+            color="#0866FF"
+          />
+          <FaLinkedin
+            id="talent-acquisition-share-icon-linkedin"
+            data-cy="talent-acquisition-share-icon-linkedin"
+            size={35}
+            color="#0A66C2"
+          />
+          <FaTelegram
+            id="talent-acquisition-share-icon-telegram"
+            data-cy="talent-acquisition-share-icon-telegram"
+            size={35}
+            color="#2AABEE"
+          />
+          <FaWhatsapp
+            id="talent-acquisition-share-icon-whatsapp"
+            data-cy="talent-acquisition-share-icon-whatsapp"
+            size={35}
+            color="#25D366"
+          />
         </div>
         <div className="flex items-center justify-center gap-3 border-[1px] p-2 rounded-md">
           <div className="font-semibold "> {generatedUrl}</div>
           <Divider type="vertical" />
-          <div onClick={handleCopy}>
+          <div
+            id="talent-acquisition-share-button-copy"
+            data-cy="talent-acquisition-share-button-copy"
+            onClick={handleCopy}
+          >
             {isChecked ? (
               <CheckCheck
                 size={16}

@@ -30,8 +30,19 @@ const ApprovalFilter = () => {
   const router = useRouter();
   const { setApproverType } = useApprovalStore();
 
-  const handleDepartmentChange = (value: string) => {
-    onSelectChange(value, 'entityType');
+  const handleDepartmentChange = (
+    value: string,
+    key: 'entityType' | 'entityId' = 'entityType',
+    options?: { entityType?: string; entityId?: string },
+  ) => {
+    // If both entityType and entityId are provided in options, update both
+    if (options?.entityType !== undefined && options?.entityId !== undefined) {
+      onSelectChange(options.entityType, 'entityType');
+      onSelectChange(options.entityId, 'entityId');
+    } else {
+      // Otherwise, use the original behavior for backward compatibility
+      onSelectChange(value, key);
+    }
   };
   const handleNavigation = () => {
     router.push('/timesheet/settings/approvals/workFlow');

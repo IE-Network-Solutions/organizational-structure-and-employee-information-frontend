@@ -37,7 +37,9 @@ export const EmployeeDetails = ({
   if (isLoading)
     return (
       <>
-        <Spin />
+        <Spin
+          data-cy={`okr-criteria-drawer-employee-details-loading-spin-${empId}`}
+        />
       </>
     );
 
@@ -49,8 +51,16 @@ export const EmployeeDetails = ({
   const profileImage = fallbackProfileImage;
 
   return (
-    <Space size="small">
-      <Avatar src={profileImage} className="h-5 w-5" />
+    <Space
+      size="small"
+      id={`okr-criteria-drawer-employee-details-space-${empId}`}
+      data-cy={`okr-criteria-drawer-employee-details-space-${empId}`}
+    >
+      <Avatar
+        src={profileImage}
+        className="h-5 w-5"
+        data-cy={`okr-criteria-drawer-employee-details-avatar-${empId}`}
+      />
       {userName}
     </Space>
   );
@@ -288,7 +298,11 @@ const ScoringDrawer: React.FC = () => {
       open={isDrawerVisible}
       onClose={closeDrawer}
       modalHeader={
-        <span className="text-xl font-semibold">
+        <span
+          className="text-xl font-semibold"
+          id="okr-criteria-drawer-header-title"
+          data-cy="okr-criteria-drawer-header-title"
+        >
           {currentId
             ? 'Edit Scoring Configuration'
             : 'Add Scoring Configuration'}
@@ -296,7 +310,11 @@ const ScoringDrawer: React.FC = () => {
       }
       width="30%"
       footer={
-        <div className=" w-full bg-[#fff]  flex justify-center gap-5 py-3">
+        <div
+          className=" w-full bg-[#fff]  flex justify-center gap-5 py-3"
+          id="okr-criteria-drawer-footer"
+          data-cy="okr-criteria-drawer-footer"
+        >
           <Button
             type="default"
             title="Cancel"
@@ -305,6 +323,8 @@ const ScoringDrawer: React.FC = () => {
               closeDrawer();
             }}
             className="h-10"
+            id="okr-criteria-drawer-cancel-button"
+            data-cy="okr-criteria-drawer-cancel-button"
           >
             Cancel
           </Button>
@@ -313,19 +333,34 @@ const ScoringDrawer: React.FC = () => {
             loading={currentId ? isUpdatingLoading : isCreateLoading}
             onClick={() => form.submit()}
             className="h-10"
+            id="okr-criteria-drawer-submit-button"
+            data-cy="okr-criteria-drawer-submit-button"
           >
             {currentId ? 'Update' : 'Create'}
           </Button>
         </div>
       }
+      data-cy="okr-criteria-drawer"
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        id="okr-criteria-drawer-form"
+        data-cy="okr-criteria-drawer-form"
+      >
         <Form.Item
           label="Name of the Scoring Configuration"
           name="name"
           rules={[{ required: true, message: 'Please enter the name' }]}
+          id="okr-criteria-drawer-name-field"
+          data-cy="okr-criteria-drawer-name-field"
         >
-          <Input placeholder="Enter the name here" />
+          <Input
+            placeholder="Enter the name here"
+            id="okr-criteria-drawer-name-input"
+            data-cy="okr-criteria-drawer-name-input"
+          />
         </Form.Item>
 
         <Form.Item
@@ -334,38 +369,78 @@ const ScoringDrawer: React.FC = () => {
           rules={[
             { required: true, message: 'Please enter the total percentage' },
           ]}
+          id="okr-criteria-drawer-total-percentage-field"
+          data-cy="okr-criteria-drawer-total-percentage-field"
         >
           <Input
             type="number"
             min={0}
             max={100}
             placeholder="Enter the total percentage"
+            id="okr-criteria-drawer-total-percentage-input"
+            data-cy="okr-criteria-drawer-total-percentage-input"
           />
         </Form.Item>
 
-        <Form.Item label="Department" name="department">
+        <Form.Item
+          label="Department"
+          name="department"
+          id="okr-criteria-drawer-department-field"
+          data-cy="okr-criteria-drawer-department-field"
+        >
           <Select
             mode="multiple"
             placeholder="Select Department"
             onChange={handleDepartmentChange}
+            id="okr-criteria-drawer-department-select"
+            data-cy="okr-criteria-drawer-department-select"
           >
             {departmentData?.map((dept: any) => (
-              <Option key={dept.id} value={dept.id}>
+              <Option
+                key={dept.id}
+                value={dept.id}
+                id={`okr-criteria-drawer-department-option-${dept.id}`}
+                data-cy={`okr-criteria-drawer-department-option-${dept.id}`}
+              >
                 {dept.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
 
-        <Form.Item label="User Type Filter">
+        <Form.Item
+          label="User Type Filter"
+          id="okr-criteria-drawer-user-type-field"
+          data-cy="okr-criteria-drawer-user-type-field"
+        >
           <Select
             placeholder="Select User Type"
             onChange={handleUserTypeFilter}
             defaultActiveFirstOption
+            id="okr-criteria-drawer-user-type-select"
+            data-cy="okr-criteria-drawer-user-type-select"
           >
-            <Option value="all">All</Option>
-            <Option value="team leads">Team Leads</Option>
-            <Option value="team members">Team Members</Option>
+            <Option
+              value="all"
+              id="okr-criteria-drawer-user-type-option-all"
+              data-cy="okr-criteria-drawer-user-type-option-all"
+            >
+              All
+            </Option>
+            <Option
+              value="team leads"
+              id="okr-criteria-drawer-user-type-option-leads"
+              data-cy="okr-criteria-drawer-user-type-option-leads"
+            >
+              Team Leads
+            </Option>
+            <Option
+              value="team members"
+              id="okr-criteria-drawer-user-type-option-members"
+              data-cy="okr-criteria-drawer-user-type-option-members"
+            >
+              Team Members
+            </Option>
           </Select>
         </Form.Item>
 
@@ -374,21 +449,39 @@ const ScoringDrawer: React.FC = () => {
           name="users"
           className="flex-1 min-h-12"
           rules={[{ required: true, message: 'Please select users' }]}
+          id="okr-criteria-drawer-users-field"
+          data-cy="okr-criteria-drawer-users-field"
         >
           <Select
             mode="multiple"
             placeholder="Add Users"
             className="w-full min-h-12"
+            id="okr-criteria-drawer-users-select"
+            data-cy="okr-criteria-drawer-users-select"
           >
             {filteredUsers.length > 0
               ? filteredUsers.map((user: any) => (
-                  <Select.Option key={user.id} value={user.id}>
-                    <EmployeeDetails empId={user.id} />
+                  <Select.Option
+                    data-cy={`okr-criteria-drawer-users-option-${user.id}`}
+                    key={user.id}
+                    value={user.id}
+                  >
+                    <EmployeeDetails
+                      data-cy={`okr-criteria-drawer-users-option-employee-details-${user.id}`}
+                      empId={user.id}
+                    />
                   </Select.Option>
                 ))
               : form.getFieldValue('users')?.map((empId: string) => (
-                  <Select.Option key={empId} value={empId}>
-                    <EmployeeDetails empId={empId} />
+                  <Select.Option
+                    data-cy={`okr-criteria-drawer-users-option-${empId}`}
+                    key={empId}
+                    value={empId}
+                  >
+                    <EmployeeDetails
+                      data-cy={`okr-criteria-drawer-users-option-employee-details-${empId}`}
+                      empId={empId}
+                    />
                   </Select.Option>
                 ))}
           </Select>
@@ -400,35 +493,77 @@ const ScoringDrawer: React.FC = () => {
           rules={[
             { required: true, message: 'Please select at least one criteria' },
           ]}
+          id="okr-criteria-drawer-criteria-field"
+          data-cy="okr-criteria-drawer-criteria-field"
         >
           <Select
             mode="multiple"
             placeholder="Select criteria"
             onChange={handleCriteriaChange}
             className="flex-1 min-h-12"
+            id="okr-criteria-drawer-criteria-select"
+            data-cy="okr-criteria-drawer-criteria-select"
           >
             {criteriaData?.items?.map((criteria: any) => (
-              <Option key={criteria.id} value={criteria.name}>
+              <Option
+                key={criteria.id}
+                value={criteria.name}
+                id={`okr-criteria-drawer-criteria-option-${criteria.id}`}
+                data-cy={`okr-criteria-drawer-criteria-option-${criteria.id}`}
+              >
                 {criteria.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
 
-        <div className="flex mt-5">
-          <span className="flex-1 h-12">Criteria Name</span>
-          <span className="flex-1 h-12">Weight</span>
+        <div
+          className="flex mt-5"
+          id="okr-criteria-drawer-weights-header"
+          data-cy="okr-criteria-drawer-weights-header"
+        >
+          <span
+            className="flex-1 h-12"
+            id="okr-criteria-drawer-weights-header-name"
+            data-cy="okr-criteria-drawer-weights-header-name"
+          >
+            Criteria Name
+          </span>
+          <span
+            className="flex-1 h-12"
+            id="okr-criteria-drawer-weights-header-value"
+            data-cy="okr-criteria-drawer-weights-header-value"
+          >
+            Weight
+          </span>
         </div>
 
         {selectedCriteria.map((criteria) => (
-          <div key={criteria.vpCriteriaId} className="flex items-center gap-4">
-            <Form.Item className="flex-1">
-              <Input value={criteria.name} disabled className="flex-1 h-12" />
+          <div
+            key={criteria.vpCriteriaId}
+            className="flex items-center gap-4"
+            id={`okr-criteria-drawer-weight-row-${criteria.vpCriteriaId}`}
+            data-cy={`okr-criteria-drawer-weight-row-${criteria.vpCriteriaId}`}
+          >
+            <Form.Item
+              className="flex-1"
+              id={`okr-criteria-drawer-weight-name-field-${criteria.vpCriteriaId}`}
+              data-cy={`okr-criteria-drawer-weight-name-field-${criteria.vpCriteriaId}`}
+            >
+              <Input
+                value={criteria.name}
+                disabled
+                className="flex-1 h-12"
+                id={`okr-criteria-drawer-weight-name-input-${criteria.vpCriteriaId}`}
+                data-cy={`okr-criteria-drawer-weight-name-input-${criteria.vpCriteriaId}`}
+              />
             </Form.Item>
             <Form.Item
               className="flex-1"
               name={`${criteria.vpCriteriaId}_weight`}
               initialValue={weights[criteria.vpCriteriaId] || ''}
+              id={`okr-criteria-drawer-weight-value-field-${criteria.vpCriteriaId}`}
+              data-cy={`okr-criteria-drawer-weight-value-field-${criteria.vpCriteriaId}`}
             >
               <Input
                 type="number"
@@ -444,6 +579,8 @@ const ScoringDrawer: React.FC = () => {
                   };
                   setWeights(updatedWeights);
                 }}
+                id={`okr-criteria-drawer-weight-value-input-${criteria.vpCriteriaId}`}
+                data-cy={`okr-criteria-drawer-weight-value-input-${criteria.vpCriteriaId}`}
               />
             </Form.Item>
           </div>

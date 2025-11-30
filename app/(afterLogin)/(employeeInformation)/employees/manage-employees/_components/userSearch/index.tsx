@@ -82,10 +82,19 @@ const EmployeeSearch: React.FC = () => {
     : 'notNull';
 
   const Filters = (
-    <div className="space-y-4">
-      <div className="space-y-4">
+    <div
+      className="space-y-4"
+      id="employee-search-filters"
+      data-cy="employee-search-filters"
+    >
+      <div
+        className="space-y-4"
+        id="employee-search-filters-content"
+        data-cy="employee-search-filters-content"
+      >
         <Select
           id={`selectBranches${searchParams.allOffices}`}
+          data-cy={`selectBranches${searchParams.allOffices}`}
           placeholder="Office"
           value={searchParams.allOffices || undefined}
           onChange={handleBranchChange}
@@ -99,7 +108,11 @@ const EmployeeSearch: React.FC = () => {
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeBranches?.items?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-branch-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -107,6 +120,7 @@ const EmployeeSearch: React.FC = () => {
 
         <Select
           id={`selectDepartment${searchParams.allJobs}`}
+          data-cy={`selectDepartment${searchParams.allJobs}`}
           placeholder="Department"
           value={searchParams.allJobs || undefined}
           onChange={handleDepartmentChange}
@@ -120,7 +134,11 @@ const EmployeeSearch: React.FC = () => {
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmployeeDepartment?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-department-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -128,19 +146,36 @@ const EmployeeSearch: React.FC = () => {
 
         <Select
           id={`selectGender${searchParams.gender}`}
+          data-cy={`selectGender${searchParams.gender}`}
           placeholder="Gender"
           value={searchParams.gender || undefined}
           onChange={handleGenderChange}
           allowClear
           className="w-full h-12 rounded-lg border-gray-200"
         >
-          <Option value="male">Male</Option>
-          <Option value="female">Female</Option>
-          <Option value="other">Other</Option>
+          <Option
+            value="male"
+            data-cy="employee-search-select-gender-option-male"
+          >
+            Male
+          </Option>
+          <Option
+            value="female"
+            data-cy="employee-search-select-gender-option-female"
+          >
+            Female
+          </Option>
+          <Option
+            value="other"
+            data-cy="employee-search-select-gender-option-other"
+          >
+            Other
+          </Option>
         </Select>
 
         <Select
           id={`selectEmploymentType${searchParams.employmentType}`}
+          data-cy={`selectEmploymentType${searchParams.employmentType}`}
           placeholder="Employment Type"
           value={searchParams.employmentType || undefined}
           onChange={handleEmploymentTypeChange}
@@ -154,7 +189,11 @@ const EmployeeSearch: React.FC = () => {
           className="w-full h-12 rounded-lg border-gray-200"
         >
           {EmploymentTypes?.items?.map((item: any) => (
-            <Option key={item?.id} value={item?.id}>
+            <Option
+              key={item?.id}
+              value={item?.id}
+              data-cy={`employee-search-select-employment-type-option-${item?.id}`}
+            >
               {item?.name}
             </Option>
           ))}
@@ -162,18 +201,30 @@ const EmployeeSearch: React.FC = () => {
 
         <Select
           id={`selectStatus${searchParams.allStatus}`}
+          data-cy={`selectStatus${searchParams.allStatus}`}
           placeholder="Status"
           value={searchParams.allStatus || undefined}
           onChange={handleStatusChange}
           allowClear
           className="w-full h-12 rounded-lg border-gray-200"
         >
-          <Option value={activeStatusValue}>Active</Option>
-          <Option value={inactiveStatusValue}>Inactive</Option>
+          <Option
+            value={activeStatusValue}
+            data-cy={`employee-search-select-status-option-active`}
+          >
+            Active
+          </Option>
+          <Option
+            value={inactiveStatusValue}
+            data-cy={`employee-search-select-status-option-inactive`}
+          >
+            Inactive
+          </Option>
         </Select>
 
         <DatePicker
           id={`datePickerJoinedDate${searchParams.joinedDate}`}
+          data-cy={`datePickerJoinedDate${searchParams.joinedDate}`}
           placeholder="Joined Date"
           value={
             searchParams.joinedDate ? dayjs(searchParams.joinedDate) : undefined
@@ -189,6 +240,8 @@ const EmployeeSearch: React.FC = () => {
               viewBox="0 0 16 16"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              id="employee-search-date-picker-suffix-icon"
+              data-cy="employee-search-date-picker-suffix-icon"
             >
               <rect
                 x="2"
@@ -198,35 +251,71 @@ const EmployeeSearch: React.FC = () => {
                 rx="1"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                id="employee-search-date-picker-suffix-icon-rect"
+                data-cy="employee-search-date-picker-suffix-icon-rect"
               />
               <path
                 d="M5 1v4M11 1v4"
                 stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
+                id="employee-search-date-picker-suffix-icon-path"
+                data-cy="employee-search-date-picker-suffix-icon-path"
               />
-              <path d="M2 6h12" stroke="currentColor" strokeWidth="1.5" />
+              <path
+                d="M2 6h12"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                id="employee-search-date-picker-suffix-icon-path-2"
+                data-cy="employee-search-date-picker-suffix-icon-path-2"
+              />
               <text
                 x="8"
                 y="10"
                 textAnchor="middle"
                 fontSize="6"
                 fill="currentColor"
+                id="employee-search-date-picker-suffix-icon-text"
+                data-cy="employee-search-date-picker-suffix-icon-text"
               >
                 1
               </text>
             </svg>
           }
           renderExtraFooter={() => (
-            <div className="flex items-center justify-between w-full px-2">
-              <span className="font-semibold text-sm">Set Date</span>
+            <div
+              className="flex items-center justify-between w-full px-2"
+              id="employee-search-date-footer"
+              data-cy="employee-search-date-footer"
+            >
+              <span
+                className="font-semibold text-sm"
+                id="employee-search-date-label"
+                data-cy="employee-search-date-label"
+              >
+                Set Date
+              </span>
               <Radio.Group
                 value={searchParams.joinedDateType || 'after'}
                 onChange={(e) => setJoinedDateType(e.target.value)}
                 size="small"
+                id="employee-search-date-type-group"
+                data-cy="employee-search-date-type-group"
               >
-                <Radio value="before">Before</Radio>
-                <Radio value="after">After</Radio>
+                <Radio
+                  value="before"
+                  id="employee-search-date-before"
+                  data-cy="employee-search-date-before"
+                >
+                  Before
+                </Radio>
+                <Radio
+                  value="after"
+                  id="employee-search-date-after"
+                  data-cy="employee-search-date-after"
+                >
+                  After
+                </Radio>
               </Radio.Group>
             </div>
           )}
@@ -236,29 +325,41 @@ const EmployeeSearch: React.FC = () => {
   );
   return (
     <Modal
-      centered
       title="Filter"
       open={isMobileFilterVisible}
       onCancel={() => setIsMobileFilterVisible(false)}
+      data-cy="employee-search-modal"
       footer={
-        <div className="flex justify-center space-x-4 ">
+        <div
+          className="flex justify-center space-x-4 "
+          id="employee-search-modal-footer"
+          data-cy="employee-search-modal-footer"
+        >
           <Button
             type="default"
             onClick={() => setIsMobileFilterVisible(false)}
             className="px-8 py-1 rounded-lg "
+            id="employee-search-modal-cancel-btn"
+            data-cy="employee-search-modal-cancel-btn"
           >
             Cancel
           </Button>
           <Button
             className="bg-primary text-white px-10 py-1 rounded-lg border-none"
             onClick={() => setIsMobileFilterVisible(false)}
+            id="employee-search-modal-filter-btn"
+            data-cy="employee-search-modal-filter-btn"
           >
             Filter
           </Button>
         </div>
       }
-      className="max-w-md"
-      width={400}
+      className="!top-20 w-full sm:max-w-md"
+      width="100%"
+      style={{ top: '80px' }}
+      styles={{
+        body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' },
+      }}
     >
       {Filters}
     </Modal>

@@ -48,6 +48,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         key: 'tax-rule',
         icon: !isMobile ? (
           <HiOutlineReceiptTax
+            data-cy="payroll-settings-tax-rule-icon-view-icon"
             className={
               currentItem === 'tax-rule' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
@@ -55,6 +56,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         ) : null,
         label: (
           <p
+            data-cy="payroll-settings-tax-rule-label-view-text"
             className={`font-bold text-sm ${isMobile ? (currentItem === 'tax-rule' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
           >
             Tax Rule
@@ -69,6 +71,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         key: 'pension',
         icon: !isMobile ? (
           <GiSuspensionBridge
+            data-cy="payroll-settings-pension-icon-view-icon"
             className={
               currentItem === 'pension' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
@@ -76,6 +79,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         ) : null,
         label: (
           <p
+            data-cy="payroll-settings-pension-label-view-text"
             className={`font-bold text-sm ${isMobile ? (currentItem === 'pension' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
           >
             Pension
@@ -91,6 +95,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         key: 'pay-period',
         icon: !isMobile ? (
           <MdOutlinePayments
+            data-cy="payroll-settings-pay-period-icon-view-icon"
             className={
               currentItem === 'pay-period' ? 'text-[#4DAEF0]' : 'text-gray-500'
             }
@@ -98,6 +103,7 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
         ) : null,
         label: (
           <p
+            data-cy="payroll-settings-pay-period-label-view-text"
             className={`font-bold text-sm ${isMobile ? (currentItem === 'pay-period' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
           >
             Pay Period
@@ -137,15 +143,45 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
   // };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-3">
-      <div className="w-full h-auto">
-        <PageHeader
-          title="Settings"
-          description="Payroll Settings"
-        ></PageHeader>
-        <div className="flex  flex-col lg:flex-row gap-6 mt-3">
-          <SidebarMenu menuItems={menuItems} />
-          <div className="w-full  rounded-2xl overflow-x-auto bg-[#fafafa]">
+    <div
+      id="payroll-settings-page-view-container"
+      data-cy="payroll-settings-page-view-container"
+      className="min-h-screen bg-[#fafafa] p-3"
+    >
+      <div
+        id="payroll-settings-page-content-view-container"
+        data-cy="payroll-settings-page-content-view-container"
+        className="w-full h-auto"
+      >
+        <div
+          id="payroll-settings-page-header-view-container"
+          data-cy="payroll-settings-page-header-view-container"
+        >
+          <PageHeader
+            data-cy="payroll-settings-page-header-title-view-text"
+            title="Settings"
+            description="Payroll Settings"
+          />
+        </div>
+        <div
+          id="payroll-settings-layout-view-container"
+          data-cy="payroll-settings-layout-view-container"
+          className="flex  flex-col lg:flex-row gap-6 mt-3"
+        >
+          <div
+            id="payroll-settings-sidebar-view-container"
+            data-cy="payroll-settings-sidebar-view-container"
+          >
+            <SidebarMenu
+              data-cy="payroll-settings-sidebar-menu-view-container"
+              menuItems={menuItems}
+            />
+          </div>
+          <div
+            id="payroll-settings-content-view-container"
+            data-cy="payroll-settings-content-view-container"
+            className="w-full  rounded-2xl overflow-x-auto bg-[#fafafa]"
+          >
             {children}
           </div>
         </div>

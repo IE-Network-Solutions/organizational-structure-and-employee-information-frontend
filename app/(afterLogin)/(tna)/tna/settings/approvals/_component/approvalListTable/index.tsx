@@ -53,6 +53,7 @@ const ApprovalListTable = () => {
       pageSize,
       userCurrentPage,
       searchParams?.entityType ? searchParams.entityType : '',
+      searchParams?.entityId ? searchParams.entityId : '',
       searchParams?.name || '',
       APPROVALTYPES.TNA,
     );
@@ -209,7 +210,7 @@ const ApprovalListTable = () => {
                   );
                 }}
               >
-                <FaPencil />
+                <FaPencil size={16} />
               </Button>
             </Tooltip>
           </AccessGuard>

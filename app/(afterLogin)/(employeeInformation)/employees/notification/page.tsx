@@ -12,6 +12,12 @@ import { useUpdateNotificationStatus } from '@/store/server/features/notificatio
 import { CgCloseO } from 'react-icons/cg';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const Notifications = () => {
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const userId = useAuthenticationStore.getState().userId;
@@ -56,110 +62,243 @@ const Notifications = () => {
       return 'Just now';
     }
   };
+  const pageSlug = toSlug(userId ?? 'notification-page');
+  const getNotificationSlug = (id?: string | null) =>
+    toSlug(id ?? 'notification');
+
   return (
-    <div className="h-auto w-full p-4">
-      <div className="flex flex-wrap justify-between items-center">
-        <CustomBreadcrumb title="Notification" subtitle="" />
+    <div
+      className="h-auto w-full p-4"
+      id={`notification-page-${pageSlug}`}
+      data-cy={`notification-page-${pageSlug}`}
+    >
+      <div
+        className="flex flex-wrap justify-between items-center"
+        id={`notification-header-${pageSlug}`}
+        data-cy={`notification-header-${pageSlug}`}
+      >
+        <CustomBreadcrumb
+          title="Notification"
+          subtitle=""
+          data-cy={`notification-breadcrumb-${pageSlug}`}
+        />
       </div>
-      <Divider orientation="left" orientationMargin="20">
-        <CustomBreadcrumb subtitle="" title="Latest Notifications" />
+      <Divider
+        orientation="left"
+        orientationMargin="20"
+        data-cy={`notification-latest-divider-${pageSlug}`}
+      >
+        <CustomBreadcrumb
+          subtitle=""
+          title="Latest Notifications"
+          data-cy={`notification-latest-breadcrumb-${pageSlug}`}
+        />
       </Divider>
       {isLoading ? (
-        <Spin tip="Loading" size="large" />
+        <Spin
+          tip="Loading"
+          size="large"
+          data-cy={`notification-latest-spinner-${pageSlug}`}
+        />
       ) : unReadNotification?.length > 0 ? (
-        <div className="w-full h-auto">
+        <div
+          className="w-full h-auto"
+          id={`notification-unread-wrapper-${pageSlug}`}
+          data-cy={`notification-unread-wrapper-${pageSlug}`}
+        >
           <List
             className="demo-loadmore-list"
             loading={isLoading}
             itemLayout="horizontal"
             dataSource={unReadNotification}
-            renderItem={(item: NotificationType) => (
-              <List.Item
-                key={item?.id}
-                actions={[
-                  <Tooltip key={item?.id} title="Mark as read">
-                    <CgCloseO
-                      className="text-3xl"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updateNotification(item?.id);
-                      }}
-                    />
-                  </Tooltip>,
-                ]}
-                onClick={() => {
-                  handleShowNotificationDetails(item?.id);
-                  updateNotification(item?.id);
-                }}
-                className="cursor-pointer"
-              >
-                <Skeleton avatar title={false} loading={isLoading} active>
-                  <List.Item.Meta
-                    avatar={<Avatar icon={<AiFillNotification />} />}
-                    title={<div className="text-sm">{item?.title}</div>}
-                    description={
-                      <div>
-                        <div>{formatDateDifference(item?.updatedAt)}</div>
-                        <div>
-                          {item?.body?.length > 20
-                            ? `${item.body.slice(0, 20)}...`
-                            : item?.body}
+            id={`notification-unread-list-${pageSlug}`}
+            data-cy={`notification-unread-list-${pageSlug}`}
+            renderItem={(item: NotificationType) => {
+              const itemSlug = getNotificationSlug(item?.id);
+              return (
+                <List.Item
+                  key={item?.id}
+                  actions={[
+                    <Tooltip
+                      key={item?.id}
+                      title="Mark as read"
+                      id={`notification-unread-tooltip-${itemSlug}`}
+                      data-cy={`notification-unread-tooltip-${itemSlug}`}
+                    >
+                      <CgCloseO
+                        className="text-3xl"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateNotification(item?.id);
+                        }}
+                        id={`notification-unread-close-icon-${itemSlug}`}
+                        data-cy={`notification-unread-close-icon-${itemSlug}`}
+                      />
+                    </Tooltip>,
+                  ]}
+                  onClick={() => {
+                    handleShowNotificationDetails(item?.id);
+                    updateNotification(item?.id);
+                  }}
+                  className="cursor-pointer"
+                  id={`notification-unread-item-${itemSlug}`}
+                  data-cy={`notification-unread-item-${itemSlug}`}
+                >
+                  <Skeleton
+                    avatar
+                    title={false}
+                    loading={isLoading}
+                    active
+                    data-cy={`notification-unread-skeleton-${itemSlug}`}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          icon={<AiFillNotification />}
+                          data-cy={`notification-unread-avatar-${itemSlug}`}
+                        />
+                      }
+                      title={
+                        <div
+                          className="text-sm"
+                          id={`notification-unread-title-${itemSlug}`}
+                          data-cy={`notification-unread-title-${itemSlug}`}
+                        >
+                          {item?.title}
                         </div>
-                      </div>
-                    }
-                  />
-                </Skeleton>
-              </List.Item>
-            )}
+                      }
+                      description={
+                        <div
+                          id={`notification-unread-description-${itemSlug}`}
+                          data-cy={`notification-unread-description-${itemSlug}`}
+                        >
+                          <div
+                            id={`notification-unread-date-${itemSlug}`}
+                            data-cy={`notification-unread-date-${itemSlug}`}
+                          >
+                            {formatDateDifference(item?.updatedAt)}
+                          </div>
+                          <div
+                            id={`notification-unread-body-${itemSlug}`}
+                            data-cy={`notification-unread-body-${itemSlug}`}
+                          >
+                            {item?.body?.length > 20
+                              ? `${item.body.slice(0, 20)}...`
+                              : item?.body}
+                          </div>
+                        </div>
+                      }
+                    />
+                  </Skeleton>
+                </List.Item>
+              );
+            }}
           />
         </div>
       ) : (
-        <EmptyImage />
+        <EmptyImage data-cy={`notification-unread-empty-${pageSlug}`} />
       )}
-      <Divider orientation="left" orientationMargin="20">
-        <CustomBreadcrumb subtitle="" title="Previous Notifications" />
+      <Divider
+        orientation="left"
+        orientationMargin="20"
+        data-cy={`notification-previous-divider-${pageSlug}`}
+      >
+        <CustomBreadcrumb
+          subtitle=""
+          title="Previous Notifications"
+          data-cy={`notification-previous-breadcrumb-${pageSlug}`}
+        />
       </Divider>
       {isLoading ? (
-        <Spin tip="Loading" size="large" />
+        <Spin
+          tip="Loading"
+          size="large"
+          data-cy={`notification-previous-spinner-${pageSlug}`}
+        />
       ) : readNotification?.length > 0 ? (
-        <div className="w-full h-auto">
+        <div
+          className="w-full h-auto"
+          id={`notification-read-wrapper-${pageSlug}`}
+          data-cy={`notification-read-wrapper-${pageSlug}`}
+        >
           <List
             className="demo-loadmore-list"
             loading={isLoading}
             itemLayout="horizontal"
             dataSource={readNotification}
-            renderItem={(item: NotificationType) => (
-              <List.Item
-                onClick={() => {
-                  handleShowNotificationDetails(item?.id);
-                }}
-                className="cursor-pointer"
-              >
-                <Skeleton avatar title={false} loading={isLoading} active>
-                  <List.Item.Meta
-                    avatar={<Avatar icon={<AiFillNotification />} />}
-                    title={<div className="text-sm">{item?.title}</div>}
-                    description={
-                      <div>
-                        <div>{formatDateDifference(item?.updatedAt)}</div>
-                        <div>
-                          {item?.body?.length > 20
-                            ? `${item.body.slice(0, 20)}...`
-                            : item?.body}
+            id={`notification-read-list-${pageSlug}`}
+            data-cy={`notification-read-list-${pageSlug}`}
+            renderItem={(item: NotificationType) => {
+              const itemSlug = getNotificationSlug(item?.id);
+              return (
+                <List.Item
+                  onClick={() => {
+                    handleShowNotificationDetails(item?.id);
+                  }}
+                  className="cursor-pointer"
+                  id={`notification-read-item-${itemSlug}`}
+                  data-cy={`notification-read-item-${itemSlug}`}
+                >
+                  <Skeleton
+                    avatar
+                    title={false}
+                    loading={isLoading}
+                    active
+                    data-cy={`notification-read-skeleton-${itemSlug}`}
+                  >
+                    <List.Item.Meta
+                      data-cy={`notification-read-list-item-${itemSlug}`}
+                      avatar={
+                        <Avatar
+                          icon={<AiFillNotification />}
+                          data-cy={`notification-read-avatar-${itemSlug}`}
+                        />
+                      }
+                      title={
+                        <div
+                          className="text-sm"
+                          id={`notification-read-title-${itemSlug}`}
+                          data-cy={`notification-read-title-${itemSlug}`}
+                        >
+                          {item?.title}
                         </div>
-                      </div>
-                    }
-                  />
-                </Skeleton>
-              </List.Item>
-            )}
+                      }
+                      description={
+                        <div
+                          id={`notification-read-description-${itemSlug}`}
+                          data-cy={`notification-read-description-${itemSlug}`}
+                        >
+                          <div
+                            id={`notification-read-date-${itemSlug}`}
+                            data-cy={`notification-read-date-${itemSlug}`}
+                          >
+                            {formatDateDifference(item?.updatedAt)}
+                          </div>
+                          <div
+                            id={`notification-read-body-${itemSlug}`}
+                            data-cy={`notification-read-body-${itemSlug}`}
+                          >
+                            {item?.body?.length > 20
+                              ? `${item.body.slice(0, 20)}...`
+                              : item?.body}
+                          </div>
+                        </div>
+                      }
+                    />
+                  </Skeleton>
+                </List.Item>
+              );
+            }}
           />
         </div>
       ) : (
-        <EmptyImage />
+        <EmptyImage data-cy={`notification-read-empty-${pageSlug}`} />
       )}
       {selectedNotificationId && (
-        <NotificationDetailVisible id={selectedNotificationId} />
+        <NotificationDetailVisible
+          id={selectedNotificationId}
+          data-cy={`notification-detail-modal-${pageSlug}`}
+        />
       )}
     </div>
   );

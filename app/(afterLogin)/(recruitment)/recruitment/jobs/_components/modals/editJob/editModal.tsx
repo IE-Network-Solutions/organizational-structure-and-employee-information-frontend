@@ -84,6 +84,7 @@ const EditJob: React.FC = () => {
   return (
     isEditModalVisible && (
       <CustomDrawerLayout
+        data-cy="talent-acquisition-edit-job-drawer"
         open={isEditModalVisible}
         onClose={handleEditModalClose}
         modalHeader={
@@ -95,12 +96,16 @@ const EditJob: React.FC = () => {
           <Form.Item>
             <div className="flex justify-center absolute w-full space-x-5 pb-2 bg-white ">
               <Button
+                id="talent-acquisition-edit-job-button-cancel"
+                data-cy="talent-acquisition-edit-job-button-cancel"
                 onClick={handleEditModalClose}
                 className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
               >
                 Cancel
               </Button>
               <Button
+                id="talent-acquisition-edit-job-button-update"
+                data-cy="talent-acquisition-edit-job-button-update"
                 onClick={() => form.submit()}
                 className="flex justify-center border-none text-sm font-medium text-white bg-primary p-4 px-10 h-10"
               >
@@ -112,6 +117,8 @@ const EditJob: React.FC = () => {
         width="600px"
       >
         <Form
+          id="talent-acquisition-edit-job-form"
+          data-cy="talent-acquisition-edit-job-form"
           requiredMark={false}
           form={form}
           onFinish={handleUpdateJob}
@@ -133,6 +140,8 @@ const EditJob: React.FC = () => {
             ]}
           >
             <Input
+              id="talent-acquisition-edit-job-input-job-title"
+              data-cy="talent-acquisition-edit-job-input-job-title"
               size="large"
               placeholder="Job title"
               className="text-sm w-full  h-10"
@@ -155,12 +164,18 @@ const EditJob: React.FC = () => {
           >
             <Select
               id="employmentType"
+              data-cy="talent-acquisition-edit-job-select-employment-type"
               placeholder="Employment type"
               className="text-sm w-full h-10"
             >
               {EmploymentType &&
                 Object.values(EmploymentType).map((type) => (
-                  <Option key={type} value={type}>
+                  <Option
+                    key={type}
+                    value={type}
+                    id={`talent-acquisition-edit-job-option-employment-type-${type}`}
+                    data-cy={`talent-acquisition-edit-job-option-employment-type-${type}`}
+                  >
                     {type}
                   </Option>
                 ))}
@@ -182,6 +197,7 @@ const EditJob: React.FC = () => {
           >
             <Select
               id="department"
+              data-cy="talent-acquisition-edit-job-select-department"
               placeholder="Department"
               className="text-sm w-full h-10"
             >
@@ -192,7 +208,12 @@ const EditJob: React.FC = () => {
               )}
               {departments &&
                 departments.map((dep: any) => (
-                  <Option key={dep?.id} value={dep?.id}>
+                  <Option
+                    key={dep?.id}
+                    value={dep?.id}
+                    id={`talent-acquisition-edit-job-option-department-${dep?.id}`}
+                    data-cy={`talent-acquisition-edit-job-option-department-${dep?.id}`}
+                  >
                     {dep?.name}
                   </Option>
                 ))}
@@ -212,9 +233,19 @@ const EditJob: React.FC = () => {
               },
             ]}
           >
-            <Select placeholder="Location" className="text-sm w-full h-10">
+            <Select
+              id="talent-acquisition-edit-job-select-location"
+              data-cy="talent-acquisition-edit-job-select-location"
+              placeholder="Location"
+              className="text-sm w-full h-10"
+            >
               {Object.values(LocationType).map((type) => (
-                <Select.Option key={type} value={type}>
+                <Select.Option
+                  key={type}
+                  value={type}
+                  id={`talent-acquisition-edit-job-option-location-${type}`}
+                  data-cy={`talent-acquisition-edit-job-option-location-${type}`}
+                >
                   {type}
                 </Select.Option>
               ))}
@@ -238,6 +269,7 @@ const EditJob: React.FC = () => {
           >
             <InputNumber
               id="yearOfExperience"
+              data-cy="talent-acquisition-edit-job-input-year-experience"
               size="large"
               placeholder="0"
               className="text-sm w-full h-10"
@@ -260,11 +292,24 @@ const EditJob: React.FC = () => {
           >
             <Select
               id="jobStatus"
+              data-cy="talent-acquisition-edit-job-select-job-status"
               placeholder="Job status"
               className="text-sm w-full h-10"
             >
-              <Option value="Open">Open</Option>
-              <Option value="Closed">Closed</Option>
+              <Option
+                value="Open"
+                id="talent-acquisition-edit-job-option-status-open"
+                data-cy="talent-acquisition-edit-job-option-status-open"
+              >
+                Open
+              </Option>
+              <Option
+                value="Closed"
+                id="talent-acquisition-edit-job-option-status-closed"
+                data-cy="talent-acquisition-edit-job-option-status-closed"
+              >
+                Closed
+              </Option>
             </Select>
           </Form.Item>
           <Form.Item
@@ -283,6 +328,7 @@ const EditJob: React.FC = () => {
           >
             <Select
               id="compensation"
+              data-cy="talent-acquisition-edit-job-select-compensation"
               placeholder="Compensation"
               className="text-sm w-full h-10"
             >
@@ -290,6 +336,7 @@ const EditJob: React.FC = () => {
                 Object.values(EmploymentType).map((type, index) => (
                   <Option
                     id={`compensationOption-${index}`}
+                    data-cy={`talent-acquisition-edit-job-option-compensation-${index}`}
                     key={type}
                     value={type}
                   >
@@ -315,6 +362,7 @@ const EditJob: React.FC = () => {
           >
             <InputNumber
               id="quantity"
+              data-cy="talent-acquisition-edit-job-input-quantity"
               size="large"
               placeholder="0"
               className="text-sm w-full h-10"
@@ -347,7 +395,11 @@ const EditJob: React.FC = () => {
               },
             ]}
           >
-            <DatePicker id="jobDeadline" className="text-sm w-full h-10" />
+            <DatePicker
+              id="jobDeadline"
+              data-cy="talent-acquisition-edit-job-date-picker-deadline"
+              className="text-sm w-full h-10"
+            />
           </Form.Item>
 
           <Form.Item

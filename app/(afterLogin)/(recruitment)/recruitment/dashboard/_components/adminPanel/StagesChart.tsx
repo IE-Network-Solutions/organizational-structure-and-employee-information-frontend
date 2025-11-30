@@ -61,11 +61,28 @@ const ChartFilter = () => {
   }));
 
   return (
-    <div className="flex  items-center mb-4 gap-4">
-      <h3 className="font-semibold text-[16px]">Stages</h3>
+    <div
+      id="talent-acquisition-stages-chart-div-filter"
+      data-cy="talent-acquisition-stages-chart-div-filter"
+      className="flex  items-center mb-4 gap-4"
+    >
+      <h3
+        id="talent-acquisition-stages-chart-h3"
+        data-cy="talent-acquisition-stages-chart-h3"
+        className="font-semibold text-[16px]"
+      >
+        Stages
+      </h3>
 
-      <Form.Item name="jobId" noStyle>
+      <Form.Item
+        name="jobId"
+        id="talent-acquisition-stages-chart-form-item-job"
+        data-cy="talent-acquisition-stages-chart-form-item-job"
+        noStyle
+      >
         <Select
+          id="talent-acquisition-stages-chart-select-job"
+          data-cy="talent-acquisition-stages-chart-select-job"
           placeholder="Job"
           allowClear
           showSearch
@@ -82,6 +99,8 @@ const ChartFilter = () => {
       </Form.Item>
       <Form.Item name="stageId" noStyle>
         <Select
+          id="talent-acquisition-stages-chart-select-stage"
+          data-cy="talent-acquisition-stages-chart-select-stage"
           placeholder="Stage"
           allowClear
           showSearch
@@ -134,24 +153,54 @@ export default function StagesChart() {
   };
 
   return (
-    <Card className="shadow-lg mx-1">
-      <Form form={form}>
-        <ChartFilter />
+    <Card
+      data-cy="talent-acquisition-stages-chart-card"
+      className="shadow-lg mx-1"
+    >
+      <Form
+        id="talent-acquisition-stages-chart-form"
+        data-cy="talent-acquisition-stages-chart-form"
+        form={form}
+      >
+        <ChartFilter data-cy="talent-acquisition-stages-chart-filter" />
       </Form>
-      <Spin spinning={isLoading} tip="Loading...">
+      <Spin
+        data-cy="talent-acquisition-stages-chart-spin"
+        spinning={isLoading}
+        tip="Loading..."
+      >
         {!isLoading && stagesData?.stageList?.length > 0 ? (
-          <div className="flex justify-center items-center">
+          <div
+            id="talent-acquisition-stages-chart-div-chart"
+            data-cy="talent-acquisition-stages-chart-div-chart"
+            className="flex justify-center items-center"
+          >
             <Pie data={chartData} options={options} width={280} height={250} />
-            <div className="flex flex-col gap-2 ml-16">
+            <div
+              id="talent-acquisition-stages-chart-div-legend"
+              data-cy="talent-acquisition-stages-chart-div-legend"
+              className="flex flex-col gap-2 ml-16"
+            >
               {chartData.labels.map((label: string, i: number) => (
-                <div key={i} className="flex items-center mb-1 gap-2">
+                <div
+                  id={`talent-acquisition-stages-chart-div-legend-item-${i}`}
+                  data-cy={`talent-acquisition-stages-chart-div-legend-item-${i}`}
+                  key={i}
+                  className="flex items-center mb-1 gap-2"
+                >
                   <div
+                    id={`talent-acquisition-stages-chart-div-legend-item-color-${i}`}
+                    data-cy={`talent-acquisition-stages-chart-div-legend-item-color-${i}`}
                     style={{
                       backgroundColor: chartData.datasets[0].backgroundColor[i],
                     }}
                     className="w-2 h-2 rounded-full mr-2"
                   />
-                  <span className="text-xs font-medium text-gray-500">
+                  <span
+                    id={`talent-acquisition-stages-chart-div-legend-item-label-${i}`}
+                    data-cy={`talent-acquisition-stages-chart-div-legend-item-label-${i}`}
+                    className="text-xs font-medium text-gray-500"
+                  >
                     {label}
                   </span>
                 </div>
@@ -159,8 +208,16 @@ export default function StagesChart() {
             </div>
           </div>
         ) : (
-          <div className="flex justify-center h-[250px] items-center">
-            <Typography.Text className="text-gray-500 text-[24px] font-normal">
+          <div
+            id="talent-acquisition-stages-chart-div-no-data"
+            data-cy="talent-acquisition-stages-chart-div-no-data"
+            className="flex justify-center h-[250px] items-center"
+          >
+            <Typography.Text
+              id="talent-acquisition-stages-chart-typography-text-no-data"
+              data-cy="talent-acquisition-stages-chart-typography-text-no-data"
+              className="text-gray-500 text-[24px] font-normal"
+            >
               No data found
             </Typography.Text>
           </div>

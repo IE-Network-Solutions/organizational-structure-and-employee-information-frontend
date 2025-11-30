@@ -6,6 +6,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { Select, Button, Form, Row, Input, Radio } from 'antd';
 import { RadioChangeEvent } from 'antd/lib';
 import { HierarchyList } from '@/store/server/features/approver/interface';
+import { useRouter } from 'next/navigation';
 
 interface Department {
   id: string;
@@ -30,6 +31,7 @@ const ApprovalWorkFlowSettingComponent = ({
   form: any;
   title?: string;
 }) => {
+  const router = useRouter();
   const HierarchyList: HierarchyList[] = [
     {
       id: '1',
@@ -107,9 +109,9 @@ const ApprovalWorkFlowSettingComponent = ({
     setSelections({ SectionItemType: updatedSelections });
   };
   return (
-    <div>
-      <div className="mb-10">
-        <div className="text-2xl font-bold ">
+    <div className="max-w-4xl mx-auto px-3 sm:px-6">
+      <div className="mb-8 sm:mb-10">
+        <div className="text-2xl font-bold text-center sm:text-left">
           {title
             ? title
             : approverType === 'Sequential'
@@ -122,19 +124,26 @@ const ApprovalWorkFlowSettingComponent = ({
           Approval Setting
         </div>
       </div>
-      <Form form={form} onFinish={handleSubmit} layout="vertical">
+      <Form
+        form={form}
+        onFinish={handleSubmit}
+        layout="vertical"
+        className="bg-white rounded-xl shadow-sm p-4 sm:p-6 space-y-6"
+      >
         <Form.Item
-          className="text-lg  font-bold mt-3 mb-1"
+          className="text-base sm:text-lg font-semibold"
           name="workFlownName"
           label="WorkFlow Name"
           rules={[{ required: true, message: 'Please enter a workFlow name!' }]}
         >
-          <Input className="w-full h-10" placeholder="Enter WorkFlow Name" />
+          <Input className="w-full h-11" placeholder="Enter WorkFlow Name" />
         </Form.Item>
-        <div className="font-medium mb-3 text-gray-500">WorkfLow Name </div>
+        <div className="font-medium text-gray-500 text-sm sm:text-base">
+          WorkfLow Name{' '}
+        </div>
 
         <Form.Item
-          className="text-lg font-bold mt-3 mb-1"
+          className="text-base sm:text-lg font-semibold"
           name="description"
           label="Description"
           rules={[{ required: true, message: 'Please enter a description!' }]}
@@ -143,7 +152,7 @@ const ApprovalWorkFlowSettingComponent = ({
         </Form.Item>
 
         <Form.Item
-          className="text-lg font-bold mt-3"
+          className="text-base sm:text-lg font-semibold"
           name="workflowAppliesType"
           label="Workflow Applies Type"
           rules={[
@@ -160,7 +169,7 @@ const ApprovalWorkFlowSettingComponent = ({
         </Form.Item>
 
         <Form.Item
-          className="text-lg font-bold"
+          className="text-base sm:text-lg font-semibold"
           name="workflowAppliesId"
           rules={[
             {
@@ -170,11 +179,10 @@ const ApprovalWorkFlowSettingComponent = ({
           ]}
         >
           <Select
-            className="w-full h-10 mb-1"
+            className="w-full h-11"
             allowClear
             showSearch
             optionFilterProp="label"
-            style={{ width: 120 }}
             placeholder={`Select ${workflowApplies ? workflowApplies : ''} `}
             onChange={handleWorkflowUserChange}
             options={(() => {
@@ -206,16 +214,17 @@ const ApprovalWorkFlowSettingComponent = ({
             })()}
           />
         </Form.Item>
-        <div className="font-medium mb-3 text-gray-500">
+        <div className="font-medium text-gray-500 text-sm sm:text-base">
           Select to which {workflowApplies} this workflow applies to.
         </div>
-        <div className="my-3">
-          <div className="text-lg font-bold ">Number Of Level</div>
+        <div className="my-3 space-y-3">
+          <div className="text-base sm:text-lg font-semibold">
+            Number Of Level
+          </div>
           <Select
             showSearch
             optionFilterProp="label"
-            className="w-full h-10 m-1"
-            style={{ width: 120 }}
+            className="w-full sm:w-1/2 h-11"
             onChange={handleLevelChange}
             defaultValue={1}
             placeholder="Select Levels"
@@ -231,7 +240,7 @@ const ApprovalWorkFlowSettingComponent = ({
             )}
           />
 
-          <div className="font-medium mb-3 text-gray-500">
+          <div className="font-medium text-gray-500 text-sm sm:text-base">
             Select Number of specific approval stage or level within the process
           </div>
         </div>
@@ -241,10 +250,13 @@ const ApprovalWorkFlowSettingComponent = ({
             _,
             index,
           ) => (
-            <div key={index} className="px-10 my-1">
-              <div>Level: {index + 1}</div>
+            <div
+              key={index}
+              className="px-3 sm:px-6 py-4 my-2 border border-gray-100 rounded-xl bg-gray-50"
+            >
+              <div className="font-semibold mb-2">Level: {index + 1}</div>
               <Form.Item
-                className="font-semibold text-xs"
+                className="font-semibold text-xs sm:text-sm"
                 name={`assignedUser_${index}`}
                 label={`Assign User `}
                 rules={[
@@ -268,12 +280,11 @@ const ApprovalWorkFlowSettingComponent = ({
                 ]}
               >
                 <Select
-                  className="w-full  my-3"
+                  className="w-full my-3 min-w-0"
                   allowClear
                   showSearch
                   optionFilterProp="label"
                   mode={approverType === 'Parallel' ? 'multiple' : undefined}
-                  style={{ width: 120 }}
                   onChange={(value) => handleUserChange(value as string, index)}
                   placeholder="Select User"
                   options={users?.items
@@ -294,8 +305,15 @@ const ApprovalWorkFlowSettingComponent = ({
         )}
 
         <Form.Item>
-          <Row className="flex justify-end gap-3">
-            <Button type="primary" htmlType="submit">
+          <Row className="flex flex-row justify-end gap-3 flex-nowrap">
+            <Button
+              className="min-w-[120px]"
+              htmlType="button"
+              onClick={() => router.back()}
+            >
+              Cancel
+            </Button>
+            <Button className="min-w-[120px]" type="primary" htmlType="submit">
               Submit
             </Button>
           </Row>

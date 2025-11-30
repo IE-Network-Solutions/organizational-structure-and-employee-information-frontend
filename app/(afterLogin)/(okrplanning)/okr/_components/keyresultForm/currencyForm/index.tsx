@@ -19,7 +19,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   const { data: metrics } = useGetMetrics();
 
   return (
-    <div className="relative bg-gray-50 rounded-xl border-none p-6 mb-4">
+    <div
+      id={`okr-currency-form-container-${index}`}
+      data-cy={`okr-currency-form-container-${index}`}
+      className="relative bg-gray-50 rounded-xl border-none p-6 mb-4"
+    >
       {/* Remove button */}
       <button
         onClick={() => removeKeyResult(index)}
@@ -28,6 +32,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         className="absolute top-2 right-0 mr-2 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white rounded-full w-6 h-6 flex items-center justify-center shadow"
         style={{ zIndex: 10 }}
         id={`remove-key-result-${index}`}
+        data-cy={`okr-currency-remove-key-result-${index}`}
       >
         <svg
           width="12"
@@ -45,6 +50,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         </svg>
       </button>
       <Form
+        id={`okr-currency-form-${index}`}
+        data-cy={`okr-currency-form-${index}`}
         form={form}
         initialValues={{
           ...keyItem,
@@ -57,6 +64,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
       >
         {/* Desktop Layout */}
         <div
+          id={`okr-currency-desktop-top-row-${index}`}
+          data-cy={`okr-currency-desktop-top-row-${index}`}
           className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-2 items-center mt-4 mx-4`}
         >
           <Form.Item
@@ -66,8 +75,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               { required: true, message: 'Please enter the Key Result name' },
             ]}
             id={`key-result-name-${index}`}
+            data-cy={`okr-currency-desktop-title-item-${index}`}
           >
             <Input
+              id={`okr-currency-desktop-title-input-${index}`}
+              data-cy={`okr-currency-desktop-title-input-${index}`}
               value={keyItem.title === '' ? undefined : keyItem.title}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
@@ -81,10 +93,12 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               { required: true, message: 'Please select a Key Result type' },
             ]}
             id={`key-result-select-${index}`}
+            data-cy={`okr-currency-desktop-type-item-${index}`}
           >
             <Select
               className="w-full h-10 rounded-lg text-base"
               popupClassName="text-base"
+              data-cy={`okr-currency-desktop-type-select-${index}`}
               onChange={(value) => {
                 const selectedMetric = metrics?.items?.find(
                   (metric) => metric.id === value,
@@ -100,11 +114,19 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 )?.id || ''
               }
             >
-              <Option value="" disabled>
+              <Option
+                data-cy={`okr-currency-desktop-type-option-${index}`}
+                value=""
+                disabled
+              >
                 Please select a metric type
               </Option>
               {metrics?.items?.map((metric) => (
-                <Option key={metric?.id} value={metric?.id}>
+                <Option
+                  data-cy={`okr-currency-desktop-type-option-${index}-${metric?.id}`}
+                  key={metric?.id}
+                  value={metric?.id}
+                >
                   {metric?.name}
                 </Option>
               ))}
@@ -115,9 +137,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             name={`weight_${index}`}
             rules={[{ required: true, message: 'Please enter the weight' }]}
             id={`weight-input-${index}`}
+            data-cy={`okr-currency-desktop-weight-item-${index}`}
           >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
+              data-cy={`okr-currency-desktop-weight-input-${index}`}
               min={0}
               max={100}
               suffix="%"
@@ -132,10 +156,12 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             name={`dead_line_${index}`}
             rules={[{ required: true, message: 'Please select a deadline' }]}
             id={`deadline-${index}`}
+            data-cy={`okr-currency-desktop-deadline-item-${index}`}
           >
             <DatePicker
               className="w-full h-10 rounded-lg text-base"
               popupClassName="text-base"
+              data-cy={`okr-currency-desktop-deadline-picker-${index}`}
               value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
               format="YYYY-MM-DD"
               disabledDate={(current) => {
@@ -159,6 +185,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         </div>
         {/* Desktop Currency input row */}
         <div
+          id={`okr-currency-desktop-values-row-${index}`}
+          data-cy={`okr-currency-desktop-values-row-${index}`}
           className={`${isMobile ? 'hidden' : 'flex'} flex-row gap-4 items-center mt-4 mx-4`}
         >
           <Form.Item
@@ -167,9 +195,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             rules={[
               { required: true, message: 'Please enter the initial value' },
             ]}
+            data-cy={`okr-currency-desktop-initial-item-${index}`}
           >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
+              data-cy={`okr-currency-desktop-initial-input-${index}`}
               min={0}
               placeholder="Initial Value"
               addonAfter={<span className="text-base">$</span>}
@@ -198,9 +228,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             rules={[
               { required: true, message: 'Please enter the target value' },
             ]}
+            data-cy={`okr-currency-desktop-target-item-${index}`}
           >
             <InputNumber
               className="w-full h-10 rounded-lg text-base"
+              data-cy={`okr-currency-desktop-target-input-${index}`}
               min={0}
               placeholder="Target Value"
               addonAfter={<span className="text-base">$</span>}
@@ -223,7 +255,15 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
           </Form.Item>
         </div>
         {/* Mobile Layout */}
-        <div className={`${isMobile ? 'block' : 'hidden'} space-y-4 mt-4 mx-4`}>
+        <div
+          id={`okr-currency-mobile-wrapper-${index}`}
+          data-cy={`okr-currency-mobile-wrapper-${index}`}
+          className={`${
+            isMobile
+              ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
+              : 'hidden'
+          }`}
+        >
           {/* Row 1: Key Result Name */}
           <Form.Item
             className="mb-0"
@@ -232,27 +272,36 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               { required: true, message: 'Please enter the Key Result name' },
             ]}
             id={`key-result-name-mobile-${index}`}
+            data-cy={`okr-currency-mobile-title-item-${index}`}
           >
             <Input
+              id={`okr-currency-mobile-title-input-${index}`}
+              data-cy={`okr-currency-mobile-title-input-${index}`}
               value={keyItem.title === '' ? undefined : keyItem.title}
               onChange={(e) => updateKeyResult(index, 'title', e.target.value)}
               placeholder="Key Result Name"
-              className="h-10 rounded-lg text-base"
+              className="h-10 sm:h-11 rounded-lg text-sm sm:text-base"
               aria-label="Key Result Name"
             />
           </Form.Item>
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex gap-2">
+          <div
+            id={`okr-currency-mobile-meta-row-${index}`}
+            data-cy={`okr-currency-mobile-meta-row-${index}`}
+            className="flex flex-row gap-2"
+          >
             <Form.Item
               className="w-48 mb-0"
               rules={[
                 { required: true, message: 'Please select a Key Result type' },
               ]}
               id={`key-result-select-mobile-${index}`}
+              data-cy={`okr-currency-mobile-type-item-${index}`}
             >
               <Select
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 popupClassName="text-base"
+                data-cy={`okr-currency-mobile-type-select-${index}`}
                 onChange={(value) => {
                   const selectedMetric = metrics?.items?.find(
                     (metric) => metric.id === value,
@@ -268,11 +317,19 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   )?.id || ''
                 }
               >
-                <Option value="" disabled>
+                <Option
+                  data-cy={`okr-currency-mobile-type-option-${index}`}
+                  value=""
+                  disabled
+                >
                   Please select a metric type
                 </Option>
                 {metrics?.items?.map((metric) => (
-                  <Option key={metric?.id} value={metric?.id}>
+                  <Option
+                    data-cy={`okr-currency-mobile-type-option-${index}-${metric?.id}`}
+                    key={metric?.id}
+                    value={metric?.id}
+                  >
                     {metric?.name}
                   </Option>
                 ))}
@@ -283,9 +340,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               name={`weight_${index}`}
               rules={[{ required: true, message: 'Please enter the weight' }]}
               id={`weight-input-mobile-${index}`}
+              data-cy={`okr-currency-mobile-weight-item-${index}`}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                data-cy={`okr-currency-mobile-weight-input-${index}`}
                 min={0}
                 max={100}
                 suffix="%"
@@ -300,10 +359,12 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               name={`dead_line_${index}`}
               rules={[{ required: true, message: 'Please select a deadline' }]}
               id={`deadline-mobile-${index}`}
+              data-cy={`okr-currency-mobile-deadline-item-${index}`}
             >
               <DatePicker
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
                 popupClassName="text-base"
+                data-cy={`okr-currency-mobile-deadline-picker-${index}`}
                 value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
                 format="YYYY-MM-DD"
                 disabledDate={(current) => {
@@ -326,16 +387,22 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             </Form.Item>
           </div>
           {/* Row 3: Initial Value and Target Value */}
-          <div className="flex gap-4 pl-4">
+          <div
+            id={`okr-currency-mobile-values-row-${index}`}
+            data-cy={`okr-currency-mobile-values-row-${index}`}
+            className="flex flex-col xs:flex-row gap-2 sm:pl-3"
+          >
             <Form.Item
               className="flex-1 mb-0"
               name="initialValue"
               rules={[
                 { required: true, message: 'Please enter the initial value' },
               ]}
+              data-cy={`okr-currency-mobile-initial-item-${index}`}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                data-cy={`okr-currency-mobile-initial-input-${index}`}
                 min={0}
                 placeholder="Initial Value"
                 addonAfter={<span className="text-base">$</span>}
@@ -364,9 +431,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               rules={[
                 { required: true, message: 'Please enter the target value' },
               ]}
+              data-cy={`okr-currency-mobile-target-item-${index}`}
             >
               <InputNumber
-                className="w-full h-10 rounded-lg text-base"
+                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                data-cy={`okr-currency-mobile-target-input-${index}`}
                 min={0}
                 placeholder="Target Value"
                 addonAfter={<span className="text-base">$</span>}

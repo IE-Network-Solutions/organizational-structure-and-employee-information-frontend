@@ -18,7 +18,10 @@ const AllRequest = () => {
     }
   };
   return (
-    <div>
+    <div
+      id="department-request-all-wrapper"
+      data-cy="department-request-all-wrapper"
+    >
       <Request
         data={data}
         isFetching={isFetching}
@@ -26,6 +29,7 @@ const AllRequest = () => {
         onPageChange={onPageChange}
         pageSize={pageSize}
         itMyRequest={false}
+        data-cy="department-request-all-table"
       />
     </div>
   );
