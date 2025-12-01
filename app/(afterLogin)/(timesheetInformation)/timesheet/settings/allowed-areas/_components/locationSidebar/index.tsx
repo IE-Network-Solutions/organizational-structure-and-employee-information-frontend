@@ -56,7 +56,7 @@ const LocationSidebar = () => {
       form.setFieldValue('latitude', item.latitude);
       form.setFieldValue('longitude', item.longitude);
       // Convert from meters to kilometers for UI display
-      form.setFieldValue('distance', Number(item.distance) / 1000);
+      form.setFieldValue('distance', Number(item.distance));
       form.setFieldValue('isGlobal', Boolean(item.isGlobal));
       form.setFieldValue(
         'allowedUserAccesses',
@@ -65,7 +65,7 @@ const LocationSidebar = () => {
       setFormValues({
         latitude: item.latitude,
         longitude: item.longitude,
-        distance: Number(item.distance) / 1000, // Convert to kilometers for UI
+        distance: Number(item.distance),
       });
       setShowUsers(!item.isGlobal);
     } else {
@@ -276,7 +276,6 @@ const LocationSidebar = () => {
                 <Form.Item data-cy="time-attendance-settings-allowed-areas-sidebar-distance-form-item" name="distance" hidden>
                   <Input />
                 </Form.Item>
-
                 <div
                   className="flex items-center gap-2 py-4"
                   id="time-attendance-settings-allowed-areas-sidebar-is-global-container"
@@ -289,12 +288,14 @@ const LocationSidebar = () => {
                   >
                     Is Global
                   </span>
+                <Form.Item data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-item" name="isGlobal" valuePropName="checked" noStyle>
                   <Switch
                     defaultChecked
                     onChange={(checked) => setShowUsers(!checked)}
                     id="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
                     data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
                   />
+                </Form.Item>
                 </div>
 
                 {showUsers && (

@@ -61,21 +61,25 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
     name: recognitionData?.[0]?.name,
     recognition_criteria: recognitionData?.[0]?.recognitionCriteria?.map(
       (criterion: RecognitionCriteria, index: string) => (
-        <Skeleton active loading={responseLoading} key={index}>
-          <div className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
-            <span
-              key={index}
-              className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
-            >
-              {criterion?.criteria?.criteriaName || '--'}
-            </span>{' '}
-          </div>
-        </Skeleton>
+            <Skeleton data-cy={`default-incentive-settings-table-criterion-skeleton-${index}`} active loading={responseLoading} key={index}>
+              <div id={`default-incentive-settings-table-criterion-wrapper-${index}`} data-cy={`default-incentive-settings-table-criterion-wrapper-${index}`} className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
+                <span
+                  id={`default-incentive-settings-table-criterion-${index}`}
+                  data-cy={`default-incentive-settings-table-criterion-${index}`}
+                  key={index}
+                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
+                >
+                  {criterion?.criteria?.criteriaName || '--'}
+                </span>{' '}
+              </div>
+            </Skeleton>
       ),
     ),
     action: (
-      <div className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
+      <div id="default-incentive-settings-table-action-wrapper" data-cy="default-incentive-settings-table-action-wrapper" className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
         <Pencil
+          id="default-incentive-settings-table-action-pencil"
+          data-cy="default-incentive-settings-table-action-pencil"
           size={15}
           className="text-white cursor-pointer"
           onClick={() =>
@@ -87,11 +91,13 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
   };
 
   return (
-    <div>
+    <div id="default-incentive-settings-table-container" data-cy="default-incentive-settings-table-container">
       {responseLoading ? (
-        <Skeleton active paragraph={{ rows: 3 }} />
+        <Skeleton data-cy="default-incentive-settings-table-skeleton" active paragraph={{ rows: 3 }} />
       ) : (
         <Table
+          id="default-incentive-settings-table"
+          data-cy="default-incentive-settings-table"
           columns={columns}
           dataSource={[incentiveTableData]}
           pagination={false}
