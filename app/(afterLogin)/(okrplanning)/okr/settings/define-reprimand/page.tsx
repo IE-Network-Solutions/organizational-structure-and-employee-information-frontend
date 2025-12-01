@@ -67,10 +67,7 @@ const DefineReprimand = () => {
         >
           Reprimand
         </h2>
-        <AccessGuard
-          data-cy="okr-define-reprimand-add-button-access-guard-display-guard"
-          permissions={[Permissions.CreateReprimandType]}
-        >
+        <AccessGuard data-cy="okr-define-reprimand-add-button-access-guard-display-guard" permissions={[Permissions.CreateReprimandType]}>
           <Button
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
@@ -105,16 +102,9 @@ const DefineReprimand = () => {
               id={`okr-define-reprimand-list-item-actions-${item?.id}`}
               data-cy={`okr-define-reprimand-list-item-actions-${item?.id}`}
             >
-              <AccessGuard
-                data-cy="okr-define-reprimand-table-edit-button-access-guard-display-guard"
-                permissions={[Permissions.UpdateReprimandType]}
-              >
+              <AccessGuard data-cy="okr-define-reprimand-table-edit-button-access-guard-display-guard" permissions={[Permissions.UpdateReprimandType]}>
                 <Button
-                  icon={
-                    <EditOutlined
-                      data-cy={`okr-define-reprimand-table-edit-button-icon-${item?.id}`}
-                    />
-                  }
+                  icon={<EditOutlined data-cy={`okr-define-reprimand-table-edit-button-icon-${item?.id}`} />}
                   className="mr-2 bg-blue text-white"
                   shape="circle"
                   onClick={() => handleEditModal(item)}
@@ -122,16 +112,9 @@ const DefineReprimand = () => {
                   data-cy={`okr-define-reprimand-edit-button-${item?.id}`}
                 />
               </AccessGuard>
-              <AccessGuard
-                data-cy="okr-define-reprimand-table-delete-button-access-guard-display-guard"
-                permissions={[Permissions.DeleteReprimandType]}
-              >
+              <AccessGuard data-cy="okr-define-reprimand-table-delete-button-access-guard-display-guard" permissions={[Permissions.DeleteReprimandType]}>
                 <Button
-                  icon={
-                    <DeleteOutlined
-                      data-cy={`okr-define-reprimand-table-delete-button-icon-${item?.id}`}
-                    />
-                  }
+                  icon={<DeleteOutlined data-cy={`okr-define-reprimand-table-delete-button-icon-${item?.id}`} />}
                   className="mr-2 bg-red-500 text-white"
                   shape="circle"
                   onClick={() => showDeleteModal(item?.id as string)}
@@ -152,7 +135,7 @@ const DefineReprimand = () => {
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleDeleteRepType(deletedId)}
-        onCancel={onCloseDeleteModal}
+        onCancel={onCloseDeleteModal}     
         data-cy="okr-define-reprimand-delete-modal"
       />
     </div>

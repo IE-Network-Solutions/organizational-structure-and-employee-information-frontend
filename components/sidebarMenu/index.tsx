@@ -28,10 +28,8 @@ const SidebarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
   useEffect(() => {
     const pathSegments = pathname.split('/').filter(Boolean);
     const lastKey = pathSegments[pathSegments.length - 1];
-    const fallbackItem = menuItems.findItem(lastKey);
-    const computedKey = (fallbackItem?.item as any)?.key || lastKey;
-    menuItems.currentItemKey = computedKey;
-    setCurrentItem(computedKey as string);
+    menuItems.currentItemKey = lastKey;
+    setCurrentItem(lastKey);
   }, [pathname, menuItems]);
 
   const onMenuClick = (e: any) => {

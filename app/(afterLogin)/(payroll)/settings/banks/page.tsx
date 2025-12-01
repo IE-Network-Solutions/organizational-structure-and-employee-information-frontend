@@ -79,10 +79,7 @@ const Banks = () => {
           data-cy={`payroll-bank-row-actions-view-space-${record.key}`}
           size="middle"
         >
-          <Tooltip
-            data-cy={`payroll-bank-edit-click-button-tooltip-${record.key}`}
-            title="Edit"
-          >
+          <Tooltip data-cy={`payroll-bank-edit-click-button-tooltip-${record.key}`} title="Edit">
             <Button
               id={`payroll-bank-edit-click-button-${record.key}`}
               data-cy={`payroll-bank-edit-click-button-${record.key}`}
@@ -105,11 +102,7 @@ const Banks = () => {
                 id={`payroll-bank-delete-click-button-${record.key}`}
                 data-cy={`payroll-bank-delete-click-button-${record.key}`}
                 className="bg-red-600 text-white border-none"
-                icon={
-                  <DeleteOutlined
-                    data-cy={`payroll-bank-delete-click-button-${record.key}`}
-                  />
-                }
+                icon={<DeleteOutlined data-cy={`payroll-bank-delete-click-button-${record.key}`} />}
               />
             </Tooltip>
           </Popconfirm>
@@ -167,7 +160,7 @@ const Banks = () => {
         pagination={false}
         bordered
       />
-      <Drawer data-cy="payroll-banks-drawer-view-component" />
+        <Drawer data-cy="payroll-banks-drawer-view-component" />
     </div>
   );
 };

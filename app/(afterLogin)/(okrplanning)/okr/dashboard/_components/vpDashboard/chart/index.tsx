@@ -172,10 +172,7 @@ const VPChart: React.FC<VPChartProps> = ({ id }) => {
                         id={`okr-vpchart-legend-label-display-span-${i}`}
                         data-cy={`okr-vpchart-legend-label-display-span-${i}`}
                       >
-                        <AntTooltip
-                          data-cy="okr-vpchart-legend-tooltip-display-tooltip"
-                          title={label}
-                        >
+                        <AntTooltip data-cy="okr-vpchart-legend-tooltip-display-tooltip" title={label}>
                           {label?.length > 20
                             ? label?.slice(0, 20) + '...'
                             : label}

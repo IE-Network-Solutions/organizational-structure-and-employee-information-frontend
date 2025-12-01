@@ -111,7 +111,10 @@ const OKRDonutChart: React.FC = () => {
             id="okr-donut-loading-wrapper-display-div"
             data-cy="okr-donut-loading-wrapper-display-div"
           >
-            <Spin data-cy="okr-donut-loading-spinner-display-spin" />
+            <Spin
+
+              data-cy="okr-donut-loading-spinner-display-spin"
+            />
           </div>
         ) : (
           <div

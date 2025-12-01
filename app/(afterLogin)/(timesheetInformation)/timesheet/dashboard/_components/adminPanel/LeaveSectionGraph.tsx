@@ -60,8 +60,10 @@ const LeaveSectionGraph: React.FC = () => {
         }),
       )
     : [];
+
   const labels = leaveTypeArray.map((i: any) => i.leaveType.split(' ')[0]);
   const dataSet = leaveTypeArray.map((i: any) => i.count);
+
   const lineChartData = {
     labels: labels,
     datasets: [

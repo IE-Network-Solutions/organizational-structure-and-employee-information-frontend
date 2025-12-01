@@ -61,7 +61,7 @@ export const EmployeeDetails = ({
         className="h-5 w-5"
         data-cy={`okr-criteria-drawer-employee-details-avatar-${empId}`}
       />
-      {userName}
+        {userName}
     </Space>
   );
 };
@@ -461,27 +461,13 @@ const ScoringDrawer: React.FC = () => {
           >
             {filteredUsers.length > 0
               ? filteredUsers.map((user: any) => (
-                  <Select.Option
-                    data-cy={`okr-criteria-drawer-users-option-${user.id}`}
-                    key={user.id}
-                    value={user.id}
-                  >
-                    <EmployeeDetails
-                      data-cy={`okr-criteria-drawer-users-option-employee-details-${user.id}`}
-                      empId={user.id}
-                    />
+                  <Select.Option data-cy={`okr-criteria-drawer-users-option-${user.id}`}  key={user.id} value={user.id}>
+                    <EmployeeDetails data-cy={`okr-criteria-drawer-users-option-employee-details-${user.id}`} empId={user.id} />
                   </Select.Option>
                 ))
               : form.getFieldValue('users')?.map((empId: string) => (
-                  <Select.Option
-                    data-cy={`okr-criteria-drawer-users-option-${empId}`}
-                    key={empId}
-                    value={empId}
-                  >
-                    <EmployeeDetails
-                      data-cy={`okr-criteria-drawer-users-option-employee-details-${empId}`}
-                      empId={empId}
-                    />
+                  <Select.Option data-cy={`okr-criteria-drawer-users-option-${empId}`}  key={empId} value={empId}>
+                    <EmployeeDetails data-cy={`okr-criteria-drawer-users-option-employee-details-${empId}`} empId={empId} />
                   </Select.Option>
                 ))}
           </Select>

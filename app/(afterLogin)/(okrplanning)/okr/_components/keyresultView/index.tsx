@@ -84,10 +84,7 @@ const KeyResultView: React.FC<OKRProps> = ({
   };
 
   return (
-    <div
-      id={`okr-key-result-view-container-${index}`}
-      data-cy={`okr-key-result-view-container-${index}`}
-    >
+    <div id={`okr-key-result-view-container-${index}`} data-cy={`okr-key-result-view-container-${index}`}>
       {renderView()}
     </div>
   );

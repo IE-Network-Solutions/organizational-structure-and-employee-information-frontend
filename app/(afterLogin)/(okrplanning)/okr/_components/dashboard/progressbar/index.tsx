@@ -61,6 +61,7 @@ const ProgressPercent: React.FC<PercentageProps> = ({
               {title}
             </div>
             <Progress
+             
               data-cy={`okr-progress-percent-indicator-${normalizedTitle}`}
               style={{ color: '#3636f0' }}
               strokeColor="#3636f0"
