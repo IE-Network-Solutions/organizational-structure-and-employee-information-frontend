@@ -56,7 +56,7 @@ const LocationSidebar = () => {
       form.setFieldValue('latitude', item.latitude);
       form.setFieldValue('longitude', item.longitude);
       // Convert from meters to kilometers for UI display
-      form.setFieldValue('distance', Number(item.distance) / 1000);
+      form.setFieldValue('distance', Number(item.distance));
       form.setFieldValue('isGlobal', Boolean(item.isGlobal));
       form.setFieldValue(
         'allowedUserAccesses',
@@ -65,7 +65,7 @@ const LocationSidebar = () => {
       setFormValues({
         latitude: item.latitude,
         longitude: item.longitude,
-        distance: Number(item.distance) / 1000, // Convert to kilometers for UI
+        distance: Number(item.distance),
       });
       setShowUsers(!item.isGlobal);
     } else {
@@ -228,10 +228,9 @@ const LocationSidebar = () => {
 
                 <div className="flex items-center gap-2 py-4">
                   <span className="text-sm text-gray-700">Is Global</span>
-                  <Switch
-                    defaultChecked
-                    onChange={(checked) => setShowUsers(!checked)}
-                  />
+                  <Form.Item name="isGlobal" valuePropName="checked" noStyle>
+                    <Switch onChange={(checked) => setShowUsers(!checked)} />
+                  </Form.Item>
                 </div>
 
                 {showUsers && (

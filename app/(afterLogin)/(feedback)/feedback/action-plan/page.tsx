@@ -23,6 +23,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useState } from 'react';
 import { VscSettings } from 'react-icons/vsc';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
@@ -155,6 +156,8 @@ const columns: ColumnsType<any> = [
 export default function ActionPlansPage() {
   const [form] = Form.useForm();
   const { data: allUsers } = useGetAllUsers();
+  const { userData } = useAuthenticationStore();
+  const isOwner = userData?.role?.slug === 'owner';
   const peopleOptions = allUsers?.items?.map((i: any) => ({
     value: i.id,
     label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
@@ -253,6 +256,7 @@ export default function ActionPlansPage() {
               className="h-12"
               data-cy="feedback-action-plan-page-select-employee"
               id="feedback-action-plan-page-select-employee"
+              disabled={!isOwner}
             />
           </Form.Item>
 
@@ -375,6 +379,7 @@ export default function ActionPlansPage() {
                 className="h-12"
                 data-cy="feedback-action-plan-page-modal-select-employee"
                 id="feedback-action-plan-page-modal-select-employee"
+                disabled={!isOwner}
               />
             </Form.Item>
 

@@ -69,6 +69,8 @@ const ChangePasswordModal = () => {
         setSuccess('');
       }}
       footer={null}
+      id="change-password-modal"
+      data-cy="change-password-modal"
     >
       {error && (
         <Alert
@@ -76,20 +78,33 @@ const ChangePasswordModal = () => {
           type="error"
           showIcon
           className="mb-4"
+          id="change-password-modal-error-alert"
+          data-cy="change-password-modal-error-alert"
         />
       )}
       {success && (
         <Alert message={success} type="success" showIcon className="mb-4" />
       )}
-      <Form form={form} layout="vertical" onFinish={handleChangePassword}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleChangePassword}
+        id="change-password-modal-form"
+        data-cy="change-password-modal-form"
+      >
         <Form.Item
           name="currentPassword"
           label="Current Password"
           rules={[
             { required: true, message: 'Please enter your current password' },
           ]}
+          id="change-password-modal-current-password-form-item"
+          data-cy="change-password-modal-current-password-form-item"
         >
-          <Input.Password />
+          <Input.Password
+            id="change-password-modal-current-password-input"
+            data-cy="change-password-modal-current-password-input"
+          />
         </Form.Item>
 
         <Form.Item
@@ -99,8 +114,13 @@ const ChangePasswordModal = () => {
             { required: true, message: 'Please enter your new password' },
             { min: 6, message: 'Password must be at least 6 characters long' },
           ]}
+          id="change-password-modal-new-password-form-item"
+          data-cy="change-password-modal-new-password-form-item"
         >
-          <Input.Password />
+          <Input.Password
+            id="change-password-modal-new-password-input"
+            data-cy="change-password-modal-new-password-input"
+          />
         </Form.Item>
 
         <Form.Item
@@ -120,12 +140,21 @@ const ChangePasswordModal = () => {
               },
             }),
           ]}
+          id="change-password-modal-confirm-new-password-form-item"
+          data-cy="change-password-modal-confirm-new-password-form-item"
         >
-          <Input.Password />
+          <Input.Password
+            id="change-password-modal-confirm-new-password-input"
+            data-cy="change-password-modal-confirm-new-password-input"
+          />
         </Form.Item>
 
         <Form.Item>
-          <div className="flex justify-end">
+          <div
+            className="flex justify-end"
+            id="change-password-modal-buttons-wrapper"
+            data-cy="change-password-modal-buttons-wrapper"
+          >
             <Button
               onClick={() => {
                 closeModal();
@@ -134,6 +163,8 @@ const ChangePasswordModal = () => {
                 setSuccess('');
               }}
               style={{ marginRight: '8px' }}
+              id="change-password-modal-cancel-btn"
+              data-cy="change-password-modal-cancel-btn"
             >
               Cancel
             </Button>
@@ -141,6 +172,8 @@ const ChangePasswordModal = () => {
               type="primary"
               htmlType="submit"
               loading={loading} // Button loading state
+              id="change-password-modal-change-password-btn"
+              data-cy="change-password-modal-change-password-btn"
             >
               Change Password
             </Button>

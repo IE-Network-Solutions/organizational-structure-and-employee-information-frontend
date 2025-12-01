@@ -49,19 +49,35 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const sidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="h-auto w-auto bg-[#f5f5f5]">
+    <div
+      className="min-h-screen bg-[#f5f5f5]"
+      id="compensation-allowance-layout-container"
+      data-cy="compensation-allowance-layout-container"
+    >
+      <div
+        className="h-auto w-auto bg-[#f5f5f5]"
+        id="compensation-allowance-layout-body"
+        data-cy="compensation-allowance-layout-body"
+      >
         <PageHeader
           title="Allowance"
           description="Allowance"
           className="hidden sm:block"
           horizontalPadding="0px"
+          data-cy="compensation-allowance-layout-page-header"
         />
 
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
-          <SidebarMenu menuItems={sidebarMenuItems} />
+        <div
+          className="flex flex-col lg:flex-row gap-3 sm:gap-6"
+          id="compensation-allowance-layout-content"
+          data-cy="compensation-allowance-layout-content"
+        >
+          <SidebarMenu data-cy="compensation-allowance-layout-sidebar-menu" menuItems={sidebarMenuItems} />
 
-          <BlockWrapper className="flex-1 h-max overflow-x-auto">
+          <BlockWrapper
+            className="flex-1 h-max overflow-x-auto"
+            data-cy="compensation-allowance-layout-block-wrapper"
+          >
             {children}
           </BlockWrapper>
         </div>

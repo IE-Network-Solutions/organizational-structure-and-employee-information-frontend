@@ -68,14 +68,19 @@ const BankInformationComponent = ({
           permissions={[Permissions.UpdateEmployeeDetails]}
           selfShouldAccess
           id={id}
+          data-cy="bank-information-edit-guard"
         >
           <LuPencil
             className="cursor-pointer"
             onClick={() => handleEditChange('bankInformation')}
+            id="bank-information-edit-icon"
+            data-cy="bank-information-edit-icon"
           />
         </AccessGuard>
       }
       className="my-6"
+      id="bank-information-card"
+      data-cy="bank-information-card"
     >
       {edit.bankInformation ? (
         <Form
@@ -84,9 +89,19 @@ const BankInformationComponent = ({
           layout="vertical"
           style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
           initialValues={allFields}
+          id="bank-information-form"
+          data-cy="bank-information-form"
         >
-          <Row gutter={[16, 24]}>
-            <Col lg={16}>
+          <Row
+            gutter={[16, 24]}
+            id="bank-information-form-row"
+            data-cy="bank-information-form-row"
+          >
+            <Col
+              lg={16}
+              id="bank-information-form-col"
+              data-cy="bank-information-form-col"
+            >
               {Object.entries(allFields).map(([key, val]) => (
                 <Form.Item
                   key={key}
@@ -100,6 +115,8 @@ const BankInformationComponent = ({
                       )
                       .join(' ')
                   }
+                  id={`bank-information-${key}-form-item`}
+                  data-cy={`bank-information-${key}-form-item`}
                   rules={[
                     {
                       /*  eslint-disable-next-line @typescript-eslint/naming-convention */
@@ -141,22 +158,45 @@ const BankInformationComponent = ({
                   <Input
                     placeholder={key.replace(/_/g, ' ')}
                     defaultValue={val?.toString()}
+                    id={`bank-information-${key}-input`}
+                    data-cy={`bank-information-${key}-input`}
                   />
                 </Form.Item>
               ))}
             </Col>
           </Row>
-          <Row>
-            <Col span={24} style={{ textAlign: 'right' }}>
-              <Button type="primary" htmlType="submit">
+          <Row
+            id="bank-information-submit-row"
+            data-cy="bank-information-submit-row"
+          >
+            <Col
+              span={24}
+              style={{ textAlign: 'right' }}
+              id="bank-information-submit-col"
+              data-cy="bank-information-submit-col"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                id="bank-information-submit-btn"
+                data-cy="bank-information-submit-btn"
+              >
                 Save Changes
               </Button>
             </Col>
           </Row>
         </Form>
       ) : (
-        <Row gutter={[16, 24]}>
-          <Col lg={16}>
+        <Row
+          gutter={[16, 24]}
+          id="bank-information-display-row"
+          data-cy="bank-information-display-row"
+        >
+          <Col
+            lg={16}
+            id="bank-information-display-col"
+            data-cy="bank-information-display-col"
+          >
             {Object.entries(allFields).map(([key, val]) => (
               <InfoLine
                 key={key}
@@ -168,6 +208,7 @@ const BankInformationComponent = ({
                     .join(' ')
                 }
                 value={val?.toString() || '-'}
+                data-cy={`bank-information-display-${key}-info-line`}
               />
             ))}
           </Col>

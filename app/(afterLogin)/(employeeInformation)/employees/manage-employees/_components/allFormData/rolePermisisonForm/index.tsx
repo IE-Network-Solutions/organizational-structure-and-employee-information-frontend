@@ -81,16 +81,30 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
     return <div>Error loading data</div>; // Handle errors gracefully
   }
   return (
-    <div>
-      <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+    <div id="role-permission-form" data-cy="role-permission-form">
+      <div
+        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+        id="role-permission-title"
+        data-cy="role-permission-title"
+      >
         Role Permission
       </div>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row
+        gutter={16}
+        id="role-permission-role-row"
+        data-cy="role-permission-role-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="role-permission-role-col"
+          data-cy="role-permission-role-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="roleId"
             id="roleId"
+            data-cy="roleId"
             label="Role"
             rules={[{ required: true, message: 'Please select a role!' }]}
           >
@@ -99,9 +113,16 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
               onChange={onRoleChangeHandler}
               allowClear
               value={selectedRoleOnOption}
+              id="role-permission-role-select"
+              data-cy="role-permission-role-select"
             >
               {rolesWithPermission?.map((role) => (
-                <Option key={role.id} value={role.id}>
+                <Option
+                  key={role.id}
+                  value={role.id}
+                  id={`role-permission-role-option-${role.id}`}
+                  data-cy={`role-permission-role-option-${role.id}`}
+                >
                   {role.name}
                 </Option>
               ))}
@@ -109,12 +130,22 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row
+        gutter={16}
+        id="role-permission-permissions-row"
+        data-cy="role-permission-permissions-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="role-permission-permissions-col"
+          data-cy="role-permission-permissions-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="setOfPermission"
             id="setOfPermission"
+            data-cy="setOfPermission"
             label="Set of Permissions"
             rules={[
               {
@@ -134,6 +165,8 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
               value={selectedPermissions}
               allowClear
               className="text-xs"
+              id="role-permission-permissions-select"
+              data-cy="role-permission-permissions-select"
             />
           </Form.Item>
         </Col>
