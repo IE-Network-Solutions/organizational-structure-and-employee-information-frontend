@@ -7,7 +7,6 @@ import { CreateEmployeeJobInformationInterface } from '@/store/server/features/e
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface Ids {
   id?: string;
@@ -17,12 +16,11 @@ interface Ids {
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
-  id,
 }) => {
-  const { userId: userId2 } = useAuthenticationStore();
   const [form] = Form.useForm();
   const params = useParams();
-  const userId = id ?? (params?.id as string) ?? userId2;
+  // Always use the employee ID from URL params, never fallback to logged-in user ID
+  const userId = params?.id as string;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
@@ -36,7 +34,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       form.resetFields(); // Reset form values on modal open
       setTempAllowances([]); // Clear temp allowances when modal opens
     }
-  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances]);
+  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
