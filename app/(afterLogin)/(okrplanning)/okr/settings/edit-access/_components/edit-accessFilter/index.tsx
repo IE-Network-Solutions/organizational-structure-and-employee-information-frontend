@@ -77,12 +77,7 @@ const SearchEmployee: React.FC = () => {
             onChange={(e) => handleSearchInput(e.target.value, 'employee_name')}
             className="w-full h-12"
             allowClear
-            suffix={
-              <AiOutlineSearch
-                className="text-gray-400"
-                data-cy="okr-edit-access-search-input-suffix-icon"
-              />
-            }
+            suffix={<AiOutlineSearch  className="text-gray-400" data-cy="okr-edit-access-search-input-suffix-icon" />}
             data-cy="okr-edit-access-search-input"
           />
         </Col>
@@ -100,12 +95,7 @@ const SearchEmployee: React.FC = () => {
               <Button
                 type="primary"
                 className="w-full h-12"
-                icon={
-                  <IoCheckmarkOutline
-                    size={20}
-                    data-cy="okr-edit-access-grant-all-button-icon-display-button"
-                  />
-                }
+                icon={<IoCheckmarkOutline size={20} data-cy="okr-edit-access-grant-all-button-icon-display-button" />}
                 onClick={() => {
                   setChecked(true);
                   handleSubmit();
@@ -117,19 +107,11 @@ const SearchEmployee: React.FC = () => {
               </Button>
             </AccessGuard>
           ) : (
-            <AccessGuard
-              data-cy="okr-edit-access-revoke-all-button-access-guard-display-guard"
-              permissions={[Permissions.GrantAllOKRAccess]}
-            >
+            <AccessGuard data-cy="okr-edit-access-revoke-all-button-access-guard-display-guard" permissions={[Permissions.GrantAllOKRAccess]}>
               <Button
                 type="primary"
                 className="w-full h-12"
-                icon={
-                  <MdOutlineCancel
-                    size={20}
-                    data-cy="okr-edit-access-revoke-all-button-icon-display-button"
-                  />
-                }
+                icon={<MdOutlineCancel size={20} data-cy="okr-edit-access-revoke-all-button-icon-display-button" />}
                 onClick={() => {
                   setChecked(false);
                   handleSubmit();

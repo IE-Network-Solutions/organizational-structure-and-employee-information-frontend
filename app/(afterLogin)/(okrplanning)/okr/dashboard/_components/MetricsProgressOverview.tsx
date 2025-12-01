@@ -94,7 +94,10 @@ const MetricsProgressOverview: React.FC = () => {
           id="okr-metrics-overview-loading-container-display-div"
           data-cy="okr-metrics-overview-loading-container-display-div"
         >
-          <Spin data-cy="okr-metrics-overview-loading-spinner-display-spin" />
+          <Spin
+     
+            data-cy="okr-metrics-overview-loading-spinner-display-spin"
+          />
         </div>
       ) : (
         <div

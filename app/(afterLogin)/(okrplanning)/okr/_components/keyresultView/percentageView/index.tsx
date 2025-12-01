@@ -218,11 +218,7 @@ const PercentageView: React.FC<OKRProps> = ({
 
           {/* Deadline */}
           <div className="w-48 ml-2">
-            <Form.Item
-              id={`${viewPrefix}-desktop-deadline-input-item`}
-              data-cy={`${viewPrefix}-desktop-deadline-input-item`}
-              className="w-full font-bold mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-desktop-deadline-input-item`} data-cy={`${viewPrefix}-desktop-deadline-input-item`} className="w-full font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -253,11 +249,7 @@ const PercentageView: React.FC<OKRProps> = ({
 
         {/* Mobile Layout */}
         <div
-          className={`${
-            isMobile
-              ? 'flex flex-col gap-3 mt-2 sm:mt-4 px-1 sm:px-2'
-              : 'hidden'
-          }`}
+          className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}
           id={`${viewPrefix}-mobile-section`}
           data-cy={`${viewPrefix}-mobile-section`}
         >
@@ -283,7 +275,7 @@ const PercentageView: React.FC<OKRProps> = ({
               onChange={(e) => {
                 handleChange(e.target.value, 'title');
               }}
-              className="h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
+              className="h-10 rounded-lg border-gray-300"
               placeholder="Enter percentage title"
               data-cy={`${viewPrefix}-mobile-title-input`}
             />
@@ -295,7 +287,7 @@ const PercentageView: React.FC<OKRProps> = ({
           </Form.Item>
 
           {/* Row 2: Type, Weight, Deadline */}
-          <div className="flex flex-row gap-2">
+          <div className="flex gap-2">
             <Form.Item
               id={`${viewPrefix}-mobile-metric-select-item`}
               data-cy={`${viewPrefix}-mobile-metric-select-item`}
@@ -309,7 +301,7 @@ const PercentageView: React.FC<OKRProps> = ({
             >
               {isEdit ? (
                 <Select
-                  className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                  className="w-full h-10 rounded-lg text-base"
                   placeholder="Please select a metric type"
                   value={keyValue?.metricTypeId}
                   onChange={(value) => {
@@ -363,18 +355,14 @@ const PercentageView: React.FC<OKRProps> = ({
                 onChange={(value) => {
                   handleChange(value, 'weight');
                 }}
-                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
+                className="w-full h-10 rounded-lg border-gray-300"
                 suffix="%"
                 disabled={isEdit}
                 data-cy={`${viewPrefix}-mobile-weight-input`}
               />
             </Form.Item>
 
-            <Form.Item
-              id={`${viewPrefix}-mobile-deadline-input-item`}
-              data-cy={`${viewPrefix}-mobile-deadline-input-item`}
-              className="w-32 font-bold mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-deadline-input-item`} data-cy={`${viewPrefix}-mobile-deadline-input-item`} className="w-32 font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -382,7 +370,7 @@ const PercentageView: React.FC<OKRProps> = ({
                   handleChange(dateString, 'deadline');
                 }}
                 format="YYYY-MM-DD"
-                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base border-gray-300"
+                className="w-full h-10 rounded-lg border-gray-300"
                 disabledDate={(current) => {
                   const startOfToday = dayjs().startOf('day');
                   const objectiveDeadline = dayjs(objectiveValue?.deadline);
@@ -395,11 +383,7 @@ const PercentageView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-mobile-deadline-picker`}
               />
               {!keyValue.deadline && (
-                <div
-                  id={`${viewPrefix}-mobile-deadline-item-error`}
-                  data-cy={`${viewPrefix}-mobile-deadline-item-error`}
-                  className="text-red-500 font-semibold absolute top-[30px]"
-                >
+                <div id={`${viewPrefix}-mobile-deadline-item-error`} data-cy={`${viewPrefix}-mobile-deadline-item-error`} className="text-red-500 font-semibold absolute top-[30px]">
                   Deadline is required
                 </div>
               )}
@@ -415,11 +399,7 @@ const PercentageView: React.FC<OKRProps> = ({
           id={`${viewPrefix}-desktop-values-row`}
           data-cy={`${viewPrefix}-desktop-values-row`}
         >
-          <Form.Item
-            id={`${viewPrefix}-desktop-initial-input-item`}
-            data-cy={`${viewPrefix}-desktop-initial-input-item`}
-            className="flex-1 mb-0"
-          >
+          <Form.Item id={`${viewPrefix}-desktop-initial-input-item`} data-cy={`${viewPrefix}-desktop-initial-input-item`} className="flex-1 mb-0">
             <InputNumber
               id={`key-result-initial-${index}`}
               min={0}
@@ -433,11 +413,7 @@ const PercentageView: React.FC<OKRProps> = ({
               data-cy={`${viewPrefix}-desktop-initial-input`}
             />
           </Form.Item>
-          <Form.Item
-            id={`${viewPrefix}-desktop-target-input-item`}
-            data-cy={`${viewPrefix}-desktop-target-input-item`}
-            className="flex-1 mb-0"
-          >
+          <Form.Item id={`${viewPrefix}-desktop-target-input-item`} data-cy={`${viewPrefix}-desktop-target-input-item`} className="flex-1 mb-0">
             <InputNumber
               id={`key-result-target-${index}`}
               min={0}
@@ -455,22 +431,16 @@ const PercentageView: React.FC<OKRProps> = ({
 
         {/* Mobile Layout - Initial and Target Values */}
         <div
-          className={`${
-            isMobile ? 'flex flex-col xs:flex-row gap-2 sm:pl-3' : 'hidden'
-          }`}
+          className={`${isMobile ? 'block' : 'hidden'} space-y-4 px-6`}
           id={`${viewPrefix}-mobile-values-section`}
           data-cy={`${viewPrefix}-mobile-values-section`}
         >
           <div
-            className="flex flex-col xs:flex-row gap-2 w-full"
+            className="flex gap-4"
             id={`${viewPrefix}-mobile-values-row`}
             data-cy={`${viewPrefix}-mobile-values-row`}
           >
-            <Form.Item
-              id={`${viewPrefix}-mobile-initial-input-item`}
-              data-cy={`${viewPrefix}-mobile-initial-input-item`}
-              className="flex-1 mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-initial-input-item`} data-cy={`${viewPrefix}-mobile-initial-input-item`} className="flex-1 mb-0">
               <InputNumber
                 id={`key-result-initial-mobile-${index}`}
                 min={0}
@@ -479,16 +449,12 @@ const PercentageView: React.FC<OKRProps> = ({
                 onChange={(value) => {
                   handleChange(value, 'initialValue');
                 }}
-                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                className="w-full h-10 rounded-lg text-base"
                 placeholder="Initial Value (%)"
                 data-cy={`${viewPrefix}-mobile-initial-input`}
               />
             </Form.Item>
-            <Form.Item
-              id={`${viewPrefix}-mobile-target-input-item`}
-              data-cy={`${viewPrefix}-mobile-target-input-item`}
-              className="flex-1 mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-target-input-item`} data-cy={`${viewPrefix}-mobile-target-input-item`} className="flex-1 mb-0">
               <InputNumber
                 id={`key-result-target-mobile-${index}`}
                 min={0}
@@ -497,7 +463,7 @@ const PercentageView: React.FC<OKRProps> = ({
                 onChange={(value) => {
                   handleChange(value, 'targetValue');
                 }}
-                className="w-full h-10 sm:h-11 rounded-lg text-sm sm:text-base"
+                className="w-full h-10 rounded-lg text-base"
                 placeholder="Target Value (%)"
                 data-cy={`${viewPrefix}-mobile-target-input`}
               />

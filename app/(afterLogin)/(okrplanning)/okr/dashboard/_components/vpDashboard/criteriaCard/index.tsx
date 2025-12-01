@@ -23,6 +23,7 @@ const CriteriaCard: React.FC<CriteriaCardProps> = ({ id }) => {
       {isResponseLoading || !criteriaCardData ? (
         <Skeleton
           active
+     
           data-cy="okr-criteriacard-loading-skeleton-display-skeleton"
         />
       ) : (

@@ -16,7 +16,7 @@ export default function PersonalDashboard() {
       <MyleaveBalance />
 
       {/* Leave Requests and Attendance Report */}
-      <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <MyLeaveRequest />
 
         <MyAttendanceReport />

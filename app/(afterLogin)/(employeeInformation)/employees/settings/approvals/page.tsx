@@ -99,7 +99,6 @@ const Approvals = () => {
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setDepartmentApproval(false)}
-                aria-label="Go back"
                 id={`settings-${pageSlug}-workflow-setting-back-btn`}
                 data-cy={`settings-${pageSlug}-workflow-setting-back-btn`}
               >
@@ -107,13 +106,7 @@ const Approvals = () => {
                   className="text-white"
                   data-cy="settings-approvals-back-btn-icon"
                 />
-                <span
-                  className="hidden sm:inline"
-                  data-cy="settings-approvals-back-btn-text"
-                >
-                  {' '}
-                  Back
-                </span>
+                <span data-cy="settings-approvals-back-btn-text"> Back</span>
               </Button>
               <div
                 className="text-2xl font-bold "
@@ -142,7 +135,6 @@ const Approvals = () => {
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setAddDepartmentApproval(false)}
-                aria-label="Go back"
                 id={`settings-${pageSlug}-workflow-config-back-btn`}
                 data-cy={`settings-${pageSlug}-workflow-config-back-btn`}
               >
@@ -150,7 +142,7 @@ const Approvals = () => {
                   className="text-white"
                   data-cy="settings-approvals-back-btn-icon"
                 />
-                <span className="hidden sm:inline"> Back</span>
+                <span> Back</span>
               </Button>
               <div
                 className="text-2xl font-bold "

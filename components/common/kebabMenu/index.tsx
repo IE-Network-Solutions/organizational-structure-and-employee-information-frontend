@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Card, Menu } from 'antd';
-import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import { Card } from 'antd';
 
 const KebabMenu: React.FC<any> = (props) => {
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -21,25 +20,21 @@ const KebabMenu: React.FC<any> = (props) => {
     <Card
       className="bg-white absolute z-10 shadow-sm right-0 md:right-10 p-0"
       ref={cardRef}
-      bodyStyle={{ padding: 0 }}
     >
-      <Menu selectable={false} className="min-w-[140px]">
-        <Menu.Item
-          id={`editCardId${props?.item?.id}`}
-          icon={<AiOutlineEdit size={16} />}
-          onClick={() => props?.editGroupPermissionHandler(props?.item)}
-        >
-          Edit
-        </Menu.Item>
-        <Menu.Item
-          id={`deleteCardId${props?.item?.id}`}
-          icon={<AiOutlineDelete size={16} />}
-          className="text-red-600"
-          onClick={props?.deleteGroupPermissionHandler}
-        >
-          Delete
-        </Menu.Item>
-      </Menu>
+      <p
+        id={`editCardId${props?.item?.id}`}
+        onClick={() => props?.editGroupPermissionHandler(props?.item)}
+        className="text-gray-400 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+      >
+        Edit
+      </p>
+      <p
+        id={`deleteCardId${props?.item?.id}`}
+        onClick={props?.deleteGroupPermissionHandler}
+        className="text-red-700 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+      >
+        Delete
+      </p>
     </Card>
   );
 };

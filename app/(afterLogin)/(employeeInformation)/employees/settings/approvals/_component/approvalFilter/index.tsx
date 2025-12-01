@@ -45,7 +45,7 @@ const ApprovalBranchFilter = () => {
   };
   return (
     <div
-      className="flex items-start gap-3 sm:block"
+      className="flex sm:block"
       id="settings-approvals-filter"
       data-cy="settings-approvals-filter"
     >

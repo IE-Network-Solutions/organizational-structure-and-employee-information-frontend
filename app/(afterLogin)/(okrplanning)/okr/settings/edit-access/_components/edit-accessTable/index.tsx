@@ -123,11 +123,13 @@ const EditAccessTable: React.FC = () => {
               <Avatar
                 size={20}
                 src={item?.profileImage}
+             
                 data-cy={`okr-edit-access-table-employee-avatar-${item?.id}`}
               />
             ) : (
               <Avatar
                 size={20}
+               
                 data-cy={`okr-edit-access-table-employee-avatar-initials-${item?.id}`}
               >
                 {item?.firstName ? item?.firstName[0]?.toUpperCase() : ''}
@@ -190,7 +192,7 @@ const EditAccessTable: React.FC = () => {
           totalResults={allUser?.meta?.totalItems}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={onPageChange}
+          onShowSizeChange={onPageChange}         
           data-cy="okr-edit-access-mobile-pagination"
         />
       ) : (
@@ -199,7 +201,7 @@ const EditAccessTable: React.FC = () => {
           total={allUser?.meta?.totalItems}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={onPageChange}
+          onShowSizeChange={onPageChange}         
           data-cy="okr-edit-access-pagination"
         />
       )}

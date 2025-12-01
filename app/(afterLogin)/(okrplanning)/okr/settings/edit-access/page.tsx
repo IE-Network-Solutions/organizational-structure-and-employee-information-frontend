@@ -10,15 +10,19 @@ const OKREditAccess: React.FC = () => {
       id="okr-edit-access-container"
       data-cy="okr-edit-access-container"
     >
-      <CustomBreadcrumb
-        title="Objective Edit Access"
-        subtitle=""
-        data-cy="okr-edit-access-breadcrumb"
-      />
-
-      <SearchEmployee data-cy="okr-edit-access-search-component" />
-
-      <EditAccessTable data-cy="okr-edit-access-table-component" />
+        <CustomBreadcrumb
+          title="Objective Edit Access"
+          subtitle=""    
+          data-cy="okr-edit-access-breadcrumb"
+        />
+    
+        <SearchEmployee     
+          data-cy="okr-edit-access-search-component"
+        />
+   
+        <EditAccessTable   
+          data-cy="okr-edit-access-table-component"
+        />
     </div>
   );
 };

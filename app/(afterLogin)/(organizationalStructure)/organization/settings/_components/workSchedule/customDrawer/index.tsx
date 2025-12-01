@@ -209,7 +209,8 @@ const CustomWorkingScheduleDrawer = () => {
       dataIndex: 'day',
       key: 'day',
       render: (s, record) => {
-        const dayKey = record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        const dayKey =
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
             name={`${record.day}-working`}
@@ -232,7 +233,9 @@ const CustomWorkingScheduleDrawer = () => {
                   <CloseOutlined data-cy="org-components-workschedule-customdrawer-index-closeoutlined-1" />
                 }
                 size="small"
-                onChange={(checked) => handleSwitchChange(record.day, checked)}
+                onChange={(checked) =>
+                  handleSwitchChange(record.day, checked)
+                }
                 data-cy={`org-settings-work-schedule-working-switch-${dayKey}`}
                 id={`org-settings-work-schedule-working-switch-${dayKey}`}
               />
@@ -252,7 +255,8 @@ const CustomWorkingScheduleDrawer = () => {
       dataIndex: 'startTime',
       key: 'startTime',
       render: (s, record) => {
-        const dayKey = record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        const dayKey =
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
             name={`${record.day}-start`}
@@ -283,7 +287,8 @@ const CustomWorkingScheduleDrawer = () => {
       dataIndex: 'endTime',
       key: 'endTime',
       render: (s, record) => {
-        const dayKey = record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        const dayKey =
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
             name={`${record.day}-end`}
@@ -314,7 +319,8 @@ const CustomWorkingScheduleDrawer = () => {
       dataIndex: 'hours',
       key: 'hours',
       render: (s, record) => {
-        const dayKey = record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
+        const dayKey =
+          record.day?.toLowerCase().replace(/\s+/g, '-') ?? 'day';
         return (
           <Form.Item
             shouldUpdate

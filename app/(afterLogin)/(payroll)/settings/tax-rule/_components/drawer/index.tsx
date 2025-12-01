@@ -130,7 +130,7 @@ const Drawer: React.FC = () => {
       }
     >
       <Form
-        id="tax-rule-form"
+         id="tax-rule-form"
         data-cy="payroll-tax-rule-drawer-form-submit-form"
         layout="vertical"
         form={form}
