@@ -241,6 +241,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       loading={loading}
       disabled={!canGenerate}
       onClick={handlePrimaryAction}
+      data-cy="ai-generate-button"
+      id="ai-generate-button"
     >
       {isMobile ? null : items.length ? 'Regenerate' : 'Generate'}
     </Button>
@@ -663,8 +665,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         type="primary"
         ghost
         onClick={() => setOpen(true)}
-        id="planning-ai-suggestions-open-button"
-        data-cy="planning-ai-suggestions-open-button"
+        data-cy="ai-suggestion-trigger-button"
+        id="ai-suggestion-trigger-button"
       >
         AI Suggestion
       </Button>
@@ -680,6 +682,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         open={open}
         onCancel={() => setOpen(false)}
         footer={null}
+        data-cy="ai-suggestions-modal"
         width={isMobile ? 420 : 720}
         style={{
           maxWidth: isMobile ? '100%' : 720,
@@ -700,11 +703,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             }
           />
         ) : (
-          <div
-            className="space-y-4 p-4 sm:p-6"
-            id="planning-ai-suggestions-modal-wrapper-view-space"
-            data-cy="planning-ai-suggestions-modal-wrapper-view-space"
-          >
+          <div className="space-y-4 p-4 sm:p-6">
             <div
               className={`rounded-3xl bg-white/80 shadow-sm ${
                 isMobile ? 'p-4' : 'p-6'
@@ -743,6 +742,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       }))}
                       value={keyResultId}
                       onChange={setKeyResultId}
+                      data-cy="weekly-key-result-select"
+                      id="weekly-key-result-select"
                     />
                   </div>
                   {requiresMilestoneSelection && (
@@ -790,6 +791,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                             .toLowerCase()
                             .includes(input.toLowerCase());
                         }}
+                        data-cy="milestone-select"
+                        id="milestone-select"
                       />
                     </div>
                   )}
@@ -828,6 +831,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       }))}
                       value={keyResultId}
                       onChange={setKeyResultId}
+                      data-cy="daily-key-result-select"
+                      id="daily-key-result-select"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -871,6 +876,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           .toLowerCase()
                           .includes(input.toLowerCase());
                       }}
+                      data-cy="weekly-plan-select"
+                      id="weekly-plan-select"
                     />
                   </div>
                 </div>
@@ -892,6 +899,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       type="button"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full  text-[#3636F0] transition hover:bg-[#5D5FEF]/10"
                       onClick={() => addToForm(s, idx)}
+                      data-cy={`suggestion-add-button-${idx}`}
+                      id={`suggestion-add-button-${idx}`}
                     >
                       <PlusOutlined style={{ color: '#3636F0' }} />
                     </button>
@@ -906,6 +915,8 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           prev.filter((unusedItem, i) => i !== idx),
                         );
                       }}
+                      data-cy={`suggestion-remove-button-${idx}`}
+                      id={`suggestion-remove-button-${idx}`}
                     >
                       <CloseOutlined />
                     </button>
