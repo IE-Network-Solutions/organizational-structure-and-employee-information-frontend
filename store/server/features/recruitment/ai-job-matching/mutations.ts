@@ -7,8 +7,8 @@ import { BatchMatchResponse, AIMatchOptions } from './interface';
 
 // Call Azure Function DIRECTLY (no proxy)
 const getDirectUrl = (endpoint: string) => {
-  const BASE_URL = 
-    AI_REC_BASE_URL || 
+  const BASE_URL =
+    AI_REC_BASE_URL ||
     'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
   return `${BASE_URL}/api${endpoint}`;
 };
@@ -22,7 +22,7 @@ const triggerBatchMatch = async (params: {
 }): Promise<BatchMatchResponse> => {
   const token = await getCurrentToken();
   let tenantId = useAuthenticationStore.getState().tenantId;
-  
+
   // Use demo-tenant if no tenant configured
   if (!tenantId || tenantId.trim() === '') {
     tenantId = 'demo-tenant';
@@ -66,7 +66,7 @@ const triggerJobMatch = async (params: {
 }): Promise<any> => {
   const token = await getCurrentToken();
   let tenantId = useAuthenticationStore.getState().tenantId;
-  
+
   // Use demo-tenant if no tenant configured
   if (!tenantId || tenantId.trim() === '') {
     tenantId = 'demo-tenant';

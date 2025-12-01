@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const AI_REC_BASE_URL =
-  process.env.NEXT_PUBLIC_AI_REC_BASE_URL || 
+  process.env.NEXT_PUBLIC_AI_REC_BASE_URL ||
   'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
 
 const buildTargetUrl = (req: NextRequest, pathSegments: string[]) => {
@@ -91,9 +91,15 @@ const proxyRequest = async (
     });
   } catch (error: any) {
     // eslint-disable-next-line no-console
-    console.error(`[AI Proxy] Network error calling ${targetUrl}:`, error?.message);
+    console.error(
+      `[AI Proxy] Network error calling ${targetUrl}:`,
+      error?.message,
+    );
     return new NextResponse(
-      JSON.stringify({ error: 'Failed to connect to Azure Functions', details: error?.message }),
+      JSON.stringify({
+        error: 'Failed to connect to Azure Functions',
+        details: error?.message,
+      }),
       { status: 503, headers: { 'content-type': 'application/json' } },
     );
   }
@@ -125,17 +131,21 @@ const proxyRequest = async (
   const contentType = res.headers.get('content-type') || '';
   if (contentType.includes('application/json')) {
     const data = await res.json().catch(() => null);
-    
+
     // Log response data in development with more details
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
-      console.log(`[AI Proxy] Response data:`, typeof data, Array.isArray(data) ? `Array(${data.length})` : data);
+      console.log(
+        `[AI Proxy] Response data:`,
+        typeof data,
+        Array.isArray(data) ? `Array(${data.length})` : data,
+      );
       if (Array.isArray(data) && data.length > 0) {
         // eslint-disable-next-line no-console
         console.log(`[AI Proxy] First item:`, data[0]);
       }
     }
-    
+
     const payload =
       data !== null ? JSON.stringify(data) : await res.text().catch(() => '');
     return new NextResponse(payload, {
@@ -175,5 +185,3 @@ export const DELETE = (
   req: NextRequest,
   context: { params: { path: string[] } },
 ) => proxyRequest(req, context);
-
-

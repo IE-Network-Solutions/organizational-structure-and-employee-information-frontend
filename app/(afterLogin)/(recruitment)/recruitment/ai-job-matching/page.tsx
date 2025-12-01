@@ -49,7 +49,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
       <div className="flex items-center justify-between mt-5">
         <span className="text-xs font-medium text-gray-500">AI Matched</span>
         <div className="text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-800 px-3 py-2 rounded-lg">
-          {job.aiMatchedCount} {job.aiMatchedCount === 1 ? 'Candidate' : 'Candidates'}
+          {job.aiMatchedCount}{' '}
+          {job.aiMatchedCount === 1 ? 'Candidate' : 'Candidates'}
         </div>
       </div>
     </div>

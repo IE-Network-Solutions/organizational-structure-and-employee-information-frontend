@@ -108,7 +108,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       createdBy: isInternalApplicant,
       jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
       applicantStatusStageId: formValues?.stageId,
-
     };
 
     // Append each field individually instead of as JSON string
@@ -116,10 +115,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     Object.keys(formattedValues).forEach((key) => {
       const value = formattedValues[key];
       if (value !== undefined && value !== null) {
-        formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+        formData.append(
+          key,
+          typeof value === 'object' ? JSON.stringify(value) : String(value),
+        );
       }
     });
-
 
     createCandidate(formData, {
       onSuccess: () => {
@@ -313,15 +314,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </div>
           </Col>
         </Row>
-         <Form.Item
+        <Form.Item
           id="stageId"
           name="stageId"
           label={
-            <span className="text-md font-semibold text-gray-700">
-              Stage
-            </span>
+            <span className="text-md font-semibold text-gray-700">Stage</span>
           }
-         
         >
           <Select
             id="talent-acquisition-job-create-candidate-input-full-name"

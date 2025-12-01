@@ -68,6 +68,8 @@ export interface AIMatchResponse {
   matchedCandidates: AIMatchedCandidate[];
   totalMatches: number;
   analysisTimestamp: string;
+  department?: string;
+  location?: string;
 }
 
 export interface AIMatchDetails {
@@ -79,6 +81,17 @@ export interface AIMatchDetails {
   strengths: string[];
   concerns: string[];
   analysisTimestamp: string;
+  candidate?: {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    resumeUrl: string;
+    documentName: string;
+    CGPA?: number;
+    city?: string;
+    country?: string;
+  };
 }
 
 export interface AIMatchOptions {
@@ -98,5 +111,3 @@ export interface BatchMatchResponse {
   requestId: string;
   results: BatchJobMatchResult[];
 }
-
-

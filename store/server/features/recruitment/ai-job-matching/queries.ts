@@ -126,7 +126,7 @@ const CONCERN_LIBRARY = [
 const buildHeaders = async () => {
   const token = await getCurrentToken();
   let tenantId = useAuthenticationStore.getState().tenantId;
-  
+
   // Use demo-tenant if no tenant is configured (for testing with sample data)
   // Also use demo-tenant if tenantId is empty string or null
   if (!tenantId || tenantId.trim() === '') {
@@ -143,8 +143,11 @@ const buildHeaders = async () => {
   }
   // Always set tenantId
   headers.tenantId = tenantId;
-  
-  console.log('[AI Job Matching] Request headers:', { tenantId, hasToken: !!token });
+
+  console.log('[AI Job Matching] Request headers:', {
+    tenantId,
+    hasToken: !!token,
+  });
 
   return headers;
 };
@@ -220,31 +223,33 @@ const mapJobToSummary = (
 
 const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
   // Call Azure Function DIRECTLY (no proxy)
-  const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL || 
+  const AI_BASE_URL =
+    process.env.NEXT_PUBLIC_AI_REC_BASE_URL ||
     'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
-  
+
   const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs`;
-  
+
   const headers = await buildHeaders();
-  
+
   // eslint-disable-next-line no-console
   console.log('[AI Job Matching] Calling Azure DIRECTLY:', url);
   console.log('[AI Job Matching] Headers:', headers);
 
   try {
-    const { data } = await axios.get<JobMatchSummary[]>(
-      url,
-      {
-        headers,
-        params: {
-          limit: JOBS_PAGE_SIZE,
-          page: 1,
-        },
+    const { data } = await axios.get<JobMatchSummary[]>(url, {
+      headers,
+      params: {
+        limit: JOBS_PAGE_SIZE,
+        page: 1,
       },
-    );
+    });
 
     // eslint-disable-next-line no-console
-    console.log('[AI Job Matching] ✅ Received data:', Array.isArray(data) ? `Array(${data.length})` : typeof data, data);
+    console.log(
+      '[AI Job Matching] ✅ Received data:',
+      Array.isArray(data) ? `Array(${data.length})` : typeof data,
+      data,
+    );
 
     if (Array.isArray(data)) {
       return data;
@@ -255,7 +260,11 @@ const fetchJobMatchSummaries = async (): Promise<JobMatchSummary[]> => {
     return [];
   } catch (error: any) {
     // eslint-disable-next-line no-console
-    console.error('[AI Job Matching] ❌ Error:', error?.response?.status, error?.message);
+    console.error(
+      '[AI Job Matching] ❌ Error:',
+      error?.response?.status,
+      error?.message,
+    );
     throw error;
   }
 };
@@ -304,11 +313,12 @@ const fetchMatchedCandidates = async (
   options?: AIMatchOptions,
 ): Promise<AIMatchResponse> => {
   // Call Azure Function DIRECTLY (no proxy)
-  const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL || 
+  const AI_BASE_URL =
+    process.env.NEXT_PUBLIC_AI_REC_BASE_URL ||
     'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
-  
+
   const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates`;
-  
+
   const headers = await buildHeaders();
   const limit = options?.limit ?? 200;
 
@@ -316,17 +326,16 @@ const fetchMatchedCandidates = async (
   console.log(`[AI Job Matching] Calling Azure DIRECTLY for candidates:`, url);
 
   try {
-    const { data } = await axios.get<AIMatchResponse>(
-      url,
-      {
-        headers,
-        params: { limit },
-      },
-    );
+    const { data } = await axios.get<AIMatchResponse>(url, {
+      headers,
+      params: { limit },
+    });
 
     if (data && Array.isArray(data.matchedCandidates)) {
       // eslint-disable-next-line no-console
-      console.log(`[AI Job Matching] ✅ Loaded ${data.matchedCandidates.length} candidates for job ${jobId}`);
+      console.log(
+        `[AI Job Matching] ✅ Loaded ${data.matchedCandidates.length} candidates for job ${jobId}`,
+      );
       return data;
     }
 
@@ -341,7 +350,11 @@ const fetchMatchedCandidates = async (
     };
   } catch (error: any) {
     // eslint-disable-next-line no-console
-    console.error(`[AI Job Matching] ❌ Error:`, error?.response?.status, error?.message);
+    console.error(
+      `[AI Job Matching] ❌ Error:`,
+      error?.response?.status,
+      error?.message,
+    );
     throw error;
   }
 };
@@ -458,16 +471,20 @@ const fetchMatchDetails = async (
   candidateId: string,
 ): Promise<AIMatchDetails> => {
   // Call Azure Function DIRECTLY (no proxy)
-  const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL || 
+  const AI_BASE_URL =
+    process.env.NEXT_PUBLIC_AI_REC_BASE_URL ||
     'https://selamnew-endpoint-execfuc7fmgjf5hz.westus2-01.azurewebsites.net';
-  
+
   const url = `${AI_BASE_URL}/api/recruitment/job-matching/jobs/${jobId}/candidates/${candidateId}`;
-  
+
   const headers = await buildHeaders();
-  
+
   // eslint-disable-next-line no-console
-  console.log(`[AI Job Matching] Calling Azure DIRECTLY for match details:`, url);
-  
+  console.log(
+    `[AI Job Matching] Calling Azure DIRECTLY for match details:`,
+    url,
+  );
+
   const { data } = await axios.get<AIMatchDetails>(url, { headers });
 
   if (data) {

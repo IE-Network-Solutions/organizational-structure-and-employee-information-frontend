@@ -279,7 +279,15 @@ const Filters: React.FC<FiltersProps> = ({
             />
           </Col>
         )}
-        <Col id="payroll-filters-secondary-column-view-column" data-cy="payroll-filters-secondary-column-view-column" xs={24} sm={24} md={18} lg={18} xl={18}>
+        <Col
+          id="payroll-filters-secondary-column-view-column"
+          data-cy="payroll-filters-secondary-column-view-column"
+          xs={24}
+          sm={24}
+          md={18}
+          lg={18}
+          xl={18}
+        >
           <Row
             id="payroll-filters-secondary-row"
             data-cy="payroll-filters-secondary-row"
@@ -388,32 +396,40 @@ const Filters: React.FC<FiltersProps> = ({
             )}
 
             {!disable?.includes('division') && (
-              <Col data-cy="payroll-filters-division-select-view-column" xs={24} sm={24} md={3} lg={3} xl={3}>
-                  <Select
-                    id="payroll-filters-division-select-interact-select"
-                    data-cy="payroll-filters-division-select-interact-select"
-                    placeholder="Select division"
-                    onChange={(value) => handleSelectChange('divisionId', value)}
-                    value={searchValue.divisionId}
-                    allowClear
-                    style={{ width: '100%', height: '48px' }}
-                  >
-                    {level1Departments?.map((division: any) => (
-                      <Option
-                        id={`payroll-filters-division-option-select-${division.id}`}
-                        data-cy={`payroll-filters-division-option-select-${division.id}`}
-                        key={division.id}
-                        value={division.id}
-                      >
-                        {division?.name}
-                      </Option>
-                    ))}
-                  </Select>
+              <Col
+                data-cy="payroll-filters-division-select-view-column"
+                xs={24}
+                sm={24}
+                md={3}
+                lg={3}
+                xl={3}
+              >
+                <Select
+                  id="payroll-filters-division-select-interact-select"
+                  data-cy="payroll-filters-division-select-interact-select"
+                  placeholder="Select division"
+                  onChange={(value) => handleSelectChange('divisionId', value)}
+                  value={searchValue.divisionId}
+                  allowClear
+                  style={{ width: '100%', height: '48px' }}
+                >
+                  {level1Departments?.map((division: any) => (
+                    <Option
+                      id={`payroll-filters-division-option-select-${division.id}`}
+                      data-cy={`payroll-filters-division-option-select-${division.id}`}
+                      key={division.id}
+                      value={division.id}
+                    >
+                      {division?.name}
+                    </Option>
+                  ))}
+                </Select>
               </Col>
             )}
 
             {!disable?.includes('department') && (
-              <Col data-cy="payroll-filters-department-select-view-column" 
+              <Col
+                data-cy="payroll-filters-department-select-view-column"
                 // style={{
                 //   flex: oneRow ? '0 0 auto' : '1 1 50%',
                 //   minWidth: '150px',
@@ -424,28 +440,28 @@ const Filters: React.FC<FiltersProps> = ({
                 lg={3}
                 xl={3}
               >
-                  <Select
-                    id="payroll-filters-department-select-interact-select"
-                    data-cy="payroll-filters-department-select-interact-select"
-                    placeholder="Select department"
-                    onChange={(value) =>
-                      handleSelectChange('departmentId', value)
-                    }
-                    value={searchValue.departmentId}
-                    allowClear
-                    style={{ width: '100%', height: '48px' }}
-                  >
-                    {departmentData?.map((department: any) => (
-                      <Option
-                        id={`payroll-filters-department-option-select-${department.id}`}
-                        data-cy={`payroll-filters-department-option-select-${department.id}`}
-                        key={department.id}
-                        value={department.id}
-                      >
-                        {department?.name}
-                      </Option>
-                    ))}
-                  </Select>
+                <Select
+                  id="payroll-filters-department-select-interact-select"
+                  data-cy="payroll-filters-department-select-interact-select"
+                  placeholder="Select department"
+                  onChange={(value) =>
+                    handleSelectChange('departmentId', value)
+                  }
+                  value={searchValue.departmentId}
+                  allowClear
+                  style={{ width: '100%', height: '48px' }}
+                >
+                  {departmentData?.map((department: any) => (
+                    <Option
+                      id={`payroll-filters-department-option-select-${department.id}`}
+                      data-cy={`payroll-filters-department-option-select-${department.id}`}
+                      key={department.id}
+                      value={department.id}
+                    >
+                      {department?.name}
+                    </Option>
+                  ))}
+                </Select>
               </Col>
             )}
 
@@ -461,28 +477,28 @@ const Filters: React.FC<FiltersProps> = ({
                 md={6}
                 lg={6}
                 xl={6}
+              >
+                <Select
+                  id="payroll-filters-payperiod-select-interact-select"
+                  data-cy="payroll-filters-payperiod-select-interact-select"
+                  placeholder="Pay Period"
+                  onChange={(value) => handleSelectChange('payPeriodId', value)}
+                  value={searchValue.payPeriodId}
+                  allowClear
+                  style={{ width: '100%', height: '48px' }}
                 >
-                  <Select
-                    id="payroll-filters-payperiod-select-interact-select"
-                    data-cy="payroll-filters-payperiod-select-interact-select"
-                    placeholder="Pay Period"
-                    onChange={(value) => handleSelectChange('payPeriodId', value)}
-                    value={searchValue.payPeriodId}
-                    allowClear
-                    style={{ width: '100%', height: '48px' }}
-                  >
-                    {payPeriodData?.map((period: any) => (
-                      <Option
-                        id={`payroll-filters-payperiod-option-select-${period.id}`}
-                        data-cy={`payroll-filters-payperiod-option-select-${period.id}`}
-                        key={period.id}
-                        value={period.id}
-                      >
-                        {dayjs(period.startDate).format('MMM DD, YYYY')} --
-                        {dayjs(period.endDate).format('MMM DD, YYYY')}
-                      </Option>
-                    ))}
-                  </Select>
+                  {payPeriodData?.map((period: any) => (
+                    <Option
+                      id={`payroll-filters-payperiod-option-select-${period.id}`}
+                      data-cy={`payroll-filters-payperiod-option-select-${period.id}`}
+                      key={period.id}
+                      value={period.id}
+                    >
+                      {dayjs(period.startDate).format('MMM DD, YYYY')} --
+                      {dayjs(period.endDate).format('MMM DD, YYYY')}
+                    </Option>
+                  ))}
+                </Select>
               </Col>
             )}
           </Row>
