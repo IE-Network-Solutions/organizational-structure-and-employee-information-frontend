@@ -10,6 +10,7 @@ import {
   Tooltip,
   Dropdown,
   Menu,
+  Avatar,
 } from 'antd';
 import {
   SendOutlined,
@@ -18,6 +19,7 @@ import {
   DeleteOutlined,
   MessageOutlined,
   HistoryOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 import {
   fetchCopilotResponse,
@@ -65,25 +67,6 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
-
-  useEffect(() => {
-    const updatePanelWidth = () => {
-      if (typeof window === 'undefined') return;
-
-      const { innerWidth } = window;
-      if (innerWidth < 480) {
-        setPanelWidth(innerWidth - 24);
-      } else if (innerWidth < 768) {
-        setPanelWidth(360);
-      } else {
-        setPanelWidth(420);
-      }
-    };
-
-    updatePanelWidth();
-    window.addEventListener('resize', updatePanelWidth);
-    return () => window.removeEventListener('resize', updatePanelWidth);
-  }, []);
 
   // Create new chat when component opens
   useEffect(() => {
@@ -203,17 +186,28 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
 
   // Chat history menu
   const chatHistoryMenu = (
-    <Menu>
+    <Menu id="chatbot-history-menu" data-cy="chatbot-history-menu">
       {chats.map((chat) => (
-        <Menu.Item key={chat.id} onClick={() => handleChatSelect(chat.id)}>
+        <Menu.Item
+          key={chat.id}
+          id={`chatbot-history-item-${chat.id}`}
+          data-cy={`chatbot-history-item-${chat.id}`}
+          onClick={() => handleChatSelect(chat.id)}
+        >
           <div
+            id={`chatbot-history-item-content-${chat.id}`}
+            data-cy={`chatbot-history-item-content-${chat.id}`}
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
             }}
           >
-            <div style={{ flex: 1, marginRight: '8px' }}>
+            <div
+              id={`chatbot-history-item-text-${chat.id}`}
+              data-cy={`chatbot-history-item-text-${chat.id}`}
+              style={{ flex: 1, marginRight: '8px' }}
+            >
               <Text ellipsis style={{ fontSize: '12px' }}>
                 {chat.title}
               </Text>
@@ -223,6 +217,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
               </Text>
             </div>
             <Button
+              id={`chatbot-history-delete-${chat.id}`}
+              data-cy={`chatbot-history-delete-${chat.id}`}
               type="text"
               size="small"
               icon={<DeleteOutlined />}
@@ -237,8 +233,16 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
       ))}
       {chats.length > 0 && (
         <>
-          <Menu.Divider />
-          <Menu.Item key="clear-all" onClick={handleClearAllChats}>
+          <Menu.Divider
+            id="chatbot-history-divider"
+            data-cy="chatbot-history-divider"
+          />
+          <Menu.Item
+            key="clear-all"
+            id="chatbot-history-clear-all"
+            data-cy="chatbot-history-clear-all"
+            onClick={handleClearAllChats}
+          >
             <Text type="danger">Clear All Chats</Text>
           </Menu.Item>
         </>
@@ -248,8 +252,12 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
 
   return (
     <Drawer
+      id="chatbot-drawer"
+      data-cy="chatbot-drawer"
       title={
         <div
+          id="chatbot-title-wrapper"
+          data-cy="chatbot-title-wrapper"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -259,13 +267,23 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
             fontWeight: 600,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            id="chatbot-title-content"
+            data-cy="chatbot-title-content"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
             <MessageOutlined />
             SelamNew AI
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div
+            id="chatbot-title-actions"
+            data-cy="chatbot-title-actions"
+            style={{ display: 'flex', gap: '8px' }}
+          >
             <Tooltip title="New Chat">
               <Button
+                id="chatbot-new-chat-button"
+                data-cy="chatbot-new-chat-button"
                 type="text"
                 size="small"
                 icon={<PlusOutlined />}
@@ -274,18 +292,25 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
               />
             </Tooltip>
             {chats.length > 0 && (
-              <Dropdown
-                overlay={chatHistoryMenu}
-                trigger={['click']}
-                placement="bottomRight"
+              <div
+                id="chatbot-history-dropdown"
+                data-cy="chatbot-history-dropdown"
               >
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<HistoryOutlined />}
-                  style={{ color: '#5B4FFF' }}
-                />
-              </Dropdown>
+                <Dropdown
+                  overlay={chatHistoryMenu}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <Button
+                    id="chatbot-history-button"
+                    data-cy="chatbot-history-button"
+                    type="text"
+                    size="small"
+                    icon={<HistoryOutlined />}
+                    style={{ color: '#5B4FFF' }}
+                  />
+                </Dropdown>
+              </div>
             )}
           </div>
         </div>
@@ -325,6 +350,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
       >
         {messages.length === 0 ? (
           <div
+            id="chatbot-empty-state"
+            data-cy="chatbot-empty-state"
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -336,6 +363,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
             }}
           >
             <div
+              id="chatbot-empty-avatar-container"
+              data-cy="chatbot-empty-avatar-container"
               style={{
                 width: '60px',
                 height: '60px',
@@ -348,6 +377,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
               }}
             >
               <div
+                id="chatbot-empty-avatar-pulse"
+                data-cy="chatbot-empty-avatar-pulse"
                 style={{
                   position: 'absolute',
                   width: '50px',
@@ -357,36 +388,44 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                   animation: 'pulse 2s infinite',
                 }}
               >
-                <Avatar
-                  size={40}
-                  src="/icons/512.png"
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid rgba(91, 79, 255, 0.15)',
-                    boxShadow: '0 4px 12px rgba(91, 79, 255, 0.2)',
-                    padding: '6px',
-                  }}
-                />
-                <div>
-                  <div
+                <div id="chatbot-empty-avatar" data-cy="chatbot-empty-avatar">
+                  <Avatar
+                    size={40}
+                    src="/icons/512.png"
                     style={{
-                      color: '#2C2F36',
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      lineHeight: 1.2,
+                      background: '#FFFFFF',
+                      border: '1px solid rgba(91, 79, 255, 0.15)',
+                      boxShadow: '0 4px 12px rgba(91, 79, 255, 0.2)',
+                      padding: '6px',
                     }}
-                  >
-                    SelamNew AI
-                  </div>
+                  />
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div id="chatbot-empty-title" data-cy="chatbot-empty-title">
+                <div
+                  style={{
+                    color: '#2C2F36',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  SelamNew AI
+                </div>
+              </div>
+              <div
+                id="chatbot-empty-actions"
+                data-cy="chatbot-empty-actions"
+                style={{ display: 'flex', gap: '8px' }}
+              >
                 <Tooltip
                   title="New Chat"
                   id="chatbot-new-chat-tooltip-wrapper-view-space"
                   data-cy="chatbot-new-chat-tooltip-wrapper-view-space"
                 >
                   <Button
+                    id="chatbot-empty-new-chat-button"
+                    data-cy="chatbot-empty-new-chat-button"
                     type="text"
                     size="small"
                     icon={<PlusOutlined />}
@@ -395,18 +434,25 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                   />
                 </Tooltip>
                 {chats.length > 0 && (
-                  <Dropdown
-                    overlay={chatHistoryMenu}
-                    trigger={['click']}
-                    placement="bottomRight"
+                  <div
+                    id="chatbot-empty-history-dropdown"
+                    data-cy="chatbot-empty-history-dropdown"
                   >
-                    <Button
-                      type="text"
-                      size="small"
-                      icon={<HistoryOutlined />}
-                      style={{ color: '#5B4FFF' }}
-                    />
-                  </Dropdown>
+                    <Dropdown
+                      overlay={chatHistoryMenu}
+                      trigger={['click']}
+                      placement="bottomRight"
+                    >
+                      <Button
+                        id="chatbot-empty-history-button"
+                        data-cy="chatbot-empty-history-button"
+                        type="text"
+                        size="small"
+                        icon={<HistoryOutlined />}
+                        style={{ color: '#5B4FFF' }}
+                      />
+                    </Dropdown>
+                  </div>
                 )}
                 <Tooltip
                   title="Close"
@@ -414,6 +460,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                   data-cy="chatbot-close-tooltip-wrapper-view-space"
                 >
                   <Button
+                    id="chatbot-empty-close-button"
+                    data-cy="chatbot-empty-close-button"
                     type="text"
                     size="small"
                     icon={<CloseOutlined />}
@@ -425,237 +473,167 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
             </div>
           </div>
         ) : (
-          <>
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems:
-                    message.sender === 'user' ? 'flex-end' : 'flex-start',
-                  marginBottom: '16px',
-                }}
-              >
-                <div
-                  style={{
-                    maxWidth: '75%',
-                    padding: message.sender === 'bot' ? '16px' : '12px 16px',
-                    borderRadius:
-                      message.sender === 'user'
-                        ? '16px 16px 4px 16px'
-                        : '16px 16px 16px 4px',
-                    background:
-                      message.sender === 'user' ? 'transparent' : 'white',
-                    border:
-                      message.sender === 'user' ? '1px solid #E5E7EB' : 'none',
-                    color: message.sender === 'user' ? '#374151' : '#374151',
-                    fontSize: '14px',
-                    lineHeight: '20px',
-                    boxShadow:
-                      message.sender === 'bot'
-                        ? '0 1px 3px rgba(0, 0, 0, 0.1)'
-                        : 'none',
-                    wordBreak: 'break-word',
-                  }}
-                >
-                  {message.sender === 'bot' ? (
-                    <AIResponseFormatter
-                      response={message.text}
-                      compact={true}
-                      onActionClick={() => {
-                        // Handle action clicks - could navigate to different parts of the app
-                        // console.log('Action clicked');
-                        // You can add navigation logic here based on the action
-                      }}
-                    />
-                  ) : (
-                    message.text
-                  )}
-                </div>
-                <div
-                  style={{
-                    fontSize: '11px',
-                    color: '#9CA3AF',
-                    marginTop: '4px',
-                    paddingLeft: message.sender === 'user' ? '0' : '4px',
-                    paddingRight: message.sender === 'user' ? '4px' : '0',
-                  }}
-                >
-                  {formatTime(message.timestamp)}
-                </div>
-              </div>
-            ) : (
-              <>
-                {messages.map((message) => {
-                  const isUser = message.sender === 'user';
-                  const userInitial =
-                    userData?.firstName?.[0]?.toUpperCase() ||
-                    userData?.lastName?.[0]?.toUpperCase() ||
-                    'U';
+          <div
+            id="chatbot-messages-container"
+            data-cy="chatbot-messages-container"
+          >
+            {messages.map((message) => {
+              const isUser = message.sender === 'user';
+              const userInitial =
+                userData?.firstName?.[0]?.toUpperCase() ||
+                userData?.lastName?.[0]?.toUpperCase() ||
+                'U';
 
-                  return (
-                    <div
-                      key={message.id}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: isUser ? 'flex-end' : 'flex-start',
-                        gap: '6px',
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: isUser ? 'row-reverse' : 'row',
-                          alignItems: 'flex-end',
-                          gap: '12px',
-                          width: '100%',
-                          justifyContent: isUser ? 'flex-end' : 'flex-start',
-                        }}
-                      >
-                        <Avatar
-                          size={36}
-                          style={{
-                            background: isUser
-                              ? 'linear-gradient(135deg, #F5F7FF 0%, #E9ECFF 100%)'
-                              : '#FFFFFF',
-                            color: isUser ? '#5B4FFF' : '#FFFFFF',
-                            border: isUser
-                              ? '1px solid rgba(91, 79, 255, 0.2)'
-                              : '1px solid rgba(91, 79, 255, 0.15)',
-                            padding: isUser ? 0 : '6px',
-                          }}
-                          src={isUser ? undefined : '/icons/256.png'}
-                          icon={isUser ? undefined : <RobotOutlined />}
-                        >
-                          {isUser ? userInitial : null}
-                        </Avatar>
-                        <div
-                          style={{
-                            maxWidth: '80%',
-                            background: isUser ? '#FFFFFF' : '#FFFFFF',
-                            borderRadius: isUser
-                              ? '18px 18px 4px 18px'
-                              : '18px 18px 18px 4px',
-                            padding: isUser ? '12px 16px' : '16px',
-                            border: isUser
-                              ? '1px solid rgba(91, 79, 255, 0.15)'
-                              : '1px solid rgba(91, 79, 255, 0.1)',
-                            boxShadow: isUser
-                              ? '0 12px 32px rgba(91, 79, 255, 0.08)'
-                              : '0 15px 36px rgba(102, 126, 234, 0.12)',
-                            wordBreak: 'break-word',
-                            fontSize: '14px',
-                            lineHeight: '22px',
-                            color: '#2C2F36',
-                          }}
-                        >
-                          {isUser ? (
-                            message.text
-                          ) : (
-                            <AIResponseFormatter
-                              response={message.text}
-                              compact={true}
-                              onActionClick={() => {
-                                // Handle action clicks - could navigate to different parts of the app
-                              }}
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '11px',
-                          color: '#8C91A0',
-                          paddingLeft: isUser ? '0' : '48px',
-                          paddingRight: isUser ? '48px' : '0',
-                        }}
-                      >
-                        {formatTime(message.timestamp)}
-                      </div>
-                    </div>
-                  );
-                })}
-                {isLoading && (
+              return (
+                <div
+                  key={message.id}
+                  id={`chatbot-message-${message.id}`}
+                  data-cy={`chatbot-message-${message.id}`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: isUser ? 'flex-end' : 'flex-start',
+                    gap: '6px',
+                  }}
+                >
                   <div
+                    id={`chatbot-message-content-${message.id}`}
+                    data-cy={`chatbot-message-content-${message.id}`}
                     style={{
                       display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'flex-start',
+                      flexDirection: isUser ? 'row-reverse' : 'row',
+                      alignItems: 'flex-end',
                       gap: '12px',
+                      width: '100%',
+                      justifyContent: isUser ? 'flex-end' : 'flex-start',
                     }}
                   >
-                    <Avatar
-                      size={36}
-                      style={{
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(91, 79, 255, 0.15)',
-                        padding: '6px',
-                        color: '#FFFFFF',
-                      }}
-                      src="/icons/256.png"
-                      icon={<RobotOutlined />}
-                    />
                     <div
+                      id={`chatbot-message-avatar-${message.id}`}
+                      data-cy={`chatbot-message-avatar-${message.id}`}
+                    >
+                      <Avatar
+                        size={36}
+                        style={{
+                          background: isUser
+                            ? 'linear-gradient(135deg, #F5F7FF 0%, #E9ECFF 100%)'
+                            : '#FFFFFF',
+                          color: isUser ? '#5B4FFF' : '#FFFFFF',
+                          border: isUser
+                            ? '1px solid rgba(91, 79, 255, 0.2)'
+                            : '1px solid rgba(91, 79, 255, 0.15)',
+                          padding: isUser ? 0 : '6px',
+                        }}
+                        src={isUser ? undefined : '/icons/256.png'}
+                        icon={isUser ? undefined : <RobotOutlined />}
+                      >
+                        {isUser ? userInitial : null}
+                      </Avatar>
+                    </div>
+                    <div
+                      id={`chatbot-message-text-${message.id}`}
+                      data-cy={`chatbot-message-text-${message.id}`}
                       style={{
-                        padding: '12px 16px',
-                        borderRadius: '18px 18px 18px 4px',
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(91, 79, 255, 0.1)',
-                        boxShadow: '0 15px 36px rgba(102, 126, 234, 0.12)',
+                        maxWidth: '80%',
+                        background: isUser ? '#FFFFFF' : '#FFFFFF',
+                        borderRadius: isUser
+                          ? '18px 18px 4px 18px'
+                          : '18px 18px 18px 4px',
+                        padding: isUser ? '12px 16px' : '16px',
+                        border: isUser
+                          ? '1px solid rgba(91, 79, 255, 0.15)'
+                          : '1px solid rgba(91, 79, 255, 0.1)',
+                        boxShadow: isUser
+                          ? '0 12px 32px rgba(91, 79, 255, 0.08)'
+                          : '0 15px 36px rgba(102, 126, 234, 0.12)',
+                        wordBreak: 'break-word',
+                        fontSize: '14px',
+                        lineHeight: '22px',
+                        color: '#2C2F36',
                       }}
                     >
-                      <Spin size="small" />
+                      {isUser ? (
+                        message.text
+                      ) : (
+                        <AIResponseFormatter
+                          response={message.text}
+                          compact={true}
+                          onActionClick={() => {
+                            // Handle action clicks - could navigate to different parts of the app
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
-                )}
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-
-          <div
-            style={{
-              padding: '16px 20px 20px',
-              borderTop: '1px solid rgba(91, 79, 255, 0.08)',
-              background: '#FFFFFF',
-              boxShadow: '0 -8px 30px rgba(91, 79, 255, 0.05)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'flex-end',
-                flexWrap: 'wrap',
-              }}
-            >
+                  <div
+                    id={`chatbot-message-timestamp-${message.id}`}
+                    data-cy={`chatbot-message-timestamp-${message.id}`}
+                    style={{
+                      fontSize: '11px',
+                      color: '#8C91A0',
+                      paddingLeft: isUser ? '0' : '48px',
+                      paddingRight: isUser ? '48px' : '0',
+                    }}
+                  >
+                    {formatTime(message.timestamp)}
+                  </div>
+                </div>
+              );
+            })}
+            {isLoading && (
               <div
+                id="chatbot-loading-container"
+                data-cy="chatbot-loading-container"
                 style={{
                   display: 'flex',
+                  flexDirection: 'row',
                   alignItems: 'flex-start',
-                  marginBottom: '16px',
+                  gap: '12px',
                 }}
               >
                 <div
+                  id="chatbot-loading-avatar"
+                  data-cy="chatbot-loading-avatar"
+                >
+                  <Avatar
+                    size={36}
+                    style={{
+                      background: '#FFFFFF',
+                      border: '1px solid rgba(91, 79, 255, 0.15)',
+                      padding: '6px',
+                      color: '#FFFFFF',
+                    }}
+                    src="/icons/256.png"
+                    icon={<RobotOutlined />}
+                  />
+                </div>
+                <div
+                  id="chatbot-loading-spinner"
+                  data-cy="chatbot-loading-spinner"
                   style={{
                     padding: '12px 16px',
-                    borderRadius: '16px 16px 16px 4px',
-                    background: 'white',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                    borderRadius: '18px 18px 18px 4px',
+                    background: '#FFFFFF',
+                    border: '1px solid rgba(91, 79, 255, 0.1)',
+                    boxShadow: '0 15px 36px rgba(102, 126, 234, 0.12)',
                   }}
                 >
                   <Spin size="small" />
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
-          </>
+            <div
+              id="chatbot-messages-end"
+              data-cy="chatbot-messages-end"
+              ref={messagesEndRef}
+            />
+          </div>
         )}
       </div>
 
       <div
+        id="chatbot-input-container"
+        data-cy="chatbot-input-container"
         style={{
           padding: '16px 20px 20px',
           borderTop: '1px solid #E5E7EB',
@@ -663,6 +641,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
         }}
       >
         <div
+          id="chatbot-input-wrapper"
+          data-cy="chatbot-input-wrapper"
           style={{
             display: 'flex',
             gap: '8px',
@@ -670,6 +650,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
           }}
         >
           <Input.TextArea
+            id="chatbot-input"
+            data-cy="chatbot-input"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -686,6 +668,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
             disabled={isLoading}
           />
           <Button
+            id="chatbot-send-button"
+            data-cy="chatbot-send-button"
             type="primary"
             icon={<SendOutlined />}
             onClick={handleSend}
