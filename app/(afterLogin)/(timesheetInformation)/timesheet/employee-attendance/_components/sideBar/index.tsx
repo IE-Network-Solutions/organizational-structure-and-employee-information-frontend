@@ -180,7 +180,7 @@ const EmployeeAttendanceSideBar = () => {
           open={isShowEmployeeAttendanceSidebar}
           onClose={onClose}
           modalHeader={
-            <CustomDrawerHeader id="time-attendance-employee-attendance-sidebar-modal-header" data-cy="time-attendance-employee-attendance-sidebar-modal-header">
+            <CustomDrawerHeader data-cy="time-attendance-employee-attendance-sidebar-modal-header">
               Update Employee Attendance
             </CustomDrawerHeader>
           }
