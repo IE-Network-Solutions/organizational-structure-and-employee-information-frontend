@@ -6,7 +6,7 @@ export const validateField = (
   if (!value || value === '' || value === null || value === undefined) {
     return null;
   }
-  
+
   switch (fieldValidation) {
     case 'number':
       return isNaN(value) ? 'Must be a valid number' : null;

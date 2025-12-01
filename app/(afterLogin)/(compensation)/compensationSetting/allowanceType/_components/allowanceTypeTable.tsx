@@ -126,7 +126,11 @@ const AllowanceTypeTable = () => {
           id={`compensation-settings-allowance-type-amount-${record.id}`}
           data-cy={`compensation-settings-allowance-type-amount-${record.id}`}
         >
-          <div id="compensation-settings-allowance-type-amount-display" data-cy="compensation-settings-allowance-type-amount-display" className="text-xs truncate">
+          <div
+            id="compensation-settings-allowance-type-amount-display"
+            data-cy="compensation-settings-allowance-type-amount-display"
+            className="text-xs truncate"
+          >
             {!record.isRate ? `${amount} ETB` : `${amount}% of base salary`}
           </div>
         </div>
@@ -143,7 +147,11 @@ const AllowanceTypeTable = () => {
           id={`compensation-settings-allowance-type-nontax-${record.id}`}
           data-cy={`compensation-settings-allowance-type-nontax-${record.id}`}
         >
-          <div id="compensation-settings-allowance-type-non-taxable-display" data-cy="compensation-settings-allowance-type-non-taxable-display" className="text-xs truncate">
+          <div
+            id="compensation-settings-allowance-type-non-taxable-display"
+            data-cy="compensation-settings-allowance-type-non-taxable-display"
+            className="text-xs truncate"
+          >
             {notTaxableAmount ? `${notTaxableAmount} ETB` : '-'}
           </div>
         </div>
@@ -160,7 +168,11 @@ const AllowanceTypeTable = () => {
           id="compensation-settings-allowance-type-applicable"
           data-cy="compensation-settings-allowance-type-applicable"
         >
-          <div id="compensation-settings-allowance-type-applicable-display" data-cy="compensation-settings-allowance-type-applicable-display" className="text-xs truncate">
+          <div
+            id="compensation-settings-allowance-type-applicable-display"
+            data-cy="compensation-settings-allowance-type-applicable-display"
+            className="text-xs truncate"
+          >
             {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
           </div>
         </div>
@@ -171,23 +183,23 @@ const AllowanceTypeTable = () => {
       dataIndex: 'status',
       key: 'status',
       render: (rule: any, record: any) => (
-          <AccessGuard
-            id={`compensation-settings-allowance-type-status-${record.id}`}
-            data-cy={`compensation-settings-allowance-type-status-${record.id}`}
-            permissions={[
-              Permissions.UpdateAllowanceType,
-              Permissions.DeleteAllowanceType,
-            ]}
-          >
-            <Switch
-              id={`compensation-settings-allowance-type-status-switch-${record.id}`}
-              data-cy={`compensation-settings-allowance-type-status-switch-${record.id}`}
-              loading={loadingId === record.id}
-              onClick={() => updateStatus(record.id)}
-              checked={record.isActive}
-              data-testid={`allowance-type-status-${record.id}`}
-            />
-          </AccessGuard>
+        <AccessGuard
+          id={`compensation-settings-allowance-type-status-${record.id}`}
+          data-cy={`compensation-settings-allowance-type-status-${record.id}`}
+          permissions={[
+            Permissions.UpdateAllowanceType,
+            Permissions.DeleteAllowanceType,
+          ]}
+        >
+          <Switch
+            id={`compensation-settings-allowance-type-status-switch-${record.id}`}
+            data-cy={`compensation-settings-allowance-type-status-switch-${record.id}`}
+            loading={loadingId === record.id}
+            onClick={() => updateStatus(record.id)}
+            checked={record.isActive}
+            data-testid={`allowance-type-status-${record.id}`}
+          />
+        </AccessGuard>
       ),
     },
     {

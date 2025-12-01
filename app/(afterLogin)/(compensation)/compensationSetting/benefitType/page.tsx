@@ -36,7 +36,9 @@ const BenefitTypePage = () => {
           <Button
             type="primary"
             id="createNewClosedHolidayFieldId"
-            icon={<FaPlus data-cy="compensation-settings-benefit-type-create-icon" />}
+            icon={
+              <FaPlus data-cy="compensation-settings-benefit-type-create-icon" />
+            }
             className="h-10"
             onClick={() => {
               setIsBenefitOpen(true);

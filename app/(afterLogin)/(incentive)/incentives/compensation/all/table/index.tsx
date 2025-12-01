@@ -98,10 +98,28 @@ const AllIncentiveTable: React.FC = () => {
             userId: item?.userId,
             recognition: item?.recognitionType || '--',
             employee_name: (
-              <Tooltip id={`all-incentive-table-employee-tooltip-${item?.id}`} data-cy={`all-incentive-table-employee-tooltip-${item?.id}`}>
-                <div id={`all-incentive-table-employee-wrapper-${item?.id}`} data-cy={`all-incentive-table-employee-wrapper-${item?.id}`} className="flex flex-wrap items-center justify-start gap-3">
-                  <Avatar data-cy={`all-incentive-table-employee-avatar-${item?.id}`} icon={<UserOutlined id={`all-incentive-table-employee-avatar-icon-${item?.id}`} data-cy={`all-incentive-table-employee-avatar-icon-${item?.id}`} />} />
-                  <span id={`all-incentive-table-employee-name-${item?.id}`} data-cy={`all-incentive-table-employee-name-${item?.id}`}>
+              <Tooltip
+                id={`all-incentive-table-employee-tooltip-${item?.id}`}
+                data-cy={`all-incentive-table-employee-tooltip-${item?.id}`}
+              >
+                <div
+                  id={`all-incentive-table-employee-wrapper-${item?.id}`}
+                  data-cy={`all-incentive-table-employee-wrapper-${item?.id}`}
+                  className="flex flex-wrap items-center justify-start gap-3"
+                >
+                  <Avatar
+                    data-cy={`all-incentive-table-employee-avatar-${item?.id}`}
+                    icon={
+                      <UserOutlined
+                        id={`all-incentive-table-employee-avatar-icon-${item?.id}`}
+                        data-cy={`all-incentive-table-employee-avatar-icon-${item?.id}`}
+                      />
+                    }
+                  />
+                  <span
+                    id={`all-incentive-table-employee-name-${item?.id}`}
+                    data-cy={`all-incentive-table-employee-name-${item?.id}`}
+                  >
                     {getEmployeeInformation(item?.userId)?.firstName +
                       '  ' +
                       getEmployeeInformation(item?.userId)?.middleName}
@@ -117,27 +135,54 @@ const AllIncentiveTable: React.FC = () => {
                 className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
                 key={criterion?.criterionKey || index}
               >
-                <span id={`all-incentive-table-criterion-${item?.id}-${index}`} data-cy={`all-incentive-table-criterion-${item?.id}-${index}`} className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1">
+                <span
+                  id={`all-incentive-table-criterion-${item?.id}-${index}`}
+                  data-cy={`all-incentive-table-criterion-${item?.id}-${index}`}
+                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
+                >
                   {criterion?.criterionKey}
                 </span>
               </div>
             )),
             bonus: (
-              <div id={`all-incentive-table-bonus-${item?.id}`} data-cy={`all-incentive-table-bonus-${item?.id}`}>
+              <div
+                id={`all-incentive-table-bonus-${item?.id}`}
+                data-cy={`all-incentive-table-bonus-${item?.id}`}
+              >
                 {item?.amount} {''}ETB
               </div>
             ),
             status: (
-              <div id={`all-incentive-table-status-wrapper-${item?.id}`} data-cy={`all-incentive-table-status-wrapper-${item?.id}`} className="inline-block">
+              <div
+                id={`all-incentive-table-status-wrapper-${item?.id}`}
+                data-cy={`all-incentive-table-status-wrapper-${item?.id}`}
+                className="inline-block"
+              >
                 {item?.isPaid ? (
-                  <div id={`all-incentive-table-status-paid-${item?.id}`} data-cy={`all-incentive-table-status-paid-${item?.id}`} className="rounded-lg bg-[#55C79033] py-1 px-6">
-                    <span id={`all-incentive-table-status-paid-text-${item?.id}`} data-cy={`all-incentive-table-status-paid-text-${item?.id}`} className="text-[#0CAF60] font-semibold text-md">
+                  <div
+                    id={`all-incentive-table-status-paid-${item?.id}`}
+                    data-cy={`all-incentive-table-status-paid-${item?.id}`}
+                    className="rounded-lg bg-[#55C79033] py-1 px-6"
+                  >
+                    <span
+                      id={`all-incentive-table-status-paid-text-${item?.id}`}
+                      data-cy={`all-incentive-table-status-paid-text-${item?.id}`}
+                      className="text-[#0CAF60] font-semibold text-md"
+                    >
                       Paid
                     </span>
                   </div>
                 ) : (
-                  <div id={`all-incentive-table-status-not-paid-${item?.id}`} data-cy={`all-incentive-table-status-not-paid-${item?.id}`} className="rounded-lg bg-[#FFEDEC] py-1 px-4">
-                    <span id={`all-incentive-table-status-not-paid-text-${item?.id}`} data-cy={`all-incentive-table-status-not-paid-text-${item?.id}`} className="text-[#E03137] font-semibold text-md">
+                  <div
+                    id={`all-incentive-table-status-not-paid-${item?.id}`}
+                    data-cy={`all-incentive-table-status-not-paid-${item?.id}`}
+                    className="rounded-lg bg-[#FFEDEC] py-1 px-4"
+                  >
+                    <span
+                      id={`all-incentive-table-status-not-paid-text-${item?.id}`}
+                      data-cy={`all-incentive-table-status-not-paid-text-${item?.id}`}
+                      className="text-[#E03137] font-semibold text-md"
+                    >
                       Not Paid
                     </span>
                   </div>
@@ -148,7 +193,11 @@ const AllIncentiveTable: React.FC = () => {
         });
 
   return (
-    <div id="all-incentive-table-container" data-cy="all-incentive-table-container" className="m-1">
+    <div
+      id="all-incentive-table-container"
+      data-cy="all-incentive-table-container"
+      className="m-1"
+    >
       <Table
         id="all-incentive-table"
         data-cy="all-incentive-table"

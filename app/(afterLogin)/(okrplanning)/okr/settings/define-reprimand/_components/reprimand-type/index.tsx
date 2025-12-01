@@ -64,7 +64,7 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
       id="okr-reprimand-type-drawer-header"
       data-cy="okr-reprimand-type-drawer-header"
     >
-        {repType ? 'Edit Reprimand Type' : 'Add Reprimand Type'}
+      {repType ? 'Edit Reprimand Type' : 'Add Reprimand Type'}
     </div>
   );
   const footer = (
@@ -97,7 +97,6 @@ const ReprimandTypeDrawer: React.FC<RepTypeDrawerProps> = ({
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
- 
       data-cy="okr-reprimand-type-drawer"
     >
       <Form
