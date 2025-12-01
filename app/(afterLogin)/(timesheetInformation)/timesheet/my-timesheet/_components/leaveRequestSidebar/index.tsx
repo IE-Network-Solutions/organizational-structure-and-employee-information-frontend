@@ -258,7 +258,6 @@ const LeaveRequestSidebar = () => {
           </div>
         }
         width="400px"
-        data-cy="time-attendance-leave-request-sidebar"
       >
         <Spin
           spinning={isLoading || isLoadingRequest}
