@@ -149,7 +149,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     >
       <Form
         id="edit-key-result-form"
-        data-cy="okr-edit-key-result-form"
+          data-cy="okr-edit-key-result-form"
         form={form}
         layout="vertical"
         className="w-full"

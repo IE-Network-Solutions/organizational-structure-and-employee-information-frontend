@@ -85,10 +85,7 @@ function Page() {
           id={`okr-target-assignment-table-actions-${record.key}`}
           data-cy={`okr-target-assignment-table-actions-${record.key}`}
         >
-          <AccessGuard
-            data-cy="okr-target-assignment-table-edit-button-access-guard-display-guard"
-            permissions={[Permissions.UpdateVpTargetsAssignation]}
-          >
+          <AccessGuard data-cy="okr-target-assignment-table-edit-button-access-guard-display-guard" permissions={[Permissions.UpdateVpTargetsAssignation]}>
             <Button
               type="default"
               className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
@@ -100,20 +97,14 @@ function Page() {
           </AccessGuard>
           <DeletePopover
             onDelete={() => handleDelete(record.key)}
+          
             data-cy={`okr-target-assignment-table-delete-popover-${record.key}`}
           >
-            <AccessGuard
-              data-cy="okr-target-assignment-table-delete-button-access-guard-display-guard"
-              permissions={[Permissions.DeleteVpTargetsAssignation]}
-            >
+            <AccessGuard data-cy="okr-target-assignment-table-delete-button-access-guard-display-guard" permissions={[Permissions.DeleteVpTargetsAssignation]}>
               <Button
                 type="default"
                 className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={
-                  <RiDeleteBin6Line
-                    data-cy={`okr-target-assignment-table-delete-button-icon-${record.key}`}
-                  />
-                }
+                icon={<RiDeleteBin6Line data-cy={`okr-target-assignment-table-delete-button-icon-${record.key}`} />}
                 id={`okr-target-assignment-table-delete-button-${record.key}`}
                 data-cy={`okr-target-assignment-table-delete-button-${record.key}`}
               />
@@ -152,16 +143,11 @@ function Page() {
         >
           Target Assignment
         </h1>
-        <AccessGuard
-          data-cy="okr-target-assignment-desktop-assign-button-access-guard-display-guard"
-          permissions={[Permissions.AssignVpTargets]}
-        >
+        <AccessGuard data-cy="okr-target-assignment-desktop-assign-button-access-guard-display-guard" permissions={[Permissions.AssignVpTargets]}>
           <Button
             type="primary"
             className=""
-            icon={
-              <FaPlus data-cy="okr-target-assignment-desktop-assign-button-icon-display-button" />
-            }
+            icon={<FaPlus data-cy="okr-target-assignment-desktop-assign-button-icon-display-button" />}
             onClick={() => openDrawer()}
             id="okr-target-assignment-desktop-assign-button"
             data-cy="okr-target-assignment-desktop-assign-button"
@@ -171,8 +157,7 @@ function Page() {
               id="okr-target-assignment-desktop-assign-button-label"
               data-cy="okr-target-assignment-desktop-assign-button-label"
             >
-              Assign Target
-            </span>
+              Assign Target</span>
           </Button>
         </AccessGuard>
       </div>
@@ -185,6 +170,7 @@ function Page() {
           onSearchChange={setSearchText}
           onTypeChange={handleTypeChange}
           targetNames={['All Types', ...criteriaTypes]}
+        
           data-cy="okr-target-assignment-desktop-filters"
         />
       </div>
@@ -210,6 +196,7 @@ function Page() {
             onSearchChange={setSearchText}
             onTypeChange={handleTypeChange}
             targetNames={['All Types', ...criteriaTypes]}
+           
             data-cy="okr-target-assignment-mobile-filters"
           />
           <AccessGuard permissions={[Permissions.AssignVpTargets]}>
@@ -254,7 +241,10 @@ function Page() {
         </div>
       </div>
 
-      <AssignTargetDrawer data-cy="okr-target-assignment-drawer" />
+      <AssignTargetDrawer
+    
+        data-cy="okr-target-assignment-drawer"
+      />
     </div>
   );
 }

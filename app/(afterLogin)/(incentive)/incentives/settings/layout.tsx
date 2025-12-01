@@ -33,13 +33,13 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
       // Extract the first item separately
       const firstItem = recognitionData[0];
 
-      const firstItemKey = firstItem?.id ?? 'defaultIncentiveCard';
-
       const defaultIncentiveSettings = {
         item: {
-          key: firstItemKey,
+          key: 'IncentiveSettings',
           icon: !isMobile ? (
             <CiCalendarDate
+              id="incentive-settings-layout-default-icon"
+              data-cy="incentive-settings-layout-default-icon"
               size={16}
               className={
                 currentItem === 'defaultIncentiveCard' ||
@@ -51,7 +51,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
           ) : null,
 
           label: (
-            <p className="menu-item-label">
+            <p id="incentive-settings-layout-default-label" data-cy="incentive-settings-layout-default-label" className="menu-item-label">
               {firstItem?.name ?? 'Default Incentive '}
             </p>
           ),
@@ -61,7 +61,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
               ? 'px-6'
               : 'px-1',
         },
-        link: `/incentives/settings/${firstItemKey}`,
+        link: `/incentives/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
       };
 
       // Map remaining items (excluding the first item)
@@ -71,13 +71,15 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
             key: item?.id,
             icon: !isMobile ? (
               <TbCalendar
+                id={`incentive-settings-layout-dynamic-icon-${item?.id}`}
+                data-cy={`incentive-settings-layout-dynamic-icon-${item?.id}`}
                 size={16}
                 className={
                   currentItem === item?.id ? 'text-[#4DAEF0]' : 'text-gray-500'
                 }
               />
             ) : null,
-            label: <p className="menu-item-label">{item?.name || '-'}</p>,
+            label: <p id={`incentive-settings-layout-dynamic-label-${item?.id}`} data-cy={`incentive-settings-layout-dynamic-label-${item?.id}`} className="menu-item-label">{item?.name || '-'}</p>,
             className: currentItem === item?.id ? 'px-6' : 'px-1',
           },
           link: `/incentives/settings/${item?.id}`,
@@ -97,18 +99,18 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   const incentiveSidebarMenuItems = new SidebarMenuItem(menuItems);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-3">
-      <PageHeader title="Settings" description="Incentive Settings" />
+    <div id="incentive-settings-layout-container" data-cy="incentive-settings-layout-container" className="min-h-screen bg-[#fafafa] p-3">
+      <PageHeader data-cy="incentive-settings-layout-header" title="Settings" description="Incentive Settings" />
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-3 ">
+      <div id="incentive-settings-layout-content" data-cy="incentive-settings-layout-content" className="flex flex-col lg:flex-row gap-6 mt-3 ">
         {responseLoading ? (
-          <div className="w-64">
-            <Skeleton active paragraph={{ rows: 6 }} />
+          <div id="incentive-settings-layout-skeleton-container" data-cy="incentive-settings-layout-skeleton-container" className="w-64">
+            <Skeleton data-cy="incentive-settings-layout-skeleton" active paragraph={{ rows: 6 }} />
           </div>
         ) : (
-          <SidebarMenu menuItems={incentiveSidebarMenuItems} />
+          <SidebarMenu data-cy="incentive-settings-layout-sidebar" menuItems={incentiveSidebarMenuItems} />
         )}
-        <BlockWrapper className="flex-1 h-full bg-[#fafafa] p-0 ">
+        <BlockWrapper data-cy="incentive-settings-layout-block-wrapper" className="flex-1 h-full bg-[#fafafa] p-0 ">
           {children}
         </BlockWrapper>
       </div>

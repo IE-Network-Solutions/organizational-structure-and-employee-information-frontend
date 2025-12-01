@@ -68,6 +68,7 @@ const SettlementDetail = () => {
           data-cy="payroll-settlement-empty-view-container"
         >
           <Empty
+         
             data-cy="payroll-settlement-empty-view-component"
             description="No data available"
           />
@@ -144,7 +145,10 @@ const SettlementDetail = () => {
           {renderCompensationTables()}
         </Card>
       ) : (
-        <BenefitTracking data-cy="payroll-settlement-benefit-tracking-view-component" />
+        <BenefitTracking
+       
+          data-cy="payroll-settlement-benefit-tracking-view-component"
+        />
       )}
     </div>
   );

@@ -157,10 +157,7 @@ const PlanningPeriod = () => {
                 id={`okr-planning-period-card-actions-${planningPeriod.id}`}
                 data-cy={`okr-planning-period-card-actions-${planningPeriod.id}`}
               >
-                <AccessGuard
-                  data-cy="okr-planning-period-card-switch-access-guard-display-guard"
-                  permissions={[Permissions.UpdatePlanningPeriod]}
-                >
+                <AccessGuard data-cy="okr-planning-period-card-switch-access-guard-display-guard" permissions={[Permissions.UpdatePlanningPeriod]}>
                   <Switch
                     checked={planningPeriod?.isActive}
                     disabled={isLoading}
@@ -174,6 +171,7 @@ const PlanningPeriod = () => {
                 <Dropdown
                   overlay={menu(planningPeriod)}
                   trigger={['click']}
+                
                   data-cy={`okr-planning-period-card-dropdown-${planningPeriod.id}`}
                 >
                   <MoreOutlined
@@ -257,6 +255,7 @@ const PlanningPeriod = () => {
         onOk={handleModalOk}
         onCancel={handleModalCancel}
         confirmLoading={editPlannningPeriod}
+     
         data-cy="okr-planning-period-edit-modal-display-modal"
       >
         <Form

@@ -63,9 +63,11 @@ const DetailPageTabs: React.FC = () => {
   const OperationsSlot = useMemo(() => {
     if (activeKey === '1') {
       return (
-        <div className="flex items-center justify-center gap-3">
+        <div id="detail-page-tabs-operations-slot-all" data-cy="detail-page-tabs-operations-slot-all" className="flex items-center justify-center gap-3">
           {isPayrollView ? (
             <Button
+              id="detail-page-tabs-generate-button"
+              data-cy="detail-page-tabs-generate-button"
               onClick={() => setShowGenerateModal(!showGenerateModal)}
               className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
             >
@@ -73,6 +75,8 @@ const DetailPageTabs: React.FC = () => {
             </Button>
           ) : (
             <Button
+              id="detail-page-tabs-export-button"
+              data-cy="detail-page-tabs-export-button"
               onClick={() => handleExportClick()}
               className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
             >
@@ -81,6 +85,8 @@ const DetailPageTabs: React.FC = () => {
           )}
 
           <Button
+            id="detail-page-tabs-view-toggle-button"
+            data-cy="detail-page-tabs-view-toggle-button"
             onClick={() => setIsPayrollView(!isPayrollView)}
             className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
           >
@@ -91,14 +97,18 @@ const DetailPageTabs: React.FC = () => {
     } else {
       // Show Import & Generate for all other tabs
       return (
-        <div className="flex items-center justify-center gap-3">
+        <div id="detail-page-tabs-operations-slot-other" data-cy="detail-page-tabs-operations-slot-other" className="flex items-center justify-center gap-3">
           <Button
+            id="detail-page-tabs-export-button-other"
+            data-cy="detail-page-tabs-export-button-other"
             onClick={() => handleExportClick()}
             className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
           >
             Export
           </Button>
           <Button
+            id="detail-page-tabs-import-button"
+            data-cy="detail-page-tabs-import-button"
             onClick={() => setProjectDrawer(true)}
             className="bg-[#B2B2FF] border-none text-md font-md text-primary px-4"
           >
@@ -126,8 +136,8 @@ const DetailPageTabs: React.FC = () => {
     }
   };
   return (
-    <div className="m-1">
-      <div>
+    <div id="detail-page-tabs-container" data-cy="detail-page-tabs-container" className="m-1">
+      <div id="detail-page-tabs-payroll-view-wrapper" data-cy="detail-page-tabs-payroll-view-wrapper">
         {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
       </div>
 
@@ -140,6 +150,8 @@ const DetailPageTabs: React.FC = () => {
             />
           ) : ( */}
           <Tabs
+            id="detail-page-tabs"
+            data-cy="detail-page-tabs"
             tabBarStyle={{ borderBottom: '16px solid transparent' }}
             defaultActiveKey="1"
             items={items}

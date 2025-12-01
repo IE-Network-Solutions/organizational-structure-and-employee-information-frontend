@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Button, Badge, Tooltip, Avatar } from 'antd';
+import { Button, Badge } from 'antd';
+import { MessageOutlined } from '@ant-design/icons';
 import ChatBot from './ChatBot';
 import { useChatBotStore } from '@/store/uistate/features/chatbot/chatbot';
 import { useChatBotContextCleanup } from '@/hooks/useChatBotContextCleanup';

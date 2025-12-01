@@ -67,7 +67,8 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
       id="okr-appreciation-type-drawer-header"
       data-cy="okr-appreciation-type-drawer-header"
     >
-      {appType ? 'Edit Appreciation Type' : 'Add Appreciation Type'}
+ 
+        {appType ? 'Edit Appreciation Type' : 'Add Appreciation Type'}
     </div>
   );
 
@@ -102,6 +103,7 @@ const AppreciationTypeDrawer: React.FC<AppTypeDrawerProps> = ({
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
+
       data-cy="okr-appreciation-type-drawer"
     >
       <Form
