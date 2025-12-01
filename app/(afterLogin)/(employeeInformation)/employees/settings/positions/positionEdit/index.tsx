@@ -85,7 +85,7 @@ const PositionsEdit: React.FC = () => {
             data-cy="settings-position-edit-description-item"
             name="description"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span className="text-md my-2 font-semibold text-gray-700" id="settings-position-edit-description-label" data-cy="settings-position-edit-description-label">
                 Position Description
               </span>
             }
