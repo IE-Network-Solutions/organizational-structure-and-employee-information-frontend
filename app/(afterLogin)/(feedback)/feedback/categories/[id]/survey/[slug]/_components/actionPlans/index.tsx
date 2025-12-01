@@ -58,8 +58,10 @@ function ActionPlans({ id }: Params) {
     );
   };
   return (
-    <div>
+    <div id="action-plans-container" data-cy="action-plans-container">
       <List
+        id="action-plans-list"
+        data-cy="action-plans-list"
         loading={userLoading}
         itemLayout="horizontal"
         dataSource={actionPlanData}
@@ -74,17 +76,18 @@ function ActionPlans({ id }: Params) {
             )
             .filter(Boolean);
           return (
-            <Card key={item.id} className="mb-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <div className="font-bold text-base mb-1">
+            <Card key={item.id} id={`action-plan-card-${item.id}`} data-cy={`action-plan-card-${item.id}`} className="mb-4">
+              <div id={`action-plan-card-${item.id}-content`} data-cy={`action-plan-card-${item.id}-content`} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div id={`action-plan-card-${item.id}-details`} data-cy={`action-plan-card-${item.id}-details`}>
+                  <div id={`action-plan-card-${item.id}-title`} data-cy={`action-plan-card-${item.id}-title`} className="font-bold text-base mb-1">
                     {item?.actionToBeTaken}
                   </div>
-                  <div className="text-gray-600 text-sm mb-2">
+                  <div id={`action-plan-card-${item.id}-description`} data-cy={`action-plan-card-${item.id}-description`} className="text-gray-600 text-sm mb-2">
                     {item?.description}
                   </div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div id={`action-plan-card-${item.id}-responsible-persons`} data-cy={`action-plan-card-${item.id}-responsible-persons`} className="flex items-center gap-2 mb-2">
                     <Avatar.Group
+                      data-cy={`action-plan-card-${item.id}-avatar-group`}
                       maxCount={4}
                       maxStyle={{
                         color: '#f56a00',
@@ -94,9 +97,12 @@ function ActionPlans({ id }: Params) {
                       {responsibleUserObjs.map((user: any) => (
                         <Tooltip
                           key={user.id}
+                          id={`action-plan-card-${item.id}-avatar-tooltip-${user.id}`}
+                          data-cy={`action-plan-card-${item.id}-avatar-tooltip-${user.id}`}
                           title={`${user.firstName} ${user.middleName} ${user.lastName}`}
                         >
                           <Avatar
+                            data-cy={`action-plan-card-${item.id}-avatar-${user.id}`}
                             src={user.profileImage}
                             style={{ backgroundColor: '#87d068' }}
                           >
@@ -106,34 +112,40 @@ function ActionPlans({ id }: Params) {
                       ))}
                     </Avatar.Group>
                   </div>
-                  <Tag color={item?.status === 'solved' ? 'green' : 'blue'}>
+                  <Tag id={`action-plan-card-${item.id}-status-tag`} data-cy={`action-plan-card-${item.id}-status-tag`} color={item?.status === 'solved' ? 'green' : 'blue'}>
                     {item?.status === 'solved' ? 'Resolved' : 'Pending'}
                   </Tag>
                 </div>
-                <div className="flex gap-2 self-start md:self-center">
+                <div id={`action-plan-card-${item.id}-actions`} data-cy={`action-plan-card-${item.id}-actions`} className="flex gap-2 self-start md:self-center">
                   {item?.status !== 'solved' && (
                     <>
                       <Button
+                        id={`action-plan-card-${item.id}-edit-button`}
+                        data-cy={`action-plan-card-${item.id}-edit-button`}
                         type="primary"
                         onClick={() => handleEditActionPlan(item?.id)}
                       >
-                        <MdOutlineModeEditOutline />
+                        <MdOutlineModeEditOutline data-cy={`action-plan-card-${item.id}-edit-icon`} />
                       </Button>
                       <Button
+                        id={`action-plan-card-${item.id}-delete-button`}
+                        data-cy={`action-plan-card-${item.id}-delete-button`}
                         type="primary"
                         loading={actionPlanDeletingLoading}
                         onClick={() => setSelectedActionPlan(item?.id)}
                         danger
                       >
-                        <RiDeleteBin5Line />
+                        <RiDeleteBin5Line data-cy={`action-plan-card-${item.id}-delete-icon`} />
                       </Button>
-                      <Tooltip title="Resolve Action Plan">
+                      <Tooltip id={`action-plan-card-${item.id}-resolve-tooltip`} data-cy={`action-plan-card-${item.id}-resolve-tooltip`} title="Resolve Action Plan">
                         <Button
+                          id={`action-plan-card-${item.id}-resolve-button`}
+                          data-cy={`action-plan-card-${item.id}-resolve-button`}
                           className="cursor-pointer"
                           type="primary"
                           loading={actionPlanResolvingLoading}
                           onClick={() => handleResolveHandler(item?.id)}
-                          icon={<IoCheckmarkSharp />}
+                          icon={<IoCheckmarkSharp data-cy={`action-plan-card-${item.id}-resolve-button-icon`} id={`action-plan-card-${item.id}-resolve-button-icon`} />}
                         />
                       </Tooltip>
                     </>
@@ -145,6 +157,7 @@ function ActionPlans({ id }: Params) {
         }}
       />
       <DeleteModal
+        data-cy="action-plan-delete-modal"
         onCancel={() => setSelectedActionPlan(null)}
         onConfirm={confirmDeleteActionPlanHandler}
         open={selectedActionPlan !== null}
