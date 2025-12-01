@@ -45,7 +45,7 @@ const MyTimesheet = () => {
         <PageHeader data-cy="time-attendance-my-timesheet-page-header-component" title="My Attendance" description="Manage your Attendance">
           <CheckControl data-cy="time-attendance-my-timesheet-page-check-control-component" />
         </PageHeader>
-        <BlockWrapper id="time-attendance-my-timesheet-page-approval-table-block-wrapper" data-cy="time-attendance-my-timesheet-page-approval-table-block-wrapper" className="mt-[20px]">
+        <BlockWrapper data-cy="time-attendance-my-timesheet-page-approval-table-block-wrapper" className="mt-[20px]">
           <ApprovalTable data-cy="time-attendance-my-timesheet-page-approval-table-component" />
         </BlockWrapper>
 
