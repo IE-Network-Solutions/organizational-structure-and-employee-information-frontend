@@ -112,18 +112,53 @@ const DueSoonKeyResultList: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Card className="w-full bg-white rounded-xl shadow-md p-0">
-        <div className="font-bold text-lg text-gray-900 pb-2">
+      <Card
+        className="w-full bg-white rounded-xl shadow-md p-0"
+        id="okr-duesoon-loading-card-display-card"
+        data-cy="okr-duesoon-loading-card-display-card"
+      >
+        <div
+          className="font-bold text-lg text-gray-900 pb-2"
+          id="okr-duesoon-loading-header-display-div"
+          data-cy="okr-duesoon-loading-header-display-div"
+        >
           Due Soon Key Result
         </div>
-        <div>
-          <div className="bg-white border rounded-xl overflow-hidden">
-            <div className="flex items-center px-4 py-3 border-b bg-[#F8F9FB]">
-              <div className="animate-pulse bg-gray-200 h-4 w-32 rounded"></div>
+        <div
+          id="okr-duesoon-loading-body-container-display-div"
+          data-cy="okr-duesoon-loading-body-container-display-div"
+        >
+          <div
+            className="bg-white border rounded-xl overflow-hidden"
+            id="okr-duesoon-loading-list-wrapper-display-div"
+            data-cy="okr-duesoon-loading-list-wrapper-display-div"
+          >
+            <div
+              className="flex items-center px-4 py-3 border-b bg-[#F8F9FB]"
+              id="okr-duesoon-loading-header-row-display-div"
+              data-cy="okr-duesoon-loading-header-row-display-div"
+            >
+              <div
+                className="animate-pulse bg-gray-200 h-4 w-32 rounded"
+                id="okr-duesoon-loading-skeleton-title-display-div"
+                data-cy="okr-duesoon-loading-skeleton-title-display-div"
+              ></div>
             </div>
-            <div className="px-8 py-3 border-b">
-              <div className="animate-pulse bg-gray-200 h-4 w-48 rounded mb-2"></div>
-              <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+            <div
+              className="px-8 py-3 border-b"
+              id="okr-duesoon-loading-item-display-div"
+              data-cy="okr-duesoon-loading-item-display-div"
+            >
+              <div
+                className="animate-pulse bg-gray-200 h-4 w-48 rounded mb-2"
+                id="okr-duesoon-loading-skeleton-line1-display-div"
+                data-cy="okr-duesoon-loading-skeleton-line1-display-div"
+              ></div>
+              <div
+                className="animate-pulse bg-gray-200 h-3 w-24 rounded"
+                id="okr-duesoon-loading-skeleton-line2-display-div"
+                data-cy="okr-duesoon-loading-skeleton-line2-display-div"
+              ></div>
             </div>
           </div>
         </div>
@@ -133,13 +168,32 @@ const DueSoonKeyResultList: React.FC = () => {
 
   if (objectivesWithKeyResults.length === 0) {
     return (
-      <Card className="w-full bg-white rounded-xl shadow-md p-0">
-        <div className="font-bold text-lg text-gray-900 pb-2">
+      <Card
+        className="w-full bg-white rounded-xl shadow-md p-0"
+        id="okr-duesoon-empty-card-display-card"
+        data-cy="okr-duesoon-empty-card-display-card"
+      >
+        <div
+          className="font-bold text-lg text-gray-900 pb-2"
+          id="okr-duesoon-empty-header-display-div"
+          data-cy="okr-duesoon-empty-header-display-div"
+        >
           Due Soon Key Result
         </div>
-        <div>
-          <div className="bg-white border rounded-xl overflow-hidden">
-            <div className="flex items-center justify-center px-4 py-8 text-gray-500">
+        <div
+          id="okr-duesoon-empty-body-container-display-div"
+          data-cy="okr-duesoon-empty-body-container-display-div"
+        >
+          <div
+            className="bg-white border rounded-xl overflow-hidden"
+            id="okr-duesoon-empty-list-wrapper-display-div"
+            data-cy="okr-duesoon-empty-list-wrapper-display-div"
+          >
+            <div
+              className="flex items-center justify-center px-4 py-8 text-gray-500"
+              id="okr-duesoon-empty-message-display-div"
+              data-cy="okr-duesoon-empty-message-display-div"
+            >
               No key results due soon
             </div>
           </div>
@@ -149,21 +203,62 @@ const DueSoonKeyResultList: React.FC = () => {
   }
 
   return (
-    <Card className="w-full bg-white rounded-xl shadow-md p-0">
-      <div className="font-bold text-lg text-gray-900 pb-2">
+    <Card
+      className="w-full bg-white rounded-xl shadow-md p-0"
+      id="okr-duesoon-main-card-display-card"
+      data-cy="okr-duesoon-main-card-display-card"
+    >
+      <div
+        className="font-bold text-lg text-gray-900 pb-2"
+        id="okr-duesoon-main-header-display-div"
+        data-cy="okr-duesoon-main-header-display-div"
+      >
         Due Soon Key Result
       </div>
-      <div>
-        <div className="bg-white border rounded-xl overflow-hidden">
+      <div
+        id="okr-duesoon-main-body-container-display-div"
+        data-cy="okr-duesoon-main-body-container-display-div"
+      >
+        <div
+          className="bg-white border rounded-xl overflow-hidden"
+          id="okr-duesoon-main-list-wrapper-display-div"
+          data-cy="okr-duesoon-main-list-wrapper-display-div"
+        >
           {/* Scrollable container for all parent-child groups */}
-          <div className="max-h-64 overflow-y-auto scrollbar-hide">
+          <div
+            className="max-h-64 overflow-y-auto scrollbar-hide"
+            id="okr-duesoon-main-scroll-container-display-div"
+            data-cy="okr-duesoon-main-scroll-container-display-div"
+          >
             {objectivesWithKeyResults.map((objective) => (
-              <div key={objective.id}>
+              <div
+                key={objective.id}
+                id={`okr-duesoon-objective-block-display-div-${objective.id}`}
+                data-cy={`okr-duesoon-objective-block-display-div-${objective.id}`}
+              >
                 {/* Parent Objective */}
-                <div className="flex items-center px-4 py-3 border-b bg-[#F8F9FB]">
-                  <TbTargetArrow className="text-lg text-[#7152F3] mr-2" />
-                  <div className="flex flex-col font-bold text-gray-900">
-                    <span className="truncate max-w-xs">{objective.title}</span>
+                <div
+                  className="flex items-center px-4 py-3 border-b bg-[#F8F9FB]"
+                  id={`okr-duesoon-objective-header-display-div-${objective.id}`}
+                  data-cy={`okr-duesoon-objective-header-display-div-${objective.id}`}
+                >
+                  <TbTargetArrow
+                    className="text-lg text-[#7152F3] mr-2"
+                    id={`okr-duesoon-objective-icon-display-icon-${objective.id}`}
+                    data-cy={`okr-duesoon-objective-icon-display-icon-${objective.id}`}
+                  />
+                  <div
+                    className="flex flex-col font-bold text-gray-900"
+                    id={`okr-duesoon-objective-title-wrapper-display-div-${objective.id}`}
+                    data-cy={`okr-duesoon-objective-title-wrapper-display-div-${objective.id}`}
+                  >
+                    <span
+                      className="truncate max-w-xs"
+                      id={`okr-duesoon-objective-title-display-span-${objective.id}`}
+                      data-cy={`okr-duesoon-objective-title-display-span-${objective.id}`}
+                    >
+                      {objective.title}
+                    </span>
                   </div>
                 </div>
                 {/* Children Key Results */}
@@ -181,14 +276,36 @@ const DueSoonKeyResultList: React.FC = () => {
                     <div
                       key={keyResult.id}
                       className="flex items-center justify-between px-2 sm:px-8 py-3 mb-1"
+                      id={`okr-duesoon-keyresult-row-display-div-${keyResult.id}`}
+                      data-cy={`okr-duesoon-keyresult-row-display-div-${keyResult.id}`}
                     >
-                      <div className="flex items-center gap-3">
-                        <BsKey className="text-lg text-[#7152F3] opacity-70" />
-                        <div className="flex flex-col font-medium text-gray-800">
-                          <span className="truncate max-w-[80px] sm:max-w-xs">
+                      <div
+                        className="flex items-center gap-3"
+                        id={`okr-duesoon-keyresult-info-display-div-${keyResult.id}`}
+                        data-cy={`okr-duesoon-keyresult-info-display-div-${keyResult.id}`}
+                      >
+                        <BsKey
+                          className="text-lg text-[#7152F3] opacity-70"
+                          id={`okr-duesoon-keyresult-icon-display-icon-${keyResult.id}`}
+                          data-cy={`okr-duesoon-keyresult-icon-display-icon-${keyResult.id}`}
+                        />
+                        <div
+                          className="flex flex-col font-medium text-gray-800"
+                          id={`okr-duesoon-keyresult-text-wrapper-display-div-${keyResult.id}`}
+                          data-cy={`okr-duesoon-keyresult-text-wrapper-display-div-${keyResult.id}`}
+                        >
+                          <span
+                            className="truncate max-w-[80px] sm:max-w-xs"
+                            id={`okr-duesoon-keyresult-title-display-span-${keyResult.id}`}
+                            data-cy={`okr-duesoon-keyresult-title-display-span-${keyResult.id}`}
+                          >
                             {keyResult.title}
                           </span>
-                          <span className="text-xs text-gray-400 font-normal">
+                          <span
+                            className="text-xs text-gray-400 font-normal"
+                            id={`okr-duesoon-keyresult-date-range-display-span-${keyResult.id}`}
+                            data-cy={`okr-duesoon-keyresult-date-range-display-span-${keyResult.id}`}
+                          >
                             {dayjs(objective.deadline).isValid() &&
                             dayjs(keyResult.deadline).isValid()
                               ? `${dayjs(objective.deadline).format('MM/DD/YYYY')} - ${dayjs(keyResult.deadline).format('MM/DD/YYYY')}`
@@ -196,15 +313,29 @@ const DueSoonKeyResultList: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 min-w-[90px] sm:min-w-[120px] justify-end">
+                      <div
+                        className="flex items-center gap-2 min-w-[90px] sm:min-w-[120px] justify-end"
+                        id={`okr-duesoon-keyresult-metrics-display-div-${keyResult.id}`}
+                        data-cy={`okr-duesoon-keyresult-metrics-display-div-${keyResult.id}`}
+                      >
                         <span
                           className={`px-2 py-1 rounded-md text-xs font-semibold ${daysColor}`}
+                          id={`okr-duesoon-keyresult-days-chip-display-span-${keyResult.id}`}
+                          data-cy={`okr-duesoon-keyresult-days-chip-display-span-${keyResult.id}`}
                         >
                           {daysLeft}
                         </span>
-                        <span className="text-xs text-gray-400">Days left</span>
+                        <span
+                          className="text-xs text-gray-400"
+                          id={`okr-duesoon-keyresult-days-label-display-span-${keyResult.id}`}
+                          data-cy={`okr-duesoon-keyresult-days-label-display-span-${keyResult.id}`}
+                        >
+                          Days left
+                        </span>
                         <span
                           className={`px-2 py-1 rounded-md text-xs font-semibold ${percentColor}`}
+                          id={`okr-duesoon-keyresult-progress-chip-display-span-${keyResult.id}`}
+                          data-cy={`okr-duesoon-keyresult-progress-chip-display-span-${keyResult.id}`}
                         >
                           {Math.round(keyResult.progress)}%
                         </span>

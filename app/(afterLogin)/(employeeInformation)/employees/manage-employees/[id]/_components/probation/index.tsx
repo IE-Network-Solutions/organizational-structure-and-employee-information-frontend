@@ -17,6 +17,12 @@ interface Ids {
   id: string;
 }
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const ProbationPage: React.FC<Ids> = ({ id }) => {
   const { userId } = useAuthenticationStore();
   // Fetch probation targets for the current user
@@ -26,6 +32,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
     error,
     refetch,
   } = useFetchProbationTargetsByUserId(id);
+  const pageSlug = toSlug(id);
 
   // Mutation hooks
   const { mutate: updateTaskMutation } = useUpdateProbationTask();
@@ -127,16 +134,31 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spin tip="Loading probation targets..." />
+      <div
+        className="flex justify-center items-center h-64"
+        id={`probation-loading-state-${pageSlug}`}
+        data-cy="probation-loading-state"
+      >
+        <Spin
+          tip="Loading probation targets..."
+          data-cy="probation-loading-spinner"
+        />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg text-red-500">
+      <div
+        className="flex justify-center items-center h-64"
+        id={`probation-error-state-${pageSlug}`}
+        data-cy="probation-error-state"
+      >
+        <div
+          className="text-lg text-red-500"
+          id={`probation-error-message-${pageSlug}`}
+          data-cy="probation-error-message"
+        >
           Error loading probation targets:{' '}
           {error instanceof Error ? error.message : 'Unknown error'}
         </div>
@@ -145,15 +167,29 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div
+      className="space-y-4 sm:space-y-6"
+      id="probation-page-container"
+      data-cy="probation-page-container"
+    >
       {/* Create Probation Target Button */}
-      <div className="flex justify-end">
-        <AccessGuard permissions={[Permissions.CreateProbationTarget]}>
+      <div
+        className="flex justify-end"
+        id="probation-create-target-wrapper"
+        data-cy="probation-create-target-wrapper"
+      >
+        <AccessGuard
+          permissions={[Permissions.CreateProbationTarget]}
+          id="probation-create-target-guard"
+          data-cy="probation-create-target-guard"
+        >
           <Button
             type="primary"
             onClick={handleCreateProbationTarget}
             loading={isCreatingTarget}
             className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+            id="probation-create-target-btn"
+            data-cy="probation-create-target-btn"
           >
             Create Probation Target
           </Button>
@@ -161,14 +197,20 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
       </div>
 
       {/* Probation Target Accordion */}
-      <ProbationTargetAccordion
-        probationTargets={probationTargets || []}
-        employeeId={id}
-        onUpdateTaskScore={handleUpdateTaskScore}
-        onToggleTaskComplete={handleToggleTaskComplete}
-        onTaskAdded={handleTaskAdded}
-        onDeleteTask={handleDeleteTask}
-      />
+      <div
+        id="probation-accordion-wrapper"
+        data-cy="probation-accordion-wrapper"
+      >
+        <ProbationTargetAccordion
+          probationTargets={probationTargets || []}
+          employeeId={id}
+          onUpdateTaskScore={handleUpdateTaskScore}
+          onToggleTaskComplete={handleToggleTaskComplete}
+          onTaskAdded={handleTaskAdded}
+          onDeleteTask={handleDeleteTask}
+          data-cy="probation-targets-card"
+        />
+      </div>
     </div>
   );
 };

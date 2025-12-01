@@ -643,17 +643,23 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   };
 
   return (
-    <div>
+    <div id="job-download-container" data-cy="job-download-container">
       <button
         onClick={generatePDF}
         aria-label="Download Work Experience Certificate"
         disabled={isGenerating}
         className="relative"
+        id="job-download-btn"
+        data-cy="job-download-btn"
       >
         {isGenerating ? (
-          <Spin size="small" />
+          <Spin size="small" data-cy="job-download-spin" />
         ) : (
-          <MdDownloadForOffline className="text-primary text-2xl" />
+          <MdDownloadForOffline
+            className="text-primary text-2xl"
+            id="job-download-icon"
+            data-cy="job-download-icon"
+          />
         )}
       </button>
     </div>

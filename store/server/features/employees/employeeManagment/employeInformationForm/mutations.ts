@@ -72,7 +72,7 @@ export const useAddEmployeeInformationForm = () => {
   const queryClient = useQueryClient();
   return useMutation(createEmployeeInformationForm, {
     onSuccess: () => {
-      queryClient.invalidateQueries('employeInformationForms');
+      queryClient.refetchQueries('employeInformationForms');
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Employee successfully Created',

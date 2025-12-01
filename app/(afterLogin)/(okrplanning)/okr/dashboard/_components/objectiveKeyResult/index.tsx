@@ -7,19 +7,53 @@ const ObjectiveKeyResult: React.FC = () => {
   const userId = useAuthenticationStore.getState().userId;
   const { data: OKRData } = useGetUserObjectiveDashboard(userId);
   return (
-    <div className=" w-full my-3">
-      <Row gutter={[16, 16]} className="w-full max-w-screen-xl">
-        <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-          <Card>
-            <div className="text-md gap-2 flex flex-col justify-center mb-2">
-              <div className="flex items-center justify-between">
-                <div className="bg-[#7152F30D] flex items-center justify-between p-2 rounded-lg">
+    <div
+      className=" w-full my-3"
+      id="okr-objective-keyresult-section"
+      data-cy="okr-objective-keyresult-section"
+    >
+      <Row
+        gutter={[16, 16]}
+        className="w-full max-w-screen-xl"
+        id="okr-objective-keyresult-row"
+        data-cy="okr-objective-keyresult-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          md={24}
+          lg={8}
+          xl={8}
+          id="okr-objective-average-col"
+          data-cy="okr-objective-average-col"
+        >
+          <Card
+            id="okr-objective-average-card"
+            data-cy="okr-objective-average-card"
+          >
+            <div
+              className="text-md gap-2 flex flex-col justify-center mb-2"
+              id="okr-objective-average-card-body"
+              data-cy="okr-objective-average-card-body"
+            >
+              <div
+                className="flex items-center justify-between"
+                id="okr-objective-average-card-header"
+                data-cy="okr-objective-average-card-header"
+              >
+                <div
+                  className="bg-[#7152F30D] flex items-center justify-between p-2 rounded-lg"
+                  id="okr-objective-average-icon-wrapper"
+                  data-cy="okr-objective-average-icon-wrapper"
+                >
                   <svg
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    id="okr-objective-average-icon-display-svg"
+                    data-cy="okr-objective-average-icon-display-svg"
                   >
                     <path
                       d="M20.1705 6.75002H18.3095L13.7435 11.314C13.9008 11.7148 13.9152 12.1575 13.7845 12.5677C13.6537 12.9779 13.3857 13.3306 13.0255 13.5664C12.6653 13.8022 12.2348 13.9068 11.8066 13.8626C11.3783 13.8184 10.9783 13.6281 10.6739 13.3237C10.3694 13.0192 10.1791 12.6192 10.1349 12.191C10.0907 11.7627 10.1953 11.3323 10.4311 10.9721C10.6669 10.6119 11.0196 10.3438 11.4298 10.2131C11.84 10.0823 12.2827 10.0968 12.6835 10.254L17.2485 5.68902V3.82802C17.2486 3.579 17.3475 3.34019 17.5235 3.16402L19.2535 1.43402C19.2855 1.4018 19.3257 1.37891 19.3698 1.36781C19.4138 1.35671 19.4601 1.35782 19.5035 1.37102C19.5925 1.39702 19.6585 1.47102 19.6765 1.56202L20.1365 3.86302L22.4365 4.32302C22.5265 4.34102 22.6005 4.40702 22.6265 4.49602C22.6396 4.53925 22.6408 4.58524 22.6299 4.62908C22.619 4.67293 22.5964 4.71299 22.5645 4.74502L20.8335 6.47502C20.6576 6.65078 20.4192 6.74966 20.1705 6.75002Z"
@@ -40,32 +74,90 @@ const ObjectiveKeyResult: React.FC = () => {
                   <FaArrowUp className="text-green-500 font-light" />
                 </div> */}
               </div>
-              <div className="flex gap-1 items-center">
-                <h2>{Number(OKRData?.userOkr).toLocaleString() ?? 0}</h2>
-                <h5>%</h5>
+              <div
+                className="flex gap-1 items-center"
+                id="okr-objective-average-score"
+                data-cy="okr-objective-average-score"
+              >
+                <h2
+                  id="okr-objective-average-score-value-display-h2"
+                  data-cy="okr-objective-average-score-value-display-h2"
+                >
+                  {Number(OKRData?.userOkr).toLocaleString() ?? 0}
+                </h2>
+                <h5
+                  id="okr-objective-average-score-percent-display-h5"
+                  data-cy="okr-objective-average-score-percent-display-h5"
+                >
+                  %
+                </h5>
               </div>
-              <div className="text-gray-700 mb-3">
-                <div className="text-md font-normal">Average OKR Score</div>
+              <div
+                className="text-gray-700 mb-3"
+                id="okr-objective-average-label-wrapper-display-div"
+                data-cy="okr-objective-average-label-wrapper-display-div"
+              >
+                <div
+                  className="text-md font-normal"
+                  id="okr-objective-average-label-display-div"
+                  data-cy="okr-objective-average-label-display-div"
+                >
+                  Average OKR Score
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-end">
-              <span className="text-xs font-normal">
+            <div
+              className="flex items-center justify-end"
+              id="okr-objective-average-updated"
+              data-cy="okr-objective-average-updated"
+            >
+              <span
+                id="okr-objective-average-updated-text-display-span"
+                data-cy="okr-objective-average-updated-text-display-span"
+                className="text-xs font-normal"
+              >
                 Updated: {new Date().toLocaleDateString()}
               </span>
             </div>
           </Card>
         </Col>
-        <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-          <Card className="bg-[#E9E9FF]">
-            <div className="text-md gap-2 flex flex-col justify-center mb-2">
-              <div className="flex items-center justify-between">
-                <div className="bg-[#7152F30D] flex items-center justify-between p-2 rounded-lg">
+        <Col
+          xs={24}
+          sm={24}
+          md={24}
+          lg={8}
+          xl={8}
+          id="okr-objective-total-kr-col"
+          data-cy="okr-objective-total-kr-col"
+        >
+          <Card
+            className="bg-[#E9E9FF]"
+            id="okr-objective-total-kr-card"
+            data-cy="okr-objective-total-kr-card"
+          >
+            <div
+              className="text-md gap-2 flex flex-col justify-center mb-2"
+              id="okr-objective-total-kr-card-body"
+              data-cy="okr-objective-total-kr-card-body"
+            >
+              <div
+                className="flex items-center justify-between"
+                id="okr-objective-total-kr-card-header"
+                data-cy="okr-objective-total-kr-card-header"
+              >
+                <div
+                  className="bg-[#7152F30D] flex items-center justify-between p-2 rounded-lg"
+                  id="okr-objective-total-kr-icon-wrapper"
+                  data-cy="okr-objective-total-kr-icon-wrapper"
+                >
                   <svg
                     width="24"
                     height="24"
                     viewBox="0 0 24 12"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    id="okr-objective-total-kr-icon-display-svg"
+                    data-cy="okr-objective-total-kr-icon-display-svg"
                   >
                     <path
                       d="M6.06641 7.353C5.68727 7.353 5.36681 7.22247 5.10501 6.9614C4.84321 6.70033 4.71231 6.37987 4.71231 6C4.71231 5.62013 4.84321 5.29967 5.10501 5.0386C5.36681 4.77753 5.68727 4.64663 6.06641 4.6459C6.44554 4.64517 6.76601 4.77607 7.02781 5.0386C7.28961 5.30113 7.42051 5.6216 7.42051 6C7.42051 6.3784 7.28961 6.69887 7.02781 6.9614C6.76601 7.22393 6.44554 7.35483 6.06641 7.3541M6.06641 11.5C4.54327 11.5 3.24601 10.9643 2.17461 9.8929C1.10321 8.8215 0.56714 7.52387 0.566407 6C0.565674 4.47613 1.10174 3.17887 2.17461 2.1082C3.24747 1.03753 4.54474 0.501467 6.06641 0.5C7.19574 0.5 8.21434 0.806167 9.12221 1.4185C10.0301 2.0301 10.6926 2.82393 11.1099 3.8H21.2343L23.4343 6L19.922 9.4694L18.0388 8.0526L16.0511 9.5112L14.0942 8.2H11.1099C10.6919 9.16213 10.0293 9.95267 9.12221 10.5716C8.21507 11.1905 7.19647 11.5 6.06641 11.5ZM6.06641 10.4C7.14954 10.4 8.07354 10.074 8.83841 9.4221C9.60327 8.77017 10.0931 7.99613 10.308 7.1H14.444L16.017 8.1637L18.0608 6.6974L19.8439 8.0416L21.8855 6L20.7855 4.9H10.308C10.0939 4.00313 9.60401 3.2291 8.83841 2.5779C8.07281 1.9267 7.14881 1.60073 6.06641 1.6C4.85641 1.6 3.82057 2.03083 2.95891 2.8925C2.09724 3.75417 1.66641 4.79 1.66641 6C1.66641 7.21 2.09724 8.24583 2.95891 9.1075C3.82057 9.96917 4.85641 10.4 6.06641 10.4Z"
@@ -78,14 +170,39 @@ const ObjectiveKeyResult: React.FC = () => {
                   <FaArrowUp className="text-green-500 font-light" />
                 </div> */}
               </div>
-              <div className="flex gap-1 items-center justify-between">
-                <h2>{OKRData?.okrCompleted ?? 0}</h2>
-                <div className="flex flex-col items-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="text-primary text-xs font-normal">
+              <div
+                className="flex gap-1 items-center justify-between"
+                id="okr-objective-total-kr-score-row"
+                data-cy="okr-objective-total-kr-score-row"
+              >
+                <h2
+                  id="okr-objective-total-kr-score-value-display-h2"
+                  data-cy="okr-objective-total-kr-score-value-display-h2"
+                >
+                  {OKRData?.okrCompleted ?? 0}
+                </h2>
+                <div
+                  className="flex flex-col items-center"
+                  id="okr-objective-total-kr-progress-wrapper-display-div"
+                  data-cy="okr-objective-total-kr-progress-wrapper-display-div"
+                >
+                  <div
+                    className="flex items-center justify-center gap-1"
+                    id="okr-objective-total-kr-achieved-text-display-div"
+                    data-cy="okr-objective-total-kr-achieved-text-display-div"
+                  >
+                    <span
+                      id="okr-objective-total-kr-count-display-span"
+                      data-cy="okr-objective-total-kr-count-display-span"
+                      className="text-primary text-xs font-normal"
+                    >
                       {OKRData?.keyResultCount ?? 0}
                     </span>
-                    <span className="font-light text-xs ">
+                    <span
+                      id="okr-objective-total-kr-label-display-span"
+                      data-cy="okr-objective-total-kr-label-display-span"
+                      className="font-light text-xs "
+                    >
                       Key Results achieved
                     </span>
                   </div>
@@ -94,33 +211,83 @@ const ObjectiveKeyResult: React.FC = () => {
                     showInfo={false}
                     size={{ height: 10 }}
                     className="w-[100%]"
+          
+                    data-cy="okr-objective-total-kr-progress"
                   />
                 </div>
               </div>
-              <div className="text-gray-700 mb-3">
-                <div className="text-md font-normal">
-                  <div className="text-md font-normal">Total Key Result</div>
+              <div
+                className="text-gray-700 mb-3"
+                id="okr-objective-total-kr-label-wrapper-display-div"
+                data-cy="okr-objective-total-kr-label-wrapper-display-div"
+              >
+                <div
+                  className="text-md font-normal"
+                  id="okr-objective-total-kr-label-inner-wrapper-display-div"
+                  data-cy="okr-objective-total-kr-label-inner-wrapper-display-div"
+                >
+                  <div
+                    className="text-md font-normal"
+                    id="okr-objective-total-kr-label-display-div"
+                    data-cy="okr-objective-total-kr-label-display-div"
+                  >
+                    Total Key Result
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-end">
-              <span className="text-xs font-normal">
+            <div
+              className="flex items-center justify-end"
+              id="okr-objective-total-kr-updated"
+              data-cy="okr-objective-total-kr-updated"
+            >
+              <span
+                id="okr-objective-total-kr-updated-text-display-span"
+                data-cy="okr-objective-total-kr-updated-text-display-span"
+                className="text-xs font-normal"
+              >
                 Updated: {new Date().toLocaleDateString()}
               </span>
             </div>
           </Card>
         </Col>
-        <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-          <Card className="bg-[#E9E9FF]">
-            <div className="text-md gap-2 flex flex-col justify-center mb-2">
-              <div className="flex items-center justify-between">
-                <div className="bg-[#7152F30D] flex items-center justify-between p-2 rounded-lg">
+        <Col
+          xs={24}
+          sm={24}
+          md={24}
+          lg={8}
+          xl={8}
+          id="okr-objective-supervisor-col"
+          data-cy="okr-objective-supervisor-col"
+        >
+          <Card
+            className="bg-[#E9E9FF]"
+            id="okr-objective-supervisor-card"
+            data-cy="okr-objective-supervisor-card"
+          >
+            <div
+              className="text-md gap-2 flex flex-col justify-center mb-2"
+              id="okr-objective-supervisor-card-body"
+              data-cy="okr-objective-supervisor-card-body"
+            >
+              <div
+                className="flex items-center justify-between"
+                id="okr-objective-supervisor-card-header"
+                data-cy="okr-objective-supervisor-card-header"
+              >
+                <div
+                  className="bg-[#7152F30D] flex items-center justify-between p-2 rounded-lg"
+                  id="okr-objective-supervisor-icon-wrapper"
+                  data-cy="okr-objective-supervisor-icon-wrapper"
+                >
                   <svg
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    id="okr-objective-supervisor-icon-display-svg"
+                    data-cy="okr-objective-supervisor-icon-display-svg"
                   >
                     <path
                       d="M20.1705 6.75002H18.3095L13.7435 11.314C13.9008 11.7148 13.9152 12.1575 13.7845 12.5677C13.6537 12.9779 13.3857 13.3306 13.0255 13.5664C12.6653 13.8022 12.2348 13.9068 11.8066 13.8626C11.3783 13.8184 10.9783 13.6281 10.6739 13.3237C10.3694 13.0192 10.1791 12.6192 10.1349 12.191C10.0907 11.7627 10.1953 11.3323 10.4311 10.9721C10.6669 10.6119 11.0196 10.3438 11.4298 10.2131C11.84 10.0823 12.2827 10.0968 12.6835 10.254L17.2485 5.68902V3.82802C17.2486 3.579 17.3475 3.34019 17.5235 3.16402L19.2535 1.43402C19.2855 1.4018 19.3257 1.37891 19.3698 1.36781C19.4138 1.35671 19.4601 1.35782 19.5035 1.37102C19.5925 1.39702 19.6585 1.47102 19.6765 1.56202L20.1365 3.86302L22.4365 4.32302C22.5265 4.34102 22.6005 4.40702 22.6265 4.49602C22.6396 4.53925 22.6408 4.58524 22.6299 4.62908C22.619 4.67293 22.5964 4.71299 22.5645 4.74502L20.8335 6.47502C20.6576 6.65078 20.4192 6.74966 20.1705 6.75002Z"
@@ -141,16 +308,48 @@ const ObjectiveKeyResult: React.FC = () => {
                   <FaArrowUp className="text-green-500 font-light" />
                 </div> */}
               </div>
-              <div className="flex gap-1 items-center">
-                <h2>{(OKRData?.supervisorOkr ?? 0).toFixed(2)}</h2>
-                <h5>%</h5>
+              <div
+                className="flex gap-1 items-center"
+                id="okr-objective-supervisor-score"
+                data-cy="okr-objective-supervisor-score"
+              >
+                <h2
+                  id="okr-objective-supervisor-score-value-display-h2"
+                  data-cy="okr-objective-supervisor-score-value-display-h2"
+                >
+                  {(OKRData?.supervisorOkr ?? 0).toFixed(2)}
+                </h2>
+                <h5
+                  id="okr-objective-supervisor-score-percent-display-h5"
+                  data-cy="okr-objective-supervisor-score-percent-display-h5"
+                >
+                  %
+                </h5>
               </div>
-              <div className="text-gray-700 mb-3">
-                <div className="text-md font-normal">Supervisor OKR Score</div>
+              <div
+                className="text-gray-700 mb-3"
+                id="okr-objective-supervisor-label-wrapper-display-div"
+                data-cy="okr-objective-supervisor-label-wrapper-display-div"
+              >
+                <div
+                  className="text-md font-normal"
+                  id="okr-objective-supervisor-label-display-div"
+                  data-cy="okr-objective-supervisor-label-display-div"
+                >
+                  Supervisor OKR Score
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-end">
-              <span className="text-xs font-normal">
+            <div
+              className="flex items-center justify-end"
+              id="okr-objective-supervisor-updated"
+              data-cy="okr-objective-supervisor-updated"
+            >
+              <span
+                id="okr-objective-supervisor-updated-text-display-span"
+                data-cy="okr-objective-supervisor-updated-text-display-span"
+                className="text-xs font-normal"
+              >
                 Updated: {new Date().toLocaleDateString()}
               </span>
             </div>

@@ -163,20 +163,23 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
       <div className="mt-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-900">Radius</span>
-          <InputNumber
-            value={currentRadius}
-            onChange={(value) => {
-              if (value !== null) {
-                handleRadiusChange(value);
-              }
-            }}
-            min={0.01}
-            step={0.001}
-            precision={3}
-            style={{ width: 120 }}
-            className="text-sm border border-gray-300 rounded-lg"
-            placeholder="Radius"
-          />
+          <div className="flex items-center gap-2">
+            <InputNumber
+              value={currentRadius}
+              onChange={(value) => {
+                if (value !== null) {
+                  handleRadiusChange(value);
+                }
+              }}
+              min={0.01}
+              step={0.001}
+              precision={3}
+              style={{ width: 120 }}
+              className="text-sm border border-gray-300 rounded-lg"
+              placeholder="Radius"
+            />
+            <span className="text-xs text-gray-900">km</span>
+          </div>
         </div>
         <Slider
           min={0.01}

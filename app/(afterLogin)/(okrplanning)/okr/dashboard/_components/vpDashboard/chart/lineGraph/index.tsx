@@ -191,10 +191,28 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
   };
 
   return (
-    <div className="border-[1px] border-gray-200 rounded-lg pb-2 px-3 pt-3 h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-lg font-bold">Actual Value </h4>
-        <div className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer">
+    <div
+      className="border-[1px] border-gray-200 rounded-lg pb-2 px-3 pt-3 h-full"
+      id="okr-vplinegraph-container-display-div"
+      data-cy="okr-vplinegraph-container-display-div"
+    >
+      <div
+        className="flex items-center justify-between mb-4"
+        id="okr-vplinegraph-header-display-div"
+        data-cy="okr-vplinegraph-header-display-div"
+      >
+        <h4
+          className="text-lg font-bold"
+          id="okr-vplinegraph-title-display-h4"
+          data-cy="okr-vplinegraph-title-display-h4"
+        >
+          Actual Value{' '}
+        </h4>
+        <div
+          className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer"
+          id="okr-vplinegraph-filter-display-div"
+          data-cy="okr-vplinegraph-filter-display-div"
+        >
           <Select
             placeholder="select"
             allowClear
@@ -206,6 +224,8 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
             bordered={false}
             defaultValue="Quarterly"
             onChange={handleChange}
+            id="okr-vplinegraph-period-select-display-select"
+            data-cy="okr-vplinegraph-period-select-display-select"
           />
         </div>
       </div>
@@ -219,6 +239,8 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
               ? 172 // xl
               : 230 // default/mobile
         }
+        id="okr-vplinegraph-bar-chart-display-chart"
+        data-cy="okr-vplinegraph-bar-chart-display-chart"
       />
     </div>
   );

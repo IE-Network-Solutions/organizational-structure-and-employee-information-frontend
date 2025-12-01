@@ -73,28 +73,34 @@ const OKR: React.FC<any> = () => {
     }
   }
   return (
-    <div className={`h-auto w-full ${isMobile ? 'p-0' : 'p-4'}`}>
-      <div
+    <div id="okr-page-div-container" data-cy="okr-page-div-container" className={`h-auto w-full ${isMobile ? 'p-0' : 'p-4'}`}>
+      <div id="okr-page-div-header" data-cy="okr-page-div-header"
         className={`${isMobile && 'mx-5 mt-6'} flex flex-wrap justify-between items-center`}
       >
         <CustomBreadcrumb
+          
+          data-cy="okr-breadcrumb"
           title="Objective"
           subtitle="Employee's objective setting up"
         />
-        <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
+        <div id="okr-page-div-buttons" data-cy="okr-page-div-buttons" className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
           {userObjectives?.items?.length === 0 ||
           userObjectives?.items?.some(
             (item: any) => item?.isClosed == false,
           ) ? (
-            <div className="py-4 px-2 flex justify-center items-center gap-4">
-              <AccessGuard permissions={[Permissions.ViewOkrReports]}>
+            <div id="okr-page-div-buttons-content" data-cy="okr-page-div-buttons-content" className="py-4 px-2 flex justify-center items-center gap-4">
+              <AccessGuard data-cy="okr-page-access-guard" permissions={[Permissions.ViewOkrReports]}>
                 <CustomButton
+                  id="okr-page-button-download"
+                  data-cy="okr-page-button-download"
                   size={isMobile ? 'small' : 'middle'}
                   loading={empOkrScoreLoading}
                   title={isMobile ? '' : 'Download'}
                   isTitleHidden={isMobile ? true : false}
                   icon={
                     <LiaFileDownloadSolid
+                      id="okr-page-button-download-icon"
+                      data-cy="okr-page-button-download-icon"
                       size={isMobile ? 14 : 20}
                       className={`text-black ${isMobile ? 'mr-0' : 'mr-2'}`}
                     />
@@ -115,8 +121,11 @@ const OKR: React.FC<any> = () => {
                 title={isMobile ? '' : 'Set Objective'}
                 isTitleHidden={isMobile ? true : false}
                 id="createUserButton"
+                data-cy="okr-page-button-create-user"
                 icon={
                   <FaPlus
+                    id="okr-page-button-create-user-icon"
+                    data-cy="okr-page-button-create-user-icon"
                     size={isMobile ? 14 : 20}
                     className={isMobile ? 'mr-0' : 'mr-2'}
                   />
@@ -136,8 +145,8 @@ const OKR: React.FC<any> = () => {
           )}
         </div>
       </div>
-      <Dashboard />
-      <OkrDrawer open={open} onClose={onClose} />
+      <Dashboard data-cy="okr-page-dashboard" />
+      <OkrDrawer data-cy="okr-page-drawer" open={open} onClose={onClose} />
     </div>
   );
 };
