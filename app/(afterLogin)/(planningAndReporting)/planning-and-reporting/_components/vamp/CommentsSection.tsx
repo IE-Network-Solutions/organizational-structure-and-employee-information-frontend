@@ -1,0 +1,149 @@
+import React, { useState, useMemo } from 'react';
+import { Avatar, Skeleton } from 'antd';
+import CommentList from '../comments/commentList';
+import { CommentsData } from '@/types/okr';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+
+interface CommentsSectionProps {
+  commentCount: number;
+  commentAvatars: string[];
+  planId: string;
+  isPlanCard: boolean; // true for plans, false for reports
+  comments?: CommentsData[]; // Comments data from the backend
+  isLoading?: boolean; // Loading state for comments
+}
+
+export default function CommentsSection({
+  commentCount,
+  commentAvatars,
+  planId,
+  isPlanCard,
+  comments = [],
+  isLoading = false,
+}: CommentsSectionProps) {
+  const [showComments, setShowComments] = useState(false);
+  const [showAddComment, setShowAddComment] = useState(false);
+  const { data: allUsers } = useGetAllUsers();
+
+  // Get unique commenters from comments
+  const uniqueCommenters = useMemo(() => {
+    if (!comments || comments.length === 0) return [];
+    
+    // Get unique users who commented
+    const unique = comments.filter(
+      (comment, index, self) =>
+        index === self.findIndex((c) => c.commentedBy === comment.commentedBy)
+    );
+    
+    // Limit to 5
+    return unique.slice(0, 5);
+  }, [comments]);
+
+  // Get user details for each commenter
+  const getUserDetail = (userId: string) => {
+    const user = allUsers?.items?.find((user: any) => user.id === userId);
+    if (!user) {
+      return {
+        profileImage: null,
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        initials: 'UU',
+      };
+    }
+    
+    const firstName = user.firstName || '';
+    const middleName = user.middleName || '';
+    const lastName = user.lastName || '';
+    const initials = `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
+    
+    return {
+      profileImage: user.profileImage,
+      firstName,
+      middleName,
+      lastName,
+      initials,
+    };
+  };
+
+  const handleAddCommentClick = () => {
+    setShowAddComment(true);
+    setShowComments(true); // Also show comments list when adding
+  };
+
+  const handleCommentsClick = () => {
+    setShowComments(!showComments);
+    if (!showComments) {
+      setShowAddComment(false); // Hide add comment form when just viewing
+    }
+  };
+
+  return (
+    <div className="mt-5">
+      {/* Header: Avatars | Comments Count | Add Comment Button */}
+      <div className="flex items-center justify-between w-full">
+        <div 
+          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={handleCommentsClick}
+        >
+          {commentCount > 0 && uniqueCommenters.length > 0 && (
+            <Avatar.Group size={48} maxCount={5}>
+              {uniqueCommenters.map((commentData, index) => {
+                const userDetail = getUserDetail(commentData.commentedBy);
+                return (
+                  <Avatar
+                    key={`avatar-${commentData.commentedBy}-${index}`}
+                    src={userDetail.profileImage || undefined}
+                    size={48}
+                    style={{
+                      backgroundColor: userDetail.profileImage ? undefined : '#E0E7FF',
+                      color: userDetail.profileImage ? undefined : '#4C1D95',
+                      fontSize: '16px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {!userDetail.profileImage && userDetail.initials}
+                  </Avatar>
+                );
+              })}
+            </Avatar.Group>
+          )}
+          <span className="text-sm font-semibold text-[#1F213A]">
+            {commentCount} Comments
+          </span>
+        </div>
+        <span
+          onClick={handleAddCommentClick}
+          className="cursor-pointer text-base font-bold transition-colors"
+          style={{ color: '#2563EB' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#1D4ED8'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#2563EB'; }}
+        >
+          Add Comment
+        </span>
+      </div>
+      
+      {/* Comments List and Add Comment Form */}
+      {showComments && (
+        <div className="mt-4">
+          {isLoading ? (
+            <Skeleton
+              active
+              title={false}
+              paragraph={{ rows: 3, width: ['100%', '80%', '60%'] }}
+            />
+          ) : (
+            <CommentList 
+              data={comments || []} 
+              planId={planId} 
+              isPlanCard={isPlanCard}
+              showAddForm={showAddComment}
+              onFormSubmit={() => setShowAddComment(false)}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+

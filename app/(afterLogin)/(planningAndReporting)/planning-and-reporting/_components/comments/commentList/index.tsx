@@ -24,10 +24,14 @@ const CommentList = ({
   data,
   planId,
   isPlanCard,
+  showAddForm = true,
+  onFormSubmit,
 }: {
   data: CommentsData[];
   planId: string;
   isPlanCard: boolean;
+  showAddForm?: boolean;
+  onFormSubmit?: () => void;
 }) => {
   const { data: allUsers } = useGetAllUsers();
   const { mutate: onAddPlanComment, isLoading: addPlanLoading } =
@@ -82,6 +86,7 @@ const CommentList = ({
               onSuccess: () => {
                 form.resetFields(); // Reset the form after submission
                 setEditingCommentId(''); // Clear edit mode
+                onFormSubmit?.(); // Notify parent
               },
             },
           );
@@ -94,6 +99,7 @@ const CommentList = ({
           addMutation(values, {
             onSuccess: () => {
               form.resetFields(); // Reset the form after submission
+              onFormSubmit?.(); // Notify parent
             },
           });
         }
@@ -161,46 +167,48 @@ const CommentList = ({
         );
       })}
 
-      <Form
-        form={form}
-        layout="inline"
-        className="w-full mt-4"
-        onFinish={handleSubmit}
-      >
-        <Form.Item
-          name={isPlanCard ? 'planId' : 'reportId'}
-          initialValue={planId}
-          hidden
+      {showAddForm && (
+        <Form
+          form={form}
+          layout="inline"
+          className="w-full mt-4"
+          onFinish={handleSubmit}
         >
-          <Input type="hidden" />
-        </Form.Item>
-        <Form.Item name="commentedBy" initialValue={userId} hidden>
-          <Input type="hidden" />
-        </Form.Item>
-        <Row gutter={8} align="middle" className="w-full">
-          <Col span={20}>
-            <Form.Item
-              name="comment"
-              rules={[{ required: true, message: 'Please enter a comment' }]}
-              className="w-full"
-            >
-              <Input placeholder="Add a comment..." />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
-            <Form.Item>
-              <Button
-                loading={isLoading}
-                type="primary"
-                htmlType="submit"
+          <Form.Item
+            name={isPlanCard ? 'planId' : 'reportId'}
+            initialValue={planId}
+            hidden
+          >
+            <Input type="hidden" />
+          </Form.Item>
+          <Form.Item name="commentedBy" initialValue={userId} hidden>
+            <Input type="hidden" />
+          </Form.Item>
+          <Row gutter={8} align="middle" className="w-full">
+            <Col span={20}>
+              <Form.Item
+                name="comment"
+                rules={[{ required: true, message: 'Please enter a comment' }]}
                 className="w-full"
               >
-                Send
-              </Button>
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
+                <Input placeholder="Add a comment..." />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item>
+                <Button
+                  loading={isLoading}
+                  type="primary"
+                  htmlType="submit"
+                  className="w-full"
+                >
+                  Send
+                </Button>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      )}
     </div>
   );
 };

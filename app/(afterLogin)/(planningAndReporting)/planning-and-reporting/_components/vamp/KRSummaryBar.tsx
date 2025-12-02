@@ -53,18 +53,8 @@ export default function KRSummaryBar({ plan, viewMode, keyResult }: KRSummaryBar
       };
     }
 
-    // If keyResult already has targetValue and currentValue, use those (they're pre-calculated)
-    if (keyResult.targetValue !== undefined && keyResult.currentValue !== undefined) {
-      const target = keyResult.targetValue ?? 0;
-      const achieved = viewMode === 'reporting' ? (keyResult.currentValue ?? 0) : 0;
-      const progress = keyResult.progress ?? (target > 0 && viewMode === 'reporting' 
-        ? Math.round((achieved / target) * 100)
-        : 0);
-      
-      return { target, achieved, progress };
-    }
-
-    // Otherwise, calculate from tasks in this keyResult
+    // Always calculate from tasks in this specific keyResult to ensure accuracy
+    // This ensures we only reflect this key result's metric type, not the whole plan
     const allKRTasks = getAllKeyResultTasks(keyResult);
     
     // Calculate target from all tasks in this keyResult
@@ -76,27 +66,40 @@ export default function KRSummaryBar({ plan, viewMode, keyResult }: KRSummaryBar
     }, 0);
     
     // Calculate achieved from all tasks in this keyResult (for reporting mode)
-    // Achieved is the sum of weights of tasks that are completed/achieved
+    // Achieved is the sum of weights of tasks that are completed/achieved (passed)
+    // IMPORTANT: We ALWAYS recalculate from task weights, never use keyResult.currentValue
     const achieved = viewMode === 'reporting'
-      ? allKRTasks
-          .filter((task: any) => {
+      ? (() => {
+          // Filter to only completed/achieved tasks
+          const completedTasks = allKRTasks.filter((task: any) => {
+            // Check if task is completed/achieved/passed
             const taskStatus = task.status;
-            return taskStatus === 'completed' || task.isAchieved === true;
-          })
-          .reduce((sum: number, task: any) => {
-            const taskWeight = task.weight ?? 0;
+            const isAchieved = task.isAchieved === true;
+            const isCompleted = taskStatus === 'completed';
+            // Only count tasks that are explicitly marked as achieved/completed
+            return isAchieved || isCompleted;
+          });
+          
+          // Sum the WEIGHTS of completed tasks (not their achieved values)
+          const sumOfWeights = completedTasks.reduce((sum: number, task: any) => {
+            const taskWeight = Number(task.weight) || 0;
             return sum + taskWeight;
-          }, 0)
+          }, 0);
+          
+          return sumOfWeights;
+        })()
       : 0;
     
     // Calculate progress based on achieved vs target
-    const progress = target > 0 && viewMode === 'reporting' 
-      ? Math.round((achieved / target) * 100)
+    // Use keyResult's targetValue if available, otherwise use calculated target
+    const finalTarget = keyResult.targetValue ?? target;
+    const progress = finalTarget > 0 && viewMode === 'reporting' 
+      ? Math.round((achieved / finalTarget) * 100)
       : (keyResult.progress ?? plan.progress ?? 0);
     
     return {
-      target: keyResult.targetValue ?? target,
-      achieved: keyResult.currentValue ?? achieved,
+      target: finalTarget,
+      achieved: achieved, // Always use calculated achieved from this key result's tasks
       progress,
     };
   };
@@ -105,10 +108,21 @@ export default function KRSummaryBar({ plan, viewMode, keyResult }: KRSummaryBar
   const metricType = keyResult?.metricType?.name || plan.milestoneLabel;
   const isMilestone = metricType === 'Milestone';
 
-  // Format numbers with commas for display
+  // Format numbers to remove trailing zeros (e.g., 100.000 -> 100, 15.00025 -> 15.00025)
   const formatNumber = (value: number | undefined | null): string => {
-    if (value === undefined || value === null || isNaN(value)) return '0';
-    return typeof value === 'number' ? value.toLocaleString() : String(value);
+    if (value === undefined || value === null) return '0';
+    const num = typeof value === 'string' ? parseFloat(value) : Number(value);
+    if (isNaN(num)) return '0';
+    // If it's a whole number, return without decimals
+    if (num % 1 === 0) {
+      return num.toString();
+    }
+    // For decimals, remove only trailing zeros after the decimal point
+    const str = num.toString();
+    if (str.includes('.')) {
+      return str.replace(/\.?0+$/, '');
+    }
+    return str;
   };
 
   return (

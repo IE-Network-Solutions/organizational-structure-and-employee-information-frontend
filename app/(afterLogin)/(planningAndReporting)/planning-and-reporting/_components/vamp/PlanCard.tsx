@@ -3,7 +3,8 @@ import { Button, Dropdown, Menu, Tooltip } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { BsKey } from 'react-icons/bs';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
-import { AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import { AiOutlineEdit } from 'react-icons/ai';
+import { IoCheckmarkSharp, IoIosOpen } from 'react-icons/io5';
 import dayjs from 'dayjs';
 import { PlanSummary, ViewMode, Cadence } from './types';
 import UserInfo from './UserInfo';
@@ -16,21 +17,69 @@ interface PlanCardProps {
   plan: PlanSummary;
   viewMode: ViewMode;
   activeCadence: Cadence;
+  // Optional action handlers
+  onApprove?: () => void;
+  onOpen?: () => void;
+  onEdit?: () => void;
+  canApprove?: boolean;
+  canEdit?: boolean;
+  isApprovalLoading?: boolean;
+  dateLabel?: string;
 }
 
-export default function PlanCard({ plan, viewMode, activeCadence }: PlanCardProps) {
-  const menu = (
+export default function PlanCard({ 
+  plan, 
+  viewMode, 
+  activeCadence,
+  onApprove,
+  onOpen,
+  onEdit,
+  canApprove = false,
+  canEdit = false,
+  isApprovalLoading = false,
+  dateLabel,
+}: PlanCardProps) {
+  // Approval menu (for managers)
+  const approvalMenu = (
     <Menu>
-      <Menu.Item key="edit" icon={<AiOutlineEdit />} onClick={() => console.log('Edit', plan.id)}>
-        Edit
-      </Menu.Item>
-      <Menu.Item key="delete" icon={<AiOutlineDelete />} onClick={() => console.log('Delete', plan.id)} danger>
-        Delete
+      {plan.status?.label === 'Open' ? (
+        <Menu.Item 
+          key="approve" 
+          icon={<IoCheckmarkSharp />}
+          onClick={onApprove}
+          className="text-green-500"
+        >
+          <Tooltip title={isApprovalLoading ? 'Processing approval...' : "Approve Plan! Once you approve, you can't edit"}>
+            Approve
+          </Tooltip>
+        </Menu.Item>
+      ) : (
+        <Menu.Item 
+          key="open" 
+          icon={<IoIosOpen size={16} />}
+          onClick={onOpen}
+          className="text-red-400"
+        >
+          <Tooltip title="Open approved Plan">Open</Tooltip>
+        </Menu.Item>
+      )}
+    </Menu>
+  );
+
+  // Edit menu (for plan owner)
+  const editMenu = (
+    <Menu>
+      <Menu.Item key="edit" icon={<AiOutlineEdit size={16} />} onClick={onEdit}>
+        <Tooltip title="Edit Plan">
+          <span>Edit</span>
+        </Tooltip>
       </Menu.Item>
     </Menu>
   );
 
   const getDateLabel = () => {
+    if (dateLabel) return dateLabel;
+    
     const planDate = dayjs(plan.createdAt);
     const today = dayjs();
     const yesterday = dayjs().subtract(1, 'day');
@@ -47,7 +96,7 @@ export default function PlanCard({ plan, viewMode, activeCadence }: PlanCardProp
   };
 
   return (
-    <article className="rounded-3xl border border-gray-300 p-4 mb-4">
+    <article className="rounded-3xl border border-gray-300 p-6 mb-4">
       {/* Header with Title and Reprimand/Appreciation Badges */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-bold text-[#8F94A3]">{getDateLabel()}</h3>
@@ -71,8 +120,19 @@ export default function PlanCard({ plan, viewMode, activeCadence }: PlanCardProp
         <UserInfo owner={plan.owner} notificationCount={plan.notificationCount} />
         <div className="flex items-center gap-3">
           {plan.status && <StatusBadge status={plan.status} />}
-          {plan.status && plan.status.label === 'Open' && (
-            <Dropdown overlay={menu} trigger={['click']}>
+          {canApprove && (
+            <Dropdown overlay={approvalMenu} trigger={['click']}>
+              <Button
+                loading={isApprovalLoading}
+                type="text"
+                icon={<MoreOutlined />}
+                className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto"
+                style={{ minWidth: 'auto', fontSize: '20px' }}
+              />
+            </Dropdown>
+          )}
+          {canEdit && plan.status?.label === 'Open' && (
+            <Dropdown overlay={editMenu} trigger={['click']}>
               <Button
                 type="text"
                 icon={<MoreOutlined />}
@@ -88,7 +148,7 @@ export default function PlanCard({ plan, viewMode, activeCadence }: PlanCardProp
       {plan.keyResults && plan.keyResults.length > 0 ? (
         plan.keyResults.map((keyResult, krIndex) => (
           <div key={keyResult.id} className={krIndex > 0 ? "mt-4" : ""}>
-            <div className="rounded-3xl border border-[#F1F2F6] bg-white p-6">
+            <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-12">
               <div className="pl-2">
                 {/* Key Result Summary Bar */}
                 <div className="mb-4">
@@ -240,7 +300,7 @@ export default function PlanCard({ plan, viewMode, activeCadence }: PlanCardProp
         ))
       ) : (
         /* Fallback to flat tasks if no key results */
-        <div className="rounded-3xl border border-[#F1F2F6] bg-white p-6">
+        <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-12">
           <div className="pl-2">
             <div className="mb-4">
               <KRSummaryBar plan={plan} viewMode={viewMode} />
@@ -274,6 +334,9 @@ export default function PlanCard({ plan, viewMode, activeCadence }: PlanCardProp
         <CommentsSection
           commentCount={plan.commentCount}
           commentAvatars={plan.commentAvatars}
+          planId={plan.id}
+          isPlanCard={viewMode === 'planning'}
+          comments={plan.comments}
         />
       </div>
     </article>

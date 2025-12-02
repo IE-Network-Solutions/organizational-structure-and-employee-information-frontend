@@ -11,6 +11,20 @@ interface TaskRowProps {
 }
 
 export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowProps & { isLast?: boolean }) {
+  // Format number to remove trailing zeros (e.g., 100.000 -> 100)
+  const formatNumber = (value: number | string | undefined | null): string => {
+    if (value === undefined || value === null) return '0';
+    const num = typeof value === 'string' ? parseFloat(value) : Number(value);
+    if (isNaN(num)) return '0';
+    // Remove trailing zeros and decimal point if not needed
+    // Convert to string and remove trailing zeros
+    const str = num.toString();
+    if (str.includes('.')) {
+      return str.replace(/\.?0+$/, '');
+    }
+    return str;
+  };
+
   // Get task name from various possible property names
   const getTaskName = () => {
     const taskAny = task as any;
@@ -73,7 +87,7 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-[#8F94A3]">• Weight</span>
             <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-2 py-0.5 text-xs font-semibold text-[#3730A3]">
-              {task.weight}
+              {formatNumber(task.weight)}
             </Tag>
           </div>
 
@@ -81,7 +95,7 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-[#8F94A3]">• Target</span>
               <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-2 py-0.5 text-xs font-semibold text-[#3730A3]">
-                {task.target}
+                {formatNumber(task.target)}
               </Tag>
             </div>
           )}
@@ -93,7 +107,7 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
                 task.status === 'failed' ? 'bg-[#FEE2E2] text-[#991B1B]' :
                   'bg-[#FFEDD5] text-[#9A3412]'
                 }`}>
-                {task.achieved.toLocaleString()}
+                {formatNumber(task.achieved)}
               </Tag>
             </div>
           )}

@@ -8,7 +8,7 @@ interface StatusBadgeProps {
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const isClosed = status.label === 'Closed';
-  
+
   // Map tone string to actual color values
   const getBackgroundColor = () => {
     if (status.tone === 'success' || isClosed) {
