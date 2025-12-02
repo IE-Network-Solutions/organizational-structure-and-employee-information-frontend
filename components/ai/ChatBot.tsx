@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import Image from 'next/image';
+import React, { useState, useRef, useEffect } from 'react';
 import {
+  Drawer,
   Input,
   Button,
   Spin,
@@ -17,6 +17,7 @@ import {
   CloseOutlined,
   PlusOutlined,
   DeleteOutlined,
+  MessageOutlined,
   HistoryOutlined,
   RobotOutlined,
 } from '@ant-design/icons';
@@ -53,15 +54,11 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [panelWidth, setPanelWidth] = useState(420);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get current chat messages
   const currentChat = chats.find((chat) => chat.id === currentChatId);
-  const messages = useMemo(
-    () => currentChat?.messages || [],
-    [currentChat?.messages],
-  );
+  const messages = currentChat?.messages || [];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -70,24 +67,6 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
-
-  useEffect(() => {
-    const updatePanelWidth = () => {
-      if (typeof window === 'undefined') return;
-      const { innerWidth } = window;
-      if (innerWidth < 480) {
-        setPanelWidth(innerWidth - 24);
-      } else if (innerWidth < 768) {
-        setPanelWidth(360);
-      } else {
-        setPanelWidth(420);
-      }
-    };
-
-    updatePanelWidth();
-    window.addEventListener('resize', updatePanelWidth);
-    return () => window.removeEventListener('resize', updatePanelWidth);
-  }, []);
 
   // Create new chat when component opens
   useEffect(() => {
@@ -205,26 +184,30 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
     });
   };
 
-  const suggestedPrompts = [
-    'How to create OKR',
-    'How do I create a daily plan?',
-    'What are OKRs?',
-    'How to add team members?',
-  ];
-
   // Chat history menu
   const chatHistoryMenu = (
-    <Menu>
+    <Menu id="chatbot-history-menu" data-cy="chatbot-history-menu">
       {chats.map((chat) => (
-        <Menu.Item key={chat.id} onClick={() => handleChatSelect(chat.id)}>
+        <Menu.Item
+          key={chat.id}
+          id={`chatbot-history-item-${chat.id}`}
+          data-cy={`chatbot-history-item-${chat.id}`}
+          onClick={() => handleChatSelect(chat.id)}
+        >
           <div
+            id={`chatbot-history-item-content-${chat.id}`}
+            data-cy={`chatbot-history-item-content-${chat.id}`}
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
             }}
           >
-            <div style={{ flex: 1, marginRight: '8px' }}>
+            <div
+              id={`chatbot-history-item-text-${chat.id}`}
+              data-cy={`chatbot-history-item-text-${chat.id}`}
+              style={{ flex: 1, marginRight: '8px' }}
+            >
               <Text ellipsis style={{ fontSize: '12px' }}>
                 {chat.title}
               </Text>
@@ -234,6 +217,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
               </Text>
             </div>
             <Button
+              id={`chatbot-history-delete-${chat.id}`}
+              data-cy={`chatbot-history-delete-${chat.id}`}
               type="text"
               size="small"
               icon={<DeleteOutlined />}
@@ -248,8 +233,16 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
       ))}
       {chats.length > 0 && (
         <>
-          <Menu.Divider />
-          <Menu.Item key="clear-all" onClick={handleClearAllChats}>
+          <Menu.Divider
+            id="chatbot-history-divider"
+            data-cy="chatbot-history-divider"
+          />
+          <Menu.Item
+            key="clear-all"
+            id="chatbot-history-clear-all"
+            data-cy="chatbot-history-clear-all"
+            onClick={handleClearAllChats}
+          >
             <Text type="danger">Clear All Chats</Text>
           </Menu.Item>
         </>
@@ -257,442 +250,319 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
     </Menu>
   );
 
-  if (!open) {
-    return null;
-  }
-
   return (
-    <>
-      <div
-        role="presentation"
-        onClick={handleClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(17, 24, 39, 0.35)',
-          backdropFilter: 'blur(6px)',
-          zIndex: 1000,
-        }}
-      />
+    <Drawer
+      id="chatbot-drawer"
+      data-cy="chatbot-drawer"
+      title={
+        <div
+          id="chatbot-title-wrapper"
+          data-cy="chatbot-title-wrapper"
+          className="flex items-center justify-between text-[#5B4FFF] text-base font-semibold"
+        >
+          <div
+            id="chatbot-title-content"
+            data-cy="chatbot-title-content"
+            className="flex items-center gap-2"
+          >
+            <MessageOutlined />
+            SelamNew AI
+          </div>
+          <div
+            id="chatbot-title-actions"
+            data-cy="chatbot-title-actions"
+            className="flex gap-2"
+          >
+            <Tooltip title="New Chat">
+              <Button
+                id="chatbot-new-chat-button"
+                data-cy="chatbot-new-chat-button"
+                type="text"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={handleNewChat}
+                className="text-[#5B4FFF]"
+              />
+            </Tooltip>
+            {chats.length > 0 && (
+              <div
+                id="chatbot-history-dropdown"
+                data-cy="chatbot-history-dropdown"
+              >
+                <Dropdown
+                  overlay={chatHistoryMenu}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <Button
+                    id="chatbot-history-button"
+                    data-cy="chatbot-history-button"
+                    type="text"
+                    size="small"
+                    icon={<HistoryOutlined />}
+                    className="text-[#5B4FFF]"
+                  />
+                </Dropdown>
+              </div>
+            )}
+          </div>
+        </div>
+      }
+      placement="right"
+      onClose={handleClose}
+      open={open}
+      width={400}
+      closeIcon={<CloseOutlined className="text-[#5B4FFF]" />}
+      className="[&_.ant-drawer-header]:border-b [&_.ant-drawer-header]:border-gray-200 [&_.ant-drawer-header]:p-4 [&_.ant-drawer-header]:bg-gradient-to-b [&_.ant-drawer-header]:from-[#F8F7FF] [&_.ant-drawer-header]:to-white [&_.ant-drawer-body]:p-0 [&_.ant-drawer-body]:flex [&_.ant-drawer-body]:flex-col [&_.ant-drawer-body]:h-[calc(100vh-64px)] [&_.ant-drawer-body]:bg-gradient-to-b [&_.ant-drawer-body]:from-[#F8F7FF] [&_.ant-drawer-body]:to-white"
+    >
       <div
         role="dialog"
         aria-modal="true"
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          zIndex: 1001,
-          width: panelWidth,
-          maxWidth: 'calc(100vw - 32px)',
-          maxHeight: 'calc(100vh - 48px)',
-          height: 'min(700px, calc(100vh - 48px))',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          boxShadow: '0 32px 80px rgba(17, 24, 39, 0.18)',
-          background: '#F4F5F9',
-        }}
+        id="chatbot-wrapper-view-space"
+        data-cy="chatbot-wrapper-view-space"
+        className="flex-1 overflow-y-auto p-5 flex flex-col"
       >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            minHeight: 0,
-          }}
-        >
+        {messages.length === 0 ? (
           <div
-            style={{
-              padding: '16px 20px',
-              background: 'linear-gradient(180deg, #F8F7FF 0%, #FFFFFF 100%)',
-              borderBottom: '1px solid rgba(229, 231, 235, 0.8)',
-            }}
+            id="chatbot-empty-state"
+            data-cy="chatbot-empty-state"
+            className="flex flex-col items-center justify-center h-full text-center gap-5"
           >
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '12px',
-              }}
+              id="chatbot-empty-avatar-container"
+              data-cy="chatbot-empty-avatar-container"
+              className="w-[60px] h-[60px] rounded-full bg-gradient-to-br from-[#667EEA] to-[#764BA2] flex items-center justify-center relative"
             >
               <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
+                id="chatbot-empty-avatar-pulse"
+                data-cy="chatbot-empty-avatar-pulse"
+                className="absolute w-[50px] h-[50px] rounded-full bg-white/20 animate-pulse"
               >
-                <Avatar
-                  size={40}
-                  src="/icons/512.png"
-                  style={{
-                    background: '#FFFFFF',
-                    border: '1px solid rgba(91, 79, 255, 0.15)',
-                    boxShadow: '0 4px 12px rgba(91, 79, 255, 0.2)',
-                    padding: '6px',
-                  }}
-                />
-                <div>
-                  <div
-                    style={{
-                      color: '#2C2F36',
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    SelamNew AI
-                  </div>
+                <div id="chatbot-empty-avatar" data-cy="chatbot-empty-avatar">
+                  <Avatar
+                    size={40}
+                    src="/icons/512.png"
+                    className="bg-white border border-[rgba(91,79,255,0.15)] shadow-[0_4px_12px_rgba(91,79,255,0.2)] p-1.5"
+                  />
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Tooltip title="New Chat">
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<PlusOutlined />}
-                    onClick={handleNewChat}
-                    style={{ color: '#5B4FFF' }}
-                  />
-                </Tooltip>
-                {chats.length > 0 && (
+            </div>
+            <div id="chatbot-empty-title" data-cy="chatbot-empty-title">
+              <div className="text-[#2C2F36] text-base font-semibold leading-tight">
+                SelamNew AI
+              </div>
+            </div>
+            <div
+              id="chatbot-empty-actions"
+              data-cy="chatbot-empty-actions"
+              className="flex gap-2"
+            >
+              <Tooltip
+                title="New Chat"
+                id="chatbot-new-chat-tooltip-wrapper-view-space"
+                data-cy="chatbot-new-chat-tooltip-wrapper-view-space"
+              >
+                <Button
+                  id="chatbot-empty-new-chat-button"
+                  data-cy="chatbot-empty-new-chat-button"
+                  type="text"
+                  size="small"
+                  icon={<PlusOutlined />}
+                  onClick={handleNewChat}
+                  className="text-[#5B4FFF]"
+                />
+              </Tooltip>
+              {chats.length > 0 && (
+                <div
+                  id="chatbot-empty-history-dropdown"
+                  data-cy="chatbot-empty-history-dropdown"
+                >
                   <Dropdown
                     overlay={chatHistoryMenu}
                     trigger={['click']}
                     placement="bottomRight"
                   >
                     <Button
+                      id="chatbot-empty-history-button"
+                      data-cy="chatbot-empty-history-button"
                       type="text"
                       size="small"
                       icon={<HistoryOutlined />}
-                      style={{ color: '#5B4FFF' }}
+                      className="text-[#5B4FFF]"
                     />
                   </Dropdown>
-                )}
-                <Tooltip title="Close">
-                  <Button
-                    type="text"
-                    size="small"
-                    icon={<CloseOutlined />}
-                    onClick={handleClose}
-                    style={{ color: '#8C91A0' }}
-                  />
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              flex: 1,
-              overflowY: 'auto',
-              padding: '24px 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-              minHeight: 0,
-            }}
-          >
-            {messages.length === 0 ? (
-              <div
-                style={{
-                  background:
-                    'linear-gradient(180deg, #FFFFFF 0%, #F7F6FF 100%)',
-                  borderRadius: '20px',
-                  padding: '32px 24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  gap: '18px',
-                  boxShadow: '0 12px 30px rgba(91, 79, 255, 0.08)',
-                  border: '1px solid rgba(91, 79, 255, 0.08)',
-                }}
+                </div>
+              )}
+              <Tooltip
+                title="Close"
+                id="chatbot-close-tooltip-wrapper-view-space"
+                data-cy="chatbot-close-tooltip-wrapper-view-space"
               >
-                <div
-                  style={{
-                    width: '68px',
-                    height: '68px',
-                    borderRadius: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'relative',
-                    boxShadow: '0 18px 45px rgba(102, 126, 234, 0.25)',
-                  }}
-                >
-                  <Image
-                    src="/icons/256.png"
-                    alt="SelamNew"
-                    width={36}
-                    height={36}
-                    priority
-                  />
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      color: '#2C2F36',
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Welcome to SelamNew AI
-                  </div>
-                  <Text
-                    type="secondary"
-                    style={{
-                      fontSize: '14px',
-                      lineHeight: '22px',
-                      maxWidth: '320px',
-                      display: 'block',
-                      margin: '0 auto',
-                    }}
-                  >
-                    Ask anything about planning, reporting, and managing your
-                    team. Choose a quick prompt below or start typing your own
-                    question.
-                  </Text>
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '10px',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {suggestedPrompts.map((suggestion) => (
-                    <Button
-                      key={suggestion}
-                      size="small"
-                      type="default"
-                      onClick={() => setInputValue(suggestion)}
-                      style={{
-                        fontSize: '12px',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(91, 79, 255, 0.25)',
-                        color: '#5B4FFF',
-                        background: 'rgba(91, 79, 255, 0.06)',
-                      }}
-                    >
-                      {suggestion}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <>
-                {messages.map((message) => {
-                  const isUser = message.sender === 'user';
-                  const userInitial =
-                    userData?.firstName?.[0]?.toUpperCase() ||
-                    userData?.lastName?.[0]?.toUpperCase() ||
-                    'U';
-                  return (
-                    <div
-                      key={message.id}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: isUser ? 'flex-end' : 'flex-start',
-                        gap: '6px',
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: isUser ? 'row-reverse' : 'row',
-                          alignItems: 'flex-end',
-                          gap: '12px',
-                          width: '100%',
-                          justifyContent: isUser ? 'flex-end' : 'flex-start',
-                        }}
-                      >
-                        <Avatar
-                          size={36}
-                          style={{
-                            background: isUser
-                              ? 'linear-gradient(135deg, #F5F7FF 0%, #E9ECFF 100%)'
-                              : '#FFFFFF',
-                            color: isUser ? '#5B4FFF' : '#FFFFFF',
-                            border: isUser
-                              ? '1px solid rgba(91, 79, 255, 0.2)'
-                              : '1px solid rgba(91, 79, 255, 0.15)',
-                            padding: isUser ? 0 : '6px',
-                          }}
-                          src={isUser ? undefined : '/icons/256.png'}
-                          icon={isUser ? undefined : <RobotOutlined />}
-                        >
-                          {isUser ? userInitial : null}
-                        </Avatar>
-                        <div
-                          style={{
-                            maxWidth: '80%',
-                            background: isUser ? '#FFFFFF' : '#FFFFFF',
-                            borderRadius: isUser
-                              ? '18px 18px 4px 18px'
-                              : '18px 18px 18px 4px',
-                            padding: isUser ? '12px 16px' : '16px',
-                            border: isUser
-                              ? '1px solid rgba(91, 79, 255, 0.15)'
-                              : '1px solid rgba(91, 79, 255, 0.1)',
-                            boxShadow: isUser
-                              ? '0 12px 32px rgba(91, 79, 255, 0.08)'
-                              : '0 15px 36px rgba(102, 126, 234, 0.12)',
-                            wordBreak: 'break-word',
-                            fontSize: '14px',
-                            lineHeight: '22px',
-                            color: '#2C2F36',
-                          }}
-                        >
-                          {isUser ? (
-                            message.text
-                          ) : (
-                            <AIResponseFormatter
-                              response={message.text}
-                              compact={true}
-                              onActionClick={() => {
-                                // Handle action clicks - could navigate to different parts of the app
-                              }}
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '11px',
-                          color: '#8C91A0',
-                          paddingLeft: isUser ? '0' : '48px',
-                          paddingRight: isUser ? '48px' : '0',
-                        }}
-                      >
-                        {formatTime(message.timestamp)}
-                      </div>
-                    </div>
-                  );
-                })}
-                {isLoading && (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'flex-start',
-                      gap: '12px',
-                    }}
-                  >
-                    <Avatar
-                      size={36}
-                      style={{
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(91, 79, 255, 0.15)',
-                        padding: '6px',
-                        color: '#FFFFFF',
-                      }}
-                      src="/icons/256.png"
-                      icon={<RobotOutlined />}
-                    />
-                    <div
-                      style={{
-                        padding: '12px 16px',
-                        borderRadius: '18px 18px 18px 4px',
-                        background: '#FFFFFF',
-                        border: '1px solid rgba(91, 79, 255, 0.1)',
-                        boxShadow: '0 15px 36px rgba(102, 126, 234, 0.12)',
-                      }}
-                    >
-                      <Spin size="small" />
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-          <div
-            style={{
-              padding: '16px 20px 20px',
-              borderTop: '1px solid rgba(91, 79, 255, 0.08)',
-              background: '#FFFFFF',
-              boxShadow: '0 -8px 30px rgba(91, 79, 255, 0.05)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'flex-end',
-                flexWrap: 'wrap',
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  borderRadius: '18px',
-                  padding: '1px 6px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }}
-              >
-                <Input.TextArea
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your message here..."
-                  autoSize={{ minRows: 1, maxRows: 4 }}
-                  style={{
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    border: '1px solid rgba(91, 79, 255, 0.12)',
-                    resize: 'none',
-                    padding: '10px 12px',
-                    background: '#FFFFFF',
-                  }}
-                  disabled={isLoading}
+                <Button
+                  id="chatbot-empty-close-button"
+                  data-cy="chatbot-empty-close-button"
+                  type="text"
+                  size="small"
+                  icon={<CloseOutlined />}
+                  onClick={handleClose}
+                  className="text-[#8C91A0]"
                 />
-              </div>
-              <Button
-                type="primary"
-                icon={<SendOutlined style={{ color: '#FFFFFF' }} />}
-                onClick={handleSend}
-                disabled={!inputValue.trim() || isLoading}
-                style={{
-                  borderRadius: '8px',
-                  minWidth: '50px',
-                  height: '46px',
-                  display: 'block',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#5B4FFF',
-                  border: 'none',
-                  boxShadow: '0 18px 32px rgba(102, 126, 234, 0.25)',
-                  fontSize: '18px',
-                }}
-              />
+              </Tooltip>
             </div>
           </div>
-        </div>
+        ) : (
+          <div
+            id="chatbot-messages-container"
+            data-cy="chatbot-messages-container"
+          >
+            {messages.map((message) => {
+              const isUser = message.sender === 'user';
+              const userInitial =
+                userData?.firstName?.[0]?.toUpperCase() ||
+                userData?.lastName?.[0]?.toUpperCase() ||
+                'U';
 
-        <style jsx global>{`
-          @keyframes pulse {
-            0%,
-            100% {
-              transform: scale(1);
-              opacity: 0.5;
-            }
-            50% {
-              transform: scale(1.1);
-              opacity: 0.3;
-            }
-          }
-        `}</style>
+              return (
+                <div
+                  key={message.id}
+                  id={`chatbot-message-${message.id}`}
+                  data-cy={`chatbot-message-${message.id}`}
+                  className={`flex flex-col gap-1.5 ${isUser ? 'items-end' : 'items-start'}`}
+                >
+                  <div
+                    id={`chatbot-message-content-${message.id}`}
+                    data-cy={`chatbot-message-content-${message.id}`}
+                    className={`flex items-end gap-3 w-full ${isUser ? 'flex-row-reverse justify-end' : 'flex-row justify-start'}`}
+                  >
+                    <div
+                      id={`chatbot-message-avatar-${message.id}`}
+                      data-cy={`chatbot-message-avatar-${message.id}`}
+                    >
+                      <Avatar
+                        size={36}
+                        className={isUser 
+                          ? 'bg-gradient-to-br from-[#F5F7FF] to-[#E9ECFF] text-[#5B4FFF] border border-[rgba(91,79,255,0.2)] p-0' 
+                          : 'bg-white text-white border border-[rgba(91,79,255,0.15)] p-1.5'}
+                        src={isUser ? undefined : '/icons/256.png'}
+                        icon={isUser ? undefined : <RobotOutlined />}
+                      >
+                        {isUser ? userInitial : null}
+                      </Avatar>
+                    </div>
+                    <div
+                      id={`chatbot-message-text-${message.id}`}
+                      data-cy={`chatbot-message-text-${message.id}`}
+                      className={`max-w-[80%] bg-white break-words text-sm leading-[22px] text-[#2C2F36] ${
+                        isUser 
+                          ? 'rounded-[18px_18px_4px_18px] p-3 border border-[rgba(91,79,255,0.15)] shadow-[0_12px_32px_rgba(91,79,255,0.08)]' 
+                          : 'rounded-[18px_18px_18px_4px] p-4 border border-[rgba(91,79,255,0.1)] shadow-[0_15px_36px_rgba(102,126,234,0.12)]'
+                      }`}
+                    >
+                      {isUser ? (
+                        message.text
+                      ) : (
+                        <AIResponseFormatter
+                          response={message.text}
+                          compact={true}
+                          onActionClick={() => {
+                            // Handle action clicks - could navigate to different parts of the app
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    id={`chatbot-message-timestamp-${message.id}`}
+                    data-cy={`chatbot-message-timestamp-${message.id}`}
+                    className={`text-[11px] text-[#8C91A0] ${isUser ? 'pr-12 pl-0' : 'pl-12 pr-0'}`}
+                  >
+                    {formatTime(message.timestamp)}
+                  </div>
+                </div>
+              );
+            })}
+            {isLoading && (
+              <div
+                id="chatbot-loading-container"
+                data-cy="chatbot-loading-container"
+                className="flex flex-row items-start gap-3"
+              >
+                <div
+                  id="chatbot-loading-avatar"
+                  data-cy="chatbot-loading-avatar"
+                >
+                  <Avatar
+                    size={36}
+                    className="bg-white border border-[rgba(91,79,255,0.15)] p-1.5 text-white"
+                    src="/icons/256.png"
+                    icon={<RobotOutlined />}
+                  />
+                </div>
+                <div
+                  id="chatbot-loading-spinner"
+                  data-cy="chatbot-loading-spinner"
+                  className="p-3 rounded-[18px_18px_18px_4px] bg-white border border-[rgba(91,79,255,0.1)] shadow-[0_15px_36px_rgba(102,126,234,0.12)]"
+                >
+                  <Spin size="small" />
+                </div>
+              </div>
+            )}
+            <div
+              id="chatbot-messages-end"
+              data-cy="chatbot-messages-end"
+              ref={messagesEndRef}
+            />
+          </div>
+        )}
       </div>
-    </>
+
+      <div
+        id="chatbot-input-container"
+        data-cy="chatbot-input-container"
+        className="px-5 pb-5 pt-4 border-t border-gray-200 bg-white"
+      >
+        <div
+          id="chatbot-input-wrapper"
+          data-cy="chatbot-input-wrapper"
+          className="flex gap-2 items-end"
+        >
+          <Input.TextArea
+            id="chatbot-input"
+            data-cy="chatbot-input"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask me about SelamNew platform..."
+            autoSize={{ minRows: 1, maxRows: 4 }}
+            className="flex-1 rounded-[20px] py-2.5 px-4 text-sm border border-gray-200 resize-none"
+            disabled={isLoading}
+          />
+          <Button
+            id="chatbot-send-button"
+            data-cy="chatbot-send-button"
+            type="primary"
+            icon={<SendOutlined />}
+            onClick={handleSend}
+            disabled={!inputValue.trim() || isLoading}
+            className="rounded-full w-10 h-10 flex items-center justify-center bg-gradient-to-br from-[#667EEA] to-[#764BA2] border-none shadow-[0_4px_12px_rgba(102,126,234,0.4)]"
+          />
+        </div>
+      </div>
+
+      <style jsx global>{`
+        @keyframes pulse {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.5;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.3;
+          }
+        }
+      `}</style>
+    </Drawer>
   );
 };
 
