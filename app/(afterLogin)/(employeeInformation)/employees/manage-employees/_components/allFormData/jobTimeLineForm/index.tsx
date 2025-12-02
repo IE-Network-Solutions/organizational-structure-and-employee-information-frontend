@@ -729,9 +729,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           >
             <Form.Item
               name="allowanceIds"
-              rules={[
-                { required: true, message: 'Please select allowance type' },
-              ]}
               className="flex-1"
               id="job-timeline-allowance-ids"
               data-cy="job-timeline-allowance-ids"
