@@ -115,10 +115,6 @@ function Page() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
-  const handleDelete = (id: string) => {
-    deleteRecognition(id);
-  };
-
   const handleDeleteConfirm = (id: string) => {
     deleteRecognition(id, {
       onSuccess: () => {
