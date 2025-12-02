@@ -4,7 +4,7 @@ import {
   AllIncentiveData,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Avatar, Table, TableColumnsType, Tooltip, Button, Space } from 'antd';
+import { Avatar, Table, TableColumnsType, Tooltip, Space } from 'antd';
 import React, { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -14,7 +14,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
+import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
 import { useGetAllIncentiveIds } from '@/store/server/features/incentive/other/queries';
 
@@ -29,9 +29,10 @@ const AllIncentiveTable: React.FC = () => {
     setSelectedRowKeys,
   } = useIncentiveStore();
 
-  const { mutate: deleteIncentive } = useDeleteIncentive();
+  const { mutate: deleteIncentive, isLoading: isDeleting } = useDeleteIncentive();
   const router = useRouter();
   const isSelectingAllRef = useRef(false);
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState<Record<string, boolean>>({});
 
   const { refetch: fetchAllIds } = useGetAllIncentiveIds(
     searchParams?.employee_name || '',
@@ -41,8 +42,16 @@ const AllIncentiveTable: React.FC = () => {
     false // Always disabled, we'll use refetch manually
   );
 
-  const handleDelete = (id: string) => {
-    deleteIncentive({ id });
+  const handleDeleteConfirm = (id: string) => {
+    deleteIncentive({ id }, {
+      onSuccess: () => {
+        setDeleteModalOpen((prev) => ({ ...prev, [id]: false }));
+      },
+    });
+  };
+
+  const handleDeleteCancel = (id: string) => {
+    setDeleteModalOpen((prev) => ({ ...prev, [id]: false }));
   };
 
   const columns: TableColumnsType<any> = [
@@ -94,21 +103,27 @@ const AllIncentiveTable: React.FC = () => {
             id={`incentive-table-delete-guard-${record.id}`}
             data-cy={`incentive-table-delete-guard-${record.id}`}
           >
-            <div onClick={(e) => e.stopPropagation()}>
-              <DeletePopover
-                titleText="Are you sure you want to permanently delete this record? This action cannot be undone."
-                onDelete={() => handleDelete(record.id)}
-                data-cy={`incentive-table-delete-popover-${record.id}`}
+            <DeleteConfirmationPopover
+              open={deleteModalOpen[record.id] || false}
+              onCancel={() => handleDeleteCancel(record.id)}
+              onConfirm={() => handleDeleteConfirm(record.id)}
+              message="Are you sure you want to permanently delete this record?"
+              loading={isDeleting}
+              id={`incentive-table-delete-modal-${record.id}`}
+              data-cy={`incentive-table-delete-modal-${record.id}`}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteModalOpen((prev) => ({ ...prev, [record.id]: true }));
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white rounded w-8 h-8 flex items-center justify-center"
+                id={`incentive-table-delete-button-${record.id}`}
+                data-cy={`incentive-table-delete-button-${record.id}`}
               >
-                <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  id={`incentive-table-delete-button-${record.id}`}
-                  data-cy={`incentive-table-delete-button-${record.id}`}
-                />
-              </DeletePopover>
-            </div>
+                <DeleteOutlined className="text-white" />
+              </button>
+            </DeleteConfirmationPopover>
           </AccessGuard>
         </Space>
       ),

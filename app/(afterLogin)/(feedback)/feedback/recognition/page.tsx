@@ -40,9 +40,9 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { DeleteOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { useDeleteRecognition, useDeleteBulkRecognitions } from '@/store/server/features/CFR/recognition/mutation';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useGetAllRecognitionIds } from '@/store/server/features/CFR/recognition/queries';
 function Page() {
   const {
@@ -66,9 +66,10 @@ function Page() {
     setShowBulkDeleteModal,
   } = useRecongnitionStore();
   
-  const { mutate: deleteRecognition } = useDeleteRecognition();
+  const { mutate: deleteRecognition, isLoading: isDeletingSingle } = useDeleteRecognition();
   const { mutate: deleteBulkRecognitions, isLoading: isDeleting } = useDeleteBulkRecognitions();
   const isSelectingAllRef = useRef(false);
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState<Record<string, boolean>>({});
   
   const { refetch: fetchAllIds } = useGetAllRecognitionIds(
     searchValue,
@@ -114,8 +115,16 @@ function Page() {
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
 
-  const handleDelete = (id: string) => {
-    deleteRecognition(id);
+  const handleDeleteConfirm = (id: string) => {
+    deleteRecognition(id, {
+      onSuccess: () => {
+        setDeleteModalOpen((prev) => ({ ...prev, [id]: false }));
+      },
+    });
+  };
+
+  const handleDeleteCancel = (id: string) => {
+    setDeleteModalOpen((prev) => ({ ...prev, [id]: false }));
   };
 
   const handleBulkDelete = () => {
@@ -213,21 +222,27 @@ function Page() {
             id={`recognition-table-delete-guard-${record.id}`}
             data-cy={`recognition-table-delete-guard-${record.id}`}
           >
-            <div onClick={(e) => e.stopPropagation()}>
-              <DeletePopover
-                titleText="Are you sure you want to permanently delete this record? This action cannot be undone."
-                onDelete={() => handleDelete(record.id)}
-                data-cy={`recognition-table-delete-popover-${record.id}`}
+            <DeleteConfirmationPopover
+              open={deleteModalOpen[record.id] || false}
+              onCancel={() => handleDeleteCancel(record.id)}
+              onConfirm={() => handleDeleteConfirm(record.id)}
+              message="Are you sure you want to permanently delete this record?"
+              loading={isDeletingSingle}
+              id={`recognition-delete-modal-${record.id}`}
+              data-cy={`recognition-delete-modal-${record.id}`}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteModalOpen((prev) => ({ ...prev, [record.id]: true }));
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white rounded w-8 h-8 flex items-center justify-center"
+                id={`recognition-table-delete-button-${record.id}`}
+                data-cy={`recognition-table-delete-button-${record.id}`}
               >
-                <Button
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  id={`recognition-table-delete-button-${record.id}`}
-                  data-cy={`recognition-table-delete-button-${record.id}`}
-                />
-              </DeletePopover>
-            </div>
+                <DeleteOutlined className="text-white" />
+              </button>
+            </DeleteConfirmationPopover>
           </AccessGuard>
         </Space>
       ),
