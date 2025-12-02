@@ -599,8 +599,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           <div className="flex gap-2">
             <Button
               type="primary"
-              id="okr-drawer-desktop-add-keyresult-button"
-              data-cy="okr-drawer-desktop-add-keyresult-button"
+              id="okr-ai-inline-suggestions-toggle-button"
+              data-cy="okr-ai-inline-suggestions-toggle-button"
               ghost
               onClick={() => setShowAISuggestions(!showAISuggestions)}
               disabled={

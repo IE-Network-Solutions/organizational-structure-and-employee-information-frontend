@@ -194,10 +194,7 @@ const CheckInRulePage: React.FC = () => {
           id={`okr-checkin-rule-table-actions-${record.id}`}
           data-cy={`okr-checkin-rule-table-actions-${record.id}`}
         >
-          <AccessGuard
-            data-cy="okr-checkin-rule-table-edit-button-access-guard-display-guard"
-            permissions={[Permissions.CreateOkrRule]}
-          >
+          <AccessGuard data-cy="okr-checkin-rule-table-edit-button-access-guard-display-guard" permissions={[Permissions.CreateOkrRule]}>
             <Button
               type="default"
               className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
@@ -207,22 +204,12 @@ const CheckInRulePage: React.FC = () => {
               data-cy={`okr-checkin-rule-table-edit-button-${record.id}`}
             />
           </AccessGuard>
-          <DeletePopover
-            data-cy={`okr-checkin-rule-table-delete-popover-${record.id}`}
-            onDelete={() => handleDelete(record)}
-          >
-            <AccessGuard
-              data-cy="okr-checkin-rule-table-delete-button-access-guard-display-guard"
-              permissions={[Permissions.CreateOkrRule]}
-            >
+          <DeletePopover data-cy={`okr-checkin-rule-table-delete-popover-${record.id}`} onDelete={() => handleDelete(record)}>
+            <AccessGuard data-cy="okr-checkin-rule-table-delete-button-access-guard-display-guard" permissions={[Permissions.CreateOkrRule]}>
               <Button
                 type="default"
                 className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={
-                  <RiDeleteBin6Line
-                    data-cy={`okr-checkin-rule-table-delete-button-icon-${record.id}`}
-                  />
-                }
+                icon={<RiDeleteBin6Line data-cy={`okr-checkin-rule-table-delete-button-icon-${record.id}`} />}
                 id={`okr-checkin-rule-table-delete-button-${record.id}`}
                 data-cy={`okr-checkin-rule-table-delete-button-${record.id}`}
               />
@@ -251,17 +238,12 @@ const CheckInRulePage: React.FC = () => {
         >
           Check-in Rule
         </h1>
-        <AccessGuard
-          data-cy="okr-checkin-rule-add-button-access-guard-display-guard"
-          permissions={[Permissions.CreateOkrRule]}
-        >
+        <AccessGuard data-cy="okr-checkin-rule-add-button-access-guard-display-guard" permissions={[Permissions.CreateOkrRule]}>
           <Button
             type="primary"
             onClick={handleAddNew}
             className="bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700 flex items-center gap-2"
-            icon={
-              <FaPlus data-cy="okr-checkin-rule-add-button-icon-display-button" />
-            }
+            icon={<FaPlus data-cy="okr-checkin-rule-add-button-icon-display-button" />}
             id="okr-checkin-rule-add-button-display-button"
             data-cy="okr-checkin-rule-add-button-display-button"
           >
@@ -301,6 +283,7 @@ const CheckInRulePage: React.FC = () => {
             queryClient.invalidateQueries({ queryKey: ['checkInRule'] });
           }
         }}
+     
         data-cy="okr-checkin-rule-drawer-display-drawer"
       />
 

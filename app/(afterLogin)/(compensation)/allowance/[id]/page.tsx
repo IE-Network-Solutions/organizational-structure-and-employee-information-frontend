@@ -42,11 +42,23 @@ const SingleAllowancePage = () => {
     })) || [];
 
   return (
-    <div className="bg-white rounded-lg px-1 py-4 sm:px-6 sm:mr-4">
-      <div>
+    <div
+      className="bg-white rounded-lg px-1 py-4 sm:px-6 sm:mr-4"
+      id="compensation-allowance-single-wrapper"
+      data-cy="compensation-allowance-single-wrapper"
+    >
+      <div
+        id="compensation-allowance-single-inner"
+        data-cy="compensation-allowance-single-inner"
+      >
         {/* PageHeader for mobile */}
-        <div className="block sm:hidden mb-4">
+        <div
+          className="block sm:hidden mb-4"
+          id="compensation-allowance-mobile-header-wrapper"
+          data-cy="compensation-allowance-mobile-header-wrapper"
+        >
           <PageHeader
+            data-cy="compensation-allowance-single-page-header"
             title={
               allowanceData?.name
                 ? allowanceData?.name.length > 15
@@ -61,9 +73,18 @@ const SingleAllowancePage = () => {
         </div>
 
         {/* Main layout for larger screens */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div className="hidden sm:block">
+        <div
+          className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
+          id="compensation-allowance-desktop-header-section"
+          data-cy="compensation-allowance-desktop-header-section"
+        >
+          <div
+            className="hidden sm:block"
+            id="compensation-allowance-desktop-header-wrapper"
+            data-cy="compensation-allowance-desktop-header-wrapper"
+          >
             <PageHeader
+              data-cy="compensation-allowance-desktop-page-header"
               title={
                 allowanceData?.name
                   ? allowanceData?.name.length > 15
@@ -77,8 +98,16 @@ const SingleAllowancePage = () => {
             />
           </div>
 
-          <div className="flex w-full sm:w-auto sm:flex-row sm:gap-4">
-            <div className="w-10/12 mr-2 sm:hidden">
+          <div
+            className="flex w-full sm:w-auto sm:flex-row sm:gap-4"
+            id="compensation-allowance-actions-row"
+            data-cy="compensation-allowance-actions-row"
+          >
+            <div
+              className="w-10/12 mr-2 sm:hidden"
+              id="compensation-allowance-mobile-search-wrapper"
+              data-cy="compensation-allowance-mobile-search-wrapper"
+            >
               <Select
                 showSearch
                 allowClear
@@ -93,12 +122,19 @@ const SingleAllowancePage = () => {
                   );
                 }}
                 options={options}
+                id="compensation-allowance-mobile-search-select"
+                data-cy="compensation-allowance-mobile-search-select"
               />
             </div>
 
             {/* Button: 25% on mobile */}
-            <div className="w-auto">
+            <div
+              className="w-auto"
+              id="compensation-allowance-create-button-wrapper"
+              data-cy="compensation-allowance-create-button-wrapper"
+            >
               <AccessGuard
+                data-cy="compensation-allowance-create-button-access-guard"
                 permissions={[Permissions.CreateAllowanceEntitlement]}
               >
                 <Button
@@ -106,19 +142,30 @@ const SingleAllowancePage = () => {
                   type="primary"
                   className="h-10 w-10 sm:w-auto"
                   id="createNewClosedHolidayFieldId"
+                  data-cy="compensation-allowance-create-button"
                   icon={<FaPlus />}
                   onClick={() => {
                     setIsAllowanceEntitlementSidebarOpen(true);
                   }}
                   disabled={isAllowanceGlobal}
                 >
-                  <span className="hidden sm:inline">Employees</span>
+                  <span
+                    className="hidden sm:inline"
+                    id="compensation-allowance-create-button-text"
+                    data-cy="compensation-allowance-create-button-text"
+                  >
+                    Employees
+                  </span>
                 </Button>
               </AccessGuard>
             </div>
           </div>
         </div>
-        <div className="w-full hidden sm:block mt-2">
+        <div
+          className="w-full hidden sm:block mt-2"
+          id="compensation-allowance-desktop-search-wrapper"
+          data-cy="compensation-allowance-desktop-search-wrapper"
+        >
           <Select
             showSearch
             allowClear
@@ -133,12 +180,17 @@ const SingleAllowancePage = () => {
               );
             }}
             options={options}
+            id="compensation-allowance-desktop-search-select"
+            data-cy="compensation-allowance-desktop-search-select"
           />
         </div>
       </div>
 
-      <div>
-        <AllowanceEntitlementTable />
+      <div
+        id="compensation-allowance-entitlement-table-wrapper"
+        data-cy="compensation-allowance-entitlement-table-wrapper"
+      >
+        <AllowanceEntitlementTable data-cy="compensation-allowance-entitlement-table" />
       </div>
     </div>
   );

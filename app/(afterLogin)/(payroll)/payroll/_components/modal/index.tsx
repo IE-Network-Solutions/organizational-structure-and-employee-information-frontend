@@ -22,121 +22,121 @@ const GeneratePayrollModal: React.FC<Props> = ({ onClose, onGenerate }) => {
   };
 
   return (
-    <Modal
-      centered
-      data-cy="payroll-generate-modal-view-modal"
-      title={
-        <h2
-          id="payroll-generate-modal-title-view-text"
-          data-cy="payroll-generate-modal-title-view-text"
-          className="text-2xl font-semibold"
-        >
-          Generate Payroll
-        </h2>
-      }
-      open={true} // Modify as needed for your modal visibility logic
-      onCancel={onClose}
-      width="30%"
-      footer={
-        <div
-          id="payroll-generate-modal-footer-view-container"
-          data-cy="payroll-generate-modal-footer-view-container"
-          className="flex justify-end items-center space-x-4"
-        >
-          <Button
-            id="payroll-generate-modal-cancel-click-button"
-            data-cy="payroll-generate-modal-cancel-click-button"
-            type="default"
-            className="px-3"
-            onClick={onClose}
+      <Modal
+        centered
+        data-cy="payroll-generate-modal-view-modal"
+        title={
+          <h2
+            id="payroll-generate-modal-title-view-text"
+            data-cy="payroll-generate-modal-title-view-text"
+            className="text-2xl font-semibold"
           >
-            Cancel
-          </Button>
-          <Button
-            id="payroll-generate-modal-submit-click-button"
-            data-cy="payroll-generate-modal-submit-click-button"
-            onClick={() => {
-              handleGenerate();
-            }}
-            type="primary"
-            className="px-3"
+            Generate Payroll
+          </h2>
+        }
+        open={true} // Modify as needed for your modal visibility logic
+        onCancel={onClose}
+        width="30%"
+        footer={
+          <div
+            id="payroll-generate-modal-footer-view-container"
+            data-cy="payroll-generate-modal-footer-view-container"
+            className="flex justify-end items-center space-x-4"
           >
-            Generate
-          </Button>
-        </div>
-      }
-    >
-      <div
-        id="payroll-generate-modal-body-view-container"
-        data-cy="payroll-generate-modal-body-view-container"
-        className="flex flex-col gap-6"
+            <Button
+              id="payroll-generate-modal-cancel-click-button"
+              data-cy="payroll-generate-modal-cancel-click-button"
+              type="default"
+              className="px-3"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              id="payroll-generate-modal-submit-click-button"
+              data-cy="payroll-generate-modal-submit-click-button"
+              onClick={() => {
+                handleGenerate();
+              }}
+              type="primary"
+              className="px-3"
+            >
+              Generate
+            </Button>
+          </div>
+        }
       >
         <div
-          id="payroll-generate-modal-incentive-toggle-view-container"
-          data-cy="payroll-generate-modal-incentive-toggle-view-container"
-          className="flex flex-col items-start justify-between mb-4 mt-6"
+          id="payroll-generate-modal-body-view-container"
+          data-cy="payroll-generate-modal-body-view-container"
+          className="flex flex-col gap-6"
         >
-          <label
-            id="payroll-generate-modal-incentive-label-view-text"
-            data-cy="payroll-generate-modal-incentive-label-view-text"
-            className="font-medium"
+          <div
+            id="payroll-generate-modal-incentive-toggle-view-container"
+            data-cy="payroll-generate-modal-incentive-toggle-view-container"
+            className="flex flex-col items-start justify-between mb-4 mt-6"
           >
-            Include Incentive
-          </label>
-          <Switch
-            id="payroll-generate-modal-incentive-toggle-switch"
-            data-cy="payroll-generate-modal-incentive-toggle-switch"
-            checked={includeIncentive}
-            onChange={(checked) => setIncludeIncentive(checked)}
-            className="ml-4"
-          />
-        </div>
+            <label
+              id="payroll-generate-modal-incentive-label-view-text"
+              data-cy="payroll-generate-modal-incentive-label-view-text"
+              className="font-medium"
+            >
+              Include Incentive
+            </label>
+            <Switch
+              id="payroll-generate-modal-incentive-toggle-switch"
+              data-cy="payroll-generate-modal-incentive-toggle-switch"
+              checked={includeIncentive}
+              onChange={(checked) => setIncludeIncentive(checked)}
+              className="ml-4"
+            />
+          </div>
 
-        <div
-          id="payroll-generate-modal-daterange-view-container"
-          data-cy="payroll-generate-modal-daterange-view-container"
-          className="mb-4"
-        >
-          <label
-            id="payroll-generate-modal-daterange-label-view-text"
-            data-cy="payroll-generate-modal-daterange-label-view-text"
-            className="block font-medium mb-1"
+          <div
+            id="payroll-generate-modal-daterange-view-container"
+            data-cy="payroll-generate-modal-daterange-view-container"
+            className="mb-4"
           >
-            Select Date
-          </label>
-          <input
-            id="payroll-generate-modal-daterange-view-input"
-            data-cy="payroll-generate-modal-daterange-view-input"
-            type="text"
-            placeholder="01 Jan 2023 - 10 Mar 2023"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            disabled
-          />
-        </div>
+            <label
+              id="payroll-generate-modal-daterange-label-view-text"
+              data-cy="payroll-generate-modal-daterange-label-view-text"
+              className="block font-medium mb-1"
+            >
+              Select Date
+            </label>
+            <input
+              id="payroll-generate-modal-daterange-view-input"
+              data-cy="payroll-generate-modal-daterange-view-input"
+              type="text"
+              placeholder="01 Jan 2023 - 10 Mar 2023"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              disabled
+            />
+          </div>
 
-        <div
-          id="payroll-generate-modal-payperiod-view-container"
-          data-cy="payroll-generate-modal-payperiod-view-container"
-          className="mb-6"
-        >
-          <label
-            id="payroll-generate-modal-payperiod-label-view-text"
-            data-cy="payroll-generate-modal-payperiod-label-view-text"
-            className="block font-medium mb-1"
+          <div
+            id="payroll-generate-modal-payperiod-view-container"
+            data-cy="payroll-generate-modal-payperiod-view-container"
+            className="mb-6"
           >
-            Pay Period
-          </label>
-          <select
-            id="payroll-generate-modal-payperiod-view-select"
-            data-cy="payroll-generate-modal-payperiod-view-select"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            disabled
-          >
-            <option value="">Select Pay Period</option>
-          </select>
+            <label
+              id="payroll-generate-modal-payperiod-label-view-text"
+              data-cy="payroll-generate-modal-payperiod-label-view-text"
+              className="block font-medium mb-1"
+            >
+              Pay Period
+            </label>
+            <select
+              id="payroll-generate-modal-payperiod-view-select"
+              data-cy="payroll-generate-modal-payperiod-view-select"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              disabled
+            >
+              <option value="">Select Pay Period</option>
+            </select>
+          </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
   );
 };
 

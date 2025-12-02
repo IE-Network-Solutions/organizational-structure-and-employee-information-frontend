@@ -67,10 +67,7 @@ const DefineAppreciation = () => {
         >
           Appreciation
         </h2>
-        <AccessGuard
-          data-cy="okr-define-appreciation-add-button-access-guard-display-guard"
-          permissions={[Permissions.CreateAppreciationType]}
-        >
+        <AccessGuard data-cy="okr-define-appreciation-add-button-access-guard-display-guard" permissions={[Permissions.CreateAppreciationType]}>
           <Button
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600"
@@ -105,10 +102,7 @@ const DefineAppreciation = () => {
               id={`okr-define-appreciation-list-item-actions-${item?.id}`}
               data-cy={`okr-define-appreciation-list-item-actions-${item?.id}`}
             >
-              <AccessGuard
-                data-cy="okr-define-appreciation-table-edit-button-access-guard-display-guard"
-                permissions={[Permissions.UpdateAppreciationType]}
-              >
+              <AccessGuard data-cy="okr-define-appreciation-table-edit-button-access-guard-display-guard" permissions={[Permissions.UpdateAppreciationType]}>
                 <Button
                   icon={<EditOutlined />}
                   className="mr-2 bg-blue text-white"
@@ -118,16 +112,9 @@ const DefineAppreciation = () => {
                   data-cy={`okr-define-appreciation-edit-button-${item?.id}`}
                 />
               </AccessGuard>
-              <AccessGuard
-                data-cy="okr-define-appreciation-table-delete-button-access-guard-display-guard"
-                permissions={[Permissions.DeleteAppreciationType]}
-              >
+              <AccessGuard data-cy="okr-define-appreciation-table-delete-button-access-guard-display-guard" permissions={[Permissions.DeleteAppreciationType]}>
                 <Button
-                  icon={
-                    <DeleteOutlined
-                      data-cy={`okr-define-appreciation-table-delete-button-icon-${item?.id}`}
-                    />
-                  }
+                  icon={<DeleteOutlined data-cy={`okr-define-appreciation-table-delete-button-icon-${item?.id}`} />}
                   className="mr-2 bg-red-500 text-white"
                   shape="circle"
                   onClick={() => showDeleteModal(item?.id as string)}
@@ -143,12 +130,14 @@ const DefineAppreciation = () => {
         appType={appType}
         open={open}
         onClose={onClose}
+        
         data-cy="okr-define-appreciation-drawer"
       />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleDeleteAppType(deletedId)}
         onCancel={onCloseDeleteModal}
+        
         data-cy="okr-define-appreciation-delete-modal"
       />
     </div>

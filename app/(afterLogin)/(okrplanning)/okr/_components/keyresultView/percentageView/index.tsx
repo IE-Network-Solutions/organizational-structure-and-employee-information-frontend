@@ -218,11 +218,7 @@ const PercentageView: React.FC<OKRProps> = ({
 
           {/* Deadline */}
           <div className="w-48 ml-2">
-            <Form.Item
-              id={`${viewPrefix}-desktop-deadline-input-item`}
-              data-cy={`${viewPrefix}-desktop-deadline-input-item`}
-              className="w-full font-bold mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-desktop-deadline-input-item`} data-cy={`${viewPrefix}-desktop-deadline-input-item`} className="w-full font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -366,11 +362,7 @@ const PercentageView: React.FC<OKRProps> = ({
               />
             </Form.Item>
 
-            <Form.Item
-              id={`${viewPrefix}-mobile-deadline-input-item`}
-              data-cy={`${viewPrefix}-mobile-deadline-input-item`}
-              className="w-32 font-bold mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-deadline-input-item`} data-cy={`${viewPrefix}-mobile-deadline-input-item`} className="w-32 font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -391,11 +383,7 @@ const PercentageView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-mobile-deadline-picker`}
               />
               {!keyValue.deadline && (
-                <div
-                  id={`${viewPrefix}-mobile-deadline-item-error`}
-                  data-cy={`${viewPrefix}-mobile-deadline-item-error`}
-                  className="text-red-500 font-semibold absolute top-[30px]"
-                >
+                <div id={`${viewPrefix}-mobile-deadline-item-error`} data-cy={`${viewPrefix}-mobile-deadline-item-error`} className="text-red-500 font-semibold absolute top-[30px]">
                   Deadline is required
                 </div>
               )}
@@ -411,11 +399,7 @@ const PercentageView: React.FC<OKRProps> = ({
           id={`${viewPrefix}-desktop-values-row`}
           data-cy={`${viewPrefix}-desktop-values-row`}
         >
-          <Form.Item
-            id={`${viewPrefix}-desktop-initial-input-item`}
-            data-cy={`${viewPrefix}-desktop-initial-input-item`}
-            className="flex-1 mb-0"
-          >
+          <Form.Item id={`${viewPrefix}-desktop-initial-input-item`} data-cy={`${viewPrefix}-desktop-initial-input-item`} className="flex-1 mb-0">
             <InputNumber
               id={`key-result-initial-${index}`}
               min={0}
@@ -429,11 +413,7 @@ const PercentageView: React.FC<OKRProps> = ({
               data-cy={`${viewPrefix}-desktop-initial-input`}
             />
           </Form.Item>
-          <Form.Item
-            id={`${viewPrefix}-desktop-target-input-item`}
-            data-cy={`${viewPrefix}-desktop-target-input-item`}
-            className="flex-1 mb-0"
-          >
+          <Form.Item id={`${viewPrefix}-desktop-target-input-item`} data-cy={`${viewPrefix}-desktop-target-input-item`} className="flex-1 mb-0">
             <InputNumber
               id={`key-result-target-${index}`}
               min={0}
@@ -460,11 +440,7 @@ const PercentageView: React.FC<OKRProps> = ({
             id={`${viewPrefix}-mobile-values-row`}
             data-cy={`${viewPrefix}-mobile-values-row`}
           >
-            <Form.Item
-              id={`${viewPrefix}-mobile-initial-input-item`}
-              data-cy={`${viewPrefix}-mobile-initial-input-item`}
-              className="flex-1 mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-initial-input-item`} data-cy={`${viewPrefix}-mobile-initial-input-item`} className="flex-1 mb-0">
               <InputNumber
                 id={`key-result-initial-mobile-${index}`}
                 min={0}
@@ -478,11 +454,7 @@ const PercentageView: React.FC<OKRProps> = ({
                 data-cy={`${viewPrefix}-mobile-initial-input`}
               />
             </Form.Item>
-            <Form.Item
-              id={`${viewPrefix}-mobile-target-input-item`}
-              data-cy={`${viewPrefix}-mobile-target-input-item`}
-              className="flex-1 mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-target-input-item`} data-cy={`${viewPrefix}-mobile-target-input-item`} className="flex-1 mb-0">
               <InputNumber
                 id={`key-result-target-mobile-${index}`}
                 min={0}

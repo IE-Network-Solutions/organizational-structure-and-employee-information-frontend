@@ -69,10 +69,7 @@ const DefineOkrRule = () => {
         >
           OKR Rule
         </h2>
-        <AccessGuard
-          data-cy="okr-define-okr-rule-add-button-access-guard-display-guard"
-          permissions={[Permissions.CreateOkrRule]}
-        >
+        <AccessGuard data-cy="okr-define-okr-rule-add-button-access-guard-display-guard" permissions={[Permissions.CreateOkrRule]}>
           <Button
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
@@ -129,16 +126,9 @@ const DefineOkrRule = () => {
                 id={`okr-define-okr-rule-list-item-actions-${item?.id}`}
                 data-cy={`okr-define-okr-rule-list-item-actions-${item?.id}`}
               >
-                <AccessGuard
-                  data-cy="okr-define-okr-rule-table-edit-button-access-guard-display-guard"
-                  permissions={[Permissions.UpdateOkrRule]}
-                >
+                <AccessGuard data-cy="okr-define-okr-rule-table-edit-button-access-guard-display-guard" permissions={[Permissions.UpdateOkrRule]}>
                   <Button
-                    icon={
-                      <EditOutlined
-                        data-cy={`okr-define-okr-rule-table-edit-button-icon-${item?.id}`}
-                      />
-                    }
+                    icon={<EditOutlined data-cy={`okr-define-okr-rule-table-edit-button-icon-${item?.id}`} />}
                     className="mr-2 bg-blue text-white border-none"
                     shape="circle"
                     onClick={() => handleEditModal(item)}
@@ -146,16 +136,9 @@ const DefineOkrRule = () => {
                     data-cy={`okr-define-okr-rule-edit-button-${item?.id}`}
                   />
                 </AccessGuard>
-                <AccessGuard
-                  data-cy="okr-define-okr-rule-table-delete-button-access-guard-display-guard"
-                  permissions={[Permissions.DeleteOkrRule]}
-                >
+                <AccessGuard data-cy="okr-define-okr-rule-table-delete-button-access-guard-display-guard" permissions={[Permissions.DeleteOkrRule]}>
                   <Button
-                    icon={
-                      <DeleteOutlined
-                        data-cy={`okr-define-okr-rule-table-delete-button-icon-${item?.id}`}
-                      />
-                    }
+                    icon={<DeleteOutlined data-cy={`okr-define-okr-rule-table-delete-button-icon-${item?.id}`} />}
                     className="mr-2 bg-red-500 text-white border-none"
                     shape="circle"
                     onClick={() => showDeleteModal(item?.id as string)}

@@ -417,9 +417,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                     <Select.Option
                       id={`okr-key-result-view-milestone-desktop-metric-select-option-${index}-${metric?.id}`}
                       data-cy={`okr-key-result-view-milestone-desktop-metric-select-option-${index}-${metric?.id}`}
-                      key={metric?.id}
-                      value={metric?.id}
-                    >
+                      key={metric?.id} value={metric?.id}>
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -496,11 +494,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 data-cy={`okr-key-result-view-milestone-desktop-deadline-picker-${index}`}
               />
               {!keyValue.deadline && (
-                <div
-                  id={`okr-key-result-view-milestone-desktop-deadline-item-error-${index}`}
-                  data-cy={`okr-key-result-view-milestone-desktop-deadline-item-error-${index}`}
-                  className="text-red-500 font-semibold absolute top-[30px]"
-                >
+                <div id={`okr-key-result-view-milestone-desktop-deadline-item-error-${index}`} data-cy={`okr-key-result-view-milestone-desktop-deadline-item-error-${index}`} className="text-red-500 font-semibold absolute top-[30px]">
                   Deadline is required
                 </div>
               )}
@@ -580,9 +574,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                     <Select.Option
                       id={`okr-key-result-view-milestone-mobile-metric-select-option-${index}-${metric?.id}`}
                       data-cy={`okr-key-result-view-milestone-mobile-metric-select-option-${index}-${metric?.id}`}
-                      key={metric?.id}
-                      value={metric?.id}
-                    >
+                      key={metric?.id} value={metric?.id}>
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -649,11 +641,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                 data-cy={`okr-key-result-view-milestone-mobile-deadline-picker-${index}`}
               />
               {!keyValue.deadline && (
-                <div
-                  id={`okr-key-result-view-milestone-mobile-deadline-item-error-${index}`}
-                  data-cy={`okr-key-result-view-milestone-mobile-deadline-item-error-${index}`}
-                  className="text-red-500 font-semibold absolute top-[30px]"
-                >
+                <div id={`okr-key-result-view-milestone-mobile-deadline-item-error-${index}`} data-cy={`okr-key-result-view-milestone-mobile-deadline-item-error-${index}`} className="text-red-500 font-semibold absolute top-[30px]">
                   Deadline is required
                 </div>
               )}
@@ -663,12 +651,7 @@ const MilestoneView: React.FC<OKRProps> = ({
 
         {/* Milestones Section */}
         {keyValue?.milestones?.length != 0 && keyValue?.milestones && (
-          <Form.Item
-            id={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`}
-            data-cy={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`}
-            className="pl-5 mt-4"
-            required
-          >
+          <Form.Item id={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`} data-cy={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`} className="pl-5 mt-4" required>
             <div
               className={`space-y-3 px-6 ${isEdit ? 'bg-gray-50 rounded-lg py-2' : ''}`}
               id={`okr-key-result-view-milestone-mobile-milestone-list-${index}`}
@@ -723,9 +706,8 @@ const MilestoneView: React.FC<OKRProps> = ({
                   </Form.Item>
 
                   <div className="w-48 flex gap-2 items-center">
-                    <Popconfirm
-                      id={`okr-key-result-view-milestone-mobile-milestone-remove-popconfirm-${index}-${mindex}`}
-                      data-cy={`okr-key-result-view-milestone-mobile-milestone-remove-popconfirm-${index}-${mindex}`}
+                    <Popconfirm 
+                    id={`okr-key-result-view-milestone-mobile-milestone-remove-popconfirm-${index}-${mindex}`} data-cy={`okr-key-result-view-milestone-mobile-milestone-remove-popconfirm-${index}-${mindex}`}
                       title="Are you sure you want to remove this milestone?"
                       onConfirm={() =>
                         milestone?.id
@@ -778,27 +760,14 @@ const MilestoneView: React.FC<OKRProps> = ({
 
         {/* Sample Milestone for display when no milestones exist */}
         {(!keyValue?.milestones || keyValue?.milestones?.length === 0) && (
-          <Form.Item
-            id={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`}
-            data-cy={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`}
-            className="pl-5 mt-4"
-            required
-          >
+          <Form.Item id={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`} data-cy={`okr-key-result-view-milestone-mobile-milestone-list-item-${index}`} className="pl-5 mt-4" required>
             <div
               className={`space-y-3 px-6 ${isEdit ? 'bg-gray-50 rounded-lg py-2' : ''}`}
               id={`okr-key-result-view-milestone-mobile-milestone-list-${index}`}
               data-cy={`okr-key-result-view-milestone-mobile-milestone-list-${index}`}
             >
-              <div
-                id={`okr-key-result-view-milestone-mobile-milestone-list-row-${index}`}
-                data-cy={`okr-key-result-view-milestone-mobile-milestone-list-row-${index}`}
-                className="flex items-center gap-2"
-              >
-                <Form.Item
-                  id={`okr-key-result-view-milestone-mobile-milestone-title-item-${index}`}
-                  data-cy={`okr-key-result-view-milestone-mobile-milestone-title-item-${index}`}
-                  className="flex-1 mb-0"
-                >
+              <div id={`okr-key-result-view-milestone-mobile-milestone-list-row-${index}`} data-cy={`okr-key-result-view-milestone-mobile-milestone-list-row-${index}`} className="flex items-center gap-2">
+                <Form.Item id={`okr-key-result-view-milestone-mobile-milestone-title-item-${index}`} data-cy={`okr-key-result-view-milestone-mobile-milestone-title-item-${index}`} className="flex-1 mb-0">
                   <Input
                     placeholder="Set Milestone"
                     id={`okr-key-result-view-milestone-mobile-milestone-title-input-${index}`}
@@ -808,11 +777,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item
-                  id={`okr-key-result-view-milestone-mobile-milestone-weight-item-${index}`}
-                  data-cy={`okr-key-result-view-milestone-mobile-milestone-weight-item-${index}`}
-                  className="w-24 mb-0"
-                >
+                <Form.Item   id={`okr-key-result-view-milestone-mobile-milestone-weight-item-${index}`} data-cy={`okr-key-result-view-milestone-mobile-milestone-weight-item-${index}`} className="w-24 mb-0">
                   <InputNumber
                     placeholder="100"
                     id={`okr-key-result-view-milestone-mobile-milestone-weight-input-${index}`}

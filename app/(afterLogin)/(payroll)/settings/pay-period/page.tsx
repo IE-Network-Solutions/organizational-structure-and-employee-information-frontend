@@ -95,41 +95,38 @@ const PayPeriod = () => {
       title: 'Action',
       key: 'action',
       render: (record: any) => (
-        <AccessGuard
+          <AccessGuard
           data-cy={`payroll-payperiod-actions-view-container-${record.id}`}
-          permissions={[
-            Permissions.UpdatePayPeriod,
-            Permissions.DeletePayPeriod,
-          ]}
-        >
-          <Space
-            id={`payroll-payperiod-actions-view-space-${record.id}`}
-            data-cy={`payroll-payperiod-actions-view-space-${record.id}`}
-            size="middle"
+            permissions={[
+              Permissions.UpdatePayPeriod,
+              Permissions.DeletePayPeriod,
+            ]}
           >
-            <Switch
-              id={`payroll-payperiod-status-toggle-switch-${record.id}`}
-              data-cy={`payroll-payperiod-status-toggle-switch-${record.id}`}
-              checked={record.status === 'OPEN'}
-              onChange={() => onStatusChange(record)}
-              checkedChildren="Opened"
-              unCheckedChildren="Closed"
-            />
-            <Tooltip
-              data-cy={`payroll-payperiod-edit-click-button-tooltip-${record.id}`}
-              title="Edit"
+            <Space
+              id={`payroll-payperiod-actions-view-space-${record.id}`}
+              data-cy={`payroll-payperiod-actions-view-space-${record.id}`}
+              size="middle"
             >
-              <Button
-                id={`payroll-payperiod-edit-click-button-${record.id}`}
-                data-cy={`payroll-payperiod-edit-click-button-${record.id}`}
-                type="primary"
-                shape="default"
-                icon={<EditOutlined />}
-                onClick={() => handleEdit(record)}
+              <Switch
+                id={`payroll-payperiod-status-toggle-switch-${record.id}`}
+                data-cy={`payroll-payperiod-status-toggle-switch-${record.id}`}
+                checked={record.status === 'OPEN'}
+                onChange={() => onStatusChange(record)}
+                checkedChildren="Opened"
+                unCheckedChildren="Closed"
               />
-            </Tooltip>
-          </Space>
-        </AccessGuard>
+              <Tooltip data-cy={`payroll-payperiod-edit-click-button-tooltip-${record.id}`} title="Edit">
+                <Button
+                  id={`payroll-payperiod-edit-click-button-${record.id}`}
+                  data-cy={`payroll-payperiod-edit-click-button-${record.id}`}
+                  type="primary"
+                  shape="default"
+                  icon={<EditOutlined />}
+                  onClick={() => handleEdit(record)}
+                />
+              </Tooltip>
+            </Space>
+          </AccessGuard>
       ),
     },
   ];
@@ -167,76 +164,73 @@ const PayPeriod = () => {
         >
           Pay Period
         </h1>
-        <AccessGuard
-          data-cy="payroll-payperiod-add-click-button-access-guard"
-          permissions={[Permissions.CreatePayPeriod]}
-        >
-          <Button
-            id="payroll-payperiod-add-click-button"
-            data-cy="payroll-payperiod-add-click-button"
-            type="primary"
-            className="h-10 w-10 sm:w-auto"
-            icon={<FaPlus />}
-            style={{ marginBottom: '20px' }}
-            onClick={handleAddPayPeriod}
-          >
-            <span
-              id="payroll-payperiod-add-click-button-text"
-              data-cy="payroll-payperiod-add-click-button-text"
-              className="hidden lg:inline"
+          <AccessGuard data-cy="payroll-payperiod-add-click-button-access-guard" permissions={[Permissions.CreatePayPeriod]}>
+            <Button
+              id="payroll-payperiod-add-click-button"
+              data-cy="payroll-payperiod-add-click-button"
+              type="primary"
+              className="h-10 w-10 sm:w-auto"
+              icon={<FaPlus />}
+              style={{ marginBottom: '20px' }}
+              onClick={handleAddPayPeriod}
             >
-              Pay Period
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-      <Spin data-cy="payroll-payperiod-table-spinner" spinning={isLoading}>
-        <div
-          id="payroll-payperiod-table-wrapper-view-container"
-          data-cy="payroll-payperiod-table-wrapper-view-container"
-          className="flex overflow-x-auto scrollbar-none w-full "
-        >
-          <div
-            id="payroll-payperiod-table-inner-view-container"
-            data-cy="payroll-payperiod-table-inner-view-container"
-            className="w-full"
-          >
-            <Table
-              id="payroll-payperiod-table-view-table"
-              data-cy="payroll-payperiod-table-view-table"
-              dataSource={paginatedData}
-              columns={columns}
-              pagination={false}
-            />
-            {isMobile || isTablet ? (
-              <CustomMobilePagination
-                data-cy="payroll-payperiod-mobile-pagination-view-component"
-                totalResults={dataSource?.length || 0}
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageSizeChange}
-              />
-            ) : (
-              <CustomPagination
-                data-cy="payroll-payperiod-desktop-pagination-view-component"
-                current={currentPage}
-                total={dataSource?.length || 0}
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageSizeChange}
-              />
-            )}
-          </div>
+              <span
+                id="payroll-payperiod-add-click-button-text"
+                data-cy="payroll-payperiod-add-click-button-text"
+                className="hidden lg:inline"
+              >
+                Pay Period
+              </span>
+            </Button>
+          </AccessGuard>
         </div>
-      </Spin>
-      <PayPeriodSideBar data-cy="payroll-payperiod-sidebar-view-component" />
-      <CustomDrawer
-        data-cy="payroll-payperiod-edit-drawer-view-component"
-        visible={visible}
-        onClose={() => {
+        <Spin data-cy="payroll-payperiod-table-spinner" spinning={isLoading}>
+          <div
+            id="payroll-payperiod-table-wrapper-view-container"
+            data-cy="payroll-payperiod-table-wrapper-view-container"
+            className="flex overflow-x-auto scrollbar-none w-full "
+          >
+            <div
+              id="payroll-payperiod-table-inner-view-container"
+              data-cy="payroll-payperiod-table-inner-view-container"
+              className="w-full"
+            >
+              <Table
+                id="payroll-payperiod-table-view-table"
+                data-cy="payroll-payperiod-table-view-table"
+                dataSource={paginatedData}
+                columns={columns}
+                pagination={false}
+              />
+              {isMobile || isTablet ? (
+                  <CustomMobilePagination
+                    data-cy="payroll-payperiod-mobile-pagination-view-component"  
+                    totalResults={dataSource?.length || 0}
+                    pageSize={pageSize}
+                    onChange={onPageChange}
+                    onShowSizeChange={onPageSizeChange}
+                  />
+              ) : (
+                  <CustomPagination
+                    data-cy="payroll-payperiod-desktop-pagination-view-component"
+                    current={currentPage}
+                    total={dataSource?.length || 0}
+                    pageSize={pageSize}
+                    onChange={onPageChange}
+                    onShowSizeChange={onPageSizeChange}
+                  />
+              )}
+            </div>
+          </div>
+        </Spin>
+        <PayPeriodSideBar data-cy="payroll-payperiod-sidebar-view-component" />
+        <CustomDrawer
+          data-cy="payroll-payperiod-edit-drawer-view-component"
+          visible={visible}
+          onClose={() => {
           (setVisible(false), reset());
-        }}
-      />
+          }}
+        />
     </div>
   );
 };

@@ -114,19 +114,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 )?.id || ''
               }
             >
-              <Option
-                data-cy={`okr-currency-desktop-type-option-${index}`}
-                value=""
-                disabled
-              >
+              <Option data-cy={`okr-currency-desktop-type-option-${index}`} value="" disabled>
                 Please select a metric type
               </Option>
               {metrics?.items?.map((metric) => (
-                <Option
-                  data-cy={`okr-currency-desktop-type-option-${index}-${metric?.id}`}
-                  key={metric?.id}
-                  value={metric?.id}
-                >
+                <Option data-cy={`okr-currency-desktop-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
                   {metric?.name}
                 </Option>
               ))}
@@ -313,19 +305,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   )?.id || ''
                 }
               >
-                <Option
-                  data-cy={`okr-currency-mobile-type-option-${index}`}
-                  value=""
-                  disabled
-                >
+                <Option data-cy={`okr-currency-mobile-type-option-${index}`} value="" disabled>
                   Please select a metric type
                 </Option>
                 {metrics?.items?.map((metric) => (
-                  <Option
-                    data-cy={`okr-currency-mobile-type-option-${index}-${metric?.id}`}
-                    key={metric?.id}
-                    value={metric?.id}
-                  >
+                  <Option data-cy={`okr-currency-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
                     {metric?.name}
                   </Option>
                 ))}

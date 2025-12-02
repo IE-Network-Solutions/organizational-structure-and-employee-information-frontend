@@ -40,11 +40,8 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
     >
       <Avatar
         size={20}
-        icon={
-          <UserOutlined
-            data-cy={`okr-planning-assignation-drawer-employee-option-avatar-icon-${option.id}`}
-          />
-        }
+        icon={<UserOutlined data-cy={`okr-planning-assignation-drawer-employee-option-avatar-icon-${option.id}`} />}
+      
         data-cy={`okr-planning-assignation-drawer-employee-option-avatar-${option.id}`}
       />
       <span
@@ -66,11 +63,8 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       >
         <Avatar
           size={20}
-          icon={
-            <UserOutlined
-              data-cy={`okr-planning-assignation-drawer-selected-user-tag-avatar-icon`}
-            />
-          }
+          icon={<UserOutlined data-cy={`okr-planning-assignation-drawer-selected-user-tag-avatar-icon`} />}
+       
           data-cy="okr-planning-assignation-drawer-selected-user-tag-avatar"
         />
         <span
@@ -175,6 +169,7 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
       modalHeader={modalHeader}
       footer={footer}
       width="30%"
+    
       data-cy="okr-planning-assignation-drawer"
     >
       <Form

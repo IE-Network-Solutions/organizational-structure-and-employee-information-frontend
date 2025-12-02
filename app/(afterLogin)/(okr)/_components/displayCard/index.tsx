@@ -12,7 +12,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   cardColor,
   isLoading,
 }) => {
-  return (
+    return (
     <Col
       span={span}
       id={`okr-dashboard-card-col-${title}`}

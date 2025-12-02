@@ -153,7 +153,11 @@ export default function OkrTab() {
   }
 
   return (
-    <div id="okr-tab-container" data-cy="okr-tab-container" className="mt-6">
+    <div
+      id="okr-tab-container"
+      data-cy="okr-tab-container"
+      className="mt-6"
+    >
       <DynamicTabs
         id="okr-tabs"
         data-cy="okr-tabs"
@@ -165,7 +169,9 @@ export default function OkrTab() {
             label: 'My OKR',
             children: (
               <div id="my-okr-tab-content" data-cy="okr-my-okr-tab-content">
-                <OkrProgress data-cy="okr-my-okr-progress" />
+                <OkrProgress 
+                 data-cy="okr-my-okr-progress"
+                />
                 {isUserLoading && (
                   <Spin
                     data-cy="okr-my-okr-loading-spin"
@@ -203,6 +209,7 @@ export default function OkrTab() {
                       />
                     ) : (
                       <CustomPagination
+                      
                         current={userObjectives?.meta?.currentPage || 1}
                         total={userObjectives?.meta?.totalItems || 1}
                         pageSize={pageSize}
@@ -327,7 +334,9 @@ export default function OkrTab() {
                           className="text-white text-center flex w-full justify-center"
                         />
                       )}
-                      <OkrProgress data-cy="okr-company-okr-progress" />
+                      <OkrProgress 
+                       data-cy="okr-company-okr-progress"
+                      />
                       {companyObjective?.items?.length !== 0 && (
                         <div
                           id="company-okr-objectives-list"
@@ -395,7 +404,9 @@ export default function OkrTab() {
                       id="all-employee-okr-tab-content"
                       data-cy="okr-all-employee-okr-tab-content"
                     >
-                      <EmployeeOKRTable data-cy="okr-all-employee-okr-table" />
+                      <EmployeeOKRTable 
+                       data-cy="okr-all-employee-okr-table"
+                      />
                     </div>
                   ),
                 },

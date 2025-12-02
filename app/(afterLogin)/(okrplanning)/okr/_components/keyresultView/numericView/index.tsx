@@ -161,12 +161,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                   data-cy={`${viewPrefix}-desktop-metric-select`}
                 >
                   {metrics?.items?.map((metric: any) => (
-                    <Select.Option
-                      id={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`}
-                      data-cy={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`}
-                      key={metric?.id}
-                      value={metric?.id}
-                    >
+                    <Select.Option id={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`} data-cy={`${viewPrefix}-desktop-metric-select-option-${metric?.id}`} key={metric?.id} value={metric?.id}>
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -218,11 +213,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
 
           {/* Deadline */}
           <div className="w-48 ml-2">
-            <Form.Item
-              id={`${viewPrefix}-desktop-deadline-input-item`}
-              data-cy={`${viewPrefix}-desktop-deadline-input-item`}
-              className="w-full font-bold mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-desktop-deadline-input-item`} data-cy={`${viewPrefix}-desktop-deadline-input-item`} className="w-full font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -320,12 +311,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                   data-cy={`${viewPrefix}-mobile-metric-select`}
                 >
                   {metrics?.items?.map((metric: any) => (
-                    <Select.Option
-                      id={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`}
-                      data-cy={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`}
-                      key={metric?.id}
-                      value={metric?.id}
-                    >
+                    <Select.Option id={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`} data-cy={`${viewPrefix}-mobile-metric-select-option-${metric?.id}`} key={metric?.id} value={metric?.id}>
                       {metric?.name}
                     </Select.Option>
                   ))}
@@ -371,11 +357,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
               />
             </Form.Item>
 
-            <Form.Item
-              id={`${viewPrefix}-mobile-deadline-input-item`}
-              data-cy={`${viewPrefix}-mobile-deadline-input-item`}
-              className="w-32 font-bold mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-deadline-input-item`} data-cy={`${viewPrefix}-mobile-deadline-input-item`} className="w-32 font-bold mb-0">
               <DatePicker
                 id={`key-result-deadline-mobile-${index}`}
                 value={keyValue.deadline ? dayjs(keyValue.deadline) : null}
@@ -396,11 +378,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
                 data-cy={`${viewPrefix}-mobile-deadline-picker`}
               />
               {!keyValue.deadline && (
-                <div
-                  id={`${viewPrefix}-mobile-deadline-item-error`}
-                  data-cy={`${viewPrefix}-mobile-deadline-item-error`}
-                  className="text-red-500 font-semibold absolute top-[30px]"
-                >
+                <div id={`${viewPrefix}-mobile-deadline-item-error`} data-cy={`${viewPrefix}-mobile-deadline-item-error`} className="text-red-500 font-semibold absolute top-[30px]">
                   Deadline is required
                 </div>
               )}
@@ -416,11 +394,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
           id={`${viewPrefix}-desktop-values-row`}
           data-cy={`${viewPrefix}-desktop-values-row`}
         >
-          <Form.Item
-            id={`${viewPrefix}-desktop-initial-input-item`}
-            data-cy={`${viewPrefix}-desktop-initial-input-item`}
-            className="flex-1 mb-0"
-          >
+          <Form.Item id={`${viewPrefix}-desktop-initial-input-item`} data-cy={`${viewPrefix}-desktop-initial-input-item`} className="flex-1 mb-0">
             <InputNumber
               id={`key-result-initial-${index}`}
               min={0}
@@ -433,11 +407,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
               data-cy={`${viewPrefix}-desktop-initial-input`}
             />
           </Form.Item>
-          <Form.Item
-            id={`${viewPrefix}-desktop-target-input-item`}
-            data-cy={`${viewPrefix}-desktop-target-input-item`}
-            className="flex-1 mb-0"
-          >
+          <Form.Item id={`${viewPrefix}-desktop-target-input-item`} data-cy={`${viewPrefix}-desktop-target-input-item`} className="flex-1 mb-0">
             <InputNumber
               id={`key-result-target-${index}`}
               min={0}
@@ -463,11 +433,7 @@ const NumericView: React.FC<OKRProps> = ({ keyValue, index, isEdit, form }) => {
             id={`${viewPrefix}-mobile-values-row`}
             data-cy={`${viewPrefix}-mobile-values-row`}
           >
-            <Form.Item
-              id={`${viewPrefix}-mobile-initial-input-item`}
-              data-cy={`${viewPrefix}-mobile-initial-input-item`}
-              className="flex-1 mb-0"
-            >
+            <Form.Item id={`${viewPrefix}-mobile-initial-input-item`} data-cy={`${viewPrefix}-mobile-initial-input-item`} className="flex-1 mb-0">
               <InputNumber
                 id={`key-result-initial-mobile-${index}`}
                 min={0}

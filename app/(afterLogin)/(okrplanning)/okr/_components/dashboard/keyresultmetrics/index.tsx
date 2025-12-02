@@ -130,6 +130,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
           Number(keyResult?.progress) === 0 &&
           menu && (
             <Dropdown
+             
               data-cy={`okr-key-result-actions-dropdown-${keyResult?.id}`}
               overlay={menu}
               trigger={['click']}
@@ -324,6 +325,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         className="absolute bottom-2 right-2 flex items-center gap-2"
       >
         <Progress
+          
           data-cy={`okr-key-result-progress-indicator-${keyResult?.id}`}
           type="circle"
           showInfo={false}
@@ -339,12 +341,9 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         </span>
       </div>
 
-      <EditKeyResult
+      <EditKeyResult 
         data-cy={`okr-key-result-metrics-edit-key-result-${keyResult?.id}`}
-        open={open}
-        onClose={onClose}
-        keyResult={keyResultValue}
-      />
+        open={open} onClose={onClose} keyResult={keyResultValue} />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleKeyResultDelete(keyResultValue.id)}

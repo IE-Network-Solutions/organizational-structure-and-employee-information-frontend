@@ -17,6 +17,7 @@ const Dashboard: React.FC = () => {
         data-cy="okr-dashboard-header-container"
       >
         <CustomBreadcrumb
+
           data-cy="okr-dashboard-header-breadcrumb"
           title="Dashboard"
           subtitle="Employee's OKR Dashboard View"
@@ -27,7 +28,10 @@ const Dashboard: React.FC = () => {
         id="okr-dashboard-content-container"
         data-cy="okr-dashboard-content-container"
       >
-        <SummaryCardsRow data-cy="okr-dashboard-summary-cards-row" />
+        <SummaryCardsRow
+
+          data-cy="okr-dashboard-summary-cards-row"
+        />
         <div
           className="grid grid-cols-1 xl:grid-cols-5 gap-6 items-stretch"
           id="okr-dashboard-top-grid"
@@ -39,7 +43,10 @@ const Dashboard: React.FC = () => {
             id="okr-dashboard-performance-wrapper"
             data-cy="okr-dashboard-performance-wrapper"
           >
-            <Performance data-cy="okr-dashboard-performance" />
+            <Performance
+
+              data-cy="okr-dashboard-performance"
+            />
           </div>
           {/* OKR Metrics and Metrics Progress Overview (right, stacked, equal height) */}
           <div
@@ -52,14 +59,20 @@ const Dashboard: React.FC = () => {
               id="okr-dashboard-donut-section"
               data-cy="okr-dashboard-donut-section"
             >
-              <OKRDonutChart data-cy="okr-dashboard-donut-chart" />
+              <OKRDonutChart
+
+                data-cy="okr-dashboard-donut-chart"
+              />
             </div>
             <div
               className="flex-1 min-h-0 flex flex-col"
               id="okr-dashboard-metrics-progress-section"
               data-cy="okr-dashboard-metrics-progress-section"
             >
-              <MetricsProgressOverview data-cy="okr-dashboard-metrics-progress-overview" />
+              <MetricsProgressOverview
+              
+                data-cy="okr-dashboard-metrics-progress-overview"
+              />
             </div>
           </div>
         </div>
@@ -74,14 +87,20 @@ const Dashboard: React.FC = () => {
             id="okr-dashboard-due-soon-wrapper"
             data-cy="okr-dashboard-due-soon-wrapper"
           >
-            <DueSoonKeyResultList data-cy="okr-dashboard-due-soon-list" />
+            <DueSoonKeyResultList
+        
+              data-cy="okr-dashboard-due-soon-list"
+            />
           </div>
           <div
             className="col-span-1 xl:col-span-2"
             id="okr-dashboard-awaiting-wrapper"
             data-cy="okr-dashboard-awaiting-wrapper"
           >
-            <AwaitingApprovalsList data-cy="okr-dashboard-awaiting-approvals-list" />
+            <AwaitingApprovalsList
+          
+              data-cy="okr-dashboard-awaiting-approvals-list"
+            />
           </div>
         </div>
       </div>

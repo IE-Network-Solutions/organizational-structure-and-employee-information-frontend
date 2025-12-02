@@ -18,7 +18,11 @@ const ChatBotButton: React.FC = () => {
 
   return (
     <>
-      <Tooltip title="Chat with SelamNew AI">
+      <Tooltip
+        title="Chat with SelamNew AI"
+        id="chatbot-tooltip-wrapper-view-space"
+        data-cy="chatbot-tooltip-wrapper-view-space"
+      >
         <Badge count={unreadCount > 0 ? unreadCount : 0} size="small">
           <Button
             type="text"
@@ -41,6 +45,8 @@ const ChatBotButton: React.FC = () => {
               transition: 'all 0.3s ease',
               padding: 0,
             }}
+            id="chatbot-button-wrapper-view-space"
+            data-cy="chatbot-button-wrapper-view-space"
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
               e.currentTarget.style.boxShadow =

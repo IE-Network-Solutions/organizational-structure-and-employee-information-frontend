@@ -13,13 +13,25 @@ export const EmployeeDetails = ({
 
   if (isLoading)
     return (
-      <div data-testid="employee-details-loading">
-        <LoadingOutlined />
+      <div
+        data-testid="employee-details-loading"
+        id="compensation-employee-loading-container"
+        data-cy="compensation-employee-loading-container"
+      >
+        <LoadingOutlined data-cy="compensation-employee-loading-icon" />
       </div>
     );
 
   if (error || !userDetails)
-    return <span data-testid="employee-details-error">-</span>;
+    return (
+      <span
+        data-testid="employee-details-error"
+        id="compensation-employee-error-text"
+        data-cy="compensation-employee-error-text"
+      >
+        -
+      </span>
+    );
 
   const userName =
     `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
@@ -27,14 +39,25 @@ export const EmployeeDetails = ({
   const profileImage = userDetails?.profileImage || fallbackProfileImage;
 
   return (
-    <Space size="small" data-testid={`employee-details-${empId}`}>
+    <Space
+      size="small"
+      data-testid={`employee-details-${empId}`}
+      id={`compensation-employee-details-wrapper-${empId}`}
+      data-cy={`compensation-employee-details-wrapper-${empId}`}
+    >
       <Avatar
         src={profileImage}
-        icon={<UserOutlined />}
+        icon={<UserOutlined data-cy="compensation-employee-avatar-icon" />}
         data-testid="employee-avatar"
         className="w-6 h-6"
+        data-cy={`compensation-employee-avatar-image-${empId}`}
       />
-      <span data-testid="employee-name" className="truncate">
+      <span
+        data-testid="employee-name"
+        className="truncate"
+        id={`compensation-employee-name-text-${empId}`}
+        data-cy={`compensation-employee-name-text-${empId}`}
+      >
         {userName}
       </span>
     </Space>

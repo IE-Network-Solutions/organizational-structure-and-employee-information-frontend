@@ -126,11 +126,7 @@ const Pension = () => {
             data-cy={`payroll-pension-save-click-button-${record.id}`}
             type="primary"
             loading={updatePensionRule}
-            icon={
-              <SaveOutlined
-                data-cy={`payroll-pension-save-click-button-${record.id}`}
-              />
-            }
+            icon={<SaveOutlined data-cy={`payroll-pension-save-click-button-${record.id}`}  />}
             onClick={() => handleSave()}
           >
             Save
@@ -139,11 +135,7 @@ const Pension = () => {
           <Button
             data-cy={`payroll-pension-edit-click-button-${record.id}`}
             type="link"
-            icon={
-              <EditOutlined
-                data-cy={`payroll-pension-edit-click-button-${record.id}`}
-              />
-            }
+            icon={<EditOutlined data-cy={`payroll-pension-edit-click-button-${record.id}`} />}
             onClick={() => handleEdit(record)}
           />
         );
