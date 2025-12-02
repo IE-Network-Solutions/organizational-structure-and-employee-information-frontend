@@ -149,10 +149,10 @@ const AllIncentiveTable: React.FC = () => {
             userId: item?.userId,
             recognition: item?.recognitionType || '--',
             employee_name: (
-              <Tooltip>
-                <div className="flex flex-wrap items-center justify-start gap-3">
-                  <Avatar icon={<UserOutlined />} />
-                  <span>
+              <Tooltip id={`all-incentive-table-employee-tooltip-${item?.id}`} data-cy={`all-incentive-table-employee-tooltip-${item?.id}`}>
+                <div id={`all-incentive-table-employee-wrapper-${item?.id}`} data-cy={`all-incentive-table-employee-wrapper-${item?.id}`} className="flex flex-wrap items-center justify-start gap-3">
+                  <Avatar data-cy={`all-incentive-table-employee-avatar-${item?.id}`} icon={<UserOutlined id={`all-incentive-table-employee-avatar-icon-${item?.id}`} data-cy={`all-incentive-table-employee-avatar-icon-${item?.id}`} />} />
+                  <span id={`all-incentive-table-employee-name-${item?.id}`} data-cy={`all-incentive-table-employee-name-${item?.id}`}>
                     {getEmployeeInformation(item?.userId)?.firstName +
                       '  ' +
                       getEmployeeInformation(item?.userId)?.middleName}
@@ -174,21 +174,21 @@ const AllIncentiveTable: React.FC = () => {
               </div>
             ) : null,
             bonus: (
-              <div>
+              <div id={`all-incentive-table-bonus-${item?.id}`} data-cy={`all-incentive-table-bonus-${item?.id}`}>
                 {item?.amount} {''}ETB
               </div>
             ),
             status: (
-              <div className="inline-block">
+              <div id={`all-incentive-table-status-wrapper-${item?.id}`} data-cy={`all-incentive-table-status-wrapper-${item?.id}`} className="inline-block">
                 {item?.isPaid ? (
-                  <div className="rounded-lg bg-[#55C79033] py-1 px-6">
-                    <span className="text-[#0CAF60] font-semibold text-md">
+                  <div id={`all-incentive-table-status-paid-${item?.id}`} data-cy={`all-incentive-table-status-paid-${item?.id}`} className="rounded-lg bg-[#55C79033] py-1 px-6">
+                    <span id={`all-incentive-table-status-paid-text-${item?.id}`} data-cy={`all-incentive-table-status-paid-text-${item?.id}`} className="text-[#0CAF60] font-semibold text-md">
                       Paid
                     </span>
                   </div>
                 ) : (
-                  <div className="rounded-lg bg-[#FFEDEC] py-1 px-4">
-                    <span className="text-[#E03137] font-semibold text-md">
+                  <div id={`all-incentive-table-status-not-paid-${item?.id}`} data-cy={`all-incentive-table-status-not-paid-${item?.id}`} className="rounded-lg bg-[#FFEDEC] py-1 px-4">
+                    <span id={`all-incentive-table-status-not-paid-text-${item?.id}`} data-cy={`all-incentive-table-status-not-paid-text-${item?.id}`} className="text-[#E03137] font-semibold text-md">
                       Not Paid
                     </span>
                   </div>
@@ -252,8 +252,10 @@ const AllIncentiveTable: React.FC = () => {
   };
 
   return (
-    <div className="m-1">
+    <div id="all-incentive-table-container" data-cy="all-incentive-table-container" className="m-1">
       <Table
+        id="all-incentive-table"
+        data-cy="all-incentive-table"
         rowSelection={{ type: 'checkbox', ...rowSelection }}
         rowKey="id"
         className="w-full cursor-pointer"
@@ -271,6 +273,7 @@ const AllIncentiveTable: React.FC = () => {
 
       {isMobile || isTablet ? (
         <CustomMobilePagination
+          data-cy="all-incentive-table-mobile-pagination"
           totalResults={incentiveData?.meta?.totalItems}
           pageSize={pageSize}
           onChange={onPageChange}
@@ -278,6 +281,7 @@ const AllIncentiveTable: React.FC = () => {
         />
       ) : (
         <CustomPagination
+          data-cy="all-incentive-table-pagination"
           current={currentPage}
           total={incentiveData?.meta?.totalItems}
           pageSize={pageSize}

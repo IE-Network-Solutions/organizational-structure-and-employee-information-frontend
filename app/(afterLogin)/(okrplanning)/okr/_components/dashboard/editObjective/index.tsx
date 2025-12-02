@@ -440,9 +440,17 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const keyResultMenu = (
-    <Menu data-cy="okr-edit-objective-key-result-menu" onClick={handleAddKeyResultType}>
+    <Menu
+      data-cy="okr-edit-objective-key-result-menu"
+      onClick={handleAddKeyResultType}
+    >
       {keyResultTypes.map((type) => (
-        <Menu.Item data-cy="okr-edit-objective-key-result-menu-item" key={type.value}>{type.label}</Menu.Item>
+        <Menu.Item
+          data-cy="okr-edit-objective-key-result-menu-item"
+          key={type.value}
+        >
+          {type.label}
+        </Menu.Item>
       ))}
     </Menu>
   );
@@ -747,8 +755,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             className="flex gap-2"
           >
             <Button
-              id="okr-edit-objective-ai-button"
-              data-cy="okr-edit-objective-ai-button"
+              id="okr-edit-ai-inline-suggestions-toggle-button"
+              data-cy="okr-edit-ai-inline-suggestions-toggle-button"
               type="primary"
               ghost
               onClick={() => setShowAISuggestions(!showAISuggestions)}

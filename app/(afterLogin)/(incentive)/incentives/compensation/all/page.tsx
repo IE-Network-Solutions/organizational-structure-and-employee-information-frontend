@@ -35,15 +35,15 @@ const AllIncentives = () => {
   const hasSelectedRows = selectedRowKeys && selectedRowKeys.length > 0;
 
   return (
-    <div className="">
+    <div id="all-incentives-container" data-cy="all-incentives-container">
       {parentResponseIsLoading ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div id="all-incentives-skeleton-cards-container" data-cy="all-incentives-skeleton-cards-container" className="grid grid-cols-3 gap-4">
           {[...Array(3)].map(
             /* eslint-disable-next-line @typescript-eslint/naming-convention */
             (_, index) => (
               /* eslint-enable-next-line @typescript-eslint/naming-convention */
-              <Card key={index}>
-                <Skeleton active />
+              <Card id={`all-incentives-skeleton-card-${index}`} data-cy={`all-incentives-skeleton-card-${index}`} key={index}>
+                <Skeleton data-cy={`all-incentives-skeleton-${index}`} active />
               </Card>
             ),
           )}
@@ -52,7 +52,7 @@ const AllIncentives = () => {
         <IncentiveCards />
       )}
       {parentResponseIsLoading ? (
-        <Skeleton active paragraph={{ rows: 1 }} />
+        <Skeleton data-cy="all-incentives-skeleton-filter" active paragraph={{ rows: 1 }} />
       ) : (
         <IncentiveFilter />
       )}
@@ -78,7 +78,7 @@ const AllIncentives = () => {
         </div>
       )}
       {parentResponseIsLoading ? (
-        <Skeleton active paragraph={{ rows: 4 }} />
+        <Skeleton data-cy="all-incentives-skeleton-table" active paragraph={{ rows: 4 }} />
       ) : (
         <AllIncentiveTable />
       )}

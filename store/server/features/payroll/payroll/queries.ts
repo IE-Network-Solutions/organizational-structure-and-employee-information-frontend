@@ -240,3 +240,28 @@ export const useGetVariablePay = (monthIds: any) => {
     keepPreviousData: true,
   });
 };
+
+const getEmployeeAllowances = async (employeeId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/employee/${employeeId}/allowances`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetEmployeeAllowances = (employeeId: string | undefined) => {
+  return useQuery(
+    ['employeeAllowances', employeeId],
+    () => {
+      return getEmployeeAllowances(employeeId!);
+    },
+    {
+      enabled: !!employeeId,
+    },
+  );
+};

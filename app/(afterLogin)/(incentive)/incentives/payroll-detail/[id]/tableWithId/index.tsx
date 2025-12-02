@@ -159,10 +159,10 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
             userId: item?.userId,
             recognition: item?.recognitionType || '--',
             employee_name: (
-              <Tooltip>
-                <div className="flex flex-wrap items-center justify-start gap-3">
-                  <Avatar icon={<UserOutlined />} />
-                  <span>
+              <Tooltip id={`incentive-table-employee-tooltip-${item?.id}`} data-cy={`incentive-table-employee-tooltip-${item?.id}`}>
+                <div id={`incentive-table-employee-wrapper-${item?.id}`} data-cy={`incentive-table-employee-wrapper-${item?.id}`} className="flex flex-wrap items-center justify-start gap-3">
+                  <Avatar data-cy={`incentive-table-employee-avatar-${item?.id}`} icon={<UserOutlined id={`incentive-table-employee-avatar-icon-${item?.id}`} data-cy={`incentive-table-employee-avatar-icon-${item?.id}`} />} />
+                  <span id={`incentive-table-employee-name-${item?.id}`} data-cy={`incentive-table-employee-name-${item?.id}`}>
                     {getEmployeeInformation(item?.userId)?.firstName +
                       '  ' +
                       getEmployeeInformation(item?.userId)?.middleName}
@@ -173,30 +173,32 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
             role: getEmployeeInformation(item?.userId)?.role?.name,
             criteria: item?.breakdown?.map((criterion, index) => (
               <div
+                id={`incentive-table-criterion-wrapper-${item?.id}-${index}`}
+                data-cy={`incentive-table-criterion-wrapper-${item?.id}-${index}`}
                 className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
                 key={criterion?.criterionKey || index}
               >
-                <span className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1">
+                <span id={`incentive-table-criterion-${item?.id}-${index}`} data-cy={`incentive-table-criterion-${item?.id}-${index}`} className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1">
                   {criterion?.criterionKey}
                 </span>
               </div>
             )),
             bonus: (
-              <div>
+              <div id={`incentive-table-bonus-${item?.id}`} data-cy={`incentive-table-bonus-${item?.id}`}>
                 {item?.amount} {''}ETB
               </div>
             ),
             status: (
-              <div className="inline-block">
+              <div id={`incentive-table-status-wrapper-${item?.id}`} data-cy={`incentive-table-status-wrapper-${item?.id}`} className="inline-block">
                 {item?.isPaid ? (
-                  <div className="rounded-lg bg-[#55C79033] py-1 px-6">
-                    <span className="text-[#0CAF60] font-semibold text-md">
+                  <div id={`incentive-table-status-paid-${item?.id}`} data-cy={`incentive-table-status-paid-${item?.id}`} className="rounded-lg bg-[#55C79033] py-1 px-6">
+                    <span id={`incentive-table-status-paid-text-${item?.id}`} data-cy={`incentive-table-status-paid-text-${item?.id}`} className="text-[#0CAF60] font-semibold text-md">
                       Paid
                     </span>
                   </div>
                 ) : (
-                  <div className="rounded-lg bg-[#FFEDEC] py-1 px-4">
-                    <span className="text-[#E03137] font-semibold text-md">
+                  <div id={`incentive-table-status-not-paid-${item?.id}`} data-cy={`incentive-table-status-not-paid-${item?.id}`} className="rounded-lg bg-[#FFEDEC] py-1 px-4">
+                    <span id={`incentive-table-status-not-paid-text-${item?.id}`} data-cy={`incentive-table-status-not-paid-text-${item?.id}`} className="text-[#E03137] font-semibold text-md">
                       Not Paid
                     </span>
                   </div>
@@ -207,8 +209,10 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
         });
 
   return (
-    <div>
+    <div id="incentive-table-after-generate-container" data-cy="incentive-table-after-generate-container">
       <Table
+        id="incentive-table-after-generate-table"
+        data-cy="incentive-table-after-generate-table"
         rowSelection={{ type: 'checkbox', ...rowSelection }}
         rowKey="id"
         className="w-full cursor-pointer"
@@ -225,6 +229,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       />
       {isMobile || isTablet ? (
         <CustomMobilePagination
+          data-cy="incentive-table-after-generate-mobile-pagination"
           totalResults={dynamicRecognitionData?.meta?.totalItems}
           pageSize={pageSize}
           onChange={onPageChange}
@@ -232,6 +237,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
         />
       ) : (
         <CustomPagination
+          data-cy="incentive-table-after-generate-pagination"
           current={currentPage}
           total={dynamicRecognitionData?.meta?.totalItems}
           pageSize={pageSize}
