@@ -29,7 +29,7 @@ import {
 } from 'antd';
 import { TabsProps } from 'antd/lib';
 import dayjs from 'dayjs';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CiMedal } from 'react-icons/ci';
 import { useRouter } from 'next/navigation';
 import RecognitionTypeModal from './_components/recognitionTypeModal';
@@ -62,11 +62,12 @@ function Page() {
     setVisibleEmployee,
     selectedRowKeys,
     setSelectedRowKeys,
+    showBulkDeleteModal,
+    setShowBulkDeleteModal,
   } = useRecongnitionStore();
   
   const { mutate: deleteRecognition } = useDeleteRecognition();
   const { mutate: deleteBulkRecognitions, isLoading: isDeleting } = useDeleteBulkRecognitions();
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const isSelectingAllRef = useRef(false);
   
   const { refetch: fetchAllIds } = useGetAllRecognitionIds(
@@ -259,7 +260,7 @@ function Page() {
             const allIds = response.data.items.map((item: any) => String(item.id));
             const existingSelected = (selectedRowKeys || []).map(String);
             const allSelected = allIds.length > 0 && 
-              allIds.every((id) => existingSelected.includes(id)) &&
+              allIds.every((id: string) => existingSelected.includes(id)) &&
               existingSelected.length === allIds.length;
             
             setSelectedRowKeys(allSelected ? [] : allIds);
@@ -268,7 +269,7 @@ function Page() {
         }).catch(() => {
           const existingSelected = (selectedRowKeys || []).map(String);
           const allCurrentPageSelected = currentPageIds.length > 0 &&
-            currentPageIds.every((id) => existingSelected.includes(id));
+            currentPageIds.every((id: string) => existingSelected.includes(id));
           
           const otherPagesSelected = existingSelected.filter(
             (key) => !currentPageIds.includes(key)
