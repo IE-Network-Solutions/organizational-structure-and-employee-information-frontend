@@ -155,7 +155,7 @@ function Page() {
     {
       title: 'Criteria',
       dataIndex: 'criteriaScore',
-      render: (_, record) =>
+      render: (_unused, record) =>
         record?.criteriaScore?.length ? (
           <div className="flex gap-2 max-w-[400px] overflow-x-auto scrollbar-hide">
             {record.criteriaScore.map((criteria: any, index: number) => (
@@ -201,7 +201,7 @@ function Page() {
       key: 'actions',
       fixed: 'right' as const,
       width: 100,
-      render: (_: any, record: any) => (
+      render: (_unused: any, record: any) => (
         <Space
           size="middle"
           onClick={(e) => e.stopPropagation()}

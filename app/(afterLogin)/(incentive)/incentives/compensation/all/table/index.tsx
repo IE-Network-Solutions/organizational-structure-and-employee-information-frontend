@@ -82,7 +82,7 @@ const AllIncentiveTable: React.FC = () => {
       key: 'actions',
       fixed: 'right' as const,
       width: 100,
-      render: (_: any, record: any) => (
+      render: (_unused: any, record: any) => (
         <Space
           size="middle"
           onClick={(e) => e.stopPropagation()}

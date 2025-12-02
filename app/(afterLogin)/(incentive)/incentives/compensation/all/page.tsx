@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import IncentiveFilter from './filters';
 import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
-import { Card, Skeleton, Button, Space } from 'antd';
+import { Card, Skeleton, Button } from 'antd';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { DeleteOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';

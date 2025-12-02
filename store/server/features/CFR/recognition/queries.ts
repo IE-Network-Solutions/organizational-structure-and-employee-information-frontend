@@ -212,7 +212,7 @@ const getAllRecognitionIds = async (searchValue: Record<string, string | undefin
     `limit=10000`, // Large limit to get all records
     `page=1`,
     ...Object.entries(searchValue)
-      .filter(([notused, value]) => value)
+      .filter(([, value]) => value)
       .map(([key, value]) => `${key}=${value}`),
   ].join('&');
 
