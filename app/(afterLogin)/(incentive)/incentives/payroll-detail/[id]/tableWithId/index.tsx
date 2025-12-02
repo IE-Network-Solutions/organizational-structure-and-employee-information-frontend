@@ -72,7 +72,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       key: 'actions',
       fixed: 'right' as const,
       width: 100,
-      render: (_unused: any, record: any) => (
+      render: (unused: any, record: any) => (
         <Space
           size="middle"
           onClick={(e) => e.stopPropagation()}
