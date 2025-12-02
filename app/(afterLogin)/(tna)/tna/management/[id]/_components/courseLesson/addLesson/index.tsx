@@ -172,8 +172,9 @@ const CourseAddLessonSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
+        data-cy="tna-add-lesson-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-3">
+          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-3" data-cy="tna-add-lesson-header">
             {lesson ? 'Edit' : 'Add'} Lesson
           </CustomDrawerHeader>
         }
@@ -181,6 +182,7 @@ const CourseAddLessonSidebar = () => {
           <CustomDrawerFooterButton
             className="p-4"
             buttons={footerModalItems}
+            data-cy="tna-add-lesson-footer"
           />
         }
         hideButton={isShowLessonMaterial}
@@ -193,22 +195,27 @@ const CourseAddLessonSidebar = () => {
           disabled={isLoading || isFetching}
           initialValues={{ lessons: [{}] }}
           onFinish={onFinish}
+          id="tnaAddLessonFormId"
+          data-cy="tna-add-lesson-form"
         >
-          <Form.List name="lessons">
+          <Form.List name="lessons" data-cy="tna-add-lesson-list">
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <React.Fragment key={key}>
-                    <Flex className="w-full" gap={5}>
+                  <React.Fragment key={key} data-cy={`tna-add-lesson-fragment-${key}`}>
+                    <Flex className="w-full" gap={5} id={`tnaAddLessonTitleFlex${key}Id`} data-cy={`tna-add-lesson-title-flex-${key}`}>
                       <Form.Item
                         {...restField}
                         name={[name, 'title']}
                         label="Enter the Lesson title"
                         rules={[{ required: true, message: 'Required' }]}
                         className="form-item flex-1 px-3"
+                        id={`tnaAddLessonTitleItem${key}Id`}
+                        data-cy={`tna-add-lesson-title-item-${key}`}
                       >
                         <Input
                           id="tnaLessonTitleFieldId"
+                          data-cy="tna-lesson-title-field"
                           className="control h-10"
                         />
                       </Form.Item>
@@ -217,6 +224,7 @@ const CourseAddLessonSidebar = () => {
                           onClick={() => {
                             remove(name);
                           }}
+                          data-cy={`tna-add-lesson-remove-button-${key}`}
                         />
                       ) : null}
                     </Flex>
@@ -232,9 +240,12 @@ const CourseAddLessonSidebar = () => {
                       ]}
                       className="form-item px-3"
                       initialValue={0}
+                      id={`tnaAddLessonOrderItem${key}Id`}
+                      data-cy={`tna-add-lesson-order-item-${key}`}
                     >
                       <Select
                         id="tnaLessonNumberFieldId"
+                        data-cy="tna-lesson-number-field"
                         className="control-select h-10 w-full"
                         placeholder="Select lesson order"
                         options={lessonOptions}
@@ -250,9 +261,12 @@ const CourseAddLessonSidebar = () => {
                       label="Description"
                       rules={[{ required: true, message: 'Required' }]}
                       className="form-item px-3"
+                      id={`tnaAddLessonDescriptionItem${key}Id`}
+                      data-cy={`tna-add-lesson-description-item-${key}`}
                     >
                       <Input.TextArea
                         id="tnaDescriptionFieldId"
+                        data-cy="tna-description-field"
                         className="control-tarea h-24"
                         rows={6}
                         placeholder="Enter the Description"
@@ -267,12 +281,13 @@ const CourseAddLessonSidebar = () => {
                 ))}
 
                 {!lesson && (
-                  <Form.Item>
+                  <Form.Item id="tnaAddLessonAddButtonItemId" data-cy="tna-add-lesson-add-button-item">
                     <AddFormFieldsButton
                       label="Add Lesson"
                       onClick={() => {
                         add();
                       }}
+                      data-cy="tna-add-lesson-add-button"
                     />
                   </Form.Item>
                 )}
@@ -284,17 +299,18 @@ const CourseAddLessonSidebar = () => {
         {lesson && (
           <>
             {lesson.courseLessonMaterials.map((material) => (
-              <Spin spinning={isLoadingDelete} key={material.id}>
-                <div className="mt-6">
-                  <div className="text-sm text-gray-900 font-medium mb-2.5">
+              <Spin spinning={isLoadingDelete} key={material.id} data-cy={`tna-add-lesson-material-spinner-${material.id}`}>
+                <div className="mt-6" id={`tnaAddLessonMaterial${material.id}Id`} data-cy={`tna-add-lesson-material-${material.id}`}>
+                  <div className="text-sm text-gray-900 font-medium mb-2.5" id={`tnaAddLessonMaterialTitle${material.id}Id`} data-cy={`tna-add-lesson-material-title-${material.id}`}>
                     Course Material Title
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-[54px] px-5 text-sm font-medium text-gray-900 rounded-lg border border-gray-200 bg-gray-100 flex items-center">
+                  <div className="flex items-center gap-2" id={`tnaAddLessonMaterialContent${material.id}Id`} data-cy={`tna-add-lesson-material-content-${material.id}`}>
+                    <div className="flex-1 h-[54px] px-5 text-sm font-medium text-gray-900 rounded-lg border border-gray-200 bg-gray-100 flex items-center" id={`tnaAddLessonMaterialTitleDisplay${material.id}Id`} data-cy={`tna-add-lesson-material-title-display-${material.id}`}>
                       {material.title}
                     </div>
                     <ActionButtons
                       id={material?.id || null}
+                      data-cy={`tna-add-lesson-material-actions-${material.id}`}
                       onEdit={() => {
                         setLessonMaterial(material);
                         setIsShowLessonMaterial(true);
@@ -308,7 +324,7 @@ const CourseAddLessonSidebar = () => {
               </Spin>
             ))}
 
-            <CourseLessonMaterial />
+            <CourseLessonMaterial data-cy="tna-add-lesson-material" />
           </>
         )}
       </CustomDrawerLayout>
