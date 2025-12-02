@@ -4,7 +4,7 @@ import {
   AllIncentiveData,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Avatar, Table, TableColumnsType, Tooltip, Button, Space } from 'antd';
+import { Avatar, Table, TableColumnsType, Tooltip, Space } from 'antd';
 import React from 'react';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -14,7 +14,7 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
+import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
 
 export type IncentiveTableDataParams = {
@@ -34,10 +34,19 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   id,
 }) => {
   const router = useRouter();
-  const { mutate: deleteIncentive } = useDeleteIncentive();
+  const { mutate: deleteIncentive, isLoading: isDeleting } = useDeleteIncentive();
+  const [deleteModalOpen, setDeleteModalOpen] = React.useState<Record<string, boolean>>({});
 
-  const handleDelete = (incentiveId: string) => {
-    deleteIncentive({ id: incentiveId });
+  const handleDeleteConfirm = (incentiveId: string) => {
+    deleteIncentive({ id: incentiveId }, {
+      onSuccess: () => {
+        setDeleteModalOpen((prev) => ({ ...prev, [incentiveId]: false }));
+      },
+    });
+  };
+
+  const handleDeleteCancel = (incentiveId: string) => {
+    setDeleteModalOpen((prev) => ({ ...prev, [incentiveId]: false }));
   };
 
   const columns: TableColumnsType<IncentiveTableDataParams> = [
@@ -84,20 +93,27 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
             id={`incentive-detail-table-delete-guard-${record.id}`}
             data-cy={`incentive-detail-table-delete-guard-${record.id}`}
           >
-            <DeletePopover
-              titleText="Are you sure you want to permanently delete this record? This action cannot be undone."
-              onDelete={() => handleDelete(record.id)}
-              data-cy={`incentive-detail-table-delete-popover-${record.id}`}
+            <DeleteConfirmationPopover
+              open={deleteModalOpen[record.id] || false}
+              onCancel={() => handleDeleteCancel(record.id)}
+              onConfirm={() => handleDeleteConfirm(record.id)}
+              message="Are you sure you want to permanently delete this record?"
+              loading={isDeleting}
+              id={`incentive-delete-modal-${record.id}`}
+              data-cy={`incentive-delete-modal-${record.id}`}
             >
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={(e) => e.stopPropagation()}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteModalOpen((prev) => ({ ...prev, [record.id]: true }));
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white rounded w-8 h-8 flex items-center justify-center"
                 id={`incentive-detail-table-delete-button-${record.id}`}
                 data-cy={`incentive-detail-table-delete-button-${record.id}`}
-              />
-            </DeletePopover>
+              >
+                <DeleteOutlined className="text-white" />
+              </button>
+            </DeleteConfirmationPopover>
           </AccessGuard>
         </Space>
       ),
