@@ -162,10 +162,12 @@ const AllIncentiveTable: React.FC = () => {
             ),
             role: getEmployeeInformation(item?.userId)?.role?.name,
             criteria: item?.breakdown?.length ? (
-              <div className="flex gap-2 max-w-[400px] overflow-x-auto scrollbar-hide">
+              <div id={`all-incentive-table-criteria-wrapper-${item?.id}`} data-cy={`all-incentive-table-criteria-wrapper-${item?.id}`} className="flex gap-2 max-w-[400px] overflow-x-auto scrollbar-hide">
                 {item.breakdown.map((criterion, index) => (
                   <span
                     key={criterion?.criterionKey || index}
+                    id={`all-incentive-table-criteria-${item?.id}-${index}`}
+                    data-cy={`all-incentive-table-criteria-${item?.id}-${index}`}
                     className="whitespace-nowrap rounded-xl bg-[#D3E4F0] text-[#1D9BF0] px-2 py-1 text-sm flex-shrink-0"
                   >
                     {criterion?.criterionKey}
@@ -273,6 +275,7 @@ const AllIncentiveTable: React.FC = () => {
 
       {isMobile || isTablet ? (
         <CustomMobilePagination
+          id="all-incentive-table-mobile-pagination"
           data-cy="all-incentive-table-mobile-pagination"
           totalResults={incentiveData?.meta?.totalItems}
           pageSize={pageSize}
@@ -281,6 +284,7 @@ const AllIncentiveTable: React.FC = () => {
         />
       ) : (
         <CustomPagination
+          id="all-incentive-table-pagination"
           data-cy="all-incentive-table-pagination"
           current={currentPage}
           total={incentiveData?.meta?.totalItems}

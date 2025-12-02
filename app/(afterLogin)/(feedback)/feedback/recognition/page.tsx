@@ -485,7 +485,7 @@ function Page() {
             </Col>
           </Row>
           {hasSelectedRows && (
-            <div className="px-6 mb-4 flex justify-end">
+            <div id="recognition-bulk-delete-container" data-cy="recognition-bulk-delete-container" className="px-6 mb-4 flex justify-end">
               <AccessGuard
                 permissions={[Permissions.DeleteRecognition]}
                 id="recognition-bulk-delete-guard"
@@ -548,6 +548,8 @@ function Page() {
           onConfirm={handleBulkDelete}
           deleteMessage={`Are you sure you want to permanently delete ${selectedRowKeys?.length || 0} selected record(s)? This action cannot be undone.`}
           loading={isDeleting}
+          id="recognition-bulk-delete-modal"
+          data-cy="recognition-bulk-delete-modal"
         />
       </>
     </div>

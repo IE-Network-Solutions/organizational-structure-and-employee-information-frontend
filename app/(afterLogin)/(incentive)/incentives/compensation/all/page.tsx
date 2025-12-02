@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import IncentiveFilter from './filters';
 import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
@@ -12,11 +12,10 @@ import { useDeleteBulkIncentives } from '@/store/server/features/incentive/other
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 
 const AllIncentives = () => {
-  const { parentResponseIsLoading, selectedRowKeys, setSelectedRowKeys } =
+  const { parentResponseIsLoading, selectedRowKeys, setSelectedRowKeys, showBulkDeleteModal, setShowBulkDeleteModal } =
     useIncentiveStore();
   const { mutate: deleteBulkIncentives, isLoading: isDeleting } =
     useDeleteBulkIncentives();
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
 
   const handleBulkDelete = () => {
     if (selectedRowKeys && selectedRowKeys.length > 0) {
@@ -52,12 +51,14 @@ const AllIncentives = () => {
         <IncentiveCards />
       )}
       {parentResponseIsLoading ? (
-        <Skeleton data-cy="all-incentives-skeleton-filter" active paragraph={{ rows: 1 }} />
+        <div id="all-incentives-skeleton-filter" data-cy="all-incentives-skeleton-filter">
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </div>
       ) : (
         <IncentiveFilter />
       )}
       {!parentResponseIsLoading && hasSelectedRows && (
-        <div className="mb-4 flex justify-end">
+        <div id="incentive-bulk-delete-container" data-cy="incentive-bulk-delete-container" className="mb-4 flex justify-end">
           <AccessGuard
             permissions={[Permissions.DeleteIncentive]}
             id="incentive-bulk-delete-guard"
@@ -78,7 +79,9 @@ const AllIncentives = () => {
         </div>
       )}
       {parentResponseIsLoading ? (
-        <Skeleton data-cy="all-incentives-skeleton-table" active paragraph={{ rows: 4 }} />
+        <div id="all-incentives-skeleton-table" data-cy="all-incentives-skeleton-table">
+          <Skeleton active paragraph={{ rows: 4 }} />
+        </div>
       ) : (
         <AllIncentiveTable />
       )}
@@ -88,6 +91,8 @@ const AllIncentives = () => {
         onConfirm={handleBulkDelete}
         deleteMessage={`Are you sure you want to permanently delete ${selectedRowKeys?.length || 0} selected record(s)? This action cannot be undone.`}
         loading={isDeleting}
+        id="incentive-bulk-delete-modal"
+        data-cy="incentive-bulk-delete-modal"
       />
     </div>
   );
