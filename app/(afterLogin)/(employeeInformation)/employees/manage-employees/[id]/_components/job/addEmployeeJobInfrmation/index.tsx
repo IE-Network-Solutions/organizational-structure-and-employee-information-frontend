@@ -24,7 +24,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
 
   const [form] = Form.useForm();
   const params = useParams();
-  const userId = id ?? (params?.id as string) ?? userId2;
+  // Prioritize URL parameter over prop to ensure we use the employee ID from URL, not logged-in user's ID
+  const userId = (params?.id as string) ?? id ?? userId2;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
