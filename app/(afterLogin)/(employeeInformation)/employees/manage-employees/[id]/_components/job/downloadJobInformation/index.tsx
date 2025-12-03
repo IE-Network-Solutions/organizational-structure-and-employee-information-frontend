@@ -156,7 +156,7 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
     try {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
-      let y = 20;
+      let y = 15; // Moved up from 20
 
       // Extract employee data
       // Note: For inactive employees, employeeInformation is null from the single employee API
@@ -311,11 +311,12 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         }
       };
 
-      // Try to get logo URL from companyInfo
-      const logoUrl = companyInfo?.description;
+      // Get the logo data
+      const logoUrl = companyInfo?.logo || '';
 
       // Try to load and display logo, fallback to company name if it fails
       let logoLoaded = false;
+      let logoHeight = 0;
       if (logoUrl) {
         try {
           const imageResult = await getImageAsBase64(logoUrl);
@@ -323,23 +324,33 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
             // Get image dimensions to maintain aspect ratio
             const img = new Image();
             await new Promise((resolve, reject) => {
-              img.onload = resolve;
-              img.onerror = reject;
+              const timeout = setTimeout(() => {
+                reject(new Error('Image loading timeout'));
+              }, 10000); // 10 second timeout
+
+              img.onload = () => {
+                clearTimeout(timeout);
+                resolve(null);
+              };
+              img.onerror = (error) => {
+                clearTimeout(timeout);
+                reject(error);
+              };
               img.src = imageResult.data;
             });
 
-            // Calculate dimensions (max width 40mm, maintain aspect ratio)
-            const maxWidth = 40;
+            // Calculate dimensions (max width similar to Latter component)
+            const maxWidth = 15; // Smaller logo size
             const aspectRatio = img.width / img.height;
             const logoWidth = maxWidth;
-            const logoHeight = logoWidth / aspectRatio;
+            logoHeight = logoWidth / aspectRatio;
 
-            // Add logo to PDF with detected format
+            // Add logo to PDF (moved up)
             doc.addImage(
               imageResult.data,
               imageResult.format,
               15,
-              y + 6,
+              y,
               logoWidth,
               logoHeight,
             );
@@ -356,11 +367,12 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(54, 54, 240); // Blue color #3636F0
-        doc.text(companyInfo.companyName, 15, y + 6);
+        doc.text(companyInfo.companyName, 15, y);
       }
 
       // Date and Reference Number (top right)
       doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(0, 0, 0);
       doc.text(`Date: ${dayjs().format('YYYY-MM-DD')}`, pageWidth - 15, y, {
         align: 'right',
@@ -369,7 +381,12 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         align: 'right',
       });
 
-      y += 35;
+      // Adjust Y position for main title section
+      if (logoLoaded) {
+        y = Math.max(y + logoHeight + 8, 30); // Reduced spacing
+      } else {
+        y = 30;
+      }
 
       // === MAIN TITLE ===
       doc.setFontSize(18);
@@ -626,17 +643,23 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
   };
 
   return (
-    <div>
+    <div id="job-download-container" data-cy="job-download-container">
       <button
         onClick={generatePDF}
         aria-label="Download Work Experience Certificate"
         disabled={isGenerating}
         className="relative"
+        id="job-download-btn"
+        data-cy="job-download-btn"
       >
         {isGenerating ? (
-          <Spin size="small" />
+          <Spin size="small" data-cy="job-download-spin" />
         ) : (
-          <MdDownloadForOffline className="text-primary text-2xl" />
+          <MdDownloadForOffline
+            className="text-primary text-2xl"
+            id="job-download-icon"
+            data-cy="job-download-icon"
+          />
         )}
       </button>
     </div>

@@ -36,13 +36,24 @@ function UpdateUserInfo({ employeeData }: any) {
   }, [employeeData, form]);
 
   return (
-    <Card title="Personal Info" className="my-6 mt-0">
+    <Card
+      title="Personal Info"
+      className="my-6 mt-0"
+      id="personal-data-update-user-info-card"
+      data-cy="personal-data-update-user-info-card"
+    >
       <Form
         form={form}
         layout="vertical"
         onFinish={(values) => handleSaveChanges(values)}
+        id="personal-data-update-user-info-form"
+        data-cy="personal-data-update-user-info-form"
       >
-        <Row gutter={[16, 24]}>
+        <Row
+          gutter={[16, 24]}
+          id="personal-data-update-user-info-row"
+          data-cy="personal-data-update-user-info-row"
+        >
           <Col lg={12}>
             <Form.Item
               name="firstName"
@@ -54,8 +65,13 @@ function UpdateUserInfo({ employeeData }: any) {
                   message: 'Please enter the first name',
                 },
               ]}
+              id="personal-data-update-user-info-first-name-form-item"
+              data-cy="personal-data-update-user-info-first-name-form-item"
             >
-              <Input />
+              <Input
+                id="personal-data-update-user-info-first-name-input"
+                data-cy="personal-data-update-user-info-first-name-input"
+              />
             </Form.Item>
 
             <Form.Item
@@ -68,11 +84,20 @@ function UpdateUserInfo({ employeeData }: any) {
                   message: 'Please enter the last name',
                 },
               ]}
+              id="personal-data-update-user-info-last-name-form-item"
+              data-cy="personal-data-update-user-info-last-name-form-item"
             >
-              <Input />
+              <Input
+                id="personal-data-update-user-info-last-name-input"
+                data-cy="personal-data-update-user-info-last-name-input"
+              />
             </Form.Item>
           </Col>
-          <Col lg={10}>
+          <Col
+            lg={10}
+            id="personal-data-update-user-info-middle-name-col"
+            data-cy="personal-data-update-user-info-middle-name-col"
+          >
             <Form.Item
               name="middleName"
               label="Middle Name"
@@ -83,12 +108,28 @@ function UpdateUserInfo({ employeeData }: any) {
                   message: 'Please enter the middle name',
                 },
               ]}
+              id="personal-data-update-user-info-middle-name-form-item"
+              data-cy="personal-data-update-user-info-middle-name-form-item"
             >
-              <Input />
+              <Input
+                id="personal-data-update-user-info-middle-name-input"
+                data-cy="personal-data-update-user-info-middle-name-input"
+              />
             </Form.Item>
           </Col>
-          <Col span={24} style={{ textAlign: 'right' }}>
-            <Button loading={isLoading} type="primary" htmlType="submit">
+          <Col
+            span={24}
+            style={{ textAlign: 'right' }}
+            id="personal-data-update-user-info-submit-col"
+            data-cy="personal-data-update-user-info-submit-col"
+          >
+            <Button
+              loading={isLoading}
+              type="primary"
+              htmlType="submit"
+              id="personal-data-update-user-info-submit-btn"
+              data-cy="personal-data-update-user-info-submit-btn"
+            >
               Save Changes
             </Button>
           </Col>

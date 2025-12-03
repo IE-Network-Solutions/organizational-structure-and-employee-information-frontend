@@ -123,10 +123,11 @@ const EditCandidate: React.FC = () => {
       form.setFieldsValue({
         fullName: editCandidate?.fullName,
         email: editCandidate?.email,
-        phoneNumber: editCandidate?.phoneNumber,
+        phone: editCandidate?.phone || editCandidate?.phoneNumber,
         jobInformationId: editCandidate?.jobCandidate?.map(
           (item: any) => item?.jobInformation?.jobTitle,
         ),
+        CGPA: editCandidate?.CGPA,
         coverLetter: editCandidate?.jobCandidate?.[0]?.coverLetter || '',
         resumeUrl: editCandidate?.resumeUrl
           ? {

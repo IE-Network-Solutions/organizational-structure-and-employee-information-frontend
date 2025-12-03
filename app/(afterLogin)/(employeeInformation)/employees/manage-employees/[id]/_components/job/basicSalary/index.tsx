@@ -81,22 +81,46 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
       key: 'action',
       render: (ruleData: any, record: any) =>
         record?.status && (
-          <div className="flex gap-2">
-            <AccessGuard permissions={[Permissions.CreateBasicSalary]}>
-              <Tooltip title="Add Basic Salary">
+          <div
+            className="flex gap-2"
+            id={`job-basic-salary-actions-${record.id}`}
+            data-cy={`job-basic-salary-actions-${record.id}`}
+          >
+            <AccessGuard
+              permissions={[Permissions.CreateBasicSalary]}
+              id={`job-basic-salary-add-guard-${record.id}`}
+              data-cy={`job-basic-salary-add-guard-${record.id}`}
+            >
+              <Tooltip
+                title="Add Basic Salary"
+                id={`job-basic-salary-add-tooltip-${record.id}`}
+                data-cy={`job-basic-salary-add-tooltip-${record.id}`}
+              >
                 <Button
                   onClick={() => handleVisibilityData(record)}
                   // type="primary"
                   icon={<HiPlus />}
+                  id={`job-basic-salary-add-btn-${record.id}`}
+                  data-cy={`job-basic-salary-add-btn-${record.id}`}
                 ></Button>
               </Tooltip>
             </AccessGuard>
-            <AccessGuard permissions={[Permissions.UpdateBasicSalary]}>
-              <Tooltip title="Edit Basic Salary">
+            <AccessGuard
+              permissions={[Permissions.UpdateBasicSalary]}
+              id={`job-basic-salary-edit-guard-${record.id}`}
+              data-cy={`job-basic-salary-edit-guard-${record.id}`}
+            >
+              <Tooltip
+                title="Edit Basic Salary"
+                id={`job-basic-salary-edit-tooltip-${record.id}`}
+                data-cy={`job-basic-salary-edit-tooltip-${record.id}`}
+              >
                 <Button
                   onClick={() => handleVisibilityEdit(record)}
                   // type="primary"
                   icon={<MdEdit />}
+                  id={`job-basic-salary-edit-btn-${record.id}`}
+                  data-cy={`job-basic-salary-edit-btn-${record.id}`}
                 ></Button>
               </Tooltip>
             </AccessGuard>
@@ -113,20 +137,28 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
     setBasicSalaryData({ ...record, isEdit: false });
   };
   return (
-    <div>
-      <Card title="Basic Salary" className="my-6 mt-0">
+    <div id="job-basic-salary-container" data-cy="job-basic-salary-container">
+      <Card
+        title="Basic Salary"
+        className="my-6 mt-0"
+        id="job-basic-salary-card"
+        data-cy="job-basic-salary-card"
+      >
         <Table
           dataSource={basicSalary?.slice()?.reverse()}
           columns={columns}
           className="w-full overflow-auto"
           pagination={{ hideOnSinglePage: true }}
           loading={isLoading}
+          id="job-basic-salary-table"
+          data-cy="job-basic-salary-table"
         />
       </Card>
       <BasicSalaryModal
         visible={isBasicSalaryModalVisible}
         onCancel={() => setIsBasicSalaryModalVisible(false)}
         formRef={modalFormRef}
+        data-cy="job-basic-salary-modal"
       />
 
       {/* Reuse AllowanceTypeSideBar component as centered modal */}
@@ -160,6 +192,7 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
             newAllowance,
           ]);
         }}
+        data-cy="job-basic-salary-allowance-sidebar"
       />
     </div>
   );

@@ -28,7 +28,8 @@ const deleteAllowedArea = async (id: string) => {
 export const useSetAllowedArea = () => {
   const queryClient = useQueryClient();
   return useMutation(setAllowedArea, {
-    onSuccess: (response, variables: any) => {
+    onSuccess: async (response, variables: any) => {
+      // Optimistically update the cache for immediate UI feedback
       const currentData = queryClient.getQueryData(['allowed-areas']);
       if (
         currentData &&
@@ -56,12 +57,13 @@ export const useSetAllowedArea = () => {
           ...currentData,
           items: updatedItems,
         });
-      } else {
-        // Fallback to invalidation
-        queryClient.invalidateQueries(['allowed-areas']);
       }
-      // Always invalidate to guarantee fresh data from backend
+      // Invalidate to mark as stale, then force refetch
       queryClient.invalidateQueries(['allowed-areas']);
+      await queryClient.refetchQueries(['allowed-areas'], {
+        active: true,
+        stale: true, // This bypasses staleTime check
+      });
       handleSuccessMessage(variables?.method?.toUpperCase() || 'SAVE');
     },
   });

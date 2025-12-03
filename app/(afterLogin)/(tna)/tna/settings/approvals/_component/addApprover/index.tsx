@@ -95,6 +95,7 @@ const AddApprover = () => {
       handleLevelChange={handleLevelChange}
       handleUserChange={handleUserChange}
       users={users}
+      data-cy="tna-settings-approvals-add-approver-component"
     />
   );
 };

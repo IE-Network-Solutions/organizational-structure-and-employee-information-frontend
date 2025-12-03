@@ -38,19 +38,40 @@ const Page = () => {
       dataIndex: 'title',
       key: 'title',
       sorter: true,
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-accrual-rule-table-row-title"
+          data-cy="time-attendance-settings-accrual-rule-table-row-title"
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'Accrual Period',
       dataIndex: 'period',
       key: 'period',
-      render: (text: string) => <div>{text}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-accrual-rule-table-row-title"
+          data-cy="time-attendance-settings-accrual-rule-table-row-title"
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: 'Submitted Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (text: string) => <div>{dayjs(text).format(DATE_FORMAT)}</div>,
+      render: (text: string) => (
+        <div
+          id="time-attendance-settings-accrual-rule-table-row-created-at"
+          data-cy="time-attendance-settings-accrual-rule-table-row-created-at"
+        >
+          {dayjs(text).format(DATE_FORMAT)}
+        </div>
+      ),
     },
   ];
 
@@ -72,23 +93,45 @@ const Page = () => {
   }, [isShowNewAccrualRuleSidebar]);
 
   return (
-    <div className="p-5 rounded-2xl bg-white w-full h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg text-bold">Accrual Rule</h1>
-        <AccessGuard permissions={[Permissions.CreateLeaveAccrual]}>
+    <div
+      className="p-5 rounded-2xl bg-white w-full h-full"
+      id="time-attendance-settings-accrual-rule-container"
+      data-cy="time-attendance-settings-accrual-rule-container"
+    >
+      <div
+        className="flex items-center justify-between mb-4"
+        id="time-attendance-settings-accrual-rule-header"
+        data-cy="time-attendance-settings-accrual-rule-header"
+      >
+        <h1
+          className="text-lg text-bold"
+          id="time-attendance-settings-accrual-rule-title"
+          data-cy="time-attendance-settings-accrual-rule-title"
+        >
+          Accrual Rule
+        </h1>
+        <AccessGuard
+          permissions={[Permissions.CreateLeaveAccrual]}
+          data-cy="time-attendance-settings-accrual-rule-add-button-access-guard"
+        >
           <Button
             size="large"
             type="primary"
-            id="accrutualRuleId"
-            icon={<FaPlus />}
+            id="time-attendance-settings-accrual-rule-add-button"
+            data-cy="time-attendance-settings-accrual-rule-add-button"
+            icon={<FaPlus data-cy="time-attendance-settings-accrual-rule-add-button-icon" />}
             className="h-10 w-10 sm:w-auto"
             onClick={() => setIsShowNewAccrualRuleSidebar(true)}
           >
-            <span className="hidden md:inline"> New Accrual Rule</span>
+            <span id="time-attendance-settings-accrual-rule-add-button-label" data-cy="time-attendance-settings-accrual-rule-add-button-label" className="hidden md:inline"> New Accrual Rule</span>
           </Button>
         </AccessGuard>
       </div>
-      <div className="overflow-x-auto scrollbar-none w-full">
+      <div
+        className="overflow-x-auto scrollbar-none w-full"
+        id="time-attendance-settings-accrual-rule-table-container"
+        data-cy="time-attendance-settings-accrual-rule-table-container"
+      >
         <Table
           columns={columns}
           className=""
@@ -101,10 +144,12 @@ const Page = () => {
             setOrderDirection(sorter['order']);
             setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
           }}
+          id="time-attendance-settings-accrual-rule-table"
+          data-cy="time-attendance-settings-accrual-rule-table"
         />
       </div>
 
-      <NewAccrualRuleSidebar />
+      <NewAccrualRuleSidebar data-cy="time-attendance-settings-accrual-rule-sidebar" />
     </div>
   );
 };

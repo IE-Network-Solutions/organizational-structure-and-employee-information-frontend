@@ -164,6 +164,8 @@ const LeaveRequestSidebar = () => {
       size: 'large',
       onClick: () => onClose(),
       disabled: isLoadingRequest || isLoading,
+      id: 'time-attendance-leave-request-sidebar-cancel-button',
+      'data-cy': 'time-attendance-leave-request-sidebar-cancel-button',
     },
     {
       label:
@@ -180,6 +182,8 @@ const LeaveRequestSidebar = () => {
       onClick: () => form.submit(),
       disabled:
         approvalUserData?.length < 1 && approvalDepartmentData?.length < 1,
+      id: 'time-attendance-leave-request-sidebar-submit-button',
+      'data-cy': 'time-attendance-leave-request-sidebar-submit-button',
     },
   ];
 
@@ -236,37 +240,51 @@ const LeaveRequestSidebar = () => {
   return (
     isShowLeaveRequestSidebar && (
       <CustomDrawerLayout
+        data-cy="time-attendance-leave-request-sidebar-container"
         open={isShowLeaveRequestSidebar}
         onClose={onClose}
         modalHeader={
-          <CustomDrawerHeader>
+          <CustomDrawerHeader data-cy="time-attendance-leave-request-sidebar-header">
             {leaveRequest ? 'Update' : 'Add New'} Leave Request
           </CustomDrawerHeader>
         }
         footer={
-          <div className="p-6 sm:p-0">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
+          <div
+            className="p-6 sm:p-0"
+            id="time-attendance-leave-request-sidebar-footer"
+            data-cy="time-attendance-leave-request-sidebar-footer"
+          >
+            <CustomDrawerFooterButton data-cy="time-attendance-leave-request-sidebar-footer-button" buttons={footerModalItems} />
           </div>
         }
         width="400px"
       >
-        <Spin spinning={isLoading || isLoadingRequest}>
+        <Spin
+          spinning={isLoading || isLoadingRequest}
+          data-cy="time-attendance-leave-request-sidebar-spin"
+        >
           <Form
             layout="vertical"
             requiredMark={CustomLabel}
             form={form}
             autoComplete="off"
             onFinish={onFinish}
+            id="time-attendance-leave-request-sidebar-form"
+            data-cy="time-attendance-leave-request-sidebar-form"
           >
             <Space.Compact
               direction="vertical"
               className="w-full px-3 sm:px-0 "
+              id="time-attendance-leave-request-sidebar-form-fields"
+              data-cy="time-attendance-leave-request-sidebar-form-fields"
             >
               <Form.Item
                 name="type"
                 label="Leave Type"
                 rules={[{ required: true, message: 'Required' }]}
                 className={itemClass}
+                id="time-attendance-leave-request-sidebar-type"
+                data-cy="time-attendance-leave-request-sidebar-type"
               >
                 <Select
                   className={controlClass}
@@ -276,11 +294,18 @@ const LeaveRequestSidebar = () => {
                     leaveRequest?.status === LeaveRequestStatus.APPROVED
                   }
                   suffixIcon={
-                    <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                    <MdKeyboardArrowDown data-cy="time-attendance-leave-request-sidebar-type-select-icon" size={16} className="text-gray-900" />
                   }
+                  id="time-attendance-leave-request-sidebar-type-select"
+                  data-cy="time-attendance-leave-request-sidebar-type-select"
                 />
               </Form.Item>
-              <Form.Item name="isHalfday" className={itemClass}>
+              <Form.Item
+                name="isHalfday"
+                className={itemClass}
+                id="time-attendance-leave-request-sidebar-half-day"
+                data-cy="time-attendance-leave-request-sidebar-half-day"
+              >
                 <CustomRadio
                   label="Half Day"
                   initialValue={leaveRequest?.isHalfday}
@@ -288,10 +313,11 @@ const LeaveRequestSidebar = () => {
                     leaveRequest?.status === LeaveRequestStatus.APPROVED
                   }
                   onChange={onChangeIsHalfDay}
+                  data-cy="time-attendance-leave-request-sidebar-half-day-radio"
                 />
               </Form.Item>
-              <Row gutter={16}>
-                <Col span={12}>
+              <Row data-cy="time-attendance-leave-request-sidebar-date-row" gutter={16}>
+                <Col data-cy="time-attendance-leave-request-sidebar-start-date-column" span={12}>
                   <Form.Item
                     name="startDate"
                     label="Start Date "
@@ -300,6 +326,8 @@ const LeaveRequestSidebar = () => {
                       { validator: validateDates },
                     ]}
                     className={itemClass}
+                    id="time-attendance-leave-request-sidebar-start-date"
+                    data-cy="time-attendance-leave-request-sidebar-start-date"
                   >
                     <DatePicker
                       className={controlClass}
@@ -308,6 +336,8 @@ const LeaveRequestSidebar = () => {
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
                       format={DATE_FORMAT}
+                      id="time-attendance-leave-request-sidebar-start-date-picker"
+                      data-cy="time-attendance-leave-request-sidebar-start-date-picker"
                     />
                   </Form.Item>
                 </Col>
@@ -320,6 +350,8 @@ const LeaveRequestSidebar = () => {
                       { validator: validateDates },
                     ]}
                     className={itemClass}
+                    id="time-attendance-leave-request-sidebar-end-date"
+                    data-cy="time-attendance-leave-request-sidebar-end-date"
                   >
                     <DatePicker
                       className={controlClass}
@@ -328,16 +360,26 @@ const LeaveRequestSidebar = () => {
                         leaveRequest?.status === LeaveRequestStatus.APPROVED
                       }
                       format={DATE_FORMAT}
+                      id="time-attendance-leave-request-sidebar-end-date-picker"
+                      data-cy="time-attendance-leave-request-sidebar-end-date-picker"
                     />
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item name="note" label="Note" className={itemClass}>
+              <Form.Item
+                name="note"
+                label="Note"
+                className={itemClass}
+                id="time-attendance-leave-request-sidebar-note"
+                data-cy="time-attendance-leave-request-sidebar-note"
+              >
                 <Input
                   className={controlClass}
                   disabled={
                     leaveRequest?.status === LeaveRequestStatus.APPROVED
                   }
+                  id="time-attendance-leave-request-sidebar-note-input"
+                  data-cy="time-attendance-leave-request-sidebar-note-input"
                 />
               </Form.Item>
               <Form.Item
@@ -345,6 +387,8 @@ const LeaveRequestSidebar = () => {
                 label="Attachment"
                 valuePropName="fileList"
                 className={itemClass}
+                id="time-attendance-leave-request-sidebar-attachment"
+                data-cy="time-attendance-leave-request-sidebar-attachment"
                 getValueFromEvent={(e) => {
                   return Array.isArray(e) ? e : e && e.fileList;
                 }}
@@ -356,15 +400,22 @@ const LeaveRequestSidebar = () => {
                   listType="text"
                   maxCount={1}
                   setIsLoading={setIsLoading}
+                  data-cy="time-attendance-leave-request-sidebar-attachment-upload"
                 />
               </Form.Item>
-              <div className="text-xs font-medium text-gray-600 text-start mb-3">
+              <div
+                className="text-xs font-medium text-gray-600 text-start mb-3"
+                id="time-attendance-leave-request-sidebar-attachment-hint"
+                data-cy="time-attendance-leave-request-sidebar-attachment-hint"
+              >
                 Max file size : 5MB. File format : pdf, docx, epub, and jpeg
               </div>
               <Form.Item
                 name="delegatee"
                 label="Delegated Employee"
                 className={itemClass}
+                id="time-attendance-leave-request-sidebar-delegatee"
+                data-cy="time-attendance-leave-request-sidebar-delegatee"
               >
                 <Select
                   showSearch
@@ -386,6 +437,8 @@ const LeaveRequestSidebar = () => {
                       ' ' +
                       item?.lastName,
                   }))}
+                  id="time-attendance-leave-request-sidebar-delegatee-select"
+                  data-cy="time-attendance-leave-request-sidebar-delegatee-select"
                 />
               </Form.Item>
             </Space.Compact>

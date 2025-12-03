@@ -334,18 +334,30 @@ function CreatePlan() {
     const boardsKey = `board-${kId}`;
     const currentBoard = form.getFieldValue(boardsKey) || [];
 
-    // Always add an empty task when clicking "Add Plan Task"
-    // Failed tasks are only auto-populated when the drawer first opens
-    // Create a fresh empty object with explicit undefined values to ensure clean form
-    const emptyTask = {
-      task: '',
+    // Always grab the latest mkAsATask value to avoid stale reads
+    const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
+    
+    // VALIDATION: Only use mkAsATask if it belongs to this Key Result
+    // Check if mkAsATask.mid matches the current kId (exact match or for milestones, kId ends with mid)
+    const shouldUseMkAsATask = latestMkAsATask?.mid && (
+      kId === latestMkAsATask.mid ||           // Exact match (for Key Result without milestone)
+      kId.endsWith(latestMkAsATask.mid)        // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
+    );
+    
+    const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
+    const achieveMK = shouldUseMkAsATask;
+
+    // Create a task object - if mkAsATask exists and matches, use its title
+    const newTask = {
+      task: taskTitle,
       priority: undefined,
       weight: undefined,
       targetValue: undefined,
+      achieveMK: achieveMK,
     };
 
     setTimeout(() => {
-      form.setFieldsValue({ [boardsKey]: [...currentBoard, emptyTask] });
+      form.setFieldsValue({ [boardsKey]: [...currentBoard, newTask] });
     }, 0);
   };
   const handleRemoveBoard = (index: number, kId: string) => {
@@ -364,18 +376,44 @@ function CreatePlan() {
         Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
         Plan
       </div>
-      <div className="text-right">
+      <div
+        className="text-right"
+        id="planning-ai-suggestions-wrapper-view-space"
+        data-cy="planning-ai-suggestions-wrapper-view-space"
+      >
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {
-            const out: { id: string; title: string }[] = [];
+            const out: {
+              id: string;
+              title: string;
+              progress?: number;
+              metricType?: { name: string };
+              milestones?: Array<{
+                id: string | number;
+                title: string;
+                status?: string;
+              }>;
+            }[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from Objectives
               objective?.items?.forEach((obj: any) => {
                 obj?.keyResults?.forEach((kr: any) => {
                   if (kr?.id && kr?.title) {
-                    out.push({ id: String(kr.id), title: kr.title });
+                    out.push({
+                      id: String(kr.id),
+                      title: kr.title,
+                      progress: kr.progress,
+                      metricType: kr.metricType,
+                      milestones: Array.isArray(kr?.milestones)
+                        ? kr.milestones.map((m: any) => ({
+                            id: m?.id,
+                            title: m?.title,
+                            status: m?.status,
+                          }))
+                        : [],
+                    });
                   }
                 });
               });
@@ -393,7 +431,12 @@ function CreatePlan() {
                 const krTitle = t?.keyResult?.title;
                 if (krId && krTitle && !seen.has(krId)) {
                   seen.add(krId);
-                  out.push({ id: krId, title: krTitle });
+                  out.push({
+                    id: krId,
+                    title: krTitle,
+                    progress: t?.keyResult?.progress,
+                    metricType: t?.keyResult?.metricType,
+                  });
                 }
               });
             }
@@ -401,7 +444,7 @@ function CreatePlan() {
             return out;
           }}
           getWeeklyPlanTasks={() => {
-            // Only for daily plans - get all weekly plan tasks
+            // Only for daily plans - get all weekly plan tasks WITH krId
             if (!planningPeriodHierarchy?.parentPlan) return [];
 
             const tasks =
@@ -412,6 +455,7 @@ function CreatePlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
+              krId: String(t?.keyResult?.id || ''), // Add krId to the task object
             }));
           }}
           form={form}
