@@ -10,14 +10,15 @@ import {
   notification,
   Button,
 } from 'antd';
-import type { UploadProps } from 'antd';
 import { countries } from '@/utils/countries';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useGetClientById } from '@/store/server/features/tenant-management/clients/queries';
 import { useUpdateClient } from '@/store/server/features/tenant-management/clients/mutation';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
-import { Tenant } from '@/types/tenant-management';
 import type { UpdateClientDto } from '@/store/server/features/tenant-management/clients/mutation';
+import { useUpdateCompanyProfileWithStamp } from '@/store/server/features/organizationStructure/companyProfile/mutation';
+import type { UploadFile } from 'antd/es/upload/interface';
+import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -32,16 +33,21 @@ const isValidImageUrl = (url: string | undefined) => {
 };
 
 const AdminProfile = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [clientData, setClientData] = useState<Tenant | null>(null);
-  const [logoExists, setLogoExists] = useState(false);
-  const [stampExists, setStampExists] = useState(false);
+  const isLoading = useCompanyProfile((state) => state.isLoading);
+  const setIsLoading = useCompanyProfile((state) => state.setIsLoading);
+  const clientData = useCompanyProfile((state) => state.clientData);
+  const setClientData = useCompanyProfile((state) => state.setClientData);
+  const logoExists = useCompanyProfile((state) => state.logoExists);
+  const setLogoExists = useCompanyProfile((state) => state.setLogoExists);
+  const stampExists = useCompanyProfile((state) => state.stampExists);
+  const setStampExists = useCompanyProfile((state) => state.setStampExists);
 
   // Fetch client data using the existing query hook
   const {
     data: client,
     isLoading: isClientLoading,
     error,
+    refetch: refetchClient,
   } = useGetClientById(DEFAULT_TENANT_ID);
 
   // Checking the existence of images
@@ -60,70 +66,120 @@ const AdminProfile = () => {
     if (client) {
       if (client.logo) {
         checkImageExists(client.logo).then(setLogoExists);
+      } else {
+        setLogoExists(false);
       }
 
       if (client.stamp) {
         checkImageExists(client.stamp).then(setStampExists);
+      } else {
+        setStampExists(false);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client]);
 
   useEffect(() => {
     if (client) {
-      setClientData(client);
-      setIsLoading(false);
+      // Only update if the client data has actually changed
+      const currentClientId = clientData?.id;
+      if (currentClientId !== client.id || !clientData) {
+        setClientData(client);
+      }
+      if (isLoading) {
+        setIsLoading(false);
+      }
     } else if (error) {
       notification.error({
         message: 'Error loading client data',
         description: 'Failed to load company profile information',
       });
+      if (isLoading) {
+        setIsLoading(false);
+      }
+    } else if (!isClientLoading && isLoading) {
       setIsLoading(false);
     }
-  }, [client, error]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, error, isClientLoading]);
 
-  const uploadProps: UploadProps = {
-    name: 'file',
-    multiple: false,
-    action: '/api/upload',
-    onChange(info) {
-      const { status } = info.file;
-      if (status !== 'uploading') {
-      }
-      if (status === 'done') {
-      } else if (status === 'error') {
-      }
-    },
-    onDrop() {},
+  const customRequest = ({ file, onSuccess, onError }: any) => {
+    // Validate file
+    if (!file) {
+      onError(new Error('No file provided'));
+      return;
+    }
+
+    // Ensure file is a File object
+    const fileObj = file.originFileObj || file;
+
+    if (!(fileObj instanceof File)) {
+      onError(new Error('Invalid file type'));
+      return;
+    }
+
+    // Simulate upload success (actual upload happens on form submit)
+    setTimeout(() => {
+      onSuccess('ok', fileObj);
+    }, 0);
   };
 
   // Component with profile form
-  const ProfileForm = () => {
+  const ProfileForm = ({
+    onUpdateSuccess,
+  }: {
+    onUpdateSuccess: () => void;
+  }) => {
     // Form initialization here is only when the component is actually rendered
     const [form] = Form.useForm();
-    const [submitting, setSubmitting] = useState(false);
+
+    // Zustand store hooks for form state - using selectors to prevent unnecessary re-renders
+    const submitting = useCompanyProfile((state) => state.submitting);
+    const setSubmitting = useCompanyProfile((state) => state.setSubmitting);
+    const logoFileList = useCompanyProfile((state) => state.logoFileList);
+    const setLogoFileList = useCompanyProfile((state) => state.setLogoFileList);
+    const stampFileList = useCompanyProfile((state) => state.stampFileList);
+    const setStampFileList = useCompanyProfile(
+      (state) => state.setStampFileList,
+    );
+    const logoPreview = useCompanyProfile((state) => state.logoPreview);
+    const setLogoPreview = useCompanyProfile((state) => state.setLogoPreview);
+    const stampPreview = useCompanyProfile((state) => state.stampPreview);
+    const setStampPreview = useCompanyProfile((state) => state.setStampPreview);
+    const resetAll = useCompanyProfile((state) => state.resetAll);
+    const storeClientData = useCompanyProfile((state) => state.clientData);
+    const dataVersion = useCompanyProfile((state) => state.dataVersion);
+    const incrementDataVersion = useCompanyProfile(
+      (state) => state.incrementDataVersion,
+    );
 
     // Hook to update client data
     const updateClientMutation = useUpdateClient();
+    const updateCompanyProfileMutation = useUpdateCompanyProfileWithStamp();
+
+    // Note: We don't reset file lists on clientData change to avoid infinite loops
+    // Files are only cleared after successful form submission
 
     // Filling the form with data when mounting the component
     useEffect(() => {
-      if (clientData) {
+      if (storeClientData) {
         form.setFieldsValue({
-          companyName: clientData.companyName,
-          companyEmail: clientData.companyEmail,
-          country: clientData.country,
-          region: clientData.region,
-          companyPhone: clientData.phoneNumber,
-          contactPersonName: clientData.contactPersonName,
-          personEmail: clientData.contactPersonEmail,
-          personPhone: clientData.contactPersonPhoneNumber,
-          billingEmail: clientData.billingEmail,
+          companyName: storeClientData.companyName,
+          companyEmail: storeClientData.companyEmail,
+          country: storeClientData.country,
+          region: storeClientData.region,
+          companyPhone: storeClientData.phoneNumber,
+          contactPersonName: storeClientData.contactPersonName,
+          personEmail: storeClientData.contactPersonEmail,
+          personPhone: storeClientData.contactPersonPhoneNumber,
+          billingEmail: storeClientData.billingEmail,
         });
       }
-    }, [form, clientData]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [storeClientData?.id]);
 
     const handleFormSubmit = async (values: any) => {
-      if (!clientData?.id) {
+      if (!storeClientData?.id) {
         notification.error({
           message: 'Error',
           description: 'Client ID not found',
@@ -135,7 +191,7 @@ const AdminProfile = () => {
 
       try {
         const updateData: UpdateClientDto = {
-          id: clientData.id,
+          id: storeClientData.id,
           companyName: values.companyName,
           companyEmail: values.companyEmail,
           phoneNumber: values.companyPhone,
@@ -147,15 +203,75 @@ const AdminProfile = () => {
           billingEmail: values.billingEmail,
         };
 
-        await updateClientMutation.mutateAsync({
-          id: clientData.id,
-          data: updateData,
-        });
+        const logoFile = logoFileList.length > 0 ? logoFileList[0] : null;
+        const stampFile = stampFileList.length > 0 ? stampFileList[0] : null;
+
+        // Check if files exist and have proper File objects
+        const hasLogo = logoFile?.originFileObj instanceof File;
+        const hasStamp = stampFile?.originFileObj instanceof File;
+
+        if (hasLogo || hasStamp) {
+          // Create CompanyProfileImage objects (omitting status and percent)
+          const logoImage =
+            hasLogo && logoFile
+              ? {
+                  uid: logoFile.uid,
+                  name: logoFile.name,
+                  size: logoFile.size,
+                  type: logoFile.type,
+                  originFileObj: logoFile.originFileObj as File,
+                  thumbUrl: logoFile.thumbUrl,
+                  url: logoFile.url,
+                }
+              : undefined;
+
+          const stampImage =
+            hasStamp && stampFile
+              ? {
+                  uid: stampFile.uid,
+                  name: stampFile.name,
+                  size: stampFile.size,
+                  type: stampFile.type,
+                  originFileObj: stampFile.originFileObj as File,
+                  thumbUrl: stampFile.thumbUrl,
+                  url: stampFile.url,
+                }
+              : undefined;
+
+          // Wait for mutation to complete
+          await updateCompanyProfileMutation.mutateAsync({
+            id: storeClientData.id,
+            updateClientDto: updateData,
+            companyProfileImage: logoImage as any,
+            companyStamp: stampImage as any,
+          });
+        } else {
+          await updateClientMutation.mutateAsync({
+            id: storeClientData.id,
+            data: updateData,
+          });
+        }
+
+        // Clear file lists and previews after successful submission
+        resetAll();
+
+        // Increment data version to bust image cache
+        incrementDataVersion();
 
         notification.success({
           message: 'Success',
           description: 'Profile information updated successfully',
         });
+
+        // Wait a bit for server to process images, then refetch
+        // This ensures the server has time to process and save the images
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Refetch client data to get updated images
+        await onUpdateSuccess();
+
+        // Re-check image existence after refetch
+        // This will be handled by the useEffect in the parent component
       } catch (error) {
         notification.error({
           message: 'Error',
@@ -168,6 +284,119 @@ const AdminProfile = () => {
         setSubmitting(false);
       }
     };
+
+    const handleLogoChange = (info: any) => {
+      const { fileList, file } = info;
+
+      // Handle file removal
+      if (fileList.length === 0) {
+        if (logoPreview) {
+          URL.revokeObjectURL(logoPreview);
+        }
+        setLogoFileList([]);
+        setLogoPreview(undefined);
+        return;
+      }
+
+      // Get the latest file from the list
+      const latestFileItem = fileList[fileList.length - 1];
+
+      // Extract the actual File object - check multiple possible locations
+      let actualFile: File | undefined;
+
+      if (file?.originFileObj instanceof File) {
+        actualFile = file.originFileObj;
+      } else if (file instanceof File) {
+        actualFile = file;
+      } else if (latestFileItem?.originFileObj instanceof File) {
+        actualFile = latestFileItem.originFileObj;
+      } else if (latestFileItem?.raw instanceof File) {
+        actualFile = latestFileItem.raw;
+      }
+
+      // Create UploadFile object with proper structure
+      const fileWithOrigin: UploadFile = {
+        uid: latestFileItem.uid || `logo-${Date.now()}`,
+        name: latestFileItem.name || actualFile?.name || 'logo',
+        status: latestFileItem.status || 'done',
+        ...latestFileItem,
+        originFileObj: actualFile,
+      };
+
+      // Only keep the latest file (maxCount is 1)
+      setLogoFileList([fileWithOrigin]);
+
+      // Handle preview
+      if (actualFile) {
+        if (logoPreview) {
+          URL.revokeObjectURL(logoPreview);
+        }
+        const previewUrl = URL.createObjectURL(actualFile);
+        setLogoPreview(previewUrl);
+      }
+    };
+
+    const handleStampChange = (info: any) => {
+      const { fileList, file } = info;
+
+      // Handle file removal
+      if (fileList.length === 0) {
+        if (stampPreview) {
+          URL.revokeObjectURL(stampPreview);
+        }
+        setStampFileList([]);
+        setStampPreview(undefined);
+        return;
+      }
+
+      // Get the latest file from the list
+      const latestFileItem = fileList[fileList.length - 1];
+
+      // Extract the actual File object - check multiple possible locations
+      let actualFile: File | undefined;
+
+      if (file?.originFileObj instanceof File) {
+        actualFile = file.originFileObj;
+      } else if (file instanceof File) {
+        actualFile = file;
+      } else if (latestFileItem?.originFileObj instanceof File) {
+        actualFile = latestFileItem.originFileObj;
+      } else if (latestFileItem?.raw instanceof File) {
+        actualFile = latestFileItem.raw;
+      }
+
+      // Create UploadFile object with proper structure
+      const fileWithOrigin: UploadFile = {
+        uid: latestFileItem.uid || `stamp-${Date.now()}`,
+        name: latestFileItem.name || actualFile?.name || 'stamp',
+        status: latestFileItem.status || 'done',
+        ...latestFileItem,
+        originFileObj: actualFile,
+      };
+
+      // Only keep the latest file (maxCount is 1)
+      setStampFileList([fileWithOrigin]);
+
+      // Handle preview
+      if (actualFile) {
+        if (stampPreview) {
+          URL.revokeObjectURL(stampPreview);
+        }
+        const previewUrl = URL.createObjectURL(actualFile);
+        setStampPreview(previewUrl);
+      }
+    };
+
+    useEffect(() => {
+      return () => {
+        if (logoPreview) {
+          URL.revokeObjectURL(logoPreview);
+        }
+        if (stampPreview) {
+          URL.revokeObjectURL(stampPreview);
+        }
+      };
+    }, [logoPreview, stampPreview]);
 
     return (
       <Form
@@ -187,13 +416,33 @@ const AdminProfile = () => {
           </span>
         </div>
 
-        <Dragger id="logo-upload" data-cy="logo-upload" {...uploadProps} className="!h-[200px]">
-          <div id="logo-upload-content" data-cy="logo-upload-content" className="flex flex-col items-center justify-center gap-2">
-            {clientData?.logo && logoExists ? (
+        <Dragger
+          id="logo-upload" 
+          data-cy="logo-upload"
+          name="logo"
+          multiple={false}
+          customRequest={customRequest}
+          beforeUpload={() => false}
+          onChange={handleLogoChange}
+          fileList={logoFileList}
+          accept="image/*"
+          className="!h-[200px]"
+        >
+          <div id="logo-upload-content" data-cy="logo-upload-content" 
+           className="flex flex-col items-center justify-center gap-2">
+            {logoPreview ? (
               <Image
                 id="logo-preview"
                 data-cy="logo-preview"
-                src={clientData.logo}
+                src={logoPreview}
+                alt="Company Logo"
+                width={100}
+                height={100}
+                className="mb-4 rounded-full object-cover"
+              />
+            ) : storeClientData?.logo && logoExists ? (
+              <Image
+                src={`${storeClientData.logo}?v=${dataVersion}`}
                 alt="Company Logo"
                 width={100}
                 height={100}
@@ -318,13 +567,31 @@ const AdminProfile = () => {
           </span>
         </div>
 
-        <Dragger id="stamp-upload" data-cy="stamp-upload" {...uploadProps} className="!h-[200px]">
+        <Dragger
+          id="stamp-upload" data-cy="stamp-upload"
+          name="stamp"
+          multiple={false}
+          customRequest={customRequest}
+          beforeUpload={() => false}
+          onChange={handleStampChange}
+          fileList={stampFileList}
+          accept="image/*"
+          className="!h-[200px]"
+        >
           <div id="stamp-upload-content" data-cy="stamp-upload-content" className="flex flex-col items-center justify-center gap-2">
-            {clientData?.stamp && stampExists ? (
+            {stampPreview ? (
               <Image
                 id="stamp-preview"
                 data-cy="stamp-preview"
-                src={clientData.stamp}
+                src={stampPreview}
+                alt="Company Stamp"
+                width={100}
+                height={100}
+                className="mb-4 rounded-full object-cover"
+              />
+            ) : storeClientData?.stamp && stampExists ? (
+              <Image
+                src={`${storeClientData.stamp}?v=${dataVersion}`}
                 alt="Company Stamp"
                 width={100}
                 height={100}
@@ -350,8 +617,14 @@ const AdminProfile = () => {
         <h2 id="contact-information-title" data-cy="contact-information-title" className="text-2xl font-bold mt-6 mb-6">Contact information</h2>
 
         <div id="contact-information-fields" data-cy="contact-information-fields" className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6">
-          <Form.Item id="contact-person-name-field" data-cy="contact-person-name-field" name="contactPersonName" label="Contact Person Name">
-            <Input id="contact-person-name-input" data-cy="contact-person-name-input" placeholder="Enter contact person name" />
+          <Form.Item
+            id="contact-person-name-field" 
+            data-cy="contact-person-name-field"
+            name="contactPersonName"
+            label="Contact Person Name"
+            rules={[{ required: true, message: 'Please enter person name' }]}
+          >
+            <Input  id="contact-person-name-input" data-cy="contact-person-name-input" placeholder="Enter contact person name" />
           </Form.Item>
 
           <Form.Item
@@ -416,7 +689,52 @@ const AdminProfile = () => {
           </div>
         ) : (
           <>
-            <ProfileForm data-cy="admin-profile-form" />
+            <ProfileForm
+              data-cy="admin-profile-form"
+              onUpdateSuccess={async () => {
+                // Refetch and wait for it to complete
+                const result = await refetchClient();
+                // Update client data in store with fresh data
+                if (result.data) {
+                  setClientData(result.data);
+                  // Re-check image existence with fresh URLs
+                  if (result.data.logo) {
+                    const checkImageExists = (
+                      url: string,
+                    ): Promise<boolean> => {
+                      if (!isValidImageUrl(url)) return Promise.resolve(false);
+                      return new Promise((resolve) => {
+                        const img = new globalThis.Image();
+                        img.onload = () => resolve(true);
+                        img.onerror = () => resolve(false);
+                        // Add cache busting to ensure fresh image
+                        img.src = `${url}?t=${Date.now()}`;
+                      });
+                    };
+                    checkImageExists(result.data.logo).then(setLogoExists);
+                  } else {
+                    setLogoExists(false);
+                  }
+                  if (result.data.stamp) {
+                    const checkImageExists = (
+                      url: string,
+                    ): Promise<boolean> => {
+                      if (!isValidImageUrl(url)) return Promise.resolve(false);
+                      return new Promise((resolve) => {
+                        const img = new globalThis.Image();
+                        img.onload = () => resolve(true);
+                        img.onerror = () => resolve(false);
+                        // Add cache busting to ensure fresh image
+                        img.src = `${url}?t=${Date.now()}`;
+                      });
+                    };
+                    checkImageExists(result.data.stamp).then(setStampExists);
+                  } else {
+                    setStampExists(false);
+                  }
+                }
+              }}
+            />
           </>
         )}
       </div>

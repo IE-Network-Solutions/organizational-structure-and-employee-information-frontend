@@ -51,24 +51,24 @@ export default function EmployeeScoreCard({ data }: EmployeeScoreCardProps) {
   return (
     <>
       {data?.length > 0 ? (
-        <div className="flex p-4 space-y-6 items-center">
-          <Card bodyStyle={{ padding: 0 }} className="p-4 border-none">
-            <Table dataSource={data} columns={columns} pagination={false} />
+        <div className="flex p-4 space-y-6 items-center" data-cy="employee-score-card-container" id="employeeScoreCardContainer">
+          <Card bodyStyle={{ padding: 0 }} className="p-4 border-none" data-cy="employee-score-card-table-card" id="employeeScoreCardTableCard">
+            <Table dataSource={data} columns={columns} pagination={false} data-cy="employee-score-card-table" id="employeeScoreCardTable" />
           </Card>
-          <Card bodyStyle={{ padding: 0 }} className="p-4 border-none text-sm">
-            <p className="font-semibold mb-2">Score</p>
+          <Card bodyStyle={{ padding: 0 }} className="p-4 border-none text-sm" data-cy="employee-score-card-score-card" id="employeeScoreCardScoreCard">
+            <p className="font-semibold mb-2" data-cy="employee-score-card-score-label" id="employeeScoreCardScoreLabel">Score</p>
             {data.map((item: any) => (
-              <p key={item.id}>
+              <p key={item.id} data-cy={`employee-score-card-item-${item.id}`} id={`employeeScoreCardItem${item.id}`}>
                 {item.name}: {item.operator} ({item.score} × 100 / {item.weight}
                 ) = {item.operator === '-' ? '-' : ''}{' '}
                 {(((item.score ?? 0) * 100) / (item.weight ?? 1)).toFixed(2)}
               </p>
             ))}
-            <p className="font-bold text-lg mt-2">{totalPoints.toFixed(2)}</p>
+            <p className="font-bold text-lg mt-2" data-cy="employee-score-card-total" id="employeeScoreCardTotal">{totalPoints.toFixed(2)}</p>
           </Card>
         </div>
       ) : (
-        <div className="flex justify-center items-center h-full py-5">
+        <div className="flex justify-center items-center h-full py-5" data-cy="employee-score-card-empty" id="employeeScoreCardEmpty">
           {' '}
           No criteria found for this recognition type
         </div>

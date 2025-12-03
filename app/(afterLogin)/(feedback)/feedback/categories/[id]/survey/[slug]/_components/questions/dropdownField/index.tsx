@@ -15,9 +15,9 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
   selectedValue,
   onChange,
 }) => (
-  <Select value={selectedValue} onChange={onChange}>
+  <Select id="dropdown-field-select" data-cy="dropdown-field-select" value={selectedValue} onChange={onChange}>
     {options.map((option: Choice, index) => (
-      <Option key={index} value={option}>
+      <Option key={index} id={`dropdown-field-option-${index}`} data-cy={`dropdown-field-option-${index}`} value={option}>
         {option.value}
       </Option>
     ))}

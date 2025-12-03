@@ -102,13 +102,30 @@ const AttendanceReport: React.FC = () => {
     label: i?.firstName + ' ' + i?.middleName + ' ' + i?.lastName,
   }));
   return (
-    <Card title={false} className="h-[522px]">
-      <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-4 gap-4 w-full">
-        <p className="text-[16px] text-black font-semibold w-64">
+    <Card
+      title={false}
+      className="h-[522px]"
+      id="time-attendance-attendance-report-layout-card"
+      data-cy="time-attendance-attendance-report-layout-card"
+    >
+      <div
+        className="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-4 gap-4 w-full"
+        id="time-attendance-attendance-report-header-div"
+        data-cy="time-attendance-attendance-report-header-div"
+      >
+        <p
+          className="text-[16px] text-black font-semibold w-64"
+          id="time-attendance-attendance-report-title-text"
+          data-cy="time-attendance-attendance-report-title-text"
+        >
           Attendance report
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-2  sm:items-center">
+        <div
+          className="flex flex-col sm:flex-row gap-2  sm:items-center"
+          id="time-attendance-attendance-report-filter-container-div"
+          data-cy="time-attendance-attendance-report-filter-container-div"
+        >
           <Select
             showSearch
             placeholder="Select employee"
@@ -120,6 +137,8 @@ const AttendanceReport: React.FC = () => {
             maxTagCount={1}
             className="w-[400px] h-14"
             onChange={(value) => setUserIdOnAttendanceReport(value)}
+            id="time-attendance-attendance-report-employee-select"
+            data-cy="time-attendance-attendance-report-employee-select"
           />
 
           <Select
@@ -133,6 +152,8 @@ const AttendanceReport: React.FC = () => {
             maxTagCount={1}
             className="w-40 h-14"
             onChange={(value) => setDepartmentOnAttendanceReport(value)}
+            id="time-attendance-attendance-report-department-select"
+            data-cy="time-attendance-attendance-report-department-select"
           />
 
           <RangePicker
@@ -150,28 +171,71 @@ const AttendanceReport: React.FC = () => {
                 setEndDateAttendanceReport('');
               }
             }}
+            id="time-attendance-attendance-report-date-range-picker"
+            data-cy="time-attendance-attendance-report-date-range-picker"
           />
         </div>
       </div>
 
-      <Spin spinning={loading}>
-        <div className="grid grid-cols-12 gap-6 items-start">
+      <Spin
+        spinning={loading}
+        data-cy="time-attendance-attendance-report-loading-spin"
+      >
+        <div
+          className="grid grid-cols-12 gap-6 items-start"
+          id="time-attendance-attendance-report-grid-container-div"
+          data-cy="time-attendance-attendance-report-grid-container-div"
+        >
           {/* Doughnut Chart */}
-          <div className="col-span-12 md:col-span-7 flex justify-center">
-            <div className="">
+          <div
+            className="col-span-12 md:col-span-7 flex justify-center"
+            id="time-attendance-attendance-report-chart-panel-div"
+            data-cy="time-attendance-attendance-report-chart-panel-div"
+          >
+            <div
+              className=""
+              id="time-attendance-attendance-report-chart-wrapper-div"
+              data-cy="time-attendance-attendance-report-chart-wrapper-div"
+            >
               {attendanceStats?.users?.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500 text-[14px] font-semibold">
+                <div
+                  className="flex justify-center items-center h-64"
+                  id="time-attendance-attendance-report-chart-empty-div"
+                  data-cy="time-attendance-attendance-report-chart-empty-div"
+                >
+                  <p
+                    className="text-gray-500 text-[14px] font-semibold"
+                    id="time-attendance-attendance-report-chart-empty-text"
+                    data-cy="time-attendance-attendance-report-chart-empty-text"
+                  >
                     No Record Found
                   </p>
                 </div>
               ) : (
-                <div className=" md:w-[340px] md:h-[340px]  flex justify-center items-center">
-                  <Doughnut data={doughnutChartData} options={options} />
-                  <div className="flex flex-col gap-0 ml-16">
+                <div
+                  className=" md:w-[340px] md:h-[340px]  flex justify-center items-center"
+                  id="time-attendance-attendance-report-chart-display-div"
+                  data-cy="time-attendance-attendance-report-chart-display-div"
+                >
+                  <Doughnut
+                    data={doughnutChartData}
+                    options={options}
+                    id="time-attendance-attendance-report-doughnut-chart"
+                    data-cy="time-attendance-attendance-report-doughnut-chart"
+                  />
+                  <div
+                    className="flex flex-col gap-0 ml-16"
+                    id="time-attendance-attendance-report-chart-legend-div"
+                    data-cy="time-attendance-attendance-report-chart-legend-div"
+                  >
                     {doughnutChartData.labels.map(
                       (label: string, i: number) => (
-                        <div key={i} className="flex items-center mb-1 gap-2">
+                        <div
+                          key={i}
+                          className="flex items-center mb-1 gap-2"
+                          id={`time-attendance-attendance-report-chart-legend-${i}-row`}
+                          data-cy={`time-attendance-attendance-report-chart-legend-${i}-row`}
+                        >
                           <div
                             style={{
                               backgroundColor:
@@ -180,8 +244,14 @@ const AttendanceReport: React.FC = () => {
                                 ],
                             }}
                             className="w-2 h-2 rounded-full mr-2"
+                            id={`time-attendance-attendance-report-chart-legend-${i}-indicator`}
+                            data-cy={`time-attendance-attendance-report-chart-legend-${i}-indicator`}
                           />
-                          <span className="text-xs font-medium text-gray-500">
+                          <span
+                            className="text-xs font-medium text-gray-500"
+                            id={`time-attendance-attendance-report-chart-legend-${i}-label`}
+                            data-cy={`time-attendance-attendance-report-chart-legend-${i}-label`}
+                          >
                             {label}
                           </span>
                         </div>
@@ -195,10 +265,22 @@ const AttendanceReport: React.FC = () => {
 
           {/* Attendance List */}
 
-          <div className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none">
+          <div
+            className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none"
+            id="time-attendance-attendance-report-list-panel-div"
+            data-cy="time-attendance-attendance-report-list-panel-div"
+          >
             {attendanceStats?.users?.length === 0 ? (
-              <div className="flex justify-center items-center h-64">
-                <p className="text-gray-500 text-[14px] font-semibold">
+              <div
+                className="flex justify-center items-center h-64"
+                id="time-attendance-attendance-report-list-empty-div"
+                data-cy="time-attendance-attendance-report-list-empty-div"
+              >
+                <p
+                  className="text-gray-500 text-[14px] font-semibold"
+                  id="time-attendance-attendance-report-list-empty-text"
+                  data-cy="time-attendance-attendance-report-list-empty-text"
+                >
                   No Record Found
                 </p>
               </div>
@@ -207,27 +289,52 @@ const AttendanceReport: React.FC = () => {
                 <div
                   key={index}
                   className="bg-white rounded-xl px-4 min-h-[70px] border flex items-center justify-between  "
+                  id={`time-attendance-attendance-report-record-${index}-container-div`}
+                  data-cy={`time-attendance-attendance-report-record-${index}-container-div`}
                 >
                   {/* Left Side */}
-                  <div className="flex flex-col space-y-1">
-                    <div className="flex items-center gap-1">
+                  <div
+                    className="flex flex-col space-y-1"
+                    id={`time-attendance-attendance-report-record-${index}-left-column`}
+                    data-cy={`time-attendance-attendance-report-record-${index}-left-column`}
+                  >
+                    <div
+                      className="flex items-center gap-1"
+                      id={`time-attendance-attendance-report-record-${index}-profile-row`}
+                      data-cy={`time-attendance-attendance-report-record-${index}-profile-row`}
+                    >
                       {item.profileImage ? (
                         <Avatar
                           className="w-6 h-6"
                           src={item.profileImage}
+                          data-cy={`time-attendance-attendance-report-record-${index}-avatar-image`}
                         ></Avatar>
                       ) : (
-                        <Avatar className="w-6 h-6 text-[12px]">
+                        <Avatar
+                          className="w-6 h-6 text-[12px]"
+                          data-cy={`time-attendance-attendance-report-record-${index}-avatar-fallback`}
+                        >
                           {item.name.split(' ')[0].charAt(0) +
                             item.name.split(' ')[1].charAt(0)}
                         </Avatar>
                       )}
-                      <p className="text-[12px] font-medium ">{item.name}</p>
+                      <p
+                        className="text-[12px] font-medium "
+                        id={`time-attendance-attendance-report-record-${index}-name-text`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-name-text`}
+                      >
+                        {item.name}
+                      </p>
                     </div>
 
-                    <div>
+                    <div
+                      id={`time-attendance-attendance-report-record-${index}-status-container-div`}
+                      data-cy={`time-attendance-attendance-report-record-${index}-status-container-div`}
+                    >
                       <span
                         className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
+                        id={`time-attendance-attendance-report-record-${index}-status-pill`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-status-pill`}
                       >
                         {item.status === 'ontime' ? 'On Time' : item.status}{' '}
                         {item.status === 'late' || item.status === 'ontime'
@@ -238,15 +345,35 @@ const AttendanceReport: React.FC = () => {
                   </div>
 
                   {/* Right Side */}
-                  <div className="flex flex-col space-y-2">
-                    <p className="text-[16px] font-medium text-black">
+                  <div
+                    className="flex flex-col space-y-2"
+                    id={`time-attendance-attendance-report-record-${index}-right-column`}
+                    data-cy={`time-attendance-attendance-report-record-${index}-right-column`}
+                  >
+                    <p
+                      className="text-[16px] font-medium text-black"
+                      id={`time-attendance-attendance-report-record-${index}-date-text`}
+                      data-cy={`time-attendance-attendance-report-record-${index}-date-text`}
+                    >
                       {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
                     </p>
-                    <div className="mt-1 flex justify-end gap-2">
-                      <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                    <div
+                      className="mt-1 flex justify-end gap-2"
+                      id={`time-attendance-attendance-report-record-${index}-metrics-row`}
+                      data-cy={`time-attendance-attendance-report-record-${index}-metrics-row`}
+                    >
+                      <span
+                        className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center"
+                        id={`time-attendance-attendance-report-record-${index}-lates-pill`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-lates-pill`}
+                      >
                         L: {item.totalLates}
                       </span>
-                      <span className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
+                      <span
+                        className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center"
+                        id={`time-attendance-attendance-report-record-${index}-absences-pill`}
+                        data-cy={`time-attendance-attendance-report-record-${index}-absences-pill`}
+                      >
                         A: {item.totalAbsences}
                       </span>
                     </div>
