@@ -307,46 +307,52 @@ function Page() {
       label: 'All',
       children: (
         <>
-          <div className="flex justify-between items-center mb-4">
-            <PageHeader title="Recognition" description="Manage Recognition" />
+          <div className="flex justify-between items-center mb-4" data-cy="recognition-header-container" id="recognitionHeaderContainer">
+            <PageHeader title="Recognition" description="Manage Recognition" data-cy="recognition-header-page-header" />
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2" data-cy="recognition-actions-container" id="recognitionActionsContainer">
               <Button
                 type="primary"
                 onClick={handleRecognitionModal}
                 icon={<FaPlus />}
                 className="h-10 w-10 sm:w-auto"
+                data-cy="recognition-recognize-button"
+                id="recognitionRecognizeButton"
               >
-                <span className="hidden sm:inline">Recognize</span>
+                <span className="hidden sm:inline" data-cy="recognition-recognize-button-text" id="recognitionRecognizeButtonText">Recognize</span>
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-cy="recognition-stats-container" id="recognitionStatsContainer">
             <Card
               className="bg-[#fafafa] font-bold"
               key={`all-card-${1}`}
               style={{ width: '100%' }}
+              data-cy="recognition-total-employees-card"
+              id="recognitionTotalEmployeesCard"
             >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
+              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center" data-cy="recognition-total-employees-icon" id="recognitionTotalEmployeesIcon">
                 <CiMedal fill="#0BA259" />
               </div>
-              <p className="text-gray-400 text-xs font-normal  mt-4">
+              <p className="text-gray-400 text-xs font-normal  mt-4" data-cy="recognition-total-employees-label" id="recognitionTotalEmployeesLabel">
                 Total number of recognized employees
               </p>
-              <p className="text-3xl">{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
+              <p className="text-3xl" data-cy="recognition-total-employees-value" id="recognitionTotalEmployeesValue">{`0${totalRecogniion?.totalRecognitions ?? 0}`}</p>
             </Card>
             <Card
               className="bg-[#fafafa] font-bold"
               key={`all-card-${2}`}
               style={{ width: '100%' }}
+              data-cy="recognition-total-criteria-card"
+              id="recognitionTotalCriteriaCard"
             >
-              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center">
-                <CiMedal fill="#0BA259" />
+              <div className="bg-[#f3f1f9] h-8 w-8 rounded-full flex justify-center items-center" data-cy="recognition-total-criteria-icon-wrapper" id="recognitionTotalCriteriaIconWrapper">
+                <CiMedal fill="#0BA259" data-cy="recognition-total-criteria-icon" id="recognitionTotalCriteriaIcon" />
               </div>
-              <p className="text-gray-400 text-xs font-normal mt-4">
+              <p className="text-gray-400 text-xs font-normal mt-4" data-cy="recognition-total-criteria-label" id="recognitionTotalCriteriaLabel">
                 Total number of Criteria
               </p>
-              <p className="text-3xl">{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
+              <p className="text-3xl" data-cy="recognition-total-criteria-value" id="recognitionTotalCriteriaValue">{`0${totalRecogniion?.totalCriteria ?? 0}`}</p>
             </Card>
           </div>
         </>
@@ -356,7 +362,7 @@ function Page() {
       key: item.id,
       label: item.name,
       children: (
-        <PageHeader title="Recognition" description="Manage Recognition" />
+        <PageHeader title="Recognition" description="Manage Recognition" data-cy="recognition-type-header" />
       ),
     })) || []), // Fallback to an empty array if recognitionType?.items is undefined
   ];
@@ -371,7 +377,7 @@ function Page() {
     setVisible(true);
   }
   return (
-    <div>
+    <div data-cy="recognition-page" id="recognitionPage">
       <Tabs
         className="ml-[3%] max-w-[90%]"
         defaultActiveKey="1"
@@ -386,10 +392,13 @@ function Page() {
             updateSearchValue('recognitionTypeId', '');
           }
         }}
+        data-cy="recognition-tabs"
+        id="recognitionTabs"
       />
       <>
         <TabLandingLayout
           id="conversationLayoutId"
+          data-cy="conversation-layout"
           // onClickHandler={() => {
           //   const recognitionTypeId = selectedRecognitionType;
           //   // Correcting how the object is passed
@@ -417,8 +426,10 @@ function Page() {
             justify="space-between"
             align="middle"
             className="mb-5 px-6"
+            data-cy="recognition-filters-row"
+            id="recognitionFiltersRow"
           >
-            <Col lg={9} md={9} xs={20} sm={20} flex="auto">
+            <Col lg={9} md={9} xs={20} sm={20} flex="auto" data-cy="recognition-employee-filter-col" id="recognitionEmployeeFilterCol">
               <Select
                 placeholder="Search by Employee"
                 onChange={(value) => handleSearchChange('userId', value)}
@@ -435,10 +446,12 @@ function Page() {
                   value: item?.id,
                   label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
                 }))}
+                data-cy="recognition-employee-filter-select"
+                id="recognitionEmployeeFilterSelect"
               />
             </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
+            <Col lg={5} md={5} xs={20} sm={20} flex="auto" data-cy="recognition-year-filter-col" id="recognitionYearFilterCol">
               <Select
                 placeholder="filter by year"
                 onChange={(value) => handleSearchChange('calendarId', value)}
@@ -451,10 +464,12 @@ function Page() {
                     label: item?.name,
                   })) ?? []
                 }
+                data-cy="recognition-year-filter-select"
+                id="recognitionYearFilterSelect"
               />
             </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
+            <Col lg={5} md={5} xs={20} sm={20} flex="auto" data-cy="recognition-session-filter-col" id="recognitionSessionFilterCol">
               <Select
                 placeholder="Select by session"
                 onChange={(value) => handleSearchChange('sessionId', value)}
@@ -472,10 +487,12 @@ function Page() {
                       label: session?.name,
                     })) ?? []
                 }
+                data-cy="recognition-session-filter-select"
+                id="recognitionSessionFilterSelect"
               />
             </Col>
 
-            <Col lg={5} md={5} xs={20} sm={20} flex="auto">
+            <Col lg={5} md={5} xs={20} sm={20} flex="auto" data-cy="recognition-month-filter-col" id="recognitionMonthFilterCol">
               <Select
                 placeholder="filter by month"
                 onChange={(value) => handleSearchChange('monthId', value)}
@@ -496,6 +513,8 @@ function Page() {
                       label: month?.name,
                     })) ?? []
                 }
+                data-cy="recognition-month-filter-select"
+                id="recognitionMonthFilterSelect"
               />
             </Col>
           </Row>
@@ -533,6 +552,8 @@ function Page() {
                 onClick: () => handleRowClick(record), // Add click handler
               })}
               loading={isLoading}
+              data-cy="recognition-table"
+              id="recognitionTable"
             />
             <CustomPagination
               current={getAllRecognition?.meta?.currentPage || 1}
@@ -546,16 +567,19 @@ function Page() {
                 setPageSize(size);
                 setCurrent(1);
               }}
+              data-cy="recognition-pagination"
             />
           </div>
         </TabLandingLayout>
         <RecognitionTypeModal
           visible={visible}
           onCancel={() => setVisible(false)}
+          data-cy="recognition-type-modal"
         />
         <EmployeeRecognitionModal
           visible={visibleEmployee}
           onCancel={() => setVisibleEmployee(false)}
+          data-cy="employee-recognition-modal"
         />
         <DeleteModal
           open={showBulkDeleteModal}
