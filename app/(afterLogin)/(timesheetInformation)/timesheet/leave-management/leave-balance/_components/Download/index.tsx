@@ -77,6 +77,7 @@ const DownloadLeaveBalance: React.FC = () => {
       onClick={handleDownload}
       loading={isDownloading || !allFilteredLeaveBalanceData}
       disabled={!allFilteredLeaveBalanceData}
+      data-cy="time-attendance-leave-balance-download-button"
     >
       {isDownloading ? 'Preparing Download...' : 'Download'}
     </Button>

@@ -194,19 +194,20 @@ const CourseLessonMaterial = () => {
     <CustomDrawerLayout
       open={isShow}
       onClose={() => onClose()}
+      data-cy="tna-lesson-material-drawer"
       modalHeader={
-        <CustomDrawerHeader className="flex justify-center">
-          <div className="flex flex-wrap px-2 text-gray-900">
-            <span className="whitespace-normal break-words">
+        <CustomDrawerHeader className="flex justify-center" data-cy="tna-lesson-material-header">
+          <div className="flex flex-wrap px-2 text-gray-900" id="tnaLessonMaterialHeaderContentId" data-cy="tna-lesson-material-header-content">
+            <span className="whitespace-normal break-words" data-cy="tna-lesson-material-header-content-text" id="tnaLessonMaterialHeaderContentTextId">
               {lessonMaterial ? 'Update' : 'Add'}&nbsp;
-              <span className="text-primary">{lesson?.title}</span>&nbsp; Course
+              <span className="text-primary" data-cy="tna-lesson-material-header-content-text-title" id="tnaLessonMaterialHeaderContentTextTitleId">{lesson?.title}</span>&nbsp; Course
               Material
             </span>
           </div>
         </CustomDrawerHeader>
       }
       footer={
-        <CustomDrawerFooterButton className="p-4" buttons={footerModalItems} />
+        <CustomDrawerFooterButton className="p-4" buttons={footerModalItems} data-cy="tna-lesson-material-footer" />
       }
       width="50%"
     >
@@ -216,23 +217,30 @@ const CourseLessonMaterial = () => {
         disabled={isLoading || isLoadingMaterial}
         requiredMark={CustomLabel}
         onFinish={onFinish}
+        id="tnaLessonMaterialFormId"
+        data-cy="tna-lesson-material-form"
       >
         <Form.Item
           name="title"
           label="Course Material Title"
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
+          id="tnaLessonMaterialTitleItemId"
+          data-cy="tna-lesson-material-title-item"
         >
-          <Input id="tnaCourseMaterialTitleFieldId" className="control" />
+          <Input id="tnaCourseMaterialTitleFieldId" data-cy="tna-course-material-title-field" className="control" />
         </Form.Item>
         <Form.Item
           name="description"
           label="Lesson Description"
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
+          id="tnaLessonMaterialDescriptionItemId"
+          data-cy="tna-lesson-material-description-item"
         >
           <Input.TextArea
             id="tnaCourseLessonDescriptionFieldId"
+            data-cy="tna-course-lesson-description-field"
             className="control-tarea"
             rows={6}
             placeholder="Enter the Description"
@@ -242,18 +250,21 @@ const CourseLessonMaterial = () => {
           name="article"
           label="Article"
           id="tnaArticleForCourseFieldId"
+          data-cy="tna-article-for-course-field"
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
         >
-          <TextEditor className="mt-3" placeholder="Enter the Article" />
+          <TextEditor className="mt-3" placeholder="Enter the Article" data-cy="tna-lesson-material-article-editor" />
         </Form.Item>
-        <Spin spinning={isFileUploadLoading.video}>
+        <Spin spinning={isFileUploadLoading.video} data-cy="tna-lesson-material-video-spinner">
           <Form.Item
             name="videos"
             label="Video"
             className="form-item"
             valuePropName="fileList"
             rules={[{ required: true, message: 'Required' }]}
+            id="tnaLessonMaterialVideoItemId"
+            data-cy="tna-lesson-material-video-item"
             getValueFromEvent={(e) => {
               return Array.isArray(e) ? e : e && e.fileList;
             }}
@@ -267,16 +278,20 @@ const CourseLessonMaterial = () => {
               maxCount={1}
               targetState="fileList"
               uploadType="video"
+              id="tnaLessonMaterialVideoUploadId"
+              data-cy="tna-lesson-material-video-upload"
             />
           </Form.Item>
         </Spin>
-        <Spin spinning={isFileUploadLoading.attachment}>
+        <Spin spinning={isFileUploadLoading.attachment} data-cy="tna-lesson-material-attachment-spinner">
           <Form.Item
             name="attachments"
             label="Attachment"
             className="form-item"
             valuePropName="fileList"
             rules={[{ required: true, message: 'Required' }]}
+            id="tnaLessonMaterialAttachmentItemId"
+            data-cy="tna-lesson-material-attachment-item"
             getValueFromEvent={(e) => {
               return Array.isArray(e) ? e : e && e.fileList;
             }}
@@ -288,36 +303,46 @@ const CourseLessonMaterial = () => {
               title="Upload Your Attachment"
               targetState="fileAttachmentList"
               uploadType="attachment"
+              id="tnaLessonMaterialAttachmentUploadId"
+              data-cy="tna-lesson-material-attachment-upload"
             />
           </Form.Item>
         </Spin>
-        <Row gutter={24}>
-          <Col span={12}>
+        <Row gutter={24} id="tnaLessonMaterialRowId" data-cy="tna-lesson-material-row">
+          <Col span={12} id="tnaLessonMaterialTimeColId" data-cy="tna-lesson-material-time-col">
             <Form.Item
               name="timeToFinishMinutes"
               label="Estimated time to Finish"
               className="form-item"
+              id="tnaLessonMaterialTimeItemId"
+              data-cy="tna-lesson-material-time-item"
             >
               <InputNumber
                 className="control-number"
                 placeholder="Enter estimated time"
                 min={1}
+                id="tnaLessonMaterialTimeInputId"
+                data-cy="tna-lesson-material-time-input"
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={12} id="tnaLessonMaterialOrderColId" data-cy="tna-lesson-material-order-col">
             <Form.Item
               name="order"
               label="Insert Before"
               className="form-item"
               rules={[{ required: true, message: 'Please select a position' }]}
               initialValue={0} // Set default value to 0
+              id="tnaLessonMaterialOrderItemId"
+              data-cy="tna-lesson-material-order-item"
             >
               <Select
                 className="control"
                 placeholder="Select position"
                 showSearch
                 optionFilterProp="label"
+                id="tnaLessonMaterialOrderSelectId"
+                data-cy="tna-lesson-material-order-select"
                 filterOption={(input, option) =>
                   (option?.label ?? '')
                     .toLowerCase()

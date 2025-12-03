@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import Image from 'next/image';
 import {
-  Drawer,
   Input,
   Button,
   Spin,
@@ -17,7 +17,6 @@ import {
   CloseOutlined,
   PlusOutlined,
   DeleteOutlined,
-  MessageOutlined,
   HistoryOutlined,
   RobotOutlined,
 } from '@ant-design/icons';
@@ -54,11 +53,15 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [panelWidth, setPanelWidth] = useState(420);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get current chat messages
   const currentChat = chats.find((chat) => chat.id === currentChatId);
-  const messages = currentChat?.messages || [];
+  const messages = useMemo(
+    () => currentChat?.messages || [],
+    [currentChat?.messages],
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -67,6 +70,24 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
+
+  useEffect(() => {
+    const updatePanelWidth = () => {
+      if (typeof window === 'undefined') return;
+      const { innerWidth } = window;
+      if (innerWidth < 480) {
+        setPanelWidth(innerWidth - 24);
+      } else if (innerWidth < 768) {
+        setPanelWidth(360);
+      } else {
+        setPanelWidth(420);
+      }
+    };
+
+    updatePanelWidth();
+    window.addEventListener('resize', updatePanelWidth);
+    return () => window.removeEventListener('resize', updatePanelWidth);
+  }, []);
 
   // Create new chat when component opens
   useEffect(() => {
@@ -184,41 +205,33 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
     });
   };
 
+  const suggestedPrompts = [
+    'How to create OKR',
+    'How do I create a daily plan?',
+    'What are OKRs?',
+    'How to add team members?',
+  ];
+
   // Chat history menu
   const chatHistoryMenu = (
-    <Menu id="chatbot-history-menu" data-cy="chatbot-history-menu">
+    <Menu data-cy="chatbot-history-menu">
       {chats.map((chat) => (
         <Menu.Item
           key={chat.id}
-          id={`chatbot-history-item-${chat.id}`}
-          data-cy={`chatbot-history-item-${chat.id}`}
           onClick={() => handleChatSelect(chat.id)}
+          data-cy={`chatbot-history-item-${chat.id}`}
         >
-          <div
-            id={`chatbot-history-item-content-${chat.id}`}
-            data-cy={`chatbot-history-item-content-${chat.id}`}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <div
-              id={`chatbot-history-item-text-${chat.id}`}
-              data-cy={`chatbot-history-item-text-${chat.id}`}
-              style={{ flex: 1, marginRight: '8px' }}
-            >
-              <Text ellipsis style={{ fontSize: '12px' }}>
+          <div className="flex justify-between items-center">
+            <div className="flex-1 mr-2">
+              <Text ellipsis className="text-xs">
                 {chat.title}
               </Text>
               <br />
-              <Text type="secondary" style={{ fontSize: '10px' }}>
+              <Text type="secondary" className="text-[10px]">
                 {chat.messages.length} messages
               </Text>
             </div>
             <Button
-              id={`chatbot-history-delete-${chat.id}`}
-              data-cy={`chatbot-history-delete-${chat.id}`}
               type="text"
               size="small"
               icon={<DeleteOutlined />}
@@ -226,22 +239,19 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                 e.stopPropagation();
                 handleDeleteChat(chat.id);
               }}
-              style={{ color: '#ff4d4f' }}
+              className="text-[#ff4d4f]"
+              data-cy={`chatbot-history-delete-${chat.id}`}
             />
           </div>
         </Menu.Item>
       ))}
       {chats.length > 0 && (
         <>
-          <Menu.Divider
-            id="chatbot-history-divider"
-            data-cy="chatbot-history-divider"
-          />
+          <Menu.Divider data-cy="chatbot-history-divider" />
           <Menu.Item
             key="clear-all"
-            id="chatbot-history-clear-all"
-            data-cy="chatbot-history-clear-all"
             onClick={handleClearAllChats}
+            data-cy="chatbot-history-clear-all"
           >
             <Text type="danger">Clear All Chats</Text>
           </Menu.Item>
@@ -250,459 +260,221 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
     </Menu>
   );
 
+  if (!open) {
+    return null;
+  }
+
   return (
-    <Drawer
-      id="chatbot-drawer"
-      data-cy="chatbot-drawer"
-      title={
-        <div
-          id="chatbot-title-wrapper"
-          data-cy="chatbot-title-wrapper"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            color: '#5B4FFF',
-            fontSize: '16px',
-            fontWeight: 600,
-          }}
-        >
-          <div
-            id="chatbot-title-content"
-            data-cy="chatbot-title-content"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <MessageOutlined />
-            SelamNew AI
-          </div>
-          <div
-            id="chatbot-title-actions"
-            data-cy="chatbot-title-actions"
-            style={{ display: 'flex', gap: '8px' }}
-          >
-            <Tooltip title="New Chat">
-              <Button
-                id="chatbot-new-chat-button"
-                data-cy="chatbot-new-chat-button"
-                type="text"
-                size="small"
-                icon={<PlusOutlined />}
-                onClick={handleNewChat}
-                style={{ color: '#5B4FFF' }}
-              />
-            </Tooltip>
-            {chats.length > 0 && (
-              <div
-                id="chatbot-history-dropdown"
-                data-cy="chatbot-history-dropdown"
-              >
-                <Dropdown
-                  overlay={chatHistoryMenu}
-                  trigger={['click']}
-                  placement="bottomRight"
-                >
-                  <Button
-                    id="chatbot-history-button"
-                    data-cy="chatbot-history-button"
-                    type="text"
-                    size="small"
-                    icon={<HistoryOutlined />}
-                    style={{ color: '#5B4FFF' }}
-                  />
-                </Dropdown>
-              </div>
-            )}
-          </div>
-        </div>
-      }
-      placement="right"
-      onClose={handleClose}
-      open={open}
-      width={400}
-      closeIcon={<CloseOutlined style={{ color: '#5B4FFF' }} />}
-      styles={{
-        header: {
-          borderBottom: '1px solid #E5E7EB',
-          padding: '16px',
-          background: 'linear-gradient(180deg, #F8F7FF 0%, #FFFFFF 100%)',
-        },
-        body: {
-          padding: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          height: 'calc(100vh - 64px)',
-          background: 'linear-gradient(180deg, #F8F7FF 0%, #FFFFFF 100%)',
-        },
-      }}
-    >
+    <>
+      <div
+        role="presentation"
+        onClick={handleClose}
+        className="fixed inset-0 bg-[rgba(17,24,39,0.35)] backdrop-blur-[6px] z-[1000]"
+        data-cy="chatbot-backdrop"
+      />
       <div
         role="dialog"
         aria-modal="true"
-        id="chatbot-wrapper-view-space"
-        data-cy="chatbot-wrapper-view-space"
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
+        className="fixed bottom-6 right-6 z-[1001] flex flex-col rounded-[24px] overflow-hidden shadow-[0_32px_80px_rgba(17,24,39,0.18)] bg-[#F4F5F9] max-w-[calc(100vw-32px)] max-h-[calc(100vh-48px)] h-[min(700px,calc(100vh-48px))]"
+        style={{ width: panelWidth }}
+        data-cy="chatbot-modal"
       >
-        {messages.length === 0 ? (
-          <div
-            id="chatbot-empty-state"
-            data-cy="chatbot-empty-state"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              textAlign: 'center',
-              gap: '20px',
-            }}
-          >
-            <div
-              id="chatbot-empty-avatar-container"
-              data-cy="chatbot-empty-avatar-container"
-              style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-              }}
-            >
-              <div
-                id="chatbot-empty-avatar-pulse"
-                data-cy="chatbot-empty-avatar-pulse"
-                style={{
-                  position: 'absolute',
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  animation: 'pulse 2s infinite',
-                }}
-              >
-                <div id="chatbot-empty-avatar" data-cy="chatbot-empty-avatar">
-                  <Avatar
-                    size={40}
-                    src="/icons/512.png"
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid rgba(91, 79, 255, 0.15)',
-                      boxShadow: '0 4px 12px rgba(91, 79, 255, 0.2)',
-                      padding: '6px',
-                    }}
-                  />
+        <div className="flex flex-col h-full min-h-0">
+          <div className="px-5 py-4 bg-gradient-to-b from-[#F8F7FF] to-white border-b border-[rgba(229,231,235,0.8)]">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Avatar
+                  size={40}
+                  src="/icons/512.png"
+                  className="bg-white border border-[rgba(91,79,255,0.15)] shadow-[0_4px_12px_rgba(91,79,255,0.2)] p-[6px]"
+                  data-cy="chatbot-header-avatar"
+                />
+                <div>
+                  <div className="text-[#2C2F36] text-base font-semibold leading-tight">
+                    SelamNew AI
+                  </div>
                 </div>
               </div>
-              <div id="chatbot-empty-title" data-cy="chatbot-empty-title">
-                <div
-                  style={{
-                    color: '#2C2F36',
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  SelamNew AI
-                </div>
-              </div>
-              <div
-                id="chatbot-empty-actions"
-                data-cy="chatbot-empty-actions"
-                style={{ display: 'flex', gap: '8px' }}
-              >
-                <Tooltip
-                  title="New Chat"
-                  id="chatbot-new-chat-tooltip-wrapper-view-space"
-                  data-cy="chatbot-new-chat-tooltip-wrapper-view-space"
-                >
+              <div className="flex gap-2">
+                <Tooltip title="New Chat">
                   <Button
-                    id="chatbot-empty-new-chat-button"
-                    data-cy="chatbot-empty-new-chat-button"
                     type="text"
                     size="small"
                     icon={<PlusOutlined />}
                     onClick={handleNewChat}
-                    style={{ color: '#5B4FFF' }}
+                    className="text-[#5B4FFF]"
+                    data-cy="chatbot-new-chat-button"
                   />
                 </Tooltip>
                 {chats.length > 0 && (
-                  <div
-                    id="chatbot-empty-history-dropdown"
-                    data-cy="chatbot-empty-history-dropdown"
+                  <Dropdown
+                    overlay={chatHistoryMenu}
+                    trigger={['click']}
+                    placement="bottomRight"
                   >
-                    <Dropdown
-                      overlay={chatHistoryMenu}
-                      trigger={['click']}
-                      placement="bottomRight"
-                    >
-                      <Button
-                        id="chatbot-empty-history-button"
-                        data-cy="chatbot-empty-history-button"
-                        type="text"
-                        size="small"
-                        icon={<HistoryOutlined />}
-                        style={{ color: '#5B4FFF' }}
-                      />
-                    </Dropdown>
-                  </div>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<HistoryOutlined />}
+                      className="text-[#5B4FFF]"
+                      data-cy="chatbot-history-button"
+                    />
+                  </Dropdown>
                 )}
-                <Tooltip
-                  title="Close"
-                  id="chatbot-close-tooltip-wrapper-view-space"
-                  data-cy="chatbot-close-tooltip-wrapper-view-space"
-                >
+                <Tooltip title="Close">
                   <Button
-                    id="chatbot-empty-close-button"
-                    data-cy="chatbot-empty-close-button"
                     type="text"
                     size="small"
                     icon={<CloseOutlined />}
                     onClick={handleClose}
-                    style={{ color: '#8C91A0' }}
+                    className="text-[#8C91A0]"
+                    data-cy="chatbot-close-button"
                   />
                 </Tooltip>
               </div>
             </div>
           </div>
-        ) : (
-          <div
-            id="chatbot-messages-container"
-            data-cy="chatbot-messages-container"
-          >
-            {messages.map((message) => {
-              const isUser = message.sender === 'user';
-              const userInitial =
-                userData?.firstName?.[0]?.toUpperCase() ||
-                userData?.lastName?.[0]?.toUpperCase() ||
-                'U';
 
-              return (
-                <div
-                  key={message.id}
-                  id={`chatbot-message-${message.id}`}
-                  data-cy={`chatbot-message-${message.id}`}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: isUser ? 'flex-end' : 'flex-start',
-                    gap: '6px',
-                  }}
-                >
-                  <div
-                    id={`chatbot-message-content-${message.id}`}
-                    data-cy={`chatbot-message-content-${message.id}`}
-                    style={{
-                      display: 'flex',
-                      flexDirection: isUser ? 'row-reverse' : 'row',
-                      alignItems: 'flex-end',
-                      gap: '12px',
-                      width: '100%',
-                      justifyContent: isUser ? 'flex-end' : 'flex-start',
-                    }}
-                  >
-                    <div
-                      id={`chatbot-message-avatar-${message.id}`}
-                      data-cy={`chatbot-message-avatar-${message.id}`}
-                    >
-                      <Avatar
-                        size={36}
-                        style={{
-                          background: isUser
-                            ? 'linear-gradient(135deg, #F5F7FF 0%, #E9ECFF 100%)'
-                            : '#FFFFFF',
-                          color: isUser ? '#5B4FFF' : '#FFFFFF',
-                          border: isUser
-                            ? '1px solid rgba(91, 79, 255, 0.2)'
-                            : '1px solid rgba(91, 79, 255, 0.15)',
-                          padding: isUser ? 0 : '6px',
-                        }}
-                        src={isUser ? undefined : '/icons/256.png'}
-                        icon={isUser ? undefined : <RobotOutlined />}
-                      >
-                        {isUser ? userInitial : null}
-                      </Avatar>
-                    </div>
-                    <div
-                      id={`chatbot-message-text-${message.id}`}
-                      data-cy={`chatbot-message-text-${message.id}`}
-                      style={{
-                        maxWidth: '80%',
-                        background: isUser ? '#FFFFFF' : '#FFFFFF',
-                        borderRadius: isUser
-                          ? '18px 18px 4px 18px'
-                          : '18px 18px 18px 4px',
-                        padding: isUser ? '12px 16px' : '16px',
-                        border: isUser
-                          ? '1px solid rgba(91, 79, 255, 0.15)'
-                          : '1px solid rgba(91, 79, 255, 0.1)',
-                        boxShadow: isUser
-                          ? '0 12px 32px rgba(91, 79, 255, 0.08)'
-                          : '0 15px 36px rgba(102, 126, 234, 0.12)',
-                        wordBreak: 'break-word',
-                        fontSize: '14px',
-                        lineHeight: '22px',
-                        color: '#2C2F36',
-                      }}
-                    >
-                      {isUser ? (
-                        message.text
-                      ) : (
-                        <AIResponseFormatter
-                          response={message.text}
-                          compact={true}
-                          onActionClick={() => {
-                            // Handle action clicks - could navigate to different parts of the app
-                          }}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div
-                    id={`chatbot-message-timestamp-${message.id}`}
-                    data-cy={`chatbot-message-timestamp-${message.id}`}
-                    style={{
-                      fontSize: '11px',
-                      color: '#8C91A0',
-                      paddingLeft: isUser ? '0' : '48px',
-                      paddingRight: isUser ? '48px' : '0',
-                    }}
-                  >
-                    {formatTime(message.timestamp)}
-                  </div>
-                </div>
-              );
-            })}
-            {isLoading && (
+          <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-4 min-h-0">
+            {messages.length === 0 ? (
               <div
-                id="chatbot-loading-container"
-                data-cy="chatbot-loading-container"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                }}
+                className="bg-gradient-to-b from-white to-[#F7F6FF] rounded-[20px] p-8 flex flex-col items-center justify-center text-center gap-[18px] shadow-[0_12px_30px_rgba(91,79,255,0.08)] border border-[rgba(91,79,255,0.08)]"
+                data-cy="chatbot-empty-state"
               >
-                <div
-                  id="chatbot-loading-avatar"
-                  data-cy="chatbot-loading-avatar"
-                >
-                  <Avatar
-                    size={36}
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid rgba(91, 79, 255, 0.15)',
-                      padding: '6px',
-                      color: '#FFFFFF',
-                    }}
+                <div className="w-[68px] h-[68px] rounded-[20px] flex items-center justify-center relative shadow-[0_18px_45px_rgba(102,126,234,0.25)]">
+                  <Image
                     src="/icons/256.png"
-                    icon={<RobotOutlined />}
+                    alt="SelamNew"
+                    width={36}
+                    height={36}
+                    priority
                   />
                 </div>
-                <div
-                  id="chatbot-loading-spinner"
-                  data-cy="chatbot-loading-spinner"
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '18px 18px 18px 4px',
-                    background: '#FFFFFF',
-                    border: '1px solid rgba(91, 79, 255, 0.1)',
-                    boxShadow: '0 15px 36px rgba(102, 126, 234, 0.12)',
-                  }}
-                >
-                  <Spin size="small" />
+                <div>
+                  <div className="text-lg font-semibold text-[#2C2F36] mb-2">
+                    Welcome to SelamNew AI
+                  </div>
+                  <Text
+                    type="secondary"
+                    className="text-sm leading-[22px] max-w-[320px] block mx-auto"
+                  >
+                    Ask anything about planning, reporting, and managing your
+                    team. Choose a quick prompt below or start typing your own
+                    question.
+                  </Text>
+                </div>
+                <div className="flex flex-wrap gap-[10px] justify-center">
+                  {suggestedPrompts.map((suggestion) => (
+                    <Button
+                      key={suggestion}
+                      size="small"
+                      type="default"
+                      onClick={() => setInputValue(suggestion)}
+                      className="text-xs rounded-[16px] border border-[rgba(91,79,255,0.25)] text-[#5B4FFF] bg-[rgba(91,79,255,0.06)]"
+                      data-cy={`chatbot-suggested-prompt-${suggestion.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {suggestion}
+                    </Button>
+                  ))}
                 </div>
               </div>
+            ) : (
+              <>
+                {messages.map((message) => {
+                  const isUser = message.sender === 'user';
+                  const userInitial =
+                    userData?.firstName?.[0]?.toUpperCase() ||
+                    userData?.lastName?.[0]?.toUpperCase() ||
+                    'U';
+                  return (
+                    <div
+                      key={message.id}
+                      className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} gap-[6px]`}
+                      data-cy={`chatbot-message-${message.id}`}
+                    >
+                      <div
+                        className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-end gap-3 w-full ${isUser ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <Avatar
+                          size={36}
+                          className={`${isUser ? 'bg-gradient-to-br from-[#F5F7FF] to-[#E9ECFF] text-[#5B4FFF] border border-[rgba(91,79,255,0.2)]' : 'bg-white text-white border border-[rgba(91,79,255,0.15)] p-[6px]'}`}
+                          src={isUser ? undefined : '/icons/256.png'}
+                          icon={isUser ? undefined : <RobotOutlined />}
+                          data-cy={`chatbot-message-avatar-${message.id}`}
+                        >
+                          {isUser ? userInitial : null}
+                        </Avatar>
+                        <div
+                          className={`max-w-[80%] bg-white ${isUser ? 'rounded-[18px_18px_4px_18px] p-3 border border-[rgba(91,79,255,0.15)] shadow-[0_12px_32px_rgba(91,79,255,0.08)]' : 'rounded-[18px_18px_18px_4px] p-4 border border-[rgba(91,79,255,0.1)] shadow-[0_15px_36px_rgba(102,126,234,0.12)]'} break-words text-sm leading-[22px] text-[#2C2F36]`}
+                          data-cy={`chatbot-message-text-${message.id}`}
+                        >
+                          {isUser ? (
+                            message.text
+                          ) : (
+                            <AIResponseFormatter
+                              response={message.text}
+                              compact={true}
+                              onActionClick={() => {
+                                // Handle action clicks - could navigate to different parts of the app
+                              }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className={`text-[11px] text-[#8C91A0] ${isUser ? 'pr-12' : 'pl-12'}`}
+                        data-cy={`chatbot-message-timestamp-${message.id}`}
+                      >
+                        {formatTime(message.timestamp)}
+                      </div>
+                    </div>
+                  );
+                })}
+                {isLoading && (
+                  <div className="flex flex-row items-start gap-3" data-cy="chatbot-loading-container">
+                    <Avatar
+                      size={36}
+                      className="bg-white border border-[rgba(91,79,255,0.15)] p-[6px] text-white"
+                      src="/icons/256.png"
+                      icon={<RobotOutlined />}
+                      data-cy="chatbot-loading-avatar"
+                    />
+                    <div className="p-3 rounded-[18px_18px_18px_4px] bg-white border border-[rgba(91,79,255,0.1)] shadow-[0_15px_36px_rgba(102,126,234,0.12)]">
+                      <Spin size="small" data-cy="chatbot-loading-spinner" />
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </>
             )}
-            <div
-              id="chatbot-messages-end"
-              data-cy="chatbot-messages-end"
-              ref={messagesEndRef}
-            />
           </div>
-        )}
-      </div>
-
-      <div
-        id="chatbot-input-container"
-        data-cy="chatbot-input-container"
-        style={{
-          padding: '16px 20px 20px',
-          borderTop: '1px solid #E5E7EB',
-          background: 'white',
-        }}
-      >
-        <div
-          id="chatbot-input-wrapper"
-          data-cy="chatbot-input-wrapper"
-          style={{
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'flex-end',
-          }}
-        >
-          <Input.TextArea
-            id="chatbot-input"
-            data-cy="chatbot-input"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask me about SelamNew platform..."
-            autoSize={{ minRows: 1, maxRows: 4 }}
-            style={{
-              flex: 1,
-              borderRadius: '20px',
-              padding: '10px 16px',
-              fontSize: '14px',
-              border: '1px solid #E5E7EB',
-              resize: 'none',
-            }}
-            disabled={isLoading}
-          />
-          <Button
-            id="chatbot-send-button"
-            data-cy="chatbot-send-button"
-            type="primary"
-            icon={<SendOutlined />}
-            onClick={handleSend}
-            disabled={!inputValue.trim() || isLoading}
-            style={{
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
-              border: 'none',
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
-            }}
-          />
+          <div className="px-5 pb-5 pt-4 border-t border-[rgba(91,79,255,0.08)] bg-white shadow-[0_-8px_30px_rgba(91,79,255,0.05)]">
+            <div className="flex gap-3 items-end flex-wrap">
+              <div className="flex-1 rounded-[18px] px-[6px] py-[1px] flex flex-col gap-[10px]">
+                <Input.TextArea
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message here..."
+                  autoSize={{ minRows: 1, maxRows: 4 }}
+                  className="rounded-[12px] text-sm border border-[rgba(91,79,255,0.12)] resize-none px-3 py-[10px] bg-white"
+                  disabled={isLoading}
+                  data-cy="chatbot-input"
+                />
+              </div>
+              <Button
+                type="primary"
+                icon={<SendOutlined className="text-white" />}
+                onClick={handleSend}
+                disabled={!inputValue.trim() || isLoading}
+                className="rounded-lg min-w-[50px] h-[46px] flex items-center justify-center bg-[#5B4FFF] border-none shadow-[0_18px_32px_rgba(102,126,234,0.25)] text-lg"
+                data-cy="chatbot-send-button"
+              />
+            </div>
+          </div>
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 0.5;
-          }
-          50% {
-            transform: scale(1.1);
-            opacity: 0.3;
-          }
-        }
-      `}</style>
-    </Drawer>
+    </>
   );
 };
 

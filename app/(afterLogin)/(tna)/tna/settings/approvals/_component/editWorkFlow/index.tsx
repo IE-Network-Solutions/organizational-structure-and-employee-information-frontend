@@ -159,6 +159,7 @@ const EditWorkFLow = () => {
       deletedApprover={deletedApprover}
       setDeleteModal={setDeleteModal}
       setDeletedApprover={setDeletedApprover}
+      data-cy="tna-settings-approvals-edit-approver-component"
     />
   );
 };

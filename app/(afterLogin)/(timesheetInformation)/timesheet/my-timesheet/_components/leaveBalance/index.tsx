@@ -32,26 +32,42 @@ const LeaveBalance = () => {
     <>
       <div
         className={`${isMobile ? 'text-sm' : 'text-2xl'} font-bold text-gray-900 mb-2.5 p-3`}
+        id="time-attendance-leave-balance-title"
+        data-cy="time-attendance-leave-balance-title"
       >
         Leave Balances
       </div>
-      <div className="relative">
-        <div className="flex items-center">
+      <div
+        className="relative"
+        id="time-attendance-leave-balance-swiper-container"
+        data-cy="time-attendance-leave-balance-swiper-container"
+      >
+        <div
+          className="flex items-center"
+          id="time-attendance-leave-balance-swiper-wrapper"
+          data-cy="time-attendance-leave-balance-swiper-wrapper"
+        >
           {hasMultipleItems && !isBeginning && (
             <Button
               className="absolute left-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
               id="leaveBalanceCardLeftId"
+              data-cy="time-attendance-leave-balance-card-left-button"
               icon={
                 <LeftOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />
               }
               onClick={() => swiper?.slidePrev()}
             />
           )}
-          <div className="w-full overflow-hidden px-12">
+          <div
+            className="w-full overflow-hidden px-12"
+            id="time-attendance-leave-balance-swiper-slides-container"
+            data-cy="time-attendance-leave-balance-swiper-slides-container"
+          >
             <Swiper
               className="w-full"
               id="swiperId"
+              data-cy="time-attendance-leave-balance-swiper-id"
               slidesPerView="auto"
               spaceBetween={16}
               modules={[Navigation]}
@@ -80,10 +96,11 @@ const LeaveBalance = () => {
               }}
             >
               {filteredItems.map((item: any) => (
-                <SwiperSlide key={item.id}>
+                <SwiperSlide data-cy={`time-attendance-leave-balance-slide-${item.id}`} key={item.id}>
                   <LeaveBalanceCard
                     title={item?.leaveType?.title ?? ''}
                     duration={parseFloat(item.totalBalance.toFixed(1))}
+                    data-cy={`time-attendance-leave-balance-card-content-id-${item.id}`}
                   />
                 </SwiperSlide>
               ))}
@@ -93,8 +110,10 @@ const LeaveBalance = () => {
             <Button
               className="absolute right-2 z-10 w-8 h-full flex items-center justify-center hover:bg-gray-50/50 border-none"
               type="text"
+              id="time-attendance-leave-balance-next-button"
+              data-cy="time-attendance-leave-balance-next-button"
               icon={
-                <RightOutlined className="text-gray-600 text-xl hover:text-primary transition-colors" />
+                <RightOutlined data-cy="time-attendance-leave-balance-card-right-button-icon" className="text-gray-600 text-xl hover:text-primary transition-colors" />
               }
               onClick={() => swiper?.slideNext()}
             />

@@ -12,14 +12,32 @@ const Page = () => {
   const { setIsShowBreakTypeSidebar } = useTimesheetSettingsStore();
 
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
-      <div className="flex justify-between mb-4">
-        <h1 className="text-lg text-bold">Break Type</h1>
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="time-attendance-settings-break-type-container"
+      data-cy="time-attendance-settings-break-type-container"
+    >
+      <div
+        className="flex justify-between mb-4"
+        id="time-attendance-settings-break-type-header"
+        data-cy="time-attendance-settings-break-type-header"
+      >
+        <h1
+          className="text-lg text-bold"
+          id="time-attendance-settings-break-type-title"
+          data-cy="time-attendance-settings-break-type-title"
+        >
+          Break Type
+        </h1>
 
-        <AccessGuard permissions={[Permissions.CreateBreakType]}>
+        <AccessGuard
+          permissions={[Permissions.CreateBreakType]}
+          data-cy="time-attendance-settings-break-type-add-button-access-guard"
+        >
           <Button
             type="primary"
             id="createNewClosedHolidayFieldId"
+            data-cy="time-attendance-settings-break-type-add-button-id"
             icon={<FaPlus />}
             className="h-10 w-10 sm:w-auto"
             onClick={() => {
@@ -30,10 +48,14 @@ const Page = () => {
           </Button>
         </AccessGuard>
       </div>
-      <div className="w-full overflow-x-auto scrollbar-none">
-        <BreakTypeTable />
+      <div
+        className="w-full overflow-x-auto scrollbar-none"
+        id="time-attendance-settings-break-type-table-container"
+        data-cy="time-attendance-settings-break-type-table-container"
+      >
+        <BreakTypeTable data-cy="time-attendance-settings-break-type-table" />
       </div>
-      <BreakTypeSidebar />
+      <BreakTypeSidebar data-cy="time-attendance-settings-break-type-sidebar" />
     </div>
   );
 };
