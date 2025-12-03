@@ -11,6 +11,8 @@ interface CustomPaginationProps {
   pageSize: number;
   onChange: (page: number, pageSize: number) => void;
   onShowSizeChange: (size: number) => void;
+  id?: string;
+  'data-cy'?: string;
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
@@ -19,6 +21,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   pageSize,
   onChange,
   onShowSizeChange,
+  id,
+  'data-cy': dataCy,
 }) => {
   const handlePageChange = (page: number) => {
     onChange(page, pageSize);
@@ -135,7 +139,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   const { isMobile } = useIsMobile();
   return (
-    <div className="flex justify-between items-center py-6  bg-white">
+    <div id={id} data-cy={dataCy} className="flex justify-between items-center py-6  bg-white">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => current > 1 && handlePageChange(current - 1)}

@@ -71,14 +71,40 @@ const CriteriaContributionChart: React.FC<CriteriaContributionProps> = ({
   };
 
   return (
-    <Row gutter={[16, 10]}>
-      <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-        <div className="flex flex-wrap  justify-between mb-4">
-          <Title level={5}>Criteria Contribution</Title>
-          <CriteriaFilter />
+    <Row
+      gutter={[16, 10]}
+      id="okr-criteriacontribution-row-display-row"
+      data-cy="okr-criteriacontribution-row-display-row"
+    >
+      <Col
+        xs={24}
+        sm={24}
+        md={24}
+        lg={24}
+        xl={24}
+        id="okr-criteriacontribution-main-col-display-col"
+        data-cy="okr-criteriacontribution-main-col-display-col"
+      >
+        <div
+          className="flex flex-wrap  justify-between mb-4"
+          id="okr-criteriacontribution-header-display-div"
+          data-cy="okr-criteriacontribution-header-display-div"
+        >
+          <Title
+            level={5}
+            id="okr-criteriacontribution-title-display-title"
+            data-cy="okr-criteriacontribution-title-display-title"
+          >
+            Criteria Contribution
+          </Title>
+          <CriteriaFilter data-cy="okr-criteriacontribution-criteria-filter-display-filter" />
         </div>
 
-        <div className="flex items-center justify-center">
+        <div
+          className="flex items-center justify-center"
+          id="okr-criteriacontribution-chart-wrapper-display-div"
+          data-cy="okr-criteriacontribution-chart-wrapper-display-div"
+        >
           {hasData ? (
             <div
               className="relative"
@@ -86,26 +112,73 @@ const CriteriaContributionChart: React.FC<CriteriaContributionProps> = ({
                 maxWidth: '200px',
                 maxHeight: '300px',
               }}
+              id="okr-criteriacontribution-doughnut-wrapper-display-div"
+              data-cy="okr-criteriacontribution-doughnut-wrapper-display-div"
             >
-              <Doughnut data={data} options={options} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-800">100</p>
-                  <p className="text-sm text-gray-500">Total</p>
+              <Doughnut
+                data={data}
+                options={options}
+                id="okr-criteriacontribution-doughnut-chart-display-chart"
+                data-cy="okr-criteriacontribution-doughnut-chart-display-chart"
+              />
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                id="okr-criteriacontribution-total-overlay-display-div"
+                data-cy="okr-criteriacontribution-total-overlay-display-div"
+              >
+                <div
+                  className="text-center"
+                  id="okr-criteriacontribution-total-content-display-div"
+                  data-cy="okr-criteriacontribution-total-content-display-div"
+                >
+                  <p
+                    className="text-2xl font-bold text-gray-800"
+                    id="okr-criteriacontribution-total-value-display-p"
+                    data-cy="okr-criteriacontribution-total-value-display-p"
+                  >
+                    100
+                  </p>
+                  <p
+                    className="text-sm text-gray-500"
+                    id="okr-criteriacontribution-total-label-display-p"
+                    data-cy="okr-criteriacontribution-total-label-display-p"
+                  >
+                    Total
+                  </p>
                 </div>
               </div>
             </div>
           ) : (
-            <CustomizeRenderEmpty />
+            <CustomizeRenderEmpty data-cy="okr-criteriacontribution-empty-indicator-display-indicator" />
           )}
         </div>
 
         {hasData && (
-          <div className="flex justify-around mt-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div
+            className="flex justify-around mt-4"
+            id="okr-criteriacontribution-legend-container-display-div"
+            data-cy="okr-criteriacontribution-legend-container-display-div"
+          >
+            <div
+              className="grid grid-cols-2 gap-4"
+              id="okr-criteriacontribution-legend-grid-display-div"
+              data-cy="okr-criteriacontribution-legend-grid-display-div"
+            >
               {criteriaLabels.map((label: string, index: number) => (
-                <div key={index} className="flex items-center gap-3">
-                  <svg width="16" height="21" viewBox="0 0 10 11" fill="none">
+                <div
+                  key={index}
+                  className="flex items-center gap-3"
+                  id={`okr-criteriacontribution-legend-item-display-div-${index}`}
+                  data-cy={`okr-criteriacontribution-legend-item-display-div-${index}`}
+                >
+                  <svg
+                    width="16"
+                    height="21"
+                    viewBox="0 0 10 11"
+                    fill="none"
+                    id={`okr-criteriacontribution-legend-color-display-svg-${index}`}
+                    data-cy={`okr-criteriacontribution-legend-color-display-svg-${index}`}
+                  >
                     <rect
                       y="0.5"
                       width="10"
@@ -114,14 +187,28 @@ const CriteriaContributionChart: React.FC<CriteriaContributionProps> = ({
                       fill={colors[index]}
                     />
                   </svg>
-                  <span className="text-xs text-gray-600">{label}</span>
+                  <span
+                    className="text-xs text-gray-600"
+                    id={`okr-criteriacontribution-legend-label-display-span-${index}`}
+                    data-cy={`okr-criteriacontribution-legend-label-display-span-${index}`}
+                  >
+                    {label}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         )}
       </Col>
-      <Col xs={24} sm={24} md={6} lg={6} xl={6}></Col>
+      <Col
+        xs={24}
+        sm={24}
+        md={6}
+        lg={6}
+        xl={6}
+        id="okr-criteriacontribution-empty-col-display-col"
+        data-cy="okr-criteriacontribution-empty-col-display-col"
+      ></Col>
     </Row>
   );
 };

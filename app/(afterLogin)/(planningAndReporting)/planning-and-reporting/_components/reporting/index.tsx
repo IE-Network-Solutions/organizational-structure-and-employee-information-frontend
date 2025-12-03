@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from 'antd';
 import React, { useEffect } from 'react';
+import SessionFilter from '../filters/SessionFilter';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
 import {
@@ -20,6 +21,7 @@ import {
   useGetReporting,
   useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
@@ -58,6 +60,9 @@ function Reporting() {
     pageSizeReporting,
     activePlanPeriodId,
     setPageSizeReporting,
+    selectedSessionIds,
+    selectedFiscalYearId,
+    allSessionsOfYear,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
@@ -65,6 +70,9 @@ function Reporting() {
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
   const { isMobile, isTablet } = useIsMobile();
+  const { data: selectedFiscalYear } = useGetFiscalYearById(
+    selectedFiscalYearId || '',
+  );
   const hasPermission = AccessGuard.checkAccess({
     permissions: [
       Permissions.ViewDailyPlan,
@@ -97,6 +105,14 @@ function Reporting() {
     planPeriodId: planningPeriodId ?? '',
     pageReporting,
     pageSizeReporting,
+    // If no sessions selected but year is selected, send all sessions
+    // If sessions are selected, send only those
+    sessionId:
+      selectedSessionIds.length > 0
+        ? selectedSessionIds
+        : allSessionsOfYear.length > 0
+          ? allSessionsOfYear
+          : [],
   });
   const getPlanningPeriodDetail = (id: string) => {
     const planningPeriodDetail = planningPeriods?.items?.find(
@@ -213,6 +229,29 @@ function Reporting() {
     </Menu>
   );
 
+  // Check if data belongs to an active session
+  const isDataFromActiveSession = (createdAt: string): boolean => {
+    // If no fiscal year is selected, allow all actions (default behavior)
+    if (!selectedFiscalYearId || !selectedFiscalYear?.sessions) {
+      return true;
+    }
+
+    const dataDate = dayjs(createdAt);
+
+    // Check if the data falls within any active session
+    const activeSession = selectedFiscalYear.sessions.find((session) => {
+      const sessionStart = dayjs(session.startDate);
+      const sessionEnd = dayjs(session.endDate);
+      return (
+        session.active &&
+        (dataDate.isAfter(sessionStart) || dataDate.isSame(sessionStart)) &&
+        (dataDate.isBefore(sessionEnd) || dataDate.isSame(sessionEnd))
+      );
+    });
+
+    return !!activeSession;
+  };
+
   // utils/dateHelpers.ts
   const getDateLabel = (createdAt: string, activeTabName: string): string => {
     const planDate = dayjs(createdAt);
@@ -251,6 +290,7 @@ function Reporting() {
               optionArray3={departmentData}
             />
           )}
+          <SessionFilter />
           <Tooltip
             title={
               // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
@@ -260,7 +300,7 @@ function Reporting() {
                 : ''
             }
           >
-            <div className="" style={{ display: 'inline-block' }}>
+            <div style={{ display: 'inline-block' }}>
               <CustomButton
                 disabled={
                   // selectedUser.includes(userId) &&
@@ -297,10 +337,10 @@ function Reporting() {
                   </Row>
                   <Row gutter={16} className="items-center">
                     <Col xs={4} sm={2} md={1}>
-                      {getEmployeeData(dataItem?.createdBy)?.profileImage ? (
+                      {getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.profileImage ? (
                         <Avatar
                           src={
-                            getEmployeeData(dataItem?.createdBy)?.profileImage
+                            getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.profileImage
                           }
                           style={{ verticalAlign: 'middle' }}
                           size="default"
@@ -317,17 +357,17 @@ function Reporting() {
                       <Row className="flex justify-between items-center">
                         <Row gutter={16} justify={'start'} align={'middle'}>
                           <div className="flex flex-col text-xs ml-2">
-                            {getEmployeeData(dataItem?.createdBy)?.firstName +
+                            {getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.firstName +
                               ' ' +
-                              (getEmployeeData(dataItem?.createdBy)?.middleName
-                                ? getEmployeeData(dataItem?.createdBy)
+                              (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.middleName
+                                ? getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
                                     .middleName.charAt(0)
                                     .toUpperCase()
                                 : '')}
                             .
                             <span className="text-gray-500 text-xs">
-                              {dataItem?.createdBy
-                                ? getEmployeeData(dataItem?.createdBy)
+                              {dataItem?.userId ?? dataItem?.createdBy
+                                ? getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
                                     ?.employeeJobInformation?.[0]?.department
                                     ?.name || ''
                                 : ''}
@@ -392,7 +432,8 @@ function Reporting() {
                             )}
                             {userId ===
                               (dataItem?.userId ?? dataItem?.createdBy) &&
-                              dataItem?.plan?.isReportValidated == false && (
+                              dataItem?.plan?.isReportValidated == false &&
+                              isDataFromActiveSession(dataItem?.createdAt) && (
                                 <Dropdown
                                   overlay={actionsMenuEditandDelte(
                                     dataItem,

@@ -94,48 +94,69 @@ const BillingPage = () => {
     }
   }, [subscriptionsData]);
 
-  // Calculate statistics
+  const getCurrencyInfo = (currencyId: string) => {
+    const currency = currencies?.find((c) => c.id === currencyId);
+    return {
+      symbol: currency?.symbol || '$',
+      code: currency?.code || 'USD',
+      currency,
+    };
+  };
+
+  // Calculate statistics grouped by currency
   const calculateStats = () => {
-    let totalAmount = 0;
-    let issuedAmount = 0;
-    let paidAmount = 0;
-    let overdueAmount = 0;
+    const statsByCurrency: Record<
+      string,
+      {
+        totalAmount: number;
+        issuedAmount: number;
+        paidAmount: number;
+        overdueAmount: number;
+        currencyId: string;
+      }
+    > = {};
 
     invoices.forEach((invoice) => {
+      const currencyId = invoice.currencyId || 'USD';
+
+      if (!statsByCurrency[currencyId]) {
+        statsByCurrency[currencyId] = {
+          totalAmount: 0,
+          issuedAmount: 0,
+          paidAmount: 0,
+          overdueAmount: 0,
+          currencyId,
+        };
+      }
+
       // Convert string amount to number
-      // totalAmount can come as a string, so we convert it to a number
       const amount =
         typeof invoice.totalAmount === 'string'
           ? parseFloat(invoice.totalAmount)
           : invoice.totalAmount || 0;
 
-      totalAmount += amount;
+      statsByCurrency[currencyId].totalAmount += amount;
 
       switch (invoice.status?.toLowerCase()) {
-        case 'issued':
-          issuedAmount += amount;
+        case 'pending':
+          statsByCurrency[currencyId].issuedAmount += amount;
           break;
         case 'paid':
-          paidAmount += amount;
+          statsByCurrency[currencyId].paidAmount += amount;
           break;
         case 'overdue':
-          overdueAmount += amount;
+          statsByCurrency[currencyId].overdueAmount += amount;
           break;
       }
     });
 
-    return {
-      totalAmount,
-      issuedAmount,
-      paidAmount,
-      overdueAmount,
-    };
+    return statsByCurrency;
   };
 
-  const stats = calculateStats();
+  const statsByCurrency = calculateStats();
 
   // Format large numbers with K (thousands) suffix
-  const formatLargeNumber = (amount: number) => {
+  const formatLargeNumber = (amount: number, currencySymbol: string) => {
     if (amount >= 1000) {
       // Format to 1 decimal place if not a round thousand
       const isRoundThousand = amount % 1000 === 0;
@@ -144,16 +165,61 @@ const BillingPage = () => {
         ? value.toFixed(0)
         : value.toFixed(1).replace(/\.0$/, ''); // Remove .0 if it ends with it
 
-      return `$${formattedValue}K`;
+      return `${currencySymbol}${formattedValue}K`;
     }
 
-    // For amounts less than 1000, use regular currency format
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+    // For amounts less than 1000, use currency symbol directly
+    return `${currencySymbol}${amount.toFixed(0)}`;
+  };
+
+  // Get formatted stats for each currency
+  const getFormattedStats = (
+    statType: 'totalAmount' | 'issuedAmount' | 'paidAmount' | 'overdueAmount',
+  ) => {
+    const currencyEntries = Object.entries(statsByCurrency);
+
+    if (currencyEntries.length === 0) {
+      return { value: '$0 USD', currencies: [] };
+    }
+
+    // If only one currency, show simple format
+    if (currencyEntries.length === 1) {
+      const [currencyId, stats] = currencyEntries[0];
+      const currencyInfo = getCurrencyInfo(currencyId);
+      const amount = stats[statType];
+      return {
+        value: formatLargeNumber(amount, currencyInfo.symbol),
+        currencies: [{ currencyId, ...currencyInfo, amount }],
+      };
+    }
+
+    // Multiple currencies - show all with breakdown
+    const formattedValues: string[] = [];
+    const currencyDetails: Array<{
+      currencyId: string;
+      symbol: string;
+      code: string;
+      amount: number;
+    }> = [];
+
+    currencyEntries.forEach(([currencyId, stats]) => {
+      const currencyInfo = getCurrencyInfo(currencyId);
+      const amount = stats[statType];
+      if (amount > 0) {
+        formattedValues.push(formatLargeNumber(amount, currencyInfo.symbol));
+        currencyDetails.push({
+          currencyId,
+          ...currencyInfo,
+          amount,
+        });
+      }
+    });
+
+    return {
+      value:
+        formattedValues.length > 0 ? formattedValues.join(' / ') : '$0 USD',
+      currencies: currencyDetails,
+    };
   };
 
   const dashboardData = [
@@ -186,19 +252,19 @@ const BillingPage = () => {
   const dashboardValues = [
     {
       id: 'totalInvoice',
-      value: formatLargeNumber(stats.totalAmount),
+      ...getFormattedStats('totalAmount'),
     },
     {
       id: 'issued',
-      value: formatLargeNumber(stats.issuedAmount),
+      ...getFormattedStats('issuedAmount'),
     },
     {
       id: 'paid',
-      value: formatLargeNumber(stats.paidAmount),
+      ...getFormattedStats('paidAmount'),
     },
     {
       id: 'overdue',
-      value: formatLargeNumber(stats.overdueAmount),
+      ...getFormattedStats('overdueAmount'),
     },
   ];
 

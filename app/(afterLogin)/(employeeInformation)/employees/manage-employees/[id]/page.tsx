@@ -84,31 +84,74 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       key: '6',
       label: 'Probation',
       children: (
-        <AccessGuard permissions={[Permissions.ViewProbationTarget]}>
-          <ProbationTask id={id} />
+        <AccessGuard
+          permissions={[Permissions.ViewProbationTarget]}
+          id="employee-detail-probation-guard"
+          data-cy="employee-detail-probation-guard"
+        >
+          <ProbationTask id={id} data-cy="employee-detail-probation-task" />
         </AccessGuard>
       ),
     },
   ];
 
   return (
-    <div className="bg-[#F5F5F5] px-2 h-auto min-h-screen">
-      <div className="flex gap-2 items-center mb-4">
+    <div
+      className="bg-[#F5F5F5] px-2 h-auto min-h-screen"
+      id="employee-detail-page"
+      data-cy="employee-detail-page"
+    >
+      <div
+        className="flex gap-2 items-center mb-4"
+        id="employee-detail-header"
+        data-cy="employee-detail-header"
+      >
         <Button
           value={'back'}
           name="back"
           onClick={handleGoBack}
           className="border-none bg-transparent p-0"
+          id="employee-detail-back-btn"
+          data-cy="employee-detail-back-btn"
         >
           <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
         </Button>
-        <h4 className="text-base sm:text-lg md:text-xl">Detail Employee</h4>
+        <h4
+          className="text-base sm:text-lg md:text-xl"
+          id="employee-detail-title"
+          data-cy="employee-detail-title"
+        >
+          Detail Employee
+        </h4>
       </div>
-      <Row gutter={[16, 24]}>
-        <Col lg={8} md={10} xs={24}>
-          <BasicInfo id={id} />
-          <AccessGuard permissions={[Permissions.EndEmployment]}>
-            <div className="flex gap-3 justify-center mb-2">
+      <Row
+        gutter={[16, 24]}
+        id="employee-detail-content-row"
+        data-cy="employee-detail-content-row"
+      >
+        <Col
+          lg={8}
+          md={10}
+          xs={24}
+          id="employee-detail-sidebar-col"
+          data-cy="employee-detail-sidebar-col"
+        >
+          <div
+            id="employee-detail-basic-info-wrapper"
+            data-cy="employee-detail-basic-info-wrapper"
+          >
+            <BasicInfo id={id} data-cy="employee-detail-basic-info" />
+          </div>
+          <AccessGuard
+            permissions={[Permissions.EndEmployment]}
+            id="employee-detail-employment-actions-guard"
+            data-cy="employee-detail-employment-actions-guard"
+          >
+            <div
+              className="flex gap-3 justify-center mb-2"
+              id="employee-detail-employment-actions"
+              data-cy="employee-detail-employment-actions"
+            >
               {resignationSubmittedDate === null ? (
                 (() => {
                   const activeJob = employeeData?.employeeJobInformation?.find(
@@ -121,6 +164,8 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                       onConfirm={() => handleConfirmResignation(activeJob?.id)}
                       okText="Yes"
                       cancelText="No"
+                      id={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
+                      data-cy={`employee-detail-initiate-resignation-popconfirm-${activeJob?.id}`}
                     >
                       <Button
                         type="primary"
@@ -130,6 +175,8 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                         value={'submit'}
                         name="submit"
                         disabled={offboardingTermination?.isActive}
+                        id={`employee-detail-initiate-resignation-btn-${activeJob?.id}`}
+                        data-cy={`employee-detail-initiate-resignation-btn-${activeJob?.id}`}
                       >
                         Initiate Resignation
                       </Button>
@@ -145,6 +192,8 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
                   value={'submit'}
                   name="submit"
                   disabled={offboardingTermination?.isActive}
+                  id="employee-detail-end-employment-btn"
+                  data-cy="employee-detail-end-employment-btn"
                 >
                   End Employment
                 </Button>
@@ -152,8 +201,17 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             </div>
           </AccessGuard>
         </Col>
-        <Col lg={16} md={14} xs={24}>
-          <Card>
+        <Col
+          lg={16}
+          md={14}
+          xs={24}
+          id="employee-detail-main-col"
+          data-cy="employee-detail-main-col"
+        >
+          <Card
+            id="employee-detail-tabs-card"
+            data-cy="employee-detail-tabs-card"
+          >
             <Tabs
               activeKey={activeTab}
               onChange={setActiveTab}
@@ -161,11 +219,15 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
               tabBarGutter={16}
               size="small"
               tabBarStyle={{ textAlign: 'center' }}
+              data-cy="employee-detail-tabs"
             />
           </Card>
         </Col>
       </Row>
-      <OffboardingFormControl userId={id} />
+      <OffboardingFormControl
+        userId={id}
+        data-cy="employee-detail-offboarding-form-control"
+      />
     </div>
   );
 }

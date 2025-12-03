@@ -25,14 +25,18 @@ const getAllTalentPool = async (
   talentPoolCategory: string,
   pageSize: number,
   currentPage: number,
+  fullName: string,
 ) => {
   const token = await getCurrentToken();
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
+  const fullNameParam = fullName
+    ? `&fullName=${encodeURIComponent(fullName)}`
+    : '';
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&talentPoolCategoryId=${talentPoolCategory}&&jobTitle=${job}&&status=${stages}&limit=${pageSize}&page=${currentPage}`,
+    url: `${RECRUITMENT_URL}/talent-pool?department=${department}&jobDeadline=${dateRange ?? null}&&talentPoolCategoryId=${talentPoolCategory}&&jobTitle=${job}&&status=${stages}${fullNameParam}&limit=${pageSize}&page=${currentPage}`,
     method: 'GET',
     headers,
   });
@@ -95,6 +99,7 @@ export const useGetTalentPool = (
   talentPoolCategory: string,
   pageSize: number,
   currentPage: number,
+  fullName: string,
 ) =>
   useQuery<TalentPoolResponse>(
     [
@@ -104,6 +109,7 @@ export const useGetTalentPool = (
       job,
       stages,
       talentPoolCategory,
+      fullName,
       pageSize,
       currentPage,
     ],
@@ -116,6 +122,7 @@ export const useGetTalentPool = (
         talentPoolCategory,
         pageSize,
         currentPage,
+        fullName,
       ),
   );
 

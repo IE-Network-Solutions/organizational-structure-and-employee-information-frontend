@@ -47,6 +47,8 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
       <Form.Item>
         <div className="flex justify-center w-full  bg-[#fff] px-6 py-6 gap-6">
           <Button
+            id="talent-acquisition-create-application-form-button-back"
+            data-cy="talent-acquisition-create-application-form-button-back"
             onClick={() => stepChange(0)}
             className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
             disabled={isLoading}
@@ -54,6 +56,8 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
             Back
           </Button>
           <Button
+            id="talent-acquisition-create-application-form-button-publish"
+            data-cy="talent-acquisition-create-application-form-button-publish"
             htmlType="submit"
             className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
             loading={isLoading}

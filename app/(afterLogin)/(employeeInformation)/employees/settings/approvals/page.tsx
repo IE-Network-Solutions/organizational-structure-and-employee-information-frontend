@@ -77,64 +77,141 @@ const Approvals = () => {
     );
   };
 
+  const pageSlug = 'approvals-settings';
+
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id={`settings-${pageSlug}-container`}
+      data-cy={`settings-${pageSlug}-container`}
+    >
       {addDepartmentApproval ? (
         departmentApproval ? (
-          <div className="">
-            <div className="flex justify-between mb-4">
+          <div
+            id={`settings-${pageSlug}-workflow-setting`}
+            data-cy={`settings-${pageSlug}-workflow-setting`}
+          >
+            <div
+              className="flex justify-between mb-4"
+              id={`settings-${pageSlug}-workflow-setting-header`}
+              data-cy={`settings-${pageSlug}-workflow-setting-header`}
+            >
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setDepartmentApproval(false)}
+                id={`settings-${pageSlug}-workflow-setting-back-btn`}
+                data-cy={`settings-${pageSlug}-workflow-setting-back-btn`}
               >
-                <IoArrowBack className="text-white" />
-                <span> Back</span>
+                <IoArrowBack
+                  className="text-white"
+                  data-cy="settings-approvals-back-btn-icon"
+                />
+                <span data-cy="settings-approvals-back-btn-text"> Back</span>
               </Button>
-              <div className="text-2xl font-bold "></div>
+              <div
+                className="text-2xl font-bold "
+                id={`settings-${pageSlug}-workflow-setting-title`}
+                data-cy={`settings-${pageSlug}-workflow-setting-title`}
+              ></div>
             </div>
             <ApprovalWorkFlowSettingComponent
               handleSubmit={handleSubmit}
               isSuccess={isSuccess}
               form={form}
               title={'Department transfer '}
+              data-cy={`settings-${pageSlug}-workflow-setting-component`}
             />
           </div>
         ) : (
-          <div className="">
-            <div className="mb-4 flex justify-between">
+          <div
+            id={`settings-${pageSlug}-workflow-config`}
+            data-cy={`settings-${pageSlug}-workflow-config`}
+          >
+            <div
+              className="mb-4 flex justify-between"
+              id={`settings-${pageSlug}-workflow-config-header`}
+              data-cy={`settings-${pageSlug}-workflow-config-header`}
+            >
               <Button
                 className="flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf]"
                 onClick={() => setAddDepartmentApproval(false)}
+                id={`settings-${pageSlug}-workflow-config-back-btn`}
+                data-cy={`settings-${pageSlug}-workflow-config-back-btn`}
               >
-                <IoArrowBack className="text-white" />
+                <IoArrowBack
+                  className="text-white"
+                  data-cy="settings-approvals-back-btn-icon"
+                />
                 <span> Back</span>
               </Button>
-              <div className="text-2xl font-bold "></div>
+              <div
+                className="text-2xl font-bold "
+                id={`settings-${pageSlug}-workflow-config-title`}
+                data-cy={`settings-${pageSlug}-workflow-config-title`}
+              ></div>
             </div>
-            <ApprovalWorkFlowComponent onChange={onChange} />
+            <ApprovalWorkFlowComponent
+              onChange={onChange}
+              data-cy={`settings-${pageSlug}-workflow-config-component`}
+            />
           </div>
         )
       ) : (
-        <div>
-          <div className="mb-4 flex justify-between">
-            <div className="text-lg font-bold ">List Of Approval</div>
-            <PermissionWraper permissions={[Permissions.CreateApprover]}>
+        <div
+          id={`settings-${pageSlug}-list`}
+          data-cy={`settings-${pageSlug}-list`}
+        >
+          <div
+            className="mb-4 flex justify-between"
+            id={`settings-${pageSlug}-list-header`}
+            data-cy={`settings-${pageSlug}-list-header`}
+          >
+            <div
+              className="text-lg font-bold "
+              id={`settings-${pageSlug}-list-title`}
+              data-cy={`settings-${pageSlug}-list-title`}
+            >
+              List Of Approval
+            </div>
+            <PermissionWraper
+              permissions={[Permissions.CreateApprover]}
+              id={`settings-${pageSlug}-add-approval-guard`}
+              data-cy={`settings-${pageSlug}-add-approval-guard`}
+            >
               <Button
                 type="primary"
                 className="hidden sm:flex h-10 w-10 sm:w-auto"
                 onClick={() => setAddDepartmentApproval(true)}
                 icon={<FaPlus />}
+                id={`settings-${pageSlug}-add-approval-btn`}
+                data-cy={`settings-${pageSlug}-add-approval-btn`}
               >
-                <span className="hidden sm:inline"> Add Approval</span>
+                <span
+                  className="hidden sm:inline"
+                  data-cy="settings-approvals-add-btn-text"
+                >
+                  {' '}
+                  Add Approval
+                </span>
               </Button>
             </PermissionWraper>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <ApprovalBranchFilter />
+          <div
+            className="flex flex-col gap-4"
+            id={`settings-${pageSlug}-filters`}
+            data-cy={`settings-${pageSlug}-filters`}
+          >
+            <ApprovalBranchFilter
+              data-cy={`settings-${pageSlug}-branch-filter`}
+            />
           </div>
-          <div className="flex  overflow-x-auto scrollbar-none  w-full">
-            <ApprovalTable />
+          <div
+            className="overflow-x-auto scrollbar-none  w-full"
+            id={`settings-${pageSlug}-table-wrapper`}
+            data-cy={`settings-${pageSlug}-table-wrapper`}
+          >
+            <ApprovalTable data-cy={`settings-${pageSlug}-table`} />
           </div>
         </div>
       )}

@@ -6,6 +6,7 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -82,8 +83,27 @@ export const useDeleteSchedule = () => {
   return useMutation((id: string) => deleteSchedule(id), {
     onSuccess: () => {
       queryClient.invalidateQueries(['schedule']);
-      // const method = variables?.method?.toUpperCase();
-      // handleSuccessMessage(method);
+      NotificationMessage.success({
+        message: 'Successfully Deleted',
+        description: 'Work Schedule successfully deleted.',
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || '';
+      const isAssignedUsersError =
+        errorMessage.toLowerCase().includes('user') ||
+        errorMessage.toLowerCase().includes('assigned') ||
+        error?.response?.status === 400 ||
+        error?.response?.status === 409;
+
+      if (!isAssignedUsersError) {
+        NotificationMessage.error({
+          message: 'Deletion Failed',
+          description:
+            errorMessage || 'Failed to delete work schedule. Please try again.',
+        });
+      }
     },
   });
 };

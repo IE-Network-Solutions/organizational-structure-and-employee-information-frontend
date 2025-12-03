@@ -37,6 +37,8 @@ import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { auth } from '@/utils/firebaseConfig';
+import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
+
 
 interface CustomMenuItem {
   key: string;
@@ -81,6 +83,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIsCheckingPermissions,
   } = useAuthenticationStore();
   const isAdminPage = pathname.startsWith('/admin');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const pathName = usePathname();
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -245,7 +249,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           disabled: hasEndedFiscalYear || isSubscriptionExpired,
         },
         {
-          title: <span>Settings</span>,
+          title: <span className="font-bold">Settings</span>,
           key: '/recruitment/settings',
           className: 'font-bold',
           permissions: ['manage_recruitment_settings'],
@@ -409,6 +413,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/payroll-menu',
       className: 'font-bold',
+      permissions: ['view_payroll_menu'],
       disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
@@ -839,23 +844,41 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     );
     return hasAllPermissions;
   };
-  const { data: departments } = useGetDepartments();
-  const { data: employeeData } = useGetEmployee(userId);
-  const { setIsAddEmployeeJobInfoModalVisible, setEmployeeJobInfoModalWidth } =
-    useEmployeeManagementStore();
-  useEffect(() => {
-    if (!departments || !employeeData) return;
+  const { data: departments, isLoading: departmentsLoading } =
+    useGetDepartments();
+  const { data: employeeData, isLoading: employeeDataLoading } =
+    useGetEmployee(userId);
+  const { setIsAddEmployeeJobInfoModalVisible } = useEmployeeManagementStore();
 
-    if (departments.length === 0) {
+  const isLoadingData =
+    departmentsLoading || employeeDataLoading || !departments || !employeeData;
+
+  useEffect(() => {
+    if (isLoadingData) return;
+
+    if (departments.length === 0 && !isLoadingData) {
       router.push('/onboarding');
     } else if (
-      !employeeData.employeeJobInformation ||
-      employeeData.employeeJobInformation.length === 0
+      employeeData?.employeeJobInformation?.length === 0 &&
+      pathName !== `/employees/manage-employees/${userId}`
+    ) {
+      setIsModalOpen(true);
+    } else if (
+      employeeData?.employeeJobInformation?.length === 0 &&
+      pathName === `/employees/manage-employees/${userId}`
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
-      setEmployeeJobInfoModalWidth('100%');
     }
-  }, [departments, employeeData, router]);
+  }, [departments, employeeData, router, isLoadingData, pathName, userId]);
+
+  const handleOk = () => {
+    router.push(`/employees/manage-employees/${userId}`);
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   // ✅ Check permission on pathname change
   useEffect(() => {
@@ -1167,7 +1190,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           <Layout
             style={{
-              marginLeft: isMobile ? 2 : collapsed ? 10 : 20,
+              marginLeft: isMobile ? 2 : 0,
               transition: 'margin-left 0.3s ease',
             }}
           >
@@ -1218,7 +1241,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               className="overflow-y-hidden min-h-screen"
               style={{
                 paddingInline: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 0 : collapsed ? 5 : 280,
+                paddingLeft: isMobile ? 0 : collapsed ? 100 : 280,
                 transition: 'padding-left 0.3s ease',
               }}
             >
@@ -1243,6 +1266,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   handleUserInfoUpdate();
                 }}
                 id={userId}
+              />
+              <JobInfoAccessModal
+                open={isModalOpen}
+                onClose={handleCancel}
+                onConfirm={handleOk}
               />
             </Content>
           </Layout>

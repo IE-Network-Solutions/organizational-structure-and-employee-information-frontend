@@ -102,22 +102,15 @@ export const useGetSettlementTrackingById = (
     ['settlement-tracking', id],
     async () => {
       const token = await getCurrentToken();
-      const response = await fetch(`${PAYROLL_URL}/settlement-tracking/${id}`, {
+      return await crudRequest({
+        url: `${PAYROLL_URL}/settlement-tracking/${id}`,
+        method: 'GET',
         headers: {
           ...requestHeader,
           Authorization: `Bearer ${token}`,
           tenantId: tenantId,
         },
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || 'Failed to fetch settlement tracking details',
-        );
-      }
-
-      return response.json();
     },
     {
       staleTime: 30000, // Consider data fresh for 30 seconds
@@ -137,22 +130,15 @@ export const useCheckSettlementTrackingExists = (
     ['settlement-tracking-exists', employeeId, payPeriod],
     async () => {
       const token = await getCurrentToken();
-      const response = await fetch(
-        `${PAYROLL_URL}/settlement-tracking/check-exists?employeeId=${employeeId}&payPeriod=${payPeriod}`,
-        {
-          headers: {
-            ...requestHeader,
-            Authorization: `Bearer ${token}`,
-            tenantId: tenantId,
-          },
+      return await crudRequest({
+        url: `${PAYROLL_URL}/settlement-tracking/check-exists?employeeId=${employeeId}&payPeriod=${payPeriod}`,
+        method: 'GET',
+        headers: {
+          ...requestHeader,
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
         },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to check settlement tracking existence');
-      }
-
-      return response.json();
+      });
     },
     {
       enabled: !!employeeId && !!payPeriod, // Only run query if both params are provided
@@ -171,22 +157,15 @@ export const useEmployeeSettlementTracking = (
     ['settlement-tracking-exists', employeeId, entitlementId],
     async () => {
       const token = await getCurrentToken();
-      const response = await fetch(
-        `${PAYROLL_URL}/compensation-item-entitlement/get-employee-settlement-tracking/entitlement/${entitlementId}/employee/${employeeId}`,
-        {
-          headers: {
-            ...requestHeader,
-            Authorization: `Bearer ${token}`,
-            tenantId: tenantId,
-          },
+      return await crudRequest({
+        url: `${PAYROLL_URL}/compensation-item-entitlement/get-employee-settlement-tracking/entitlement/${entitlementId}/employee/${employeeId}`,
+        method: 'GET',
+        headers: {
+          ...requestHeader,
+          Authorization: `Bearer ${token}`,
+          tenantId: tenantId,
         },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to check settlement tracking existence');
-      }
-
-      return response.json();
+      });
     },
     {
       enabled: !!employeeId && !!entitlementId, // Only run query if both params are provided

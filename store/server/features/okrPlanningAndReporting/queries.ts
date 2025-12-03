@@ -2,16 +2,12 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
-import { AssignedPlanningPeriodLogArray } from './interface';
+import {
+  AssignedPlanningPeriodLogArray,
+  DataType,
+  PlanningRequestBody,
+} from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-interface DataType {
-  userId: string[] | [] | string;
-  planPeriodId: string;
-  page?: number;
-  pageSize?: number;
-  pageReporting?: number;
-  pageSizeReporting?: number;
-}
 
 const getPlanningData = async (params: DataType) => {
   const token = await getCurrentToken();
@@ -21,18 +17,28 @@ const getPlanningData = async (params: DataType) => {
     Authorization: `Bearer ${token}`,
   };
 
+  // Build request body as object
+  const requestBody: PlanningRequestBody = {
+    userIds: params?.userId.length === 0 ? [''] : (params?.userId as string[]),
+  };
+
+  // Add sessionIds only if provided
+  if (params?.sessionId && params.sessionId.length > 0) {
+    requestBody.sessionIds = params.sessionId as string[];
+  }
+
   if (params?.page) {
     return await crudRequest({
       url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}?page=${params?.page}&limit=${params.pageSize}`,
       method: 'post',
-      data: params?.userId.length === 0 ? [''] : params?.userId,
+      data: requestBody,
       headers,
     });
   }
   return await crudRequest({
     url: `${OKR_URL}/plan-tasks/users/${params?.planPeriodId}`,
     method: 'post',
-    data: params?.userId.length === 0 ? [''] : params?.userId,
+    data: requestBody,
     headers,
   });
 };
@@ -156,10 +162,20 @@ const getReportingData = async (params: DataType) => {
     Authorization: `Bearer ${token}`,
   };
 
+  // Build request body as object
+  const requestBody: PlanningRequestBody = {
+    userIds: params?.userId.length === 0 ? [''] : (params?.userId as string[]),
+  };
+
+  // Add sessionIds only if provided
+  if (params?.sessionId && params.sessionId.length > 0) {
+    requestBody.sessionIds = params.sessionId as string[];
+  }
+
   return await crudRequest({
     url: `${OKR_URL}/okr-report/by-planning-period/${params?.planPeriodId}?page=${params?.pageReporting}&limit=${params.pageSizeReporting}`,
     method: 'post',
-    data: params?.userId.length === 0 ? [''] : params?.userId,
+    data: requestBody,
     headers,
   });
 };
@@ -317,3 +333,30 @@ export const useGetReportedPlanning = (planId: string) => {
     },
   );
 };
+
+// Fetch reported daily tasks by weekly task ID
+const getDailyTasksByWeeklyTask = async (weeklyTaskId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${OKR_URL}/okr-report-task/daily-plans/${weeklyTaskId}`,
+    method: 'get',
+    headers,
+  });
+};
+
+export { getReportingData };
+
+// Expose a non-hook function so non-React code can fetch planning periods
+export const fetchAllPlanningPeriods = getAllPlanningPeriods;
+
+export const fetchPlanningPeriodsHierarchy = getPlanningPeriodsHierarchy;
+
+// Export the new endpoint for fetching daily tasks by weekly task
+export const fetchDailyTasksByWeeklyTask = getDailyTasksByWeeklyTask;

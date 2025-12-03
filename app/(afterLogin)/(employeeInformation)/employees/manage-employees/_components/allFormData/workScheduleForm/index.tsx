@@ -53,42 +53,53 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
     selectedWorkSchedule?.detail ||
     selectedWorkScheduleDetails ||
     []
-  ).map((schedule, index) => ({
-    key: index.toString(),
-    workingDay: (
-      <div className="flex space-x-2 justify-start">
-        <Switch checked={schedule?.status || schedule?.workday} disabled />
-        <span>{schedule?.dayOfWeek || schedule?.day}</span>
-      </div>
-    ),
-    time: (
-      <TimePicker
-        defaultValue={dayjs(
-          schedule?.hours ||
-            (schedule?.startTime && schedule?.endTime
-              ? `${dayjs(schedule?.startTime, 'h:mm A').format('HH:mm:ss')} - ${dayjs(
-                  schedule?.endTime,
-                  'h:mm A',
-                ).format('HH:mm:ss')}`
-              : '00:00:00'),
-          'HH:mm:ss',
-        )}
-        disabled
-      />
-    ),
-  }));
+  ).map((schedule, index) => {
+    const timeValue =
+      schedule?.hours ||
+      (schedule?.startTime && schedule?.endTime
+        ? `${dayjs(schedule?.startTime, 'h:mm A').format('HH:mm:ss')} - ${dayjs(
+            schedule?.endTime,
+            'h:mm A',
+          ).format('HH:mm:ss')}`
+        : '00:00:00');
+
+    return {
+      key: `${selectedWorkSchedule?.id || 'default'}-${index}`,
+      workingDay: (
+        <div className="flex space-x-2 justify-start">
+          <Switch checked={schedule?.status || schedule?.workday} disabled />
+          <span>{schedule?.dayOfWeek || schedule?.day}</span>
+        </div>
+      ),
+      time: <TimePicker value={dayjs(timeValue, 'HH:mm:ss')} disabled />,
+    };
+  });
 
   return (
-    <div>
-      <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+    <div id="work-schedule-form" data-cy="work-schedule-form">
+      <div
+        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+        id="work-schedule-title"
+        data-cy="work-schedule-title"
+      >
         Work Schedule
       </div>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row
+        gutter={16}
+        id="work-schedule-select-row"
+        data-cy="work-schedule-select-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="work-schedule-select-col"
+          data-cy="work-schedule-select-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="workScheduleId"
             id="workScheduleId"
+            data-cy="workScheduleId"
             label={
               <span className="mb-1 font-semibold text-xs">
                 Work Schedule Category
@@ -104,9 +115,16 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
               allowClear
               value={workSchedule}
               className="bg-white"
+              id="work-schedule-select"
+              data-cy="work-schedule-select"
             >
               {workSchedules?.items.map((schedule) => (
-                <Option key={schedule?.id} value={schedule?.id}>
+                <Option
+                  key={schedule?.id}
+                  value={schedule?.id}
+                  id={`work-schedule-option-${schedule?.id}`}
+                  data-cy={`work-schedule-option-${schedule?.id}`}
+                >
                   {schedule?.name}
                 </Option>
               ))}
@@ -114,9 +132,24 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
-          <Table columns={columns} dataSource={data} pagination={false} />
+      <Row
+        gutter={16}
+        id="work-schedule-table-row"
+        data-cy="work-schedule-table-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="work-schedule-table-col"
+          data-cy="work-schedule-table-col"
+        >
+          <Table
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            id="work-schedule-table"
+            data-cy="work-schedule-table"
+          />
         </Col>
       </Row>
     </div>

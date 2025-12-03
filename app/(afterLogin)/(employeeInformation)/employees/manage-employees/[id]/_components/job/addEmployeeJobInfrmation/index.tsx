@@ -5,10 +5,8 @@ import JobTimeLineForm from '../../../../_components/allFormData/jobTimeLineForm
 import WorkScheduleForm from '../../../../_components/allFormData/workScheduleForm';
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import BasicSalaryForm from '../../../../_components/allFormData/basickSalaryForm';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface Ids {
   id?: string;
@@ -19,22 +17,24 @@ interface Ids {
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
 }) => {
-  const { userId: userId2 } = useAuthenticationStore();
   const [form] = Form.useForm();
   const params = useParams();
-  const userId = (params?.id as string) ?? userId2;
+  // Always use the employee ID from URL params, never fallback to logged-in user ID
+  const userId = params?.id as string;
   const {
     isAddEmployeeJobInfoModalVisible,
     setIsAddEmployeeJobInfoModalVisible,
     setEmployeeJobInfoModalWidth,
     employeeJobInfoModalWidth,
+    setTempAllowances,
   } = useEmployeeManagementStore();
 
   useEffect(() => {
     if (isAddEmployeeJobInfoModalVisible) {
       form.resetFields(); // Reset form values on modal open
+      setTempAllowances([]); // Clear temp allowances when modal opens
     }
-  }, [isAddEmployeeJobInfoModalVisible]);
+  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
@@ -42,6 +42,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
     setEmployeeJobInfoModalWidth(null);
+    setTempAllowances([]); // Clear temp allowances when modal closes
   };
 
   const createTsks = (values: CreateEmployeeJobInformationInterface) => {
@@ -55,8 +56,12 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     values.departmentLeadOrNot
       ? values.departmentLeadOrNot
       : (values.departmentLeadOrNot = false);
+    // Include allowances from form state
+    values.allowances = form.getFieldValue('allowances') || [];
+
     createJobInformation(values, {
       onSuccess: () => {
+        setTempAllowances([]); // Clear temp allowances on successful submit
         handleClose();
 
         // Call the callback to refresh job information data
@@ -78,22 +83,42 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         onCancel={handleClose}
         footer={false}
         destroyOnClose
+        data-cy="job-add-job-info-modal"
       >
-        <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm employeeData={employeeData} />
-          <BasicSalaryForm />
+        <Form
+          form={form}
+          onFinish={createTsks}
+          layout="vertical"
+          id="job-add-job-info-form"
+          data-cy="job-add-job-info-form"
+        >
+          <JobTimeLineForm
+            employeeData={employeeData}
+            form={form}
+            data-cy="job-add-job-info-timeline"
+          />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
             }
+            data-cy="job-add-job-info-schedule"
           />
-          <Form.Item>
-            <Row className="flex justify-end gap-3">
+          <Form.Item
+            id="job-add-job-info-submit-form-item"
+            data-cy="job-add-job-info-submit-form-item"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="job-add-job-info-submit-row"
+              data-cy="job-add-job-info-submit-row"
+            >
               <Button
                 type="primary"
                 htmlType="submit"
                 name="submit"
                 loading={isLoading}
+                id="job-add-job-info-submit-btn"
+                data-cy="job-add-job-info-submit-btn"
               >
                 Submit
               </Button>
@@ -103,6 +128,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
                 value={'cancel'}
                 name="cancel"
                 onClick={handleClose}
+                id="job-add-job-info-cancel-btn"
+                data-cy="job-add-job-info-cancel-btn"
               >
                 Cancel
               </Button>

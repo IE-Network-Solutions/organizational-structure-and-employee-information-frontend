@@ -5,7 +5,7 @@ import VariablePayTable from './_components/variablePayTable';
 const VariablePayPage = () => {
   return (
     <>
-      <VariablePayTable />
+      <VariablePayTable data-cy="compensation-benefit-variable-pay-table" />
     </>
   );
 };
