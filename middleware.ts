@@ -3,7 +3,9 @@ import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
 const JWKS = createRemoteJWKSet(
-  new URL('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com')
+  new URL(
+    'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com',
+  ),
 );
 
 async function verifyFirebaseToken(token: string) {
@@ -21,7 +23,7 @@ async function verifyFirebaseToken(token: string) {
   }
 }
 
-export async  function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
     const pathname = url.pathname;
@@ -55,9 +57,17 @@ export async  function middleware(req: NextRequest) {
       pathname.startsWith(path),
     );
     const isRootPath = pathname === '/';
-    if (!isExcludedPath && !token) {
-      return NextResponse.redirect(new URL('/authentication/login', req.url));
+    if (!isExcludedPath) {
+      if(token){
+        const decoded = await verifyFirebaseToken(token);
+        if (!decoded) {
+          return NextResponse.redirect(new URL('/authentication/login', req.url));
+        }
+      } else {
+        return NextResponse.redirect(new URL('/authentication/login', req.url));
+      }
     }
+
 
     if (
       token &&
@@ -73,15 +83,7 @@ export async  function middleware(req: NextRequest) {
     // TODO: Uncomment and restore the redirect for the root path
 
     if (!isExcludedPath && isRootPath) {
-      if (token) {
-        const decoded = await verifyFirebaseToken(token);
-        if (!decoded) {
-          return NextResponse.redirect(new URL('/authentication/login', req.url));
-        }
-        return NextResponse.redirect(new URL('/dashboard', req.url));
-      } else {
-        return NextResponse.redirect(new URL('/authentication/login', req.url));
-      }
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
     // Protect fiscal year settings routes
@@ -95,6 +97,7 @@ export async  function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
+
 
     return NextResponse.next();
   } catch (error) {

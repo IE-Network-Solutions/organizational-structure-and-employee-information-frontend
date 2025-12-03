@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import Cookies from 'js-cookie';
 /**
  * Stores a value in session storage under a given key
  * @param key The key under which the value is stored
@@ -63,4 +64,5 @@ export const getCookie = (key: string, request: NextRequest): string | null => {
 
 export const removeCookie = (key: string): void => {
   document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  Cookies.remove(key, { path: '/' });
 };

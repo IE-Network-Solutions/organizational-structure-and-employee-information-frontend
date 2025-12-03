@@ -36,6 +36,7 @@ import { useCreateEmployee } from '@/store/server/features/employees/employeeDet
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { auth } from '@/utils/firebaseConfig';
 
 interface CustomMenuItem {
   key: string;
@@ -922,6 +923,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      //firebase sign out
+      if (auth.currentUser) {
+        await auth.signOut();
+      }
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
