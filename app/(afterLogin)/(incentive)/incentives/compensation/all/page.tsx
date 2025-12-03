@@ -3,11 +3,36 @@ import React from 'react';
 import IncentiveFilter from './filters';
 import AllIncentiveTable from './table';
 import IncentiveCards from '../cards';
-import { Card, Skeleton } from 'antd';
+import { Card, Skeleton, Button } from 'antd';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
+import { DeleteOutlined } from '@ant-design/icons';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useDeleteBulkIncentives } from '@/store/server/features/incentive/other/mutation';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
 
 const AllIncentives = () => {
-  const { parentResponseIsLoading } = useIncentiveStore();
+  const { parentResponseIsLoading, selectedRowKeys, setSelectedRowKeys, showBulkDeleteModal, setShowBulkDeleteModal } =
+    useIncentiveStore();
+  const { mutate: deleteBulkIncentives, isLoading: isDeleting } =
+    useDeleteBulkIncentives();
+
+  const handleBulkDelete = () => {
+    if (selectedRowKeys && selectedRowKeys.length > 0) {
+      deleteBulkIncentives(
+        { ids: selectedRowKeys as string[] },
+        {
+          onSuccess: () => {
+            setSelectedRowKeys([]);
+            setShowBulkDeleteModal(false);
+          },
+        },
+      );
+    }
+  };
+
+  const hasSelectedRows = selectedRowKeys && selectedRowKeys.length > 0;
+
   return (
     <div id="all-incentives-container" data-cy="all-incentives-container">
       {parentResponseIsLoading ? (
@@ -26,15 +51,49 @@ const AllIncentives = () => {
         <IncentiveCards />
       )}
       {parentResponseIsLoading ? (
-        <Skeleton data-cy="all-incentives-skeleton-filter" active paragraph={{ rows: 1 }} />
+        <div id="all-incentives-skeleton-filter" data-cy="all-incentives-skeleton-filter">
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </div>
       ) : (
         <IncentiveFilter />
       )}
+      {!parentResponseIsLoading && hasSelectedRows && (
+        <div id="incentive-bulk-delete-container" data-cy="incentive-bulk-delete-container" className="mb-4 flex justify-end">
+          <AccessGuard
+            permissions={[Permissions.DeleteIncentive]}
+            id="incentive-bulk-delete-guard"
+            data-cy="incentive-bulk-delete-guard"
+          >
+            <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => setShowBulkDeleteModal(true)}
+              loading={isDeleting}
+              id="incentive-bulk-delete-button"
+              data-cy="incentive-bulk-delete-button"
+            >
+              Delete Selected ({selectedRowKeys.length})
+            </Button>
+          </AccessGuard>
+        </div>
+      )}
       {parentResponseIsLoading ? (
-        <Skeleton data-cy="all-incentives-skeleton-table" active paragraph={{ rows: 4 }} />
+        <div id="all-incentives-skeleton-table" data-cy="all-incentives-skeleton-table">
+          <Skeleton active paragraph={{ rows: 4 }} />
+        </div>
       ) : (
         <AllIncentiveTable />
       )}
+      <DeleteModal
+        open={showBulkDeleteModal}
+        onCancel={() => setShowBulkDeleteModal(false)}
+        onConfirm={handleBulkDelete}
+        deleteMessage={`Are you sure you want to permanently delete ${selectedRowKeys?.length || 0} selected record(s)? This action cannot be undone.`}
+        loading={isDeleting}
+        id="incentive-bulk-delete-modal"
+        data-cy="incentive-bulk-delete-modal"
+      />
     </div>
   );
 };

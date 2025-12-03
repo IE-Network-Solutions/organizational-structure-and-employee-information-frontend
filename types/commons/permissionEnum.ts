@@ -324,6 +324,9 @@ export enum Permissions {
   AddRecognitionCriteria = 'create-recognition-criteria',
   DeleteRecognitionCriteria = 'delete-recognition-criteria',
   EditRecognitionCriteria = 'edit-recognition-criteria',
+
+  //Incentive
+  DeleteIncentive = 'delete-incentive',
   // //oneToOne
   // CreateOneToOne = 'create-one-to-one',
   // DeleteOneToOne = 'delete-one-to-one',
