@@ -49,7 +49,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
     <div className="relative cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md transition w-full" data-cy="meeting-template-card" id="meetingTemplateCard">
       <div className="flex justify-between items-start mb-2" data-cy="meeting-template-card-header" id="meetingTemplateCardHeader">
         <h3 className="font-semibold text-lg" data-cy="meeting-template-card-title" id="meetingTemplateCardTitle">{title}</h3>
-        <Dropdown menu={{ items }} trigger={['click']} data-cy="meeting-template-card-dropdown" id="meetingTemplateCardDropdown">
+        <Dropdown menu={{ items }} trigger={['click']} data-cy="meeting-template-card-dropdown">
           <MoreOutlined
             className="text-gray-500 hover:text-gray-700 text-lg"
             onClick={(e) => e.stopPropagation()}
