@@ -152,27 +152,67 @@ const LeaveSectionGraph: React.FC = () => {
   };
 
   return (
-    <div className="col-span-7">
-      <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4 w-full">
-        <p className="text-purple-600 text-[12px] flex items-center gap-2">
+    <div
+      className="col-span-7"
+      id="time-attendance-leave-section-graph-layout-div"
+      data-cy="time-attendance-leave-section-graph-layout-div"
+    >
+      <div
+        className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4 w-full"
+        id="time-attendance-leave-section-graph-header-div"
+        data-cy="time-attendance-leave-section-graph-header-div"
+      >
+        <p
+          className="text-purple-600 text-[12px] flex items-center gap-2"
+          id="time-attendance-leave-section-graph-title-text"
+          data-cy="time-attendance-leave-section-graph-title-text"
+        >
           <svg
             width="16"
             height="16"
             viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            id="time-attendance-leave-section-graph-icon-svg"
+            data-cy="time-attendance-leave-section-graph-icon-svg"
           >
-            <rect y="7" width="16" height="2" fill="#8979FF" />
-            <circle cx="8" cy="8" r="3.5" fill="white" stroke="#8979FF" />
+            <rect
+              y="7"
+              width="16"
+              height="2"
+              fill="#8979FF"
+              id="time-attendance-leave-section-graph-icon-rect"
+              data-cy="time-attendance-leave-section-graph-icon-rect"
+            />
+            <circle
+              cx="8"
+              cy="8"
+              r="3.5"
+              fill="white"
+              stroke="#8979FF"
+              id="time-attendance-leave-section-graph-icon-circle"
+              data-cy="time-attendance-leave-section-graph-icon-circle"
+            />
           </svg>
           Number of Employees on leave
         </p>
       </div>
 
-      <Spin spinning={loading}>
+      <Spin
+        spinning={loading}
+        data-cy="time-attendance-leave-section-graph-loading-spin"
+      >
         {employeeAdminLeave?.monthlyStats?.length === 0 ? (
-          <div className="flex justify-center items-center h-64">
-            <p className="text-gray-500 text-[14px] font-semibold">
+          <div
+            className="flex justify-center items-center h-64"
+            id="time-attendance-leave-section-graph-empty-div"
+            data-cy="time-attendance-leave-section-graph-empty-div"
+          >
+            <p
+              className="text-gray-500 text-[14px] font-semibold"
+              id="time-attendance-leave-section-graph-empty-text"
+              data-cy="time-attendance-leave-section-graph-empty-text"
+            >
               No Record Found
             </p>
           </div>
@@ -182,6 +222,8 @@ const LeaveSectionGraph: React.FC = () => {
             data={lineChartData}
             options={lineChartOptions}
             plugins={[shadowLinePlugin]}
+            id="time-attendance-leave-section-graph-line-chart"
+            data-cy="time-attendance-leave-section-graph-line-chart"
           />
         )}
       </Spin>

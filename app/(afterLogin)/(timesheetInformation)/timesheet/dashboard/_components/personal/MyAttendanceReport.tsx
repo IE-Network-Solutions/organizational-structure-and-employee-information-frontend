@@ -49,15 +49,36 @@ const MyAttendanceReport: React.FC = () => {
   ];
 
   return (
-    <Card bodyStyle={{ padding: '10px 16px' }} className="shadow">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-[16px] font-semibold">My Attendance Report</h3>
-        <div className="space-x-2 flex items-center ">
+    <Card
+      bodyStyle={{ padding: '10px 16px' }}
+      className="shadow"
+      id="time-attendance-personal-attendance-report-card"
+      data-cy="time-attendance-personal-attendance-report-card"
+    >
+      <div
+        className="flex justify-between items-center mb-2"
+        id="time-attendance-personal-attendance-report-header-row"
+        data-cy="time-attendance-personal-attendance-report-header-row"
+      >
+        <h3
+          className="text-[16px] font-semibold"
+          id="time-attendance-personal-attendance-report-title-heading"
+          data-cy="time-attendance-personal-attendance-report-title-heading"
+        >
+          My Attendance Report
+        </h3>
+        <div
+          className="space-x-2 flex items-center "
+          id="time-attendance-personal-attendance-report-filter-row"
+          data-cy="time-attendance-personal-attendance-report-filter-row"
+        >
           <Select
             defaultValue="All"
             className="w-32  h-12"
             options={statusOptions}
             onChange={(value) => setStatusOnAttendance(value)}
+            id="time-attendance-personal-attendance-report-status-select"
+            data-cy="time-attendance-personal-attendance-report-status-select"
           />
 
           <RangePicker
@@ -69,18 +90,36 @@ const MyAttendanceReport: React.FC = () => {
                 setEndDateOnAttendance(value[1].format('YYYY-MM-DD'));
               }
             }}
+            id="time-attendance-personal-attendance-report-range-picker"
+            data-cy="time-attendance-personal-attendance-report-range-picker"
           />
         </div>
       </div>
-      <div className="flex flex-col h-48 overflow-y-auto scrollbar-none">
+      <div
+        className="flex flex-col h-48 overflow-y-auto scrollbar-none"
+        id="time-attendance-personal-attendance-report-list-scroll"
+        data-cy="time-attendance-personal-attendance-report-list-scroll"
+      >
         {isLoading && (
-          <div className="flex justify-center items-center h-full">
-            <Spin />
+          <div
+            className="flex justify-center items-center h-full"
+            id="time-attendance-personal-attendance-report-loading-state"
+            data-cy="time-attendance-personal-attendance-report-loading-state"
+          >
+            <Spin data-cy="time-attendance-personal-attendance-report-loading-spin" />
           </div>
         )}
         {attendanceHistory?.myAttendanceHistory?.length === 0 && (
-          <div className="flex justify-center items-center h-full">
-            <p className="text-sm text-gray-500 font-semibold">
+          <div
+            className="flex justify-center items-center h-full"
+            id="time-attendance-personal-attendance-report-empty-state"
+            data-cy="time-attendance-personal-attendance-report-empty-state"
+          >
+            <p
+              className="text-sm text-gray-500 font-semibold"
+              id="time-attendance-personal-attendance-report-empty-text"
+              data-cy="time-attendance-personal-attendance-report-empty-text"
+            >
               No attendance history found
             </p>
           </div>
@@ -94,14 +133,34 @@ const MyAttendanceReport: React.FC = () => {
               status = 'late';
             }
             return (
-              <div key={req.id} className="mb-2 border p-4 rounded-md">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-sm">
+              <div
+                key={req.id}
+                className="mb-2 border p-4 rounded-md"
+                id={`time-attendance-personal-attendance-report-record-${req.id}`}
+                data-cy={`time-attendance-personal-attendance-report-record-${req.id}`}
+              >
+                <div
+                  className="flex justify-between items-center"
+                  id={`time-attendance-personal-attendance-report-record-${req.id}-content-row`}
+                  data-cy={`time-attendance-personal-attendance-report-record-${req.id}-content-row`}
+                >
+                  <div
+                    id={`time-attendance-personal-attendance-report-record-${req.id}-details-column`}
+                    data-cy={`time-attendance-personal-attendance-report-record-${req.id}-details-column`}
+                  >
+                    <p
+                      className="font-semibold text-sm"
+                      id={`time-attendance-personal-attendance-report-record-${req.id}-date-text`}
+                      data-cy={`time-attendance-personal-attendance-report-record-${req.id}-date-text`}
+                    >
                       {dayjs(req.date).format('DD MMM YYYY')}
                     </p>
                   </div>
-                  <div className="flex flex-col justify-end items-end">
+                  <div
+                    className="flex flex-col justify-end items-end"
+                    id={`time-attendance-personal-attendance-report-record-${req.id}-status-column`}
+                    data-cy={`time-attendance-personal-attendance-report-record-${req.id}-status-column`}
+                  >
                     <Tag
                       style={{ marginInlineEnd: 0, border: 'none' }}
                       className={` py-1 capitalize ${
@@ -111,6 +170,8 @@ const MyAttendanceReport: React.FC = () => {
                             ? 'text-[#FFD023] bg-[#FFDE6533] font-bold '
                             : 'text-[#e03137] bg-[#f9d6d7] font-bold'
                       }`}
+                      id={`time-attendance-personal-attendance-report-record-${req.id}-status-tag`}
+                      data-cy={`time-attendance-personal-attendance-report-record-${req.id}-status-tag`}
                     >
                       {status}{' '}
                       {req.startTime && dayjs(req.startTime).format('h:mm A')}

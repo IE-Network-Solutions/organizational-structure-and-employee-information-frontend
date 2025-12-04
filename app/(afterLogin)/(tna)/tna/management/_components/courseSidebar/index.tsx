@@ -140,8 +140,9 @@ const CourseCategorySidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
+        data-cy="tna-course-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl px-2">
+          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl px-2" data-cy="tna-course-sidebar-header">
             {courseId ? <span>Edit Course</span> : <span>Add course </span>}
           </CustomDrawerHeader>
         }
@@ -149,6 +150,7 @@ const CourseCategorySidebar = () => {
           <CustomDrawerFooterButton
             className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
+            data-cy="tna-course-sidebar-footer"
           />
         }
         width="30%"
@@ -160,23 +162,30 @@ const CourseCategorySidebar = () => {
           onFinish={onFinish}
           className="p-2"
           requiredMark={CustomLabel}
+          id="tnaCourseSidebarFormId"
+          data-cy="tna-course-sidebar-form"
         >
           <Form.Item
             name="title"
             label="TNA Name"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaCourseSidebarTitleItemId"
+            data-cy="tna-course-sidebar-title-item"
           >
-            <Input id="tnaCourseNameFieldId" className="control h-10" />
+            <Input id="tnaCourseNameFieldId" data-cy="tna-course-name-field" className="control h-10" />
           </Form.Item>
           <Form.Item
             name="courseCategoryId"
             label="Category"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaCourseSidebarCategoryItemId"
+            data-cy="tna-course-sidebar-category-item"
           >
             <Select
               id="tnaCourseCategoryFieldId"
+              data-cy="tna-course-category-field"
               className="control h-10"
               placeholder="Select Category"
               options={formatToOptions(courseCategory, 'title', 'id')}
@@ -186,6 +195,7 @@ const CourseCategorySidebar = () => {
             name="thumbnail"
             label="Thumbnail"
             id="tnaCourseThumbnailFieldId"
+            data-cy="tna-course-thumbnail-field"
             className="form-item"
             valuePropName="fileList"
             rules={[{ required: true, message: 'Required' }]}
@@ -196,6 +206,7 @@ const CourseCategorySidebar = () => {
             <CustomUpload
               mode="draggable"
               id="tnaCourseThumbnailFieldId"
+              data-cy="tna-course-thumbnail-upload"
               className="w-full mt-3"
               listType="picture"
               accept="image/*"
@@ -208,9 +219,12 @@ const CourseCategorySidebar = () => {
             label="Overview"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaCourseSidebarOverviewItemId"
+            data-cy="tna-course-sidebar-overview-item"
           >
             <Input.TextArea
               id="tnaCourseDescriptionFieldId"
+              data-cy="tna-course-description-field"
               className="control-tarea h-28"
               rows={6}
               placeholder="Enter the Description"
@@ -221,19 +235,24 @@ const CourseCategorySidebar = () => {
             label="Department Permission"
             rules={[{ required: courseId ? false : true, message: 'Required' }]}
             className="form-item"
+            id="tnaCourseSidebarDepartmentItemId"
+            data-cy="tna-course-sidebar-department-item"
           >
             <TreeSelect
               treeData={departmentData}
               treeCheckable={true}
               className="control min-h-10 "
+              id="tnaCourseSidebarDepartmentSelectId"
+              data-cy="tna-course-sidebar-department-select"
             />
           </Form.Item>
         </Form>
-        <div className="flex justify-center m-5">
+        <div className="flex justify-center m-5" id="tnaCourseSidebarDraftButtonContainerId" data-cy="tna-course-sidebar-draft-button-container">
           <Button
             type="primary"
             htmlType="button"
             id="tnaCourseSubmitButtonId"
+            data-cy="tna-course-submit-button"
             loading={isLoading}
             onClick={() => {
               setIsDraft(true);
