@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from 'react';
-import { Button, Card, Dropdown, Pagination, Skeleton } from 'antd';
+import React, { useState, useMemo } from 'react';
+import { Button, Card, Dropdown, Input, Pagination, Skeleton } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import {
@@ -29,6 +29,7 @@ const FiscalYearListCard: React.FC = () => {
     setEditMode,
     setOpenFiscalYearDrawer,
   } = useFiscalYearDrawerStore();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
     {},
@@ -65,6 +66,25 @@ const FiscalYearListCard: React.FC = () => {
       setDeleteMode(true);
     }
   };
+
+  const handelDrawerOpen = () => {
+    // Reset form state for create mode
+    setEditMode(false);
+    setSelectedFiscalYear(null);
+    setOpenFiscalYearDrawer(true);
+  };
+
+  const filteredFiscalYears = useMemo(() => {
+    if (!fiscalYears?.items) return [];
+    if (!searchQuery.trim()) return fiscalYears.items;
+
+    const query = searchQuery.toLowerCase().trim();
+    return fiscalYears.items.filter((fYear: FiscalYear) => {
+      const name = fYear.name?.toLowerCase() || '';
+      return name.includes(query);
+    });
+  }, [fiscalYears?.items, searchQuery]);
+
   if (fiscalYearsFetchLoading) {
     return (
       <Skeleton
@@ -74,13 +94,6 @@ const FiscalYearListCard: React.FC = () => {
       />
     );
   }
-
-  const handelDrawerOpen = () => {
-    // Reset form state for create mode
-    setEditMode(false);
-    setSelectedFiscalYear(null);
-    setOpenFiscalYearDrawer(true);
-  };
 
   return (
     <div
@@ -128,9 +141,18 @@ const FiscalYearListCard: React.FC = () => {
           </Button>
         </AccessGuard>
       </div>
+      <Input
+        placeholder="Search fiscal year"
+        className="flex-1 h-12 rounded-lg border-gray-200"
+        allowClear
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        id="org-settings-fiscal-year-search-input"
+        data-cy="org-settings-fiscal-year-search-input"
+      />
 
       {fiscalYears?.items && fiscalYears.items.length > 0 ? (
-        fiscalYears.items.map((fYear: FiscalYear, index: number) => {
+        filteredFiscalYears.map((fYear: FiscalYear, index: number) => {
           const fiscalYearId = fYear?.id || `fiscal-year-${index}`;
           return (
             <Card
