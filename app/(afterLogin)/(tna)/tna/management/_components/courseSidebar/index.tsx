@@ -472,14 +472,15 @@ const CourseCategorySidebar = () => {
       message.error('Select at least one employee to assign the course.');
       return;
     }
-    //eslint-disable-next-line @typescript-eslint/no-unused-vars
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     const {
-      courseCategory: _courseCategory,
-      courseLessons: _courseLessons,
-      courseUsers: _courseUsers,
-      courseDepartments: _courseDepartments,
+      courseCategory,
+      courseLessons,
+      courseUsers,
+      courseDepartments,
       ...otherData
     } = coursesData?.items?.[0] ?? {};
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     setCourse([
       {
         ...(otherData && otherData),
