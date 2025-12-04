@@ -6,7 +6,10 @@ import { LuPlus } from 'react-icons/lu';
 import CourseCategorySidebar from './_components/courseSidebar';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { useGetCourseCategory } from '@/store/server/features/tna/courseCategory/queries';
-import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
+import {
+  useGetCoursesManagement,
+  useGetMyCourses,
+} from '@/store/server/features/tna/management/queries';
 import CourseFilter from '@/app/(afterLogin)/(tna)/tna/management/_components/courseFilter';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useDebounce } from '@/utils/useDebounce';
@@ -15,26 +18,54 @@ import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/cour
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { localUserID } from '@/utils/constants';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
     useTnaManagementStore();
+  const { userId } = useAuthenticationStore();
   const { data: categoryData, isFetching } = useGetCourseCategory({});
   const [filter, setFilter] = useState<Partial<CourseManagementRequestBody>>(
     {},
   );
+
+  // Check if user has ViewAllCourse permission
+  const hasViewAllCoursePermission = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewAllCourse],
+  });
+
+  // Fetch all courses for users with ViewAllCourse permission
   const {
-    data: coursesData,
-    isFetching: isFetchingCourse,
-    isLoading,
-    refetch,
-  } = useGetCoursesManagement(filter);
+    data: allCoursesData,
+    isFetching: isFetchingAllCourses,
+    isLoading: isLoadingAllCourses,
+    refetch: refetchAllCourses,
+  } = useGetCoursesManagement(filter, true, hasViewAllCoursePermission);
+
+  // Fetch only assigned courses for users without ViewAllCourse permission
+  const {
+    data: myCoursesData,
+    isFetching: isFetchingMyCourses,
+    isLoading: isLoadingMyCourses,
+    refetch: refetchMyCourses,
+  } = useGetMyCourses(userId ?? '', !hasViewAllCoursePermission);
+
+  // Use the appropriate data based on permission
+  // Note: /learning/course returns {items: [...]} but /my-courses returns [...] directly
+  const isFetchingCourse = hasViewAllCoursePermission ? isFetchingAllCourses : isFetchingMyCourses;
+  const isLoading = hasViewAllCoursePermission ? isLoadingAllCourses : isLoadingMyCourses;
+  const refetch = hasViewAllCoursePermission ? refetchAllCourses : refetchMyCourses;
+
+  // Normalize the data format - handle both {items: [...]} and direct array [...]
+  const normalizedCourses = hasViewAllCoursePermission
+    ? allCoursesData?.items ?? []
+    : Array.isArray(myCoursesData) ? myCoursesData : myCoursesData?.items ?? [];
 
   useEffect(() => {
     if (!isShowCourseSidebar) {
       refetch();
     }
-  }, [isShowCourseSidebar]);
+  }, [isShowCourseSidebar, refetch]);
 
   useEffect(() => {
     if (categoryData?.items) {
@@ -93,15 +124,42 @@ const TnaManagementPage = () => {
       ) : (
         <Spin spinning={isFetchingCourse} data-cy="tna-management-spinner-spinning">
           <div className="grid grid-cols-course-list gap-6 mt-8" id="tnaManagementCourseGridId" data-cy="tna-management-course-grid">
-            {coursesData?.items?.map((item) =>
-              item.isDraft ? (
-                item.preparedBy === localUserID ? (
-                  <CourseCard item={item} key={item.id} refetch={refetch} data-cy={`tna-management-course-card-${item.id}`} />
-                ) : null
-              ) : (
-                <CourseCard item={item} key={item.id} refetch={refetch} data-cy={`tna-management-course-card-${item.id}`} />
-              ),
-            )}
+            {normalizedCourses.map((item) => {
+              // Users with ViewAllCourse permission can see ALL courses including drafts
+              if (hasViewAllCoursePermission) {
+                return (
+                  <CourseCard
+                    item={item}
+                    key={item.id}
+                    refetch={refetch}
+                    data-cy={`tna-management-course-card-${item.id}`}
+                  />
+                );
+              }
+
+              // Users without ViewAllCourse permission:
+              // - Can only see their own drafts
+              // - Can see all published courses they are assigned to
+              if (item.isDraft) {
+                return item.preparedBy === localUserID ? (
+                  <CourseCard
+                    item={item}
+                    key={item.id}
+                    refetch={refetch}
+                    data-cy={`tna-management-course-card-${item.id}`}
+                  />
+                ) : null;
+              }
+
+              return (
+                <CourseCard
+                  item={item}
+                  key={item.id}
+                  refetch={refetch}
+                  data-cy={`tna-management-course-card-${item.id}`}
+                />
+              );
+            })}
           </div>
         </Spin>
       )}
