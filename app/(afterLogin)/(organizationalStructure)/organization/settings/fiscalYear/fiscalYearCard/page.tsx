@@ -151,7 +151,7 @@ const FiscalYearListCard: React.FC = () => {
         data-cy="org-settings-fiscal-year-search-input"
       />
 
-      {fiscalYears?.items && fiscalYears.items.length > 0 ? (
+      {filteredFiscalYears.length > 0 ? (
         filteredFiscalYears.map((fYear: FiscalYear, index: number) => {
           const fiscalYearId = fYear?.id || `fiscal-year-${index}`;
           return (
