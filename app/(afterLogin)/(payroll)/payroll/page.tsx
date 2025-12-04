@@ -1028,16 +1028,61 @@ const Payroll = () => {
               data-cy="payroll-payslip-guard-view-component"
               permissions={[Permissions.SendPayslipEmail]}
             >
-              <Popconfirm
-                id="payroll-send-payslip-popconfirm-view-component"
-                data-cy="payroll-send-payslip-popconfirm-view-component"
-                title="Send Payslips"
+              <Tooltip
+                id="payroll-send-payslip-tooltip-view-component"
+                data-cy="payroll-send-payslip-tooltip-view-component"
+                title={
+                  mergedPayrollForExport?.length === 0
+                    ? 'No employees selected. Please adjust your filters.'
+                    : mergedPayrollForExport?.length <
+                        (searchValue?.divisionId
+                          ? payrollForExport?.divisionUsers?.length
+                          : allEmployees?.items?.length)
+                      ? `Will send to ${mergedPayrollForExport?.length} filtered employee(s)`
+                      : 'Will send to all employees'
+                }
+              >
+                <span
+                  id="payroll-send-payslip-span-view-component"
+                  data-cy="payroll-send-payslip-span-view-component"
+                >
+                  {' '}
+                  <Button
+                    id="payroll-send-payslip-click-button"
+                    data-cy="payroll-send-payslip-click-button"
+                    type="default"
+                    loading={sendingPaySlipLoading}
+                    className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
+                    disabled={mergedPayrollForExport?.length === 0}
+                    onClick={() => setOpen(true)}
+                  >
+                    <span
+                      id="payroll-send-payslip-span-view-component"
+                      data-cy="payroll-send-payslip-span-view-component"
+                      className="text-base font-semibold"
+                    >
+                      Send Payslip
+                    </span>
+                  </Button>
+                </span>
+              </Tooltip>
+              <Modal
                 open={open}
-                onOpenChange={(visible) => setOpen(visible)}
-                description={
+                onCancel={() => setOpen(false)}
+                footer={null}
+                centered
+                width={600}
+                className="p-6"
+              >
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <h2 className="text-2xl font-bold">Send Payslip</h2>
+                  <p className="text-lg text-gray-600">
+                    Do you wish to send payslip
+                  </p>
                   <div
                     id="payroll-send-payslip-description-view-container"
                     data-cy="payroll-send-payslip-description-view-container"
+                    className="text-center"
                   >
                     {mergedPayrollForExport?.length > 0 ? (
                       mergedPayrollForExport?.length <
@@ -1096,70 +1141,29 @@ const Payroll = () => {
                         </p>
                       )}
                   </div>
-                }
-                okText={
-                  mergedPayrollForExport?.length === 0
-                    ? 'Cannot Send'
-                    : mergedPayrollForExport?.length <
-                        (searchValue?.divisionId
-                          ? payrollForExport?.divisionUsers?.length
-                          : allEmployees?.items?.length)
-                      ? 'Send to Filtered'
-                      : 'Send to All'
-                }
-                cancelText="Cancel"
-                onConfirm={() => {
-                  if (mergedPayrollForExport?.length > 0) {
-                    sendingPaySlipHandler(mergedPayrollForExport);
-                    setOpen(false);
-                  }
-                }}
-                onCancel={() => {
-                  setOpen(false);
-                }}
-                okButtonProps={{
-                  disabled: mergedPayrollForExport?.length === 0,
-                }}
-              >
-                <Tooltip
-                  id="payroll-send-payslip-tooltip-view-component"
-                  data-cy="payroll-send-payslip-tooltip-view-component"
-                  title={
-                    mergedPayrollForExport?.length === 0
-                      ? 'No employees selected. Please adjust your filters.'
-                      : mergedPayrollForExport?.length <
-                          (searchValue?.divisionId
-                            ? payrollForExport?.divisionUsers?.length
-                            : allEmployees?.items?.length)
-                        ? `Will send to ${mergedPayrollForExport?.length} filtered employee(s)`
-                        : 'Will send to all employees'
-                  }
-                >
-                  <span
-                    id="payroll-send-payslip-span-view-component"
-                    data-cy="payroll-send-payslip-span-view-component"
-                  >
-                    {' '}
-                    {/* Important: wrap the disabled button in a span for tooltip to work */}
+                  <div className="flex gap-4 w-full justify-center mt-4">
                     <Button
-                      id="payroll-send-payslip-click-button"
-                      data-cy="payroll-send-payslip-click-button"
-                      type="default"
-                      loading={sendingPaySlipLoading}
-                      className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
+                      className="w-full h-12 text-lg font-semibold"
+                      onClick={() => setOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="primary"
+                      className="w-full h-12 text-lg font-semibold bg-primary"
+                      onClick={() => {
+                        if (mergedPayrollForExport?.length > 0) {
+                          sendingPaySlipHandler(mergedPayrollForExport);
+                          setOpen(false);
+                        }
+                      }}
                       disabled={mergedPayrollForExport?.length === 0}
                     >
-                      <span
-                        id="payroll-send-payslip-span-view-component"
-                        data-cy="payroll-send-payslip-span-view-component"
-                        className="text-base font-semibold"
-                      >
-                        Send Payslip
-                      </span>
+                      Send Payslip
                     </Button>
-                  </span>
-                </Tooltip>
-              </Popconfirm>
+                  </div>
+                </div>
+              </Modal>
             </AccessGuard>
           )}
           <Popconfirm
