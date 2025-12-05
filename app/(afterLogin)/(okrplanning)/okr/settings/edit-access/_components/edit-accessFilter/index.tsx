@@ -52,43 +52,72 @@ const SearchEmployee: React.FC = () => {
   };
 
   return (
-    <div>
-      <Row gutter={[16, 24]} justify="space-between">
-        <Col xl={12} md={24} lg={12} sm={24} xs={24}>
+    <div
+      id="okr-edit-access-search-container"
+      data-cy="okr-edit-access-search-container"
+    >
+      <Row
+        gutter={[16, 24]}
+        justify="space-between"
+        id="okr-edit-access-search-row"
+        data-cy="okr-edit-access-search-row"
+      >
+        <Col
+          xl={12}
+          md={24}
+          lg={12}
+          sm={24}
+          xs={24}
+          id="okr-edit-access-search-input-col"
+          data-cy="okr-edit-access-search-input-col"
+        >
           <Input
             id={`inputEmployeeNames${searchParams.employee_name}`}
             placeholder="Search employee"
             onChange={(e) => handleSearchInput(e.target.value, 'employee_name')}
             className="w-full h-12"
             allowClear
-            suffix={<AiOutlineSearch className="text-gray-400" />}
+            suffix={<AiOutlineSearch  className="text-gray-400" data-cy="okr-edit-access-search-input-suffix-icon" />}
+            data-cy="okr-edit-access-search-input"
           />
         </Col>
-        <Col xl={5} md={24} lg={5} sm={24} xs={24}>
+        <Col
+          xl={5}
+          md={24}
+          lg={5}
+          sm={24}
+          xs={24}
+          id="okr-edit-access-search-button-col"
+          data-cy="okr-edit-access-search-button-col"
+        >
           {checked === false ? (
             <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
               <Button
                 type="primary"
                 className="w-full h-12"
-                icon={<IoCheckmarkOutline size={20} />}
+                icon={<IoCheckmarkOutline size={20} data-cy="okr-edit-access-grant-all-button-icon-display-button" />}
                 onClick={() => {
                   setChecked(true);
                   handleSubmit();
                 }}
+                id="okr-edit-access-grant-all-button"
+                data-cy="okr-edit-access-grant-all-button"
               >
                 Grant all access
               </Button>
             </AccessGuard>
           ) : (
-            <AccessGuard permissions={[Permissions.GrantAllOKRAccess]}>
+            <AccessGuard data-cy="okr-edit-access-revoke-all-button-access-guard-display-guard" permissions={[Permissions.GrantAllOKRAccess]}>
               <Button
                 type="primary"
                 className="w-full h-12"
-                icon={<MdOutlineCancel size={20} />}
+                icon={<MdOutlineCancel size={20} data-cy="okr-edit-access-revoke-all-button-icon-display-button" />}
                 onClick={() => {
                   setChecked(false);
                   handleSubmit();
                 }}
+                id="okr-edit-access-revoke-all-button"
+                data-cy="okr-edit-access-revoke-all-button"
               >
                 Revoke all access
               </Button>

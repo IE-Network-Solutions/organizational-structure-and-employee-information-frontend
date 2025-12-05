@@ -45,10 +45,19 @@ interface CollapseComponentProps {
   planningUserId: string;
   mkAsATask?: boolean;
   setMKAsATask: (value: any) => void;
-  handleAddBoard: (id: string) => void;
+  handleAddBoard: (
+    id: string,
+    keyResultId?: string,
+    milestoneId?: string | null,
+    parentTaskId?: string | null,
+  ) => void;
   handleAddName: (arg1: Record<string, string>, arg2: string) => void;
   handleRemoveBoard: (arg1: number, arg2: string) => void;
   weights: Record<string, number>;
+  failedTasksByKeyResult?: Record<
+    string,
+    Record<string | 'noMilestone', any[]>
+  >;
 }
 
 const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
@@ -146,7 +155,12 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                 }
                                 onClick={() => {
                                   setMKAsATask(null);
-                                  handleAddBoard(compositeKey);
+                                  handleAddBoard(
+                                    compositeKey,
+                                    String(keyResult?.id || ''),
+                                    milestone?.id ? String(milestone.id) : null,
+                                    task?.id ? String(task.id) : null,
+                                  );
                                 }}
                                 type="link"
                                 icon={<BiPlus size={12} />}
@@ -282,7 +296,14 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             {!task.isAITask && (
                               <Button
                                 id={`plan-as-task_${keyResult?.id ?? ''}`}
-                                onClick={() => handleAddBoard(compositeKey)}
+                                onClick={() =>
+                                  handleAddBoard(
+                                    compositeKey,
+                                    String(keyResult?.id || ''),
+                                    null,
+                                    task?.id ? String(task.id) : null,
+                                  )
+                                }
                                 type="link"
                                 icon={<BiPlus />}
                                 className="text-[10px]"

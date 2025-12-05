@@ -2,8 +2,8 @@ import EmployeeSurveyTable from '../_components/target-achievement/EmployeeSurve
 
 export default function Page() {
   return (
-    <main>
-      <EmployeeSurveyTable />
+    <main data-cy="target-achievement-page" id="targetAchievementPage">
+      <EmployeeSurveyTable data-cy="target-achievement-table" />
     </main>
   );
 }

@@ -54,9 +54,17 @@ export default function CandidateTable({
     },
   ];
   return (
-    <div>
-      <Spin spinning={isLoading}>
+    <div
+      id="talent-acquisition-dashboard-candidate-table-div-container"
+      data-cy="talent-acquisition-dashboard-candidate-table-div-container"
+    >
+      <Spin
+        data-cy="talent-acquisition-dashboard-candidate-table-spin"
+        spinning={isLoading}
+      >
         <Table
+          id="talent-acquisition-dashboard-candidate-table"
+          data-cy="talent-acquisition-dashboard-candidate-table"
           columns={columns}
           dataSource={data?.results}
           pagination={false}
@@ -64,6 +72,7 @@ export default function CandidateTable({
           className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0"
         />
         <CustomPagination
+          data-cy="talent-acquisition-dashboard-candidate-pagination"
           total={data?.total}
           pageSize={limit}
           current={page}

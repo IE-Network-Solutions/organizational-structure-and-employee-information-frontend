@@ -158,29 +158,40 @@ const AllowanceTypeSideBar = ({
   ];
 
   const formContent = (
-    <Spin spinning={isLoading}>
+    <Spin
+      spinning={isLoading}
+      data-cy="compensation-settings-allowance-sidebar-loading"
+    >
       <Form
         layout="vertical"
         form={form}
         onFinish={onFormSubmit}
         requiredMark={CustomLabel}
+        id="compensation-settings-allowance-sidebar-form"
+        data-cy="compensation-settings-allowance-sidebar-form"
       >
         <Form.Item
           name="name"
           label="Name"
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
+          id="compensation-settings-allowance-sidebar-name-item"
+          data-cy="compensation-settings-allowance-sidebar-name-item"
         >
           <Input
             className="control"
             placeholder="Allowance Name"
             style={{ height: '40px', padding: '4px 8px' }}
+            id="compensation-settings-allowance-sidebar-name-input"
+            data-cy="compensation-settings-allowance-sidebar-name-input"
           />
         </Form.Item>
 
         <Form.Item
           name="description"
           label="Description"
+          id="compensation-settings-allowance-sidebar-description-item"
+          data-cy="compensation-settings-allowance-sidebar-description-item"
           rules={[{ required: true, message: 'Required' }]}
           className="form-item"
         >
@@ -189,6 +200,8 @@ const AllowanceTypeSideBar = ({
             autoSize={{ minRows: 3, maxRows: 5 }}
             placeholder="Description"
             style={{ height: '32px', padding: '4px 8px' }}
+            id="compensation-settings-allowance-sidebar-description-input"
+            data-cy="compensation-settings-allowance-sidebar-description-input"
           />
         </Form.Item>
 
@@ -196,20 +209,26 @@ const AllowanceTypeSideBar = ({
           // Modal layout: "Amount is in rate" only, amounts side by side
           <>
             <Form.Item
+              id="compensation-settings-allowance-sidebar-rate-item"
+              data-cy="compensation-settings-allowance-sidebar-rate-item"
               name="isRate"
               label="Amount is in rate"
               className="form-item"
               initialValue={false}
             >
               <Switch
-                checkedChildren={<CheckOutlined />}
-                unCheckedChildren={<CloseOutlined />}
+                checkedChildren={<CheckOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-modal-checked" />}
+                unCheckedChildren={<CloseOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-modal-unchecked" />}
                 onChange={onRateToggle}
+                id="compensation-settings-allowance-sidebar-rate-switch-modal"
+                data-cy="compensation-settings-allowance-sidebar-rate-switch-modal"
               />
             </Form.Item>
 
-            <div style={{ display: 'flex', gap: '20px' }}>
+            <div id="compensation-settings-allowance-sidebar-default-amount-container" data-cy="compensation-settings-allowance-sidebar-default-amount-container" style={{ display: 'flex', gap: '20px' }}>
               <Form.Item
+                id="compensation-settings-allowance-sidebar-default-amount-item"
+                data-cy="compensation-settings-allowance-sidebar-default-amount-item"
                 name="defaultAmount"
                 label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
                 rules={[
@@ -229,6 +248,8 @@ const AllowanceTypeSideBar = ({
                 style={{ flex: 1 }}
               >
                 <Input
+                  id="compensation-settings-allowance-sidebar-default-amount-input"
+                  data-cy="compensation-settings-allowance-sidebar-default-amount-input"
                   className="control"
                   type="number"
                   min={0}
@@ -241,6 +262,8 @@ const AllowanceTypeSideBar = ({
                 name="nonTaxableAmount"
                 label="Not Taxable Amount"
                 dependencies={['defaultAmount', 'isRate']}
+                id="compensation-settings-allowance-sidebar-non-taxable-amount-item"
+                data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-item"
                 rules={[
                   {
                     validator: (notused, value) => {
@@ -277,6 +300,8 @@ const AllowanceTypeSideBar = ({
                 style={{ flex: 1 }}
               >
                 <Input
+                  id="compensation-settings-allowance-sidebar-non-taxable-amount-input"
+                  data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-input"
                   className="control"
                   type="number"
                   min={0}
@@ -289,17 +314,21 @@ const AllowanceTypeSideBar = ({
         ) : (
           // Drawer layout: Original layout with "Is Rate" and "All Employees" side by side, amounts stacked
           <>
-            <div style={{ display: 'flex', gap: '20px' }}>
+            <div id="compensation-settings-allowance-sidebar-rate-container" data-cy="compensation-settings-allowance-sidebar-rate-container" style={{ display: 'flex', gap: '20px' }}>
               <Form.Item
                 name="isRate"
                 label={'Is Rate'}
                 className="form-item"
                 initialValue={false}
+                id="compensation-settings-allowance-sidebar-rate-item"
+                data-cy="compensation-settings-allowance-sidebar-rate-item"
               >
                 <Switch
-                  checkedChildren={<CheckOutlined />}
-                  unCheckedChildren={<CloseOutlined />}
+                  checkedChildren={<CheckOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-checked" />}
+                  unCheckedChildren={<CloseOutlined data-cy="compensation-settings-allowance-sidebar-rate-switch-unchecked" />}
                   onChange={onRateToggle}
+                  id="compensation-settings-allowance-sidebar-rate-switch"
+                  data-cy="compensation-settings-allowance-sidebar-rate-switch"
                 />
               </Form.Item>
 
@@ -308,13 +337,17 @@ const AllowanceTypeSideBar = ({
                 label="All Employees are entitled"
                 className="form-item"
                 initialValue={true}
+                id="compensation-settings-allowance-sidebar-all-item"
+                data-cy="compensation-settings-allowance-sidebar-all-item"
               >
                 <Switch
-                  checkedChildren={<CheckOutlined />}
-                  unCheckedChildren={<CloseOutlined />}
+                  checkedChildren={<CheckOutlined data-cy="compensation-settings-allowance-sidebar-all-switch-checked" />}
+                  unCheckedChildren={<CloseOutlined data-cy="compensation-settings-allowance-sidebar-all-switch-unchecked" />}
                   onChange={handleAllEmployeeChange}
                   checked={isAllEmployee}
                   disabled={selectedAllowanceRecord}
+                  id="compensation-settings-allowance-sidebar-all-switch"
+                  data-cy="compensation-settings-allowance-sidebar-all-switch"
                 />
               </Form.Item>
             </div>
@@ -322,6 +355,8 @@ const AllowanceTypeSideBar = ({
             <Form.Item
               name="defaultAmount"
               label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
+              id="compensation-settings-allowance-sidebar-default-amount-item"
+              data-cy="compensation-settings-allowance-sidebar-default-amount-item"
               rules={[
                 { required: true, message: 'Amount is Required' },
                 {
@@ -338,6 +373,8 @@ const AllowanceTypeSideBar = ({
               className="form-item"
             >
               <Input
+                id="compensation-settings-allowance-sidebar-default-amount-input"
+                data-cy="compensation-settings-allowance-sidebar-default-amount-input"  
                 className="control"
                 type="number"
                 min={0}
@@ -350,6 +387,8 @@ const AllowanceTypeSideBar = ({
               name="nonTaxableAmount"
               label="Non-Taxable Amount"
               dependencies={['defaultAmount', 'isRate']}
+              id="compensation-settings-allowance-sidebar-non-taxable-amount-item"
+              data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-item"
               rules={[
                 {
                   validator: (notused, value) => {
@@ -384,6 +423,8 @@ const AllowanceTypeSideBar = ({
               className="form-item"
             >
               <Input
+                id="compensation-settings-allowance-sidebar-non-taxable-amount-input"
+                data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-input"
                 className="control"
                 type="number"
                 min={0}
@@ -396,6 +437,8 @@ const AllowanceTypeSideBar = ({
 
         {!isAllEmployee && !selectedAllowanceRecord && !asModal && (
           <Form.Item
+            id="compensation-settings-allowance-sidebar-employees-item"
+            data-cy="compensation-settings-allowance-sidebar-employees-item"
             className="form-item"
             name="employees"
             label="Select Employees"
@@ -404,6 +447,8 @@ const AllowanceTypeSideBar = ({
               showSearch
               placeholder="Select a person"
               mode="multiple"
+              id="compensation-settings-allowance-sidebar-employees-select"
+              data-cy="compensation-settings-allowance-sidebar-employees-select"
               className="w-full h-14"
               allowClear
               filterOption={(input: any, option: any) =>
@@ -433,6 +478,7 @@ const AllowanceTypeSideBar = ({
     return (
       isAllowanceOpen && (
         <Modal
+          data-cy="compensation-settings-allowance-sidebar-modal"
           title={
             selectedAllowanceRecord ? 'Edit Allowance Type' : 'Allowance Type'
           }
@@ -440,6 +486,7 @@ const AllowanceTypeSideBar = ({
           onCancel={() => onClose()}
           footer={
             <CustomDrawerFooterButton
+              data-cy="compensation-settings-allowance-sidebar-modal-footer"
               className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
               buttons={footerModalItems}
             />
@@ -466,19 +513,21 @@ const AllowanceTypeSideBar = ({
   return (
     isAllowanceOpen && (
       <CustomDrawerLayout
+        data-cy="compensation-settings-allowance-sidebar-drawer"
         open={isAllowanceOpen}
         onClose={() => onClose()}
         modalHeader={
-          <CustomDrawerHeader className="flex justify-center">
+          <CustomDrawerHeader data-cy="compensation-settings-allowance-sidebar-header" className="flex justify-center">
             {selectedAllowanceRecord ? (
-              <span>Edit Allowance Type</span>
+              <span id="compensation-settings-allowance-sidebar-header-title" data-cy="compensation-settings-allowance-sidebar-header-title">Edit Allowance Type</span>
             ) : (
-              <span>Add Allowance Type</span>
+              <span id="compensation-settings-allowance-sidebar-header-title" data-cy="compensation-settings-allowance-sidebar-header-title">Add Allowance Type</span>
             )}
           </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
+            data-cy="compensation-settings-allowance-sidebar-footer"
             className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
           />

@@ -138,8 +138,9 @@ const TnaUpdateSidebar = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
+        data-cy="tna-review-update-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start">
+          <CustomDrawerHeader className="flex justify-start" data-cy="tna-review-update-header">
             TNA Update
           </CustomDrawerHeader>
         }
@@ -147,6 +148,7 @@ const TnaUpdateSidebar = () => {
           <CustomDrawerFooterButton
             className="w-full bg-[#fff] flex justify-between space-x-5 p-4"
             buttons={footerModalItems}
+            data-cy="tna-review-update-footer"
           />
         }
         width="50%"
@@ -158,33 +160,40 @@ const TnaUpdateSidebar = () => {
           onFinish={onFinish}
           disabled={isFetching || isLoading}
           initialValues={{ trainingProofs: [{}] }}
+          id="tnaReviewUpdateFormId"
+          data-cy="tna-review-update-form"
         >
           <Form.Item
             name="title"
             label="TNA"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaReviewUpdateTitleItemId"
+            data-cy="tna-review-update-title-item"
           >
-            <Input className="control h-10" />
+            <Input className="control h-10" id="tnaReviewUpdateTitleInputId" data-cy="tna-review-update-title-input" />
           </Form.Item>
 
-          <Form.List name="trainingProofs">
+          <Form.List name="trainingProofs" data-cy="tna-review-update-proof-list">
             {(fields, { add, remove }) =>
               fields.map(({ key, name, ...restField }) => (
-                <React.Fragment key={key}>
-                  <Flex gap={10}>
+                <React.Fragment key={key} data-cy={`tna-review-update-proof-fragment-${key}`}>
+                  <Flex gap={10} id={`tnaReviewUpdateProofFlex${key}Id`} data-cy={`tna-review-update-proof-flex-${key}`}>
                     <Form.Item
                       {...restField}
                       name={[name, 'attachmentFile']}
                       label="Attachment"
                       className="form-item flex-1"
                       valuePropName="fileList"
+                      id={`tnaReviewUpdateProofItem${key}Id`}
+                      data-cy={`tna-review-update-proof-item-${key}`}
                       getValueFromEvent={(e) => {
                         return Array.isArray(e) ? e : e && e.fileList;
                       }}
                     >
                       <CustomUpload
                         id="tnaUpdateCustomUploadFieldId"
+                        data-cy="tna-update-custom-upload-field"
                         mode="draggable"
                         className="w-full mt-3"
                         listType="picture"
@@ -197,11 +206,12 @@ const TnaUpdateSidebar = () => {
                         onClick={() => {
                           remove(name);
                         }}
+                        data-cy={`tna-review-update-remove-button-${key}`}
                       ></RemoveFormFieldButton>
                     )}
                   </Flex>
 
-                  <Flex gap={10} align="center">
+                  <Flex gap={10} align="center" id={`tnaReviewUpdateLinkFlex${key}Id`} data-cy={`tna-review-update-link-flex-${key}`}>
                     <Form.Item
                       {...restField}
                       name={[name, 'link']}
@@ -214,9 +224,12 @@ const TnaUpdateSidebar = () => {
                           message: 'Invalid URL',
                         },
                       ]}
+                      id={`tnaReviewUpdateLinkItem${key}Id`}
+                      data-cy={`tna-review-update-link-item-${key}`}
                     >
                       <Input
                         id="tnaUpdateLinkUploadFieldId"
+                        data-cy="tna-update-link-upload-field"
                         className="control h-10 mb-1"
                       />
                     </Form.Item>
@@ -225,6 +238,7 @@ const TnaUpdateSidebar = () => {
                       size="large"
                       type="primary"
                       id="tnaUpdateSubmitLinkButtonId"
+                      data-cy="tna-update-submit-link-button"
                       htmlType="button"
                       onClick={add}
                       className="mb-4 self-end h-10"
@@ -242,9 +256,12 @@ const TnaUpdateSidebar = () => {
             label="Completed Date"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaReviewUpdateCompletedDateItemId"
+            data-cy="tna-review-update-completed-date-item"
           >
             <DatePicker
               id="tnaUpdateCompletedDateFieldId"
+              data-cy="tna-update-completed-date-field"
               className="control h-10"
               format={DATE_FORMAT}
             />
@@ -254,12 +271,15 @@ const TnaUpdateSidebar = () => {
             label="Certification Status"
             rules={[{ required: true, message: 'Required' }]}
             className="form-item"
+            id="tnaReviewUpdateCertStatusItemId"
+            data-cy="tna-review-update-cert-status-item"
           >
             <Select
               className="control h-10"
               id="tnaUpdateCertificationStatusFieldId"
+              data-cy="tna-update-certification-status-field"
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown size={16} className="text-gray-900" data-cy="tna-update-certification-status-field-icon" />
               }
               options={trainingNeedAssessmentCertStatusOptions}
             />

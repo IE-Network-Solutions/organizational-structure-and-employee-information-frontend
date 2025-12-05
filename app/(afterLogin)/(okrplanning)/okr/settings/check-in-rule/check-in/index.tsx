@@ -51,7 +51,10 @@ const EmployeeDetails = ({
   if (isLoading)
     return (
       <>
-        <Spin />
+        <Spin
+      
+          data-cy={`okr-checkin-rule-employee-details-spin-${empId}`}
+        />
       </>
     );
 
@@ -63,9 +66,18 @@ const EmployeeDetails = ({
   const profileImage = fallbackProfileImage;
 
   return (
-    <Space size="small">
-      <Avatar src={profileImage} className="h-5 w-5" />
-      {userName}
+    <Space
+      size="small"
+      id={`okr-checkin-rule-employee-details-space-${empId}`}
+      data-cy={`okr-checkin-rule-employee-details-space-${empId}`}
+    >
+      <Avatar
+        src={profileImage}
+        className="h-5 w-5"
+       
+        data-cy={`okr-checkin-rule-employee-details-avatar-${empId}`}
+      />
+        {userName}
     </Space>
   );
 };
@@ -673,8 +685,12 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
   }, [checkInRule, departmentData, form]);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {checkInRule ? 'Edit Check-in Rule' : 'Create Check-in Rule'}
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      id="okr-checkin-rule-drawer-header-display-div"
+      data-cy="okr-checkin-rule-drawer-header-display-div"
+    >
+        {checkInRule ? 'Edit Check-in Rule' : 'Create Check-in Rule'}
     </div>
   );
 
@@ -685,8 +701,14 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
       title={modalHeader}
       width="40%"
       className="responsive-drawer"
+      id="okr-checkin-rule-drawer-display-drawer"
+      data-cy="okr-checkin-rule-drawer-display-drawer"
     >
-      <div className="overflow-hidden">
+      <div
+        className="overflow-hidden"
+        id="okr-checkin-rule-drawer-content-wrapper-display-div"
+        data-cy="okr-checkin-rule-drawer-content-wrapper-display-div"
+      >
         <Form
           form={form}
           onFinish={onFinish}
@@ -696,6 +718,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             frequency: 1,
           }}
           className="space-y-6"
+          id="okr-checkin-rule-drawer-form-display-form"
+          data-cy="okr-checkin-rule-drawer-form-display-form"
         >
           <Form.Item
             label="Rule Name"
@@ -708,15 +732,29 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   'Rule name must be shorter than or equal to 500 characters',
               },
             ]}
+            id="okr-checkin-rule-drawer-form-name-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-name-item-display-item"
           >
-            <Input className="h-12" placeholder="Enter rule name" />
+            <Input
+              className="h-12"
+              placeholder="Enter rule name"
+              id="okr-checkin-rule-drawer-form-name-input-display-input"
+              data-cy="okr-checkin-rule-drawer-form-name-input-display-input"
+            />
           </Form.Item>
 
-          <Form.Item label="Description" name="description">
+          <Form.Item
+            label="Description"
+            name="description"
+            id="okr-checkin-rule-drawer-form-description-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-description-item-display-item"
+          >
             <Input.TextArea
               rows={3}
               className="h-12"
               placeholder="Enter description (optional)"
+              id="okr-checkin-rule-drawer-form-description-textarea-display-textarea"
+              data-cy="okr-checkin-rule-drawer-form-description-textarea-display-textarea"
             />
           </Form.Item>
 
@@ -729,6 +767,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 message: 'Please select what the rule applies to',
               },
             ]}
+            id="okr-checkin-rule-drawer-form-applies-to-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-applies-to-item-display-item"
           >
             <Select
               className="h-12"
@@ -739,7 +779,13 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
               ]}
               optionLabelProp="label"
               optionRender={(option) => (
-                <span className="text-gray-700">{option.label}</span>
+                <span
+                  className="text-gray-700"
+                  id={`okr-checkin-rule-drawer-form-applies-to-option-${option.value}`}
+                  data-cy={`okr-checkin-rule-drawer-form-applies-to-option-${option.value}`}
+                >
+                  {option.label}
+                </span>
               )}
               dropdownStyle={{
                 border: 'none',
@@ -747,11 +793,18 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 borderRadius: '0',
               }}
               dropdownClassName="no-border-dropdown"
+              id="okr-checkin-rule-drawer-form-applies-to-select-display-select"
+              data-cy="okr-checkin-rule-drawer-form-applies-to-select-display-select"
             />
           </Form.Item>
 
           {/* User Selection Fields */}
-          <Form.Item label="Department" name="selectedDepartmentIds">
+          <Form.Item
+            label="Department"
+            name="selectedDepartmentIds"
+            id="okr-checkin-rule-drawer-form-department-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-department-item-display-item"
+          >
             <Select
               mode="multiple"
               className="h-12"
@@ -770,10 +823,17 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   label: dept.name,
                 })) || []
               }
+              id="okr-checkin-rule-drawer-form-department-select-display-select"
+              data-cy="okr-checkin-rule-drawer-form-department-select-display-select"
             />
           </Form.Item>
 
-          <Form.Item label="User Type Filter" name="userTypeFilter">
+          <Form.Item
+            label="User Type Filter"
+            name="userTypeFilter"
+            id="okr-checkin-rule-drawer-form-user-type-filter-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-user-type-filter-item-display-item"
+          >
             <Select
               className="h-12"
               placeholder="Select User Type"
@@ -784,20 +844,24 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 { value: 'team leads', label: 'Team Leads' },
                 { value: 'team members', label: 'Team Members' },
               ]}
+              id="okr-checkin-rule-drawer-form-user-type-filter-select-display-select"
+              data-cy="okr-checkin-rule-drawer-form-user-type-filter-select-display-select"
             />
           </Form.Item>
 
           {/* User Selection with Chips */}
           <Form.Item
             label={
-              <span>
-                <span className="text-red-500">*</span> Users
-              </span>
+              <span id="okr-checkin-rule-drawer-form-users-label-display-span" data-cy="okr-checkin-rule-drawer-form-users-label-display-span">
+                <span className="text-red-500" id="okr-checkin-rule-drawer-form-users-label-required-display-span" data-cy="okr-checkin-rule-drawer-form-users-label-required-display-span">*</span> Users
+                </span>
             }
             name="selectedUserIds"
             rules={[
               { required: true, message: 'Please select at least one user' },
             ]}
+            id="okr-checkin-rule-drawer-form-users-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-users-item-display-item"
           >
             <Select
               mode="multiple"
@@ -811,20 +875,42 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 borderRadius: '8px',
               }}
               optionRender={(option) => (
-                <div className="flex items-center space-x-2 py-2">
-                  <span className="text-gray-700">{option.label}</span>
+                <div
+                  className="flex items-center space-x-2 py-2"
+                  id={`okr-checkin-rule-drawer-form-users-option-wrapper-${option.value}`}
+                  data-cy={`okr-checkin-rule-drawer-form-users-option-wrapper-${option.value}`}
+                >
+                  <span
+                    className="text-gray-700"
+                    id={`okr-checkin-rule-drawer-form-users-option-label-${option.value}`}
+                    data-cy={`okr-checkin-rule-drawer-form-users-option-label-${option.value}`}
+                  >
+                    {option.label}
+                  </span>
                 </div>
               )}
               tagRender={(props) => {
                 const { label, closable, onClose } = props;
                 return (
-                  <div className="inline-flex items-center bg-gray-100 rounded-md px-2 py-1 m-1 text-sm">
-                    <span className="text-gray-700">{label}</span>
+                  <div
+                    className="inline-flex items-center bg-gray-100 rounded-md px-2 py-1 m-1 text-sm"
+                    id={`okr-checkin-rule-drawer-form-users-tag-${label}`}
+                    data-cy={`okr-checkin-rule-drawer-form-users-tag-${label}`}
+                  >
+                    <span
+                      className="text-gray-700"
+                      id={`okr-checkin-rule-drawer-form-users-tag-label-${label}`}
+                      data-cy={`okr-checkin-rule-drawer-form-users-tag-label-${label}`}
+                    >
+                      {label}
+                    </span>
                     {closable && (
                       <button
                         type="button"
                         onClick={onClose}
                         className="ml-2 text-gray-400 hover:text-gray-600"
+                        id={`okr-checkin-rule-drawer-form-users-tag-close-${label}`}
+                        data-cy={`okr-checkin-rule-drawer-form-users-tag-close-${label}`}
                       >
                         ×
                       </button>
@@ -832,10 +918,17 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   </div>
                 );
               }}
+              id="okr-checkin-rule-drawer-form-users-select-display-select"
+              data-cy="okr-checkin-rule-drawer-form-users-select-display-select"
             >
               {filteredUsers.map((user: any) => (
-                <Select.Option key={user.id} value={user.id}>
-                  <EmployeeDetails empId={user.id} />
+                <Select.Option
+                  key={user.id}
+                  value={user.id}
+                  id={`okr-checkin-rule-drawer-form-users-option-${user.id}`}
+                  data-cy={`okr-checkin-rule-drawer-form-users-option-${user.id}`}
+                >
+                  <EmployeeDetails data-cy="okr-checkin-rule-employee-details-display-employee-details" empId={user.id} />
                 </Select.Option>
               ))}
             </Select>
@@ -847,6 +940,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             rules={[
               { required: true, message: 'Please select planning period' },
             ]}
+            id="okr-checkin-rule-drawer-form-planning-period-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-planning-period-item-display-item"
           >
             <Select
               className="h-12"
@@ -864,6 +959,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
+              id="okr-checkin-rule-drawer-form-planning-period-select-display-select"
+              data-cy="okr-checkin-rule-drawer-form-planning-period-select-display-select"
             />
           </Form.Item>
 
@@ -879,12 +976,16 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 message: 'Frequency must be at least 1',
               },
             ]}
+            id="okr-checkin-rule-drawer-form-frequency-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-frequency-item-display-item"
           >
             <InputNumber
               type="number"
               min={1}
               className="w-full h-12"
               placeholder="Enter frequency"
+              id="okr-checkin-rule-drawer-form-frequency-input-display-input"
+              data-cy="okr-checkin-rule-drawer-form-frequency-input-display-input"
             />
           </Form.Item>
 
@@ -892,6 +993,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             label="Rule Type"
             name="ruleType"
             rules={[{ required: true, message: 'Please select rule type' }]}
+            id="okr-checkin-rule-drawer-form-rule-type-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-rule-type-item-display-item"
           >
             <Radio.Group
               value={ruleType}
@@ -912,25 +1015,72 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                 // For 'both', we keep all fields as they are
               }}
               className="w-full"
+              id="okr-checkin-rule-drawer-form-rule-type-radio-group-display-radio-group"
+              data-cy="okr-checkin-rule-drawer-form-rule-type-radio-group-display-radio-group"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
-                <Radio value="time-based" className="w-full">
-                  <div className="text-center p-2">
-                    <div className="font-medium text-sm sm:text-base">
+              <div
+                className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full"
+                id="okr-checkin-rule-drawer-form-rule-type-options-wrapper-display-div"
+                data-cy="okr-checkin-rule-drawer-form-rule-type-options-wrapper-display-div"
+              >
+                <Radio
+                  value="time-based"
+                  className="w-full"
+                  id="okr-checkin-rule-drawer-form-rule-type-radio-time-based-display-radio"
+                  data-cy="okr-checkin-rule-drawer-form-rule-type-radio-time-based-display-radio"
+                >
+                  <div
+                    className="text-center p-2"
+                    id="okr-checkin-rule-drawer-form-rule-type-radio-time-based-content-display-div"
+                    data-cy="okr-checkin-rule-drawer-form-rule-type-radio-time-based-content-display-div"
+                  >
+                    <div
+                      className="font-medium text-sm sm:text-base"
+                      id="okr-checkin-rule-drawer-form-rule-type-radio-time-based-label-display-div"
+                      data-cy="okr-checkin-rule-drawer-form-rule-type-radio-time-based-label-display-div"
+                    >
                       Time-Based
                     </div>
                   </div>
                 </Radio>
-                <Radio value="achievement-based" className="w-full">
-                  <div className="text-center p-2">
-                    <div className="font-medium text-sm sm:text-base">
+                <Radio
+                  value="achievement-based"
+                  className="w-full"
+                  id="okr-checkin-rule-drawer-form-rule-type-radio-achievement-based-display-radio"
+                  data-cy="okr-checkin-rule-drawer-form-rule-type-radio-achievement-based-display-radio"
+                >
+                  <div
+                    className="text-center p-2"
+                    id="okr-checkin-rule-drawer-form-rule-type-radio-achievement-based-content-display-div"
+                    data-cy="okr-checkin-rule-drawer-form-rule-type-radio-achievement-based-content-display-div"
+                  >
+                    <div
+                      className="font-medium text-sm sm:text-base"
+                      id="okr-checkin-rule-drawer-form-rule-type-radio-achievement-based-label-display-div"
+                      data-cy="okr-checkin-rule-drawer-form-rule-type-radio-achievement-based-label-display-div"
+                    >
                       Achievement-Based
                     </div>
                   </div>
                 </Radio>
-                <Radio value="both" className="w-full">
-                  <div className="text-center p-2">
-                    <div className="font-medium text-sm sm:text-base">Both</div>
+                <Radio
+                  value="both"
+                  className="w-full"
+                  id="okr-checkin-rule-drawer-form-rule-type-radio-both-display-radio"
+                  data-cy="okr-checkin-rule-drawer-form-rule-type-radio-both-display-radio"
+                >
+                  <div
+                    className="text-center p-2"
+                    id="okr-checkin-rule-drawer-form-rule-type-radio-both-content-display-div"
+                    data-cy="okr-checkin-rule-drawer-form-rule-type-radio-both-content-display-div"
+                  >
+                    <div
+                      className="font-medium text-sm sm:text-base"
+                      id="okr-checkin-rule-drawer-form-rule-type-radio-both-label-display-div"
+                      data-cy="okr-checkin-rule-drawer-form-rule-type-radio-both-label-display-div"
+                    >
+                      Both
+                    </div>
                   </div>
                 </Radio>
               </div>
@@ -939,7 +1089,11 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
           {/* Target Value - shown when Achievement-Based or Both is selected */}
           {(ruleType === 'achievement-based' || ruleType === 'both') && (
-            <div className="space-y-4">
+            <div
+              className="space-y-4"
+              id="okr-checkin-rule-drawer-form-target-value-wrapper-display-div"
+              data-cy="okr-checkin-rule-drawer-form-target-value-wrapper-display-div"
+            >
               {/* Target Value */}
               <Form.Item
                 key={`targetValue-${ruleType}`}
@@ -969,6 +1123,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                     },
                   },
                 ]}
+                id="okr-checkin-rule-drawer-form-target-value-item-display-item"
+                data-cy="okr-checkin-rule-drawer-form-target-value-item-display-item"
               >
                 <InputNumber
                   key={`targetValue-input-${ruleType}`}
@@ -976,6 +1132,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   min={1}
                   className="w-full h-12"
                   placeholder="Enter target value"
+                  id="okr-checkin-rule-drawer-form-target-value-input-display-input"
+                  data-cy="okr-checkin-rule-drawer-form-target-value-input-display-input"
                 />
               </Form.Item>
             </div>
@@ -983,43 +1141,68 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
 
           {/* Time-Based Settings - shown when Time-Based or Both is selected */}
           {(ruleType === 'time-based' || ruleType === 'both') && (
-            <div className="space-y-4">
+            <div
+              className="space-y-4"
+              data-cy="okr-checkin-rule-time-based-settings-wrapper"
+              id="okr-checkin-rule-time-based-settings-wrapper"
+            >
               {/* Applicable Days with Start/End Time */}
-              <Form.Item label="Applicable Days" name="applicableDays">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
-                  <div className="text-xs text-gray-500 mb-1">
+              <Form.Item
+                label="Applicable Days"
+                name="applicableDays"
+                data-cy="okr-checkin-rule-applicable-days-form-item"
+                id="okr-checkin-rule-applicable-days-form-item"
+              >
+                <div
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2"
+                  data-cy="okr-checkin-rule-applicable-days-inner-wrapper"
+                  id="okr-checkin-rule-applicable-days-inner-wrapper"
+                >
+                  <div
+                    className="text-xs text-gray-500 mb-1"
+                    data-cy="okr-checkin-rule-applicable-days-helper-label"
+                    id="okr-checkin-rule-applicable-days-helper-label"
+                  >
                     Select days and set times
                   </div>
 
                   {/* Time Labels Header - Hidden on mobile */}
-                  <div className="hidden sm:block">
-                    <div className="grid grid-cols-6 gap-2 px-3 py-2">
-                      <div className="col-span-1">
-                        <span className="text-xs text-gray-600 font-medium">
+                  <div
+                    className="hidden sm:block"
+                    data-cy="okr-checkin-rule-applicable-days-table-header-row-wrapper"
+                    id="okr-checkin-rule-applicable-days-table-header-row-wrapper"
+                  >
+                    <div
+                      className="grid grid-cols-6 gap-2 px-3 py-2"
+                      data-cy="okr-checkin-rule-applicable-days-table-header-grid"
+                      id="okr-checkin-rule-applicable-days-table-header-grid"
+                    >
+                      <div className="col-span-1" data-cy="okr-checkin-rule-applicable-days-th-day">
+                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-day-label">
                           Day
                         </span>
                       </div>
-                      <div className="col-span-1 text-center">
-                        <span className="text-xs text-gray-600 font-medium">
+                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-start-day">
+                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-start-day-label">
                           Start Day
                         </span>
                       </div>
-                      <div className="col-span-1 text-center">
-                        <span className="text-xs text-gray-600 font-medium">
+                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-start-time">
+                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-start-time-label">
                           Start
                         </span>
                       </div>
-                      <div className="col-span-1 text-center">
-                        <span className="text-xs text-gray-600 font-medium">
+                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-end-time">
+                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-end-time-label">
                           End
                         </span>
                       </div>
-                      <div className="col-span-1 text-center">
-                        <span className="text-xs text-gray-600 font-medium">
+                      <div className="col-span-1 text-center" data-cy="okr-checkin-rule-applicable-days-th-end-day">
+                        <span className="text-xs text-gray-600 font-medium" data-cy="okr-checkin-rule-applicable-days-th-end-day-label">
                           End Day
                         </span>
                       </div>
-                      <div className="col-span-1"></div>
+                      <div className="col-span-1" data-cy="okr-checkin-rule-applicable-days-th-blank"></div>
                     </div>
                   </div>
 
@@ -1034,16 +1217,32 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                             ? 'bg-white border-blue-200'
                             : 'bg-gray-50 border-gray-200'
                         } rounded-md border`}
+                        data-cy={`okr-checkin-rule-applicable-days-entry-row-${day.id}`}
+                        id={`okr-checkin-rule-applicable-days-entry-row-${day.id}`}
                       >
                         {/* Desktop Layout - Responsive Grid */}
-                        <div className="hidden sm:block">
-                          <div className="grid grid-cols-6 gap-2 px-3 py-2 items-center">
+                        <div
+                          className="hidden sm:block"
+                          data-cy={`okr-checkin-rule-applicable-days-desktop-layout-${day.id}`}
+                          id={`okr-checkin-rule-applicable-days-desktop-layout-${day.id}`}
+                        >
+                          <div
+                            className="grid grid-cols-6 gap-2 px-3 py-2 items-center"
+                            data-cy={`okr-checkin-rule-applicable-days-desktop-grid-${day.id}`}
+                            id={`okr-checkin-rule-applicable-days-desktop-grid-${day.id}`}
+                          >
                             {/* Day Name and Toggle */}
-                            <div className="col-span-1 flex items-center space-x-2">
+                            <div
+                              className="col-span-1 flex items-center space-x-2"
+                              data-cy={`okr-checkin-rule-applicable-days-toggle-col-${day.id}`}
+                              id={`okr-checkin-rule-applicable-days-toggle-col-${day.id}`}
+                            >
                               <Form.Item
                                 name={`isApplicable_${day.id}`}
                                 valuePropName="checked"
                                 className="mb-0"
+                                data-cy={`okr-checkin-rule-applicable-days-toggle-formitem-${day.id}`}
+                                id={`okr-checkin-rule-applicable-days-toggle-formitem-${day.id}`}
                               >
                                 <Switch
                                   size="small"
@@ -1052,6 +1251,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   onChange={(checked) =>
                                     handleToggleChange(day.id, checked)
                                   }
+                                  data-cy={`okr-checkin-rule-applicable-days-toggle-switch-${day.id}`}
                                 />
                               </Form.Item>
                               <span
@@ -1060,13 +1260,17 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                     ? 'text-gray-800'
                                     : 'text-gray-500'
                                 }`}
+                                data-cy={`okr-checkin-rule-applicable-days-dayname-${day.id}`}
                               >
                                 {day.name}
                               </span>
                             </div>
 
                             {/* Start Day */}
-                            <div className="col-span-1">
+                            <div
+                              className="col-span-1"
+                              data-cy={`okr-checkin-rule-applicable-days-start-day-col-${day.id}`}
+                            >
                               <Select
                                 className={`w-full h-8 ${
                                   isApplicable
@@ -1084,14 +1288,20 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   value: d.id,
                                   label: d.name.substring(0, 3), // Show Mon, Tue, etc.
                                 }))}
+                                data-cy={`okr-checkin-rule-applicable-days-start-day-select-${day.id}`}
                               />
                             </div>
 
                             {/* Start Time */}
-                            <div className="col-span-1">
+                            <div
+                              className="col-span-1"
+                              data-cy={`okr-checkin-rule-applicable-days-start-time-col-${day.id}`}
+                            >
                               <Form.Item
                                 name={`startTime_${day.id}`}
                                 className="mb-0"
+                                data-cy={`okr-checkin-rule-applicable-days-start-time-formitem-${day.id}`}
+                                id={`okr-checkin-rule-applicable-days-start-time-formitem-${day.id}`}
                               >
                                 <TimePicker
                                   className={`w-full h-8 ${
@@ -1107,15 +1317,21 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   size="small"
                                   disabled={!isApplicable}
                                   onChange={() => handleStartTimeChange(day.id)}
+                                  data-cy={`okr-checkin-rule-applicable-days-start-time-picker-${day.id}`}
                                 />
                               </Form.Item>
                             </div>
 
                             {/* End Time */}
-                            <div className="col-span-1">
+                            <div
+                              className="col-span-1"
+                              data-cy={`okr-checkin-rule-applicable-days-end-time-col-${day.id}`}
+                            >
                               <Form.Item
                                 name={`endTime_${day.id}`}
                                 className="mb-0"
+                                data-cy={`okr-checkin-rule-applicable-days-end-time-formitem-${day.id}`}
+                                id={`okr-checkin-rule-applicable-days-end-time-formitem-${day.id}`}
                                 rules={[
                                   {
                                     validator: (rule, value) => {
@@ -1168,12 +1384,16 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   use12Hours={false}
                                   size="small"
                                   disabled={!isApplicable}
+                                  data-cy={`okr-checkin-rule-applicable-days-end-time-picker-${day.id}`}
                                 />
                               </Form.Item>
                             </div>
 
                             {/* End Day */}
-                            <div className="col-span-1">
+                            <div
+                              className="col-span-1"
+                              data-cy={`okr-checkin-rule-applicable-days-end-day-col-${day.id}`}
+                            >
                               <Select
                                 className={`w-full h-8 ${
                                   isApplicable
@@ -1191,22 +1411,37 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   value: d.id,
                                   label: d.name.substring(0, 3), // Show Mon, Tue, etc.
                                 }))}
+                                data-cy={`okr-checkin-rule-applicable-days-end-day-select-${day.id}`}
                               />
                             </div>
 
                             {/* Empty column for spacing */}
-                            <div className="col-span-1"></div>
+                            <div className="col-span-1" data-cy={`okr-checkin-rule-applicable-days-empty-col-${day.id}`}></div>
                           </div>
                         </div>
 
                         {/* Mobile Layout - Stacked */}
-                        <div className="sm:hidden p-3 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
+                        <div
+                          className="sm:hidden p-3 space-y-3"
+                          data-cy={`okr-checkin-rule-applicable-days-mobile-layout-${day.id}`}
+                          id={`okr-checkin-rule-applicable-days-mobile-layout-${day.id}`}
+                        >
+                          <div
+                            className="flex items-center justify-between"
+                            data-cy={`okr-checkin-rule-applicable-days-mobile-row1-${day.id}`}
+                            id={`okr-checkin-rule-applicable-days-mobile-row1-${day.id}`}
+                          >
+                            <div
+                              className="flex items-center space-x-3"
+                              data-cy={`okr-checkin-rule-applicable-days-mobile-name-toggle-${day.id}`}
+                              id={`okr-checkin-rule-applicable-days-mobile-name-toggle-${day.id}`}
+                            >
                               <Form.Item
                                 name={`isApplicable_${day.id}`}
                                 valuePropName="checked"
                                 className="mb-0"
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-toggle-formitem-${day.id}`}
+                                id={`okr-checkin-rule-applicable-days-mobile-toggle-formitem-${day.id}`}
                               >
                                 <Switch
                                   size="small"
@@ -1215,6 +1450,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   onChange={(checked) =>
                                     handleToggleChange(day.id, checked)
                                   }
+                                  data-cy={`okr-checkin-rule-applicable-days-mobile-toggle-switch-${day.id}`}
                                 />
                               </Form.Item>
                               <span
@@ -1223,15 +1459,20 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                     ? 'text-gray-800'
                                     : 'text-gray-500'
                                 }`}
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-dayname-${day.id}`}
                               >
                                 {day.name}
                               </span>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="block text-xs text-gray-600 mb-1">
+                          <div
+                            className="grid grid-cols-2 gap-2"
+                            data-cy={`okr-checkin-rule-applicable-days-mobile-grid-${day.id}`}
+                            id={`okr-checkin-rule-applicable-days-mobile-grid-${day.id}`}
+                          >
+                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-start-day-${day.id}`}>
+                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-start-day-label-${day.id}`}>
                                 Start Day
                               </label>
                               <Select
@@ -1251,16 +1492,19 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   value: d.id,
                                   label: d.name.substring(0, 3),
                                 }))}
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-start-day-select-${day.id}`}
                               />
                             </div>
 
-                            <div>
-                              <label className="block text-xs text-gray-600 mb-1">
+                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-${day.id}`}>
+                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-label-${day.id}`}>
                                 Start Time
                               </label>
                               <Form.Item
                                 name={`startTime_${day.id}`}
                                 className="mb-0"
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-formitem-${day.id}`}
+                                id={`okr-checkin-rule-applicable-days-mobile-start-time-formitem-${day.id}`}
                               >
                                 <TimePicker
                                   className={`w-full h-8 ${
@@ -1276,17 +1520,20 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   size="small"
                                   disabled={!isApplicable}
                                   onChange={() => handleStartTimeChange(day.id)}
+                                  data-cy={`okr-checkin-rule-applicable-days-mobile-start-time-picker-${day.id}`}
                                 />
                               </Form.Item>
                             </div>
 
-                            <div>
-                              <label className="block text-xs text-gray-600 mb-1">
+                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-${day.id}`}>
+                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-label-${day.id}`}>
                                 End Time
                               </label>
                               <Form.Item
                                 name={`endTime_${day.id}`}
                                 className="mb-0"
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-formitem-${day.id}`}
+                                id={`okr-checkin-rule-applicable-days-mobile-end-time-formitem-${day.id}`}
                                 rules={[
                                   {
                                     validator: (rule, value) => {
@@ -1339,12 +1586,13 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   use12Hours={false}
                                   size="small"
                                   disabled={!isApplicable}
+                                  data-cy={`okr-checkin-rule-applicable-days-mobile-end-time-picker-${day.id}`}
                                 />
                               </Form.Item>
                             </div>
 
-                            <div>
-                              <label className="block text-xs text-gray-600 mb-1">
+                            <div data-cy={`okr-checkin-rule-applicable-days-mobile-end-day-${day.id}`}>
+                              <label className="block text-xs text-gray-600 mb-1" data-cy={`okr-checkin-rule-applicable-days-mobile-end-day-label-${day.id}`}>
                                 End Day
                               </label>
                               <Select
@@ -1364,6 +1612,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                                   value: d.id,
                                   label: d.name.substring(0, 3),
                                 }))}
+                                data-cy={`okr-checkin-rule-applicable-days-mobile-end-day-select-${day.id}`}
                               />
                             </div>
                           </div>
@@ -1382,6 +1631,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
               label="Operation"
               name="operation"
               rules={[{ required: true, message: 'Please select operation' }]}
+              id="okr-checkin-rule-drawer-form-operation-item-display-item"
+              data-cy="okr-checkin-rule-drawer-form-operation-item-display-item"
             >
               <Select
                 className="h-12"
@@ -1391,6 +1642,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   { value: '<', label: '<' },
                   { value: '=', label: '=' },
                 ]}
+                id="okr-checkin-rule-drawer-form-operation-select-display-select"
+                data-cy="okr-checkin-rule-drawer-form-operation-select-display-select"
               />
             </Form.Item>
           )}
@@ -1399,6 +1652,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             label="Category"
             name="categoryId"
             rules={[{ required: true, message: 'Please select category' }]}
+            id="okr-checkin-rule-drawer-form-category-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-category-item-display-item"
           >
             <Select
               className="h-12"
@@ -1412,6 +1667,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                   }),
                 ) || []
               }
+              id="okr-checkin-rule-drawer-form-category-select-display-select"
+              data-cy="okr-checkin-rule-drawer-form-category-select-display-select"
             />
           </Form.Item>
 
@@ -1419,6 +1676,8 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
             label="Feedback"
             name="feedbackId"
             rules={[{ required: true, message: 'Please select feedback' }]}
+            id="okr-checkin-rule-drawer-form-feedback-item-display-item"
+            data-cy="okr-checkin-rule-drawer-form-feedback-item-display-item"
           >
             <Select
               className="h-12"
@@ -1434,31 +1693,45 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
                     label: feedback.name || feedback.title || feedback.id,
                   })) || []
               }
+              id="okr-checkin-rule-drawer-form-feedback-select-display-select"
+              data-cy="okr-checkin-rule-drawer-form-feedback-select-display-select"
             />
           </Form.Item>
 
           {/* Action Buttons - Responsive */}
-          <div className="w-full flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 pt-6 border-t border-gray-200">
+          <div
+            className="w-full flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 pt-6 border-t border-gray-200"
+            id="okr-checkin-rule-drawer-form-actions-wrapper-display-div"
+            data-cy="okr-checkin-rule-drawer-form-actions-wrapper-display-div"
+          >
             <Button
               onClick={handleDrawerClose}
               className="w-full sm:w-auto h-10 order-2 sm:order-1"
+              id="okr-checkin-rule-drawer-form-cancel-button-display-button"
+              data-cy="okr-checkin-rule-drawer-form-cancel-button-display-button"
             >
               Cancel
             </Button>
-            <Form.Item className="mb-0 w-full sm:w-auto order-1 sm:order-2">
+            <Form.Item
+              className="mb-0 w-full sm:w-auto order-1 sm:order-2"
+              id="okr-checkin-rule-drawer-form-submit-item-display-item"
+              data-cy="okr-checkin-rule-drawer-form-submit-item-display-item"
+            >
               <Button
                 htmlType="submit"
                 type="primary"
                 loading={isSubmitting}
                 disabled={isSubmitting}
                 className="w-full sm:w-auto h-10 px-6"
+                id="okr-checkin-rule-drawer-form-submit-button-display-button"
+                data-cy="okr-checkin-rule-drawer-form-submit-button-display-button"
               >
                 {checkInRule ? 'Update' : 'Create'}
               </Button>
             </Form.Item>
           </div>
         </Form>
-      </div>
+      </div>     
       <style jsx>{`
         .no-border-dropdown .ant-select-dropdown-menu-item {
           border: none !important;

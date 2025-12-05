@@ -74,7 +74,12 @@ const DeductionTypeTable = () => {
       key: 'name',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="deduction-type-name" className="text-xs truncate">
+        <div
+          data-testid="deduction-type-name"
+          className="text-xs truncate"
+          id="compensation-settings-deduction-type-name"
+          data-cy="compensation-settings-deduction-type-name"
+        >
           {text || '-'}
         </div>
       ),
@@ -88,6 +93,8 @@ const DeductionTypeTable = () => {
         <div
           data-testid="deduction-type-description"
           className="text-xs truncate"
+          id="compensation-settings-deduction-type-description"
+          data-cy="compensation-settings-deduction-type-description"
         >
           {text || '-'}
         </div>
@@ -99,7 +106,13 @@ const DeductionTypeTable = () => {
       key: 'type',
       sorter: true,
       render: (isRate: boolean) => (
-        <div data-testid="deduction-type-type">{isRate ? 'Rate' : 'Fixed'}</div>
+        <div
+          data-testid="deduction-type-type"
+          id="compensation-settings-deduction-type-type"
+          data-cy="compensation-settings-deduction-type-type"
+        >
+          {isRate ? 'Rate' : 'Fixed'}
+        </div>
       ),
     },
     {
@@ -108,7 +121,11 @@ const DeductionTypeTable = () => {
       key: 'mode',
       sorter: true,
       render: (mode: string) => (
-        <div data-testid="deduction-type-mode">
+        <div
+          data-testid="deduction-type-mode"
+          id="compensation-settings-deduction-type-mode"
+          data-cy="compensation-settings-deduction-type-mode"
+        >
           {mode == 'CREDIT' ? 'Credit' : 'Debit'}
         </div>
       ),
@@ -119,7 +136,11 @@ const DeductionTypeTable = () => {
       key: 'defaultAmount',
       sorter: true,
       render: (amount: number, record: any) => (
-        <div data-testid={`deduction-type-amount-${record.id}`}>
+        <div
+          data-testid={`deduction-type-amount-${record.id}`}
+          id={`compensation-settings-deduction-type-amount-${record.id}`}
+          data-cy={`compensation-settings-deduction-type-amount-${record.id}`}
+        >
           {amount && amount != 0
             ? !record.isRate
               ? `${amount} ETB`
@@ -137,6 +158,8 @@ const DeductionTypeTable = () => {
         <div
           data-testid="deduction-type-applicable"
           className="text-xs truncate"
+          id="compensation-settings-deduction-type-applicable"
+          data-cy="compensation-settings-deduction-type-applicable"
         >
           {applicableTo === 'GLOBAL' ? 'All Employees' : 'Selected Employees'}
         </div>
@@ -147,19 +170,23 @@ const DeductionTypeTable = () => {
       dataIndex: 'status',
       key: 'status',
       render: (rule: any, record: any) => (
-        <AccessGuard
-          permissions={[
-            Permissions.UpdateAllowanceType,
-            Permissions.DeleteAllowanceType,
-          ]}
-        >
-          <Switch
-            loading={loadingId === record.id}
-            onClick={() => updateStatus(record.id)}
-            checked={record.isActive}
-            data-testid={`deduction-type-status-${record.id}`}
-          />
-        </AccessGuard>
+          <AccessGuard  
+            id={`compensation-settings-deduction-type-status-access-guard-${record.id}`}
+            data-cy={`compensation-settings-deduction-type-status-access-guard-${record.id}`}
+            permissions={[
+              Permissions.UpdateAllowanceType,
+              Permissions.DeleteAllowanceType,
+            ]}
+          >
+            <Switch
+              id={`compensation-settings-deduction-type-status-switch-${record.id}`}
+              data-cy={`compensation-settings-deduction-type-status-switch-${record.id}`}
+              loading={loadingId === record.id}
+              onClick={() => updateStatus(record.id)}
+              checked={record.isActive}
+              data-testid={`deduction-type-status-${record.id}`}
+            />
+          </AccessGuard>
       ),
     },
     {
@@ -168,16 +195,23 @@ const DeductionTypeTable = () => {
       key: 'action',
       render: (rule: any, record: any) => (
         <AccessGuard
+          id={`compensation-settings-deduction-type-actions-access-guard-${record.id}`}
+          data-cy={`compensation-settings-deduction-type-actions-access-guard-${record.id}`}
           permissions={[
             Permissions.UpdateBenefitType,
             Permissions.DeleteBenefitType,
           ]}
         >
-          <div data-testid={`deduction-type-actions-${record.id}`}>
+          <div
+            data-testid={`deduction-type-actions-${record.id}`}
+            id={`compensation-settings-deduction-type-actions-${record.id}`}
+            data-cy={`compensation-settings-deduction-type-actions-${record.id}`}
+          >
             <ActionButtons
               id={record?.id ?? null}
               onEdit={() => handleDeductionEdit(record)}
               onDelete={() => handleDelete(record.id)}
+              data-cy="compensation-settings-deduction-type-actions-buttons"
             />
           </div>
         </AccessGuard>
@@ -191,19 +225,34 @@ const DeductionTypeTable = () => {
   );
 
   return (
-    <div data-testid="deduction-type-table-container">
-      <Spin spinning={isLoading} data-testid="deduction-type-table-loading">
-        <div className="flex overflow-x-auto scrollbar-none w-full ">
+    <div
+      data-testid="deduction-type-table-container"
+      id="compensation-settings-deduction-type-table-container"
+      data-cy="compensation-settings-deduction-type-table-container"
+    >
+      <Spin
+        spinning={isLoading}
+        data-testid="deduction-type-table-loading"
+        data-cy="compensation-settings-deduction-type-table-loading"
+      >
+        <div
+          className="flex overflow-x-auto scrollbar-none w-full "
+          id="compensation-settings-deduction-type-table-scroll"
+          data-cy="compensation-settings-deduction-type-table-scroll"
+        >
           <Table
             className="mt-6"
             columns={columns}
             dataSource={paginatedData}
             pagination={false}
             data-testid="deduction-type-table"
+            id="compensation-settings-deduction-type-table"
+            data-cy="compensation-settings-deduction-type-table"
           />
         </div>
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            data-cy="compensation-settings-deduction-type-mobile-pagination"
             totalResults={tableData.length}
             pageSize={benefitPageSize}
             onChange={(page, size) => {
@@ -229,6 +278,7 @@ const DeductionTypeTable = () => {
               setBenefitCurrentPage(1);
             }}
             data-testid="deduction-type-pagination"
+            data-cy="compensation-settings-deduction-type-pagination"
           />
         )}
       </Spin>

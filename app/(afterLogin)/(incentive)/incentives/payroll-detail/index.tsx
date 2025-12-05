@@ -31,24 +31,26 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
   };
 
   return (
-    <div className="m-3">
-      <div className="flex items-center justify-between">
+    <div id="payroll-view-container" data-cy="payroll-view-container" className="m-3">
+      <div id="payroll-view-header" data-cy="payroll-view-header" className="flex items-center justify-between">
         <CustomBreadcrumb
+          data-cy="payroll-view-breadcrumb"
           title="Incentive"
           subtitle="Generated Incentive Report"
         />
-        <div>{operationSlot}</div>
+        <div id="payroll-view-operation-slot" data-cy="payroll-view-operation-slot">{operationSlot}</div>
       </div>
-      <div className="mx-3 my-2">
-        <Row gutter={[16, 16]}>
+      <div id="payroll-view-cards-container" data-cy="payroll-view-cards-container" className="mx-3 my-2">
+        <Row id="payroll-view-cards-row" data-cy="payroll-view-cards-row" gutter={[16, 16]}>
           {cardResponseLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+            <div id="payroll-view-cards-skeleton-container" data-cy="payroll-view-cards-skeleton-container" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
               {[...Array(3)].map(
                 /* eslint-disable-next-line @typescript-eslint/naming-convention */
                 (_, index) => (
                   /*  eslint-enable-next-line @typescript-eslint/naming-convention */
-                  <Card key={index}>
+                  <Card id={`payroll-view-cards-skeleton-card-${index}`} data-cy={`payroll-view-cards-skeleton-card-${index}`} key={index}>
                     <Skeleton
+                      data-cy={`payroll-view-cards-skeleton-${index}`}
                       active
                       paragraph={{ rows: 4 }}
                       style={{ width: '100%', height: '40px' }}
@@ -60,53 +62,57 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
           ) : (
             cardData?.items?.length > 0 &&
             cardData.items.map((items: IncentiveDetail, index: number) => (
-              <Col key={index} xs={24} sm={24} md={24} lg={8} xl={8}>
+              <Col id={`payroll-view-card-col-${index}`} data-cy={`payroll-view-card-col-${index}`} key={index} xs={24} sm={24} md={24} lg={8} xl={8}>
                 <Link
+                  id={`payroll-view-card-link-${index}`}
+                  data-cy={`payroll-view-card-link-${index}`}
                   href={`/incentives/payroll-detail/${items?.parentRecognitionTypeId}`}
                 >
-                  <Card className="bg-[#FAFAFA]" bordered={false}>
-                    <div className="flex flex-wrap items-start justify-between mb-0">
-                      <Title level={5}>
+                  <Card id={`payroll-view-card-${index}`} data-cy={`payroll-view-card-${index}`} className="bg-[#FAFAFA]" bordered={false}>
+                    <div id={`payroll-view-card-header-${index}`} data-cy={`payroll-view-card-header-${index}`} className="flex flex-wrap items-start justify-between mb-0">
+                      <Title id={`payroll-view-card-title-${index}`} data-cy={`payroll-view-card-title-${index}`} level={5}>
                         {getCardInformation(items?.sessionId)?.name ??
                           'Unknown'}
                       </Title>
                       {items?.isPaid ? (
-                        <div className="rounded-xl bg-[#55C79033] py-1 px-6">
-                          <span className="text-[#0CAF60] font-semibold text-md">
+                        <div id={`payroll-view-card-paid-badge-${index}`} data-cy={`payroll-view-card-paid-badge-${index}`} className="rounded-xl bg-[#55C79033] py-1 px-6">
+                          <span id={`payroll-view-card-paid-text-${index}`} data-cy={`payroll-view-card-paid-text-${index}`} className="text-[#0CAF60] font-semibold text-md">
                             Paid
                           </span>
                         </div>
                       ) : (
-                        <div className="rounded-xl bg-[#FFEDEC] py-1 px-4">
-                          <span className="text-[#E03137] font-semibold text-md">
+                        <div id={`payroll-view-card-not-paid-badge-${index}`} data-cy={`payroll-view-card-not-paid-badge-${index}`} className="rounded-xl bg-[#FFEDEC] py-1 px-4">
+                          <span id={`payroll-view-card-not-paid-text-${index}`} data-cy={`payroll-view-card-not-paid-text-${index}`} className="text-[#E03137] font-semibold text-md">
                             Not Paid
                           </span>
                         </div>
                       )}
                     </div>
-                    <Divider className="mt-0" />
+                    <Divider data-cy={`payroll-view-card-divider-${index}`} className="mt-0" />
                     {Array.isArray(items?.criteria) &&
                     items?.criteria.length > 0 ? (
                       items?.criteria.map((cat: IncentiveItem, idx: number) => (
                         <div
+                          id={`payroll-view-card-criterion-${index}-${idx}`}
+                          data-cy={`payroll-view-card-criterion-${index}-${idx}`}
                           key={idx}
                           className="bg-[#D3E4F0] rounded-xl my-3 py-2 px-3 inline-block mx-1"
                         >
-                          <span className="text-[#1D9BF0] text-sm font-semibold">
+                          <span id={`payroll-view-card-criterion-text-${index}-${idx}`} data-cy={`payroll-view-card-criterion-text-${index}-${idx}`} className="text-[#1D9BF0] text-sm font-semibold">
                             {cat?.name}
                           </span>
                         </div>
                       ))
                     ) : (
-                      <div className="bg-[#D3E4F0] rounded-xl my-3 py-2 px-3 inline-block mx-1">
-                        <span className="text-[#1D9BF0] text-sm font-semibold">
+                      <div id={`payroll-view-card-fixed-amount-${index}`} data-cy={`payroll-view-card-fixed-amount-${index}`} className="bg-[#D3E4F0] rounded-xl my-3 py-2 px-3 inline-block mx-1">
+                        <span id={`payroll-view-card-fixed-amount-text-${index}`} data-cy={`payroll-view-card-fixed-amount-text-${index}`} className="text-[#1D9BF0] text-sm font-semibold">
                           Fixed Amount
                         </span>
                       </div>
                     )}
 
-                    <div className="flex flex-wrap items-center justify-between mt-3">
-                      <span className="text-[16px] font-semibold text-[#687588]">
+                    <div id={`payroll-view-card-footer-${index}`} data-cy={`payroll-view-card-footer-${index}`} className="flex flex-wrap items-center justify-between mt-3">
+                      <span id={`payroll-view-card-amount-${index}`} data-cy={`payroll-view-card-amount-${index}`} className="text-[16px] font-semibold text-[#687588]">
                         {Number(items?.totalAmount || 0).toLocaleString(
                           undefined,
                           {
@@ -116,7 +122,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
                         )}{' '}
                         ETB
                       </span>
-                      <span className="text-sm font-normal text-[#687588]">
+                      <span id={`payroll-view-card-employees-${index}`} data-cy={`payroll-view-card-employees-${index}`} className="text-sm font-normal text-[#687588]">
                         {items?.totalEmployees || 0}{' '}
                         {items?.totalEmployees === 1 ? 'Employee' : 'Employees'}
                       </span>
@@ -130,6 +136,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
       </div>
 
       <IncentivePagination
+        data-cy="payroll-view-pagination"
         current={currentPage}
         total={cardData?.meta?.totalItems ?? 1}
         pageSize={pageSize}

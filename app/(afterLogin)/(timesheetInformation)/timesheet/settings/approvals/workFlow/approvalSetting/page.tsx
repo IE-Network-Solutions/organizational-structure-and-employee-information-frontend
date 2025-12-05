@@ -64,12 +64,16 @@ const ApprovalSetting: React.FC<any> = () => {
   };
 
   return (
-    <div>
+    <div
+      id="time-attendance-settings-approvals-workflow-setting-container"
+      data-cy="time-attendance-settings-approvals-workflow-setting-container"
+    >
       <ApprovalWorkFlowSettingComponent
         handleSubmit={handleSubmit}
         isSuccess={isSuccess}
         form={form}
         title={'Leave '}
+        data-cy="time-attendance-settings-approvals-workflow-setting-component"
       />
     </div>
   );

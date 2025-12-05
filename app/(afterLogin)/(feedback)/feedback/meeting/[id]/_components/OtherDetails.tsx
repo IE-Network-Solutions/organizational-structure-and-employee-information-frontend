@@ -74,11 +74,29 @@ export default function OtherDetails({
       bodyStyle={{ padding: 0 }}
       loading={loading}
       className="p-4 space-y-3 border-none"
+      data-cy="feedback-meeting-components-otherdetails-card"
+      id="feedback-meeting-components-otherdetails-card"
     >
-      <h2 className="text-lg font-bold">Other Details</h2>
-      <Form form={form} layout="vertical" onFinish={handleConfirm}>
+      <h2
+        className="text-lg font-bold"
+        data-cy="feedback-meeting-components-otherdetails-heading"
+        id="feedback-meeting-components-otherdetails-heading"
+      >
+        Other Details
+      </h2>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleConfirm}
+        data-cy="feedback-meeting-components-otherdetails-form"
+        id="feedback-meeting-components-otherdetails-form"
+      >
         {/* Start and End Time */}
-        <div className="flex gap-5">
+        <div
+          className="flex gap-5"
+          data-cy="feedback-meeting-components-otherdetails-div-time"
+          id="feedback-meeting-components-otherdetails-div-time"
+        >
           {isEditing ? (
             <>
               <Form.Item
@@ -87,11 +105,15 @@ export default function OtherDetails({
                   { required: true, message: 'Please select start time' },
                 ]}
                 style={{ flex: 1, marginBottom: 0 }}
+                data-cy="feedback-meeting-components-otherdetails-form-item-start"
+                id="feedback-meeting-components-otherdetails-form-item-start"
               >
                 <TimePicker
                   format="hh:mm A"
                   use12Hours
                   style={{ width: '100%' }}
+                  data-cy="feedback-meeting-components-otherdetails-timepicker-start"
+                  id="feedback-meeting-components-otherdetails-timepicker-start"
                 />
               </Form.Item>
               <Form.Item
@@ -116,11 +138,15 @@ export default function OtherDetails({
                   }),
                 ]}
                 style={{ flex: 1, marginBottom: 0 }}
+                data-cy="feedback-meeting-components-otherdetails-form-item-end"
+                id="feedback-meeting-components-otherdetails-form-item-end"
               >
                 <TimePicker
                   format="hh:mm A"
                   use12Hours
                   style={{ width: '100%' }}
+                  data-cy="feedback-meeting-components-otherdetails-timepicker-end"
+                  id="feedback-meeting-components-otherdetails-timepicker-end"
                 />
               </Form.Item>
             </>
@@ -130,6 +156,8 @@ export default function OtherDetails({
                 className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit start time"
+                data-cy="feedback-meeting-components-otherdetails-text-start"
+                id="feedback-meeting-components-otherdetails-text-start"
               >
                 {dayjs(meeting?.startAt)?.format('HH:mm A')}
               </p>
@@ -137,6 +165,8 @@ export default function OtherDetails({
                 className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit end time"
+                data-cy="feedback-meeting-components-otherdetails-text-end"
+                id="feedback-meeting-components-otherdetails-text-end"
               >
                 {dayjs(meeting?.endAt)?.format('HH:mm A')}
               </p>
@@ -147,19 +177,35 @@ export default function OtherDetails({
         {/* Other User */}
 
         {/* Duration and Location Type */}
-        <div className="flex gap-5 mt-3">
-          <div className="w-full border p-3 rounded-lg flex items-center gap-3">
+        <div
+          className="flex gap-5 mt-3"
+          data-cy="feedback-meeting-components-otherdetails-div-summary"
+          id="feedback-meeting-components-otherdetails-div-summary"
+        >
+          <div
+            className="w-full border p-3 rounded-lg flex items-center gap-3"
+            data-cy="feedback-meeting-components-otherdetails-div-duration"
+            id="feedback-meeting-components-otherdetails-div-duration"
+          >
             <GoClock size={16} />
-            <p>{duration}</p>
+            <p data-cy="feedback-meeting-components-otherdetails-text-duration" id="feedback-meeting-components-otherdetails-text-duration">
+              {duration}
+            </p>
           </div>
 
-          <div className="w-full border p-3 rounded-lg flex items-center gap-3 capitalize">
-            <EnvironmentOutlined />
+          <div
+            className="w-full border p-3 rounded-lg flex items-center gap-3 capitalize"
+            data-cy="feedback-meeting-components-otherdetails-div-location-type"
+            id="feedback-meeting-components-otherdetails-div-location-type"
+          >
+            <EnvironmentOutlined id="feedback-meeting-components-otherdetails-icon-location-type" data-cy="feedback-meeting-components-otherdetails-icon-location-type" />
             {
               <p
                 className="w-full cursor-pointer"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit location type"
+                data-cy="feedback-meeting-components-otherdetails-text-location-type"
+                id="feedback-meeting-components-otherdetails-text-location-type"
               >
                 {meeting?.locationType}
               </p>
@@ -170,20 +216,32 @@ export default function OtherDetails({
         {/* Physical Location */}
         {(meeting?.locationType === 'in-person' ||
           meeting?.locationType === 'hybrid') && (
-          <div className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3">
+          <div
+            className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3"
+            data-cy="feedback-meeting-components-otherdetails-div-physical"
+            id="feedback-meeting-components-otherdetails-div-physical"
+          >
             <EnvironmentOutlined />
             {isEditing ? (
               <Form.Item
                 name="physicalLocation"
                 style={{ flex: 1, marginBottom: 0 }}
+                data-cy="feedback-meeting-components-otherdetails-form-item-physical"
+                id="feedback-meeting-components-otherdetails-form-item-physical"
               >
-                <Input placeholder="Physical Location" />
+                <Input
+                  placeholder="Physical Location"
+                  data-cy="feedback-meeting-components-otherdetails-input-physical"
+                  id="feedback-meeting-components-otherdetails-input-physical"
+                />
               </Form.Item>
             ) : (
               <p
                 className="w-full cursor-pointer"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit physical location"
+                data-cy="feedback-meeting-components-otherdetails-text-physical"
+                id="feedback-meeting-components-otherdetails-text-physical"
               >
                 {meeting?.physicalLocation || '-'}
               </p>
@@ -194,20 +252,32 @@ export default function OtherDetails({
         {/* Virtual Link */}
         {(meeting?.locationType === 'virtual' ||
           meeting?.locationType === 'hybrid') && (
-          <div className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3">
-            <IoIosLink size={16} />
+          <div
+            className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3"
+            data-cy="feedback-meeting-components-otherdetails-div-virtual"
+            id="feedback-meeting-components-otherdetails-div-virtual"
+          >
+            <IoIosLink size={16} id="feedback-meeting-components-otherdetails-icon-virtual" data-cy="feedback-meeting-components-otherdetails-icon-virtual" />
             {isEditing ? (
               <Form.Item
                 name="virtualLink"
                 style={{ flex: 1, marginBottom: 0 }}
+                data-cy="feedback-meeting-components-otherdetails-form-item-virtual"
+                id="feedback-meeting-components-otherdetails-form-item-virtual"
               >
-                <Input placeholder="Virtual Link" />
+                <Input
+                  placeholder="Virtual Link"
+                  data-cy="feedback-meeting-components-otherdetails-input-virtual"
+                  id="feedback-meeting-components-otherdetails-input-virtual"
+                />
               </Form.Item>
             ) : (
               <p
                 className="w-full cursor-pointer"
                 onClick={() => (canEdit ? setIsEditing(true) : null)}
                 title="Click to edit virtual link"
+                data-cy="feedback-meeting-components-otherdetails-text-virtual"
+                id="feedback-meeting-components-otherdetails-text-virtual"
               >
                 {meeting?.virtualLink}
               </p>
@@ -217,12 +287,18 @@ export default function OtherDetails({
 
         {/* Action Buttons */}
         {isEditing && (
-          <div className="flex justify-end gap-2 mt-3">
+          <div
+            className="flex justify-end gap-2 mt-3"
+            data-cy="feedback-meeting-components-otherdetails-div-buttons"
+            id="feedback-meeting-components-otherdetails-div-buttons"
+          >
             <Button
               htmlType="submit"
               type="primary"
               loading={isLoading}
               className="h-10 min-w-16 border-none shadow-none"
+              data-cy="feedback-meeting-components-otherdetails-button-save"
+              id="feedback-meeting-components-otherdetails-button-save"
             >
               Save
             </Button>
@@ -233,6 +309,8 @@ export default function OtherDetails({
               }}
               loading={isLoading}
               className="h-10 min-w-16"
+              data-cy="feedback-meeting-components-otherdetails-button-cancel"
+              id="feedback-meeting-components-otherdetails-button-cancel"
             >
               Cancel
             </Button>

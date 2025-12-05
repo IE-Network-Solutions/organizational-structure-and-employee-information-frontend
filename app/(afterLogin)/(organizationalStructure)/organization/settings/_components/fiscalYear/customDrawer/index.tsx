@@ -193,14 +193,22 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
   };
 
   const formContent = (
-    <Form layout="vertical" onFinish={handleSubmit}>
-      {current === 0 && <FiscalYearForm />}
+    <Form
+      layout="vertical"
+      onFinish={handleSubmit}
+      data-cy="org-components-fiscalyear-customdrawer-index-form-1"
+      id="org-components-fiscalyear-customdrawer-index-form-1"
+    >
+      {current === 0 && (
+        <FiscalYearForm data-cy="org-components-fiscalyear-customdrawer-index-fiscalyearform-1" />
+      )}
       {current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
           isFiscalYear={true}
+          data-cy="org-components-fiscalyear-customdrawer-index-sessiondrawer-1"
         />
       )}
       {current === 2 && (
@@ -210,6 +218,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           isUpdateLoading={updateIsLoading}
           onNextStep={handleNextStep}
           isFiscalYear={true}
+          data-cy="org-components-fiscalyear-customdrawer-index-monthdrawer-1"
         />
       )}
     </Form>
@@ -220,8 +229,13 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       {/* !departments?.length || oenfiscalYearDrawer */}
       {true && (
         <CustomDrawerLayout
+          data-cy="org-settings-fiscal-year-drawer"
           modalHeader={
-            <h1 className="flex justify-start text-base font-bold text-gray-800">
+            <h1
+              className="flex justify-start text-base font-bold text-gray-800"
+              data-cy="org-settings-fiscal-year-drawer-header"
+              id="org-settings-fiscal-year-drawer-header"
+            >
               {isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year'}
             </h1>
           }

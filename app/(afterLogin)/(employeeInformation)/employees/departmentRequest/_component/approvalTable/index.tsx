@@ -22,6 +22,12 @@ import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 
+const toSlug = (value: string | number | null | undefined) =>
+  String(value ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const ApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
@@ -98,27 +104,75 @@ const ApprovalTable = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
-    if (isError) return <>-</>;
+    const userSlug = toSlug(userId);
+
+    if (isLoading)
+      return (
+        <div
+          className="text-xs text-gray-500"
+          id={`department-request-approval-emp-loading-${userSlug}`}
+          data-cy={`department-request-approval-emp-loading-${userSlug}`}
+        >
+          ...
+        </div>
+      );
+    if (isError)
+      return (
+        <span
+          id={`department-request-approval-emp-error-${userSlug}`}
+          data-cy={`department-request-approval-emp-error-${userSlug}`}
+        >
+          -
+        </span>
+      );
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="mx-1 text-sm">
+      <div
+        className="flex items-center gap-1.5"
+        id={`department-request-approval-emp-card-${userSlug}`}
+        data-cy={`department-request-approval-emp-card-${userSlug}`}
+      >
+        <div
+          className="mx-1 text-sm"
+          id={`department-request-approval-emp-attendance-${userSlug}`}
+          data-cy={`department-request-approval-emp-attendance-${userSlug}`}
+        >
           {employeeData?.employeeInformation?.employeeAttendanceId}
         </div>
-        <Avatar size={24} icon={<UserOutlined />} />
-        <div className="flex-1">
-          <div className="text-xs text-gray-900">
+        <Avatar
+          size={24}
+          icon={<UserOutlined />}
+          data-cy={`department-request-approval-emp-avatar-${userSlug}`}
+        />
+        <div
+          className="flex-1"
+          data-cy={`department-request-approval-emp-info-${userSlug}`}
+          id={`department-request-approval-emp-info-${userSlug}`}
+        >
+          <div
+            className="text-xs text-gray-900"
+            data-cy={`department-request-approval-emp-name-${userSlug}`}
+            id={`department-request-approval-emp-name-${userSlug}`}
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
-          <div className="text-[10px] leading-4 text-gray-600">
+          <div
+            className="text-[10px] leading-4 text-gray-600"
+            id={`department-request-approval-emp-email-${userSlug}`}
+            data-cy={`department-request-approval-emp-email-${userSlug}`}
+          >
             {employeeData?.email}
           </div>
         </div>
       </div>
     ) : (
-      '-'
+      <span
+        id={`department-request-approval-emp-empty-${userSlug}`}
+        data-cy={`department-request-approval-emp-empty-${userSlug}`}
+      >
+        -
+      </span>
     );
   };
   const columns: TableColumnsType<any> = [
@@ -126,7 +180,12 @@ const ApprovalTable = () => {
       title: 'Employee Name',
       dataIndex: 'userId',
       key: 'createdBy',
-      render: (text: string) => <EmpRender userId={text} />,
+      render: (text: string) => (
+        <EmpRender
+          userId={text}
+          data-cy="department-request-approval-emp-name"
+        />
+      ),
     },
     {
       title: 'Current Branch',
@@ -139,11 +198,22 @@ const ApprovalTable = () => {
     {
       title: 'Status',
       dataIndex: 'status',
-      render: (text: LeaveRequestStatus) => (
-        <StatusBadge theme={LeaveRequestStatusBadgeTheme[text]}>
-          {text}
-        </StatusBadge>
-      ),
+      render: (text: LeaveRequestStatus, record: any) => {
+        const statusSlug = toSlug(`${record?.id}-${text}`);
+        return (
+          <span
+            id={`department-request-approval-status-${statusSlug}`}
+            data-cy={`department-request-approval-status-${statusSlug}`}
+          >
+            <StatusBadge
+              theme={LeaveRequestStatusBadgeTheme[text]}
+              data-cy={`department-request-approval-status-${statusSlug}`}
+            >
+              {text}
+            </StatusBadge>
+          </span>
+        );
+      },
     },
     {
       title: 'Action',
@@ -151,6 +221,7 @@ const ApprovalTable = () => {
     },
   ];
   const allFilterData = data?.items?.map((item: any, index: number) => {
+    const requestSlug = toSlug(item?.id || index);
     return {
       key: index,
       userId: item?.userId,
@@ -158,17 +229,28 @@ const ApprovalTable = () => {
       requestedBranch: item?.requestBranch?.name,
       status: item?.status,
       action: (
-        <div className="flex gap-4 ">
+        <div
+          className="flex gap-4 "
+          id={`department-request-approval-actions-${requestSlug}`}
+          data-cy={`department-request-approval-actions-${requestSlug}`}
+        >
           <Popconfirm
             title="Reject Request"
             description={
               <>
-                <p>Are you sure you want to reject this request?</p>
+                <p
+                  id={`department-request-approval-reject-text-${requestSlug}`}
+                  data-cy={`department-request-approval-reject-text-${requestSlug}`}
+                >
+                  Are you sure you want to reject this request?
+                </p>
                 <Input
                   placeholder="Add a comment"
                   value={rejectComment}
                   onChange={(e) => setRejectComment(e.target.value)}
                   style={{ marginTop: 8 }}
+                  id={`department-request-approval-reject-input-${requestSlug}`}
+                  data-cy={`department-request-approval-reject-input-${requestSlug}`}
                 />
               </>
             }
@@ -192,13 +274,28 @@ const ApprovalTable = () => {
             okText="Reject"
             cancelText="Cancel"
             okButtonProps={{ disabled: !rejectComment }}
+            id={`department-request-approval-reject-popconfirm-${requestSlug}`}
+            data-cy={`department-request-approval-reject-popconfirm-${requestSlug}`}
           >
-            <Button danger>Reject</Button>
+            <Button
+              danger
+              id={`department-request-approval-reject-btn-${requestSlug}`}
+              data-cy={`department-request-approval-reject-btn-${requestSlug}`}
+            >
+              Reject
+            </Button>
           </Popconfirm>
 
           <Popconfirm
             title="Approve Request"
-            description="Are you sure to approve this request?"
+            description={
+              <span
+                id={`department-request-approval-approve-text-${requestSlug}`}
+                data-cy={`department-request-approval-approve-text-${requestSlug}`}
+              >
+                Are you sure to approve this request?
+              </span>
+            }
             onConfirm={() => {
               confirm({
                 approvalWorkflowId: item?.approvalWorkflowId,
@@ -213,8 +310,16 @@ const ApprovalTable = () => {
             onCancel={cancel}
             okText="Approve"
             cancelText="Cancel"
+            id={`department-request-approval-approve-popconfirm-${requestSlug}`}
+            data-cy={`department-request-approval-approve-popconfirm-${requestSlug}`}
           >
-            <Button type="primary">Approve</Button>
+            <Button
+              type="primary"
+              id={`department-request-approval-approve-btn-${requestSlug}`}
+              data-cy={`department-request-approval-approve-btn-${requestSlug}`}
+            >
+              Approve
+            </Button>
           </Popconfirm>
         </div>
       ),
@@ -224,8 +329,16 @@ const ApprovalTable = () => {
     <>
       {data?.items?.length > 0 ? (
         <>
-          <div className="flex items-center mb-6">
-            <div className="text-2xl font-bold text-gray-900">
+          <div
+            className="flex items-center mb-6"
+            id="department-request-approval-header"
+            data-cy="department-request-approval-header"
+          >
+            <div
+              className="text-2xl font-bold text-gray-900"
+              id="department-request-approval-title"
+              data-cy="department-request-approval-title"
+            >
               Waiting for my approval
             </div>
           </div>
@@ -241,10 +354,17 @@ const ApprovalTable = () => {
               showSizeChanger: true,
               onShowSizeChange: onPageChange,
             }}
+            id="department-request-approval-table-grid"
+            data-cy="department-request-approval-table-grid"
           />
         </>
       ) : (
-        ''
+        <span
+          id="department-request-approval-empty"
+          data-cy="department-request-approval-empty"
+        >
+          {' '}
+        </span>
       )}
     </>
   );

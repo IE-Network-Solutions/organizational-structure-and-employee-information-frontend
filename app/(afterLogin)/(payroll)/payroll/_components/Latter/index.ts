@@ -2,46 +2,50 @@ import { IE_LOGO_BASE64 } from '@/public/image/bankLetterImages';
 import { useGetTenant } from '@/store/server/features/employees/authentication/queries';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  AlignmentType,
-  ImageRun,
-  Header,
-  Footer,
-} from 'docx';
-import { saveAs } from 'file-saver';
+import jsPDF from 'jspdf';
 
-const getBase64FromUrl = async (url: string): Promise<string> => {
+// Get image as data URI for jsPDF (needs full data URI format)
+const getImageAsDataUri = async (
+  url: string,
+): Promise<{ data: string; format: string }> => {
   try {
     if (!url) {
-      return IE_LOGO_BASE64;
+      return { data: IE_LOGO_BASE64, format: 'PNG' };
     }
 
-    // If it's already base64 data, return it
+    // If it's already base64 data URI, return it
     if (url.startsWith('data:image/')) {
-      return url.split(',')[1]; // Return just the base64 part without the data URI prefix
+      const format = url.includes('png')
+        ? 'PNG'
+        : url.includes('jpeg') || url.includes('jpg')
+          ? 'JPEG'
+          : 'PNG';
+      return { data: url, format };
     }
 
     // If it's a URL, fetch and convert to base64
     const response = await fetch(url);
     if (!response.ok) {
-      return IE_LOGO_BASE64.split(',')[1]; // Return fallback without data URI prefix
+      return { data: IE_LOGO_BASE64, format: 'PNG' };
     }
 
     const blob = await response.blob();
-    return new Promise((resolve) => {
+    const format = blob.type.includes('png')
+      ? 'PNG'
+      : blob.type.includes('jpeg') || blob.type.includes('jpg')
+        ? 'JPEG'
+        : 'PNG';
+
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64 = reader.result as string;
-        resolve(base64.split(',')[1]); // Return just the base64 part
+        resolve({ data: reader.result as string, format });
       };
+      reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
   } catch (error) {
-    return IE_LOGO_BASE64.split(',')[1]; // Return fallback without data URI prefix
+    return { data: IE_LOGO_BASE64, format: 'PNG' };
   }
 };
 
@@ -50,331 +54,201 @@ export const useGenerateBankLetter = () => {
   const { data: activeMonth } = useGetActiveMonth();
 
   const generateBankLetter = async (amount: number) => {
-    if (!tenant || !activeMonth) {
-      throw new Error('Tenant data not available');
+    try {
+      if (!tenant) {
+        throw new Error(
+          'Tenant data is not available. Please ensure you are logged in.',
+        );
+      }
+
+      if (!activeMonth) {
+        throw new Error(
+          'Active month data is not available. Please select an active payroll period.',
+        );
+      }
+
+      if (!activeMonth.startDate) {
+        throw new Error('Active month start date is missing.');
+      }
+
+      if (!tenant.companyName) {
+        throw new Error('Company name is missing from tenant data.');
+      }
+
+      const currentDate = dayjs().format('MMMM DD, YYYY');
+      const currentMonth = dayjs(activeMonth.startDate).format('MMMM');
+      const refNumber = `${tenant.companyName.toUpperCase().slice(0, 2)}/FIN/${dayjs().format('DDMMYY')}/001`;
+
+      // Create PDF document
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      let y = 15; // Moved up from 20
+
+      // Get the logo data
+      const logoUrl = tenant.logo || '';
+
+      const imageResult = await getImageAsDataUri(logoUrl);
+
+      // Load image to get dimensions for aspect ratio
+      let logoLoaded = false;
+      let logoHeight = 0;
+      if (imageResult?.data) {
+        try {
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('Image loading timeout'));
+            }, 10000); // 10 second timeout
+
+            img.onload = () => {
+              clearTimeout(timeout);
+              resolve(null);
+            };
+            img.onerror = (error) => {
+              clearTimeout(timeout);
+              reject(error);
+            };
+            img.src = imageResult.data;
+          });
+
+          // Calculate dimensions (max width similar to downloadJobInformation)
+          const maxWidth = 15; // Smaller logo for bank letter
+          const aspectRatio = img.width / img.height;
+          const logoWidth = maxWidth;
+          logoHeight = logoWidth / aspectRatio;
+
+          // Add logo to PDF (moved up)
+          doc.addImage(
+            imageResult.data,
+            imageResult.format,
+            15,
+            y,
+            logoWidth,
+            logoHeight,
+          );
+          logoLoaded = true;
+        } catch (error) {
+          logoLoaded = false;
+        }
+      }
+
+      // Date and Reference Number (top right)
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date: ${currentDate}`, pageWidth - 15, y, {
+        align: 'right',
+      });
+      doc.text(`Ref: ${refNumber}`, pageWidth - 15, y + 6, {
+        align: 'right',
+      });
+
+      // Adjust Y position for "To:" section
+      if (logoLoaded) {
+        y = Math.max(y + logoHeight + 8, 30); // Reduced spacing
+      } else {
+        y = 30;
+      }
+
+      // "To:" section
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text('To: Enat Bank', 15, y);
+      y += 6;
+
+      // Branch address (removed region/country line)
+      doc.text(`Mexico Derartu Tulu branch`, 15, y);
+      y += 10; // Increased spacing after branch name
+
+      // Subject line (centered, blue)
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(54, 54, 240); // Blue color #3636F0
+      const subjectText = `Subject: ${currentMonth} Salary Transfer Request`;
+      const subjectWidth = doc.getTextWidth(subjectText);
+      const subjectX = (pageWidth - subjectWidth) / 2; // Centered
+      doc.text(subjectText, subjectX, y);
+      y += 10;
+
+      // Body paragraphs
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(68, 68, 68); // Grey color like downloadJobInformation
+
+      // First paragraph
+      const paragraph1 = `We hereby authorize your branch to transfer ETB ${amount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
+
+      const textWidth = 180; // Same as downloadJobInformation
+      const lines1 = doc.splitTextToSize(paragraph1, textWidth);
+      doc.text(lines1, 15, y);
+      y += lines1.length * 6;
+
+      // Second paragraph
+      const paragraph2 = `Please deduct the transfer service charges from ${tenant.companyName} account 0061101660052002 maintained at Mexico Derartu Tulu branch.`;
+      const lines2 = doc.splitTextToSize(paragraph2, textWidth);
+      doc.text(lines2, 15, y);
+      y += lines2.length * 6 + 8;
+
+      // Sincerely
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text('Sincerely', 15, y);
+      y += 10;
+
+      // Signature line
+      doc.setDrawColor(203, 213, 224); // #CBD5E0
+      doc.setLineWidth(0.5); // Same as downloadJobInformation
+      doc.line(15, y, pageWidth - 15, y);
+      y += 10;
+
+      // Name field - text floats on top of line
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0); // Black color - same as "Sincerely"
+      const nameLabel = 'Name'; // Removed colon
+      const nameTextY = y - 2; // Text positioned 2mm above the line (small gap)
+      doc.text(nameLabel, 15, nameTextY);
+
+      // Draw line for name (starts at same position as text, 100mm long)
+      const nameLineStartX = 15; // Same as text start position
+      const nameLineEndX = nameLineStartX + 100; // 100mm line length
+      const nameLineY = y; // Line at current y position
+
+      doc.setDrawColor(203, 213, 224); // #CBD5E0 - same as signature line
+      doc.setLineWidth(0.5); // Same as signature line
+      doc.line(nameLineStartX, nameLineY, nameLineEndX, nameLineY);
+      y += 8;
+
+      // Email field - text floats on top of line
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0); // Black color - same as "Sincerely"
+      const emailLabel = 'Email'; // Removed colon
+      const emailTextY = y - 2; // Text positioned 2mm above the line (small gap)
+      doc.text(emailLabel, 15, emailTextY);
+
+      // Draw line for email (starts at same position as text, 100mm long)
+      const emailLineStartX = 15; // Same as text start position
+      const emailLineEndX = emailLineStartX + 100; // 100mm line length
+      const emailLineY = y; // Line at current y position
+
+      doc.setDrawColor(203, 213, 224); // #CBD5E0 - same as signature line
+      doc.setLineWidth(0.5); // Same as signature line
+      doc.line(emailLineStartX, emailLineY, emailLineEndX, emailLineY);
+
+      // Save the PDF (sanitize filename)
+      const sanitizedCompanyName = tenant.companyName
+        .replace(/[^a-z0-9]/gi, '_')
+        .toLowerCase();
+      doc.save(`${sanitizedCompanyName}_bank_letter.pdf`);
+    } catch (error) {
+      // Re-throw with more context
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new Error(`Failed to generate bank letter: ${errorMessage}`);
     }
-
-    const currentDate = dayjs().format('MMMM DD, YYYY');
-    const currentMonth = dayjs(activeMonth.startDate).format('MMMM');
-
-    // Get the logo data
-    let logoBase64 = '';
-    if (tenant.logo) {
-      logoBase64 = await getBase64FromUrl(tenant.logo);
-    } else {
-      logoBase64 = IE_LOGO_BASE64.split(',')[1]; // Use fallback if no logo
-    }
-
-    // Create document
-    const doc = new Document({
-      styles: {
-        default: {
-          document: {
-            run: {
-              font: 'Times New Roman',
-            },
-          },
-        },
-      },
-      sections: [
-        {
-          properties: {},
-          headers: {
-            default: new Header({
-              children: [
-                new Paragraph({
-                  children: logoBase64
-                    ? [
-                        new ImageRun({
-                          data: Buffer.from(logoBase64, 'base64'),
-                          transformation: {
-                            width: 120,
-                            height: 120,
-                          },
-                          type: 'png',
-                        }),
-                      ]
-                    : [],
-                  alignment: AlignmentType.LEFT,
-                  spacing: {
-                    after: 200,
-                  },
-                }),
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: tenant.companyName,
-                      bold: true,
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                  ],
-                  alignment: AlignmentType.RIGHT,
-                }),
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: `${tenant.address || `${tenant.region}, ${tenant.country}`}`,
-                      size: 20,
-                      font: 'Times New Roman',
-                    }),
-                  ],
-                  alignment: AlignmentType.RIGHT,
-                }),
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: tenant.companyEmail,
-                      size: 20,
-                      font: 'Times New Roman',
-                    }),
-                  ],
-                  alignment: AlignmentType.RIGHT,
-                }),
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: tenant.domainUrl,
-                      size: 20,
-                      font: 'Times New Roman',
-                    }),
-                  ],
-                  alignment: AlignmentType.RIGHT,
-                }),
-              ],
-            }),
-          },
-          footers: {
-            default: new Footer({
-              children: [
-                // Blue bar
-                new Paragraph({
-                  children: [],
-                  alignment: AlignmentType.CENTER,
-                  shading: {
-                    fill: '#46b8ec', // blue color
-                    type: 'clear',
-                  },
-                  spacing: { after: 200 },
-                }),
-                // Company name centered and bold
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: tenant.companyName,
-                      bold: true,
-                      size: 28,
-                      font: 'Times New Roman',
-                    }),
-                  ],
-                  alignment: AlignmentType.CENTER,
-                  spacing: { after: 200 },
-                }),
-                // Contact info row
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: 'T:',
-                      bold: true,
-                      color: '3498DB',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: ` ${tenant.phoneNumber}  `,
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '|',
-                      color: '6EC6F7',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '  M:',
-                      bold: true,
-                      color: '3498DB',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: ` ${tenant.contactPersonPhoneNumber} / ${tenant.contactPersonAltPhoneNumber || ''} / ${tenant.contactPersonAltPhoneNumber2 || ''}  `,
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '|',
-                      color: '6EC6F7',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: '  F:',
-                      bold: true,
-                      color: '3498DB',
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                    new TextRun({
-                      text: ` ${tenant.faxNumber || tenant.phoneNumber}`,
-                      size: 24,
-                      font: 'Times New Roman',
-                    }),
-                  ],
-                  alignment: AlignmentType.CENTER,
-                  spacing: { after: 200 },
-                }),
-              ],
-            }),
-          },
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `Date: ${currentDate}`,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `Ref: ${tenant.companyName.toUpperCase().slice(0, 2)}/FIN/${dayjs().format('DDMMYY')}/001`,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'To: - Enat Bank',
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `Mexico Derartu Tulu branch\n${tenant.region}, ${tenant.country}`,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 600,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `Subject: ${currentMonth} Salary Transfer Request`,
-                  bold: true,
-                  underline: {},
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `We hereby authorize your branch to transfer ETB ${amount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `Please deduct the transfer service charges from ${tenant.companyName} account 0061101660052002 maintained at Mexico Derartu Tulu branch.`,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Sincerely',
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: tenant.companyName,
-                  bold: true,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: tenant.contactPersonName,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: tenant.contactPersonEmail,
-                  size: 24,
-                  font: 'Times New Roman',
-                }),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-          ],
-        },
-      ],
-    });
-
-    // Generate and save the document
-    const buffer = await Packer.toBuffer(doc);
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    });
-    saveAs(blob, `${tenant.companyName}_Bank_Letter.docx`);
   };
 
   return { generateBankLetter };

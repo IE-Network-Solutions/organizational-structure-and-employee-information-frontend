@@ -26,19 +26,41 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
   };
 
   return (
-    <div className="mb-6">
+    <div
+      className="mb-6"
+      id="okr-criteria-filters-container"
+      data-cy="okr-criteria-filters-container"
+    >
       {isMobile ? (
-        <Row>
-          <Col xs={20} sm={20} md={18}>
+        <Row
+          id="okr-criteria-filters-mobile-row"
+          data-cy="okr-criteria-filters-mobile-row"
+        >
+          <Col
+            xs={20}
+            sm={20}
+            md={18}
+            id="okr-criteria-filters-mobile-search-col"
+            data-cy="okr-criteria-filters-mobile-search-col"
+          >
             <Input
               placeholder="Search by Name"
               onChange={handleSearch}
               allowClear
               className="w-full h-10"
+              id="okr-criteria-filters-mobile-search-input"
+              data-cy="okr-criteria-filters-mobile-search-input"
             />
           </Col>
 
-          <Col xs={4} sm={4} md={6} lg={6}>
+          <Col
+            xs={4}
+            sm={4}
+            md={6}
+            lg={6}
+            id="okr-criteria-filters-mobile-select-col"
+            data-cy="okr-criteria-filters-mobile-select-col"
+          >
             <Select
               placeholder=""
               onChange={handleTypeChange}
@@ -48,12 +70,19 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
               dropdownStyle={{ left: '50%', transform: 'translateX(-50%)' }}
               suffixIcon={
                 <div className="flex items-center justify-center w-full h-full text-black">
-                  <VscSettings size={20} />
+                  <VscSettings size={20} data-cy="okr-criteria-filters-mobile-select-icon-display-icon" />
                 </div>
               }
+              id="okr-criteria-filters-mobile-select"
+              data-cy="okr-criteria-filters-mobile-select"
             >
               {criteriaNames?.map((name) => (
-                <Option key={name} value={name}>
+                <Option
+                  key={name}
+                  value={name}
+                  id={`okr-criteria-filters-mobile-select-option-${name}`}
+                  data-cy={`okr-criteria-filters-mobile-select-option-${name}`}
+                >
                   {name}
                 </Option>
               ))}
@@ -61,25 +90,52 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
           </Col>
         </Row>
       ) : (
-        <Row gutter={16}>
-          <Col xs={24} sm={24} md={18} lg={18}>
+        <Row
+          gutter={16}
+          id="okr-criteria-filters-desktop-row"
+          data-cy="okr-criteria-filters-desktop-row"
+        >
+          <Col
+            xs={24}
+            sm={24}
+            md={18}
+            lg={18}
+            id="okr-criteria-filters-desktop-search-col"
+            data-cy="okr-criteria-filters-desktop-search-col"
+          >
             <Input
               placeholder="Search by Name"
               onChange={handleSearch}
               allowClear
               className="w-full h-10"
+              id="okr-criteria-filters-desktop-search-input"
+              data-cy="okr-criteria-filters-desktop-search-input"
             />
           </Col>
 
-          <Col xs={24} sm={24} md={6} lg={6}>
+          <Col
+            xs={24}
+            sm={24}
+            md={6}
+            lg={6}
+            id="okr-criteria-filters-desktop-select-col"
+            data-cy="okr-criteria-filters-desktop-select-col"
+          >
             <Select
               placeholder="All Types"
               onChange={handleTypeChange}
               allowClear
               className="w-full h-10"
+              id="okr-criteria-filters-desktop-select"
+              data-cy="okr-criteria-filters-desktop-select"
             >
               {criteriaNames?.map((name) => (
-                <Option key={name} value={name}>
+                <Option
+                  key={name}
+                  value={name}
+                  id={`okr-criteria-filters-desktop-select-option-${name}`}
+                  data-cy={`okr-criteria-filters-desktop-select-option-${name}`}
+                >
                   {name}
                 </Option>
               ))}
