@@ -415,7 +415,8 @@ const Payroll = () => {
           ?.reduce((acc: any, item: any) => {
             return acc + Number(item.amount);
           }, 0);
-        const taxableTransport = transportAllowance - 600;
+        const taxableTransport =
+          transportAllowance >= 600 ? transportAllowance - 600 : 0;
         const totalBenefits = item.totalMerit || 0;
 
         const payrollRowData: any = {
@@ -485,9 +486,7 @@ const Payroll = () => {
 
         uniqueMeritTypes.forEach((type) => {
           const merit = merits.find((m: any) => m.type === type);
-          meritRow[type.replace(/\s+/g, '').toLowerCase()] = formatAmount(
-            merit?.amount || 0,
-          );
+          meritRow[type] = formatAmount(merit?.amount || 0);
         });
 
         payrollData.push(payrollRowData);

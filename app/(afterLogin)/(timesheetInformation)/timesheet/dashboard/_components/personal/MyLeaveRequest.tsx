@@ -5,6 +5,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import LeaveRequestSidebar from '../../../my-timesheet/_components/leaveRequestSidebar';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import { LuPlus } from 'react-icons/lu';
 
 interface LeaveRequest {
   id: string;
@@ -60,7 +61,7 @@ const MyLeaveRequest: React.FC = () => {
           id="time-attendance-personal-leave-request-action-button"
           data-cy="time-attendance-personal-leave-request-action-button"
         >
-          Request
+          <span className="hidden md:block">Request</span>
         </Button>
       </div>
       <div

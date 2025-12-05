@@ -9,10 +9,9 @@ import EmployeeSearch from './_components/userSearch';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { Button, Tooltip, Popover, Input, Tag } from 'antd';
+
+import { Button, Popover, Input, Tag } from 'antd';
 import { IoMdSwitch } from 'react-icons/io';
-import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import {
   useEmployeeBranches,
@@ -28,7 +27,7 @@ const ManageEmployees: React.FC<any> = () => {
     useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
-  const { data: employeeStatus, isLoading } = useGetEmployeeStatus('');
+  useGetEmployeeStatus('');
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: EmploymentTypes } = useGetEmployementTypes();
@@ -39,23 +38,23 @@ const ManageEmployees: React.FC<any> = () => {
   const onClose = () => {
     setOpen(false);
   };
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const { data: subscriptionData, isLoading: subscriptionLoading } =
-    useGetSubscriptions(
-      {
-        filter: {
-          tenantId: [tenantId],
-        },
-      },
-      true,
-      true,
-    );
+  // const tenantId = useAuthenticationStore.getState().tenantId;
+  // const { data: subscriptionData, isLoading: subscriptionLoading } =
+  //   useGetSubscriptions(
+  //     {
+  //       filter: {
+  //         tenantId: [tenantId],
+  //       },
+  //     },
+  //     true,
+  //     true,
+  //   );
 
-  const totalSlots =
-    subscriptionData?.items?.find((sub: any) => sub.isActive)?.slotTotal || 0;
-  const allUsers =
-    employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
-  const isAvailableSlots = totalSlots >= allUsers;
+  // const totalSlots =
+  //   subscriptionData?.items?.find((sub: any) => sub.isActive)?.slotTotal || 0;
+  // const allUsers =
+  //   employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
+  // const isAvailableSlots = totalSlots >= allUsers;
   const handleDownloadUserData = (downloadFormat: string) => {
     // Convert searchParams to Record<string, string>
     const params: Record<string, string> = Object.fromEntries(
