@@ -19,7 +19,7 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { formatLinkToUploadFile, formatToOptions } from '@/helpers/formatTo';
 import CustomUpload from '@/components/form/customUpload';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSetCourseManagement } from '@/store/server/features/tna/management/mutation';
 
 import {
@@ -33,13 +33,24 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const CourseCategorySidebar = () => {
-  const [isDraft, setIsDraft] = useState(false);
   const {
     isShowCourseSidebar: isShow,
     setIsShowCourseSidebar: setIsShow,
     courseCategory,
     courseId,
     setCourseId,
+    // Course sidebar form states from Zustand
+    isDraft,
+    setIsDraft,
+    selectedDepartmentIds,
+    setSelectedDepartmentIds,
+    selectedUserIds,
+    setSelectedUserIds,
+    departmentUsersMap,
+    setDepartmentUsersMap,
+    isUsersLoading,
+    setIsUsersLoading,
+    resetCourseSidebarForm,
   } = useTnaManagementStore();
   const { userId, tenantId } = useAuthenticationStore();
   const { mutate: setCourse, isLoading, isSuccess } = useSetCourseManagement();
@@ -58,15 +69,7 @@ const CourseCategorySidebar = () => {
   );
 
   const [form] = Form.useForm();
-  const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<string[]>(
-    [],
-  );
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-  const [departmentUsersMap, setDepartmentUsersMap] = useState<
-    Record<string, any[]>
-  >({});
   const departmentUsersMapRef = useRef<Record<string, any[]>>({});
-  const [isUsersLoading, setIsUsersLoading] = useState(false);
 
   const { data: departmentResponse, isLoading: isDepartmentLoading } =
     useEmployeeDepartments();
@@ -255,27 +258,23 @@ const CourseCategorySidebar = () => {
     );
 
     setSelectedDepartmentIds(value);
-    setSelectedUserIds((prev) => {
-      if (!removed.length) {
-        return prev;
-      }
+    
+    // Update selected users based on removed departments
+    if (removed.length) {
       const remainingSet = new Set<string>();
       value.forEach((deptId) => {
         (departmentUsersMap[deptId] ?? []).forEach((user) =>
           remainingSet.add(String(user.id)),
         );
       });
-      return prev.filter((id) => remainingSet.has(id));
-    });
+      setSelectedUserIds(selectedUserIds.filter((id) => remainingSet.has(id)));
 
-    if (removed.length) {
-      setDepartmentUsersMap((prev) => {
-        const next = { ...prev };
-        removed.forEach((deptId) => {
-          delete next[deptId];
-        });
-        return next;
+      // Remove department users map entries for removed departments
+      const updatedMap = { ...departmentUsersMap };
+      removed.forEach((deptId) => {
+        delete updatedMap[deptId];
       });
+      setDepartmentUsersMap(updatedMap);
     }
 
     form.setFieldValue('department', value);
@@ -284,16 +283,14 @@ const CourseCategorySidebar = () => {
       setIsUsersLoading(true);
       fetchDepartmentUsers(added)
         .then((result) => {
-          setDepartmentUsersMap((prev) => ({ ...prev, ...result }));
-          setSelectedUserIds((prev) => {
-            const next = new Set(prev);
-            added.forEach((deptId) => {
-              (result[deptId] ?? []).forEach((user) =>
-                next.add(String(user.id)),
-              );
-            });
-            return Array.from(next);
+          setDepartmentUsersMap({ ...departmentUsersMap, ...result });
+          const next = new Set(selectedUserIds);
+          added.forEach((deptId) => {
+            (result[deptId] ?? []).forEach((user) =>
+              next.add(String(user.id)),
+            );
           });
+          setSelectedUserIds(Array.from(next));
         })
         .catch(() => {
           message.error(
@@ -375,12 +372,12 @@ const CourseCategorySidebar = () => {
       department: derivedDepartments,
     });
 
-    setSelectedDepartmentIds((prev) =>
-      areArraysEqual(prev, derivedDepartments) ? prev : derivedDepartments,
-    );
-    setSelectedUserIds((prev) =>
-      areArraysEqual(prev, derivedUsers) ? prev : derivedUsers,
-    );
+    if (!areArraysEqual(selectedDepartmentIds, derivedDepartments)) {
+      setSelectedDepartmentIds(derivedDepartments);
+    }
+    if (!areArraysEqual(selectedUserIds, derivedUsers)) {
+      setSelectedUserIds(derivedUsers);
+    }
 
     if (derivedDepartments.length) {
       const missingDepartments = derivedDepartments.filter(
@@ -391,7 +388,7 @@ const CourseCategorySidebar = () => {
         setIsUsersLoading(true);
         fetchDepartmentUsers(missingDepartments)
           .then((result) => {
-            setDepartmentUsersMap((prev) => ({ ...prev, ...result }));
+            setDepartmentUsersMap({ ...departmentUsersMap, ...result });
           })
           .catch(() => {
             message.error(
@@ -447,10 +444,7 @@ const CourseCategorySidebar = () => {
   const onClose = () => {
     setCourseId(null);
     form.resetFields();
-    setSelectedDepartmentIds([]);
-    setSelectedUserIds([]);
-    setDepartmentUsersMap({});
-    setIsDraft(false);
+    resetCourseSidebarForm();
     setIsShow(false);
   };
 
