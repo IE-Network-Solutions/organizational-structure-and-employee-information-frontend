@@ -130,13 +130,13 @@ function Page() {
     <div className="min-h-screen w-full bg-gray-100 px-12">
       <div className="h-full w-auto">
         <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-    <div>
-          <CustomBreadcrumb
-            className="text-sm"
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="w-full md:w-auto flex justify-start">
+              <CustomBreadcrumb
+                className="text-xs md:text-sm scale-90 md:scale-100 origin-left"
                 title="Planning & Reporting"
-            subtitle="OKR Settings"
-          />
+                subtitle="OKR Settings"
+              />
             </div>
             <Segmented
               size="large"
@@ -146,7 +146,7 @@ function Page() {
                 { label: 'Planning', value: 1 },
                 { label: 'Reporting', value: 2 },
               ]}
-              className="bg-[#F5F5F7] p-1.5 rounded-lg shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] border border-[#E5E7EB] [&_.ant-segmented-item]:transition-all [&_.ant-segmented-item]:rounded-md [&_.ant-segmented-item]:px-4 [&_.ant-segmented-item]:py-1.5 [&_.ant-segmented-item]:text-sm [&_.ant-segmented-item]:font-medium [&_.ant-segmented-item]:h-auto [&_.ant-segmented-item]:leading-normal [&_.ant-segmented-item-selected]:!bg-white [&_.ant-segmented-item-selected]:shadow-sm [&_.ant-segmented-item-selected]:text-[#161A2C] [&_.ant-segmented-item-label]:!text-[#161A2C] [&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-[#161A2C]"
+              className="bg-[#F5F5F7] p-1 md:p-1.5 rounded-lg shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] border border-[#E5E7EB] [&_.ant-segmented-item]:transition-all [&_.ant-segmented-item]:rounded-md [&_.ant-segmented-item]:px-3 md:[&_.ant-segmented-item]:px-4 [&_.ant-segmented-item]:py-0.5 md:[&_.ant-segmented-item]:py-1.5 [&_.ant-segmented-item]:text-xs md:[&_.ant-segmented-item]:text-sm [&_.ant-segmented-item]:font-medium [&_.ant-segmented-item]:h-auto [&_.ant-segmented-item]:leading-normal [&_.ant-segmented-item-selected]:!bg-white [&_.ant-segmented-item-selected]:shadow-sm [&_.ant-segmented-item-selected]:text-[#161A2C] [&_.ant-segmented-item-label]:!text-[#161A2C] [&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-[#161A2C]"
             />
           </div>
         </div>

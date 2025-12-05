@@ -76,7 +76,7 @@ function CreateReport() {
   //   useGetUnReportedPlanning(planningPeriodId,activeTab);
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div className="text-center text-xl font-bold text-[#161A2C]">
       Create {planningPeriodName} Report
     </div>
   );
@@ -260,6 +260,46 @@ function CreateReport() {
   //   return grandTotal + planTotal;
   // }, 0) || 0;
 
+  const footer = (
+    <div className="relative flex items-center justify-center px-4 py-2">
+      <div className="flex items-center gap-4">
+        <Button 
+          size="large" 
+          className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32" 
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="primary"
+          size="large"
+          className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF]"
+          loading={createReportLoading}
+          onClick={() => form.submit()}
+        >
+          Create Report
+        </Button>
+      </div>
+
+      <div className="absolute right-4">
+        <span className="text-sm font-medium text-[#161A2C]">
+          Total Point:{' '}
+          <span
+            className={
+              totalWeight > 84
+                ? 'text-[#52C41A]'
+                : totalWeight >= 64
+                  ? 'text-orange-500'
+                  : 'text-red-500'
+            }
+          >
+            {totalWeight}%
+          </span>
+        </span>
+      </div>
+    </div>
+  );
+
   return (
     openReportModal && (
       <CustomDrawerLayout
@@ -267,6 +307,7 @@ function CreateReport() {
         onClose={onClose}
         modalHeader={modalHeader}
         width="65%"
+        footer={footer}
       >
         {formattedData?.length > 0 ? (
           <Spin spinning={plannedTaskForReportLoading} tip="Loading...">
@@ -986,32 +1027,6 @@ function CreateReport() {
                   </Collapse.Panel>
                 </Collapse>
               ))}
-              <div className="flex items-center mt-2 gap-2">
-                <span className="text-black">Total Point:</span>
-                <span
-                  className={`${
-                    totalWeight > 84
-                      ? 'text-green-500'
-                      : totalWeight >= 64
-                        ? 'text-orange'
-                        : 'text-red-500'
-                  }`}
-                >
-                  {totalWeight}%
-                </span>
-              </div>
-              <Row className="flex justify-center space-x-4 mt-4">
-                <Button htmlType="button" onClick={() => onClose()}>
-                  Cancel
-                </Button>
-                <Button
-                  loading={createReportLoading}
-                  htmlType="submit"
-                  className="bg-primary text-white"
-                >
-                  Create Report
-                </Button>
-              </Row>
             </Form>
           </Spin>
         ) : (

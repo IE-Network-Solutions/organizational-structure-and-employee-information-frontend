@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
 import { FaUser } from 'react-icons/fa';
 import { useState, useMemo } from 'react';
+import { SendOutlined } from '@ant-design/icons';
 
 dayjs.extend(relativeTime);
 
@@ -132,38 +133,41 @@ const CommentList = ({
         const { fullName, profileImage } = getUserDetail(
           commentData.commentedBy,
         );
+        const isOwnComment = commentData.commentedBy === userId;
 
         return (
-          <Row
-            key={commentData.id}
-            justify="space-between"
-            align="middle"
-            className="w-full"
-          >
-            <Col>
-              <div className="text-xs font-semibold flex items-center">
+          <div key={commentData.id} className={`w-full mb-3 flex items-start gap-2 ${isOwnComment ? 'justify-end' : 'justify-start'}`}>
+            <div
+              className={`inline-block rounded-2xl px-4 py-3 shadow-sm ${
+                isOwnComment
+                  ? 'border border-[#574CFF] bg-white'
+                  : 'bg-[#F5F5F7] border border-[#E5E7EB]'
+              }`}
+              style={{ maxWidth: '70%' }}
+            >
+              {/* Avatar and Name on top - Avatar first (left), then name - all inside bubble */}
+              <div className="flex items-center gap-2 mb-2">
                 <Avatar
                   src={profileImage || undefined}
                   icon={!profileImage ? <FaUser /> : undefined}
                   alt={fullName}
-                  className="mr-1"
+                  size="small"
+                  className="flex-shrink-0"
                 />
-                <span className="font-normal"> {fullName}</span>
-                <div className="text-gray-400 text-xs ml-2">
-                  {dayjs(commentData.createdAt).fromNow()}
-                </div>
+                <span className="text-sm font-semibold text-[#161A2C]">{fullName}</span>
               </div>
-              <div className="text-gray-700  ml-9 font-semibold">
+              {/* Comment text below - aligned left - inside bubble */}
+              <div className="text-sm text-[#4B5563] break-words">
                 {commentData.comment}
               </div>
-            </Col>
-            <Col hidden={commentData?.commentedBy !== userId}>
+            </div>
+            {isOwnComment && (
               <CommentActionMenu
                 onEdit={() => handleEdit(commentData)}
                 onDelete={() => handleDelete(commentData.id)}
               />
-            </Col>
-          </Row>
+            )}
+          </div>
         );
       })}
 
@@ -184,29 +188,27 @@ const CommentList = ({
           <Form.Item name="commentedBy" initialValue={userId} hidden>
             <Input type="hidden" />
           </Form.Item>
-          <Row gutter={8} align="middle" className="w-full">
-            <Col span={20}>
-              <Form.Item
-                name="comment"
-                rules={[{ required: true, message: 'Please enter a comment' }]}
-                className="w-full"
-              >
-                <Input placeholder="Add a comment..." />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item>
-                <Button
-                  loading={isLoading}
-                  type="primary"
-                  htmlType="submit"
-                  className="w-full"
-                >
-                  Send
-                </Button>
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="comment"
+            rules={[{ required: true, message: 'Please enter a comment' }]}
+            className="w-full mt-2 mb-0"
+          >
+            <div className="relative">
+              <Input.TextArea
+                placeholder="Add your comment here"
+                className="rounded-2xl border-[#E5E7EB] bg-[#F9FAFB] px-4 pr-12"
+                style={{ height: '88px', paddingRight: '48px', resize: 'none' }}
+                autoSize={false}
+              />
+              <Button
+                loading={isLoading}
+                type="text"
+                htmlType="submit"
+                icon={<SendOutlined />}
+                className="absolute right-2 top-2 flex items-center justify-center !w-8 !h-8 !p-0 border-0 bg-transparent text-[#111827] hover:bg-transparent hover:text-[#574CFF]"
+              />
+            </div>
+          </Form.Item>
         </Form>
       )}
     </div>

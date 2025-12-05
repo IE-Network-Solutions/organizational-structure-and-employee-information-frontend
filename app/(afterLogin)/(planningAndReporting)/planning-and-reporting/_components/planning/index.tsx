@@ -12,8 +12,9 @@ import {
 } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import SessionFilter from '../filters/SessionFilter';
+import MobileFilterModal from '../filters/MobileFilterModal';
 import { FaPlus } from 'react-icons/fa';
-import { IoIosOpen, IoMdMore } from 'react-icons/io';
+import { IoIosOpen, IoMdMore, IoMdSwitch } from 'react-icons/io';
 import { MdOutlinePending } from 'react-icons/md';
 import {
   AllPlanningPeriods,
@@ -72,6 +73,7 @@ function Planning() {
   const { isMobile, isTablet } = useIsMobile();
   const { userId } = useAuthenticationStore();
   const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedPlanType, setSelectedPlanType] = useState<string>('all');
   const { data: selectedFiscalYear } = useGetFiscalYearById(
     selectedFiscalYearId || '',
@@ -347,9 +349,9 @@ function Planning() {
 
   const isActive = planningPeriodHierarchy?.parentPlan
     ? (planningPeriodHierarchy?.parentPlan?.plans?.length ?? 0) === 0 ||
-      (planningPeriodHierarchy?.parentPlan?.plans?.filter(
-        (i: any) => !i.isReported,
-      ).length ?? 0) === 0
+    (planningPeriodHierarchy?.parentPlan?.plans?.filter(
+      (i: any) => !i.isReported,
+    ).length ?? 0) === 0
     : false;
 
   // Check if data belongs to an active session
@@ -402,23 +404,24 @@ function Planning() {
   };
 
   return (
-      <div className="min-h-screen bg-gray-100">
-        <div className="flex flex-wrap items-center gap-3 pb-4">
-          <Select
-            className="w-full min-w-[180px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]"
-            placeholder="Select employee"
-            options={employeeOptions}
-            onChange={handleEmployeeChange}
-            value={getSelectedEmployeeValue()}
-            loading={!employeeData}
-            size="large"
-            showSearch
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
-            }
-            notFoundContent={!employeeData ? 'Loading...' : 'No employees found'}
-          />
+    <div className="min-h-screen bg-gray-100">
+      <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pb-4">
+        <Select
+          className="w-full min-w-[180px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]"
+          placeholder="Select employee"
+          options={employeeOptions}
+          onChange={handleEmployeeChange}
+          value={getSelectedEmployeeValue()}
+          loading={!employeeData}
+          size="large"
+          showSearch
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
+          }
+          notFoundContent={!employeeData ? 'Loading...' : 'No employees found'}
+        />
+        <div className="hidden md:contents">
           <Select
             className="w-full min-w-[160px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]"
             placeholder="Plan type"
@@ -441,107 +444,113 @@ function Planning() {
             }
           />
           <SessionFilter />
-          <Tooltip
-            title={
-              allUserPlanning?.length != 0
-                ? `Report planned tasks before you create ${activeTabName} plan`
-                : objective?.items?.length === 0
-                  ? 'Create Objective before you Plan'
-                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
-                      planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                        (i: any) => i.isReported === false,
-                      )?.length == 0
-                    ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
-                    : ''
-            }
-          >
-            <div style={{ display: 'inline-block' }}>
-              {userPlanningPeriodId && (
-                <CustomButton
-                  disabled={
-                    allUserPlanning?.length > 0 ||
-                    isActive ||
-                    (objective?.items?.length ?? 0) === 0
-                  }
-                  loading={isLoading}
-                  title={
-                    <span className="hidden sm:block">
-                      {`Create ${activeTabName} Plan`}
-                    </span>
-                  }
-                  id="createActiveTabName"
-                  icon={<FaPlus className="ml-2 sm:ml-0" />}
-                  onClick={() => setOpen(true)}
-                  className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:min-w-[180px]`}
-                />
-              )}
-            </div>
-          </Tooltip>
         </div>
-
-        <section className="mt-8">
-          <div className="space-y-6">
-            {getPlanningLoading ? (
-              Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />)
-            ) : (
-              planSummaries.map((plan: any) => {
-            // Get original dataItem for actions
-            const originalDataItem = transformedData?.find((item: any) => item.id === plan.id);
-            if (!originalDataItem) return null;
-
-            return (
-              <PlanCard
-                key={plan.id}
-                plan={plan}
-                viewMode="planning"
-                activeCadence={activeTabName?.toLowerCase() as Cadence || 'weekly'}
-                // Pass action handlers as props if needed
-                onApprove={() => handleApproveHandler(originalDataItem.id, true)}
-                onOpen={() => handleApproveHandler(originalDataItem.id, false)}
-                onEdit={() => {
-                  setEditing(true);
-                  setSelectedPlanId(originalDataItem.id);
-                  setOpen(true);
-                }}
-                canApprove={userId === (getEmployeeData(originalDataItem?.userId)?.delegatedTo?.id || getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)}
-                canEdit={userId === originalDataItem?.userId && originalDataItem?.isValidated == false && originalDataItem?.isReported == false && isDataFromActiveSession(originalDataItem?.createdAt)}
-                isApprovalLoading={isApprovalLoading}
-                dateLabel={getDateLabel(originalDataItem?.createdAt, activeTabName)}
+        <Button
+          className="md:hidden w-12 h-12 flex items-center justify-center border-[#E5E7EB] rounded-lg bg-[#F5F5F7]"
+          icon={<IoMdSwitch size={20} />}
+          onClick={() => setIsFilterModalOpen(true)}
+        />
+        <Tooltip
+          title={
+            allUserPlanning?.length != 0
+              ? `Report planned tasks before you create ${activeTabName} plan`
+              : objective?.items?.length === 0
+                ? 'Create Objective before you Plan'
+                : planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                  planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                    (i: any) => i.isReported === false,
+                  )?.length == 0
+                  ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
+                  : ''
+          }
+        >
+          <div style={{ display: 'inline-block' }}>
+            {userPlanningPeriodId && (
+              <CustomButton
+                disabled={
+                  (allUserPlanning && allUserPlanning.length > 0) ||
+                  isActive ||
+                  (objective?.items?.length ?? 0) === 0
+                }
+                loading={isLoading}
+                title={
+                  <span className="hidden sm:block">
+                    {`Create ${activeTabName} Plan`}
+                  </span>
+                }
+                id="createActiveTabName"
+                icon={<FaPlus className="ml-2 sm:ml-0" />}
+                onClick={() => setOpen(true)}
+                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:w-auto sm:min-w-[180px]`}
               />
-              );
-            })
             )}
           </div>
-        </section>
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={allPlanning?.meta?.totalItems ?? 0}
-            pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-          />
-        ) : (
-          <CustomPagination
-            current={page}
-            total={allPlanning?.meta?.totalItems || 1}
-            pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-          />
-        )}
-        {/* <Pagination
+        </Tooltip>
+      </div>
+
+      <section className="mt-8">
+        <div className="space-y-6">
+          {getPlanningLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />)
+          ) : (
+            planSummaries.map((plan: any, index: number) => {
+              // Get original dataItem for actions
+              const originalDataItem = transformedData?.find((item: any) => item.id === plan.id);
+              if (!originalDataItem) return null;
+
+              return (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  viewMode="planning"
+                  activeCadence={activeTabName?.toLowerCase() as Cadence || 'weekly'}
+                  // Pass action handlers as props if needed
+                  onApprove={() => handleApproveHandler(originalDataItem.id, true)}
+                  onOpen={() => handleApproveHandler(originalDataItem.id, false)}
+                  onEdit={() => {
+                    setEditing(true);
+                    setSelectedPlanId(originalDataItem.id);
+                    setOpen(true);
+                  }}
+                  canApprove={userId === (getEmployeeData(originalDataItem?.userId)?.delegatedTo?.id || getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)}
+                  canEdit={userId === originalDataItem?.userId && originalDataItem?.isValidated == false && originalDataItem?.isReported == false && isDataFromActiveSession(originalDataItem?.createdAt)}
+                  isApprovalLoading={isApprovalLoading}
+                  dateLabel={getDateLabel(originalDataItem?.createdAt, activeTabName)}
+                />
+              );
+            })
+          )}
+        </div>
+      </section>
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={allPlanning?.meta?.totalItems ?? 0}
+          pageSize={pageSize}
+          onChange={(page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
+      ) : (
+        <CustomPagination
+          current={page}
+          total={allPlanning?.meta?.totalItems || 1}
+          pageSize={pageSize}
+          onChange={(page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
+      )}
+      {/* <Pagination
           disabled={!allPlanning?.items?.length} // Ensures no crash if items is undefined
           className="flex justify-end"
             total={allPlanning?.meta?.totalItems} // Ensures total count instead of pages
@@ -555,24 +564,35 @@ function Planning() {
           pageSizeOptions={['10', '20', '50', '100']}
         /> */}
 
-        {transformedData?.length <= 0 && (
-          <div className="flex justify-center">
-            <div>
-              <p className="flex justify-center items-center h-[200px]">
-                <Image
-                  src="/image/undraw_empty_re_opql 1.svg"
-                  width={300}
-                  height={300}
-                  alt="Picture of the author"
-                />
-              </p>
-              <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
-                There is no Planned data !!
-              </p>
-            </div>
+      {transformedData?.length <= 0 && (
+        <div className="flex justify-center">
+          <div>
+            <p className="flex justify-center items-center h-[200px]">
+              <Image
+                src="/image/undraw_empty_re_opql 1.svg"
+                width={300}
+                height={300}
+                alt="Picture of the author"
+              />
+            </p>
+            <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+              There is no Planned data !!
+            </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      <MobileFilterModal
+        open={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApply={() => setIsFilterModalOpen(false)}
+        planTypeOptions={planTypeOptions}
+        selectedPlanType={selectedPlanType}
+        onPlanTypeChange={handlePlanTypeChange}
+        departmentOptions={departmentOptions}
+        selectedDepartment={selectedDepartment}
+        onDepartmentChange={handleDepartmentChange}
+      />
+    </div>
   );
 }
 export default Planning;

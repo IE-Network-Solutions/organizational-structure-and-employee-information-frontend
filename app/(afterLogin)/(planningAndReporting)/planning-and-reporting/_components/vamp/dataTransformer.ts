@@ -51,32 +51,62 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
  * Transform keyResult data structure
  */
 const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
-  // Transform tasks
-  const transformedTasks = (keyResult.tasks || []).map((task: any) => transformTask(task, viewMode));
+  const isMilestoneMetric = keyResult.metricType?.name === 'Milestone';
+  
+  // Transform tasks - filter out empty tasks
+  const transformedTasks = (keyResult.tasks || [])
+    .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+    .map((task: any) => transformTask(task, viewMode));
 
   // Transform milestones
   const transformedMilestones = (keyResult.milestones || []).map((milestone: any) => ({
     id: milestone.id || '',
     name: milestone.name,
     title: milestone.title || milestone.name,
-    tasks: (milestone.tasks || []).map((task: any) => transformTask(task, viewMode)),
+    tasks: (milestone.tasks || [])
+      .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+      .map((task: any) => transformTask(task, viewMode)),
     parentTask: (milestone.parentTask || []).map((parent: any) => ({
       ...parent,
-      tasks: (parent.tasks || []).map((task: any) => transformTask(task, viewMode)),
+      tasks: (parent.tasks || [])
+        .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+        .map((task: any) => transformTask(task, viewMode)),
     })),
   }));
 
   // Transform parent tasks
   const transformedParentTasks = (keyResult.parentTask || []).map((parent: any) => ({
     ...parent,
-    tasks: (parent.tasks || []).map((task: any) => transformTask(task, viewMode)),
+    tasks: (parent.tasks || [])
+      .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+      .map((task: any) => transformTask(task, viewMode)),
   }));
+
+  // For non-milestone metric types, promote milestone parentTask groups to keyResult level
+  // This ensures we show parent tasks with subtasks directly under the key result
+  let finalParentTasks = [...transformedParentTasks];
+  let finalMilestones = [...transformedMilestones];
+  let finalTasks = [...transformedTasks];
+  
+  if (!isMilestoneMetric) {
+    // Extract all parentTask groups from milestones and merge into keyResult.parentTask
+    const milestoneParentTasks = transformedMilestones.flatMap(m => m.parentTask || []);
+    finalParentTasks = [...transformedParentTasks, ...milestoneParentTasks];
+    
+    // Also promote standalone tasks from milestones to keyResult.tasks
+    // These are tasks that don't have a parentTask and aren't parents themselves
+    const milestoneStandaloneTasks = transformedMilestones.flatMap(m => m.tasks || []);
+    finalTasks = [...transformedTasks, ...milestoneStandaloneTasks];
+    
+    // Clear milestones for non-milestone metric types to avoid showing empty milestone sections
+    finalMilestones = [];
+  }
 
   // Calculate target and achieved values
   const allTasks = [
-    ...transformedTasks,
-    ...transformedMilestones.flatMap(m => [...m.tasks, ...m.parentTask.flatMap(p => p.tasks)]),
-    ...transformedParentTasks.flatMap(p => p.tasks),
+    ...finalTasks,
+    ...finalMilestones.flatMap(m => [...m.tasks, ...m.parentTask.flatMap(p => p.tasks)]),
+    ...finalParentTasks.flatMap(p => p.tasks),
   ];
 
   const targetValue = allTasks.reduce((sum, t) => sum + (t.target || 0), 0);
@@ -92,9 +122,9 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     id: keyResult.id || '',
     name: keyResult.name,
     title: keyResult.title || keyResult.name,
-    tasks: transformedTasks,
-    milestones: transformedMilestones,
-    parentTask: transformedParentTasks,
+    tasks: finalTasks,
+    milestones: finalMilestones,
+    parentTask: finalParentTasks,
     objective: keyResult.objective,
     metricType: keyResult.metricType,
     targetValue: keyResult.targetValue || targetValue,
@@ -146,11 +176,18 @@ export const transformReportToPlanSummary = (
       target: task.planTask?.targetValue || task.targetValue || 0,
       status: getTaskStatus(task, 'reporting'),
       hasAttachment: task.hasAttachment || false,
+      parentTask: task?.planTask?.parentTask, // Include parentTask reference for grouping
     };
 
     const milestone = task?.planTask?.milestone;
     if (!milestone) {
-      keyResultsMap[krId].tasks.push(taskObj);
+      // Check if this task has a parentTask - if so, we'll group it later
+      if (task?.planTask?.parentTask?.id) {
+        // Store task with parentTask reference for later grouping
+        keyResultsMap[krId].tasks.push(taskObj);
+      } else {
+        keyResultsMap[krId].tasks.push(taskObj);
+      }
     } else {
       let existingMilestone = keyResultsMap[krId].milestones.find((m: any) => m.id === milestone.id);
       if (!existingMilestone) {
@@ -166,20 +203,112 @@ export const transformReportToPlanSummary = (
       existingMilestone.tasks.push(taskObj);
     }
   });
+  
+  // Group parent tasks for each key result
+  Object.values(keyResultsMap).forEach((kr: any) => {
+    // Group tasks with parentTask at keyResult level
+    const tasksWithParent = (kr.tasks || []).filter((t: any) => t?.parentTask?.id);
+    const tasksWithoutParent = (kr.tasks || []).filter((t: any) => !t?.parentTask?.id);
+    
+    const parentTaskMap: Record<string, any> = {};
+    tasksWithParent.forEach((task: any) => {
+      const parentId = task.parentTask.id;
+      if (!parentTaskMap[parentId]) {
+        parentTaskMap[parentId] = {
+          ...task.parentTask,
+          id: parentId,
+          task: task.parentTask.task || task.parentTask.title || task.parentTask.name,
+          tasks: [],
+        };
+      }
+      parentTaskMap[parentId].tasks.push(task);
+    });
+    
+    kr.parentTask = Object.values(parentTaskMap);
+    
+    // Remove parent tasks that are already grouped, and tasks that are children
+    const parentTaskIds = new Set(Object.keys(parentTaskMap));
+    const childTaskIds = new Set(tasksWithParent.map((t: any) => t.id));
+    
+    kr.tasks = tasksWithoutParent.filter((t: any) => 
+      !parentTaskIds.has(t.id) && 
+      !childTaskIds.has(t.id) &&
+      (t.title || t.taskName || t.task) // Exclude empty tasks
+    );
+    
+    // Group parent tasks within milestones
+    (kr.milestones || []).forEach((milestone: any) => {
+      const milestoneTasksWithParent = (milestone.tasks || []).filter((t: any) => t?.parentTask?.id);
+      const milestoneTasksWithoutParent = (milestone.tasks || []).filter((t: any) => !t?.parentTask?.id);
+      
+      const milestoneParentTaskMap: Record<string, any> = {};
+      milestoneTasksWithParent.forEach((task: any) => {
+        const parentId = task.parentTask.id;
+        if (!milestoneParentTaskMap[parentId]) {
+          milestoneParentTaskMap[parentId] = {
+            ...task.parentTask,
+            id: parentId,
+            task: task.parentTask.task || task.parentTask.title || task.parentTask.name,
+            tasks: [],
+          };
+        }
+        milestoneParentTaskMap[parentId].tasks.push(task);
+      });
+      
+      milestone.parentTask = Object.values(milestoneParentTaskMap);
+      
+      // Remove parent tasks that are already grouped, and tasks that are children
+      const milestoneParentTaskIds = new Set(Object.keys(milestoneParentTaskMap));
+      const milestoneChildTaskIds = new Set(milestoneTasksWithParent.map((t: any) => t.id));
+      
+      milestone.tasks = milestoneTasksWithoutParent.filter((t: any) => 
+        !milestoneParentTaskIds.has(t.id) && 
+        !milestoneChildTaskIds.has(t.id) &&
+        (t.title || t.taskName || t.task) // Exclude empty tasks
+      );
+    });
+  });
 
   const transformedKeyResults = Object.values(keyResultsMap).map((kr: any) => {
+    const isMilestoneMetric = kr.metricType?.name === 'Milestone';
+    
+    // For non-milestone metric types, promote milestone parentTask groups to keyResult level
+    let finalParentTasks = [...(kr.parentTask || [])];
+    let finalMilestones = [...(kr.milestones || [])];
+    let finalTasks = [...(kr.tasks || [])];
+    
+    if (!isMilestoneMetric) {
+      // Extract all parentTask groups from milestones and merge into keyResult.parentTask
+      const milestoneParentTasks = (kr.milestones || []).flatMap((m: any) => m.parentTask || []);
+      finalParentTasks = [...(kr.parentTask || []), ...milestoneParentTasks];
+      
+      // Also promote standalone tasks from milestones to keyResult.tasks
+      // These are tasks that don't have a parentTask and aren't parents themselves
+      const milestoneStandaloneTasks = (kr.milestones || []).flatMap((m: any) => 
+        (m.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task) // Exclude empty tasks
+      );
+      finalTasks = [...(kr.tasks || []), ...milestoneStandaloneTasks];
+      
+      // Clear milestones for non-milestone metric types to avoid showing empty milestone sections
+      finalMilestones = [];
+    }
+    
     // Collect ALL tasks from this key result including:
     // - Direct tasks
-    // - Tasks in milestones
-    // - Tasks in parent tasks within milestones
+    // - Tasks in milestones (only for milestone metric type)
+    // - Tasks in parent tasks within milestones (only for milestone metric type)
     // - Tasks in parent tasks at key result level
     const allTasks = [
-      ...kr.tasks,
-      ...kr.milestones.flatMap((m: any) => [
-        ...m.tasks,
-        ...(m.parentTask || []).flatMap((p: any) => p.tasks || [])
+      ...finalTasks.filter((t: any) => t?.title || t?.taskName || t?.task), // Exclude empty tasks
+      ...finalMilestones.flatMap((m: any) => [
+        ...(m.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task),
+        ...(m.parentTask || []).flatMap((p: any) => 
+          (p.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task)
+        )
       ]),
-      ...(kr.parentTask || []).flatMap((p: any) => p.tasks || []),
+      ...finalParentTasks.flatMap((p: any) => 
+        (p.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task)
+      ),
     ];
     
     // Calculate achieved as sum of weights of completed/achieved tasks
@@ -198,6 +327,9 @@ export const transformReportToPlanSummary = (
     
     return {
       ...kr,
+      tasks: finalTasks.filter((t: any) => t?.title || t?.taskName || t?.task), // Exclude empty tasks
+      milestones: finalMilestones,
+      parentTask: finalParentTasks,
       targetValue: kr.targetValue || 0,
       currentValue: achieved, // Sum of weights of achieved tasks for this key result only
       progress: totalWeight > 0 ? (achieved / totalWeight) * 100 : 0,

@@ -92,17 +92,20 @@ function SubTaskComponent({
                 </Col>
                 <Col>
                   <Form.Item
-                    label={<div className="text-xs">Target</div>}
                     {...subField}
                     name={[subField.name, 'targetValue']}
                     key={`target-${subField.key}`}
                     hidden={hasTargetValue}
+                    className="mb-0"
                   >
-                    <InputNumber
-                      className="w-32 text-xs"
-                      placeholder="20"
-                      min={0}
-                    />
+                    <div className="flex items-center gap-2">
+                      <div className="text-xs whitespace-nowrap">Target:</div>
+                      <InputNumber
+                        className="w-32 text-xs"
+                        placeholder="20"
+                        min={0}
+                      />
+                    </div>
                   </Form.Item>
                 </Col>
                 <Col>
@@ -118,28 +121,31 @@ function SubTaskComponent({
                         },
                       ]}
                       key={`priority-${subField.key}`}
-                      label={<div className="text-xs">Priority</div>}
+                      className="mb-0"
                     >
-                      <Select
-                        className="w-32 h-7 text-xs"
-                        options={[
-                          {
-                            label: 'High',
-                            value: 'high',
-                            className: 'text-error text-xs',
-                          },
-                          {
-                            label: 'Medium',
-                            value: 'medium',
-                            className: 'text-warning text-xs',
-                          },
-                          {
-                            label: 'Low',
-                            value: 'low',
-                            className: 'text-success text-xs',
-                          },
-                        ]}
-                      />
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs whitespace-nowrap">Priority:</div>
+                        <Select
+                          className="w-32 h-7 text-xs"
+                          options={[
+                            {
+                              label: 'High',
+                              value: 'high',
+                              className: 'text-error text-xs',
+                            },
+                            {
+                              label: 'Medium',
+                              value: 'medium',
+                              className: 'text-warning text-xs',
+                            },
+                            {
+                              label: 'Low',
+                              value: 'low',
+                              className: 'text-success text-xs',
+                            },
+                          ]}
+                        />
+                      </div>
                     </Form.Item>
 
                     <Form.Item

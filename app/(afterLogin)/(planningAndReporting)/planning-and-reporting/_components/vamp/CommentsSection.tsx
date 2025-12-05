@@ -28,13 +28,13 @@ export default function CommentsSection({
   // Get unique commenters from comments
   const uniqueCommenters = useMemo(() => {
     if (!comments || comments.length === 0) return [];
-    
+
     // Get unique users who commented
     const unique = comments.filter(
       (comment, index, self) =>
         index === self.findIndex((c) => c.commentedBy === comment.commentedBy)
     );
-    
+
     // Limit to 5
     return unique.slice(0, 5);
   }, [comments]);
@@ -51,12 +51,12 @@ export default function CommentsSection({
         initials: 'UU',
       };
     }
-    
+
     const firstName = user.firstName || '';
     const middleName = user.middleName || '';
     const lastName = user.lastName || '';
     const initials = `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'UU';
-    
+
     return {
       profileImage: user.profileImage,
       firstName,
@@ -82,7 +82,7 @@ export default function CommentsSection({
     <div className="mt-5">
       {/* Header: Avatars | Comments Count | Add Comment Button */}
       <div className="flex items-center justify-between w-full">
-        <div 
+        <div
           className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={handleCommentsClick}
         >
@@ -108,13 +108,13 @@ export default function CommentsSection({
               })}
             </Avatar.Group>
           )}
-          <span className="text-sm font-semibold text-[#1F213A]">
+          <span className="text-xs md:text-sm font-semibold text-[#1F213A]">
             {commentCount} Comments
           </span>
         </div>
         <span
           onClick={handleAddCommentClick}
-          className="cursor-pointer text-base font-bold transition-colors"
+          className="cursor-pointer text-xs md:text-base font-bold transition-colors"
           style={{ color: '#2563EB' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = '#1D4ED8'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = '#2563EB'; }}
@@ -122,7 +122,7 @@ export default function CommentsSection({
           Add Comment
         </span>
       </div>
-      
+
       {/* Comments List and Add Comment Form */}
       {showComments && (
         <div className="mt-4">
@@ -133,9 +133,9 @@ export default function CommentsSection({
               paragraph={{ rows: 3, width: ['100%', '80%', '60%'] }}
             />
           ) : (
-            <CommentList 
-              data={comments || []} 
-              planId={planId} 
+            <CommentList
+              data={comments || []}
+              planId={planId}
               isPlanCard={isPlanCard}
               showAddForm={showAddComment}
               onFormSubmit={() => setShowAddComment(false)}

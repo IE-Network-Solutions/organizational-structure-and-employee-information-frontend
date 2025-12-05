@@ -29,10 +29,10 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
   const getTaskName = () => {
     const taskAny = task as any;
     return (
-      taskAny.taskName || 
-      taskAny.task || 
-      taskAny.name || 
-      task.title || 
+      taskAny.taskName ||
+      taskAny.task ||
+      taskAny.name ||
+      task.title ||
       taskAny.planTask?.task ||
       'Untitled Task'
     );
@@ -76,34 +76,36 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
         {getStatusIcon()}
       </div>
 
-      <div className="flex flex-1 flex-wrap items-start justify-between gap-x-4 gap-y-2">
-        <p className="text-sm font-medium leading-relaxed text-[#5A5C80] max-w-[60%]">
+      <div className="flex flex-1 flex-col md:flex-row items-start md:justify-between gap-x-4 gap-y-1">
+        <p className="text-[10px] md:text-sm font-medium leading-relaxed text-[#5A5C80] w-full md:max-w-[60%] line-clamp-2">
           {getTaskName()}
         </p>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <PriorityTag priority={task.priority} />
+        <div className="w-full md:w-auto flex items-center justify-around md:justify-end gap-2 md:gap-3 mt-1 md:mt-0">
+          <div className="scale-75 origin-left md:scale-100">
+            <PriorityTag priority={task.priority} />
+          </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-[#8F94A3]">• Weight</span>
-            <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-2 py-0.5 text-xs font-semibold text-[#3730A3]">
+          <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
+            <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">• Weight</span>
+            <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold text-[#3730A3]">
               {formatNumber(task.weight)}
             </Tag>
           </div>
 
           {viewMode === 'planning' && task.target !== undefined && task.target !== 0 && metricType !== 'Milestone' && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-[#8F94A3]">• Target</span>
-              <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-2 py-0.5 text-xs font-semibold text-[#3730A3]">
+            <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
+              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">• Target</span>
+              <Tag className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold text-[#3730A3]">
                 {formatNumber(task.target)}
               </Tag>
             </div>
           )}
 
           {viewMode === 'reporting' && task.achieved !== undefined && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-[#8F94A3]">• Achieved</span>
-              <Tag className={`m-0 rounded border-none px-2 py-0.5 text-xs font-semibold ${task.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' :
+            <div className="flex items-center gap-1 md:gap-2 whitespace-nowrap">
+              <span className="text-[10px] md:text-xs font-medium text-[#8F94A3]">• Achieved</span>
+              <Tag className={`m-0 rounded border-none px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-semibold ${task.status === 'completed' ? 'bg-[#DCFCE7] text-[#166534]' :
                 task.status === 'failed' ? 'bg-[#FEE2E2] text-[#991B1B]' :
                   'bg-[#FFEDD5] text-[#9A3412]'
                 }`}>
@@ -111,8 +113,6 @@ export default function TaskRow({ task, viewMode, isLast, metricType }: TaskRowP
               </Tag>
             </div>
           )}
-
-
         </div>
       </div>
     </div>

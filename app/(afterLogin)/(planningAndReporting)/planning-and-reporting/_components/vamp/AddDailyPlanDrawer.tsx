@@ -60,7 +60,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
     const [form] = Form.useForm();
     const { data: planningPeriods } = AllPlanningPeriods();
     const { mutate: createTask, isLoading: isCreating } = useCreatePlanTasks();
-    
+
     // Get planningUserId
     const planningUserId = useMemo(() => {
         const safePlanningPeriods = Array.isArray(planningPeriods) ? planningPeriods : [];
@@ -247,7 +247,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
 
         const formFieldName = `names-${groupId}`;
         const currentTasks = form.getFieldValue(formFieldName) || [];
-        
+
         form.setFieldsValue({
             [formFieldName]: [
                 ...currentTasks,
@@ -279,7 +279,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
     const formValues = Form.useWatch([], form);
     const totalWeight = useMemo(() => {
         if (activeCadence !== 'daily' || viewMode !== 'planning') return 0;
-        
+
         let total = 0;
         planningTasks.forEach(group => {
             const formFieldName = `names-${group.id}`;
@@ -380,7 +380,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                 {planningTasks.map((group) => {
                     const formFieldName = `names-${group.id}`;
                     const weeklyTask = group.tasks[0]; // The weekly task
-                    
+
                     return (
                         <div key={group.id} className="rounded-2xl border border-[#F1F2F6] bg-white p-6 shadow-sm">
                             <div
@@ -438,101 +438,101 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                 <Input type="hidden" />
                                                             </Form.Item>
 
-                                            {/* Task description */}
-                                            <Form.Item
-                                                name={[field.name, 'task']}
-                                                rules={[{ required: true, message: 'Task description is required' }]}
-                                                className="flex-1 mb-0"
-                                            >
-                                                <Input
-                                                    placeholder="Enter task description"
-                                                    className="rounded-lg border-[#E5E7EB] py-2"
-                                                />
-                                            </Form.Item>
+                                                            {/* Task description */}
+                                                            <Form.Item
+                                                                name={[field.name, 'task']}
+                                                                rules={[{ required: true, message: 'Task description is required' }]}
+                                                                className="flex-1 mb-0"
+                                                            >
+                                                                <Input
+                                                                    placeholder="Enter task description"
+                                                                    className="rounded-lg border-[#E5E7EB] py-2"
+                                                                />
+                                                            </Form.Item>
 
-                                            {/* Priority */}
-                                            <Form.Item
-                                                name={[field.name, 'priority']}
-                                                initialValue="High"
-                                                className="mb-0"
-                                            >
-                                                <Select
-                                                    options={priorityOptions}
-                                                    className="w-[100px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!items-center"
-                                                    popupClassName="rounded-lg"
-                                                />
-                                            </Form.Item>
+                                                            {/* Priority */}
+                                                            <Form.Item
+                                                                name={[field.name, 'priority']}
+                                                                initialValue="High"
+                                                                className="mb-0"
+                                                            >
+                                                                <Select
+                                                                    options={priorityOptions}
+                                                                    className="w-[100px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!items-center"
+                                                                    popupClassName="rounded-lg"
+                                                                />
+                                                            </Form.Item>
 
-                                            {/* Weight */}
-                                            <Form.Item
-                                                name={[field.name, 'weight']}
-                                                initialValue={0}
-                                                className="mb-0"
-                                            >
-                                                <InputNumber
-                                                    min={0}
-                                                    max={100}
-                                                    className="w-[80px] rounded-lg border-[#E5E7EB]"
-                                                    controls={false}
-                                                    formatter={(value) => `${value}%`}
-                                                    parser={(value) => value?.replace('%', '') || '0'}
-                                                />
-                                            </Form.Item>
+                                                            {/* Weight */}
+                                                            <Form.Item
+                                                                name={[field.name, 'weight']}
+                                                                initialValue={0}
+                                                                className="mb-0"
+                                                            >
+                                                                <InputNumber
+                                                                    min={0}
+                                                                    max={100}
+                                                                    className="w-[80px] rounded-lg border-[#E5E7EB]"
+                                                                    controls={false}
+                                                                    formatter={(value) => `${value}%`}
+                                                                    parser={(value) => value?.replace('%', '') || '0'}
+                                                                />
+                                                            </Form.Item>
 
-                                            {/* Target - only show if not Milestone */}
-                                            {group.targetValue !== null && group.targetValue !== undefined && (
-                                                <Form.Item
-                                                    name={[field.name, 'targetValue']}
-                                                    initialValue={0}
-                                                    className="mb-0"
-                                                >
-                                                    <InputNumber
-                                                        min={0}
-                                                        className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
-                                                        controls={false}
-                                                        formatter={(value) => value?.toLocaleString() || '0'}
-                                                        parser={(value) => value?.replace(/,/g, '') || '0'}
-                                                    />
-                                                </Form.Item>
-                                            )}
+                                                            {/* Target - only show if not Milestone */}
+                                                            {group.targetValue !== null && group.targetValue !== undefined && (
+                                                                <Form.Item
+                                                                    name={[field.name, 'targetValue']}
+                                                                    initialValue={0}
+                                                                    className="mb-0"
+                                                                >
+                                                                    <InputNumber
+                                                                        min={0}
+                                                                        className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
+                                                                        controls={false}
+                                                                        formatter={(value) => value?.toLocaleString() || '0'}
+                                                                        parser={(value) => value?.replace(/,/g, '') || '0'}
+                                                                    />
+                                                                </Form.Item>
+                                                            )}
 
-                                            {/* Remove button */}
-                                            <Button
-                                                type="text"
-                                                icon={<CloseCircleFilled className="text-[#574CFF] text-xl" />}
-                                                className="flex items-center justify-center mt-1 hover:bg-transparent"
-                                                onClick={() => remove(field.name)}
-                                            />
-                                        </div>
-                                    );
-                                })}
+                                                            {/* Remove button */}
+                                                            <Button
+                                                                type="text"
+                                                                icon={<CloseCircleFilled className="text-[#574CFF] text-xl" />}
+                                                                className="flex items-center justify-center mt-1 hover:bg-transparent"
+                                                                onClick={() => remove(field.name)}
+                                                            />
+                                                        </div>
+                                                    );
+                                                })}
 
-                                {/* Add Task button */}
-                                <div className="flex justify-end mt-2">
-                                    <Button
-                                        type="primary"
-                                        className="bg-[#574CFF] hover:bg-[#4F46EF] rounded-lg font-medium px-6"
-                                        onClick={() => {
-                                            add({
-                                                task: '',
-                                                priority: 'High',
-                                                weight: 0,
-                                                targetValue: group.targetValue || 0,
-                                                keyResultId: group.keyResultId,
-                                                milestoneId: group.milestoneId || null,
-                                                parentTaskId: group.parentTaskId || null,
-                                                planningPeriodId: planningPeriodId || '',
-                                                planningUserId: planningUserId || '',
-                                                userId: userId,
-                                                parentPlanId: parentPlanId || '',
-                                            });
-                                        }}
-                                    >
-                                        Add Task
-                                    </Button>
-                                </div>
-                            </>
-                        )}
+                                                {/* Add Task button */}
+                                                <div className="flex justify-end mt-2">
+                                                    <Button
+                                                        type="primary"
+                                                        className="bg-[#574CFF] hover:bg-[#4F46EF] rounded-lg font-medium px-6"
+                                                        onClick={() => {
+                                                            add({
+                                                                task: '',
+                                                                priority: 'High',
+                                                                weight: 0,
+                                                                targetValue: group.targetValue || 0,
+                                                                keyResultId: group.keyResultId,
+                                                                milestoneId: group.milestoneId || null,
+                                                                parentTaskId: group.parentTaskId || null,
+                                                                planningPeriodId: planningPeriodId || '',
+                                                                planningUserId: planningUserId || '',
+                                                                userId: userId,
+                                                                parentPlanId: parentPlanId || '',
+                                                            });
+                                                        }}
+                                                    >
+                                                        Add Task
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        )}
                                     </Form.List>
                                 </div>
                             )}
@@ -639,10 +639,10 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                         <Button size="large" className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button 
-                            type="primary" 
-                            size="large" 
-                            className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF]" 
+                        <Button
+                            type="primary"
+                            size="large"
+                            className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF]"
                             onClick={viewMode === 'planning' ? handleSubmit : onClose}
                             loading={isCreating}
                             disabled={viewMode === 'planning' && totalWeight !== 100}

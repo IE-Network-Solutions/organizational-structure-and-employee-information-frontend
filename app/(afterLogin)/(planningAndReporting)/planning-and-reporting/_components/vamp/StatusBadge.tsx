@@ -22,18 +22,18 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 md:gap-3">
       <div
-        className="flex h-8 w-8 items-center justify-center rounded-full text-white"
+        className="flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-full text-white flex-shrink-0"
         style={{ backgroundColor: getBackgroundColor() }}
       >
-        {isClosed ? <CheckOutlined className="text-lg" /> : <MoreOutlined className="text-lg" />}
+        {isClosed ? <CheckOutlined className="text-sm md:text-lg" /> : <MoreOutlined className="text-sm md:text-lg" />}
       </div>
-      <div className="flex flex-col">
-        <p className="text-sm font-bold leading-tight text-[#161A2C]">
+      <div className="flex flex-col min-w-0">
+        <p className="text-xs md:text-sm font-bold leading-tight text-[#161A2C] line-clamp-1">
           {status.label}
         </p>
-        <p className="text-xs leading-tight text-[#8F94A3]">{status.updatedAt}</p>
+        <p className="text-[10px] md:text-xs leading-tight text-[#8F94A3] hidden md:block">{status.updatedAt}</p>
       </div>
     </div>
   );

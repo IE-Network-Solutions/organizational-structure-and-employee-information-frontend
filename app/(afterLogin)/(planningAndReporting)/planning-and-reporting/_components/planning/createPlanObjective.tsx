@@ -2,6 +2,7 @@ import React from 'react';
 import { Collapse, Button, Divider, Tooltip } from 'antd';
 import { BiPlus } from 'react-icons/bi';
 import { FaPlus } from 'react-icons/fa';
+import { BsKey } from 'react-icons/bs';
 import DefaultCardForm from '../planForms/defaultForm';
 import BoardCardForm from '../planForms/boardFormView';
 import { NAME } from '@/types/enumTypes';
@@ -69,13 +70,18 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   const { statuses, setClickStatus } = useClickStatus();
 
   return (
-    <Collapse defaultActiveKey={0}>
+    <Collapse 
+      expandIconPosition="end"
+      bordered={false}
+      className="[&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-gray-200 [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"
+      defaultActiveKey={0}
+    >
       {objective?.items?.map((e, panelIndex) => (
         <Collapse.Panel
           forceRender={true}
           header={
-            <div>
-              <strong>Objective:</strong> {e.title}
+            <div className="p-2">
+              <strong>OBJECTIVE:</strong> {e.title}
             </div>
           }
           key={panelIndex}
@@ -87,40 +93,40 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
               kr?.metricType?.name === NAME.MILESTONE;
 
             return (
-              <div className="flex flex-col justify-between" key={resultIndex}>
-                {/* Key Result and Weight display */}
-                <div className="flex justify-between">
-                  <span className="font-bold">Key Result: {kr?.title} </span>
-                  <span className="font-bold">Weight</span>
+              <div key={resultIndex} className="border-2 border-gray-200 rounded-lg p-2 mb-4">
+                <div className="flex items-start gap-3 mt-2">
+                  <BsKey size={24} className="text-[#574CFF] flex-shrink-0 mt-0.5" />
+                  <span className="text-sm font-normal">
+                    {kr?.title}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-lg border-gray-200 border bg-gray-300 w-6 h-6 text-[12px] flex items-center justify-center">
-                      {resultIndex + 1}
-                    </span>
-                    <span className="text-[12px] font-semibold">
-                      {kr?.title}
-                    </span>
-                  </div>
 
-                  {/* Plan Task and Weight Handling */}
-                  {!hasMilestone && (
-                    <div className="flex gap-3 items-center">
+                {/* Plan Task and Weight Handling */}
+                {!hasMilestone && (
+                  <div className="flex flex-col items-end gap-2 mt-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                        weight
+                      </span>
+                      <div className="rounded-lg border-gray-100 border bg-indigo-200 text-indigo-600 font-bold w-14 h-7 text-xs flex items-center justify-center">
+                        {weights[`names-${kr?.id}`] || 0}%
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Button
                         id={`plan-as-task_${kr?.id ?? ''}`}
                         onClick={() =>
                           handleAddBoard(kr?.id, String(kr?.id || ''), null)
                         }
-                        type="link"
-                        icon={<BiPlus />}
-                        className="text-[10px]"
+                        type="primary"
                         disabled={
                           Number(kr?.progress) == 100 ||
                           form?.getFieldValue(`names-${kr?.id}`)?.[resultIndex]
                             ?.achieveMK
                         }
                       >
-                        Add Plan Task
+                        Add plan Task
                       </Button>
 
                       {/* Add Achieve MK as a Task */}
@@ -143,21 +149,32 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           />
                         </Tooltip>
                       )}
-                      <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                        {weights[`names-${kr?.id}`] || 0}%
-                      </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Milestone handling */}
                 {hasMilestone && (
                   <>
                     {kr?.milestones?.map((ml) => (
                       <div key={ml?.id}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs">{ml?.title}</span>
-                          <div className="flex gap-2 items-center">
+                        <div className="ml-4 mt-2">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center">
+                              <span className="font-bold">Milestone:</span>
+                              <span className="text-xs ml-2">{ml?.title}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs flex items-center gap-2">
+                                <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
+                                weight
+                              </span>
+                              <div className="rounded-lg border-gray-100 border bg-indigo-200 text-indigo-600 font-bold w-14 h-7 text-xs flex items-center justify-center">
+                                {weights[`names-${kr?.id + ml?.id}`] || 0}%
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 justify-end">
                             <Button
                               id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
                               onClick={() => {
@@ -168,12 +185,10 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                   ml?.id ? String(ml.id) : null,
                                 );
                               }}
-                              type="link"
-                              icon={<BiPlus size={14} />}
-                              className="text-[10px]"
+                              type="primary"
                               disabled={ml?.status === 'Completed'}
                             >
-                              Add Plan Task
+                              Add plan Task
                             </Button>
 
                             {/* Plan Milestone as Task */}
@@ -204,10 +219,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                 />
                               </Tooltip>
                             )}
-
-                            <div className="rounded-lg border-gray-100 border bg-gray-300 w-14 h-7 text-xs flex items-center justify-center">
-                              {weights[`names-${kr?.id + ml?.id}`] || 0}%
-                            </div>
                           </div>
                         </div>
 

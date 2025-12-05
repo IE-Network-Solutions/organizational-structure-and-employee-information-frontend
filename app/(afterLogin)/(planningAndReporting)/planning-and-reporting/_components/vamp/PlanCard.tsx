@@ -4,7 +4,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { BsKey } from 'react-icons/bs';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
-import { IoCheckmarkSharp, IoIosOpen } from 'react-icons/io5';
+import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import dayjs from 'dayjs';
 import { PlanSummary, ViewMode, Cadence } from './types';
 import UserInfo from './UserInfo';
@@ -27,9 +27,9 @@ interface PlanCardProps {
   dateLabel?: string;
 }
 
-export default function PlanCard({ 
-  plan, 
-  viewMode, 
+export default function PlanCard({
+  plan,
+  viewMode,
   activeCadence,
   onApprove,
   onOpen,
@@ -43,8 +43,8 @@ export default function PlanCard({
   const approvalMenu = (
     <Menu>
       {plan.status?.label === 'Open' ? (
-        <Menu.Item 
-          key="approve" 
+        <Menu.Item
+          key="approve"
           icon={<IoCheckmarkSharp />}
           onClick={onApprove}
           className="text-green-500"
@@ -54,9 +54,9 @@ export default function PlanCard({
           </Tooltip>
         </Menu.Item>
       ) : (
-        <Menu.Item 
-          key="open" 
-          icon={<IoIosOpen size={16} />}
+        <Menu.Item
+          key="open"
+          icon={<IoOpen size={16} />}
           onClick={onOpen}
           className="text-red-400"
         >
@@ -79,7 +79,7 @@ export default function PlanCard({
 
   const getDateLabel = () => {
     if (dateLabel) return dateLabel;
-    
+
     const planDate = dayjs(plan.createdAt);
     const today = dayjs();
     const yesterday = dayjs().subtract(1, 'day');
@@ -96,10 +96,10 @@ export default function PlanCard({
   };
 
   return (
-    <article className="rounded-3xl border border-gray-300 p-6 mb-4">
+    <article className="rounded-3xl border border-gray-300 p-3 md:p-6 mb-4">
       {/* Header with Title and Reprimand/Appreciation Badges */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-[#8F94A3]">{getDateLabel()}</h3>
+        <h3 className="text-xs md:text-base font-bold text-[#8F94A3]">{getDateLabel()}</h3>
         <div className="flex items-center gap-2">
           {plan.reprimandCount && plan.reprimandCount > 0 ? (
             <div className="flex items-center gap-1.5 rounded-lg bg-[#EF4444] px-3 py-1 text-white shadow-sm">
@@ -118,7 +118,7 @@ export default function PlanCard({
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4 px-1">
         <UserInfo owner={plan.owner} notificationCount={plan.notificationCount} />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {plan.status && <StatusBadge status={plan.status} />}
           {canApprove && (
             <Dropdown overlay={approvalMenu} trigger={['click']}>
@@ -126,8 +126,8 @@ export default function PlanCard({
                 loading={isApprovalLoading}
                 type="text"
                 icon={<MoreOutlined />}
-                className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto"
-                style={{ minWidth: 'auto', fontSize: '20px' }}
+                className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto text-base md:text-xl"
+                style={{ minWidth: 'auto' }}
               />
             </Dropdown>
           )}
@@ -136,8 +136,8 @@ export default function PlanCard({
               <Button
                 type="text"
                 icon={<MoreOutlined />}
-                className="text-[#8F94A3] hover:bg-transparent !p-0 !h-auto !w-auto"
-                style={{ minWidth: 'auto', fontSize: '20px' }}
+                className="text-[#8F94A3] hover:bg-transparent !p-0 !h-auto !w-auto text-base md:text-xl"
+                style={{ minWidth: 'auto' }}
               />
             </Dropdown>
           )}
@@ -148,17 +148,17 @@ export default function PlanCard({
       {plan.keyResults && plan.keyResults.length > 0 ? (
         plan.keyResults.map((keyResult, krIndex) => (
           <div key={keyResult.id} className={krIndex > 0 ? "mt-4" : ""}>
-            <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-12">
+            <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-6 md:px-12">
               <div className="pl-2">
                 {/* Key Result Summary Bar */}
-                <div className="mb-4">
+                <div className="mb-4 hidden md:block">
                   <KRSummaryBar plan={plan} viewMode={viewMode} keyResult={keyResult} />
                 </div>
 
                 {/* Key Result Header */}
-                <div className="flex items-start gap-3 mb-4">
+                <div className="flex items-start gap-3 mb-4 ">
                   <BsKey size={24} className="text-[#574CFF] flex-shrink-0 mt-0.5" />
-                  <p className="text-lg font-bold leading-tight text-[#161A2C]">
+                  <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
                     {keyResult.title || keyResult.name || plan.summary}
                   </p>
                 </div>
@@ -173,7 +173,7 @@ export default function PlanCard({
                           <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
                           </div>
-                          <p className="text-base font-medium text-[#161A2C]">
+                          <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
                             {keyResult.title || keyResult.name}
                           </p>
                         </div>
@@ -204,7 +204,7 @@ export default function PlanCard({
                       <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#FEF3C7] flex-shrink-0">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
                       </div>
-                      <p className="text-base font-medium text-[#161A2C]">
+                      <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
                         {parentTask.task || parentTask.title || parentTask.name}
                       </p>
                     </div>
@@ -237,7 +237,7 @@ export default function PlanCard({
                       <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#574CFF]" />
                       </div>
-                      <p className="text-base font-medium text-[#161A2C]">
+                      <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
                         {milestone.title || milestone.name}
                       </p>
                     </div>
@@ -268,7 +268,7 @@ export default function PlanCard({
                           <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[#FEF3C7] flex-shrink-0">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
                           </div>
-                          <p className="text-base font-medium text-[#161A2C]">
+                          <p className="text-sm md:text-base font-medium text-[#161A2C] line-clamp-2">
                             {parentTask.task || parentTask.title || parentTask.name}
                           </p>
                         </div>
@@ -302,14 +302,14 @@ export default function PlanCard({
         /* Fallback to flat tasks if no key results */
         <div className="rounded-3xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-12">
           <div className="pl-2">
-            <div className="mb-4">
+            <div className="mb-4 hidden md:block">
               <KRSummaryBar plan={plan} viewMode={viewMode} />
             </div>
 
             <div className="relative">
               <div className="flex items-start gap-3 mb-6">
                 <BsKey size={24} className="text-[#574CFF] flex-shrink-0 mt-0.5" />
-                <p className="text-lg font-bold leading-tight text-[#161A2C]">
+                <p className="text-sm md:text-lg font-bold leading-tight text-[#161A2C] line-clamp-2">
                   {plan.summary}
                 </p>
               </div>

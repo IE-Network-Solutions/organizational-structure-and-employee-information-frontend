@@ -12,6 +12,7 @@ import {
 } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import SessionFilter from '../filters/SessionFilter';
+import MobileFilterModal from '../filters/MobileFilterModal';
 import { FaPlus } from 'react-icons/fa';
 import { MdOutlinePending } from 'react-icons/md';
 import {
@@ -31,7 +32,7 @@ import { ReportingType } from '@/types/enumTypes';
 import Image from 'next/image';
 import CommentCard from '../comments/planCommentCard';
 import { UserOutlined } from '@ant-design/icons';
-import { IoIosOpen, IoMdMore } from 'react-icons/io';
+import { IoIosOpen, IoMdMore, IoMdSwitch } from 'react-icons/io';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { AiOutlineEdit } from 'react-icons/ai';
 import {
@@ -72,6 +73,7 @@ function Reporting() {
   const { userId } = useAuthenticationStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(undefined);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedPlanType, setSelectedPlanType] = useState<string>('all');
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
@@ -385,25 +387,26 @@ function Reporting() {
   };
 
   return (
-      <div className="min-h-screen bg-gray-100">
-        <div className="flex flex-wrap items-center gap-3 pb-4">
-          {hasPermission && (
-            <>
-              <Select
-                className="w-full min-w-[180px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]"
-                placeholder="Select employee"
-                options={employeeOptions}
-                onChange={handleEmployeeChange}
-                value={getSelectedEmployeeValue()}
-                loading={!employeeData}
-                size="large"
-                showSearch
-                optionFilterProp="label"
-                filterOption={(input, option) =>
-                  (option?.label?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
-                }
-                notFoundContent={!employeeData ? 'Loading...' : 'No employees found'}
-              />
+    <div className="min-h-screen bg-gray-100">
+      <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pb-4">
+        {hasPermission && (
+          <>
+            <Select
+              className="w-full min-w-[180px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]"
+              placeholder="Select employee"
+              options={employeeOptions}
+              onChange={handleEmployeeChange}
+              value={getSelectedEmployeeValue()}
+              loading={!employeeData}
+              size="large"
+              showSearch
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                (option?.label?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
+              }
+              notFoundContent={!employeeData ? 'Loading...' : 'No employees found'}
+            />
+            <div className="hidden md:contents">
               <Select
                 className="w-full min-w-[160px] flex-1 md:w-auto [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!py-2.5 [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&_.ant-select-selection-placeholder]:!leading-7 [&_.ant-select-selection-placeholder]:!pt-0 [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-item]:!leading-7 [&_.ant-select-selection-item]:!pt-0 [&.ant-select]:!h-12 [&.ant-select-focused_.ant-select-selector]:!border-[#574CFF] [&.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(87,76,255,0.1)] [&.ant-select-focused_.ant-select-selector]:!bg-[#F5F5F7] [&.ant-select-open_.ant-select-selector]:!bg-[#F5F5F7]"
                 placeholder="Plan type"
@@ -425,117 +428,135 @@ function Reporting() {
                   (option?.label?.toString().toLowerCase().includes(input.toLowerCase())) ?? false
                 }
               />
-            </>
-          )}
+            </div>
+          </>
+        )}
+        <div className="hidden md:contents">
           <SessionFilter />
-          <Tooltip
-            title={
-              // selectedUser.length === 1 && selectedUser[0] === userId &&    // to check and make ensure only reports their report
-              // selectedUser.includes(userId) &&
-              allUserPlanning && allUserPlanning.length < 1
-                ? 'Please Create Plan First'
-                : ''
-            }
-          >
-            <div style={{ display: 'inline-block' }}>
-              <CustomButton
-                disabled={
-                  // selectedUser.includes(userId) &&
-                  allUserPlanning && allUserPlanning.length < 1
-                }
-                title={
-                  <span className="hidden sm:block">
-                    {`Create ${activeTabName} Report`}
-                  </span>
-                }
-                id="createActiveTabName"
-                icon={<FaPlus className="ml-2 sm:ml-0" />}
-                onClick={() => setOpenReportModal(true)}
-                className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:min-w-[180px]`}
-                loading={getUserPlanningLoading}
-              />
-            </div>
-          </Tooltip>
         </div>
-
-        <section className="mt-8">
-          <div className="space-y-6">
-            {getReportLoading ? (
-              Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />)
-            ) : (
-              allReporting?.items?.map((dataItem: any, index: number) => {
-                const cadence = activeTabName?.toLowerCase() as Cadence || 'weekly';
-                const plan = transformReportToPlanSummary(dataItem, cadence, employeeData);
-                
-                return (
-                  <PlanCard
-                    key={plan.id}
-                    plan={plan}
-                    viewMode="reporting"
-                    activeCadence={cadence}
-                    onApprove={() => handleApproveHandler(dataItem.id, true)}
-                    onOpen={() => handleApproveHandler(dataItem.id, false)}
-                    onEdit={() => {
-                      setSelectedReportId(dataItem.id);
-                      setSelectedPlanId(dataItem.planId);
-                    }}
-                    canApprove={userId === (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.reportingTo?.id || getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.delegatedTo?.id)}
-                    canEdit={userId === (dataItem?.userId ?? dataItem?.createdBy) && dataItem?.plan?.isReportValidated == false && isDataFromActiveSession(dataItem?.createdAt)}
-                    isApprovalLoading={isApprovalLoading}
-                    dateLabel={getDateLabel(dataItem?.createdAt, activeTabName)}
-                  />
-                );
-              })
-            )}
+        <Button
+          className="md:hidden w-12 h-12 flex items-center justify-center border-[#E5E7EB] rounded-lg bg-[#F5F5F7]"
+          icon={<IoMdSwitch size={20} />}
+          onClick={() => setIsFilterModalOpen(true)}
+        />
+        <Tooltip
+          title={
+            !allUserPlanning || allUserPlanning.length === 0
+              ? 'Please Create Plan First'
+              : ''
+          }
+        >
+          <div style={{ display: 'inline-block' }}>
+            <CustomButton
+              disabled={
+                !allUserPlanning || allUserPlanning.length === 0
+              }
+              title={
+                <span className="hidden sm:block">
+                  {`Create ${activeTabName} Report`}
+                </span>
+              }
+              id="createActiveTabName"
+              icon={<FaPlus className="ml-2 sm:ml-0" />}
+              onClick={() => setOpenReportModal(true)}
+              className={`${!userPlanningPeriodId ? 'hidden' : ''} bg-blue-600 hover:bg-blue-700 w-10 h-10 sm:w-auto sm:min-w-[180px]`}
+              loading={getUserPlanningLoading}
+            />
           </div>
-        </section>
-        
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={allReporting?.meta?.totalItems ?? 0}
-            pageSize={pageSizeReporting}
-            onChange={(page, pageSize) => {
-              setPageReporting(page);
-              setPageSizeReporting(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSizeReporting(size);
-              setPageReporting(1);
-            }}
-          />
-        ) : (
-          <CustomPagination
-            total={allReporting?.meta?.totalItems}
-            current={pageReporting}
-            pageSize={pageSizeReporting}
-            onShowSizeChange={(size) => {
-              setPageSizeReporting(size);
-              setPageReporting(1);
-            }}
-            onChange={(page, pageSize) => {
-              setPageReporting(page);
-              setPageSizeReporting(pageSize);
-            }}
-          />
-        )}
-        {allReporting?.items?.length <= 0 && (
-          <div className="flex justify-center">
-            <div>
-              <p className="flex justify-center items-center h-[200px]">
-                <Image
-                  src="/image/undraw_empty_re_opql 1.svg"
-                  width={300}
-                  height={300}
-                  alt="Picture of the author"
-                />
-              </p>
-              <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
-                There is no Reported data !!
-              </p>
-            </div>
-          </div>
-        )}
+        </Tooltip>
       </div>
+
+      <section className="mt-8">
+        <div className="space-y-6">
+          {getReportLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />)
+          ) : (
+            allReporting?.items?.map((dataItem: any, index: number) => {
+              const cadence = activeTabName?.toLowerCase() as Cadence || 'weekly';
+              const plan = transformReportToPlanSummary(dataItem, cadence, employeeData);
+
+              return (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  viewMode="reporting"
+                  activeCadence={cadence}
+                  onApprove={() => handleApproveHandler(dataItem.id, true)}
+                  onOpen={() => handleApproveHandler(dataItem.id, false)}
+                  onEdit={() => {
+                    setSelectedReportId(dataItem.id);
+                    setSelectedPlanId(dataItem.planId);
+                  }}
+                  canApprove={userId === (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.reportingTo?.id || getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.delegatedTo?.id)}
+                  canEdit={userId === (dataItem?.userId ?? dataItem?.createdBy) && dataItem?.plan?.isReportValidated == false && isDataFromActiveSession(dataItem?.createdAt)}
+                  isApprovalLoading={isApprovalLoading}
+                  dateLabel={getDateLabel(dataItem?.createdAt, activeTabName)}
+                />
+              );
+            })
+          )}
+        </div>
+      </section>
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          totalResults={allReporting?.meta?.totalItems ?? 0}
+          pageSize={pageSizeReporting}
+          onChange={(page, pageSize) => {
+            setPageReporting(page);
+            setPageSizeReporting(pageSize);
+          }}
+          onShowSizeChange={(size) => {
+            setPageSizeReporting(size);
+            setPageReporting(1);
+          }}
+        />
+      ) : (
+        <CustomPagination
+          total={allReporting?.meta?.totalItems}
+          current={pageReporting}
+          pageSize={pageSizeReporting}
+          onShowSizeChange={(size) => {
+            setPageSizeReporting(size);
+            setPageReporting(1);
+          }}
+          onChange={(page, pageSize) => {
+            setPageReporting(page);
+            setPageSizeReporting(pageSize);
+          }}
+        />
+      )}
+      {allReporting?.items?.length <= 0 && (
+        <div className="flex justify-center">
+          <div>
+            <p className="flex justify-center items-center h-[200px]">
+              <Image
+                src="/image/undraw_empty_re_opql 1.svg"
+                width={300}
+                height={300}
+                alt="Picture of the author"
+              />
+            </p>
+            <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+              There is no Reported data !!
+            </p>
+          </div>
+        </div>
+      )}
+      <MobileFilterModal
+        open={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApply={() => setIsFilterModalOpen(false)}
+        planTypeOptions={planTypeOptions}
+        selectedPlanType={selectedPlanType}
+        onPlanTypeChange={handlePlanTypeChange}
+        departmentOptions={departmentOptions}
+        selectedDepartment={selectedDepartment}
+        onDepartmentChange={handleDepartmentChange}
+        showPlanType={hasPermission}
+        showDepartment={hasPermission}
+      />
+    </div>
   );
 }
 export default Reporting;
