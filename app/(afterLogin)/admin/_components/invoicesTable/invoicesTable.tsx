@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
-import { TENANT_BASE_URL } from '@/utils/constants';
 
 dayjs.extend(isBetween);
 
@@ -59,52 +58,25 @@ const InvoicesTable = ({
     'PDF',
   );
 
-  // Функция для скачивания файла
-  const downloadFile = (url: string, filename: string) => {
-    fetch(url)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      })
-      .catch((error) => {
-        notification.error({
-          message: 'Error downloading file',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
-      })
-      .finally(() => {
-        setDownloadingInvoiceId(null);
-      });
-  };
-
   useEffect(() => {
     if (invoiceDetail && selectedInvoiceId) {
       const response = invoiceDetail as any;
 
-      const filePath =
-        response.path || response.data?.path || response.items?.[0]?.path;
+      const downloadUrl =
+        response.downloadUrl ||
+        response.data?.downloadUrl ||
+        response.items?.[0]?.downloadUrl;
 
-      if (filePath) {
-        const fullUrl = `${TENANT_BASE_URL}/${filePath}`;
-
-        const invoice = data.find((inv) => inv.id === selectedInvoiceId);
-        const fileName = invoice
-          ? `Invoice-${invoice.invoiceNumber}.pdf`
-          : `Invoice-${selectedInvoiceId}.pdf`;
-
-        downloadFile(fullUrl, fileName);
+      if (downloadUrl) {
+        window.open(downloadUrl, '_blank');
       } else {
-        setDownloadingInvoiceId(null);
+        notification.error({
+          message: 'PDF Not Available',
+          description: 'PDF document is not available for this invoice.',
+        });
       }
 
+      setDownloadingInvoiceId(null);
       setSelectedInvoiceId(null);
     }
   }, [invoiceDetail, selectedInvoiceId, data]);
