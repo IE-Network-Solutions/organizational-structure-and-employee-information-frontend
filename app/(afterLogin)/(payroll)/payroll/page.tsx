@@ -1067,6 +1067,7 @@ const Payroll = () => {
                 </span>
               </Tooltip>
               <Modal
+                data-cy="payroll-send-payslip-modal-view-modal"
                 open={open}
                 onCancel={() => setOpen(false)}
                 footer={null}
@@ -1074,9 +1075,23 @@ const Payroll = () => {
                 width={600}
                 className="p-6"
               >
-                <div className="flex flex-col items-center justify-center gap-4">
-                  <h2 className="text-2xl font-bold">Send Payslip</h2>
-                  <p className="text-lg text-gray-600">
+                <div
+                  id="payroll-send-payslip-modal-content-view-container"
+                  data-cy="payroll-send-payslip-modal-content-view-container"
+                  className="flex flex-col items-center justify-center gap-4"
+                >
+                  <h2
+                    id="payroll-send-payslip-modal-title-view-text"
+                    data-cy="payroll-send-payslip-modal-title-view-text"
+                    className="text-2xl font-bold"
+                  >
+                    Send Payslip
+                  </h2>
+                  <p
+                    id="payroll-send-payslip-modal-description-view-text"
+                    data-cy="payroll-send-payslip-modal-description-view-text"
+                    className="text-lg text-gray-600"
+                  >
                     Do you wish to send payslip
                   </p>
                   <div
@@ -1141,14 +1156,22 @@ const Payroll = () => {
                         </p>
                       )}
                   </div>
-                  <div className="flex gap-4 w-full justify-center mt-4">
+                  <div
+                    id="payroll-send-payslip-footer-view-container"
+                    data-cy="payroll-send-payslip-footer-view-container"
+                    className="flex gap-4 w-full justify-center mt-4"
+                  >
                     <Button
+                      id="payroll-send-payslip-cancel-click-button"
+                      data-cy="payroll-send-payslip-cancel-click-button"
                       className="w-full h-12 text-lg font-semibold"
                       onClick={() => setOpen(false)}
                     >
                       Cancel
                     </Button>
                     <Button
+                      id="payroll-send-payslip-send-click-button"
+                      data-cy="payroll-send-payslip-send-click-button"
                       type="primary"
                       className="w-full h-12 text-lg font-semibold bg-primary"
                       onClick={() => {
