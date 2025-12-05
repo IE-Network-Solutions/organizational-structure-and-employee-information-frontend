@@ -6,8 +6,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 /* eslint-disable @typescript-eslint/naming-convention */
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
-const tenantId = useAuthenticationStore.getState().tenantId;
-
 /**
  * Fetch company profile by tenant ID.
  * @param tenantId - The ID of the tenant to fetch the company profile for.
@@ -41,6 +39,7 @@ const updateCompanyProfile = async ({
   companyProfileImage: CompanyProfileImage;
 }) => {
   const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
   const multiPartFormDataheaders = {
     tenantId: tenantId,
     'Content-Type': 'multipart/form-data',
@@ -102,6 +101,7 @@ const updateCompanyProfileWithStamp = async ({
   companyStamp?: CompanyProfileImage;
 }): Promise<any> => {
   const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
   const formData = new FormData();
 
   const cleanDto = updateClientDto || {};
@@ -131,6 +131,7 @@ const updateCompanyProfileWithStamp = async ({
     method: 'PUT',
     headers: headers,
     data: formData,
+    skipEncryption: true,
   });
 };
 
