@@ -50,6 +50,7 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
 
   return (
     <Popover
+      data-cy="delete-confirmation-popover"
       open={open}
       onOpenChange={(visible) => {
         if (!visible) {
@@ -74,10 +75,14 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
               maxWidth: '240px',
               margin: '0 auto 16px auto',
             }}
+            data-cy="delete-confirmation-popover-message"
           >
             {message}
           </p>
-          <div className="flex justify-center gap-4">
+          <div
+            className="flex justify-center gap-4"
+            data-cy="delete-confirmation-popover-buttons"
+          >
             <Button
               className="px-6 py-2 text-sm font-bold border border-gray-300 bg-white hover:bg-gray-50"
               onClick={onCancel}

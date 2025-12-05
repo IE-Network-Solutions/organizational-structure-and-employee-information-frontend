@@ -21,6 +21,7 @@ const RichTextEditor = ({ onChange }: any) => {
 
   return (
     <div
+      data-cy="rich-text-editor-container"
       style={{
         border: '1px solid #d9d9d9', // Light gray border
         borderRadius: '4px',
@@ -29,6 +30,7 @@ const RichTextEditor = ({ onChange }: any) => {
       }}
     >
       <ReactQuill
+        data-cy="rich-text-editor"
         value={value}
         onChange={(content) => {
           setValue(content);

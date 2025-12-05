@@ -209,6 +209,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       {/* Animated Splash Screen for PWA */}
       {enableAnimatedSplash && (
         <AnimatedSplashScreen
+          data-cy="pwa-animated-splash-screen"
           duration={splashDuration}
           onComplete={handleSplashComplete}
         />
@@ -216,6 +217,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 
       {/* Main App Content */}
       <div
+        data-cy="pwa-main-content"
         style={{
           opacity: showMainContent ? 1 : 0,
           transition: showMainContent ? 'opacity 0.3s ease-in' : 'none',
@@ -226,9 +228,14 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
 
       {/* PWA Components */}
       {enableInstallPrompt && (
-        <InstallPrompt autoShow={autoShowInstallPrompt} />
+        <InstallPrompt
+          autoShow={autoShowInstallPrompt}
+          data-cy="pwa-install-prompt"
+        />
       )}
-      {enableOfflineIndicator && <OfflineIndicator />}
+      {enableOfflineIndicator && (
+        <OfflineIndicator data-cy="pwa-offline-indicator" />
+      )}
     </>
   );
 };

@@ -18,10 +18,12 @@ const KebabMenu: React.FC<any> = (props) => {
 
   return (
     <Card
+      data-cy="kebab-menu-card"
       className="bg-white absolute z-10 shadow-sm right-0 md:right-10 p-0"
       ref={cardRef}
     >
       <p
+        data-cy={`kebab-menu-edit-${props?.item?.id}`}
         id={`editCardId${props?.item?.id}`}
         onClick={() => props?.editGroupPermissionHandler(props?.item)}
         className="text-gray-400 px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -29,6 +31,7 @@ const KebabMenu: React.FC<any> = (props) => {
         Edit
       </p>
       <p
+        data-cy={`kebab-menu-delete-${props?.item?.id}`}
         id={`deleteCardId${props?.item?.id}`}
         onClick={props?.deleteGroupPermissionHandler}
         className="text-red-700 px-4 py-2 hover:bg-gray-100 cursor-pointer"

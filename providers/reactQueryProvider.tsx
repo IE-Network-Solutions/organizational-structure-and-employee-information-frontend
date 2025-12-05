@@ -12,8 +12,11 @@ interface ReactQueryWrapperProps {
 }
 
 const FullPageSpinner = () => (
-  <div className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center">
-    <Spin size="large" />
+  <div
+    className="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 flex justify-center items-center"
+    data-cy="full-page-spinner-container"
+  >
+    <Spin size="large" data-cy="full-page-spinner" />
   </div>
 );
 
@@ -72,10 +75,10 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   });
 
   return (
-    <Suspense fallback={<FullPageSpinner />}>
-      <QueryClientProvider client={queryClient}>
+    <Suspense fallback={<FullPageSpinner />} data-cy="react-query-suspense">
+      <QueryClientProvider client={queryClient} data-cy="react-query-provider">
         {children}
-        <ReactQueryDevtools />
+        <ReactQueryDevtools data-cy="react-query-devtools" />
       </QueryClientProvider>
     </Suspense>
   );

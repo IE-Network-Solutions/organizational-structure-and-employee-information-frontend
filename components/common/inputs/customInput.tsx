@@ -13,7 +13,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
 }) => {
   const inputStyle = { height, ...style };
 
-  return <Input style={inputStyle} {...props} />;
+  return <Input style={inputStyle} {...props} data-cy="custom-input" />;
 };
 
 export default CustomInput;
