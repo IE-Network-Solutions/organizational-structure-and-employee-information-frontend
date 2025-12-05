@@ -428,9 +428,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       ),
       key: '/payroll-menu',
       className: 'font-bold',
-      permissions: ['view_payroll_overview'],
-      disabled: hasEndedFiscalYear,
-      // || isSubscriptionExpired,
+      permissions: ['view_payroll_menu'],
+      disabled: hasEndedFiscalYear || isSubscriptionExpired,
       children: [
         {
           title: <span>Employee Information</span>,

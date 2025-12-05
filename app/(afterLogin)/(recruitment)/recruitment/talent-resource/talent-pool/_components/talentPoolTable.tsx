@@ -26,6 +26,7 @@ const TalentPoolTable: React.FC<any> = () => {
     searchParams?.talentPoolCategory ?? '',
     page,
     currentPage,
+    searchParams?.search ?? '',
   );
 
   const { mutate: moveTalentPoolMutation } = useMoveTalentPoolToCandidates();
@@ -142,28 +143,7 @@ const TalentPoolTable: React.FC<any> = () => {
     },
   ];
 
-  const searchTerm = (searchParams?.search || '')
-    .toString()
-    .trim()
-    .toLowerCase();
-  const filteredItems =
-    candidates?.items?.filter((item: any) => {
-      if (!searchTerm) return true;
-      const name = (item?.jobCandidateInformation?.fullName || '')
-        .toString()
-        .toLowerCase();
-      const email = (item?.jobCandidateInformation?.email || '')
-        .toString()
-        .toLowerCase();
-      const phone = (item?.jobCandidateInformation?.phone || '')
-        .toString()
-        .toLowerCase();
-      return (
-        name.includes(searchTerm) ||
-        email.includes(searchTerm) ||
-        phone.includes(searchTerm)
-      );
-    }) || [];
+  const filteredItems = candidates?.items || [];
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -199,6 +179,7 @@ const TalentPoolTable: React.FC<any> = () => {
           pagination={false}
           loading={responseLoading}
           scroll={{ x: 1000 }}
+          rowKey="id"
         />
       )}
 

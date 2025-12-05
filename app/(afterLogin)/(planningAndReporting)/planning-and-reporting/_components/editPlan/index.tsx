@@ -97,12 +97,10 @@ function EditPlan() {
     const boardsKey = `board-${kId}`;
     const board = form.getFieldValue(boardsKey) || [];
 
-    // Get the latest mkAsATask from store to avoid stale closure issues
-    const currentMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
-    
-    // Check if we're planning a milestone/key result as a task
-    const taskTitle = currentMkAsATask?.title || '';
-    const achieveMK = !!currentMkAsATask;
+    // Always grab the latest mkAsATask value to avoid stale reads
+    const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
+    const taskTitle = latestMkAsATask?.title || '';
+    const achieveMK = !!latestMkAsATask;
 
     // Create a task object - if mkAsATask exists, use its title
     const newTask = {

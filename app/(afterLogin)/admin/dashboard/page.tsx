@@ -43,7 +43,11 @@ const AdminDashboard = () => {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
-  const { data: invoicesData, isLoading: isInvoicesLoading, refetch: refetchInvoices } = useGetInvoices(
+  const {
+    data: invoicesData,
+    isLoading: isInvoicesLoading,
+    refetch: refetchInvoices,
+  } = useGetInvoices(
     {
       filter: {
         tenantId: DEFAULT_TENANT_ID,
@@ -71,16 +75,19 @@ const AdminDashboard = () => {
   const { data: currenciesData, isLoading: currenciesLoading } =
     useGetCurrencies({ filter: {} }, true, true);
 
-  const { data: subscriptionsData, isLoading: subscriptionsLoading, refetch: refetchSubscriptions } =
-    useGetSubscriptions(
-      {
-        filter: {
-          tenantId: [DEFAULT_TENANT_ID],
-        },
+  const {
+    data: subscriptionsData,
+    isLoading: subscriptionsLoading,
+    refetch: refetchSubscriptions,
+  } = useGetSubscriptions(
+    {
+      filter: {
+        tenantId: [DEFAULT_TENANT_ID],
       },
-      true,
-      true,
-    );
+    },
+    true,
+    true,
+  );
 
   // Refetch data when returning from payment or when page becomes visible
   useEffect(() => {
@@ -97,7 +104,7 @@ const AdminDashboard = () => {
 
     const paymentSuccess = searchParams.get('payment_success');
     const paymentReturn = searchParams.get('payment_return');
-    
+
     if (paymentSuccess === 'true' || paymentReturn === 'true') {
       queryClient.invalidateQueries('invoices');
       queryClient.invalidateQueries('subscriptions');
@@ -111,7 +118,13 @@ const AdminDashboard = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [searchParams, router, queryClient, refetchInvoices, refetchSubscriptions]);
+  }, [
+    searchParams,
+    router,
+    queryClient,
+    refetchInvoices,
+    refetchSubscriptions,
+  ]);
 
   useEffect(() => {
     if (invoicesData) {

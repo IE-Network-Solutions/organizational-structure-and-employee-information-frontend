@@ -332,14 +332,12 @@ function CreatePlan() {
   };
   const handleAddBoard = (kId: string) => {
     const boardsKey = `board-${kId}`;
-    const board = form.getFieldValue(boardsKey) || [];
+    const currentBoard = form.getFieldValue(boardsKey) || [];
 
-    // Get the latest mkAsATask from store to avoid stale closure issues
-    const currentMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
-    
-    // Check if we're planning a milestone/key result as a task
-    const taskTitle = currentMkAsATask?.title || '';
-    const achieveMK = !!currentMkAsATask;
+    // Always grab the latest mkAsATask value to avoid stale reads
+    const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
+    const taskTitle = latestMkAsATask?.title || '';
+    const achieveMK = !!latestMkAsATask;
 
     // Create a task object - if mkAsATask exists, use its title
     const newTask = {
@@ -351,7 +349,7 @@ function CreatePlan() {
     };
 
     setTimeout(() => {
-      form.setFieldsValue({ [boardsKey]: [...board, newTask] });
+      form.setFieldsValue({ [boardsKey]: [...currentBoard, newTask] });
     }, 0);
   };
   const handleRemoveBoard = (index: number, kId: string) => {
@@ -440,6 +438,7 @@ function CreatePlan() {
         .flat();
     };
     const finalValues = mergeValues(values);
+
     createTask(
       { tasks: finalValues },
       {
