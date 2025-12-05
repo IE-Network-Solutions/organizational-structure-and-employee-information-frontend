@@ -337,10 +337,13 @@ function Reporting() {
                   </Row>
                   <Row gutter={16} className="items-center">
                     <Col xs={4} sm={2} md={1}>
-                      {getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.profileImage ? (
+                      {getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                        ?.profileImage ? (
                         <Avatar
                           src={
-                            getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.profileImage
+                            getEmployeeData(
+                              dataItem?.userId ?? dataItem?.createdBy,
+                            )?.profileImage
                           }
                           style={{ verticalAlign: 'middle' }}
                           size="default"
@@ -357,18 +360,25 @@ function Reporting() {
                       <Row className="flex justify-between items-center">
                         <Row gutter={16} justify={'start'} align={'middle'}>
                           <div className="flex flex-col text-xs ml-2">
-                            {getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.firstName +
+                            {getEmployeeData(
+                              dataItem?.userId ?? dataItem?.createdBy,
+                            )?.firstName +
                               ' ' +
-                              (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)?.middleName
-                                ? getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                              (getEmployeeData(
+                                dataItem?.userId ?? dataItem?.createdBy,
+                              )?.middleName
+                                ? getEmployeeData(
+                                    dataItem?.userId ?? dataItem?.createdBy,
+                                  )
                                     .middleName.charAt(0)
                                     .toUpperCase()
                                 : '')}
                             .
                             <span className="text-gray-500 text-xs">
-                              {dataItem?.userId ?? dataItem?.createdBy
-                                ? getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
-                                    ?.employeeJobInformation?.[0]?.department
+                              {(dataItem?.userId ?? dataItem?.createdBy)
+                                ? getEmployeeData(
+                                    dataItem?.userId ?? dataItem?.createdBy,
+                                  )?.employeeJobInformation?.[0]?.department
                                     ?.name || ''
                                 : ''}
                             </span>

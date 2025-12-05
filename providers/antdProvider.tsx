@@ -4,6 +4,7 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ConfigProvider
+      data-cy="antd-config-provider"
       renderEmpty={CustomizeRenderEmpty}
       theme={{
         components: {

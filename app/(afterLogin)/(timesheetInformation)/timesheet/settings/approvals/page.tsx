@@ -44,11 +44,19 @@ const Workflow = () => {
             id="time-attendance-settings-approvals-add-button"
             data-cy="time-attendance-settings-approvals-add-button"
             className="hidden sm:flex h-10 w-10 sm:w-auto "
-            icon={<FaPlus data-cy="time-attendance-settings-approvals-add-button-icon" />}
+            icon={
+              <FaPlus data-cy="time-attendance-settings-approvals-add-button-icon" />
+            }
             onClick={handleNavigation}
             type="primary"
           >
-            <span id="time-attendance-settings-approvals-add-button-label" data-cy="time-attendance-settings-approvals-add-button-label" className="hidden sm:inline">Set Approval</span>
+            <span
+              id="time-attendance-settings-approvals-add-button-label"
+              data-cy="time-attendance-settings-approvals-add-button-label"
+              className="hidden sm:inline"
+            >
+              Set Approval
+            </span>
           </Button>
         </AccessGuard>
       </div>

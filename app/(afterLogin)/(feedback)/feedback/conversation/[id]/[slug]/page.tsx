@@ -119,7 +119,11 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
   ];
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4" data-cy="feedback-conversation-id-slug-page-div-modal-header" id="feedback-conversation-id-slug-page-div-modal-header">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="feedback-conversation-id-slug-page-div-modal-header"
+      id="feedback-conversation-id-slug-page-div-modal-header"
+    >
       Add Action Plan
     </div>
   );
@@ -131,18 +135,41 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
       data-cy="feedback-conversation-id-slug-page-tab-landing-layout"
       onClickHandler={() => setOpen(true)}
       title={
-        <div data-cy="feedback-conversation-id-slug-page-div-title" id="feedback-conversation-id-slug-page-div-title">
+        <div
+          data-cy="feedback-conversation-id-slug-page-div-title"
+          id="feedback-conversation-id-slug-page-div-title"
+        >
           {' '}
-          <Button type="link" onClick={() => handleRedirectback()} data-cy="feedback-conversation-id-slug-page-button-back" id="feedback-conversation-id-slug-page-button-back">
+          <Button
+            type="link"
+            onClick={() => handleRedirectback()}
+            data-cy="feedback-conversation-id-slug-page-button-back"
+            id="feedback-conversation-id-slug-page-button-back"
+          >
             ←
           </Button>{' '}
-          <span data-cy="feedback-conversation-id-slug-page-span-details" id="feedback-conversation-id-slug-page-span-details">Details</span>
+          <span
+            data-cy="feedback-conversation-id-slug-page-span-details"
+            id="feedback-conversation-id-slug-page-span-details"
+          >
+            Details
+          </span>
         </div>
       }
       subtitle=""
     >
-      <Row gutter={[16, 24]} data-cy="feedback-conversation-id-slug-page-row" id="feedback-conversation-id-slug-page-row">
-        <Col lg={8} md={10} xs={24} data-cy="feedback-conversation-id-slug-page-col-detail" id="feedback-conversation-id-slug-page-col-detail">
+      <Row
+        gutter={[16, 24]}
+        data-cy="feedback-conversation-id-slug-page-row"
+        id="feedback-conversation-id-slug-page-row"
+      >
+        <Col
+          lg={8}
+          md={10}
+          xs={24}
+          data-cy="feedback-conversation-id-slug-page-col-detail"
+          id="feedback-conversation-id-slug-page-col-detail"
+        >
           {isLoading ? (
             /* eslint-disable @typescript-eslint/naming-convention */
             Array.from({ length: 2 }).map(
@@ -150,7 +177,13 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
                 _ /* eslint-disable @typescript-eslint/naming-convention */,
                 index,
               ) => (
-                <Skeleton key={index} active paragraph={{ rows: 4 }} avatar data-cy={`feedback-conversation-id-slug-page-skeleton-${index}`} />
+                <Skeleton
+                  key={index}
+                  active
+                  paragraph={{ rows: 4 }}
+                  avatar
+                  data-cy={`feedback-conversation-id-slug-page-skeleton-${index}`}
+                />
               ),
             )
           ) : (
@@ -160,8 +193,17 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
             />
           )}
         </Col>
-        <Col lg={16} md={14} xs={24} data-cy="feedback-conversation-id-slug-page-col-tabs" id="feedback-conversation-id-slug-page-col-tabs">
-          <Card data-cy="feedback-conversation-id-slug-page-card-tabs" id="feedback-conversation-id-slug-page-card-tabs">
+        <Col
+          lg={16}
+          md={14}
+          xs={24}
+          data-cy="feedback-conversation-id-slug-page-col-tabs"
+          id="feedback-conversation-id-slug-page-col-tabs"
+        >
+          <Card
+            data-cy="feedback-conversation-id-slug-page-card-tabs"
+            id="feedback-conversation-id-slug-page-card-tabs"
+          >
             <Tabs
               items={items}
               activeKey={activeTab}

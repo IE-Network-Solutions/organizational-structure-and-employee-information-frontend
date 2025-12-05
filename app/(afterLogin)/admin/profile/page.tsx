@@ -407,17 +407,37 @@ const AdminProfile = () => {
         initialValues={{ prefix: '1' }}
         onFinish={handleFormSubmit}
       >
-        <h2 id="company-information-title" data-cy="company-information-title" className="text-2xl font-bold mb-6">Company information</h2>
+        <h2
+          id="company-information-title"
+          data-cy="company-information-title"
+          className="text-2xl font-bold mb-6"
+        >
+          Company information
+        </h2>
 
-        <div id="logo-upload-label" data-cy="logo-upload-label" className="mb-4">
-          <span id="logo-upload-label-text" data-cy="logo-upload-label-text" className="text-sm font-medium">
+        <div
+          id="logo-upload-label"
+          data-cy="logo-upload-label"
+          className="mb-4"
+        >
+          <span
+            id="logo-upload-label-text"
+            data-cy="logo-upload-label-text"
+            className="text-sm font-medium"
+          >
             Upload Company Logo
-            <span className="text-red-500" id="logo-upload-label-text-asterisk" data-cy="logo-upload-label-text-asterisk">*</span>
+            <span
+              className="text-red-500"
+              id="logo-upload-label-text-asterisk"
+              data-cy="logo-upload-label-text-asterisk"
+            >
+              *
+            </span>
           </span>
         </div>
 
         <Dragger
-          id="logo-upload" 
+          id="logo-upload"
           data-cy="logo-upload"
           name="logo"
           multiple={false}
@@ -428,8 +448,11 @@ const AdminProfile = () => {
           accept="image/*"
           className="!h-[200px]"
         >
-          <div id="logo-upload-content" data-cy="logo-upload-content" 
-           className="flex flex-col items-center justify-center gap-2">
+          <div
+            id="logo-upload-content"
+            data-cy="logo-upload-content"
+            className="flex flex-col items-center justify-center gap-2"
+          >
             {logoPreview ? (
               <Image
                 id="logo-preview"
@@ -459,13 +482,35 @@ const AdminProfile = () => {
                 className="mb-4"
               />
             )}
-            <p id="logo-upload-text" data-cy="logo-upload-text" className="text-lg font-medium">Upload Company Logo</p>
-            <p id="logo-upload-hint" data-cy="logo-upload-hint" className="text-gray-500">or drag and drop it here</p>
-            <p id="logo-upload-size" data-cy="logo-upload-size" className="text-gray-500 text-sm">Square 300 x 300 px</p>
+            <p
+              id="logo-upload-text"
+              data-cy="logo-upload-text"
+              className="text-lg font-medium"
+            >
+              Upload Company Logo
+            </p>
+            <p
+              id="logo-upload-hint"
+              data-cy="logo-upload-hint"
+              className="text-gray-500"
+            >
+              or drag and drop it here
+            </p>
+            <p
+              id="logo-upload-size"
+              data-cy="logo-upload-size"
+              className="text-gray-500 text-sm"
+            >
+              Square 300 x 300 px
+            </p>
           </div>
         </Dragger>
 
-        <div id="company-information-fields" data-cy="company-information-fields" className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6">
+        <div
+          id="company-information-fields"
+          data-cy="company-information-fields"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6"
+        >
           <Form.Item
             id="company-name-field"
             data-cy="company-name-field"
@@ -473,7 +518,11 @@ const AdminProfile = () => {
             label="Company Name"
             rules={[{ required: true, message: 'Please enter company name' }]}
           >
-            <Input id="company-name-input" data-cy="company-name-input" placeholder="Enter company name" />
+            <Input
+              id="company-name-input"
+              data-cy="company-name-input"
+              placeholder="Enter company name"
+            />
           </Form.Item>
 
           <Form.Item
@@ -486,7 +535,11 @@ const AdminProfile = () => {
               { type: 'email', message: 'Please enter a valid email' },
             ]}
           >
-            <Input id="company-email-input" data-cy="company-email-input" placeholder="Enter company email" />
+            <Input
+              id="company-email-input"
+              data-cy="company-email-input"
+              placeholder="Enter company email"
+            />
           </Form.Item>
 
           <Form.Item
@@ -512,7 +565,12 @@ const AdminProfile = () => {
               }}
             >
               {countries.map((country) => (
-                <Option key={country.code} value={country.code} id={`country-option-${country.code}`} data-cy={`country-option-${country.code}`}>
+                <Option
+                  key={country.code}
+                  value={country.code}
+                  id={`country-option-${country.code}`}
+                  data-cy={`country-option-${country.code}`}
+                >
                   {country.name}
                 </Option>
               ))}
@@ -526,7 +584,11 @@ const AdminProfile = () => {
             label="Region"
             rules={[{ required: true, message: 'Please enter region' }]}
           >
-            <Input id="region-input" data-cy="region-input" placeholder="Enter region" />
+            <Input
+              id="region-input"
+              data-cy="region-input"
+              placeholder="Enter region"
+            />
           </Form.Item>
 
           <Form.Item
@@ -543,7 +605,11 @@ const AdminProfile = () => {
               },
             ]}
           >
-            <Input id="company-phone-input" data-cy="company-phone-input" placeholder="Enter company phone (e.g. +61-2-8765-4321)" />
+            <Input
+              id="company-phone-input"
+              data-cy="company-phone-input"
+              placeholder="Enter company phone (e.g. +61-2-8765-4321)"
+            />
           </Form.Item>
 
           <Form.Item
@@ -556,19 +622,38 @@ const AdminProfile = () => {
               { type: 'email', message: 'Please enter a valid email' },
             ]}
           >
-            <Input id="billing-email-input" data-cy="billing-email-input" placeholder="Enter billing email" />
+            <Input
+              id="billing-email-input"
+              data-cy="billing-email-input"
+              placeholder="Enter billing email"
+            />
           </Form.Item>
         </div>
 
-        <div id="stamp-upload-label" data-cy="stamp-upload-label" className="mb-4">
-          <span className="text-sm font-medium" id="stamp-upload-label-text" data-cy="stamp-upload-label-text">
+        <div
+          id="stamp-upload-label"
+          data-cy="stamp-upload-label"
+          className="mb-4"
+        >
+          <span
+            className="text-sm font-medium"
+            id="stamp-upload-label-text"
+            data-cy="stamp-upload-label-text"
+          >
             Upload Company Stamp
-            <span className="text-red-500" id="stamp-upload-label-text-asterisk" data-cy="stamp-upload-label-text-asterisk">*</span>
+            <span
+              className="text-red-500"
+              id="stamp-upload-label-text-asterisk"
+              data-cy="stamp-upload-label-text-asterisk"
+            >
+              *
+            </span>
           </span>
         </div>
 
         <Dragger
-          id="stamp-upload" data-cy="stamp-upload"
+          id="stamp-upload"
+          data-cy="stamp-upload"
           name="stamp"
           multiple={false}
           customRequest={customRequest}
@@ -578,7 +663,11 @@ const AdminProfile = () => {
           accept="image/*"
           className="!h-[200px]"
         >
-          <div id="stamp-upload-content" data-cy="stamp-upload-content" className="flex flex-col items-center justify-center gap-2">
+          <div
+            id="stamp-upload-content"
+            data-cy="stamp-upload-content"
+            className="flex flex-col items-center justify-center gap-2"
+          >
             {stampPreview ? (
               <Image
                 id="stamp-preview"
@@ -608,23 +697,55 @@ const AdminProfile = () => {
                 className="mb-4"
               />
             )}
-            <p id="stamp-upload-text" data-cy="stamp-upload-text" className="text-lg font-medium">Upload Company Stamp</p>
-            <p id="stamp-upload-hint" data-cy="stamp-upload-hint" className="text-gray-500">or drag and drop it here</p>
-            <p id="stamp-upload-size" data-cy="stamp-upload-size" className="text-gray-500 text-sm">Square 300 x 300 px</p>
+            <p
+              id="stamp-upload-text"
+              data-cy="stamp-upload-text"
+              className="text-lg font-medium"
+            >
+              Upload Company Stamp
+            </p>
+            <p
+              id="stamp-upload-hint"
+              data-cy="stamp-upload-hint"
+              className="text-gray-500"
+            >
+              or drag and drop it here
+            </p>
+            <p
+              id="stamp-upload-size"
+              data-cy="stamp-upload-size"
+              className="text-gray-500 text-sm"
+            >
+              Square 300 x 300 px
+            </p>
           </div>
         </Dragger>
 
-        <h2 id="contact-information-title" data-cy="contact-information-title" className="text-2xl font-bold mt-6 mb-6">Contact information</h2>
+        <h2
+          id="contact-information-title"
+          data-cy="contact-information-title"
+          className="text-2xl font-bold mt-6 mb-6"
+        >
+          Contact information
+        </h2>
 
-        <div id="contact-information-fields" data-cy="contact-information-fields" className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6">
+        <div
+          id="contact-information-fields"
+          data-cy="contact-information-fields"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6"
+        >
           <Form.Item
-            id="contact-person-name-field" 
+            id="contact-person-name-field"
             data-cy="contact-person-name-field"
             name="contactPersonName"
             label="Contact Person Name"
             rules={[{ required: true, message: 'Please enter person name' }]}
           >
-            <Input  id="contact-person-name-input" data-cy="contact-person-name-input" placeholder="Enter contact person name" />
+            <Input
+              id="contact-person-name-input"
+              data-cy="contact-person-name-input"
+              placeholder="Enter contact person name"
+            />
           </Form.Item>
 
           <Form.Item
@@ -637,7 +758,11 @@ const AdminProfile = () => {
               { type: 'email', message: 'Please enter a valid email' },
             ]}
           >
-            <Input id="person-email-input" data-cy="person-email-input" placeholder="Enter person email" />
+            <Input
+              id="person-email-input"
+              data-cy="person-email-input"
+              placeholder="Enter person email"
+            />
           </Form.Item>
 
           <Form.Item
@@ -654,7 +779,11 @@ const AdminProfile = () => {
               },
             ]}
           >
-            <Input id="person-phone-input" data-cy="person-phone-input" placeholder="Enter person phone (e.g. +61-2-8765-4321)" />
+            <Input
+              id="person-phone-input"
+              data-cy="person-phone-input"
+              placeholder="Enter person phone (e.g. +61-2-8765-4321)"
+            />
           </Form.Item>
         </div>
 
@@ -676,8 +805,16 @@ const AdminProfile = () => {
   };
 
   return (
-    <div id="admin-profile-page" data-cy="admin-profile-page" className="h-auto w-auto px-6 py-6">
-      <div id="admin-profile-container" data-cy="admin-profile-container" className="bg-white p-[25px_35px] mt-6 rounded-lg max-w-[800px]">
+    <div
+      id="admin-profile-page"
+      data-cy="admin-profile-page"
+      className="h-auto w-auto px-6 py-6"
+    >
+      <div
+        id="admin-profile-container"
+        data-cy="admin-profile-container"
+        className="bg-white p-[25px_35px] mt-6 rounded-lg max-w-[800px]"
+      >
         {isLoading || isClientLoading ? (
           <div
             id="admin-profile-loading"
@@ -685,7 +822,11 @@ const AdminProfile = () => {
             className="flex justify-center items-center max-w-[800px]"
             style={{ margin: '25px 35px' }}
           >
-            <Skeleton active paragraph={{ rows: 10 }} data-cy="admin-profile-loading-skeleton" />
+            <Skeleton
+              active
+              paragraph={{ rows: 10 }}
+              data-cy="admin-profile-loading-skeleton"
+            />
           </div>
         ) : (
           <>

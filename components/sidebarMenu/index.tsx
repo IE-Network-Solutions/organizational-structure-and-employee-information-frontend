@@ -40,6 +40,7 @@ const SidebarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
 
   return (
     <ConfigProvider
+      data-cy="sidebar-menu-config-provider"
       theme={{
         components: {
           Menu: {
@@ -53,8 +54,12 @@ const SidebarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
         },
       }}
     >
-      <div className={`${isMobile && 'overflow-x-auto w-full '}`}>
+      <div
+        className={`${isMobile && 'overflow-x-auto w-full '}`}
+        data-cy="sidebar-menu-container"
+      >
         <Menu
+          data-cy="sidebar-menu"
           style={isMobile ? { marginInlineStart: 0 } : {}}
           className={`${isMobile ? 'min-w-max flex justify-start bg-[#f5f5f5]' : ''} rounded-2xl sm:py-2 px-0 sm:px-6 h-max gap-2 sm:w-[300px] sm:mb-4`}
           items={menuItems.onlyItems}

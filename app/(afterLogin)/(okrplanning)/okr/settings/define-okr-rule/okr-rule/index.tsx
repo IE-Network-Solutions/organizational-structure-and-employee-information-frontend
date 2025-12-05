@@ -70,7 +70,7 @@ const OkrRuleDrawer: React.FC<OkrRuleDrawerProps> = ({
       id="okr-rule-drawer-header"
       data-cy="okr-rule-drawer-header"
     >
-        {okrRule ? 'Edit OKR Rule' : 'Create OKR Rule'}
+      {okrRule ? 'Edit OKR Rule' : 'Create OKR Rule'}
     </div>
   );
 
@@ -105,7 +105,7 @@ const OkrRuleDrawer: React.FC<OkrRuleDrawerProps> = ({
       onClose={handleDrawerClose}
       modalHeader={modalHeader}
       footer={footer}
-      width="30%"   
+      width="30%"
       data-cy="okr-rule-drawer"
     >
       <Form

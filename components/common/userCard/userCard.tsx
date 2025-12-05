@@ -21,22 +21,27 @@ const UserCard: FC<UserCardProps> = ({
 }) => {
   // const sizeWH = size === 'medium' ? 40 : 24;
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3" data-cy="user-card-container">
       {data ? (
-        <Avatar size={25} src={data?.profileImage} />
+        <Avatar
+          size={25}
+          src={data?.profileImage}
+          data-cy="user-card-avatar-with-image"
+        />
       ) : (
-        <Avatar size={25}>
+        <Avatar size={25} data-cy="user-card-avatar-initials">
           {data?.firstName[0]?.toUpperCase()}
           {data?.middleName[0]?.toUpperCase()}
           {data?.lastName[0]?.toUpperCase()}
         </Avatar>
       )}
-      <div>
+      <div data-cy="user-card-info">
         <div
           className={classNames('text-gray-900 font-semibold', {
             'text-lg': size === 'medium',
             'text-xs': size === 'small',
           })}
+          data-cy="user-card-name"
         >
           {name}
         </div>
@@ -46,12 +51,18 @@ const UserCard: FC<UserCardProps> = ({
               'text-lg': size === 'medium',
               'text-xs': size === 'small',
             })}
+            data-cy="user-card-email"
           >
             {email}
           </div>
         )}
         {description && (
-          <div className="text-[10px] text-gray-500 mt-0.5">{description}</div>
+          <div
+            className="text-[10px] text-gray-500 mt-0.5"
+            data-cy="user-card-description"
+          >
+            {description}
+          </div>
         )}
       </div>
     </div>

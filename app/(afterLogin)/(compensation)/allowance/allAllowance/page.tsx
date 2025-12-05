@@ -111,7 +111,9 @@ const AllAllowancePage: React.FC = () => {
                   className="h-10 w-10 sm:w-auto"
                   id="createNewClosedHolidayFieldId"
                   data-cy="compensation-allowance-all-create-button"
-                  icon={<FaPlus data-cy="compensation-allowance-all-create-button-icon" />}
+                  icon={
+                    <FaPlus data-cy="compensation-allowance-all-create-button-icon" />
+                  }
                   onClick={() => {}}
                   disabled
                 >
@@ -156,7 +158,10 @@ const AllAllowancePage: React.FC = () => {
         id="compensation-allowance-all-table-wrapper"
         data-cy="compensation-allowance-all-table-wrapper"
       >
-        <AllAllowanceTable data-cy="compensation-allowance-all-table" searchQuery={searchQuery} />
+        <AllAllowanceTable
+          data-cy="compensation-allowance-all-table"
+          searchQuery={searchQuery}
+        />
       </div>
     </div>
   );

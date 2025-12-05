@@ -95,7 +95,10 @@ const IndividualResponses = ({ id }: Params) => {
     });
   }
   return (
-    <div id="individual-responses-container" data-cy="individual-responses-container">
+    <div
+      id="individual-responses-container"
+      data-cy="individual-responses-container"
+    >
       <Form
         id="individual-responses-form"
         data-cy="individual-responses-form"
@@ -106,7 +109,11 @@ const IndividualResponses = ({ id }: Params) => {
       >
         <>
           {isLoading ? (
-            <div id="individual-responses-loading" data-cy="individual-responses-loading" className="space-y-5">
+            <div
+              id="individual-responses-loading"
+              data-cy="individual-responses-loading"
+              className="space-y-5"
+            >
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
@@ -114,8 +121,16 @@ const IndividualResponses = ({ id }: Params) => {
                   data-cy={`individual-responses-skeleton-${i}`}
                   className="p-4 bg-white shadow-md border border-gray-200 rounded-lg mb-5"
                 >
-                  <Skeleton active title paragraph={{ rows: 2 }} data-cy={`individual-responses-skeleton-${i}-skeleton`} />
-                  <div className="mt-4 flex justify-center" data-cy={`individual-responses-skeleton-${i}-skeleton-input`}>
+                  <Skeleton
+                    active
+                    title
+                    paragraph={{ rows: 2 }}
+                    data-cy={`individual-responses-skeleton-${i}-skeleton`}
+                  />
+                  <div
+                    className="mt-4 flex justify-center"
+                    data-cy={`individual-responses-skeleton-${i}-skeleton-input`}
+                  >
                     <Skeleton.Input
                       style={{ width: 120, height: 120, borderRadius: '50%' }}
                       active
@@ -134,10 +149,18 @@ const IndividualResponses = ({ id }: Params) => {
                   data-cy={`individual-response-question-${question.id}`}
                   className="mb-5 p-4 bg-white shadow-md border border-gray-200 rounded-lg"
                 >
-                  <div id={`individual-response-question-${question.id}-text`} data-cy={`individual-response-question-${question.id}-text`} className="font-bold text-xl mb-2">
+                  <div
+                    id={`individual-response-question-${question.id}-text`}
+                    data-cy={`individual-response-question-${question.id}-text`}
+                    className="font-bold text-xl mb-2"
+                  >
                     {question.question}
                   </div>
-                  <div id={`individual-response-question-${question.id}-tag-container`} data-cy={`individual-response-question-${question.id}-tag-container`} className="mb-5">
+                  <div
+                    id={`individual-response-question-${question.id}-tag-container`}
+                    data-cy={`individual-response-question-${question.id}-tag-container`}
+                    className="mb-5"
+                  >
                     <Tag
                       id={`individual-response-question-${question.id}-tag`}
                       data-cy={`individual-response-question-${question.id}-tag`}
@@ -150,9 +173,18 @@ const IndividualResponses = ({ id }: Params) => {
                     question.fieldType === FieldType.MULTIPLE_CHOICE ||
                     question.fieldType === FieldType.CHECKBOX
                   ) && (
-                    <div id={`individual-response-question-${question.id}-text-responses`} data-cy={`individual-response-question-${question.id}-text-responses`} className="mb-2 bg-gray-100 p-2 rounded-md max-h-40 overflow-y-auto">
+                    <div
+                      id={`individual-response-question-${question.id}-text-responses`}
+                      data-cy={`individual-response-question-${question.id}-text-responses`}
+                      className="mb-2 bg-gray-100 p-2 rounded-md max-h-40 overflow-y-auto"
+                    >
                       {responses.map((resp, idx) => (
-                        <div key={idx} id={`individual-response-question-${question.id}-response-${idx}`} data-cy={`individual-response-question-${question.id}-response-${idx}`} className="mb-1">
+                        <div
+                          key={idx}
+                          id={`individual-response-question-${question.id}-response-${idx}`}
+                          data-cy={`individual-response-question-${question.id}-response-${idx}`}
+                          className="mb-1"
+                        >
                           {resp.map((r: any) => (
                             <span
                               key={r.id}
@@ -169,9 +201,21 @@ const IndividualResponses = ({ id }: Params) => {
                   )}
                   {(question.fieldType === FieldType.MULTIPLE_CHOICE ||
                     question.fieldType === FieldType.CHECKBOX) && (
-                    <div id={`individual-response-question-${question.id}-chart-container`} data-cy={`individual-response-question-${question.id}-chart-container`} className="w-full max-w-[800px]">
-                      <div id={`individual-response-question-${question.id}-chart-controls`} data-cy={`individual-response-question-${question.id}-chart-controls`} className="mb-2 flex items-center gap-2">
-                        <span id={`individual-response-question-${question.id}-chart-type-label`} data-cy={`individual-response-question-${question.id}-chart-type-label`} className="text-xs text-gray-500">
+                    <div
+                      id={`individual-response-question-${question.id}-chart-container`}
+                      data-cy={`individual-response-question-${question.id}-chart-container`}
+                      className="w-full max-w-[800px]"
+                    >
+                      <div
+                        id={`individual-response-question-${question.id}-chart-controls`}
+                        data-cy={`individual-response-question-${question.id}-chart-controls`}
+                        className="mb-2 flex items-center gap-2"
+                      >
+                        <span
+                          id={`individual-response-question-${question.id}-chart-type-label`}
+                          data-cy={`individual-response-question-${question.id}-chart-type-label`}
+                          className="text-xs text-gray-500"
+                        >
                           Chart type:
                         </span>
                         <Select
@@ -193,7 +237,11 @@ const IndividualResponses = ({ id }: Params) => {
                           (count: number) => count > 0,
                         );
                         return hasChartData ? (
-                          <div id={`individual-response-question-${question.id}-chart`} data-cy={`individual-response-question-${question.id}-chart`} className="w-full max-w-[600px]">
+                          <div
+                            id={`individual-response-question-${question.id}-chart`}
+                            data-cy={`individual-response-question-${question.id}-chart`}
+                            className="w-full max-w-[600px]"
+                          >
                             {chartType === 'pie' ? (
                               <Pie
                                 id={`individual-response-question-${question.id}-pie-chart`}
@@ -220,7 +268,11 @@ const IndividualResponses = ({ id }: Params) => {
                             )}
                           </div>
                         ) : (
-                          <div id={`individual-response-question-${question.id}-no-chart-data`} data-cy={`individual-response-question-${question.id}-no-chart-data`} className="text-gray-400 text-sm mt-2">
+                          <div
+                            id={`individual-response-question-${question.id}-no-chart-data`}
+                            data-cy={`individual-response-question-${question.id}-no-chart-data`}
+                            className="text-gray-400 text-sm mt-2"
+                          >
                             No valid responses for chart
                           </div>
                         );
@@ -241,7 +293,11 @@ const IndividualResponses = ({ id }: Params) => {
               />
             </>
           ) : (
-            <div id="individual-responses-empty" data-cy="individual-responses-empty" className="flex justify-start">
+            <div
+              id="individual-responses-empty"
+              data-cy="individual-responses-empty"
+              className="flex justify-start"
+            >
               <EmptyImage />
             </div>
           )}

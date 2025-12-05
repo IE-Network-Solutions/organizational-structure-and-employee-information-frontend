@@ -29,7 +29,12 @@ const NotificationMessage = {
         margin: 0,
         boxShadow: 'unset',
       },
-      icon: <CloseCircleFilled style={{ color: '#f5222e' }} />,
+      icon: (
+        <CloseCircleFilled
+          style={{ color: '#f5222e' }}
+          data-cy="notification-error-icon"
+        />
+      ),
     });
   },
   warning: ({ message, description }: NotificationProps) => {
@@ -43,7 +48,12 @@ const NotificationMessage = {
         margin: 0,
         boxShadow: 'unset',
       },
-      icon: <InfoCircleFilled style={{ color: '#f9bf02' }} />,
+      icon: (
+        <InfoCircleFilled
+          style={{ color: '#f9bf02' }}
+          data-cy="notification-warning-icon"
+        />
+      ),
     });
   },
   success: ({ message, description }: NotificationProps) => {
@@ -57,7 +67,12 @@ const NotificationMessage = {
         margin: 0,
         boxShadow: 'unset',
       },
-      icon: <CheckCircleFilled style={{ color: '#52C51A' }} />,
+      icon: (
+        <CheckCircleFilled
+          style={{ color: '#52C51A' }}
+          data-cy="notification-success-icon"
+        />
+      ),
     });
   },
 };

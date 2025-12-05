@@ -57,7 +57,21 @@ const TnaCommitmentSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: tnaCommitmentId ? <span data-cy="tna-commitment-sidebar-footer-edit-text" id="tnaCommitmentSidebarFooterEditTextId">Edit</span> : <span data-cy="tna-commitment-sidebar-footer-create-text" id="tnaCommitmentSidebarFooterCreateTextId">Create</span>,
+      label: tnaCommitmentId ? (
+        <span
+          data-cy="tna-commitment-sidebar-footer-edit-text"
+          id="tnaCommitmentSidebarFooterEditTextId"
+        >
+          Edit
+        </span>
+      ) : (
+        <span
+          data-cy="tna-commitment-sidebar-footer-create-text"
+          id="tnaCommitmentSidebarFooterCreateTextId"
+        >
+          Create
+        </span>
+      ),
       key: 'create',
       className: 'h-12',
       type: 'primary',
@@ -110,11 +124,25 @@ const TnaCommitmentSidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-commitment-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start text-xl font-extrabold px-2" data-cy="tna-commitment-sidebar-header">
+          <CustomDrawerHeader
+            className="flex justify-start text-xl font-extrabold px-2"
+            data-cy="tna-commitment-sidebar-header"
+          >
             {tnaCommitmentId ? (
-              <span data-cy="tna-commitment-sidebar-edit-text" id="tnaCommitmentSidebarEditTextId">Edit Commitment Rule</span>
+              <span
+                data-cy="tna-commitment-sidebar-edit-text"
+                id="tnaCommitmentSidebarEditTextId"
+              >
+                Edit Commitment Rule
+              </span>
             ) : (
-              <span data-cy="tna-commitment-sidebar-add-text" id="tnaCommitmentSidebarAddTextId"> Add Commitment Rule</span>
+              <span
+                data-cy="tna-commitment-sidebar-add-text"
+                id="tnaCommitmentSidebarAddTextId"
+              >
+                {' '}
+                Add Commitment Rule
+              </span>
             )}
           </CustomDrawerHeader>
         }
@@ -143,7 +171,12 @@ const TnaCommitmentSidebar = () => {
               <>
                 {fields.map(({ key, name, ...restField }) => (
                   <React.Fragment key={key}>
-                    <Flex className="w-full" gap={5} id={`tnaCommitmentSidebarNameFlex${key}Id`} data-cy={`tna-commitment-sidebar-name-flex-${key}`}>
+                    <Flex
+                      className="w-full"
+                      gap={5}
+                      id={`tnaCommitmentSidebarNameFlex${key}Id`}
+                      data-cy={`tna-commitment-sidebar-name-flex-${key}`}
+                    >
                       <Form.Item
                         {...restField}
                         name={[name, 'name']}
@@ -153,7 +186,11 @@ const TnaCommitmentSidebar = () => {
                         id={`tnaCommitmentSidebarNameItem${key}Id`}
                         data-cy={`tna-commitment-sidebar-name-item-${key}`}
                       >
-                        <Input className="control h-10" id={`tnaCommitmentSidebarNameInput${key}Id`} data-cy={`tna-commitment-sidebar-name-input-${key}`} />
+                        <Input
+                          className="control h-10"
+                          id={`tnaCommitmentSidebarNameInput${key}Id`}
+                          data-cy={`tna-commitment-sidebar-name-input-${key}`}
+                        />
                       </Form.Item>
                       {fields.length > 1 ? (
                         <RemoveFormFieldButton
@@ -181,8 +218,16 @@ const TnaCommitmentSidebar = () => {
                         data-cy={`tna-commitment-sidebar-description-textarea-${key}`}
                       />
                     </Form.Item>
-                    <Row gutter={16} id={`tnaCommitmentSidebarAmountRow${key}Id`} data-cy={`tna-commitment-sidebar-amount-row-${key}`}>
-                      <Col span={12} id={`tnaCommitmentSidebarAmountMinCol${key}Id`} data-cy={`tna-commitment-sidebar-amount-min-col-${key}`}>
+                    <Row
+                      gutter={16}
+                      id={`tnaCommitmentSidebarAmountRow${key}Id`}
+                      data-cy={`tna-commitment-sidebar-amount-row-${key}`}
+                    >
+                      <Col
+                        span={12}
+                        id={`tnaCommitmentSidebarAmountMinCol${key}Id`}
+                        data-cy={`tna-commitment-sidebar-amount-min-col-${key}`}
+                      >
                         <Form.Item
                           {...restField}
                           name={[name, 'amountMin']}
@@ -207,7 +252,11 @@ const TnaCommitmentSidebar = () => {
                           />
                         </Form.Item>
                       </Col>
-                      <Col span={12} id={`tnaCommitmentSidebarAmountMaxCol${key}Id`} data-cy={`tna-commitment-sidebar-amount-max-col-${key}`}>
+                      <Col
+                        span={12}
+                        id={`tnaCommitmentSidebarAmountMaxCol${key}Id`}
+                        data-cy={`tna-commitment-sidebar-amount-max-col-${key}`}
+                      >
                         <Form.Item
                           {...restField}
                           name={[name, 'amountMax']}
@@ -260,7 +309,10 @@ const TnaCommitmentSidebar = () => {
                 ))}
 
                 {!tnaCommitmentId && (
-                  <Form.Item id="tnaCommitmentSidebarAddButtonItemId" data-cy="tna-commitment-sidebar-add-button-item">
+                  <Form.Item
+                    id="tnaCommitmentSidebarAddButtonItemId"
+                    data-cy="tna-commitment-sidebar-add-button-item"
+                  >
                     <AddFormFieldsButton
                       label="Add Rule"
                       onClick={() => {

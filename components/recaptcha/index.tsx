@@ -7,7 +7,10 @@ export default function RecaptchaProvider({
   children: React.ReactNode;
 }) {
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={RECAPTCHA_SITE_KEY || ''}>
+    <GoogleReCaptchaProvider
+      reCaptchaKey={RECAPTCHA_SITE_KEY || ''}
+      data-cy="recaptcha-provider"
+    >
       {children}
     </GoogleReCaptchaProvider>
   );

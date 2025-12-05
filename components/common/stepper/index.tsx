@@ -15,10 +15,17 @@ const Stepper: React.FC<Props> = ({ numberOfSteps, setCurrent, current }) => {
   const customDot = (step: number) => (
     <div
       className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${current >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
+      data-cy={`stepper-dot-${step}`}
     >
-      <div style={{ fontSize: '24px', lineHeight: '24px' }}>
+      <div
+        style={{ fontSize: '24px', lineHeight: '24px' }}
+        data-cy={`stepper-dot-content-${step}`}
+      >
         {current >= step ? (
-          <IoCheckmarkSharp className="text-xs font-bold" />
+          <IoCheckmarkSharp
+            className="text-xs font-bold"
+            data-cy={`stepper-checkmark-${step}`}
+          />
         ) : (
           '•'
         )}
@@ -26,8 +33,9 @@ const Stepper: React.FC<Props> = ({ numberOfSteps, setCurrent, current }) => {
     </div>
   );
   return (
-    <div>
+    <div data-cy="stepper-container">
       <Steps
+        data-cy="stepper-steps"
         current={current}
         size="default"
         onChange={onChange}
@@ -35,7 +43,11 @@ const Stepper: React.FC<Props> = ({ numberOfSteps, setCurrent, current }) => {
       >
         {/* eslint-disable @typescript-eslint/naming-convention  */}
         {Array.from({ length: numberOfSteps }, (__, index) => (
-          <Step key={index} icon={customDot(index)} />
+          <Step
+            key={index}
+            icon={customDot(index)}
+            data-cy={`stepper-step-${index}`}
+          />
         ))}
       </Steps>
     </div>

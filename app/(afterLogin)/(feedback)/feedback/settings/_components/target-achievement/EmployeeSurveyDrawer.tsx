@@ -103,7 +103,10 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
         data-cy="employee-survey-drawer-form"
         id="employeeSurveyDrawerForm"
       >
-        <Form.List name="employees" data-cy="employee-survey-drawer-employees-list">
+        <Form.List
+          name="employees"
+          data-cy="employee-survey-drawer-employees-list"
+        >
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
@@ -173,7 +176,11 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
                   </Form.Item>
 
                   {/* Remove Button - span 2 */}
-                  <div className="col-span-1 flex justify-start pt-1" data-cy={`employee-survey-drawer-remove-button-container-${name}`} id={`employeeSurveyDrawerRemoveButtonContainer${name}`}>
+                  <div
+                    className="col-span-1 flex justify-start pt-1"
+                    data-cy={`employee-survey-drawer-remove-button-container-${name}`}
+                    id={`employeeSurveyDrawerRemoveButtonContainer${name}`}
+                  >
                     <Button
                       danger
                       type="text"
@@ -187,8 +194,17 @@ const EmployeeSurveyDrawer: React.FC<EmployeeSurveyDrawerProps> = ({
                 </div>
               ))}
 
-              <Form.Item className="flex justify-end" data-cy="employee-survey-drawer-add-button-container" id="employeeSurveyDrawerAddButtonContainer">
-                <Button onClick={() => add()} icon={<PlusOutlined />} data-cy="employee-survey-drawer-add-button" id="employeeSurveyDrawerAddButton">
+              <Form.Item
+                className="flex justify-end"
+                data-cy="employee-survey-drawer-add-button-container"
+                id="employeeSurveyDrawerAddButtonContainer"
+              >
+                <Button
+                  onClick={() => add()}
+                  icon={<PlusOutlined />}
+                  data-cy="employee-survey-drawer-add-button"
+                  id="employeeSurveyDrawerAddButton"
+                >
                   Add Employee
                 </Button>
               </Form.Item>

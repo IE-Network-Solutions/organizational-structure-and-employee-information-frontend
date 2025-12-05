@@ -27,6 +27,7 @@ const TopbarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
 
   return (
     <ConfigProvider
+      data-cy="topbar-menu-config-provider"
       theme={{
         components: {
           Menu: {
@@ -41,6 +42,7 @@ const TopbarMenu: FC<SidebarMenuProps> = ({ menuItems }) => {
       }}
     >
       <Menu
+        data-cy="topbar-menu"
         className="w-full flex justify-center sm:justify-end  rounded-2xl py-2 px-6 h-max bg-gray-100 sm:bg-white"
         items={menuItems.onlyItems}
         mode="horizontal"

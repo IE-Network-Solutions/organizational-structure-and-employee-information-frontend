@@ -28,7 +28,13 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
   ];
 
   return (
-    <>{excludeNavPaths.includes(pathname) ? children : <Nav>{children}</Nav>}</>
+    <div data-cy="conditional-nav-container">
+      {excludeNavPaths.includes(pathname) ? (
+        children
+      ) : (
+        <Nav data-cy="conditional-nav">{children}</Nav>
+      )}
+    </div>
   );
 };
 
