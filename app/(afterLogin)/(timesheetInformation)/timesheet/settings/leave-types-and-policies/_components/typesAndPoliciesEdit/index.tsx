@@ -61,6 +61,8 @@ const TypesAndPoliciesEdit = () => {
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
+      id: 'time-attendance-settings-leave-types-and-policies-edit-sidebar-cancel-button',
+      'data-cy': 'time-attendance-settings-leave-types-and-policies-edit-sidebar-cancel-button',
     },
     {
       label: 'Update',
@@ -72,6 +74,8 @@ const TypesAndPoliciesEdit = () => {
       onClick: () => {
         form.submit();
       },
+      id: 'time-attendance-settings-leave-types-and-policies-edit-sidebar-update-button',
+      'data-cy': 'time-attendance-settings-leave-types-and-policies-edit-sidebar-update-button',
     },
   ];
   const carryOverRuleOptions = () =>
@@ -158,15 +162,30 @@ const TypesAndPoliciesEdit = () => {
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
-        modalHeader={<CustomDrawerHeader>Leave Type Edit</CustomDrawerHeader>}
+        modalHeader={
+          <CustomDrawerHeader data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-header">
+            Leave Type Edit
+          </CustomDrawerHeader>
+        }
         footer={
-          <div className="p-4">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
+          <div
+            className="p-4"
+            id="time-attendance-settings-leave-types-and-policies-edit-sidebar-footer-container"
+            data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-footer-container"
+          >
+            <CustomDrawerFooterButton
+              buttons={footerModalItems}
+              data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-footer-button"
+            />
           </div>
         }
         width="400px"
+        data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar"
       >
-        <Spin spinning={getIsLoading}>
+        <Spin
+          spinning={getIsLoading}
+          data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-spin"
+        >
           <Form
             layout="vertical"
             form={form}
@@ -176,36 +195,42 @@ const TypesAndPoliciesEdit = () => {
             onFieldsChange={onFieldChange}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
+            id="time-attendance-settings-leave-types-and-policies-edit-sidebar-form"
+            data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-form"
           >
-            <Space direction="vertical" className="w-full" size={12}>
+            <Space data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-form-fields" direction="vertical" className="w-full" size={12}>
               <Form.Item
                 id={`TypesAndPoliciesTitleFieldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-title-field-id"
                 label="Type Name"
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
               >
-                <Input className={controlClass} />
+                <Input className={controlClass} data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-title-input" />
               </Form.Item>
               <Form.Item
                 label="Paid/Unpaid"
                 id={`TypesAndPoliciesPaidOrUnpaidFieldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-paid-unpaid-field-id"
                 rules={[{ required: true, message: 'Required' }]}
                 name="plan"
               >
-                <Radio.Group className="w-full mt-2.5">
-                  <Row gutter={16}>
-                    <Col span={12}>
+                <Radio.Group className="w-full mt-2.5" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-paid-unpaid-radio-group">
+                  <Row data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-paid-unpaid-radio-group-rows" gutter={16}>
+                    <Col data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-paid-option-column" span={12}>
                       <CustomRadio
                         label="Paid"
                         value="paid"
                         isError={isErrorPlan}
+                        data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-paid-option"
                       />
                     </Col>
-                    <Col span={12}>
+                    <Col data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-unpaid-option-column" span={12}>
                       <CustomRadio
                         label="Unpaid"
                         value="unpaid"
                         isError={isErrorPlan}
+                        data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-unpaid-option"
                       />
                     </Col>
                   </Row>
@@ -214,6 +239,7 @@ const TypesAndPoliciesEdit = () => {
               <Form.Item
                 label="Entitled Days/year"
                 id={`TypesAndPoliciesEntitledDaysYearFieldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-entitled-days-year-field-id"
                 rules={[
                   { required: true, message: 'Required' },
                   {
@@ -233,34 +259,38 @@ const TypesAndPoliciesEdit = () => {
                   min={1}
                   className={inputNumberClass}
                   placeholder="Input entitled days"
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-entitled-days-year-input"
                 />
               </Form.Item>
 
-              <div className="flex justify-between gap-2">
-                <div className="h-[54px] w-full flex items-center gap-1">
-                  <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+              <div id="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-id" className="flex justify-between gap-2">
+                <div id="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-id" className="h-[54px] w-full flex items-center gap-1">
+                  <span id= "time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-label-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-label-id" className="text-xs text-gray-900 font-medium flex items-center gap-1">
                     <Popover
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-popover-id"
                       content={
-                        <div className="w-72">
+                        <div data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-popover-content-id" className="w-72">
                           Fixed leaves are granted upfront or as needed without
                           accumulation, while non-fixed leaves build up over
                           time.
                         </div>
                       }
                     >
-                      <InfoCircleOutlined className="text-gray-500" />
+                      <InfoCircleOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-popover-icon-id" className="text-gray-500" />
                     </Popover>
                     Fixed
                   </span>
                   <Form.Item
                     id={`TypesAndPoliciesIsDeductableFieldId`}
+                    data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-form-id"
                     name="isFixed"
                     className="m-0"
                   >
                     <Switch
                       size="small"
-                      checkedChildren={<CheckOutlined />}
-                      unCheckedChildren={<CloseOutlined />}
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-switch-id"
+                      checkedChildren={<CheckOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-switch-checked-icon-id" />}
+                      unCheckedChildren={<CloseOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-fixed-leaves-container-item-switch-unchecked-icon-id" />}
                       onChange={(checked) => {
                         setIsFixed(checked);
                         form.setFieldsValue({
@@ -272,73 +302,81 @@ const TypesAndPoliciesEdit = () => {
                     />
                   </Form.Item>
                 </div>
-                <div className="h-[54px] w-full flex items-center gap-1">
-                  <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                <div id="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-id" className="h-[54px] w-full flex items-center gap-1">
+                  <span id="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-label-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-label-id" className="text-xs text-gray-900 font-medium flex items-center gap-1">
                     <Popover
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-popover-id"
                       content={
-                        <div className="w-72">
+                        <div data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-popover-content-id" className="w-72">
                           Deductible leaves reduce an employee&apos;s leave
                           balance when taken (like vacation days), while
                           non-deductible leaves do not affect the balance.
                         </div>
                       }
                     >
-                      <InfoCircleOutlined className="text-gray-500" />
+                      <InfoCircleOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-popover-icon-id" className="text-gray-500" />
                     </Popover>
                     Deductable
                   </span>
                   <Form.Item
                     id={`TypesAndPoliciesIsDeductableFieldId`}
+                    data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-form-id"
                     name="isDeductible"
                     className="m-0"
                   >
                     <Switch
                       size="small"
-                      checkedChildren={<CheckOutlined />}
-                      unCheckedChildren={<CloseOutlined />}
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-switch-id"
+                      checkedChildren={<CheckOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-switch-checked-icon-id" />}
+                      unCheckedChildren={<CloseOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-deductable-leaves-container-item-switch-unchecked-icon-id" />}
                     />
                   </Form.Item>
                 </div>
-                <div className="h-[54px] w-full flex items-center gap-1">
-                  <span className="text-xs text-gray-900 font-medium flex items-center gap-1">
+                <div id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-id"   className="h-[54px] w-full flex items-center gap-1">
+                  <span id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-label-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-label-id" className="text-xs text-gray-900 font-medium flex items-center gap-1">
                     <Popover
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-popover-id"
                       content={
-                        <div className="w-72">
+                        <div id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-popover-content-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-popover-content-id" className="w-72">
                           Annual Leave can be calculated increamentally per
                           year. for example per{' '}
-                          <span className="font-bold">2</span> years of
-                          employement, <span className="font-bold">1</span> more
+                          <span id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-year-value-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-year-value-id" className="font-bold">2</span> years of
+                          employement, <span id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-amount-value-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-amount-value-id" className="font-bold">1</span> more
                           day of leave is added.
                         </div>
                       }
                     >
-                      <InfoCircleOutlined className="text-gray-500" />
+                      <InfoCircleOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-popover-icon-id" className="text-gray-500" />
                     </Popover>
                     Incremental
                   </span>
                   <Form.Item
                     id={`TypesAndPoliciesIsDeductableFieldId`}
+                    data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-form-id"
                     name="isIncremental"
                     className="m-0"
                   >
                     <Switch
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-switch-id"
                       size="small"
                       disabled={isFixed}
-                      checkedChildren={<CheckOutlined />}
-                      unCheckedChildren={<CloseOutlined />}
+                      checkedChildren={<CheckOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-switch-checked-icon-id" />}
+                      unCheckedChildren={<CloseOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-switch-unchecked-icon-id" />}
                     />
                   </Form.Item>
                 </div>
               </div>
               <div>
                 {isIncremental && (
-                  <div className="flex gap-2 mt-2 w-full">
+                  <div id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-id" className="flex gap-2 mt-2 w-full">
                     <Form.Item
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-year-field-id"
                       name="incrementalYear"
                       rules={[{ required: isIncremental, message: 'Required' }]}
                       className="m-0"
                     >
                       <InputNumber
+                        data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-year-input-id"
                         min={1}
                         placeholder="Year"
                         className="h-[40px] w-full"
@@ -346,11 +384,13 @@ const TypesAndPoliciesEdit = () => {
                     </Form.Item>
                     <Form.Item
                       name="incrementAmount"
+                      data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-amount-field-id"
                       rules={[{ required: isIncremental, message: 'Required' }]}
                       className="m-0"
                     >
                       <InputNumber
                         min={1}
+                        data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-amount-input-id"
                         placeholder="Entitled Days"
                         className="h-[40px] w-full"
                       />
@@ -358,20 +398,22 @@ const TypesAndPoliciesEdit = () => {
                   </div>
                 )}
                 {isIncremental && (
-                  <div className="text-[11px] text-gray-500 mt-1 mb-4 flex items-center gap-1">
-                    <InfoCircleOutlined className="text-gray-500" />
-                    Every <b>{incrementalYear || '__'}</b> years add{' '}
-                    <b>{incrementAmount || '__'}</b> additional day(s)
+                  <div id="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-id" data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-id" className="text-[11px] text-gray-500 mt-1 mb-4 flex items-center gap-1">
+                    <InfoCircleOutlined data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-popover-icon-id" className="text-gray-500" />
+                    Every <b data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-year-value-id">{incrementalYear || '__'}</b> years add{' '}
+                    <b data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-incremental-container-item-amount-value-id">{incrementAmount || '__'}</b> additional day(s)
                   </div>
                 )}
               </div>
               <Form.Item
                 id={`TypesAndPoliciesMinAllowedDaysFieldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-min-allowed-days-field-id"
                 label="Minimum notifying period(days)"
                 rules={[{ required: true, message: 'Required' }]}
                 name="min"
               >
                 <InputNumber
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-min-allowed-days-input-id"
                   min={0}
                   className={inputNumberClass}
                   placeholder="Enter your days"
@@ -379,11 +421,13 @@ const TypesAndPoliciesEdit = () => {
               </Form.Item>
               <Form.Item
                 id={`TypesAndPoliciesMaxConsecuativeAllowedDaysFieldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-max-allowed-consecutive-days-field-id"  
                 label="Maximum allowed consecutive days"
                 rules={[{ required: true, message: 'Required' }]}
                 name="max"
               >
                 <InputNumber
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-max-allowed-consecutive-days-input-id"
                   min={1}
                   className={inputNumberClass}
                   placeholder="Enter your days"
@@ -392,6 +436,7 @@ const TypesAndPoliciesEdit = () => {
               <Form.Item
                 label="Accrual Rule"
                 id={`TypesAndPoliciesActualRuleFieldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-accrual-rule-field-id"
                 rules={[
                   {
                     required: !isFixed,
@@ -404,7 +449,7 @@ const TypesAndPoliciesEdit = () => {
                   disabled={isFixed}
                   className={controlClass}
                   suffixIcon={
-                    <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                    <MdKeyboardArrowDown data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-accrual-rule-select-icon-id" size={16} className="text-gray-900" />
                   }
                   options={accrualRuleOptions()}
                 />
@@ -412,6 +457,7 @@ const TypesAndPoliciesEdit = () => {
               <Form.Item
                 label="Carry-Over Rule"
                 id={`TypesAndPoliciesRuleCarryOverFieldldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-carry-over-rule-field-id"
                 rules={[
                   {
                     required: !isFixed,
@@ -425,17 +471,19 @@ const TypesAndPoliciesEdit = () => {
                   className={controlClass}
                   options={carryOverRuleOptions()}
                   suffixIcon={
-                    <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                    <MdKeyboardArrowDown data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-carry-over-rule-select-icon-id" size={16} className="text-gray-900" />
                   }
                 />
               </Form.Item>
               <Form.Item
                 label="Description"
                 id={`TypesAndPoliciesDescriptionFieldId`}
+                data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-description-field-id" 
                 rules={[{ required: true, message: 'Required' }]}
                 name="description"
               >
                 <Input.TextArea
+                  data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-description-textarea-id"
                   className="w-full py-4 px-5 mt-2.5"
                   placeholder="Input description"
                   rows={6}

@@ -28,7 +28,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
     }
   }, [initialValues, form]);
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div className="w-full flex justify-center items-center gap-4 pt-8" data-cy="meeting-template-drawer-footer" id="meetingTemplateDrawerFooter">
       <Button
         type="default"
         title="Cancel"
@@ -36,6 +36,8 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
         style={{ marginRight: 8 }}
         loading={loading}
         className="h-10"
+        data-cy="meeting-template-drawer-cancel-button"
+        id="meetingTemplateDrawerCancelButton"
       >
         Cancel
       </Button>
@@ -45,6 +47,8 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
         onClick={() => form.submit()}
         loading={loading}
         className="h-10"
+        data-cy="meeting-template-drawer-submit-button"
+        id="meetingTemplateDrawerSubmitButton"
       >
         {initialValues ? 'Update' : 'Create'}
       </Button>
@@ -56,7 +60,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       open={open}
       onClose={() => onClose()}
       modalHeader={
-        <div className="text-center font-bold text-xl">
+        <div className="text-center font-bold text-xl" data-cy="meeting-template-drawer-header" id="meetingTemplateDrawerHeader">
           {' '}
           {initialValues
             ? 'Update Meeting Template'
@@ -65,19 +69,24 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       }
       width="40%"
       footer={footer}
+      data-cy="meeting-template-drawer"
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
         initialValues={initialValues || { agendaItems: [''] }}
+        data-cy="meeting-template-drawer-form"
+        id="meetingTemplateDrawerForm"
       >
         <Form.Item
           label="Name"
           name="name"
           rules={[{ required: true, message: 'Please enter the name' }]}
+          data-cy="meeting-template-drawer-name-field"
+          id="meetingTemplateDrawerNameField"
         >
-          <Input placeholder="Template name" />
+          <Input placeholder="Template name" data-cy="meeting-template-drawer-name-input" id="meetingTemplateDrawerNameInput" />
         </Form.Item>
 
         <Form.Item
@@ -86,29 +95,35 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           rules={[
             { required: true, message: 'Please enter the meeting objective' },
           ]}
+          data-cy="meeting-template-drawer-objective-field"
+          id="meetingTemplateDrawerObjectiveField"
         >
-          <Input placeholder="The meeting objective" />
+          <Input placeholder="The meeting objective" data-cy="meeting-template-drawer-objective-input" id="meetingTemplateDrawerObjectiveInput" />
         </Form.Item>
 
         <Form.Item
           label="Description"
           name="description"
           rules={[{ required: true, message: 'Please enter a description' }]}
+          data-cy="meeting-template-drawer-description-field"
+          id="meetingTemplateDrawerDescriptionField"
         >
-          <Input.TextArea placeholder="Some sort of description" />
+          <Input.TextArea placeholder="Some sort of description" data-cy="meeting-template-drawer-description-textarea" id="meetingTemplateDrawerDescriptionTextarea" />
         </Form.Item>
 
-        <Form.List name="agendaItems">
+        <Form.List name="agendaItems" data-cy="meeting-template-drawer-agenda-items-list">
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <div key={key} className="mb-2">
+                <div key={key} className="mb-2" data-cy={`meeting-template-drawer-agenda-item-${name}`} id={`meetingTemplateDrawerAgendaItem${name}`}>
                   <Form.Item
                     {...restField}
                     name={name}
                     rules={[{ required: true, message: 'Missing agenda item' }]}
                     label={`Agenda Item ${key + 1}`}
                     className="w-full"
+                    data-cy={`meeting-template-drawer-agenda-item-field-${name}`}
+                    id={`meetingTemplateDrawerAgendaItemField${name}`}
                   >
                     <Input
                       placeholder="Agenda Item"
@@ -116,14 +131,18 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
                         <MdClose
                           className="cursor-pointer text-gray-500 hover:text-red-500"
                           onClick={() => remove(name)}
+                          data-cy={`meeting-template-drawer-remove-agenda-item-${name}`}
+                          id={`meetingTemplateDrawerRemoveAgendaItem${name}`}
                         />
                       }
+                      data-cy={`meeting-template-drawer-agenda-item-input-${name}`}
+                      id={`meetingTemplateDrawerAgendaItemInput${name}`}
                     />
                   </Form.Item>
                 </div>
               ))}
-              <Form.Item>
-                <Button type="primary" onClick={() => add()} block>
+              <Form.Item data-cy="meeting-template-drawer-add-agenda-item-container" id="meetingTemplateDrawerAddAgendaItemContainer">
+                <Button type="primary" onClick={() => add()} block data-cy="meeting-template-drawer-add-agenda-item-button" id="meetingTemplateDrawerAddAgendaItemButton">
                   Add agenda item
                 </Button>
               </Form.Item>

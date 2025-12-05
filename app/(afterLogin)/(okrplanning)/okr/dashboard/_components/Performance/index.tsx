@@ -418,8 +418,16 @@ const Performance: React.FC = () => {
   };
 
   const AdminPageView = () => (
-    <div className="space-y-3">
-      <div className="flex items-center gap-3">
+    <div
+      className="space-y-3"
+      id="okr-performance-admin-view"
+      data-cy="okr-performance-admin-view"
+    >
+      <div
+        className="flex items-center gap-3"
+        id="okr-performance-admin-filters"
+        data-cy="okr-performance-admin-filters"
+      >
         <Select
           showSearch
           allowClear
@@ -431,6 +439,8 @@ const Performance: React.FC = () => {
             value: emp.name,
             label: emp.name,
           }))}
+          id="okr-performance-admin-search-select"
+          data-cy="okr-performance-admin-search-select"
         />
         <DatePicker.RangePicker
           placeholder={['From', 'To']}
@@ -438,11 +448,13 @@ const Performance: React.FC = () => {
           className="rounded-lg w-50"
           value={dateRange}
           onChange={handleDateRangeChange}
+          id="okr-performance-admin-date-range"
+          data-cy="okr-performance-admin-date-range"
         />
         <Select
           value={selectedFilter}
           onChange={handleFilterChange}
-          suffixIcon={<DownOutlined />}
+          suffixIcon={<DownOutlined data-cy="okr-performance-admin-period-filter-icon-display-icon" />}
           className="w-20 rounded-lg"
           options={[
             { value: 'All', label: 'All' },
@@ -450,14 +462,20 @@ const Performance: React.FC = () => {
             { value: 'Weekly', label: 'Weekly' },
             { value: 'Monthly', label: 'Monthly' },
           ]}
+          id="okr-performance-admin-period-filter"
+          data-cy="okr-performance-admin-period-filter"
         />
         <Button
           type="primary"
           className="bg-blue-500 text-white rounded-lg flex items-center gap-1 h-8 px-3"
           loading={isExporting}
           onClick={handleExcelExport}
+          id="okr-performance-admin-export-button"
+          data-cy="okr-performance-admin-export-button"
         >
           <img
+            id="okr-performance-admin-export-button-icon"
+            data-cy="okr-performance-admin-export-button-icon"
             src="/icons/file-download.svg"
             alt="Download"
             className="w-3 h-6 brightness-0 invert"
@@ -465,86 +483,179 @@ const Performance: React.FC = () => {
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+      <div
+        className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+        id="okr-performance-admin-table"
+        data-cy="okr-performance-admin-table"
+      >
+        <div
+          className="bg-gray-50 px-4 py-3 border-b border-gray-200"
+          id="okr-performance-admin-table-header"
+          data-cy="okr-performance-admin-table-header"
+        >
           <div
             className={`grid gap-3 text-xs font-medium text-gray-600 ${selectedFilter === 'All' ? 'grid-cols-4' : 'grid-cols-2'}`}
+            id="okr-performance-admin-table-header-grid"
+            data-cy="okr-performance-admin-table-header-grid"
           >
-            <div className="text-center">Employee</div>
+            <div className="text-center" id="okr-performance-admin-table-header-employee" data-cy="okr-performance-admin-table-header-employee">Employee</div>
             {selectedFilter === 'All' ? (
               <>
-                <div className="text-right">Monthly</div>
-                <div className="text-right">Weekly</div>
-                <div className="text-right">Daily</div>
+                <div className="text-right" id="okr-performance-admin-table-header-monthly" data-cy="okr-performance-admin-table-header-monthly">Monthly</div>
+                <div className="text-right" id="okr-performance-admin-table-header-weekly" data-cy="okr-performance-admin-table-header-weekly">Weekly</div>
+                <div className="text-right" id="okr-performance-admin-table-header-daily" data-cy="okr-performance-admin-table-header-daily">Daily</div>
               </>
             ) : (
-              <div className="text-right">{selectedFilter}</div>
+              <div className="text-right" id="okr-performance-admin-table-header-selected-filter" data-cy="okr-performance-admin-table-header-selected-filter">{selectedFilter}</div>
             )}
           </div>
         </div>
 
-        <div className="max-h-[270px] overflow-y-auto space-y-2 p-3 hide-scrollbar">
+        <div
+          className="max-h-[270px] overflow-y-auto space-y-2 p-3 hide-scrollbar"
+          id="okr-performance-admin-table-body"
+          data-cy="okr-performance-admin-table-body"
+        >
           {(isLoadingAllEmployees ||
             isLoadingEmployeeList ||
             isLoadingAdmin ||
             isLoadingActiveMonth) &&
           !selectedUserId ? (
-            <div className="flex justify-center items-center h-20">
-              <Spin size="default" />
+            <div
+              className="flex justify-center items-center h-20"
+              id="okr-performance-admin-loading"
+              data-cy="okr-performance-admin-loading"
+            >
+              <Spin
+                size="default"
+
+                data-cy="okr-performance-admin-loading-spin"
+              />
             </div>
           ) : selectedUserId && isLoadingSelectedUser ? (
-            <div className="flex justify-center items-center h-20">
-              <Spin size="default" />
+            <div
+              className="flex justify-center items-center h-20"
+              id="okr-performance-admin-selected-loading"
+              data-cy="okr-performance-admin-selected-loading"
+            >
+              <Spin
+                size="default"
+   
+                data-cy="okr-performance-admin-selected-loading-spin"
+              />
             </div>
           ) : paginationData.currentEmployees.length === 0 ? (
-            <div className="flex justify-center items-center h-20 text-gray-500">
-              No employees found
+            <div
+              className="flex justify-center items-center h-20 text-gray-500"
+              id="okr-performance-admin-empty-state"
+              data-cy="okr-performance-admin-empty-state"
+            >
+              <span
+                id="okr-performance-admin-empty-state-text-display-span"
+                data-cy="okr-performance-admin-empty-state-text-display-span"
+              >
+                No employees found
+              </span>
             </div>
           ) : (
             paginationData.currentEmployees.map((employee: any) => (
               <div
                 key={employee.id}
                 className="bg-white border border-gray-200 rounded-lg p-3"
+                id={`okr-performance-admin-employee-card-${employee.id}`}
+                data-cy={`okr-performance-admin-employee-card-${employee.id}`}
               >
                 <div
                   className={`grid gap-3 items-center ${selectedFilter === 'All' ? 'grid-cols-4' : 'grid-cols-2'}`}
+                  id={`okr-performance-admin-employee-grid-${employee.id}`}
+                  data-cy={`okr-performance-admin-employee-grid-${employee.id}`}
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-gray-100">
+                  <div
+                    className="flex items-center gap-2"
+                    id={`okr-performance-admin-employee-info-${employee.id}`}
+                    data-cy={`okr-performance-admin-employee-info-${employee.id}`}
+                  >
+                    <div
+                      className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-gray-100"
+                      id={`okr-performance-admin-employee-avatar-wrapper-${employee.id}`}
+                      data-cy={`okr-performance-admin-employee-avatar-wrapper-${employee.id}`}
+                    >
                       <Image
                         src={employee.profileImage || Avatar}
                         alt="Employee profile"
                         layout="fill"
                         className="object-cover"
+                        id={`okr-performance-admin-employee-avatar-${employee.id}`}
+                        data-cy={`okr-performance-admin-employee-avatar-${employee.id}`}
                       />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-gray-500">
+                    <div
+                      className="flex flex-col"
+                      id={`okr-performance-admin-employee-name-wrapper-${employee.id}`}
+                      data-cy={`okr-performance-admin-employee-name-wrapper-${employee.id}`}
+                    >
+                      <span
+                        className="text-xs font-semibold text-gray-500"
+                        id={`okr-performance-admin-employee-name-${employee.id}`}
+                        data-cy={`okr-performance-admin-employee-name-${employee.id}`}
+                      >
                         {employee.name}
                       </span>
                     </div>
                   </div>
                   {selectedFilter === 'All' ? (
                     <>
-                      <div className="text-right">
-                        <div className="text-xs font-medium text-gray-500">
+                      <div
+                        className="text-right"
+                        id={`okr-performance-admin-employee-monthly-${employee.id}`}
+                        data-cy={`okr-performance-admin-employee-monthly-${employee.id}`}
+                      >
+                        <div
+                          className="text-xs font-medium text-gray-500"
+                          id={`okr-performance-admin-employee-monthly-value-${employee.id}`}
+                          data-cy={`okr-performance-admin-employee-monthly-value-${employee.id}`}
+                        >
                           {formatScore(employee.monthly)}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xs font-medium text-gray-500">
+                      <div
+                        className="text-right"
+                        id={`okr-performance-admin-employee-weekly-${employee.id}`}
+                        data-cy={`okr-performance-admin-employee-weekly-${employee.id}`}
+                      >
+                        <div
+                          className="text-xs font-medium text-gray-500"
+                          id={`okr-performance-admin-employee-weekly-value-${employee.id}`}
+                          data-cy={`okr-performance-admin-employee-weekly-value-${employee.id}`}
+                        >
                           {formatScore(employee.weekly)}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xs font-medium text-gray-500">
+                      <div
+                        className="text-right"
+                        id={`okr-performance-admin-employee-daily-${employee.id}`}
+                        data-cy={`okr-performance-admin-employee-daily-${employee.id}`}
+                      >
+                        <div
+                          className="text-xs font-medium text-gray-500"
+                          id={`okr-performance-admin-employee-daily-value-${employee.id}`}
+                          data-cy={`okr-performance-admin-employee-daily-value-${employee.id}`}
+                        >
                           {formatScore(employee.daily)}
                         </div>
                       </div>
                     </>
                   ) : (
-                    <div className="text-right">
-                      <div className="text-xs font-medium text-gray-500">
+                    <div
+                      className="text-right"
+                      id={`okr-performance-admin-employee-selected-score-${employee.id}`}
+                      data-cy={`okr-performance-admin-employee-selected-score-${employee.id}`}
+                    >
+                      <div
+                        className="text-xs font-medium text-gray-500"
+                        id={`okr-performance-admin-employee-selected-score-value-${employee.id}`}
+                        data-cy={`okr-performance-admin-employee-selected-score-value-${employee.id}`}
+                      >
                         {selectedFilter === 'Monthly'
                           ? formatScore(employee.monthly)
                           : selectedFilter === 'Weekly'
@@ -559,7 +670,11 @@ const Performance: React.FC = () => {
           )}
 
           {!selectedUserId && (
-            <div className="flex justify-center pt-2">
+            <div
+              className="flex justify-center pt-2"
+              id="okr-performance-admin-pagination"
+              data-cy="okr-performance-admin-pagination"
+            >
               <Pagination
                 current={allUsersAverage?.page || currentPage}
                 total={allUsersAverage?.totalUsers || 0}
@@ -572,6 +687,8 @@ const Performance: React.FC = () => {
                 pageSizeOptions={['5', '10', '20', '50', '100']}
                 size="small"
                 className="pagination-custom"
+           
+                data-cy="okr-performance-admin-pagination-control"
               />
             </div>
           )}
@@ -590,13 +707,23 @@ const Performance: React.FC = () => {
     }, [personalAvailablePeriods]);
 
     return (
-      <div className="space-y-3">
-        <div className="flex justify-end gap-3">
+      <div
+        className="space-y-3"
+        id="okr-performance-personal-view"
+        data-cy="okr-performance-personal-view"
+      >
+        <div
+          className="flex justify-end gap-3"
+          id="okr-performance-personal-filters"
+          data-cy="okr-performance-personal-filters"
+        >
           <Select
             value={personalFilter}
             onChange={setPersonalFilter}
             className="w-28 rounded-lg"
             options={filterOptions}
+            id="okr-performance-personal-filter-select"
+            data-cy="okr-performance-personal-filter-select"
           />
           <DatePicker.RangePicker
             placeholder={['From', 'To']}
@@ -604,36 +731,89 @@ const Performance: React.FC = () => {
             className="rounded-lg"
             value={personalDateRange}
             onChange={setPersonalDateRange}
+            id="okr-performance-personal-date-range"
+            data-cy="okr-performance-personal-date-range"
           />
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-4 w-full">
+        <div
+          className="bg-white rounded-lg border border-gray-200 p-4 w-full"
+          id="okr-performance-personal-chart-card"
+          data-cy="okr-performance-personal-chart-card"
+        >
           {isLoadingPersonal || isLoadingActiveMonth ? (
-            <div className="flex justify-center items-center h-48">
-              <Spin />
+            <div
+              className="flex justify-center items-center h-48"
+              id="okr-performance-personal-loading"
+              data-cy="okr-performance-personal-loading"
+            >
+              <Spin
+    
+                data-cy="okr-performance-personal-loading-spin"
+              />
             </div>
           ) : personalAvailablePeriods.length === 0 ? (
-            <div className="flex justify-center items-center h-48 text-gray-500">
-              <div className="text-center">
-                <p className="text-lg font-medium">
+            <div
+              className="flex justify-center items-center h-48 text-gray-500"
+              id="okr-performance-personal-empty"
+              data-cy="okr-performance-personal-empty"
+            >
+              <div
+                className="text-center"
+                id="okr-performance-personal-empty-content-display-div"
+                data-cy="okr-performance-personal-empty-content-display-div"
+              >
+                <p
+                  className="text-lg font-medium"
+                  id="okr-performance-personal-empty-text-display-p"
+                  data-cy="okr-performance-personal-empty-text-display-p"
+                >
                   No Performance record found
                 </p>
               </div>
             </div>
           ) : (
-            <Bar data={personalChartData} options={chartOptions} />
+            <div
+              id="okr-performance-personal-chart-wrapper"
+              data-cy="okr-performance-personal-chart-wrapper"
+            >
+              <Bar
+                data={personalChartData}
+                options={chartOptions}
+                id="okr-performance-personal-chart-bar-display-chart"
+                data-cy="okr-performance-personal-chart-bar-display-chart"
+              />
+            </div>
           )}
         </div>
 
         {personalAvailablePeriods.length > 0 && (
-          <div className="flex justify-center mt-2">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
+          <div
+            className="flex justify-center mt-2"
+            id="okr-performance-personal-legend-container"
+            data-cy="okr-performance-personal-legend-container"
+          >
+            <div
+              className="flex items-center gap-2"
+              id="okr-performance-personal-legend-wrapper-display-div"
+              data-cy="okr-performance-personal-legend-wrapper-display-div"
+            >
+              <div
+                className="flex items-center gap-1"
+                id="okr-performance-personal-legend-item-display-div"
+                data-cy="okr-performance-personal-legend-item-display-div"
+              >
                 <div
                   className="w-3 h-3 rounded-sm"
                   style={{ backgroundColor: colors[0] || '#4C4CFF' }}
-                ></div>
-                <span className="text-sm text-gray-600">
+                  id="okr-performance-personal-legend-color"
+                  data-cy="okr-performance-personal-legend-color"
+                />
+                <span
+                  className="text-sm text-gray-600"
+                  id="okr-performance-personal-legend-label-display-span"
+                  data-cy="okr-performance-personal-legend-label-display-span"
+                >
                   Average Performance
                 </span>
               </div>
@@ -645,10 +825,28 @@ const Performance: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4 w-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-lg font-bold text-gray-800">Performance</div>
-        <div className="flex items-center bg-[#f8f8f8] border border-gray-300 rounded-lg w-fit h-10 p-1 gap-6">
+    <div
+      className="bg-white rounded-xl shadow-md p-4 w-full flex flex-col"
+      id="okr-performance-container"
+      data-cy="okr-performance-container"
+    >
+      <div
+        className="flex justify-between items-center mb-4"
+        id="okr-performance-header"
+        data-cy="okr-performance-header"
+      >
+        <div
+          className="text-lg font-bold text-gray-800"
+          id="okr-performance-title"
+          data-cy="okr-performance-title"
+        >
+          Performance
+        </div>
+        <div
+          className="flex items-center bg-[#f8f8f8] border border-gray-300 rounded-lg w-fit h-10 p-1 gap-6"
+          id="okr-performance-tab-toggle"
+          data-cy="okr-performance-tab-toggle"
+        >
           <AccessGuard permissions={[Permissions.ViewAllEmployeePerformance]}>
             <button
               onClick={() => setActiveTab('admin')}
@@ -657,6 +855,8 @@ const Performance: React.FC = () => {
                   ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
                   : 'px-3 h-full bg-transparent text-black text-xs'
               }
+              id="okr-performance-admin-tab-button"
+              data-cy="okr-performance-admin-tab-button"
             >
               Admin Page
             </button>
@@ -668,6 +868,8 @@ const Performance: React.FC = () => {
                 ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
                 : 'px-3 h-full bg-transparent text-black text-xs'
             }
+            id="okr-performance-personal-tab-button"
+            data-cy="okr-performance-personal-tab-button"
           >
             Personal
           </button>
@@ -675,11 +877,11 @@ const Performance: React.FC = () => {
       </div>
 
       {activeTab === 'admin' ? (
-        <AccessGuard permissions={[Permissions.ViewAllEmployeePerformance]}>
-          <AdminPageView />
+        <AccessGuard data-cy="okr-performance-admin-access-guard" permissions={[Permissions.ViewAllEmployeePerformance]}>
+          <AdminPageView data-cy="okr-performance-admin-page-view" />
         </AccessGuard>
       ) : (
-        <PersonalPageView />
+        <PersonalPageView data-cy="okr-performance-personal-page-view" />
       )}
     </div>
   );

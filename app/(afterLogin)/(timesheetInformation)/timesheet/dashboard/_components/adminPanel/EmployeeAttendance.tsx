@@ -89,13 +89,29 @@ export default function EmployeeAttendanceTable() {
       key: 'name',
       sorter: (a: Employee, b: Employee) => a?.name?.localeCompare(b?.name),
       render: (notused: any, record?: Employee) => (
-        <div className="flex items-center space-x-3">
+        <div
+          className="flex items-center space-x-3"
+          id={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-profile-div`}
+          data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-profile-div`}
+        >
           {record?.profileImage ? (
-            <Avatar src={record?.profileImage} />
+            <Avatar
+              src={record?.profileImage}
+              data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-avatar-image`}
+            />
           ) : (
-            <Avatar>{record?.name?.charAt(0)?.toUpperCase()}</Avatar>
+            <Avatar
+              data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-avatar-fallback`}
+            >
+              {record?.name?.charAt(0)?.toUpperCase()}
+            </Avatar>
           )}
-          <span>{record?.name}</span>
+          <span
+            id={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-name-text`}
+            data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-name-text`}
+          >
+            {record?.name}
+          </span>
         </div>
       ),
     },
@@ -114,6 +130,8 @@ export default function EmployeeAttendanceTable() {
       render: (status: Employee['status']) => (
         <Tag
           className={`capitalize px-3 font-semibold rounded-md border-none ${statusColors[status]}`}
+          id={`time-attendance-employee-attendance-status-${status}-tag`}
+          data-cy={`time-attendance-employee-attendance-status-${status}-tag`}
         >
           {status === 'onleave' ? 'On Leave' : status}
         </Tag>
@@ -134,6 +152,31 @@ export default function EmployeeAttendanceTable() {
       render: (days: number) => `${days} days`,
     },
   ];
+  return (
+    <div
+      className="p-6 bg-white rounded-lg shadow-sm"
+      id="time-attendance-employee-attendance-layout-div"
+      data-cy="time-attendance-employee-attendance-layout-div"
+    >
+      {/* Filters */}
+      <div
+        className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 mb-6"
+        id="time-attendance-employee-attendance-filters-div"
+        data-cy="time-attendance-employee-attendance-filters-div"
+      >
+        <Select
+          showSearch
+          placeholder="Select employee"
+          allowClear
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
+          options={employeeOptions}
+          onChange={(value) => setsearchOnAttendance(value)}
+          className="flex-1 h-12"
+          id="time-attendance-employee-attendance-employee-select"
+          data-cy="time-attendance-employee-attendance-employee-select"
+        />
 
   const MobileFilterContent = () => (
     <div className="flex flex-col gap-4">
@@ -153,6 +196,10 @@ export default function EmployeeAttendanceTable() {
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
           }
           options={attendanceTypeOptions}
+          onChange={(value) => setCurrentStatusOnAttendance(value)}
+          className="w-52 h-12"
+          id="time-attendance-employee-attendance-status-select"
+          data-cy="time-attendance-employee-attendance-status-select"
         />
       </div>
 
@@ -171,8 +218,51 @@ export default function EmployeeAttendanceTable() {
               setEndDateOnAttendance('');
             }
           }}
+          id="time-attendance-employee-attendance-date-range-picker"
+          data-cy="time-attendance-employee-attendance-date-range-picker"
         />
       </div>
+      {/* Table */}
+      <Table
+        columns={columns}
+        dataSource={adminAttendanceUsers?.users}
+        pagination={false}
+        loading={loading}
+        rowKey="userId"
+        className="ant-table-thead-bg-white"
+        onRow={(record) => ({
+          onClick: () => {
+            router.push(
+              `/timesheet/dashboard?employeeAttendance&user=${record.userId}`,
+            );
+          },
+          style: { cursor: 'pointer' },
+        })}
+        id="time-attendance-employee-attendance-table-view"
+        data-cy="time-attendance-employee-attendance-table-view"
+      />
+
+      {/* Pagination and Result Count */}
+      <div
+        className="flex justify-between items-center mt-4 text-sm text-gray-600"
+        id="time-attendance-employee-attendance-pagination-row"
+        data-cy="time-attendance-employee-attendance-pagination-row"
+      >
+        <Pagination
+          current={adminAttendanceUsers?.pagination?.page}
+          total={adminAttendanceUsers?.pagination?.total}
+          pageSize={adminAttendanceUsers?.pagination?.limit}
+          onChange={(page) => setCurrentPageOnAttendance(page)}
+          showSizeChanger={false}
+          className="flex"
+          data-cy="time-attendance-employee-attendance-pagination-control"
+        />
+        <div
+          id="time-attendance-employee-attendance-results-text"
+          data-cy="time-attendance-employee-attendance-results-text"
+        >
+          {adminAttendanceUsers?.pagination?.total} Result
+          {adminAttendanceUsers?.pagination?.total !== 1 ? 's' : ''}
     </div>
   );
 

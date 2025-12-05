@@ -10,6 +10,8 @@ interface CustomPaginationProps {
   currentPage?: number;
   onChange?: (page: number, pageSize: number) => void;
   onShowSizeChange?: (current: number, size: number) => void;
+  id?: string;
+  'data-cy'?: string;
 }
 
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
@@ -18,6 +20,8 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   currentPage,
   onChange,
   onShowSizeChange,
+  id,
+  'data-cy': dataCy,
 }) => {
   const { currentPage: globalCurrentPage, setCurrentPage } =
     usePaginationStore();
@@ -49,7 +53,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between w-full px-4 py-2">
+    <div id={id} data-cy={dataCy} className="flex items-center justify-between w-full px-4 py-2">
       <div className="flex items-center gap-6">
         <Button
           icon={<LeftOutlined />}

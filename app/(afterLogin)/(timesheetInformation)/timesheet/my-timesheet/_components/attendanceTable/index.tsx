@@ -83,7 +83,7 @@ const AttendanceTable = () => {
       key: 'createdAt',
       sorter: true,
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4 whitespace-nowrap">
+        <div id="time-attendance-attendance-table-row-date-div" data-cy="time-attendance-attendance-table-row-date-div" className="text-sm text-gray-900 py-4 whitespace-nowrap">
           {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
@@ -93,7 +93,7 @@ const AttendanceTable = () => {
       dataIndex: 'startAt',
       key: 'startAt',
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4">
+        <div id="time-attendance-attendance-table-row-clock-in-div" data-cy="time-attendance-attendance-table-row-clock-in-div" className="text-sm text-gray-900 py-4">
           {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
       ),
@@ -103,7 +103,7 @@ const AttendanceTable = () => {
       dataIndex: 'geolocations',
       key: 'locationIn',
       render: (geolocations: any[]) => (
-        <div className="text-sm text-gray-900 py-4 flex items-center justify-between">
+        <div id="time-attendance-attendance-table-row-location-in-div" data-cy="time-attendance-attendance-table-row-location-in-div" className="text-sm text-gray-900 py-4 flex items-center justify-between">
           {geolocations?.[0]?.allowedArea?.title ?? ''} <GoLocation />
         </div>
       ),
@@ -113,7 +113,7 @@ const AttendanceTable = () => {
       dataIndex: 'endAt',
       key: 'endAt',
       render: (date: string) => (
-        <div className="text-sm text-gray-900 py-4">
+        <div id="time-attendance-attendance-table-row-clock-out-div" data-cy="time-attendance-attendance-table-row-clock-out-div" className="text-sm text-gray-900 py-4">
           {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
       ),
@@ -123,9 +123,9 @@ const AttendanceTable = () => {
       dataIndex: 'geolocations',
       key: 'locationOut',
       render: (geolocations: any[]) => (
-        <div className="text-sm text-gray-900 py-4 flex items-center justify-between">
+        <div id="time-attendance-attendance-table-row-location-out-div" data-cy="time-attendance-attendance-table-row-location-out-div" className="text-sm text-gray-900 py-4 flex items-center justify-between">
           {geolocations?.[geolocations.length - 1]?.allowedArea?.title ?? ''}{' '}
-          <GoLocation />
+          <GoLocation data-cy="time-attendance-attendance-table-row-location-out-icon" />
         </div>
       ),
     },
@@ -136,17 +136,18 @@ const AttendanceTable = () => {
       render: (item: AttendanceRecord) => {
         const statuses = formatToAttendanceStatuses(item);
         return (
-          <div className="py-4">
-            <Space>
+          <div id="time-attendance-attendance-table-row-status-container" data-cy="time-attendance-attendance-table-row-status-container" className="py-4">
+            <Space id="time-attendance-attendance-table-row-status-space" data-cy="time-attendance-attendance-table-row-status-space">
               {statuses.map((status) => (
                 <StatusBadge
                   theme={AttendanceRecordTypeBadgeTheme[status.status]}
                   key={status.status}
+                  data-cy={`time-attendance-attendance-table-row-status-badge-${status.status}`}
                 >
-                  <div className="text-center">
-                    <div>{status.status}</div>
+                  <div id={`time-attendance-attendance-table-row-status-badge-div-${status.status}`} data-cy={`time-attendance-attendance-table-row-status-badge-div-${status.status}`} className="text-center">
+                    <div id={`time-attendance-attendance-table-row-status-badge-status-div-${status.status}`} data-cy={`time-attendance-attendance-table-row-status-badge-status-div-${status.status}`}>{status.status}</div>
                     {status.text && (
-                      <div className="font-normal">{status.text}</div>
+                      <div id={`time-attendance-attendance-table-row-status-badge-text-div-${status.status}`} data-cy={`time-attendance-attendance-table-row-status-badge-text-div-${status.status}`} className="font-normal">{status.text}</div>
                     )}
                   </div>
                 </StatusBadge>
@@ -163,7 +164,7 @@ const AttendanceTable = () => {
       render: (text, record) => {
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(record);
         return (
-          <div className="text-sm text-gray-900 py-4">
+          <div id="time-attendance-attendance-table-row-total-time-div" data-cy="time-attendance-attendance-table-row-total-time-div" className="text-sm text-gray-900 py-4">
             {record.startAt && record.endAt
               ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`
               : '-'}
@@ -176,7 +177,7 @@ const AttendanceTable = () => {
       dataIndex: 'overTimeMinutes',
       key: 'overTime',
       render: (minutes: number) => (
-        <div className="text-sm text-gray-900 py-4">{minutes} min</div>
+        <div id="time-attendance-attendance-table-row-over-time-div" data-cy="time-attendance-attendance-table-row-over-time-div" className="text-sm text-gray-900 py-4">{minutes} min</div>
       ),
     },
     {
@@ -184,15 +185,17 @@ const AttendanceTable = () => {
       dataIndex: 'action',
       key: 'action',
       render: (text, record) => (
-        <div className="py-4">
+        <div id="time-attendance-attendance-table-row-action-container" data-cy="time-attendance-attendance-table-row-action-container" className="py-4">
           <Button
             className="w-[30px] h-[30px]"
-            icon={<IoEyeOutline size={16} />}
+            icon={<IoEyeOutline data-cy="time-attendance-attendance-table-row-action-button-icon" size={16} />}
             type="primary"
             onClick={() => {
               setViewAttendanceId(record.id);
               setIsShowViewSidebarAttendance(true);
             }}
+            id={`time-attendance-attendance-table-row-view-button-${record.id}`}
+            data-cy={`time-attendance-attendance-table-row-action-button-${record.id}`}
           />
         </div>
       ),
@@ -228,10 +231,26 @@ const AttendanceTable = () => {
   };
 
   return (
-    <div className=" bg-white border border-gray-100 rounded p-5">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-0.5">
-          <div className="text-sm sm:text-2xl font-bold text-gray-900">
+    <div
+      className=" bg-white border border-gray-100 rounded p-5"
+      id="time-attendance-attendance-table-container"
+      data-cy="time-attendance-attendance-table-container"
+    >
+      <div
+        className="flex items-center justify-between mb-6"
+        id="time-attendance-attendance-table-header-container"
+        data-cy="time-attendance-attendance-table-header-container"
+      >
+        <div
+          className="flex items-center gap-0.5"
+          id="time-attendance-attendance-table-title-container"
+          data-cy="time-attendance-attendance-table-title-container"
+        >
+          <div
+            className="text-sm sm:text-2xl font-bold text-gray-900"
+            id="time-attendance-attendance-table-title"
+            data-cy="time-attendance-attendance-table-title"
+          >
             Attendance
           </div>
 
@@ -240,22 +259,38 @@ const AttendanceTable = () => {
             size="small"
             icon={<AiOutlineReload size={14} className="text-gray-600" />}
             onClick={() => refetch()}
+            id="time-attendance-attendance-table-refresh-button"
+            data-cy="time-attendance-attendance-table-refresh-button"
           />
         </div>
         {/* Mobile Filter */}
-        <div className="sm:hidden flex items-center">
+        <div
+          className="sm:hidden flex items-center"
+          id="time-attendance-attendance-table-mobile-filter-container"
+          data-cy="time-attendance-attendance-table-mobile-filter-container"
+        >
           <div className="h-10 flex ">
-            <AttendanceTableFilter onChange={onFilterChange} />
+            <AttendanceTableFilter
+              onChange={onFilterChange}
+              data-cy="time-attendance-attendance-table-mobile-filter"
+            />
           </div>
         </div>
       </div>
 
       {/* Desktop Filter */}
-      <div className="hidden sm:block">
-        <AttendanceTableFilter onChange={onFilterChange} />
+      <div
+        className="hidden sm:block"
+        id="time-attendance-attendance-table-desktop-filter-container"
+        data-cy="time-attendance-attendance-table-desktop-filter-container"
+      >
+        <AttendanceTableFilter
+          onChange={onFilterChange}
+          data-cy="time-attendance-attendance-table-desktop-filter"
+        />
       </div>
 
-      <div>
+      <div id="time-attendance-attendance-table-content" data-cy="time-attendance-attendance-table-content">
         <Table<AttendanceRecord>
           className="mt-6"
           columns={columns}
@@ -264,6 +299,8 @@ const AttendanceTable = () => {
           pagination={false}
           onChange={handleTableChange}
           scroll={{ x: 'min-content' }}
+          id="time-attendance-attendance-table"
+          data-cy="time-attendance-attendance-table"
         />
         {isMobile || isTablet ? (
           <CustomMobilePagination
@@ -271,6 +308,7 @@ const AttendanceTable = () => {
             pageSize={pageSize}
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
+            data-cy="time-attendance-attendance-table-mobile-pagination"
           />
         ) : (
           <CustomPagination
@@ -282,6 +320,7 @@ const AttendanceTable = () => {
               setPageSize(pageSize);
               setCurrentPage(1);
             }}
+            data-cy="time-attendance-attendance-table-pagination"
           />
         )}
       </div>

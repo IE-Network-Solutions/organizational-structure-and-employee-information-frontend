@@ -8,7 +8,6 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { useParams } from 'next/navigation';
 
 import { useEffect } from 'react';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface Ids {
   id?: string;
@@ -18,7 +17,6 @@ interface Ids {
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
-  id,
 }) => {
   const { userId: userId2 } = useAuthenticationStore();
 
@@ -39,7 +37,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
       form.resetFields(); // Reset form values on modal open
       setTempAllowances([]); // Clear temp allowances when modal opens
     }
-  }, [isAddEmployeeJobInfoModalVisible, form]);
+  }, [isAddEmployeeJobInfoModalVisible, setTempAllowances, form]);
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
@@ -88,21 +86,42 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
         onCancel={handleClose}
         footer={false}
         destroyOnClose
+        data-cy="job-add-job-info-modal"
       >
-        <Form form={form} onFinish={createTsks} layout="vertical">
-          <JobTimeLineForm employeeData={employeeData} form={form} />
+        <Form
+          form={form}
+          onFinish={createTsks}
+          layout="vertical"
+          id="job-add-job-info-form"
+          data-cy="job-add-job-info-form"
+        >
+          <JobTimeLineForm
+            employeeData={employeeData}
+            form={form}
+            data-cy="job-add-job-info-timeline"
+          />
           <WorkScheduleForm
             selectedWorkScheduleDetails={
               employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
             }
+            data-cy="job-add-job-info-schedule"
           />
-          <Form.Item>
-            <Row className="flex justify-end gap-3">
+          <Form.Item
+            id="job-add-job-info-submit-form-item"
+            data-cy="job-add-job-info-submit-form-item"
+          >
+            <Row
+              className="flex justify-end gap-3"
+              id="job-add-job-info-submit-row"
+              data-cy="job-add-job-info-submit-row"
+            >
               <Button
                 type="primary"
                 htmlType="submit"
                 name="submit"
                 loading={isLoading}
+                id="job-add-job-info-submit-btn"
+                data-cy="job-add-job-info-submit-btn"
               >
                 Submit
               </Button>
@@ -112,6 +131,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
                 value={'cancel'}
                 name="cancel"
                 onClick={handleClose}
+                id="job-add-job-info-cancel-btn"
+                data-cy="job-add-job-info-cancel-btn"
               >
                 Cancel
               </Button>

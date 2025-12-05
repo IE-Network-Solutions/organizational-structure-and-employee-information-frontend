@@ -68,12 +68,14 @@ const RecognitionTypeSelector: React.FC<RecognitionTypeSelectorProps> = ({
     form.setFieldsValue(formattedRecognitionType); // Set form fields with converted values
   }, [form, recognitionType]);
   return (
-    <div>
+    <div data-cy="recognition-type-selector" id="recognitionTypeSelector">
       <Form
         className="grid grid-cols-12 gap-2"
         onValuesChange={handleRecognitionForm} // ✅ Calls on any field change
         layout="vertical"
         form={form}
+        data-cy="recognition-type-selector-form"
+        id="recognitionTypeSelectorForm"
       >
         <Form.Item
           label="Recognition Type"
@@ -82,6 +84,8 @@ const RecognitionTypeSelector: React.FC<RecognitionTypeSelectorProps> = ({
             { required: true, message: 'Please select a recognition type' },
           ]}
           className="col-span-6"
+          data-cy="recognition-type-selector-type-field"
+          id="recognitionTypeSelectorTypeField"
         >
           <Select
             id={`selectRecognitionType`}
@@ -94,6 +98,7 @@ const RecognitionTypeSelector: React.FC<RecognitionTypeSelectorProps> = ({
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
+            data-cy="recognition-type-selector-type-select"
           >
             {RecognitionTypesChild?.map((item: any) => (
               <Select.Option key={item?.id} value={item?.id}>
@@ -107,8 +112,10 @@ const RecognitionTypeSelector: React.FC<RecognitionTypeSelectorProps> = ({
           name="dateRange"
           rules={[{ required: true, message: 'Please select a date range' }]}
           className="col-span-6"
+          data-cy="recognition-type-selector-date-field"
+          id="recognitionTypeSelectorDateField"
         >
-          <RangePicker style={{ width: '100%' }} />
+          <RangePicker style={{ width: '100%' }} data-cy="recognition-type-selector-date-picker" id="recognitionTypeSelectorDatePicker" />
         </Form.Item>
       </Form>
     </div>
