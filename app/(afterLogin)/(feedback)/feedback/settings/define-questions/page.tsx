@@ -42,10 +42,28 @@ const Page = () => {
   );
 
   return (
-    <div className="p-5 rounded-2xl bg-white h-full" data-cy="settings-define-questions-page" id="settingsDefineQuestionsPage">
-      <div className="flex justify-between" data-cy="settings-define-questions-header" id="settingsDefineQuestionsHeader">
-        <span className="font-bold text-lg" data-cy="settings-define-questions-title" id="settingsDefineQuestionsTitle">Questions</span>
-        <AccessGuard permissions={[Permissions.createConversationSet]} data-cy="settings-define-questions-access-guard" id="settingsDefineQuestionsAccessGuard">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      data-cy="settings-define-questions-page"
+      id="settingsDefineQuestionsPage"
+    >
+      <div
+        className="flex justify-between"
+        data-cy="settings-define-questions-header"
+        id="settingsDefineQuestionsHeader"
+      >
+        <span
+          className="font-bold text-lg"
+          data-cy="settings-define-questions-title"
+          id="settingsDefineQuestionsTitle"
+        >
+          Questions
+        </span>
+        <AccessGuard
+          permissions={[Permissions.createConversationSet]}
+          data-cy="settings-define-questions-access-guard"
+          id="settingsDefineQuestionsAccessGuard"
+        >
           {activeTab !== '' && (
             <Button
               icon={<FaPlus />}
@@ -55,7 +73,11 @@ const Page = () => {
               data-cy="settings-define-questions-add-button"
               id="settingsDefineQuestionsAddButton"
             >
-              <span className="hidden md:inline" data-cy="settings-define-questions-add-button-text" id="settingsDefineQuestionsAddButtonText">
+              <span
+                className="hidden md:inline"
+                data-cy="settings-define-questions-add-button-text"
+                id="settingsDefineQuestionsAddButtonText"
+              >
                 Add new {activeTabName} question-set
               </span>
             </Button>

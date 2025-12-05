@@ -123,7 +123,9 @@ export default function Editor({
     !editor ||
     meetingDiscussionLoading
   )
-    return <EditorSkeleton data-cy="feedback-meeting-components-editor-skeleton" />;
+    return (
+      <EditorSkeleton data-cy="feedback-meeting-components-editor-skeleton" />
+    );
   return (
     <div
       className=" border rounded "

@@ -142,7 +142,10 @@ const CourseCategorySidebar = () => {
         onClose={() => onClose()}
         data-cy="tna-course-sidebar-drawer"
         modalHeader={
-          <CustomDrawerHeader className="flex justify-start font-extrabold text-xl px-2" data-cy="tna-course-sidebar-header">
+          <CustomDrawerHeader
+            className="flex justify-start font-extrabold text-xl px-2"
+            data-cy="tna-course-sidebar-header"
+          >
             {courseId ? <span>Edit Course</span> : <span>Add course </span>}
           </CustomDrawerHeader>
         }
@@ -173,7 +176,11 @@ const CourseCategorySidebar = () => {
             id="tnaCourseSidebarTitleItemId"
             data-cy="tna-course-sidebar-title-item"
           >
-            <Input id="tnaCourseNameFieldId" data-cy="tna-course-name-field" className="control h-10" />
+            <Input
+              id="tnaCourseNameFieldId"
+              data-cy="tna-course-name-field"
+              className="control h-10"
+            />
           </Form.Item>
           <Form.Item
             name="courseCategoryId"
@@ -247,7 +254,11 @@ const CourseCategorySidebar = () => {
             />
           </Form.Item>
         </Form>
-        <div className="flex justify-center m-5" id="tnaCourseSidebarDraftButtonContainerId" data-cy="tna-course-sidebar-draft-button-container">
+        <div
+          className="flex justify-center m-5"
+          id="tnaCourseSidebarDraftButtonContainerId"
+          data-cy="tna-course-sidebar-draft-button-container"
+        >
           <Button
             type="primary"
             htmlType="button"

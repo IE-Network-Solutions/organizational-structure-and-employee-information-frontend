@@ -60,14 +60,19 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
       placement="bottomRight"
       overlayClassName="delete-confirmation-popover"
       content={
-        <div id={id} data-cy={dataCy} className="py-2" style={{ width: '100%' }}>
-          <p 
-            className="text-base text-gray-900 mb-4 text-center" 
-            style={{ 
-              lineHeight: '1.4', 
+        <div
+          id={id}
+          data-cy={dataCy}
+          className="py-2"
+          style={{ width: '100%' }}
+        >
+          <p
+            className="text-base text-gray-900 mb-4 text-center"
+            style={{
+              lineHeight: '1.4',
               wordBreak: 'break-word',
               maxWidth: '240px',
-              margin: '0 auto 16px auto'
+              margin: '0 auto 16px auto',
             }}
           >
             {message}
@@ -102,4 +107,3 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
 };
 
 export default DeleteConfirmationPopover;
-

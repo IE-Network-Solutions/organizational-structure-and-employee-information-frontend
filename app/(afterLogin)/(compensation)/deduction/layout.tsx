@@ -59,30 +59,30 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         id="compensation-deduction-layout-body"
         data-cy="compensation-deduction-layout-body"
       >
-          <PageHeader
-            title="Deduction"
-            description="Deduction"
-            className="hidden sm:block"
-            horizontalPadding="0px"
-            data-cy="compensation-deduction-layout-header-title"
-          />
+        <PageHeader
+          title="Deduction"
+          description="Deduction"
+          className="hidden sm:block"
+          horizontalPadding="0px"
+          data-cy="compensation-deduction-layout-header-title"
+        />
 
         <div
           className="flex flex-col lg:flex-row gap-3 sm:gap-6"
           id="compensation-deduction-layout-content"
           data-cy="compensation-deduction-layout-content"
         >
-            <SidebarMenu
-              menuItems={sidebarMenuItems}
-              data-cy="compensation-deduction-layout-sidebar-menu"
-            />
+          <SidebarMenu
+            menuItems={sidebarMenuItems}
+            data-cy="compensation-deduction-layout-sidebar-menu"
+          />
 
-            <BlockWrapper
-              className="flex-1 h-max overflow-x-auto sm:mr-4"
-              data-cy="compensation-deduction-layout-block-wrapper-content"
-            >
-              {children}
-            </BlockWrapper>
+          <BlockWrapper
+            className="flex-1 h-max overflow-x-auto sm:mr-4"
+            data-cy="compensation-deduction-layout-block-wrapper-content"
+          >
+            {children}
+          </BlockWrapper>
         </div>
       </div>
     </div>

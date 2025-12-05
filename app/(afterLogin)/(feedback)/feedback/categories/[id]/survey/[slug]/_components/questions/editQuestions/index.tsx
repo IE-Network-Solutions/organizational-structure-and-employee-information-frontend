@@ -80,10 +80,20 @@ const EditQuestion = ({ id }: Params) => {
         centered
         onCancel={() => setIsEditModalOpen(false)}
       >
-        <Form id="edit-question-form" data-cy="edit-question-form" form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form
+          id="edit-question-form"
+          data-cy="edit-question-form"
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+        >
           {selectedQuestion && (
             <>
-              <Row gutter={12} id="edit-question-row-1" data-cy="edit-question-row-1">
+              <Row
+                gutter={12}
+                id="edit-question-row-1"
+                data-cy="edit-question-row-1"
+              >
                 <Col lg={16} md={10} xs={24}>
                   <Form.Item
                     id="edit-question-question-form-item"
@@ -94,11 +104,21 @@ const EditQuestion = ({ id }: Params) => {
                       { required: true, message: 'Please input the question!' },
                     ]}
                   >
-                    <Input id="edit-question-question-input" data-cy="edit-question-question-input" allowClear />
+                    <Input
+                      id="edit-question-question-input"
+                      data-cy="edit-question-question-input"
+                      allowClear
+                    />
                   </Form.Item>
                 </Col>
 
-                <Col lg={8} md={10} xs={24} data-cy="edit-question-field-type-col" id='edit-question-field-type-col'>
+                <Col
+                  lg={8}
+                  md={10}
+                  xs={24}
+                  data-cy="edit-question-field-type-col"
+                  id="edit-question-field-type-col"
+                >
                   <Form.Item
                     id="edit-question-field-type-form-item"
                     data-cy="edit-question-field-type-form-item"
@@ -131,16 +151,51 @@ const EditQuestion = ({ id }: Params) => {
                         }
                       }}
                     >
-                      <Option id="edit-question-field-type-option-multiple-choice" data-cy="edit-question-field-type-option-multiple-choice" value="multiple_choice">Multiple Choice</Option>
-                      <Option id="edit-question-field-type-option-checkbox" data-cy="edit-question-field-type-option-checkbox" value="checkbox">Checkbox</Option>
-                      <Option id="edit-question-field-type-option-short-text" data-cy="edit-question-field-type-option-short-text" value="short_text">Short Text</Option>
-                      <Option id="edit-question-field-type-option-paragraph" data-cy="edit-question-field-type-option-paragraph" value="paragraph">Paragraph</Option>
+                      <Option
+                        id="edit-question-field-type-option-multiple-choice"
+                        data-cy="edit-question-field-type-option-multiple-choice"
+                        value="multiple_choice"
+                      >
+                        Multiple Choice
+                      </Option>
+                      <Option
+                        id="edit-question-field-type-option-checkbox"
+                        data-cy="edit-question-field-type-option-checkbox"
+                        value="checkbox"
+                      >
+                        Checkbox
+                      </Option>
+                      <Option
+                        id="edit-question-field-type-option-short-text"
+                        data-cy="edit-question-field-type-option-short-text"
+                        value="short_text"
+                      >
+                        Short Text
+                      </Option>
+                      <Option
+                        id="edit-question-field-type-option-paragraph"
+                        data-cy="edit-question-field-type-option-paragraph"
+                        value="paragraph"
+                      >
+                        Paragraph
+                      </Option>
                     </Select>
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item id="edit-question-required-form-item" data-cy="edit-question-required-form-item" name="required" valuePropName="checked">
-                <Checkbox id="edit-question-required-checkbox" data-cy="edit-question-required-checkbox" defaultChecked={false}>Is Required</Checkbox>
+              <Form.Item
+                id="edit-question-required-form-item"
+                data-cy="edit-question-required-form-item"
+                name="required"
+                valuePropName="checked"
+              >
+                <Checkbox
+                  id="edit-question-required-checkbox"
+                  data-cy="edit-question-required-checkbox"
+                  defaultChecked={false}
+                >
+                  Is Required
+                </Checkbox>
               </Form.Item>
               <Form.List
                 data-cy="edit-question-field-list"
@@ -151,13 +206,26 @@ const EditQuestion = ({ id }: Params) => {
                   const questionType =
                     selectedType || form.getFieldValue('fieldType');
                   return (
-                    <div id="edit-question-field-list-container" data-cy="edit-question-field-list-container" className="mx-8">
+                    <div
+                      id="edit-question-field-list-container"
+                      data-cy="edit-question-field-list-container"
+                      className="mx-8"
+                    >
                       {(questionType === FieldType.MULTIPLE_CHOICE ||
                         questionType === FieldType.CHECKBOX) && (
                         <>
                           {fields.map((field) => (
-                            <Form.Item key={field.key} id={`edit-question-field-item-${field.key}`} data-cy={`edit-question-field-item-${field.key}`} required={false}>
-                              <div id={`edit-question-field-item-${field.key}-wrapper`} data-cy={`edit-question-field-item-${field.key}-wrapper`} className="flex items-center gap-3">
+                            <Form.Item
+                              key={field.key}
+                              id={`edit-question-field-item-${field.key}`}
+                              data-cy={`edit-question-field-item-${field.key}`}
+                              required={false}
+                            >
+                              <div
+                                id={`edit-question-field-item-${field.key}-wrapper`}
+                                data-cy={`edit-question-field-item-${field.key}-wrapper`}
+                                className="flex items-center gap-3"
+                              >
                                 <Form.Item
                                   {...field}
                                   noStyle
@@ -170,7 +238,11 @@ const EditQuestion = ({ id }: Params) => {
                                   data-cy={`edit-question-field-item-${field.key}-form-item`}
                                   id={`edit-question-field-item-${field.key}-form-item`}
                                 >
-                                  <Input id={`edit-question-field-item-${field.key}-input`} data-cy={`edit-question-field-item-${field.key}-input`} placeholder="Option" />
+                                  <Input
+                                    id={`edit-question-field-item-${field.key}-input`}
+                                    data-cy={`edit-question-field-item-${field.key}-input`}
+                                    placeholder="Option"
+                                  />
                                 </Form.Item>
                                 {fields.length > 2 && (
                                   <MinusCircleOutlined
@@ -187,17 +259,33 @@ const EditQuestion = ({ id }: Params) => {
                       )}
                       {questionType === FieldType.MULTIPLE_CHOICE ||
                       questionType === FieldType.CHECKBOX ? (
-                        <Form.Item id="edit-question-add-option-form-item" data-cy="edit-question-add-option-form-item">
-                          <div id="edit-question-add-option-container" data-cy="edit-question-add-option-container" className="flex flex-col items-center justify-center">
+                        <Form.Item
+                          id="edit-question-add-option-form-item"
+                          data-cy="edit-question-add-option-form-item"
+                        >
+                          <div
+                            id="edit-question-add-option-container"
+                            data-cy="edit-question-add-option-container"
+                            className="flex flex-col items-center justify-center"
+                          >
                             <div
                               id="edit-question-add-option-button"
                               data-cy="edit-question-add-option-button"
                               onClick={() => add()}
                               className="w-6 h-6 flex items-center justify-center rounded-full bg-primary cursor-pointer"
                             >
-                              <PlusOutlined id="edit-question-add-option-icon" data-cy="edit-question-add-option-icon" size={30} className="text-white" />
+                              <PlusOutlined
+                                id="edit-question-add-option-icon"
+                                data-cy="edit-question-add-option-icon"
+                                size={30}
+                                className="text-white"
+                              />
                             </div>
-                            <p id="edit-question-add-option-label" data-cy="edit-question-add-option-label" className="text-xs font-light text-gray-400 ">
+                            <p
+                              id="edit-question-add-option-label"
+                              data-cy="edit-question-add-option-label"
+                              className="text-xs font-light text-gray-400 "
+                            >
                               Add Option
                             </p>
                           </div>
@@ -211,7 +299,10 @@ const EditQuestion = ({ id }: Params) => {
               </Form.List>
             </>
           )}
-          <Form.Item id="edit-question-footer-form-item" data-cy="edit-question-footer-form-item">
+          <Form.Item
+            id="edit-question-footer-form-item"
+            data-cy="edit-question-footer-form-item"
+          >
             <Button
               id="edit-question-save-button"
               data-cy="edit-question-save-button"

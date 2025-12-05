@@ -40,7 +40,10 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
       size="large"
       style={{ width: '100%' }}
     >
-      <div id="payroll-details-content-view-container" data-cy="payroll-details-content-view-container">
+      <div
+        id="payroll-details-content-view-container"
+        data-cy="payroll-details-content-view-container"
+      >
         {/* Total Allowance */}
         <div
           id="payroll-details-allowances-section-view-container"
@@ -96,10 +99,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               )}
             </div>
           </div>
-          <Divider
-
-            data-cy="payroll-details-allowances-divider"
-          />
+          <Divider data-cy="payroll-details-allowances-divider" />
         </div>
 
         {/* Total Benefits */}
@@ -196,10 +196,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               )}
             </div>
           </div>
-          <Divider
-
-            data-cy="payroll-details-benefits-divider"
-          />
+          <Divider data-cy="payroll-details-benefits-divider" />
         </div>
 
         {/* Total Deduction */}
@@ -278,10 +275,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               )}
             </div>
           </div>
-          <Divider
-
-            data-cy="payroll-details-deductions-divider"
-          />
+          <Divider data-cy="payroll-details-deductions-divider" />
         </div>
 
         {/* Gross Earning & Net Pay */}

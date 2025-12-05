@@ -35,7 +35,12 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       dataIndex: 'criteriaName',
       key: 'criteriaName',
       render: (notused: string, record: any) => (
-        <p data-cy="all-recognition-table-criteria-name" id="allRecognitionTableCriteriaName">{record?.criteria?.criteriaName}</p>
+        <p
+          data-cy="all-recognition-table-criteria-name"
+          id="allRecognitionTableCriteriaName"
+        >
+          {record?.criteria?.criteriaName}
+        </p>
       ),
     },
     {
@@ -58,7 +63,12 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       dataIndex: 'active',
       key: 'active',
       render: (notused: any, record: any) => (
-        <p data-cy="all-recognition-table-is-active" id="allRecognitionTableIsActive">{record?.active ? 'True' : 'False'}</p>
+        <p
+          data-cy="all-recognition-table-is-active"
+          id="allRecognitionTableIsActive"
+        >
+          {record?.active ? 'True' : 'False'}
+        </p>
       ),
     },
     {
@@ -71,7 +81,11 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
       key: 'action',
       render: (notused: any, record: any) => (
         <>
-          <AccessGuard permissions={[Permissions.DeleteRecognitionCriteria]} data-cy="all-recognition-table-delete-confirm-access-guard" id="allRecognitionTableDeleteConfirmAccessGuard">
+          <AccessGuard
+            permissions={[Permissions.DeleteRecognitionCriteria]}
+            data-cy="all-recognition-table-delete-confirm-access-guard"
+            id="allRecognitionTableDeleteConfirmAccessGuard"
+          >
             <Popconfirm
               title="Are you sure you want to delete this?"
               onConfirm={() => handleDeleteItem(record?.id)}
@@ -80,7 +94,12 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
               data-cy={`all-recognition-table-delete-confirm-${record?.id}`}
               id={`allRecognitionTableDeleteConfirm${record?.id}`}
             >
-              <Button type="primary" danger data-cy={`all-recognition-table-delete-button-${record?.id}`} id={`allRecognitionTableDeleteButton${record?.id}`}>
+              <Button
+                type="primary"
+                danger
+                data-cy={`all-recognition-table-delete-button-${record?.id}`}
+                id={`allRecognitionTableDeleteButton${record?.id}`}
+              >
                 Delete
               </Button>
             </Popconfirm>
@@ -113,8 +132,16 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
           key={item?.id}
           title={item?.name}
           extra={
-            <div className="flex justify-end gap-2" data-cy={`all-recognition-card-actions-${item?.id}`} id={`allRecognitionCardActions${item?.id}`}>
-              <AccessGuard permissions={[Permissions.EditRecognitionCriteria]} data-cy="all-recognition-card-edit-button-access-guard" id="allRecognitionCardEditButtonAccessGuard">
+            <div
+              className="flex justify-end gap-2"
+              data-cy={`all-recognition-card-actions-${item?.id}`}
+              id={`allRecognitionCardActions${item?.id}`}
+            >
+              <AccessGuard
+                permissions={[Permissions.EditRecognitionCriteria]}
+                data-cy="all-recognition-card-edit-button-access-guard"
+                id="allRecognitionCardEditButtonAccessGuard"
+              >
                 <Button
                   type="primary"
                   onClick={() => handleEditItem(item?.id)}
@@ -154,7 +181,11 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
         >
           <Card.Meta
             description={
-              <div className="overflow-x-auto" data-cy={`all-recognition-card-table-container-${item?.id}`} id={`allRecognitionCardTableContainer${item?.id}`}>
+              <div
+                className="overflow-x-auto"
+                data-cy={`all-recognition-card-table-container-${item?.id}`}
+                id={`allRecognitionCardTableContainer${item?.id}`}
+              >
                 <Table
                   columns={columns}
                   dataSource={
@@ -180,9 +211,17 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
 
   return (
     <div data-cy="all-recognition" id="allRecognition">
-      <div className="flex justify-end mb-4" data-cy="all-recognition-actions" id="allRecognitionActions">
+      <div
+        className="flex justify-end mb-4"
+        data-cy="all-recognition-actions"
+        id="allRecognitionActions"
+      >
         {!all && (
-          <AccessGuard permissions={[Permissions.AddRecognitionCriteria]} data-cy="all-recognition-add-button-access-guard" id="allRecognitionAddButtonAccessGuard">
+          <AccessGuard
+            permissions={[Permissions.AddRecognitionCriteria]}
+            data-cy="all-recognition-add-button-access-guard"
+            id="allRecognitionAddButtonAccessGuard"
+          >
             <Button
               className="flex justify-end items-center"
               icon={<FaPlus />}
@@ -201,7 +240,10 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
           {all
             ? recognitionShow(item)
             : item?.children?.map((child: any) => (
-                <React.Fragment key={child.id} data-cy="all-recognition-item-child">
+                <React.Fragment
+                  key={child.id}
+                  data-cy="all-recognition-item-child"
+                >
                   {recognitionShow(child)}
                 </React.Fragment>
               ))}

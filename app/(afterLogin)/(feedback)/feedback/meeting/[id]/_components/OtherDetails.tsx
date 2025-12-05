@@ -188,7 +188,10 @@ export default function OtherDetails({
             id="feedback-meeting-components-otherdetails-div-duration"
           >
             <GoClock size={16} />
-            <p data-cy="feedback-meeting-components-otherdetails-text-duration" id="feedback-meeting-components-otherdetails-text-duration">
+            <p
+              data-cy="feedback-meeting-components-otherdetails-text-duration"
+              id="feedback-meeting-components-otherdetails-text-duration"
+            >
               {duration}
             </p>
           </div>
@@ -198,7 +201,10 @@ export default function OtherDetails({
             data-cy="feedback-meeting-components-otherdetails-div-location-type"
             id="feedback-meeting-components-otherdetails-div-location-type"
           >
-            <EnvironmentOutlined id="feedback-meeting-components-otherdetails-icon-location-type" data-cy="feedback-meeting-components-otherdetails-icon-location-type" />
+            <EnvironmentOutlined
+              id="feedback-meeting-components-otherdetails-icon-location-type"
+              data-cy="feedback-meeting-components-otherdetails-icon-location-type"
+            />
             {
               <p
                 className="w-full cursor-pointer"
@@ -257,7 +263,11 @@ export default function OtherDetails({
             data-cy="feedback-meeting-components-otherdetails-div-virtual"
             id="feedback-meeting-components-otherdetails-div-virtual"
           >
-            <IoIosLink size={16} id="feedback-meeting-components-otherdetails-icon-virtual" data-cy="feedback-meeting-components-otherdetails-icon-virtual" />
+            <IoIosLink
+              size={16}
+              id="feedback-meeting-components-otherdetails-icon-virtual"
+              data-cy="feedback-meeting-components-otherdetails-icon-virtual"
+            />
             {isEditing ? (
               <Form.Item
                 name="virtualLink"

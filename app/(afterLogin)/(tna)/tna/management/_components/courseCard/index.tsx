@@ -60,33 +60,68 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           router.push(`/tna/management/${item?.id}`);
         }}
       >
-        <div className="flex justify-between " id={`tnaCourseCardContent${item?.id}Id`} data-cy={`tna-course-card-content-${item?.id}`}>
-          <div id={`tnaCourseCardInfo${item?.id}Id`} data-cy={`tna-course-card-info-${item?.id}`}>
-            <div className="absolute top-5 left-5 z-10 py-2 px-3 rounded-lg bg-primary text-white text-sm font-semibold" id={`tnaCourseCardBadge${item?.id}Id`} data-cy={`tna-course-card-badge-${item?.id}`}>
+        <div
+          className="flex justify-between "
+          id={`tnaCourseCardContent${item?.id}Id`}
+          data-cy={`tna-course-card-content-${item?.id}`}
+        >
+          <div
+            id={`tnaCourseCardInfo${item?.id}Id`}
+            data-cy={`tna-course-card-info-${item?.id}`}
+          >
+            <div
+              className="absolute top-5 left-5 z-10 py-2 px-3 rounded-lg bg-primary text-white text-sm font-semibold"
+              id={`tnaCourseCardBadge${item?.id}Id`}
+              data-cy={`tna-course-card-badge-${item?.id}`}
+            >
               {item?.isDraft ? (
-                <div className="flex items-center gap-2" id={`tnaCourseCardDraft${item?.id}Id`} data-cy={`tna-course-card-draft-${item?.id}`}>
-                  Draft <FaRegFile size={16} data-cy={`tna-course-card-draft-icon-${item?.id}`} />
+                <div
+                  className="flex items-center gap-2"
+                  id={`tnaCourseCardDraft${item?.id}Id`}
+                  data-cy={`tna-course-card-draft-${item?.id}`}
+                >
+                  Draft{' '}
+                  <FaRegFile
+                    size={16}
+                    data-cy={`tna-course-card-draft-icon-${item?.id}`}
+                  />
                 </div>
               ) : (
                 item?.courseCategory?.title || ''
               )}
             </div>
             {item?.tenantId === null && (
-              <div className="absolute top-5 right-5 z-10 py-2 px-3 rounded-lg bg-green-500 text-white text-sm font-semibold" id={`tnaCourseCardSystem${item?.id}Id`} data-cy={`tna-course-card-system-${item?.id}`}>
+              <div
+                className="absolute top-5 right-5 z-10 py-2 px-3 rounded-lg bg-green-500 text-white text-sm font-semibold"
+                id={`tnaCourseCardSystem${item?.id}Id`}
+                data-cy={`tna-course-card-system-${item?.id}`}
+              >
                 system course
               </div>
             )}
 
             <Meta
               title={
-                <div className="flex items-center gap-1" id={`tnaCourseCardTitle${item?.id}Id`} data-cy={`tna-course-card-title-${item?.id}`}>
-                  <div className="text-lg font-bold text-gray-900 flex-1 text-pretty line-clamp-1" data-cy={`tna-course-card-title-text-${item?.id}`} id={`tnaCourseCardTitleText${item?.id}Id`}>
+                <div
+                  className="flex items-center gap-1"
+                  id={`tnaCourseCardTitle${item?.id}Id`}
+                  data-cy={`tna-course-card-title-${item?.id}`}
+                >
+                  <div
+                    className="text-lg font-bold text-gray-900 flex-1 text-pretty line-clamp-1"
+                    data-cy={`tna-course-card-title-text-${item?.id}`}
+                    id={`tnaCourseCardTitleText${item?.id}Id`}
+                  >
                     {item?.title}
                   </div>
                 </div>
               }
               description={
-                <div className="text-base text-gray-600 line-clamp-1" id={`tnaCourseCardDescription${item?.id}Id`} data-cy={`tna-course-card-description-${item?.id}`}>
+                <div
+                  className="text-base text-gray-600 line-clamp-1"
+                  id={`tnaCourseCardDescription${item?.id}Id`}
+                  data-cy={`tna-course-card-description-${item?.id}`}
+                >
                   {item?.overview && !/^[a-f0-9-]{16,}$/.test(item.overview)
                     ? item.overview
                     : 'No overview available'}

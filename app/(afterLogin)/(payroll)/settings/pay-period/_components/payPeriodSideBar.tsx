@@ -284,8 +284,8 @@ const PayPeriodSideBar = () => {
 
   return (
     isPayPeriodSidebarVisible && (
-        <CustomDrawerLayout
-          data-cy="payroll-payperiod-sidebar-drawer"
+      <CustomDrawerLayout
+        data-cy="payroll-payperiod-sidebar-drawer"
         open={isPayPeriodSidebarVisible}
         onClose={onClose}
         modalHeader={
@@ -311,7 +311,7 @@ const PayPeriodSideBar = () => {
         width="30%"
         customMobileHeight="50vh"
       >
-            <Spin data-cy="payroll-payperiod-sidebar-spinner" spinning={false}>
+        <Spin data-cy="payroll-payperiod-sidebar-spinner" spinning={false}>
           <Form
             id="payroll-payperiod-sidebar-form"
             data-cy="payroll-payperiod-sidebar-form"
@@ -745,7 +745,7 @@ const PayPeriodSideBar = () => {
                       </p>
                       {index === divisions.length - 1 && (
                         <Popover
-                          data-cy={`payroll-payperiod-sidebar-division-footer-popover-${index}`}  
+                          data-cy={`payroll-payperiod-sidebar-division-footer-popover-${index}`}
                           content={
                             <span>{`${dayjs(range[0]).format('MMMM D, YYYY')} - ${dayjs(range[1]).format('MMMM D, YYYY')}`}</span>
                           }
@@ -757,7 +757,11 @@ const PayPeriodSideBar = () => {
                             data-cy={`payroll-payperiod-sidebar-division-footer-button-${index}`}
                             type="primary"
                             size="small"
-                            icon={<DeleteOutlined data-cy={`payroll-payperiod-sidebar-division-footer-button-icon-${index}`} />}
+                            icon={
+                              <DeleteOutlined
+                                data-cy={`payroll-payperiod-sidebar-division-footer-button-icon-${index}`}
+                              />
+                            }
                             onClick={() => handleDeleteDivision(index)}
                             danger
                           />
@@ -769,8 +773,8 @@ const PayPeriodSideBar = () => {
               </div>
             )}
           </Form>
-            </Spin>
-        </CustomDrawerLayout>
+        </Spin>
+      </CustomDrawerLayout>
     )
   );
 };
