@@ -14,7 +14,7 @@ import { InfoLine } from '@/app/(afterLogin)/(employeeInformation)/employees/man
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 interface ScheduleDetail {
   id: string;
@@ -54,9 +54,10 @@ function WorkScheduleTab() {
     pageSize,
     setCurrentPage,
     setPageSize,
+    searchQuery,
+    setSearchQuery,
   } = useScheduleStore();
   const { isMobile, isTablet } = useIsMobile();
-  const [searchQuery, setSearchQuery] = useState('');
   const { data: workScheudleData, refetch: refetchSchedules } =
     useFetchSchedule(currentPage, pageSize);
   const { Panel } = Collapse;

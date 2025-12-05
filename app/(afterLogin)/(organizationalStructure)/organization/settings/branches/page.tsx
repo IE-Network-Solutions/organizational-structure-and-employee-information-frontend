@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Card, Button, List, Dropdown, Menu, Form, Input } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
@@ -22,7 +22,6 @@ const Branches = () => {
   const { mutate: updateBranch, isLoading: updateLoading } = useUpdateBranch();
   const { mutate: deleteBranch, isLoading: deleteLoading } = useDeleteBranch();
   const [form] = Form.useForm();
-  const [searchQuery, setSearchQuery] = useState('');
 
   const {
     editingBranch,
@@ -33,6 +32,8 @@ const Branches = () => {
     setSelectedBranch,
     setDeleteModalVisible,
     setBranchToDelete,
+    searchQuery,
+    setSearchQuery,
   } = useBranchStore();
 
   const handleAddNew = () => {
