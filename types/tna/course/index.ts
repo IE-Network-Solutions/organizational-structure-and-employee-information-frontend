@@ -52,6 +52,10 @@ export interface Course extends DateInfo {
   courseCategoryId: string;
   courseCategory: CourseCategory;
   courseLessons: CourseLesson[];
+  courseUsers?: CourseUser[];
+  courseDepartments?: CourseDepartment[];
+  departmentIds?: string[];
+  userIds?: string[];
   preparedBy: string;
   isDraft: boolean;
   tenantId: string;
