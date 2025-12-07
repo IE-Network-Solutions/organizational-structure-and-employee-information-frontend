@@ -64,4 +64,7 @@ export interface DrawerState {
 
   hasOverlapError: boolean;
   setHasOverlapError: (hasOverlapError: boolean) => void;
+
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }

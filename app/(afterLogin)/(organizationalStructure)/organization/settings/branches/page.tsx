@@ -1,6 +1,6 @@
 'use client';
-import React from 'react';
-import { Card, Button, List, Dropdown, Menu, Form } from 'antd';
+import React, { useMemo } from 'react';
+import { Card, Button, List, Dropdown, Menu, Form, Input } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useGetBranches } from '@/store/server/features/organizationStructure/branchs/queries';
 import {
@@ -32,6 +32,8 @@ const Branches = () => {
     setSelectedBranch,
     setDeleteModalVisible,
     setBranchToDelete,
+    searchQuery,
+    setSearchQuery,
   } = useBranchStore();
 
   const handleAddNew = () => {
@@ -78,6 +80,26 @@ const Branches = () => {
     setBranchToDelete(branch);
     setDeleteModalVisible(true);
   };
+
+  const filteredBranches = useMemo(() => {
+    if (!branches?.items) return [];
+    if (!searchQuery.trim()) return branches.items;
+
+    const query = searchQuery.toLowerCase().trim();
+    return branches.items.filter((branch) => {
+      const name = branch.name?.toLowerCase() || '';
+      const location = branch.location?.toLowerCase() || '';
+      const contactNumber = branch.contactNumber?.toLowerCase() || '';
+      const contactEmail = branch.contactEmail?.toLowerCase() || '';
+
+      return (
+        name.includes(query) ||
+        location.includes(query) ||
+        contactNumber.includes(query) ||
+        contactEmail.includes(query)
+      );
+    });
+  }, [branches?.items, searchQuery]);
 
   const menu = (branch: Branch) => {
     const branchId =
@@ -169,12 +191,22 @@ const Branches = () => {
             </Button>
           </AccessGuard>
         </div>
+        <Input
+          placeholder="Search branch"
+          className="flex-1 h-12 rounded-lg border-gray-200"
+          allowClear
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          id="org-settings-branches-search-input"
+          data-cy="org-settings-branches-search-input"
+        />
+
         <List
           className="max-h-[400px] overflow-y-scroll"
           data-cy="org-settings-branches-list"
           id="org-settings-branches-list"
           itemLayout="vertical"
-          dataSource={branches?.items}
+          dataSource={filteredBranches}
           renderItem={(item) => {
             const branchId =
               item.id ||
