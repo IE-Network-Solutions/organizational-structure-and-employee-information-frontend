@@ -76,16 +76,40 @@ function ActionPlans({ id }: Params) {
             )
             .filter(Boolean);
           return (
-            <Card key={item.id} id={`action-plan-card-${item.id}`} data-cy={`action-plan-card-${item.id}`} className="mb-4">
-              <div id={`action-plan-card-${item.id}-content`} data-cy={`action-plan-card-${item.id}-content`} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div id={`action-plan-card-${item.id}-details`} data-cy={`action-plan-card-${item.id}-details`}>
-                  <div id={`action-plan-card-${item.id}-title`} data-cy={`action-plan-card-${item.id}-title`} className="font-bold text-base mb-1">
+            <Card
+              key={item.id}
+              id={`action-plan-card-${item.id}`}
+              data-cy={`action-plan-card-${item.id}`}
+              className="mb-4"
+            >
+              <div
+                id={`action-plan-card-${item.id}-content`}
+                data-cy={`action-plan-card-${item.id}-content`}
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
+                <div
+                  id={`action-plan-card-${item.id}-details`}
+                  data-cy={`action-plan-card-${item.id}-details`}
+                >
+                  <div
+                    id={`action-plan-card-${item.id}-title`}
+                    data-cy={`action-plan-card-${item.id}-title`}
+                    className="font-bold text-base mb-1"
+                  >
                     {item?.actionToBeTaken}
                   </div>
-                  <div id={`action-plan-card-${item.id}-description`} data-cy={`action-plan-card-${item.id}-description`} className="text-gray-600 text-sm mb-2">
+                  <div
+                    id={`action-plan-card-${item.id}-description`}
+                    data-cy={`action-plan-card-${item.id}-description`}
+                    className="text-gray-600 text-sm mb-2"
+                  >
                     {item?.description}
                   </div>
-                  <div id={`action-plan-card-${item.id}-responsible-persons`} data-cy={`action-plan-card-${item.id}-responsible-persons`} className="flex items-center gap-2 mb-2">
+                  <div
+                    id={`action-plan-card-${item.id}-responsible-persons`}
+                    data-cy={`action-plan-card-${item.id}-responsible-persons`}
+                    className="flex items-center gap-2 mb-2"
+                  >
                     <Avatar.Group
                       data-cy={`action-plan-card-${item.id}-avatar-group`}
                       maxCount={4}
@@ -112,11 +136,19 @@ function ActionPlans({ id }: Params) {
                       ))}
                     </Avatar.Group>
                   </div>
-                  <Tag id={`action-plan-card-${item.id}-status-tag`} data-cy={`action-plan-card-${item.id}-status-tag`} color={item?.status === 'solved' ? 'green' : 'blue'}>
+                  <Tag
+                    id={`action-plan-card-${item.id}-status-tag`}
+                    data-cy={`action-plan-card-${item.id}-status-tag`}
+                    color={item?.status === 'solved' ? 'green' : 'blue'}
+                  >
                     {item?.status === 'solved' ? 'Resolved' : 'Pending'}
                   </Tag>
                 </div>
-                <div id={`action-plan-card-${item.id}-actions`} data-cy={`action-plan-card-${item.id}-actions`} className="flex gap-2 self-start md:self-center">
+                <div
+                  id={`action-plan-card-${item.id}-actions`}
+                  data-cy={`action-plan-card-${item.id}-actions`}
+                  className="flex gap-2 self-start md:self-center"
+                >
                   {item?.status !== 'solved' && (
                     <>
                       <Button
@@ -125,7 +157,9 @@ function ActionPlans({ id }: Params) {
                         type="primary"
                         onClick={() => handleEditActionPlan(item?.id)}
                       >
-                        <MdOutlineModeEditOutline data-cy={`action-plan-card-${item.id}-edit-icon`} />
+                        <MdOutlineModeEditOutline
+                          data-cy={`action-plan-card-${item.id}-edit-icon`}
+                        />
                       </Button>
                       <Button
                         id={`action-plan-card-${item.id}-delete-button`}
@@ -135,9 +169,15 @@ function ActionPlans({ id }: Params) {
                         onClick={() => setSelectedActionPlan(item?.id)}
                         danger
                       >
-                        <RiDeleteBin5Line data-cy={`action-plan-card-${item.id}-delete-icon`} />
+                        <RiDeleteBin5Line
+                          data-cy={`action-plan-card-${item.id}-delete-icon`}
+                        />
                       </Button>
-                      <Tooltip id={`action-plan-card-${item.id}-resolve-tooltip`} data-cy={`action-plan-card-${item.id}-resolve-tooltip`} title="Resolve Action Plan">
+                      <Tooltip
+                        id={`action-plan-card-${item.id}-resolve-tooltip`}
+                        data-cy={`action-plan-card-${item.id}-resolve-tooltip`}
+                        title="Resolve Action Plan"
+                      >
                         <Button
                           id={`action-plan-card-${item.id}-resolve-button`}
                           data-cy={`action-plan-card-${item.id}-resolve-button`}
@@ -145,7 +185,12 @@ function ActionPlans({ id }: Params) {
                           type="primary"
                           loading={actionPlanResolvingLoading}
                           onClick={() => handleResolveHandler(item?.id)}
-                          icon={<IoCheckmarkSharp data-cy={`action-plan-card-${item.id}-resolve-button-icon`} id={`action-plan-card-${item.id}-resolve-button-icon`} />}
+                          icon={
+                            <IoCheckmarkSharp
+                              data-cy={`action-plan-card-${item.id}-resolve-button-icon`}
+                              id={`action-plan-card-${item.id}-resolve-button-icon`}
+                            />
+                          }
                         />
                       </Tooltip>
                     </>

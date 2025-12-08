@@ -81,9 +81,23 @@ const DefineMeetingType = () => {
       {meetingTypeDetailData ? (
         <MeetingTypeDetail data-cy="settings-define-meeting-type-detail" />
       ) : (
-        <div className="p-4 rounded-2xl min-h-screen bg-white h-full " data-cy="settings-define-meeting-type-page" id="settingsDefineMeetingTypePage">
-          <div className="flex justify-between items-center mb-4" data-cy="settings-define-meeting-type-header" id="settingsDefineMeetingTypeHeader">
-            <h2 className="text-xl font-semibold" data-cy="settings-define-meeting-type-title" id="settingsDefineMeetingTypeTitle">Meeting Types</h2>
+        <div
+          className="p-4 rounded-2xl min-h-screen bg-white h-full "
+          data-cy="settings-define-meeting-type-page"
+          id="settingsDefineMeetingTypePage"
+        >
+          <div
+            className="flex justify-between items-center mb-4"
+            data-cy="settings-define-meeting-type-header"
+            id="settingsDefineMeetingTypeHeader"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="settings-define-meeting-type-title"
+              id="settingsDefineMeetingTypeTitle"
+            >
+              Meeting Types
+            </h2>
             {/* <AccessGuard permissions={[Permissions.CreateMeetingType]}> */}
             <Button
               type="primary"
@@ -93,7 +107,12 @@ const DefineMeetingType = () => {
               data-cy="settings-define-meeting-type-add-button"
               id="settingsDefineMeetingTypeAddButton"
             >
-              <span className="hidden md:block " data-cy="settings-define-meeting-type-add-label">Add New</span>
+              <span
+                className="hidden md:block "
+                data-cy="settings-define-meeting-type-add-label"
+              >
+                Add New
+              </span>
             </Button>
             {/* </AccessGuard> */}
           </div>
@@ -105,7 +124,11 @@ const DefineMeetingType = () => {
             bordered={false}
             loading={isLoading}
             renderItem={(item) => (
-              <List.Item className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-300 " data-cy={`settings-define-meeting-type-item-${item.id}`} id={`settingsDefineMeetingTypeItem${item.id}`}>
+              <List.Item
+                className="flex justify-between items-center py-4 px-4 rounded-xl my-3 border border-gray-300 "
+                data-cy={`settings-define-meeting-type-item-${item.id}`}
+                id={`settingsDefineMeetingTypeItem${item.id}`}
+              >
                 <span
                   onClick={() => handleDetail(item)}
                   className="cursor-pointer"
@@ -114,7 +137,10 @@ const DefineMeetingType = () => {
                 >
                   {item?.name || 'Unknown title'}
                 </span>
-                <div data-cy={`settings-define-meeting-type-item-actions-${item.id}`} id={`settingsDefineMeetingTypeItemActions${item.id}`}>
+                <div
+                  data-cy={`settings-define-meeting-type-item-actions-${item.id}`}
+                  id={`settingsDefineMeetingTypeItemActions${item.id}`}
+                >
                   {/* <AccessGuard permissions={[Permissions.UpdateMeetingType]}> */}
                   <Button
                     icon={<GoPencil />}

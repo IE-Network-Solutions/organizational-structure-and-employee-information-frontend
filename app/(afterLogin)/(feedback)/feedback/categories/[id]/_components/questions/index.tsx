@@ -79,7 +79,11 @@ const Question: React.FC<Props> = (props) => {
     }
   };
 
-  const renderOptionInput = (type: any, questionIndex: number, optionKey: React.Key) => {
+  const renderOptionInput = (
+    type: any,
+    questionIndex: number,
+    optionKey: React.Key,
+  ) => {
     switch (type) {
       case 'multiple_choice':
         return (
@@ -166,7 +170,10 @@ const Question: React.FC<Props> = (props) => {
               handlePublish();
             }}
           >
-            <Form.Item data-cy="question-builder-template-item" id="question-builder-template-item">
+            <Form.Item
+              data-cy="question-builder-template-item"
+              id="question-builder-template-item"
+            >
               <CustomQuestionTemplate data-cy="question-builder-template-component" />
             </Form.Item>
             <Form.List
@@ -193,11 +200,28 @@ const Question: React.FC<Props> = (props) => {
                         className="text-md font-semibold text-gray-800 mb-2 block"
                       >
                         Question {index + 1}
-                        <span data-cy="question-builder-required-indicator" id="question-builder-required-indicator" className="text-red-500">*</span>
+                        <span
+                          data-cy="question-builder-required-indicator"
+                          id="question-builder-required-indicator"
+                          className="text-red-500"
+                        >
+                          *
+                        </span>
                       </div>
 
-                      <Row gutter={12} key={key} data-cy="question-builder-row" id="question-builder-row">
-                        <Col lg={16} md={10} xs={24} data-cy="question-builder-question-column" id="question-builder-question-column">
+                      <Row
+                        gutter={12}
+                        key={key}
+                        data-cy="question-builder-row"
+                        id="question-builder-row"
+                      >
+                        <Col
+                          lg={16}
+                          md={10}
+                          xs={24}
+                          data-cy="question-builder-question-column"
+                          id="question-builder-question-column"
+                        >
                           <Form.Item
                             label=""
                             data-cy="question-builder-question-input"
@@ -210,7 +234,11 @@ const Question: React.FC<Props> = (props) => {
                               },
                             ]}
                           >
-                            <div data-cy="question-builder-question-input-wrapper" id="question-builder-question-input-wrapper" className="flex items-center">
+                            <div
+                              data-cy="question-builder-question-input-wrapper"
+                              id="question-builder-question-input-wrapper"
+                              className="flex items-center"
+                            >
                               <Input
                                 data-cy="question-builder-question-input-field"
                                 id="question-builder-question-input-field"
@@ -220,9 +248,24 @@ const Question: React.FC<Props> = (props) => {
                             </div>
                           </Form.Item>
                         </Col>
-                        <Col lg={8} md={10} xs={24} data-cy="question-builder-field-type-column" id="question-builder-field-type-column">
-                          <Row data-cy="question-builder-field-type-row" id="question-builder-field-type-row">
-                            <Col lg={16} sm={12} xs={24} data-cy="question-builder-field-type-column" id="question-builder-field-type-column">
+                        <Col
+                          lg={8}
+                          md={10}
+                          xs={24}
+                          data-cy="question-builder-field-type-column"
+                          id="question-builder-field-type-column"
+                        >
+                          <Row
+                            data-cy="question-builder-field-type-row"
+                            id="question-builder-field-type-row"
+                          >
+                            <Col
+                              lg={16}
+                              sm={12}
+                              xs={24}
+                              data-cy="question-builder-field-type-column"
+                              id="question-builder-field-type-column"
+                            >
                               <Form.Item
                                 {...restField}
                                 name={[name, 'fieldType']}
@@ -236,17 +279,46 @@ const Question: React.FC<Props> = (props) => {
                                 data-cy="question-builder-field-type-item"
                                 id="question-builder-field-type-item"
                               >
-                                <Select data-cy="question-builder-field-type-select" id="question-builder-field-type-select" placeholder="Select type" allowClear>
+                                <Select
+                                  data-cy="question-builder-field-type-select"
+                                  id="question-builder-field-type-select"
+                                  placeholder="Select type"
+                                  allowClear
+                                >
                                   <Option value="multiple_choice">
                                     Multiple Choice
                                   </Option>
-                                  <Option value="checkbox" id="question-builder-field-type-checkbox" data-cy="question-builder-field-type-checkbox">Checkbox</Option>
-                                  <Option value="short_text" id="question-builder-field-type-short-text" data-cy="question-builder-field-type-short-text">Short Text</Option>
-                                  <Option value="paragraph" id="question-builder-field-type-paragraph" data-cy="question-builder-field-type-paragraph">Paragraph</Option>
+                                  <Option
+                                    value="checkbox"
+                                    id="question-builder-field-type-checkbox"
+                                    data-cy="question-builder-field-type-checkbox"
+                                  >
+                                    Checkbox
+                                  </Option>
+                                  <Option
+                                    value="short_text"
+                                    id="question-builder-field-type-short-text"
+                                    data-cy="question-builder-field-type-short-text"
+                                  >
+                                    Short Text
+                                  </Option>
+                                  <Option
+                                    value="paragraph"
+                                    id="question-builder-field-type-paragraph"
+                                    data-cy="question-builder-field-type-paragraph"
+                                  >
+                                    Paragraph
+                                  </Option>
                                 </Select>
                               </Form.Item>
                             </Col>
-                            <Col lg={8} sm={12} xs={24} data-cy="question-builder-remove-column" id="question-builder-remove-column">
+                            <Col
+                              lg={8}
+                              sm={12}
+                              xs={24}
+                              data-cy="question-builder-remove-column"
+                              id="question-builder-remove-column"
+                            >
                               <MinusCircleOutlined
                                 data-cy="question-builder-remove-button"
                                 id="question-builder-remove-button"
@@ -266,7 +338,11 @@ const Question: React.FC<Props> = (props) => {
                         valuePropName="checked"
                       >
                         <div className="flex items-center text-sm">
-                          <Checkbox data-cy="question-builder-required-checkbox" id="question-builder-required-checkbox" defaultChecked={false}>
+                          <Checkbox
+                            data-cy="question-builder-required-checkbox"
+                            id="question-builder-required-checkbox"
+                            defaultChecked={false}
+                          >
                             Is Required
                           </Checkbox>
                         </div>
@@ -312,11 +388,28 @@ const Question: React.FC<Props> = (props) => {
                             'fieldType',
                           ]);
                           return (
-                            <div className="ml-8" id="question-builder-option-wrapper" data-cy="question-builder-option-wrapper">
+                            <div
+                              className="ml-8"
+                              id="question-builder-option-wrapper"
+                              data-cy="question-builder-option-wrapper"
+                            >
                               {fields.map((field, index) => (
-                                <Form.Item data-cy="question-builder-option-item" id="question-builder-option-item" required={false} key={field.key}>
-                                  <div className="flex items-center gap-3" data-cy="question-builder-option-wrapper" id="question-builder-option-wrapper">
-                                    {renderOptionInput(questionType, index, field.key)}
+                                <Form.Item
+                                  data-cy="question-builder-option-item"
+                                  id="question-builder-option-item"
+                                  required={false}
+                                  key={field.key}
+                                >
+                                  <div
+                                    className="flex items-center gap-3"
+                                    data-cy="question-builder-option-wrapper"
+                                    id="question-builder-option-wrapper"
+                                  >
+                                    {renderOptionInput(
+                                      questionType,
+                                      index,
+                                      field.key,
+                                    )}
                                     <Form.Item
                                       {...field}
                                       initialValue={[]}
@@ -331,7 +424,11 @@ const Question: React.FC<Props> = (props) => {
                                       data-cy="question-builder-option-input"
                                       id="question-builder-option-input"
                                     >
-                                      <Input data-cy="question-builder-option-input-field" id="question-builder-option-input-field" placeholder="" />
+                                      <Input
+                                        data-cy="question-builder-option-input-field"
+                                        id="question-builder-option-input-field"
+                                        placeholder=""
+                                      />
                                     </Form.Item>
                                     {fields.length > 1 ? (
                                       <MinusCircleOutlined
@@ -347,8 +444,15 @@ const Question: React.FC<Props> = (props) => {
 
                               {questionType === 'multiple_choice' ||
                               questionType === FieldType.CHECKBOX ? (
-                                <Form.Item data-cy="question-builder-option-add-item" id="question-builder-option-add-item">
-                                  <div className="flex flex-col items-center justify-center" data-cy="question-builder-option-add-wrapper" id="question-builder-option-add-wrapper">
+                                <Form.Item
+                                  data-cy="question-builder-option-add-item"
+                                  id="question-builder-option-add-item"
+                                >
+                                  <div
+                                    className="flex flex-col items-center justify-center"
+                                    data-cy="question-builder-option-add-wrapper"
+                                    id="question-builder-option-add-wrapper"
+                                  >
                                     <div
                                       onClick={() => add()}
                                       className="w-6 h-6 flex items-center justify-center rounded-full bg-primary cursor-pointer"
@@ -362,7 +466,11 @@ const Question: React.FC<Props> = (props) => {
                                         id="question-builder-option-add-icon"
                                       />
                                     </div>
-                                    <p className="text-xs font-light text-gray-400 " data-cy="question-builder-option-add-text" id="question-builder-option-add-text">
+                                    <p
+                                      className="text-xs font-light text-gray-400 "
+                                      data-cy="question-builder-option-add-text"
+                                      id="question-builder-option-add-text"
+                                    >
                                       Add Option
                                     </p>
                                   </div>
@@ -376,17 +484,33 @@ const Question: React.FC<Props> = (props) => {
                       </Form.List>
                     </>
                   ))}
-                  <Form.Item id="question-builder-add-question-item" data-cy="question-builder-add-question-item">
-                    <div className="flex flex-col items-center justify-center my-8 " data-cy="question-builder-add-question-wrapper" id="question-builder-add-question-wrapper">
+                  <Form.Item
+                    id="question-builder-add-question-item"
+                    data-cy="question-builder-add-question-item"
+                  >
+                    <div
+                      className="flex flex-col items-center justify-center my-8 "
+                      data-cy="question-builder-add-question-wrapper"
+                      id="question-builder-add-question-wrapper"
+                    >
                       <div
                         className="rounded-full bg-primary w-8 h-8 flex items-center justify-center cursor-pointer"
                         onClick={() => add()}
                         data-cy="question-builder-add-question-button"
                         id="question-builder-add-question-button"
                       >
-                        <PlusOutlined size={50} className="text-white " data-cy="question-builder-add-question-icon" id="question-builder-add-question-icon" />
+                        <PlusOutlined
+                          size={50}
+                          className="text-white "
+                          data-cy="question-builder-add-question-icon"
+                          id="question-builder-add-question-icon"
+                        />
                       </div>
-                      <p className="text-md font-normal mt-2 text-gray-400" data-cy="question-builder-add-question-text" id="question-builder-add-question-text">
+                      <p
+                        className="text-md font-normal mt-2 text-gray-400"
+                        data-cy="question-builder-add-question-text"
+                        id="question-builder-add-question-text"
+                      >
                         Add Question
                       </p>
                     </div>
@@ -395,7 +519,11 @@ const Question: React.FC<Props> = (props) => {
               )}
             </Form.List>
             <Form.Item>
-              <div className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8" data-cy="question-builder-footer-wrapper" id="question-builder-footer-wrapper">
+              <div
+                className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8"
+                data-cy="question-builder-footer-wrapper"
+                id="question-builder-footer-wrapper"
+              >
                 <Button
                   onClick={() => setIsDrawerOpen(false)}
                   data-cy="question-builder-cancel-button"

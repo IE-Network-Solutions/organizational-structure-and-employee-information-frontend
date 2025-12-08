@@ -78,14 +78,20 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
             id="compensation-benefit-layout-sidebar"
             data-cy="compensation-benefit-layout-sidebar"
           >
-            <SidebarMenu data-cy="compensation-benefit-layout-sidebar-menu" menuItems={sidebarMenuItems} />
+            <SidebarMenu
+              data-cy="compensation-benefit-layout-sidebar-menu"
+              menuItems={sidebarMenuItems}
+            />
           </div>
 
           <div
             id="compensation-benefit-layout-block-wrapper"
             data-cy="compensation-benefit-layout-block-wrapper"
           >
-            <BlockWrapper data-cy="compensation-benefit-layout-block-wrapper-content" className="flex-1 h-max overflow-x-auto">
+            <BlockWrapper
+              data-cy="compensation-benefit-layout-block-wrapper-content"
+              className="flex-1 h-max overflow-x-auto"
+            >
               {children}
             </BlockWrapper>
           </div>

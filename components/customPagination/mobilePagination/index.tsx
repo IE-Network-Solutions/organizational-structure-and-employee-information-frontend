@@ -53,7 +53,11 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   };
 
   return (
-    <div id={id} data-cy={dataCy} className="flex items-center justify-between w-full px-4 py-2">
+    <div
+      id={id}
+      data-cy={dataCy}
+      className="flex items-center justify-between w-full px-4 py-2"
+    >
       <div className="flex items-center gap-6">
         <Button
           icon={<LeftOutlined />}

@@ -125,7 +125,10 @@ const AddTypesSidebar = () => {
         width="400px"
         data-cy="time-attendance-settings-accrual-rule-sidebar"
       >
-        <Spin spinning={isLoading} data-cy="time-attendance-settings-accrual-rule-sidebar-spin">
+        <Spin
+          spinning={isLoading}
+          data-cy="time-attendance-settings-accrual-rule-sidebar-spin"
+        >
           <Form
             layout="vertical"
             requiredMark={CustomLabel}

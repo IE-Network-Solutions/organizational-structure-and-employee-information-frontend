@@ -84,7 +84,10 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
         data-cy="feedback-meeting-components-addagenda-form"
         id="feedback-meeting-components-addagenda-form"
       >
-        <Form.List name="agendaItems" data-cy="feedback-meeting-components-addagenda-list">
+        <Form.List
+          name="agendaItems"
+          data-cy="feedback-meeting-components-addagenda-list"
+        >
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, fieldKey, ...restField }) => (

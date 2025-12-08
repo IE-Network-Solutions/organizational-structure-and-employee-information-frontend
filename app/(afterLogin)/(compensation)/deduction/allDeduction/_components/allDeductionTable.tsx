@@ -176,22 +176,22 @@ const AllDeductionTable = () => {
         </div>
 
         {isMobile || isTablet ? (
-            <CustomMobilePagination
-              data-cy="compensation-deduction-all-mobile-pagination"
-              totalResults={dataSource.length}
-              pageSize={pageSize}
-              onChange={handlePageChange}
-              onShowSizeChange={handlePageChange}
-            />
+          <CustomMobilePagination
+            data-cy="compensation-deduction-all-mobile-pagination"
+            totalResults={dataSource.length}
+            pageSize={pageSize}
+            onChange={handlePageChange}
+            onShowSizeChange={handlePageChange}
+          />
         ) : (
-            <CustomPagination
-              data-cy="compensation-deduction-all-pagination"
-              current={currentPage}
-              total={dataSource.length}
-              pageSize={pageSize}
-              onChange={handlePageChange}
-              onShowSizeChange={handleSizeChange}
-            />
+          <CustomPagination
+            data-cy="compensation-deduction-all-pagination"
+            current={currentPage}
+            total={dataSource.length}
+            pageSize={pageSize}
+            onChange={handlePageChange}
+            onShowSizeChange={handleSizeChange}
+          />
         )}
       </Spin>
     </div>

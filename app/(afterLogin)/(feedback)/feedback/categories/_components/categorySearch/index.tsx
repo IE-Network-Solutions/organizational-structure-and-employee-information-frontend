@@ -26,14 +26,36 @@ const CategorySearch = () => {
   };
 
   return (
-    <div className="my-2" data-cy="feedback-categories-components-categorysearch-div" id="feedback-categories-components-categorysearch-div">
-      <Row gutter={[16, 24]} justify="space-between" className="py-4" data-cy="feedback-categories-components-categorysearch-row" id="feedback-categories-components-categorysearch-row">
-        <Col lg={12} md={10} xs={24} data-cy="feedback-categories-components-categorysearch-col" id="feedback-categories-components-categorysearch-col">
+    <div
+      className="my-2"
+      data-cy="feedback-categories-components-categorysearch-div"
+      id="feedback-categories-components-categorysearch-div"
+    >
+      <Row
+        gutter={[16, 24]}
+        justify="space-between"
+        className="py-4"
+        data-cy="feedback-categories-components-categorysearch-row"
+        id="feedback-categories-components-categorysearch-row"
+      >
+        <Col
+          lg={12}
+          md={10}
+          xs={24}
+          data-cy="feedback-categories-components-categorysearch-col"
+          id="feedback-categories-components-categorysearch-col"
+        >
           <Input
             allowClear
             placeholder="Search Categories"
             onChange={(e) => handleSearchInput(e.target.value, 'category_name')}
-            prefix={<SearchOutlined className="text-gray-400" data-cy="feedback-categories-components-categorysearch-icon-search" id="feedback-categories-components-categorysearch-icon-search" />}
+            prefix={
+              <SearchOutlined
+                className="text-gray-400"
+                data-cy="feedback-categories-components-categorysearch-icon-search"
+                id="feedback-categories-components-categorysearch-icon-search"
+              />
+            }
             className="w-full h-12"
             data-cy="feedback-categories-components-categorysearch-input"
             id="feedback-categories-components-categorysearch-input"

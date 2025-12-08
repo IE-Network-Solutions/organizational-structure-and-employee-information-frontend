@@ -75,22 +75,45 @@ const CategoriesCard: React.FC = () => {
 
   if (isCategoriesLoading)
     return (
-      <div className="flex justify-center items-center h-64" data-cy="feedback-categories-components-categoriescard-div-loading" id="feedback-categories-components-categoriescard-div-loading">
-        <Spin size="large" data-cy="feedback-categories-components-categoriescard-spin" />
+      <div
+        className="flex justify-center items-center h-64"
+        data-cy="feedback-categories-components-categoriescard-div-loading"
+        id="feedback-categories-components-categoriescard-div-loading"
+      >
+        <Spin
+          size="large"
+          data-cy="feedback-categories-components-categoriescard-spin"
+        />
       </div>
     );
 
   const NoData = () => {
     return (
-      <div className="w-full h-full flex justify-center items-center my-5" data-cy="feedback-categories-components-categoriescard-div-no-data" id="feedback-categories-components-categoriescard-div-no-data">
-        <div data-cy="feedback-categories-components-categoriescard-div-no-data-text" id="feedback-categories-components-categoriescard-div-no-data-text">No Form Category available.</div>
+      <div
+        className="w-full h-full flex justify-center items-center my-5"
+        data-cy="feedback-categories-components-categoriescard-div-no-data"
+        id="feedback-categories-components-categoriescard-div-no-data"
+      >
+        <div
+          data-cy="feedback-categories-components-categoriescard-div-no-data-text"
+          id="feedback-categories-components-categoriescard-div-no-data-text"
+        >
+          No Form Category available.
+        </div>
       </div>
     );
   };
 
   return (
-    <div data-cy="feedback-categories-components-categoriescard-div" id="feedback-categories-components-categoriescard-div">
-      <div className="flex flex-wrap gap-4 mb-[80px]" data-cy="feedback-categories-components-categoriescard-div-cards" id="feedback-categories-components-categoriescard-div-cards">
+    <div
+      data-cy="feedback-categories-components-categoriescard-div"
+      id="feedback-categories-components-categoriescard-div"
+    >
+      <div
+        className="flex flex-wrap gap-4 mb-[80px]"
+        data-cy="feedback-categories-components-categoriescard-div-cards"
+        id="feedback-categories-components-categoriescard-div-cards"
+      >
         {categories?.items && categories?.items?.length >= 1 ? (
           categories?.items.map((category: any) => (
             <CategoryCard
@@ -104,7 +127,10 @@ const CategoriesCard: React.FC = () => {
           <NoData data-cy="feedback-categories-components-categoriescard-div-no-data" />
         )}
       </div>
-      <EditCategoryModal userOptions={userOptions} data-cy="feedback-categories-edit-category-modal" />
+      <EditCategoryModal
+        userOptions={userOptions}
+        data-cy="feedback-categories-edit-category-modal"
+      />
       <DeleteModal
         open={deleteModal}
         onCancel={() => setDeleteModal(false)}
