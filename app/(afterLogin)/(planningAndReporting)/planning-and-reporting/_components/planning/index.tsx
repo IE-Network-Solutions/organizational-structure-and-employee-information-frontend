@@ -400,7 +400,7 @@ function Planning() {
       <section className="mt-8">
         <div className="space-y-6">
           {getPlanningLoading ? (
-            Array.from({ length: 3 }).map((_unusedItem, i) => <PlanCardSkeleton key={i} />)
+            Array.from({ length: 3 }).map((unusedItem, i) => <PlanCardSkeleton key={i} />)
           ) : (
             planSummaries.map((plan: any) => {
               // Get original dataItem for actions

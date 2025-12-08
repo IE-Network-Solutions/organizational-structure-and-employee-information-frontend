@@ -304,7 +304,8 @@ function CreateReport() {
                                     initialValue={Number(task?.actualValue)?.toLocaleString() || 0}
                                     rules={[
                                         {
-                                            validator(_unusedRule, value) {
+                                            // eslint-disable-next-line @typescript-eslint/naming-convention
+                                            validator(unusedRule, value) {
                                                 if (!keyresult || !keyresult.targetValue) {
                                                     return Promise.reject(new Error('Key result data is incomplete.'));
                                                 }
@@ -455,7 +456,7 @@ function CreateReport() {
                             className="px-2"
                         >
                             <Collapse
-                                defaultActiveKey={formattedData?.map((_unusedItem: any, index: number) => String(index))}
+                                defaultActiveKey={formattedData?.map((unusedItem: any, index: number) => String(index))}
                                 expandIconPosition="end"
                                 bordered={false}
                                 className="bg-transparent [&_.ant-collapse-item]:mb-4 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-gray-200 [&_.ant-collapse-item]:!border-b [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"

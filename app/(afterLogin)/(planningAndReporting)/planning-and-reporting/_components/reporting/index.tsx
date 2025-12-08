@@ -374,7 +374,7 @@ function Reporting() {
       <section className="mt-8">
         <div className="space-y-6">
           {getReportLoading ? (
-            Array.from({ length: 3 }).map((_unusedItem, i) => <PlanCardSkeleton key={i} />)
+            Array.from({ length: 3 }).map((unusedItem, i) => <PlanCardSkeleton key={i} />)
           ) : (
             allReporting?.items?.map((dataItem: any) => {
               const cadence = activeTabName?.toLowerCase() as Cadence || 'weekly';
