@@ -336,18 +336,10 @@ function CreatePlan() {
 
     // Always grab the latest mkAsATask value to avoid stale reads
     const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
-    
-    // VALIDATION: Only use mkAsATask if it belongs to this Key Result
-    // Check if mkAsATask.mid matches the current kId (exact match or for milestones, kId ends with mid)
-    const shouldUseMkAsATask = latestMkAsATask?.mid && (
-      kId === latestMkAsATask.mid ||           // Exact match (for Key Result without milestone)
-      kId.endsWith(latestMkAsATask.mid)        // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
-    );
-    
-    const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
-    const achieveMK = shouldUseMkAsATask;
+    const taskTitle = latestMkAsATask?.title || '';
+    const achieveMK = !!latestMkAsATask;
 
-    // Create a task object - if mkAsATask exists and matches, use its title
+    // Create a task object - if mkAsATask exists, use its title
     const newTask = {
       task: taskTitle,
       priority: undefined,
@@ -371,49 +363,23 @@ function CreatePlan() {
   };
 
   const modalHeader = (
-    <div className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4">
+    <div className="relative flex items-center justify-center text-xl font-extrabold text-gray-800 p-4">
       <div>
         Create {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'New'}{' '}
         Plan
       </div>
-      <div
-        className="text-right"
-        id="planning-ai-suggestions-wrapper-view-space"
-        data-cy="planning-ai-suggestions-wrapper-view-space"
-      >
+      <div className="absolute right-4 top-1/2 -translate-y-1/2">
         {/* AI Suggestions button + modal */}
         <AISuggestionsModal
           getKeyResults={() => {
-            const out: {
-              id: string;
-              title: string;
-              progress?: number;
-              metricType?: { name: string };
-              milestones?: Array<{
-                id: string | number;
-                title: string;
-                status?: string;
-              }>;
-            }[] = [];
+            const out: { id: string; title: string }[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from Objectives
               objective?.items?.forEach((obj: any) => {
                 obj?.keyResults?.forEach((kr: any) => {
                   if (kr?.id && kr?.title) {
-                    out.push({
-                      id: String(kr.id),
-                      title: kr.title,
-                      progress: kr.progress,
-                      metricType: kr.metricType,
-                      milestones: Array.isArray(kr?.milestones)
-                        ? kr.milestones.map((m: any) => ({
-                            id: m?.id,
-                            title: m?.title,
-                            status: m?.status,
-                          }))
-                        : [],
-                    });
+                    out.push({ id: String(kr.id), title: kr.title });
                   }
                 });
               });
@@ -431,12 +397,7 @@ function CreatePlan() {
                 const krTitle = t?.keyResult?.title;
                 if (krId && krTitle && !seen.has(krId)) {
                   seen.add(krId);
-                  out.push({
-                    id: krId,
-                    title: krTitle,
-                    progress: t?.keyResult?.progress,
-                    metricType: t?.keyResult?.metricType,
-                  });
+                  out.push({ id: krId, title: krTitle });
                 }
               });
             }
@@ -444,7 +405,7 @@ function CreatePlan() {
             return out;
           }}
           getWeeklyPlanTasks={() => {
-            // Only for daily plans - get all weekly plan tasks WITH krId
+            // Only for daily plans - get all weekly plan tasks
             if (!planningPeriodHierarchy?.parentPlan) return [];
 
             const tasks =
@@ -455,7 +416,6 @@ function CreatePlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
-              krId: String(t?.keyResult?.id || ''), // Add krId to the task object
             }));
           }}
           form={form}
@@ -469,6 +429,38 @@ function CreatePlan() {
       </div>
     </div>
   );
+  const footer = (
+    <div className="flex justify-center gap-4 w-full">
+      <Tooltip
+        title={
+          totalWeight !== 100
+            ? "Summation of all task's weights must be equal to 100!"
+            : 'Submit'
+        }
+      >
+        <Button
+          id="submit-plan-button-for-planning-and-reporting"
+          className="py-6 px-10"
+          type="primary"
+          onClick={() => form.submit()}
+          loading={isLoading}
+          disabled={totalWeight !== 100}
+        >
+          Submit
+        </Button>
+      </Tooltip>
+
+      <Button
+        id="cancel-plan-button-for-planning-and-reporting"
+        className="py-6 px-10"
+        onClick={onClose}
+        disabled={isLoading}
+      >
+        Cancel
+      </Button>
+    </div>
+  );
+
   const handleOnFinish = (values: Record<string, any>) => {
     const mergeValues = (obj: any) => {
       return Object.entries(obj)
@@ -500,6 +492,7 @@ function CreatePlan() {
         modalHeader={modalHeader}
         width={'60%'}
         paddingBottom={10}
+        footer={footer}
       >
         {loadingPlanningPeriodHierarchy ? (
           <div className="flex items-center justify-center min-h-screen">
@@ -544,39 +537,11 @@ function CreatePlan() {
               />
             )}
 
-            <Form.Item className="mt-10">
-              <div className="my-2">
+            <div className="flex justify-end mt-10">
+              <div className="my-2 font-bold">
                 Total Weights: {Math.round(Number(totalWeight) || 0)} / 100
               </div>
-
-              <Tooltip
-                title={
-                  totalWeight !== 100
-                    ? "Summation of all task's weights must be equal to 100!"
-                    : 'Submit'
-                }
-              >
-                <Button
-                  id="submit-plan-button-for-planning-and-reporting"
-                  className="mr-5 py-6 px-10"
-                  type="primary"
-                  htmlType="submit"
-                  loading={isLoading}
-                  disabled={totalWeight !== 100}
-                >
-                  Submit
-                </Button>
-              </Tooltip>
-
-              <Button
-                id="cancel-plan-button-for-planning-and-reporting"
-                className="py-6 px-10"
-                onClick={onClose}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-            </Form.Item>
+            </div>
           </Form>
         )}
       </CustomDrawerLayout>
