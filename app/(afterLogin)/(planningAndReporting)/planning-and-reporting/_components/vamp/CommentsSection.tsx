@@ -15,7 +15,6 @@ interface CommentsSectionProps {
 
 export default function CommentsSection({
   commentCount,
-  commentAvatars,
   planId,
   isPlanCard,
   comments = [],

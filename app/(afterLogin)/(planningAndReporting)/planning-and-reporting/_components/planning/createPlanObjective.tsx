@@ -1,6 +1,5 @@
 import React from 'react';
 import { Collapse, Button, Divider, Tooltip } from 'antd';
-import { BiPlus } from 'react-icons/bi';
 import { FaPlus } from 'react-icons/fa';
 import { BsKey } from 'react-icons/bs';
 import DefaultCardForm from '../planForms/defaultForm';

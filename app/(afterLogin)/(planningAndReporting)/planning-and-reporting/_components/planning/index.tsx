@@ -1,12 +1,7 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import {
-  Avatar,
   Button,
-  Card,
-  Col,
-  Dropdown,
   Menu,
-  Row,
   Tooltip,
   Select,
 } from 'antd';
@@ -14,8 +9,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import SessionFilter from '../filters/SessionFilter';
 import MobileFilterModal from '../filters/MobileFilterModal';
 import { FaPlus } from 'react-icons/fa';
-import { IoIosOpen, IoMdMore, IoMdSwitch } from 'react-icons/io';
-import { MdOutlinePending } from 'react-icons/md';
+import { IoIosOpen, IoMdSwitch } from 'react-icons/io';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
@@ -35,14 +29,8 @@ import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { PlanningType } from '@/types/enumTypes';
 import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
-import CommentCard from '../comments/planCommentCard';
-import { UserOutlined } from '@ant-design/icons';
-import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
-import { FiCheckCircle } from 'react-icons/fi';
-import KeyResultTasks from './KeyResultTasks';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
@@ -265,82 +253,6 @@ function Planning() {
 
     return employeeDataDetail || {}; // Return an empty object if employeeDataDetail is undefined
   };
-  const actionsMenu = (
-    dataItem: any,
-    handleApproveHandler: any,
-    isApprovalLoading: any,
-  ) => (
-    <Menu>
-      {!dataItem?.isValidated ? (
-        <Menu.Item
-          icon={<IoCheckmarkSharp />}
-          onClick={() => handleApproveHandler(dataItem?.id, true)}
-          className="text-green-500"
-          key="approve"
-        >
-          <Tooltip
-            title={
-              isApprovalLoading
-                ? 'Processing approval...'
-                : "Approve Plan! Once you approve, you can't edit"
-            }
-          >
-            Approve
-          </Tooltip>
-        </Menu.Item>
-      ) : (
-        <Menu.Item
-          className="text-red-400"
-          icon={<IoIosOpen size={16} />}
-          onClick={() => handleApproveHandler(dataItem?.id, false)}
-          key="reject"
-        >
-          <Tooltip title="Open approved Plan">Open</Tooltip>
-        </Menu.Item>
-      )}
-    </Menu>
-  );
-  const actionsMenuEditandDelte = (
-    dataItem: any,
-    setEditing: any,
-    setSelectedPlanId: any,
-    setOpen: any,
-  ) => (
-    <Menu>
-      {/* Edit Plan */}
-      <Menu.Item
-        icon={<AiOutlineEdit size={16} />}
-        onClick={() => {
-          setEditing(true);
-          setSelectedPlanId(dataItem?.id);
-          setOpen(true);
-        }}
-        key="edit"
-      >
-        <Tooltip title="Edit Plan">
-          <span>Edit</span>
-        </Tooltip>
-      </Menu.Item>
-
-      {/* Delete Plan */}
-      {/* <Menu.Item
-        className="text-red-400"
-        icon={<AiOutlineDelete size={16} />}
-        key="delete"
-      >
-        <Popconfirm
-          title="Are you sure you want to delete this plan?"
-          onConfirm={() => handleDeletePlan(dataItem?.id || '')}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Tooltip title="Delete Plan">
-            <span>Delete</span>
-          </Tooltip>
-        </Popconfirm>
-      </Menu.Item> */}
-    </Menu>
-  );
   const { data: planningPeriodHierarchy, isLoading } =
     useGetPlanningPeriodsHierarchy(
       userId,
@@ -491,9 +403,9 @@ function Planning() {
       <section className="mt-8">
         <div className="space-y-6">
           {getPlanningLoading ? (
-            Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />)
+            Array.from({ length: 3 }).map((_item, i) => <PlanCardSkeleton key={i} />)
           ) : (
-            planSummaries.map((plan: any, index: number) => {
+            planSummaries.map((plan: any) => {
               // Get original dataItem for actions
               const originalDataItem = transformedData?.find((item: any) => item.id === plan.id);
               if (!originalDataItem) return null;

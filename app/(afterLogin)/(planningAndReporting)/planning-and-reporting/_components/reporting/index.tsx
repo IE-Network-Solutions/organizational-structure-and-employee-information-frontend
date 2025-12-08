@@ -1,12 +1,7 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import {
-  Avatar,
   Button,
-  Card,
-  Col,
-  Dropdown,
   Menu,
-  Row,
   Tooltip,
   Select,
 } from 'antd';
@@ -14,7 +9,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import SessionFilter from '../filters/SessionFilter';
 import MobileFilterModal from '../filters/MobileFilterModal';
 import { FaPlus } from 'react-icons/fa';
-import { MdOutlinePending } from 'react-icons/md';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
@@ -25,22 +19,16 @@ import { useGetFiscalYearById } from '@/store/server/features/organizationStruct
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import dayjs from 'dayjs';
-import { groupTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { ReportingType } from '@/types/enumTypes';
 import Image from 'next/image';
-import CommentCard from '../comments/planCommentCard';
-import { UserOutlined } from '@ant-design/icons';
-import { IoIosOpen, IoMdMore, IoMdSwitch } from 'react-icons/io';
+import { IoIosOpen, IoMdSwitch } from 'react-icons/io';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { AiOutlineEdit } from 'react-icons/ai';
 import {
   useApprovalReporting,
   // useDeleteReportById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
-import KeyResultTasks from '../planning/KeyResultTasks';
-import { FiCheckCircle } from 'react-icons/fi';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -255,86 +243,6 @@ function Reporting() {
     ReportApproval(data);
   };
 
-  function getTotalWeightCalculation(reportData: any) {
-    return reportData
-      ?.filter((i: any) => i.isAchieved)
-      ?.reduce((acc: any, task: any) => {
-        return acc + Number(task?.planTask?.weight);
-      }, 0);
-  }
-
-  const actionsMenu = (
-    dataItem: any,
-    handleApproveHandler: any,
-    isApprovalLoading: any,
-  ) => (
-    <Menu>
-      {!dataItem?.plan?.isReportValidated ? (
-        <Menu.Item
-          icon={<IoCheckmarkSharp />}
-          onClick={() => handleApproveHandler(dataItem?.id, true)}
-          className="text-green-500"
-          key="approve"
-        >
-          <Tooltip
-            title={
-              isApprovalLoading
-                ? 'Processing approval...'
-                : "Approve Report! Once you approve, you can't edit"
-            }
-          >
-            Approve
-          </Tooltip>
-        </Menu.Item>
-      ) : (
-        <Menu.Item
-          className="text-red-400"
-          icon={<IoIosOpen size={16} />}
-          onClick={() => handleApproveHandler(dataItem?.id, false)}
-          key="reject"
-        >
-          <Tooltip title="Open approved Plan">Open</Tooltip>
-        </Menu.Item>
-      )}
-    </Menu>
-  );
-  const actionsMenuEditandDelte = (dataItem: any, setSelectedReportId: any) => (
-    <Menu>
-      {/* Edit Plan */}
-      <Menu.Item
-        icon={<AiOutlineEdit size={16} />}
-        onClick={() => {
-          setSelectedReportId(dataItem?.id);
-          setSelectedPlanId(dataItem?.planId);
-        }}
-        key="edit"
-      >
-        <Tooltip title="Edit Plan">
-          <span>Edit</span>
-        </Tooltip>
-      </Menu.Item>
-
-      {/* Delete Plan */}
-      {/* <Popconfirm
-          title="Are you sure you want to delete this plan?"
-          onConfirm={() => handleDeleteReport(dataItem?.id || '')}
-          okText="Yes"
-          cancelText="No"
-        >
-      <Menu.Item
-        className="text-red-400"
-        icon={<AiOutlineDelete size={16} />}
-        key="delete"
-      >
-       
-          <Tooltip title="Delete Plan">
-            <span>Delete</span>
-          </Tooltip>
-       
-      </Menu.Item>
-      </Popconfirm> */}
-    </Menu>
-  );
 
   // Check if data belongs to an active session
   const isDataFromActiveSession = (createdAt: string): boolean => {
@@ -469,9 +377,9 @@ function Reporting() {
       <section className="mt-8">
         <div className="space-y-6">
           {getReportLoading ? (
-            Array.from({ length: 3 }).map((_, i) => <PlanCardSkeleton key={i} />)
+            Array.from({ length: 3 }).map((_item, i) => <PlanCardSkeleton key={i} />)
           ) : (
-            allReporting?.items?.map((dataItem: any, index: number) => {
+            allReporting?.items?.map((dataItem: any) => {
               const cadence = activeTabName?.toLowerCase() as Cadence || 'weekly';
               const plan = transformReportToPlanSummary(dataItem, cadence, employeeData);
 

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Drawer, Button, Input, Select, Form, Spin, Tooltip, InputNumber, Collapse } from 'antd';
+import { Drawer, Button, Input, Select, Form, Spin, Tooltip, InputNumber } from 'antd';
 import { CloseCircleFilled, CheckOutlined, CloseOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { ViewMode, Cadence } from './types';
 import { useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -7,7 +7,6 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupParentTasks } from '../../planning-and-reporting/_components/dataTransformer/plan';
-import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 
 interface AddDailyPlanDrawerProps {
     open: boolean;
@@ -241,39 +240,6 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
         }));
     };
 
-    const addPlanningTask = (groupId: string) => {
-        const group = planningTasks.find(g => g.id === groupId);
-        if (!group) return;
-
-        const formFieldName = `names-${groupId}`;
-        const currentTasks = form.getFieldValue(formFieldName) || [];
-
-        form.setFieldsValue({
-            [formFieldName]: [
-                ...currentTasks,
-                {
-                    task: '',
-                    priority: 'High',
-                    weight: 0,
-                    targetValue: 0,
-                    keyResultId: group.keyResultId,
-                    milestoneId: group.milestoneId || null,
-                    parentTaskId: group.parentTaskId || null,
-                    planningPeriodId: planningPeriodId || '',
-                    planningUserId: planningUserId || '',
-                    userId: userId,
-                    parentPlanId: parentPlanId || '',
-                }
-            ]
-        });
-    };
-
-    const removePlanningTask = (groupId: string, taskIndex: number) => {
-        const formFieldName = `names-${groupId}`;
-        const currentTasks = form.getFieldValue(formFieldName) || [];
-        currentTasks.splice(taskIndex, 1);
-        form.setFieldsValue({ [formFieldName]: currentTasks });
-    };
 
     // Calculate total weight - watch form values
     const formValues = Form.useWatch([], form);
@@ -318,7 +284,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                     },
                 }
             );
-        }).catch((error) => {
+        }).catch(() => {
             // Form validation failed
         });
     };
@@ -411,8 +377,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                     <Form.List name={formFieldName}>
                                         {(fields, { add, remove }) => (
                                             <>
-                                                {fields.map((field, index) => {
-                                                    const taskValue = form.getFieldValue([formFieldName, field.name]);
+                                                {fields.map((field) => {
                                                     return (
                                                         <div key={field.key} className="flex items-start gap-3">
                                                             {/* Hidden fields for metadata */}

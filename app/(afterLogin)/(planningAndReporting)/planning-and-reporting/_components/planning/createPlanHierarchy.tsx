@@ -1,6 +1,5 @@
 import React from 'react';
 import { Collapse, Button, Divider, Tooltip } from 'antd';
-import { BiPlus } from 'react-icons/bi';
 import BoardCardForm from '../planForms/boardFormView';
 import DefaultCardForm from '../planForms/defaultForm';
 import { groupParentTasks } from '../dataTransformer/plan';
@@ -73,7 +72,6 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
   handleAddName,
   handleRemoveBoard,
   weights,
-  failedTasksByKeyResult,
 }) => {
   const formattedData = groupParentTasks(
     planningPeriodHierarchy?.parentPlan?.plans?.find(
@@ -130,7 +128,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                     <span className="font-normal  ml-3 mt-2">{parentName} Tasks:</span>
                     
                   </div> */}
-                    {milestone.tasks.map((task, taskIndex) => {
+                    {milestone.tasks.map((task) => {
                       const compositeKey = buildKey(
                         task?.keyResult?.id,
                         milestone?.id,
