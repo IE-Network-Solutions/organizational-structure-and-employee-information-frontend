@@ -127,7 +127,7 @@ const VariablePayTable = () => {
       className="bg-white rounded-lg px-1 py-2 sm:px-6 sm:mr-4"
       data-testid="variable-pay-table-container"
     >
-      <VariablePayFilter tableData={tableData} />
+      <VariablePayFilter />
       <div data-testid="variable-pay-table-wrapper">
         <Spin
           spinning={isLoading || isFetching || refreshLoading}
