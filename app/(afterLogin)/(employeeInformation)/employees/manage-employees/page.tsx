@@ -10,7 +10,7 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
-import { Button, Popover, Input, Tag } from 'antd';
+import { Button, Popover, Input, Tag, Tooltip } from 'antd';
 import { IoMdSwitch } from 'react-icons/io';
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import {
