@@ -55,6 +55,12 @@ const ManageEmployees: React.FC<any> = () => {
   // const allUsers =
   //   employeeStatus?.reduce((acc, status) => acc + Number(status.count), 0) || 0;
   // const isAvailableSlots = totalSlots >= allUsers;
+  
+  // Temporary defaults while subscription feature is disabled
+  const isAvailableSlots = true;
+  const isLoading = false;
+  const subscriptionLoading = false;
+  
   const handleDownloadUserData = (downloadFormat: string) => {
     // Convert searchParams to Record<string, string>
     const params: Record<string, string> = Object.fromEntries(
