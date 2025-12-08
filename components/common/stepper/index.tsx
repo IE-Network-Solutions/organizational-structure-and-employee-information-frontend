@@ -26,7 +26,7 @@ const Stepper: React.FC<Props> = ({ numberOfSteps, setCurrent, current }) => {
     </div>
   );
   return (
-    <div>
+    <div data-cy="stepper-container">
       <Steps
         current={current}
         size="default"

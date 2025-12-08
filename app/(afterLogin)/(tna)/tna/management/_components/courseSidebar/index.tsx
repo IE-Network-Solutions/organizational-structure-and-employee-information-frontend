@@ -421,7 +421,11 @@ const CourseCategorySidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: courseId ? <span>Edit</span> : <span>Create</span>,
+      label: courseId ? (
+        <span data-cy="edit-label">Edit</span>
+      ) : (
+        <span data-cy="create-label">Create</span>
+      ),
       key: 'create',
       className: 'h-12',
       type: 'primary',

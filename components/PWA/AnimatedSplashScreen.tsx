@@ -51,69 +51,6 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
 
   return (
     <>
-      {/* Modal Overlay */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 9999,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          opacity: isExiting ? 0 : 1,
-          transition: 'opacity 0.5s ease-out',
-        }}
-      >
-        {/* Modal Content */}
-        <div
-          style={{
-            background:
-              'linear-gradient(135deg, #3636F0 0%, #2525D1 50%, #1414B8 100%)',
-            borderRadius: '20px',
-            padding: '3rem 2rem',
-            textAlign: 'center',
-            color: 'white',
-            fontFamily: 'Manrope, sans-serif',
-            maxWidth: '300px',
-            width: '90%',
-            boxShadow: '0 20px 40px rgba(54, 54, 240, 0.3)',
-            transform: isExiting ? 'scale(0.9)' : 'scale(1)',
-            transition: 'transform 0.5s ease-out',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Animated Background Circles */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '-50px',
-              right: '-50px',
-              width: '100px',
-              height: '100px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: '50%',
-              animation: 'float 3s ease-in-out infinite',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '-30px',
-              left: '-30px',
-              width: '60px',
-              height: '60px',
-              background: 'rgba(255, 255, 255, 0.08)',
-              borderRadius: '50%',
-              animation: 'float 4s ease-in-out infinite reverse',
-            }}
-          />
-
-          {/* Logo Container */}
           <div
             style={{
               marginBottom: '1.5rem',
@@ -122,6 +59,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
               position: 'relative',
               zIndex: 2,
             }}
+            data-cy="animated-splash-logo-container"
           >
             <SimpleLogo />
           </div>
@@ -136,6 +74,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
               transform: 'translateY(20px)',
               animation: 'textSlideUp 0.6s ease-out 0.8s forwards',
             }}
+            data-cy="animated-splash-app-name"
           >
             Selamnew
           </h1>
@@ -148,6 +87,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
               opacity: 0,
               animation: 'textSlideUp 0.6s ease-out 1s forwards',
             }}
+            data-cy="animated-splash-subtitle"
           >
             Workspace
           </p>
@@ -162,6 +102,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
               opacity: 0,
               animation: 'fadeIn 0.4s ease-out 1.2s forwards',
             }}
+            data-cy="animated-splash-loading"
           >
             <div
               style={{
@@ -172,6 +113,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
                 animation: 'bounce 1.4s infinite ease-in-out',
                 animationDelay: '-0.32s',
               }}
+              data-cy="animated-splash-dot-1"
             />
             <div
               style={{
@@ -182,6 +124,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
                 animation: 'bounce 1.4s infinite ease-in-out',
                 animationDelay: '-0.16s',
               }}
+              data-cy="animated-splash-dot-2"
             />
             <div
               style={{
@@ -191,6 +134,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
                 borderRadius: '50%',
                 animation: 'bounce 1.4s infinite ease-in-out',
               }}
+              data-cy="animated-splash-dot-3"
             />
           </div>
         </div>

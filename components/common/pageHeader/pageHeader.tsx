@@ -26,8 +26,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   return (
     <div
       className={`flex justify-between flex-wrap items-center ${horizontalPadding} ${className}`}
+      data-cy="page-header"
     >
-      <div className={`flex-1 ${horizontalPadding}`}>
+      <div
+        className={`flex-1 ${horizontalPadding}`}
+        data-cy="page-header-content"
+      >
         {isMobile ? (
           <Tooltip title={toolTip} placement="top">
             <h2
@@ -35,6 +39,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 'text-xl': size === 'medium',
                 'text-lg': size === 'small',
               })}
+              data-cy="page-header-title"
             >
               {title}
             </h2>
@@ -46,6 +51,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                 'text-2xl': size === 'medium',
                 'text-xl': size === 'small',
               })}
+              data-cy="page-header-title"
             >
               {title}
             </h2>
@@ -53,7 +59,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         )}
 
         {description && (
-          <div className="m-1 sm:mt-2 text-sm text-gray-600 font-medium">
+          <div
+            className="m-1 sm:mt-2 text-sm text-gray-600 font-medium"
+            data-cy="page-header-description"
+          >
             {description}
           </div>
         )}

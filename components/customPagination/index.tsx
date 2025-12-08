@@ -49,6 +49,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                 ? 'bg-[#F8F8F8] text-[#111827] '
                 : 'bg-white text-[#111827]'
             }`}
+            data-cy="pagination-page-button"
           >
             {i}
           </button>,
@@ -65,6 +66,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               ? 'bg-[#F8F8F8] text-[#111827]'
               : 'bg-white text-[#111827]'
           }`}
+          data-cy="pagination-page-button"
         >
           1
         </button>,
@@ -86,7 +88,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       // Add ellipsis after first page if needed
       if (startPage > 2) {
         pageNumbers.push(
-          <span key="leftEllipsis" className="px-2">
+          <span
+            key="leftEllipsis"
+            className="px-2"
+            data-cy="pagination-ellipsis"
+          >
             ...
           </span>,
         );
@@ -103,6 +109,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
                 ? 'bg-[#F8F8F8] text-[#111827] '
                 : 'bg-white text-[#111827] '
             }`}
+            data-cy="pagination-page-button"
           >
             {i}
           </button>,
@@ -112,7 +119,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       // Add ellipsis before last page if needed
       if (endPage < totalPages - 1) {
         pageNumbers.push(
-          <span key="rightEllipsis" className="px-2">
+          <span
+            key="rightEllipsis"
+            className="px-2"
+            data-cy="pagination-ellipsis"
+          >
             ...
           </span>,
         );
