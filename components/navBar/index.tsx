@@ -33,7 +33,6 @@ import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInform
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
-import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 
 interface CustomMenuItem {
@@ -433,7 +432,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/payroll-menu',
       className: 'font-bold',
       permissions: ['view_payroll_menu'],
-      disabled: hasEndedFiscalYear || isSubscriptionExpired,
+      disabled: hasEndedFiscalYear,
       children: [
         {
           title: <span>Employee Information</span>,
@@ -1160,10 +1159,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 onClose={handleCancel}
                 onConfirm={handleOk}
               />
-            </Content>
-          </Layout>
-        </>
-      )}
+            </div>
+          )}
+        </Content>
+      </Layout>
     </Layout>
   );
 };

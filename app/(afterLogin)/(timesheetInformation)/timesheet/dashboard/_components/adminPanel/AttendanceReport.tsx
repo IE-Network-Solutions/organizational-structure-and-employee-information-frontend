@@ -193,39 +193,26 @@ const AttendanceReport: React.FC = () => {
             data-cy="time-attendance-attendance-report-department-select"
           />
 
-            <Select
-              showSearch
-              placeholder="Select department"
-              allowClear
-              filterOption={(input: any, option: any) =>
-                (option?.label ?? '')
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
+          <RangePicker
+            className="w-48 h-14"
+            onChange={(value) => {
+              if (value) {
+                setStartDateAttendanceReport(
+                  value[0]?.format('YYYY-MM-DD') || '',
+                );
+                setEndDateAttendanceReport(
+                  value[1]?.format('YYYY-MM-DD') || '',
+                );
+              } else {
+                setStartDateAttendanceReport('');
+                setEndDateAttendanceReport('');
               }
-              options={departmentOptions}
-              maxTagCount={1}
-              className="w-40 h-14"
-              onChange={(value) => setDepartmentOnAttendanceReport(value)}
-            />
-
-            <RangePicker
-              className="w-48 h-14"
-              onChange={(value) => {
-                if (value) {
-                  setStartDateAttendanceReport(
-                    value[0]?.format('YYYY-MM-DD') || '',
-                  );
-                  setEndDateAttendanceReport(
-                    value[1]?.format('YYYY-MM-DD') || '',
-                  );
-                } else {
-                  setStartDateAttendanceReport('');
-                  setEndDateAttendanceReport('');
-                }
-              }}
-            />
-          </div>
+            }}
+            id="time-attendance-attendance-report-date-range-picker"
+            data-cy="time-attendance-attendance-report-date-range-picker"
+          />
         </div>
+      </div>
 
         {/* Mobile Filters */}
         <div className="md:hidden">
@@ -290,7 +277,7 @@ const AttendanceReport: React.FC = () => {
                     {/* <div className="w-72 h-72 sm:w-80 sm:h-80 relative flex items-center justify-center"> */}
 
                     <Doughnut data={doughnutChartData} options={options} />
-                    <div className="flex md:flex-col gap-0 md:ml-16 ml-0   flex row md:gap-0 gap-4 md:mt-0 mt-4">
+                    <div className="flex md:flex-col md:ml-16 ml-0 md:gap-0 gap-4 md:mt-0 mt-4">
                       {doughnutChartData.labels.map(
                         (label: string, i: number) => (
                           <div key={i} className="flex items-center mb-1 gap-2">
@@ -315,159 +302,7 @@ const AttendanceReport: React.FC = () => {
               </div>
             </div>
 
-            {/* Attendance List */}
-
-            <div className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none">
-              {attendanceStats?.users?.length === 0 ? (
-                <div
-                  className="flex justify-center items-center h-64"
-                  id="time-attendance-attendance-report-chart-empty-div"
-                  data-cy="time-attendance-attendance-report-chart-empty-div"
-                >
-                  <p
-                    className="text-gray-500 text-[14px] font-semibold"
-                    id="time-attendance-attendance-report-chart-empty-text"
-                    data-cy="time-attendance-attendance-report-chart-empty-text"
-                  >
-                    No Record Found
-                  </p>
-                </div>
-              ) : (
-                <div
-                  className=" md:w-[340px] md:h-[340px]  flex justify-center items-center"
-                  id="time-attendance-attendance-report-chart-display-div"
-                  data-cy="time-attendance-attendance-report-chart-display-div"
-                >
-                  <Doughnut
-                    data={doughnutChartData}
-                    options={options}
-                    id="time-attendance-attendance-report-doughnut-chart"
-                    data-cy="time-attendance-attendance-report-doughnut-chart"
-                  />
-                  <div
-                    className="flex flex-col gap-0 ml-16"
-                    id="time-attendance-attendance-report-chart-legend-div"
-                    data-cy="time-attendance-attendance-report-chart-legend-div"
-                  >
-                    {doughnutChartData.labels.map(
-                      (label: string, i: number) => (
-                        <div
-                          key={i}
-                          className="flex items-center mb-1 gap-2"
-                          id={`time-attendance-attendance-report-chart-legend-${i}-row`}
-                          data-cy={`time-attendance-attendance-report-chart-legend-${i}-row`}
-                        >
-                          <div
-                            style={{
-                              backgroundColor:
-                                doughnutChartData.datasets[0].backgroundColor[
-                                  i
-                                ],
-                            }}
-                            className="w-2 h-2 rounded-full mr-2"
-                            id={`time-attendance-attendance-report-chart-legend-${i}-indicator`}
-                            data-cy={`time-attendance-attendance-report-chart-legend-${i}-indicator`}
-                          />
-                          <span
-                            className="text-xs font-medium text-gray-500"
-                            id={`time-attendance-attendance-report-chart-legend-${i}-label`}
-                            data-cy={`time-attendance-attendance-report-chart-legend-${i}-label`}
-                          >
-                            {label}
-                          </span>
-                        </div>
-                      ),
-                    )}
-                attendanceStats?.users?.map((item: any, index: any) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl md:px-4 px-2 min-h-[70px] border flex items-center justify-between  "
-                  >
-                    {/* Left Side */}
-                    <div className="flex flex-col space-y-1">
-                      <div className="flex items-center gap-1">
-                        {item.profileImage ? (
-                          <Avatar
-                            className="w-6 h-6"
-                            src={item.profileImage}
-                          ></Avatar>
-                        ) : (
-                          <Avatar className="w-6 h-6 text-[12px]">
-                            {item.name.split(' ')[0].charAt(0) +
-                              item.name.split(' ')[1].charAt(0)}
-                          </Avatar>
-                        )}
-                        <p className="text-[12px] font-medium ">{item.name}</p>
-                      </div>
-
-                      <div>
-                        <span
-                          className={`text-[12px] px-2 py-1.5 rounded-md font-bold inline-block capitalize ${item.status === 'late' ? 'bg-[#FFDE6533] text-[#E6BB20]' : item.status === 'absent' ? ' bg-[#E0313733] text-[#E03137]' : 'bg-indigo-100 text-indigo-700'}`}
-                        >
-                          {item.status === 'ontime' ? 'On Time' : item.status}{' '}
-                          {item.status === 'late' || item.status === 'ontime'
-                            ? `${dayjs(item.recordTime, 'HH:mm:ss').format('hh:mm A')}`
-                            : ''}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Right Side */}
-                    <div className="flex flex-col space-y-2">
-                      <p className="text-[16px] font-medium text-black">
-                        {`${dayjs(item.attendanceDate).format('DD MMM YYYY')}`}
-                      </p>
-                      <div className="mt-1 flex justify-end gap-2">
-                        <span className="text-xs bg-[#FFDE6533] text-[#E6BB20] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
-                          L: {item.totalLates}
-                        </span>
-                        <span className="text-xs bg-[#FF575733] text-[#FF5757] font-bold px-2 py-0.5 rounded-md h-6 flex items-center justify-center">
-                          A: {item.totalAbsences}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </Spin>
-      </Card>
-
-      {/* Mobile Filter Modal */}
-      <Modal
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        footer={
-          <div className="flex gap-2 justify-center mt-4">
-            <CustomButton
-              onClick={() => setIsModalOpen(false)}
-              className="px-6 py-2 border rounded-lg text-sm text-gray-900"
-              title="Cancel"
-              type="default"
-            />
-            <CustomButton
-              title="Apply Filter"
-              type="primary"
-              onClick={() => {
-                setIsModalOpen(false);
-              }}
-              className="px-6 py-2 text-white rounded-lg text-sm"
-            />
-          </div>
-        }
-        className="!m-4 md:hidden"
-        style={{
-          top: '20%',
-          transform: 'translateY(-50%)',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
-        width="90%"
-        centered
-      >
-        {/* Attendance List */}
-
+          {/* Attendance List */}
           <div
             className="space-y-3 col-span-12 md:col-span-5 h-96 overflow-y-auto scrollbar-none"
             id="time-attendance-attendance-report-list-panel-div"
@@ -491,7 +326,7 @@ const AttendanceReport: React.FC = () => {
               attendanceStats?.users?.map((item: any, index: any) => (
                 <div
                   key={index}
-                  className="bg-white rounded-xl px-4 min-h-[70px] border flex items-center justify-between  "
+                  className="bg-white rounded-xl md:px-4 px-2 min-h-[70px] border flex items-center justify-between"
                   id={`time-attendance-attendance-report-record-${index}-container-div`}
                   data-cy={`time-attendance-attendance-report-record-${index}-container-div`}
                 >
@@ -511,7 +346,7 @@ const AttendanceReport: React.FC = () => {
                           className="w-6 h-6"
                           src={item.profileImage}
                           data-cy={`time-attendance-attendance-report-record-${index}-avatar-image`}
-                        ></Avatar>
+                        />
                       ) : (
                         <Avatar
                           className="w-6 h-6 text-[12px]"
@@ -522,7 +357,7 @@ const AttendanceReport: React.FC = () => {
                         </Avatar>
                       )}
                       <p
-                        className="text-[12px] font-medium "
+                        className="text-[12px] font-medium"
                         id={`time-attendance-attendance-report-record-${index}-name-text`}
                         data-cy={`time-attendance-attendance-report-record-${index}-name-text`}
                       >
@@ -546,7 +381,6 @@ const AttendanceReport: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                </div>
 
                   {/* Right Side */}
                   <div
@@ -583,11 +417,45 @@ const AttendanceReport: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+          </div>
+        </Spin>
+      </Card>
 
+      {/* Mobile Filter Modal */}
+      <Modal
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={
+          <div className="flex gap-2 justify-center mt-4">
+            <CustomButton
+              onClick={() => setIsModalOpen(false)}
+              className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+              title="Cancel"
+              type="default"
+            />
+            <CustomButton
+              title="Apply Filter"
+              type="primary"
+              onClick={() => {
+                setIsModalOpen(false);
+              }}
+              className="px-6 py-2 text-white rounded-lg text-sm"
+            />
+          </div>
+        }
+        className="!m-4 md:hidden"
+        style={{
+          top: '20%',
+          transform: 'translateY(-50%)',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+        width="90%"
+        centered
+      >
         <MobileFilterContent />
       </Modal>
     </>
