@@ -31,10 +31,10 @@ import Image from 'next/image';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-import PlanCard from '../vamp/PlanCard';
-import PlanCardSkeleton from '../vamp/PlanCardSkeleton';
-import { transformToPlanSummary } from '../vamp/dataTransformer';
-import { ViewMode, Cadence } from '../vamp/types';
+import PlanCard from '../cards/PlanCard';
+import PlanCardSkeleton from '../cards/PlanCardSkeleton';
+import { transformToPlanSummary } from '../dataTransformer/vamp';
+import { ViewMode, Cadence } from '../types';
 
 function Planning() {
   const {

@@ -1,4 +1,4 @@
-import { PlanSummary, PlanTask, KeyResult, ViewMode, Cadence } from './types';
+import { PlanSummary, PlanTask, KeyResult, ViewMode, Cadence } from '../types';
 
 /**
  * Normalize priority values to match the expected format

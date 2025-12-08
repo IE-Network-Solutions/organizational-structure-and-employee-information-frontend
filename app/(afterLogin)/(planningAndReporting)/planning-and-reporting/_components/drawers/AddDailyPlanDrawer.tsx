@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Drawer, Button, Input, Select, Form, Spin, Tooltip, InputNumber } from 'antd';
 import { CloseCircleFilled, CheckOutlined, CloseOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
-import { ViewMode, Cadence } from './types';
+import { ViewMode, Cadence } from '../types';
 import { useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
-import { groupParentTasks } from '../../planning-and-reporting/_components/dataTransformer/plan';
+import { groupParentTasks } from '../dataTransformer/plan';
 
 interface AddDailyPlanDrawerProps {
     open: boolean;

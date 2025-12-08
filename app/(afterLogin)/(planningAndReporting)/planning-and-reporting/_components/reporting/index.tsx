@@ -31,10 +31,10 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-import PlanCard from '../vamp/PlanCard';
-import PlanCardSkeleton from '../vamp/PlanCardSkeleton';
-import { transformReportToPlanSummary } from '../vamp/dataTransformer';
-import { Cadence } from '../vamp/types';
+import PlanCard from '../cards/PlanCard';
+import PlanCardSkeleton from '../cards/PlanCardSkeleton';
+import { transformReportToPlanSummary } from '../dataTransformer/vamp';
+import { Cadence } from '../types';
 
 function Reporting() {
   const {

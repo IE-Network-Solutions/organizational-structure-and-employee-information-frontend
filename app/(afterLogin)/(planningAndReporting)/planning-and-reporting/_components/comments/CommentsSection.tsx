@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Avatar, Skeleton } from 'antd';
-import CommentList from '../comments/commentList';
+import CommentList from './commentList';
 import { CommentsData } from '@/types/okr';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
