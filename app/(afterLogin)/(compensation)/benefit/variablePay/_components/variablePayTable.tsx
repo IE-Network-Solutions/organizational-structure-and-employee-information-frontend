@@ -151,8 +151,8 @@ const VariablePayTable = () => {
       id="compensation-benefit-variable-pay-table-container"
       data-cy="compensation-benefit-variable-pay-table-container"
     >
-      <VariablePayFilter tableData={tableData} />
-      <div id="compensation-benefit-variable-pay-table-wrapper" data-cy="compensation-benefit-variable-pay-table-wrapper" data-testid="variable-pay-table-wrapper">
+      <VariablePayFilter />
+      <div data-testid="variable-pay-table-wrapper" data-cy="compensation-benefit-variable-pay-table-wrapper">
         <Spin
           spinning={isLoading || isFetching || refreshLoading}
           data-testid="variable-pay-table-loading"
