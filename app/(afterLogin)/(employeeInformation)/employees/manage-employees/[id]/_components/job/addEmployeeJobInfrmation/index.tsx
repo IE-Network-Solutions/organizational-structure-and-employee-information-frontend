@@ -6,6 +6,7 @@ import WorkScheduleForm from '../../../../_components/allFormData/workScheduleFo
 import { CreateEmployeeJobInformationInterface } from '@/store/server/features/employees/employeeManagment/interface';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 import { useEffect } from 'react';
 
@@ -17,6 +18,7 @@ interface Ids {
 }
 export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   onJobInfoUpdated: onJobInfoUpdated,
+  id,
 }) => {
   const { userId: userId2 } = useAuthenticationStore();
 

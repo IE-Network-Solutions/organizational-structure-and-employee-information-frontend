@@ -5,7 +5,6 @@ import { Card, DatePicker, Select, Spin, Tag, Modal } from 'antd';
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
-import { LuSettings2 } from 'react-icons/lu';
 
 const { RangePicker } = DatePicker;
 
