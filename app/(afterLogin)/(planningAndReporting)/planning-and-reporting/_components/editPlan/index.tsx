@@ -97,14 +97,20 @@ function EditPlan() {
     const boardsKey = `board-${kId}`;
     const board = form.getFieldValue(boardsKey) || [];
 
-    // Get the latest mkAsATask from store to avoid stale closure issues
-    const currentMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
+    // Always grab the latest mkAsATask value to avoid stale reads
+    const latestMkAsATask = PlanningAndReportingStore.getState().mkAsATask;
     
-    // Check if we're planning a milestone/key result as a task
-    const taskTitle = currentMkAsATask?.title || '';
-    const achieveMK = !!currentMkAsATask;
+    // VALIDATION: Only use mkAsATask if it belongs to this Key Result
+    // Check if mkAsATask.mid matches the current kId (exact match or for milestones, kId ends with mid)
+    const shouldUseMkAsATask = latestMkAsATask?.mid && (
+      kId === latestMkAsATask.mid ||           // Exact match (for Key Result without milestone)
+      kId.endsWith(latestMkAsATask.mid)        // Ends with match (for milestone: "krId+mlId" where mid is "mlId")
+    );
+    
+    const taskTitle = shouldUseMkAsATask ? latestMkAsATask.title : '';
+    const achieveMK = shouldUseMkAsATask;
 
-    // Create a task object - if mkAsATask exists, use its title
+    // Create a task object - if mkAsATask exists and matches, use its title
     const newTask = {
       task: taskTitle,
       priority: undefined,
@@ -130,18 +136,45 @@ function EditPlan() {
       <div>
         Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
       </div>
-      <div className="text-right">
+      <div
+        className="text-right"
+        id="planning-ai-suggestions-wrapper-view-space"
+        data-cy="planning-ai-suggestions-wrapper-view-space"
+      >
         {/* AI Suggestions for all plan types */}
         <AISuggestionsModal
           getKeyResults={() => {
-            const out: { id: string; title: string }[] = [];
+            const out: {
+              id: string;
+              title: string;
+              progress?: number;
+              metricType?: { name: string };
+              milestones?: Array<{
+                id: string | number;
+                title: string;
+                status?: string;
+              }>;
+            }[] = [];
 
             if (!planningPeriodHierarchy?.parentPlan) {
               // Weekly Plan: Get Key Results from objectives
               objective?.items?.forEach((obj: any) => {
                 obj?.keyResults?.forEach((kr: any) => {
-                  if (kr?.id && kr?.title)
-                    out.push({ id: String(kr.id), title: kr.title });
+                  if (kr?.id && kr?.title) {
+                    out.push({
+                      id: String(kr.id),
+                      title: kr.title,
+                      progress: kr.progress,
+                      metricType: kr.metricType,
+                      milestones: Array.isArray(kr?.milestones)
+                        ? kr.milestones.map((m: any) => ({
+                            id: m?.id,
+                            title: m?.title,
+                            status: m?.status,
+                          }))
+                        : [],
+                    });
+                  }
                 });
               });
 
@@ -153,7 +186,19 @@ function EditPlan() {
                   const title = t?.keyResult?.title;
                   if (id && title && !seen.has(id)) {
                     seen.add(id);
-                    out.push({ id, title });
+                    out.push({
+                      id,
+                      title,
+                      progress: t?.keyResult?.progress,
+                      metricType: t?.keyResult?.metricType,
+                      milestones: Array.isArray(t?.keyResult?.milestones)
+                        ? t.keyResult.milestones.map((m: any) => ({
+                            id: m?.id,
+                            title: m?.title,
+                            status: m?.status,
+                          }))
+                        : [],
+                    });
                   }
                 });
               }
@@ -171,7 +216,19 @@ function EditPlan() {
                 const krTitle = t?.keyResult?.title;
                 if (krId && krTitle && !seen.has(krId)) {
                   seen.add(krId);
-                  out.push({ id: krId, title: krTitle });
+                  out.push({
+                    id: krId,
+                    title: krTitle,
+                    progress: t?.keyResult?.progress,
+                    metricType: t?.keyResult?.metricType,
+                    milestones: Array.isArray(t?.keyResult?.milestones)
+                      ? t.keyResult.milestones.map((m: any) => ({
+                          id: m?.id,
+                          title: m?.title,
+                          status: m?.status,
+                        }))
+                      : [],
+                  });
                 }
               });
             }
@@ -190,6 +247,7 @@ function EditPlan() {
             return tasks.map((t: any) => ({
               id: String(t?.id || ''),
               task: t?.task || '',
+              krId: String(t?.keyResult?.id || ''),
             }));
           }}
           form={form}

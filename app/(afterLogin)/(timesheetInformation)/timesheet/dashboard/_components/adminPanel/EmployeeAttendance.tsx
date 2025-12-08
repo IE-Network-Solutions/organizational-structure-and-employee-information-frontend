@@ -89,13 +89,29 @@ export default function EmployeeAttendanceTable() {
       key: 'name',
       sorter: (a: Employee, b: Employee) => a?.name?.localeCompare(b?.name),
       render: (notused: any, record?: Employee) => (
-        <div className="flex items-center space-x-3">
+        <div
+          className="flex items-center space-x-3"
+          id={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-profile-div`}
+          data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-profile-div`}
+        >
           {record?.profileImage ? (
-            <Avatar src={record?.profileImage} />
+            <Avatar
+              src={record?.profileImage}
+              data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-avatar-image`}
+            />
           ) : (
-            <Avatar>{record?.name?.charAt(0)?.toUpperCase()}</Avatar>
+            <Avatar
+              data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-avatar-fallback`}
+            >
+              {record?.name?.charAt(0)?.toUpperCase()}
+            </Avatar>
           )}
-          <span>{record?.name}</span>
+          <span
+            id={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-name-text`}
+            data-cy={`time-attendance-employee-attendance-row-${record?.userId ?? 'unknown'}-name-text`}
+          >
+            {record?.name}
+          </span>
         </div>
       ),
     },
@@ -114,6 +130,8 @@ export default function EmployeeAttendanceTable() {
       render: (status: Employee['status']) => (
         <Tag
           className={`capitalize px-3 font-semibold rounded-md border-none ${statusColors[status]}`}
+          id={`time-attendance-employee-attendance-status-${status}-tag`}
+          data-cy={`time-attendance-employee-attendance-status-${status}-tag`}
         >
           {status === 'onleave' ? 'On Leave' : status}
         </Tag>
@@ -153,6 +171,8 @@ export default function EmployeeAttendanceTable() {
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
           }
           options={attendanceTypeOptions}
+          id="time-attendance-employee-attendance-status-select"
+          data-cy="time-attendance-employee-attendance-status-select"
         />
       </div>
 
@@ -171,6 +191,8 @@ export default function EmployeeAttendanceTable() {
               setEndDateOnAttendance('');
             }
           }}
+          id="time-attendance-employee-attendance-date-range-picker"
+          data-cy="time-attendance-employee-attendance-date-range-picker"
         />
       </div>
     </div>

@@ -77,6 +77,7 @@ const AddApprover = () => {
       handleLevelChange={handleLevelChange}
       handleUserChange={handleUserChange}
       users={users}
+      data-cy="time-attendance-settings-approvals-add-approver-component"
     />
   );
 };

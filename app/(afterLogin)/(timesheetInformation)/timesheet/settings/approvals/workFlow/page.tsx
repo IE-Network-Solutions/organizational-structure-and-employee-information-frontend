@@ -15,8 +15,14 @@ const WorkFlow: React.FC<any> = () => {
   };
 
   return (
-    <div>
-      <ApprovalWorkFlowComponent onChange={onChange} />
+    <div
+      id="time-attendance-settings-approvals-workflow-container"
+      data-cy="time-attendance-settings-approvals-workflow-container"
+    >
+      <ApprovalWorkFlowComponent
+        onChange={onChange}
+        data-cy="time-attendance-settings-approvals-workflow-component"
+      />
     </div>
   );
 };

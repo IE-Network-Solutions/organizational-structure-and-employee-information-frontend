@@ -91,86 +91,124 @@ const LeaveManagement = () => {
 
   return (
     <>
-      <div className="h-auto w-auto pb-6 bg-white rounded-lg">
-        <BlockWrapper className="bg-white p-2">
-          <PageHeader title="Leave Management" horizontalPadding="px-0">
-            <Space size={20}>
-              <CustomButton
-                title={!isSmallScreen ? 'Email Reminder' : ' '} // Hide text on small screens
-                id="emailNotification"
-                className={isSmallScreen ? 'w-10 h-10' : ''}
-                icon={<MdMarkEmailRead size={20} />}
-                onClick={() => {
-                  const selectedIds =
-                    selectedRowKeys.length > 0
-                      ? selectedRowKeys.map((key) => key.toString())
-                      : undefined;
-                  sendNotification({
-                    leaveRequestIds: selectedIds,
-                  });
-                }}
-                loading={isLoading}
-              />
-              <Popover
-                trigger="click"
-                placement="bottomRight"
-                title={
-                  <div className="text-base text-gray-900 font-bold">
-                    What file you want to export?
-                  </div>
-                }
-                content={
-                  <div className="pt-4">
-                    <Row gutter={20}>
-                      <Col span={12}>
-                        <Button
-                          size="small"
-                          id="excelFileTypeToExportId"
-                          className={buttonClass}
-                          type="primary"
-                          icon={<TbLayoutList size={16} />}
-                          onClick={() => onExport('EXCEL')}
-                        >
-                          Excel
-                        </Button>
-                      </Col>
-                      <Col span={12}>
-                        <Button
-                          size="small"
-                          id="pdfFileTypeToExportId"
-                          className={buttonClass}
-                          type="primary"
-                          icon={<LuBookmark size={16} />}
-                          onClick={() => onExport('PDF')}
-                        >
-                          PDF
-                        </Button>
-                      </Col>
-                    </Row>
-                  </div>
-                }
+      <div
+        className="h-auto w-auto pb-6 bg-white rounded-lg"
+        id="time-attendance-leave-management-page-container"
+        data-cy="time-attendance-leave-management-page-container"
+      >
+        <BlockWrapper data-cy="time-attendance-leave-management-block-wrapper" className="bg-white p-2">
+            <PageHeader
+              data-cy="time-attendance-leave-management-header"
+              title="Leave Management"
+              horizontalPadding="px-0"
+            >
+              <Space
+                size={20}
+                id="time-attendance-leave-management-header-actions"
+                data-cy="time-attendance-leave-management-header-actions"
               >
                 <CustomButton
-                  title={!isSmallScreen ? 'Download CSV' : ' '} // Hide text on small screens
-                  id="downloadCsvFileId"
+                  title={!isSmallScreen ? 'Email Reminder' : ' '} // Hide text on small screens
+                  id="emailNotification"
+                  data-cy="time-attendance-leave-management-email-notification-button"
                   className={isSmallScreen ? 'w-10 h-10' : ''}
-                  icon={<TbFileDownload size={20} />}
-                  loading={isFetching}
+                  icon={<MdMarkEmailRead data-cy="time-attendance-leave-management-email-notification-button-icon" size={20} />}
+                  onClick={() => {
+                    const selectedIds =
+                      selectedRowKeys.length > 0
+                        ? selectedRowKeys.map((key) => key.toString())
+                        : undefined;
+                    sendNotification({
+                      leaveRequestIds: selectedIds,
+                    });
+                  }}
+                  loading={isLoading}
                 />
-              </Popover>
-            </Space>
-          </PageHeader>
+                <Popover
+                  data-cy="time-attendance-leave-management-export-popover"
+                  trigger="click"
+                  placement="bottomRight"
+                  title={
+                    <div
+                      className="text-base text-gray-900 font-bold"
+                      id="time-attendance-leave-management-export-popover-title"
+                      data-cy="time-attendance-leave-management-export-popover-title"
+                    >
+                      What file you want to export?
+                    </div>
+                  }
+                  content={
+                    <div
+                      className="pt-4"
+                      id="time-attendance-leave-management-export-popover-content"
+                      data-cy="time-attendance-leave-management-export-popover-content"
+                    >
+                      <Row
+                        gutter={20}
+                        id="time-attendance-leave-management-export-popover-row"
+                        data-cy="time-attendance-leave-management-export-popover-row"
+                      >
+                        <Col
+                          span={12}
+                          id="time-attendance-leave-management-export-popover-row-col-1"
+                          data-cy="time-attendance-leave-management-export-popover-row-col-1"
+                        >
+                          <Button
+                            size="small"
+                            id="excelFileTypeToExportId"
+                            data-cy="time-attendance-leave-management-export-popover-row-col-1-button"
+                            className={buttonClass}
+                            type="primary"
+                            icon={<TbLayoutList data-cy="time-attendance-leave-management-export-popover-row-col-1-icon" size={16} />}
+                            onClick={() => onExport('EXCEL')}
+                          >
+                            Excel
+                          </Button>
+                        </Col>
+                        <Col
+                          span={12}
+                          id="time-attendance-leave-management-export-popover-row-col-2"
+                          data-cy="time-attendance-leave-management-export-popover-row-col-2"
+                        >
+                          <Button
+                            size="small"
+                            id="pdfFileTypeToExportId"
+                            data-cy="time-attendance-leave-management-export-popover-row-col-2-button"
+                            className={buttonClass}
+                            type="primary"
+                            icon={<LuBookmark data-cy="time-attendance-leave-management-export-popover-row-col-2-icon" size={16} />}
+                            onClick={() => onExport('PDF')}
+                          >
+                            PDF
+                          </Button>
+                        </Col>
+                      </Row>
+                    </div>
+                  }
+                >
+                  <CustomButton
+                    title={!isSmallScreen ? 'Download CSV' : ' '} // Hide text on small screens
+                    id="downloadCsvFileId"
+                    data-cy="time-attendance-leave-management-download-csv-button"
+                    className={isSmallScreen ? 'w-10 h-10' : ''}
+                    icon={<TbFileDownload data-cy="time-attendance-leave-management-download-csv-button-icon" size={20} />}
+                    loading={isFetching}
+                  />
+                </Popover>
+              </Space>
+            </PageHeader>
 
-          <LeaveManagementTable
-            setBodyRequest={setBodyRequest}
-            selectedRowKeys={selectedRowKeys}
-            setSelectedRowKeys={setSelectedRowKeys}
-          />
+            <LeaveManagementTable
+              data-cy="time-attendance-leave-management-table"
+              setBodyRequest={setBodyRequest}
+              selectedRowKeys={selectedRowKeys}
+              setSelectedRowKeys={setSelectedRowKeys}
+            />
         </BlockWrapper>
       </div>
 
-      <LeaveRequestManagementSidebar />
-      <LeaveRequestSidebar />
+        <LeaveRequestManagementSidebar data-cy="time-attendance-leave-management-request-management-sidebar" />
+        <LeaveRequestSidebar data-cy="time-attendance-leave-management-request-sidebar" />
     </>
   );
 };

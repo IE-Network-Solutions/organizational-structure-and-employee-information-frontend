@@ -74,11 +74,25 @@ const AllDeductionTable = () => {
     if (!Array.isArray(allDeductionEntitlementData)) return [];
 
     return allDeductionEntitlementData.map((item: any) => ({
-      title: <span className="text-xs truncate">{item?.name}</span>,
+      title: (
+        <span
+          className="text-xs truncate"
+          id={`compensation-deduction-all-column-title-${item?.id}`}
+          data-cy={`compensation-deduction-all-column-title-${item?.id}`}
+        >
+          {item?.name}
+        </span>
+      ),
       dataIndex: item?.id,
       key: item?.id,
       render: (text: string) => (
-        <div data-testid={`deduction-amount-${item?.id}`}>{text || '-'}</div>
+        <div
+          data-testid={`deduction-amount-${item?.id}`}
+          id={`compensation-deduction-all-amount-${item?.id}`}
+          data-cy={`compensation-deduction-all-amount-${item?.id}`}
+        >
+          {text || '-'}
+        </div>
       ),
     }));
   };
@@ -90,8 +104,15 @@ const AllDeductionTable = () => {
       key: 'dateNaming',
       sorter: true,
       render: (notused: any, record: any) => (
-        <div data-testid={`deduction-employee-${record?.employeeId}`}>
-          <EmployeeDetails empId={record?.employeeId} />
+        <div
+          data-testid={`deduction-employee-${record?.employeeId}`}
+          id={`compensation-deduction-all-employee-${record?.employeeId}`}
+          data-cy={`compensation-deduction-all-employee-${record?.employeeId}`}
+        >
+          <EmployeeDetails
+            empId={record?.employeeId}
+            data-cy={`compensation-deduction-all-employee-details-${record?.employeeId}`}
+          />
         </div>
       ),
     },
@@ -101,7 +122,13 @@ const AllDeductionTable = () => {
       key: 'role',
       sorter: true,
       render: (text: string) => (
-        <div data-testid="deduction-role">{text || '-'}</div>
+        <div
+          data-testid="deduction-role"
+          id="compensation-deduction-all-role"
+          data-cy="compensation-deduction-all-role"
+        >
+          {text || '-'}
+        </div>
       ),
     },
     ...createDeductionColumns(),
@@ -122,33 +149,49 @@ const AllDeductionTable = () => {
   };
 
   return (
-    <div data-testid="all-deduction-table-container">
-      <Spin spinning={isLoading} data-testid="deduction-table-loading">
-        <div className="overflow-x-auto scrollbar-hide">
+    <div
+      data-testid="all-deduction-table-container"
+      id="compensation-deduction-all-table-container"
+      data-cy="compensation-deduction-all-table-container"
+    >
+      <Spin
+        spinning={isLoading}
+        data-testid="deduction-table-loading"
+        data-cy="compensation-deduction-all-table-loading"
+      >
+        <div
+          className="overflow-x-auto scrollbar-hide"
+          id="compensation-deduction-all-table-scroll"
+          data-cy="compensation-deduction-all-table-scroll"
+        >
           <Table
             className="mt-6"
             columns={columns}
             dataSource={paginatedData}
             pagination={false}
             data-testid="deduction-table"
+            id="compensation-deduction-all-table"
+            data-cy="compensation-deduction-all-table"
           />
         </div>
 
         {isMobile || isTablet ? (
-          <CustomMobilePagination
-            totalResults={dataSource.length}
-            pageSize={pageSize}
-            onChange={handlePageChange}
-            onShowSizeChange={handlePageChange}
-          />
+            <CustomMobilePagination
+              data-cy="compensation-deduction-all-mobile-pagination"
+              totalResults={dataSource.length}
+              pageSize={pageSize}
+              onChange={handlePageChange}
+              onShowSizeChange={handlePageChange}
+            />
         ) : (
-          <CustomPagination
-            current={currentPage}
-            total={dataSource.length}
-            pageSize={pageSize}
-            onChange={handlePageChange}
-            onShowSizeChange={handleSizeChange}
-          />
+            <CustomPagination
+              data-cy="compensation-deduction-all-pagination"
+              current={currentPage}
+              total={dataSource.length}
+              pageSize={pageSize}
+              onChange={handlePageChange}
+              onShowSizeChange={handleSizeChange}
+            />
         )}
       </Spin>
     </div>

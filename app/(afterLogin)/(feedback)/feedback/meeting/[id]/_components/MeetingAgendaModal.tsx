@@ -87,20 +87,34 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
         height: 'calc(95vh - 108px)', // Adjust for title + footer
         overflowY: 'auto',
       }}
+      data-cy="feedback-meeting-components-meetingagendamodal-modal"
     >
-      <p className="mb-5">Please add everything said for this agenda here</p>
+      <p
+        className="mb-5"
+        data-cy="feedback-meeting-components-meetingagendamodal-description"
+        id="feedback-meeting-components-meetingagendamodal-description"
+      >
+        Please add everything said for this agenda here
+      </p>
       <Editor
         canEdit={canEdit}
         meetingAgendaId={meetingAgenda?.id}
         meetingId={meetingId}
+        data-cy="feedback-meeting-components-meetingagendamodal-editor"
       />
       {canEdit && (
-        <div className="flex justify-center mt-4 relative">
+        <div
+          className="flex justify-center mt-4 relative"
+          data-cy="feedback-meeting-components-meetingagendamodal-actions"
+          id="feedback-meeting-components-meetingagendamodal-actions"
+        >
           <Button
             loading={isLoading || updateLoading}
             onClick={handleClose}
             style={{ marginRight: '8px' }}
             className="h-10"
+            data-cy="feedback-meeting-components-meetingagendamodal-button-cancel"
+            id="feedback-meeting-components-meetingagendamodal-button-cancel"
           >
             Cancel
           </Button>
@@ -109,6 +123,8 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
             type="primary"
             onClick={handleSubmit}
             className="h-10"
+            data-cy="feedback-meeting-components-meetingagendamodal-button-submit"
+            id="feedback-meeting-components-meetingagendamodal-button-submit"
           >
             Submit
           </Button>

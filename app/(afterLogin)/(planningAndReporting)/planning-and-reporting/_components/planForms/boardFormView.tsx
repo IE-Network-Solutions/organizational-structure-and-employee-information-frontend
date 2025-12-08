@@ -55,26 +55,41 @@ function BoardCardForm({
             >
               <Form.Item
                 {...restSubField}
-                name={[subName, 'task']}
-                key={`${subName}-task`} // Unique key for task
-                rules={[{ required: true, message: 'Task is required' }]}
-                noStyle // Use noStyle to avoid nested Form.Item issues
-                initialValue={isMKAsTask ? mkAsATask?.title : ''}
-              >
-                <Input
-                  disabled={isMKAsTask}
-                  placeholder="Add your tasks here"
-                  className="text-[12px]"
-                />
-              </Form.Item>
-              <Form.Item
-                {...restSubField}
                 name={[subName, 'achieveMK']}
-                key={`${subName}-task`} // Unique key for task
+                key={`${subName}-achieveMK`} // Unique key for achieveMK
                 noStyle // Use noStyle to avoid nested Form.Item issues
                 initialValue={isMKAsTask ? true : false}
               >
                 <Input type="hidden" />
+              </Form.Item>
+              <Form.Item
+                noStyle
+                shouldUpdate={(prevValues, currentValues) => {
+                  const prevAchieveMK = prevValues[`board-${name}`]?.[subName]?.achieveMK;
+                  const currentAchieveMK = currentValues[`board-${name}`]?.[subName]?.achieveMK;
+                  return prevAchieveMK !== currentAchieveMK;
+                }}
+              >
+                {() => {
+                  const boardValue = form.getFieldValue(`board-${name}`) || [];
+                  const achieveMK = boardValue[subName]?.achieveMK || false;
+                  return (
+                    <Form.Item
+                      {...restSubField}
+                      name={[subName, 'task']}
+                      key={`${subName}-task`} // Unique key for task
+                      rules={[{ required: true, message: 'Task is required' }]}
+                      noStyle // Use noStyle to avoid nested Form.Item issues
+                      initialValue={isMKAsTask ? mkAsATask?.title : ''}
+                    >
+                      <Input
+                        disabled={achieveMK}
+                        placeholder="Add your tasks here"
+                        className="text-[12px]"
+                      />
+                    </Form.Item>
+                  );
+                }}
               </Form.Item>
               <Divider className="mt-2 mb-2" />
               {keyResult?.metricType?.name !== NAME.ACHIEVE &&

@@ -67,47 +67,90 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
 
   return (
     <Modal
+      data-cy="edit-form-modal"
       title="Edit Form"
       open={isEditModalVisible}
       onCancel={() => setIsEditModalVisible(false)}
       footer={null}
       width={800}
     >
-      <Form form={formInstance} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item name="name" label="Form Name">
-          <Input />
+      <Form
+        id="edit-form-form"
+        data-cy="edit-form-form"
+        form={formInstance}
+        layout="vertical"
+        onFinish={handleSubmit}
+      >
+        <Form.Item
+          id="edit-form-name-item"
+          data-cy="edit-form-name-item"
+          name="name"
+          label="Form Name"
+        >
+          <Input id="edit-form-name-input" data-cy="edit-form-name-input" />
         </Form.Item>
         <Form.Item
+          id="edit-form-description-item"
+          data-cy="edit-form-description-item"
           name="description"
           label="Description"
           rules={[{ required: true, message: 'Please input the description!' }]}
         >
-          <TextArea rows={4} />
+          <TextArea
+            id="edit-form-description-textarea"
+            data-cy="edit-form-description-textarea"
+            rows={4}
+          />
         </Form.Item>
         <Form.Item
+          id="edit-form-start-date-item"
+          data-cy="edit-form-start-date-item"
           name="surveyStartDate"
           label="Start Date"
           rules={[{ required: true, message: 'Please select start date!' }]}
         >
           <DatePicker
+            id="edit-form-start-date-picker"
+            data-cy="edit-form-start-date-picker"
             style={{ width: '100%' }}
             format="YYYY-MM-DD"
-            suffixIcon={<CalendarOutlined />}
+            suffixIcon={
+              <CalendarOutlined
+                id="edit-form-start-date-icon"
+                data-cy="edit-form-start-date-icon"
+              />
+            }
           />
         </Form.Item>
         <Form.Item
+          id="edit-form-end-date-item"
+          data-cy="edit-form-end-date-item"
           name="surveyEndDate"
           label="End Date"
           rules={[{ required: true, message: 'Please select end date!' }]}
         >
           <DatePicker
+            id="edit-form-end-date-picker"
+            data-cy="edit-form-end-date-picker"
             style={{ width: '100%' }}
             format="YYYY-MM-DD"
-            suffixIcon={<CalendarOutlined />}
+            suffixIcon={
+              <CalendarOutlined
+                id="edit-form-end-date-icon"
+                data-cy="edit-form-end-date-icon"
+              />
+            }
           />
         </Form.Item>
-        <Form.Item name="users" label="Users">
+        <Form.Item
+          id="edit-form-users-item"
+          data-cy="edit-form-users-item"
+          name="users"
+          label="Users"
+        >
           <Select
+            id="edit-form-users-select"
+            data-cy="edit-form-users-select"
             mode="multiple"
             placeholder="Select users"
             value={
@@ -123,21 +166,37 @@ const EditFormsModal: React.FC<EditFormModalProps> = ({ id }) => {
             }}
           >
             {employees?.items.map((employee: any) => (
-              <Option key={employee.id} value={employee.id}>
+              <Option
+                id={`edit-form-user-option-${employee.id}`}
+                data-cy={`edit-form-user-option-${employee.id}`}
+                key={employee.id}
+                value={employee.id}
+              >
                 {`${employee?.firstName} ${employee?.middleName} ${employee?.lastName}`}
               </Option>
             ))}
           </Select>
         </Form.Item>
         <Form.Item
+          id="edit-form-anonymous-item"
+          data-cy="edit-form-anonymous-item"
           name="isAnonymous"
           label="Allow Anonymous"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch
+            id="edit-form-anonymous-switch"
+            data-cy="edit-form-anonymous-switch"
+          />
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={isLoading}>
+        <Form.Item id="edit-form-submit-item" data-cy="edit-form-submit-item">
+          <Button
+            id="edit-form-submit-button"
+            data-cy="edit-form-submit-button"
+            type="primary"
+            htmlType="submit"
+            loading={isLoading}
+          >
             Update Form
           </Button>
         </Form.Item>

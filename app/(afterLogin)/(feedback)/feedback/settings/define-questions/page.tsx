@@ -42,18 +42,20 @@ const Page = () => {
   );
 
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
-      <div className="flex justify-between">
-        <span className="font-bold text-lg">Questions</span>
-        <AccessGuard permissions={[Permissions.createConversationSet]}>
+    <div className="p-5 rounded-2xl bg-white h-full" data-cy="settings-define-questions-page" id="settingsDefineQuestionsPage">
+      <div className="flex justify-between" data-cy="settings-define-questions-header" id="settingsDefineQuestionsHeader">
+        <span className="font-bold text-lg" data-cy="settings-define-questions-title" id="settingsDefineQuestionsTitle">Questions</span>
+        <AccessGuard permissions={[Permissions.createConversationSet]} data-cy="settings-define-questions-access-guard" id="settingsDefineQuestionsAccessGuard">
           {activeTab !== '' && (
             <Button
               icon={<FaPlus />}
               onClick={() => setOpen(true)}
               type="primary"
               className="h-10 text-xs"
+              data-cy="settings-define-questions-add-button"
+              id="settingsDefineQuestionsAddButton"
             >
-              <span className="hidden md:inline">
+              <span className="hidden md:inline" data-cy="settings-define-questions-add-button-text" id="settingsDefineQuestionsAddButtonText">
                 Add new {activeTabName} question-set
               </span>
             </Button>
@@ -64,8 +66,10 @@ const Page = () => {
         defaultActiveKey={getAllConversationType?.items[0]?.id}
         items={items}
         onChange={onChange}
+        data-cy="settings-define-questions-tabs"
+        id="settingsDefineQuestionsTabs"
       />
-      <QuestionSetForm />
+      <QuestionSetForm data-cy="settings-define-questions-form" />
     </div>
   );
 };

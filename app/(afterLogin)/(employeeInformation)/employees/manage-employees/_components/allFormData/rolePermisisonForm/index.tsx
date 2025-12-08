@@ -1,3 +1,4 @@
+import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
 import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -16,6 +17,8 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
     useGetPermissionsWithOutPagination();
   const { data: rolesWithPermission, error: roleError } =
     useGetRolesWithPermission();
+  const { data: groupPermissionData } =
+    useGetPermissionGroupsWithOutPagination();
   const {
     setSelectedRoleOnOption,
     setSelectedRoleOnList,
@@ -23,6 +26,13 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
   } = useSettingStore();
   const { selectedPermissions, setSelectedPermissions } =
     useEmployeeManagementStore();
+
+  // Calculate basic group permissions
+  const basicGroupPermissionId =
+    groupPermissionData?.items?.filter((item) => item.isBasic) ?? [];
+  const basicGroupPermissions = basicGroupPermissionId.flatMap(
+    (item) => item.permissions ?? [],
+  );
 
   const onRoleChangeHandler = useCallback(
     (value: string) => {
@@ -32,8 +42,16 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
       setSelectedRoleOnList(selectedRole);
       setSelectedRoleOnOption(value);
 
-      const newPermissions =
+      const rolePermissions =
         selectedRole?.permissions?.map((item: any) => item.id) || [];
+
+      // Include basic group permissions along with role permissions
+      const newPermissions = Array.from(
+        new Set([
+          ...rolePermissions,
+          ...(basicGroupPermissions?.map((perm) => perm.id) ?? []),
+        ]),
+      );
       setSelectedPermissions(newPermissions);
     },
     [
@@ -41,6 +59,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
       setSelectedRoleOnList,
       setSelectedRoleOnOption,
       setSelectedPermissions,
+      basicGroupPermissions,
     ],
   );
 
@@ -61,18 +80,31 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
   if (permissionError || roleError) {
     return <div>Error loading data</div>; // Handle errors gracefully
   }
-
   return (
-    <div>
-      <div className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2">
+    <div id="role-permission-form" data-cy="role-permission-form">
+      <div
+        className="flex justify-center items-center text-gray-950 text-sm font-semibold my-2"
+        id="role-permission-title"
+        data-cy="role-permission-title"
+      >
         Role Permission
       </div>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row
+        gutter={16}
+        id="role-permission-role-row"
+        data-cy="role-permission-role-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="role-permission-role-col"
+          data-cy="role-permission-role-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="roleId"
             id="roleId"
+            data-cy="roleId"
             label="Role"
             rules={[{ required: true, message: 'Please select a role!' }]}
           >
@@ -81,9 +113,16 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
               onChange={onRoleChangeHandler}
               allowClear
               value={selectedRoleOnOption}
+              id="role-permission-role-select"
+              data-cy="role-permission-role-select"
             >
               {rolesWithPermission?.map((role) => (
-                <Option key={role.id} value={role.id}>
+                <Option
+                  key={role.id}
+                  value={role.id}
+                  id={`role-permission-role-option-${role.id}`}
+                  data-cy={`role-permission-role-option-${role.id}`}
+                >
                   {role.name}
                 </Option>
               ))}
@@ -91,12 +130,22 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col xs={24} sm={24}>
+      <Row
+        gutter={16}
+        id="role-permission-permissions-row"
+        data-cy="role-permission-permissions-row"
+      >
+        <Col
+          xs={24}
+          sm={24}
+          id="role-permission-permissions-col"
+          data-cy="role-permission-permissions-col"
+        >
           <Form.Item
             className="font-semibold text-xs"
             name="setOfPermission"
             id="setOfPermission"
+            data-cy="setOfPermission"
             label="Set of Permissions"
             rules={[
               {
@@ -116,6 +165,8 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
               value={selectedPermissions}
               allowClear
               className="text-xs"
+              id="role-permission-permissions-select"
+              data-cy="role-permission-permissions-select"
             />
           </Form.Item>
         </Col>

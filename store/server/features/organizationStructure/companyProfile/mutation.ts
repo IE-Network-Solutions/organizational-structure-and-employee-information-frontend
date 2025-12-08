@@ -103,18 +103,20 @@ const updateCompanyProfileWithStamp = async ({
 }): Promise<any> => {
   const token = await getCurrentToken();
   const formData = new FormData();
-  // Append DTO as JSON string
-  if (updateClientDto) {
-    formData.append('updateClientDto', JSON.stringify({}));
-  }
 
-  // Append files if they exist
+  const cleanDto = updateClientDto || {};
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: ignored, ...dtoWithoutId } = cleanDto;
+  formData.append('updateClientDto', JSON.stringify(dtoWithoutId));
+
   if (companyProfileImage?.originFileObj) {
-    formData.append('companyProfileImage', companyProfileImage.originFileObj);
+    const logoFile = companyProfileImage.originFileObj as File;
+    formData.append('companyProfileImage', logoFile);
   }
 
   if (companyStamp?.originFileObj) {
-    formData.append('companyStamp', companyStamp.originFileObj);
+    const stampFile = companyStamp.originFileObj as File;
+    formData.append('companyStamp', stampFile);
   }
 
   const headers = {
@@ -135,8 +137,10 @@ const updateCompanyProfileWithStamp = async ({
 export const useUpdateCompanyProfileWithStamp = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompanyProfileWithStamp, {
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries('companyProfile');
+      queryClient.invalidateQueries(['client', variables.id]);
+      queryClient.invalidateQueries('clients');
       // const method = variables?.method?.toUpperCase();
       // handleSuccessMessage(method);
     },
