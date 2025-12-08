@@ -1,7 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import {
   Button,
-  Menu,
   Tooltip,
   Select,
 } from 'antd';
@@ -9,7 +8,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import SessionFilter from '../filters/SessionFilter';
 import MobileFilterModal from '../filters/MobileFilterModal';
 import { FaPlus } from 'react-icons/fa';
-import { IoIosOpen, IoMdSwitch } from 'react-icons/io';
+import { IoMdSwitch } from 'react-icons/io';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
@@ -19,7 +18,6 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { IoCheckmarkSharp } from 'react-icons/io5';
 import {
   useApprovalPlanningPeriods,
   // useDeletePlanById,
@@ -29,7 +27,6 @@ import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { AiOutlineEdit } from 'react-icons/ai';
 import Image from 'next/image';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -403,7 +400,7 @@ function Planning() {
       <section className="mt-8">
         <div className="space-y-6">
           {getPlanningLoading ? (
-            Array.from({ length: 3 }).map((_item, i) => <PlanCardSkeleton key={i} />)
+            Array.from({ length: 3 }).map((_unusedItem, i) => <PlanCardSkeleton key={i} />)
           ) : (
             planSummaries.map((plan: any) => {
               // Get original dataItem for actions

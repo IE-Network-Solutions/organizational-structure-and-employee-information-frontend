@@ -1,7 +1,6 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import {
   Button,
-  Menu,
   Tooltip,
   Select,
 } from 'antd';
@@ -22,9 +21,7 @@ import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import Image from 'next/image';
-import { IoIosOpen, IoMdSwitch } from 'react-icons/io';
-import { IoCheckmarkSharp } from 'react-icons/io5';
-import { AiOutlineEdit } from 'react-icons/ai';
+import { IoMdSwitch } from 'react-icons/io';
 import {
   useApprovalReporting,
   // useDeleteReportById,
@@ -377,7 +374,7 @@ function Reporting() {
       <section className="mt-8">
         <div className="space-y-6">
           {getReportLoading ? (
-            Array.from({ length: 3 }).map((_item, i) => <PlanCardSkeleton key={i} />)
+            Array.from({ length: 3 }).map((_unusedItem, i) => <PlanCardSkeleton key={i} />)
           ) : (
             allReporting?.items?.map((dataItem: any) => {
               const cadence = activeTabName?.toLowerCase() as Cadence || 'weekly';
