@@ -23,6 +23,7 @@ import {
   // useDeletePlanById,
 } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
