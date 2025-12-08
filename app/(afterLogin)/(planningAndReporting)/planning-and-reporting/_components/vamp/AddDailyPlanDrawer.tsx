@@ -319,7 +319,7 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                 }
             );
         }).catch((error) => {
-            console.error('Form validation failed:', error);
+            // Form validation failed
         });
     };
 
