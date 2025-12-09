@@ -1128,39 +1128,24 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
               style={{
                 borderRadius: borderRadiusLG,
-                marginTop: '94px',
+                marginTop: `${isMobile ? '85px' : '94px'}`,
                 marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
               }}
             >
-              {isCheckingPermissions ? (
-                <div className="flex justify-center items-center h-screen">
-                  <Skeleton active />
-                </div>
-              ) : (
-                <div
-                  className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
-                  style={{
-                    borderRadius: borderRadiusLG,
-                    marginTop: `${isMobile ? '85px' : '94px'}`,
-                    marginRight: `${isMobile ? 0 : !isAdminPage ? '0px' : ''}`,
-                  }}
-                >
-                  {children}
-                </div>
-              )}
-              <CreateEmployeeJobInformation
-                onInfoSubmition={() => {
-                  handleUserInfoUpdate();
-                }}
-                id={userId}
-              />
-              <JobInfoAccessModal
-                open={isModalOpen}
-                onClose={handleCancel}
-                onConfirm={handleOk}
-              />
+              {children}
             </div>
           )}
+          <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
+            }}
+            id={userId}
+          />
+          <JobInfoAccessModal
+            open={isModalOpen}
+            onClose={handleCancel}
+            onConfirm={handleOk}
+          />
         </Content>
       </Layout>
     </Layout>
