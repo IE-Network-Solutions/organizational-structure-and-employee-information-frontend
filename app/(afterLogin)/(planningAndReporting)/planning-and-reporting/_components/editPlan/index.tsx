@@ -124,11 +124,11 @@ function EditPlan() {
   };
 
   const modalHeader = (
-    <div className="flex items-center justify-between text-xl font-extrabold text-gray-800 p-4">
+    <div className="relative flex items-center justify-center text-xl font-extrabold text-gray-800 p-4">
       <div>
         Edit {planningPeriodHierarchy ? planningPeriodHierarchy.name : ''} Plan
       </div>
-      <div className="text-right">
+      <div className="absolute right-4 top-1/2 -translate-y-1/2">
         {/* AI Suggestions for all plan types */}
         <AISuggestionsModal
           getKeyResults={() => {
@@ -297,6 +297,36 @@ function EditPlan() {
     );
   }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId]); // Ensure proper re-execution
 
+  const footer = (
+    <div className="flex justify-center gap-4 w-full">
+      <Tooltip
+        title={
+          totalWeight !== 100
+            ? "Summation of all task's weights must be equal to 100!"
+            : 'Submit'
+        }
+      >
+        <Button
+          className="py-6 px-10"
+          type="primary"
+          onClick={() => form.submit()}
+          loading={isLoading}
+          disabled={totalWeight !== 100}
+        >
+          Submit
+        </Button>
+      </Tooltip>
+
+      <Button
+        className="py-6 px-10"
+        onClick={onClose}
+        disabled={isLoading}
+      >
+        Cancel
+      </Button>
+    </div>
+  );
+
   return (
     open && (
       <CustomDrawerLayout
@@ -305,6 +335,7 @@ function EditPlan() {
         modalHeader={modalHeader}
         width="70%"
         paddingBottom={5}
+        footer={footer}
       >
         {loadingPlanningPeriodHierarchy || loadingPlanGroupData ? (
           <div className="flex items-center justify-center min-h-screen">
@@ -347,35 +378,11 @@ function EditPlan() {
               />
             )}
 
-            <Form.Item className="mt-10">
-              <div className="my-2">Total Weights:{totalWeight} / 100</div>
-
-              <Tooltip
-                title={
-                  totalWeight !== 100
-                    ? "Summation of all task's weights must be equal to 100!"
-                    : 'Submit'
-                }
-              >
-                <Button
-                  className="mr-5 py-6 px-10"
-                  type="primary"
-                  htmlType="submit"
-                  loading={isLoading}
-                  disabled={totalWeight !== 100}
-                >
-                  Submit
-                </Button>
-              </Tooltip>
-
-              <Button
-                className="py-6 px-10"
-                onClick={onClose}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-            </Form.Item>
+            <div className="flex justify-end mt-10">
+              <div className="my-2 font-bold">
+                Total Weights: {Math.round(Number(totalWeight) || 0)} / 100
+              </div>
+            </div>
           </Form>
         )}
       </CustomDrawerLayout>
