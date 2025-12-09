@@ -434,13 +434,13 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                 initialValue={0}
                                                                 className="mb-0"
                                                             >
-                                                                <InputNumber
+                                                                <InputNumber<number>
                                                                     min={0}
                                                                     max={100}
                                                                     className="w-[80px] rounded-lg border-[#E5E7EB]"
                                                                     controls={false}
                                                                     formatter={(value) => `${value}%`}
-                                                                    parser={(value) => value?.replace('%', '') || '0'}
+                                                                    parser={(value) => Number(value?.replace('%', '') || '0')}
                                                                 />
                                                             </Form.Item>
 
@@ -451,12 +451,12 @@ export default function AddDailyPlanDrawer({ open, onClose, viewMode, planningPe
                                                                     initialValue={0}
                                                                     className="mb-0"
                                                                 >
-                                                                    <InputNumber
+                                                                    <InputNumber<number>
                                                                         min={0}
                                                                         className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
                                                                         controls={false}
                                                                         formatter={(value) => value?.toLocaleString() || '0'}
-                                                                        parser={(value) => value?.replace(/,/g, '') || '0'}
+                                                                        parser={(value) => Number(value?.replace(/,/g, '') || '0')}
                                                                     />
                                                                 </Form.Item>
                                                             )}

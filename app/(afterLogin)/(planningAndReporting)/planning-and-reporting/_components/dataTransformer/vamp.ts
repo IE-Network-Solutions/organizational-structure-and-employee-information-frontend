@@ -1,4 +1,4 @@
-import { PlanSummary, PlanTask, KeyResult, ViewMode, Cadence } from '../types';
+import { PlanSummary, PlanTask, KeyResult, ViewMode, Cadence, Milestone } from '../types';
 
 /**
  * Normalize priority values to match the expected format
@@ -90,12 +90,12 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   
   if (!isMilestoneMetric) {
     // Extract all parentTask groups from milestones and merge into keyResult.parentTask
-    const milestoneParentTasks = transformedMilestones.flatMap(m => m.parentTask || []);
+    const milestoneParentTasks = transformedMilestones.flatMap((m: Milestone) => m.parentTask || []);
     finalParentTasks = [...transformedParentTasks, ...milestoneParentTasks];
     
     // Also promote standalone tasks from milestones to keyResult.tasks
     // These are tasks that don't have a parentTask and aren't parents themselves
-    const milestoneStandaloneTasks = transformedMilestones.flatMap(m => m.tasks || []);
+    const milestoneStandaloneTasks = transformedMilestones.flatMap((m: Milestone) => m.tasks || []);
     finalTasks = [...transformedTasks, ...milestoneStandaloneTasks];
     
     // Clear milestones for non-milestone metric types to avoid showing empty milestone sections
@@ -105,8 +105,11 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   // Calculate target and achieved values
   const allTasks = [
     ...finalTasks,
-    ...finalMilestones.flatMap(m => [...m.tasks, ...m.parentTask.flatMap(p => p.tasks)]),
-    ...finalParentTasks.flatMap(p => p.tasks),
+    ...finalMilestones.flatMap((m: Milestone) => [
+      ...m.tasks,
+      ...(m.parentTask || []).flatMap((p: any) => p.tasks || []),
+    ]),
+    ...finalParentTasks.flatMap((p: any) => p.tasks || []),
   ];
 
   const targetValue = allTasks.reduce((sum, t) => sum + (t.target || 0), 0);
