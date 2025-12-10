@@ -220,6 +220,13 @@ const EmergencyContactForm = () => {
             <Select
               placeholder="Select nationality"
               allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                String(option?.children || '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
               id="emergency-contact-nationality-select"
               data-cy="emergency-contact-nationality-select"
             >
