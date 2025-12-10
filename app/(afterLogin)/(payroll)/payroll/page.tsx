@@ -1444,7 +1444,8 @@ const Payroll = () => {
               onChange: (newSelectedRowKeys: React.Key[]) => {
                 setSelectedRowKeys(newSelectedRowKeys);
               },
-              onSelectAll: (selected: boolean, _selectedRows: any[], _changeRows: any[]) => {
+              // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars
+              onSelectAll: (selected: boolean, selectedRows: any[], changeRows: any[]) => {
                 if (selected) {
                   const allKeys = mergedPayroll.map(
                     (item: any) => item.id || item.employeeId,
