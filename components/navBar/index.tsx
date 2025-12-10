@@ -442,7 +442,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           title: <span>Payroll</span>,
           key: '/payroll',
           className: 'font-bold',
-          permissions: ['view_payroll_overview'],
+          permissions: ['view_payroll_overview_page'],
         },
         {
           title: <span>My Payroll</span>,
