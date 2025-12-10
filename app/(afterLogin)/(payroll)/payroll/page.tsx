@@ -1444,7 +1444,7 @@ const Payroll = () => {
               onChange: (newSelectedRowKeys: React.Key[]) => {
                 setSelectedRowKeys(newSelectedRowKeys);
               },
-              onSelectAll: (selected: boolean, selectedRows: any[], changeRows: any[]) => {
+              onSelectAll: (selected: boolean, _selectedRows: any[], _changeRows: any[]) => {
                 if (selected) {
                   const allKeys = mergedPayroll.map(
                     (item: any) => item.id || item.employeeId,
